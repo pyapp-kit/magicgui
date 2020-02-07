@@ -2,7 +2,7 @@
 
 __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"
-__version__ = "__version__ = '0.0.4'"
+__version__ = "0.0.4"
 
 from .magicgui import magicgui
 
