@@ -14,4 +14,3 @@ tox>=3.14.0
 pytest>=4.6.5
 pytest-runner>=5.1
 pytest-qt>=3.3.0
-pytest-xvfb
