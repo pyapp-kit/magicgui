@@ -1,0 +1,9 @@
+{
+  "include": ["magicgui.py"],
+
+  "typingsPath": "typestubs",
+
+  "reportTypeshedErrors": true,
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": true
+}

@@ -1,0 +1,3 @@
+# Welcome to magicgui
+
+for our first trick, we will make our docs disappear...
