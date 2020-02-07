@@ -4,10 +4,13 @@
 bump2version>=0.5.11
 wheel>=0.33.6
 flake8>=3.7.8
-black>=19.3
-tox>=3.14.0
+black>=19.3b0
 coverage>=4.5.4
 twine>=1.14.0
+PySide2>=5.14.0
+
+# tests
+tox>=3.14.0
 pytest>=4.6.5
 pytest-runner>=5.1
-PySide2>=5.14.0
+pytest-qt>=3.3.0
