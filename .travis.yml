@@ -10,7 +10,7 @@ install: pip install -U tox-travis
 before_script:
 - npm install pyright
 script:
-- python -c 'from PyQt5.QtWidgets import QApplication; QApplication([])'
+- python -c 'from qtpy.QtWidgets import QApplication; QApplication([])'
 - tox
 - npx pyright
 deploy:

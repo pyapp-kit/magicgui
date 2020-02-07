@@ -1,3 +1,14 @@
+# Project information
 site_name: magicgui docs
+site_description: documentation for the python package magicgui
+site_author: Talley Lambert
+site_url: https://magicgui.readthedocs.io/en/latest/
+
+# Repository
+repo_name: tlambert03/magicgui
+repo_url: https://github.com/tlambert03/magicgui
+edit_uri: ""
+
 theme:
   name: 'material'
+  custom_dir: 'docs/theme'
