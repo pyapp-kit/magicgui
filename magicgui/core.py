@@ -46,7 +46,10 @@ class WidgetDescriptor:
             delattr(type(obj), self.name)
 
 
-class MagicGui(api.WidgetType):
+class MagicGuiBase(api.WidgetType):
+
+    called = api.Signal(object)
+
     def __init__(
         self,
         func: Callable,
@@ -57,12 +60,8 @@ class MagicGui(api.WidgetType):
         **kwargs: dict,
     ) -> None:
         super().__init__(parent=parent)
-        setattr(
-            MagicGui.__init__,
-            "__doc__",
-            f'MagicGui generated for function "{func.__name__}"',
-        )
         self.func = func
+        setattr(func, "widget", self)
         self.setLayout(layout.value(self))
         self.arg_options = kwargs
         self.params = inspect.signature(func).parameters
@@ -72,6 +71,22 @@ class MagicGui(api.WidgetType):
             self.call_button.clicked.connect(self.__call__)
             self.layout().addWidget(self.call_button)
 
+    @property
+    def _kwargs(self):
+        return {
+            param.name: getattr(self, param.name)
+            for param in self.params.values()
+            if param.default is not param.empty
+        }
+
+    @property
+    def _args(self):
+        return list(
+            getattr(self, param.name)
+            for param in self.params.values()
+            if param.default is param.empty
+        )
+
     def __call__(self, *args, **kwargs) -> Any:
         """Call the original function with the current parameter values from the Gui.
 
@@ -80,7 +95,14 @@ class MagicGui(api.WidgetType):
         Any
             whatever the return value of the original function would have been.
         """
-        return self.func(**{attr: getattr(self, attr) for attr in self.params})
+        _args = self._args
+        _kwargs = self._kwargs
+        for n, arg in enumerate(args):
+            _args[n] = arg
+        _kwargs.update(kwargs)
+        value = self.func(*_args, **_kwargs)
+        self.called.emit(value)
+        return value
 
     def _params_to_widgets(self, func: Callable) -> None:
         """Create a widget for each parameter in the function signature
@@ -100,8 +122,8 @@ class MagicGui(api.WidgetType):
             arg_opts = self.arg_options.get(param.name, {})
             widget = self._make_widget_from_param(param, **arg_opts)
             setattr(self, param.name + "_widget", widget)
-            setattr(MagicGui, param.name, WidgetDescriptor(widget, param.name))
-            if param.default:
+            setattr(MagicGuiBase, param.name, WidgetDescriptor(widget, param.name))
+            if param.default is not param.empty:
                 setattr(self, param.name, param.default)
             self.layout().addWidget(widget)
 
@@ -137,10 +159,16 @@ class MagicGui(api.WidgetType):
             arg_type = Enum
         elif param.annotation is not param.empty:
             arg_type = param.annotation
-        else:
+        elif param.default is not param.empty:
             arg_type = type(param.default)
+        else:
+            arg_type = type(None)
 
-        widget = api.type2widget(arg_type)(parent=self)
+        WidgetType = api.type2widget(arg_type)
+        if not WidgetType:
+            raise TypeError(f'Unable to convert type "{arg_type}" into a widget.')
+
+        widget = WidgetType(parent=self)
         if choices:
             api.set_combo_choices(widget, choices)
         elif issubclass(arg_type, Enum):
@@ -185,10 +213,34 @@ def magicgui(
     _layout = api.Layout[layout] if isinstance(layout, str) else layout
 
     def inner_func(func: Callable) -> Type:
-        Gui = functools.partial(
-            MagicGui, func, layout=_layout, call_button=call_button, **kwargs
-        )
-        setattr(func, "Gui", Gui)
-        return func
+        class MagicGui(MagicGuiBase):
+            __doc__ = f'MagicGui generated for function "{func.__name__}"'
+
+            def __init__(self) -> None:
+                super().__init__(
+                    func, layout=_layout, call_button=call_button, **kwargs
+                )
+                # set descriptors
+                for param in self.params:
+                    widget = getattr(self, param + "_widget")
+                    setattr(MagicGui, param, WidgetDescriptor(widget, param))
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if hasattr(func, "widget"):
+                # a widget has been instantiated
+                return func.widget(*args, **kwargs)
+            return func(*args, **kwargs)
+
+        setattr(wrapper, "Gui", MagicGui)
+
+        def show_gui():
+            widget = MagicGui()
+            widget.show()
+            return widget
+
+        setattr(wrapper, "show", show_gui)
+
+        return wrapper
 
     return inner_func if function is None else inner_func(function)

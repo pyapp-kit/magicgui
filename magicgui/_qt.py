@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Callable, Dict, NamedTuple, Sequence, Type
 
-from qtpy.QtCore import SignalInstance
+from qtpy.QtCore import SignalInstance, Signal
 from qtpy.QtWidgets import (
     QAbstractButton,
     QAbstractSlider,
@@ -26,6 +26,7 @@ from qtpy.QtWidgets import (
 
 WidgetType = QWidget
 ButtonType = QPushButton
+SignalType = Signal
 
 
 class GetSetOnChange(NamedTuple):
@@ -40,6 +41,7 @@ def type2widget(type_: type) -> Type[WidgetType]:
         int: QSpinBox,
         float: QDoubleSpinBox,
         str: QLineEdit,
+        type(None): QLineEdit,
     }
     if type_ in simple:
         return simple[type_]
