@@ -1,11 +1,14 @@
+import sys
+from contextlib import contextmanager
 from enum import Enum
 from typing import Any, Callable, Dict, NamedTuple, Sequence, Type
 
-from qtpy.QtCore import SignalInstance, Signal
+from qtpy.QtCore import Signal, SignalInstance
 from qtpy.QtWidgets import (
     QAbstractButton,
     QAbstractSlider,
     QAbstractSpinBox,
+    QApplication,
     QCheckBox,
     QComboBox,
     QDateTimeEdit,
@@ -23,6 +26,15 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+
+@contextmanager
+def event_loop():
+    """Start a Qt event loop in which to run the application."""
+    app = QApplication.instance() or QApplication(sys.argv)
+    yield
+    app.exec_()
+
 
 WidgetType = QWidget
 ButtonType = QPushButton
