@@ -1,7 +1,7 @@
 import sys
 from contextlib import contextmanager
 from enum import Enum
-from typing import Any, Callable, Dict, NamedTuple, Sequence, Type
+from typing import Any, Callable, Dict, Iterable, NamedTuple, Type, Tuple
 
 from qtpy.QtCore import Signal, SignalInstance
 from qtpy.QtWidgets import (
@@ -75,12 +75,12 @@ class Layout(Enum):
 
 def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
     if isinstance(widget, QComboBox):
+
+        def getter():
+            return widget.itemData(widget.currentIndex())
+
         return GetSetOnChange(
-            widget.currentText,
-            lambda x: widget.setCurrentText(
-                str(x.name) if isinstance(x, Enum) else str(x)
-            ),
-            widget.currentTextChanged,
+            getter, widget.setCurrentIndex, widget.currentIndexChanged,
         )
     elif isinstance(widget, QStatusBar):
         return GetSetOnChange(
@@ -105,5 +105,14 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
     raise ValueError(f"Unrecognized widget Type: {widget}")
 
 
-def set_combo_choices(widget: WidgetType, choices: Sequence):
-    widget.addItems(map(str, choices))
+def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any]]):
+    for name, data in choices:
+        widget.addItem(name, data)
+
+
+def is_categorical(widget: WidgetType):
+    return isinstance(widget, QComboBox)
+
+
+def get_categorical_index(widget: WidgetType, value: Any):
+    return next(i for i in range(widget.count()) if widget.itemData(i) == value)

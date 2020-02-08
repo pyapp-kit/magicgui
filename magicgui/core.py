@@ -32,6 +32,8 @@ class WidgetDescriptor:
         return self.getter()
 
     def __set__(self, obj, val) -> None:
+        if api.is_categorical(self.widget):
+            val = api.get_categorical_index(self.widget, val)
         self.setter(val)
 
     def __delete__(self, obj) -> None:
@@ -69,7 +71,9 @@ class MagicGuiBase(api.WidgetType):
             )
 
         if call_button:
-            self.call_button = api.ButtonType("call")
+            self.call_button = api.ButtonType(
+                call_button if isinstance(call_button, str) else "call"
+            )
             self.call_button.clicked.connect(self.__call__)
             self.layout().addWidget(self.call_button)
 
@@ -106,6 +110,7 @@ class MagicGuiBase(api.WidgetType):
         """
         _widget_attr = name + "_widget"
 
+        # TODO: move choices logic out of this method
         if choices:
             if (value is not None) and (value not in choices):
                 raise ValueError(
@@ -133,28 +138,28 @@ class MagicGuiBase(api.WidgetType):
             # otherwise delete it, but get the position so we can insert the new one.
             else:
                 position = self.layout().indexOf(existing_widget)
-                try:
-                    delattr(self, name)
-                except AttributeError:
-                    # TODO: figure out why this sometimes raises on the 2nd switch
-                    # of an attribute
-                    pass
+                delattr(self, name)
 
         widget = WidgetType(parent=self)
-        if choices:
-            api.set_combo_choices(widget, choices)
-        elif issubclass(arg_type, Enum):
-            api.set_combo_choices(widget, arg_type._member_names_)
-
         setattr(self, _widget_attr, widget)
-        setattr(MagicGuiBase, name, WidgetDescriptor(widget, name))
+        if choices:
+            api.set_categorical_choices(widget, zip(choices, choices))
+        elif issubclass(arg_type, Enum):
+            api.set_categorical_choices(widget, [(x.name, x) for x in arg_type])
+
+        self.add_widget_descriptor(name, widget)
         if value is not None:
             setattr(self, name, value)
         if position is not None:
             self.layout().insertWidget(position, widget)
         else:
             self.layout().addWidget(widget)
+
         return widget
+
+    @classmethod
+    def add_widget_descriptor(cls, name, widget):
+        setattr(cls, name, WidgetDescriptor(widget, name))
 
     @property
     def _kwargs(self):
@@ -196,7 +201,7 @@ class MagicGuiBase(api.WidgetType):
 def magicgui(
     function: Callable = None,
     layout: Union[api.Layout, str] = "horizontal",
-    call_button: bool = False,
+    call_button: Union[bool, str] = False,
     parent: api.WidgetType = None,
     **kwargs: dict,
 ) -> Callable:
@@ -234,10 +239,6 @@ def magicgui(
                 super().__init__(
                     func, layout=_layout, call_button=call_button, **kwargs
                 )
-                # set descriptors
-                for param in self.params:
-                    widget = getattr(self, param + "_widget")
-                    setattr(MagicGui, param, WidgetDescriptor(widget, param))
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
