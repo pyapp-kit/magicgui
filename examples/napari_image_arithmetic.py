@@ -1,58 +1,46 @@
-# For testing for now
+from enum import Enum
+
 import numpy
-from qtpy.QtWidgets import QApplication
 
 from magicgui import magicgui
-from napari import Viewer, layers
+from napari import Viewer, gui_qt, layers
 
-running = True
-app = QApplication.instance()
-if not app:
-    app = QApplication([])
-    running = False
+with gui_qt():
+    viewer = Viewer()
+    viewer.add_image(numpy.random.rand(10, 10), name=f"Layer 1")
+    viewer.add_image(numpy.random.rand(10, 10), name=f"Layer 2")
 
-v = Viewer()
-for i in range(2):
-    v.add_image(numpy.random.rand(5, 5), name=f"Layer {i}")
+    class ImageMathMethod(Enum):
+        add = numpy.add
+        subtract = numpy.subtract
+        multiply = numpy.multiply
+        divide = numpy.divide
 
-
-@magicgui(
-    layerA={"choices": v.layers},
-    layerB={"choices": v.layers},
-    method={"choices": ["+", "-", "x", "÷"]},
-    call_button=True,
-)
-def test_function(layerA: layers.Layer, method: str, layerB: layers.Layer) -> None:
-    """my docs"""
-    layA = next(l for l in v.layers if l.name == layerA)
-    layB = next(l for l in v.layers if l.name == layerB)
-    func = getattr(
-        numpy, {"+": "add", "-": "subtract", "x": "multiply", "'÷": "divide"}[method]
+    @magicgui(
+        layerA={"choices": viewer.layers},
+        layerB={"choices": viewer.layers},
+        call_button="execute",
     )
-    return func(layA.data, layB.data)
+    def image_arithmetic(
+        layerA: layers.Layer, method: ImageMathMethod, layerB: layers.Layer
+    ) -> None:
+        """Adds, subtracts, multiplies, or divides to image layers with equal shape."""
+        return method.value(layerA.data, layerB.data)
 
+    def show_result(result):
+        # put the result into a new layer called "output" or overwrite if one exists.
+        try:
+            outlayer = next(l for l in viewer.layers if l.name == "result")
+            outlayer.data = result
+        except StopIteration:
+            outlayer = viewer.add_image(data=result, name="result")
 
-def show_result(result):
-    try:
-        outlayer = next(l for l in v.layers if l.name == "output")
-        outlayer.data = result
-    except StopIteration:
-        outlayer = v.add_image(data=result, name="output")
-
-
-widget = test_function.Gui()
-widget.called.connect(show_result)
-v.window.add_dock_widget(widget)
-
-
-def update_choices(event=None):
-    widget.layerA_widget.clear()
-    widget.layerA_widget.addItems(map(str, v.layers))
-    widget.layerB_widget.clear()
-    widget.layerB_widget.addItems(map(str, v.layers))
-
-
-v.layers.events.added.connect(update_choices)
-
-if not running:
-    app.exec_()
+    gui = image_arithmetic.Gui()
+    gui.called.connect(show_result)
+    viewer.window.add_dock_widget(gui)
+    viewer.layers.events.added.connect(
+        lambda x: gui.set_choices("layerA", viewer.layers)
+    )
+    viewer.layers.events.added.connect(
+        lambda x: gui.set_choices("layerB", viewer.layers)
+    )

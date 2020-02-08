@@ -4,6 +4,7 @@ from enum import Enum
 from typing import (
     Any,
     Callable,
+    Iterable,
     Sequence,
     Type,
     Union,
@@ -142,10 +143,8 @@ class MagicGuiBase(api.WidgetType):
 
         widget = WidgetType(parent=self)
         setattr(self, _widget_attr, widget)
-        if choices:
-            api.set_categorical_choices(widget, zip(choices, choices))
-        elif issubclass(arg_type, Enum):
-            api.set_categorical_choices(widget, [(x.name, x) for x in arg_type])
+        if choices or issubclass(arg_type, Enum):
+            self.set_choices(name, choices or arg_type)
 
         self.add_widget_descriptor(name, widget)
         if value is not None:
@@ -156,6 +155,17 @@ class MagicGuiBase(api.WidgetType):
             self.layout().addWidget(widget)
 
         return widget
+
+    def set_choices(self, name, choices: Union[Type[Enum], Iterable[Any]]):
+        widget = getattr(self, name + "_widget", None)
+        if not widget:
+            raise AttributeError(f"'{self}' object has no widget named '{name}'")
+        if not api.is_categorical(widget):
+            raise TypeError(f"'{name}' is not a categorical widget with choices.")
+        if inspect.isclass(choices) and issubclass(choices, Enum):
+            api.set_categorical_choices(widget, [(x.name, x) for x in choices])
+        else:
+            api.set_categorical_choices(widget, [(str(c), c) for c in choices])
 
     @classmethod
     def add_widget_descriptor(cls, name, widget):
@@ -195,7 +205,7 @@ class MagicGuiBase(api.WidgetType):
         return value
 
     def __repr__(self):
-        return f"<MagicGui for '{self.func.__name__}' at {id(self)}>"
+        return f"<MagicGui for '{self.func.__name__}'>"
 
 
 def magicgui(

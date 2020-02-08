@@ -106,6 +106,7 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
 
 
 def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any]]):
+    widget.clear()
     for name, data in choices:
         widget.addItem(name, data)
 
