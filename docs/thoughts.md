@@ -53,26 +53,3 @@ def function(ri = RefractiveIndex.Water):
 def function(ri="Water"):
     ...
 ```
-
-!!! note
-
-    when getting and setting attributes on a ComboBox widget in a `magicgui` widget, the
-    value will always be converted to and return as a `str`.  You must handle conversion
-    from `str` type back to your internal type.  
-
-    ```python
-    a, b, c = MyClass('a'), MyClass('b'), MyClass('c')
-    @magicgui(item={'choices': [a, b, c]})
-    def function(item: MyClass = b):
-        ...
-    
-    widget = function.Gui()
-    # when you get the current value, it will be returned as a str
-    current = widget.item
-    print(current)  # 'b'
-    type(current)  # str
-
-    # when you set the current value, in will be cast as a str
-    widget.item = a  # same as str(a)
-
-    ```
