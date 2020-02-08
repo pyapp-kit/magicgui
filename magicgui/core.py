@@ -15,16 +15,11 @@ from qtpy.QtWidgets import QHBoxLayout
 from . import _qt as api
 
 
-def rsetattr(obj, attr, val):
-    pre, _, post = attr.rpartition(".")
-    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
-
-
-def rgetattr(obj, attr, *args):
-    def _getattr(obj, attr):
-        return getattr(obj, attr, *args)
-
-    return functools.reduce(_getattr, [obj] + attr.split("."))
+def type2widget(type_: type) -> Type[api.WidgetType]:
+    WidgetType = api.type2widget(type_)
+    if not WidgetType:
+        raise TypeError(f'Unable to convert type "{type_}" into a widget.')
+    return WidgetType
 
 
 class WidgetDescriptor:
@@ -65,11 +60,101 @@ class MagicGuiBase(api.WidgetType):
         self.setLayout(layout.value(self))
         self.arg_options = kwargs
         self.params = inspect.signature(func).parameters
-        self._params_to_widgets(func)
+        for param in self.params.values():
+            self.set_widget(
+                name=param.name,
+                value=(None if param.default is param.empty else param.default),
+                dtype=(None if param.annotation is param.empty else param.annotation),
+                **self.arg_options.get(param.name, {}),
+            )
+
         if call_button:
             self.call_button = api.ButtonType("call")
             self.call_button.clicked.connect(self.__call__)
             self.layout().addWidget(self.call_button)
+
+    def set_widget(
+        self,
+        name: str,
+        value: Any = None,
+        dtype: Optional[Type] = None,
+        choices: Optional[Sequence[str]] = None,
+    ) -> api.WidgetType:
+        """Make a widget named `name` based on the type of signature param.
+
+        A descriptor will also be added as an attribute to this class (named `name`).
+        The descriptor provides the __get__ and __set__ methods that enable updating the
+        GUI by simply setting the attribute on the MagicGui instance that has the same
+        name as the argument in the function signature.
+
+        Parameters
+        ----------
+        name : str
+            the name of the argument in the function signature
+        param : inspect.Parameter
+            a parameter instance
+        choices : Optional[Sequence[str]]
+            If provided, typing for this widget will be overridden and it will become a
+            dropdown menu type (e.g. QComboBox for Qt), and `choices` will be added as
+            items in the menu.
+
+        Raises
+        ------
+        ValueError
+            if the 'choices' option was specified for this argument, but the default
+            value was not one of the choices
+        """
+        _widget_attr = name + "_widget"
+
+        if choices:
+            if (value is not None) and (value not in choices):
+                raise ValueError(
+                    '"choices" option was provided, but the default value '
+                    f"({value}) was not in the provided choices "
+                    f"{choices}"
+                )
+            arg_type = Enum
+        elif dtype is not None:
+            arg_type = dtype
+        elif value is not None:
+            arg_type = type(value)
+        else:
+            arg_type = type(None)
+        WidgetType = type2widget(arg_type)
+
+        position = None
+        existing_widget = getattr(self, _widget_attr, None)
+        # if there is already a widget by this name...
+        if existing_widget:
+            # if it has the same widget type as the new one, update the value
+            if isinstance(existing_widget, WidgetType):
+                setattr(self, name, value)
+                return
+            # otherwise delete it, but get the position so we can insert the new one.
+            else:
+                position = self.layout().indexOf(existing_widget)
+                try:
+                    delattr(self, name)
+                except AttributeError:
+                    # TODO: figure out why this sometimes raises on the 2nd switch
+                    # of an attribute
+                    pass
+
+        widget = WidgetType(parent=self)
+        if choices:
+            api.set_combo_choices(widget, choices)
+        elif issubclass(arg_type, Enum):
+            api.set_combo_choices(widget, arg_type._member_names_)
+
+        setattr(self, _widget_attr, widget)
+        setattr(MagicGuiBase, name, WidgetDescriptor(widget, name))
+        if value is not None:
+            setattr(self, name, value)
+        if position is not None:
+            self.layout().insertWidget(position, widget)
+        else:
+            self.layout().addWidget(widget)
+        return widget
 
     @property
     def _kwargs(self):
@@ -103,77 +188,6 @@ class MagicGuiBase(api.WidgetType):
         value = self.func(*_args, **_kwargs)
         self.called.emit(value)
         return value
-
-    def _params_to_widgets(self, func: Callable) -> None:
-        """Create a widget for each parameter in the function signature
-
-        For each parameter a descriptor will be added as an attribute to this class
-        with the same name as the parameter.  The descriptor provides the __get__ and
-        __set__ methods that enable updating the GUI by simply setting the attribute
-        on the MagicGui instance that has the same name as the argument in the function
-        signature.
-
-        Parameters
-        ----------
-        func : Callable
-            The function to introspect.
-        """
-        for param in self.params.values():
-            arg_opts = self.arg_options.get(param.name, {})
-            widget = self._make_widget_from_param(param, **arg_opts)
-            setattr(self, param.name + "_widget", widget)
-            setattr(MagicGuiBase, param.name, WidgetDescriptor(widget, param.name))
-            if param.default is not param.empty:
-                setattr(self, param.name, param.default)
-            self.layout().addWidget(widget)
-
-    def _make_widget_from_param(
-        self, param: inspect.Parameter, choices: Optional[Sequence[str]] = None,
-    ) -> api.WidgetType:
-        """Make a widget named `name` based on the type of signature param.
-
-        Parameters
-        ----------
-        name : str
-            the name of the argument in the function signature
-        param : inspect.Parameter
-            a parameter instance
-        choices : Optional[Sequence[str]]
-            If provided, typing for this widget will be overridden and it will become a
-            dropdown menu type (e.g. QComboBox for Qt), and `choices` will be added as
-            items in the menu.
-
-        Raises
-        ------
-        ValueError
-            if the 'choices' option was specified for this argument, but the default
-            value was not one of the choices
-        """
-        if choices:
-            if (param.default is not param.empty) and (param.default not in choices):
-                raise ValueError(
-                    '"choices" option was provided, but the default value '
-                    f"({param.default}) was not in the provided choices "
-                    f"{choices}"
-                )
-            arg_type = Enum
-        elif param.annotation is not param.empty:
-            arg_type = param.annotation
-        elif param.default is not param.empty:
-            arg_type = type(param.default)
-        else:
-            arg_type = type(None)
-
-        WidgetType = api.type2widget(arg_type)
-        if not WidgetType:
-            raise TypeError(f'Unable to convert type "{arg_type}" into a widget.')
-
-        widget = WidgetType(parent=self)
-        if choices:
-            api.set_combo_choices(widget, choices)
-        elif issubclass(arg_type, Enum):
-            api.set_combo_choices(widget, arg_type._member_names_)
-        return widget
 
     def __repr__(self):
         return f"<MagicGui for '{self.func.__name__}' at {id(self)}>"
