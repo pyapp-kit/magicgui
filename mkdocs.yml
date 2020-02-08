@@ -16,3 +16,4 @@ markdown_extensions:
   - codehilite  # syntax highlighting: https://python-markdown.github.io/extensions/code_hilite/
   - admonition  # notes/alerts: https://python-markdown.github.io/extensions/admonition/
   - smarty      # ASCI to HTML: https://python-markdown.github.io/extensions/smarty/
+  - pymdownx.superfences
