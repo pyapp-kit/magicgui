@@ -63,3 +63,30 @@ def test_dropdown_list_from_str(qtbot):
 
     with pytest.raises(ValueError):
         widget = func.Gui()
+
+
+def test_multiple_gui_independence(qtbot):
+    @magicgui
+    def example1(a=2):
+        return a
+
+    @magicgui
+    def example2(a=5):
+        return a
+
+    w1 = example1.Gui()
+    w2 = example2.Gui()
+    # they get their initial values from the function sigs
+    assert w1.a == 2
+    assert w2.a == 5
+    # settings one doesn't affect the other
+    w1.a = 10
+    assert w1.a == 10
+    assert w2.a == 5
+    # vice versa...
+    w2.a = 4
+    assert w2.a == 4
+    assert w1.a == 10
+    # calling the original equations updates the function defaults
+    assert example1() == 10
+    assert example2() == 4
