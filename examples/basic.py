@@ -13,7 +13,7 @@ def example(arg=1):
     return arg
 
 
-widget = example.show()
+widget = example.Gui(show=True)
 
 
 if not running:
