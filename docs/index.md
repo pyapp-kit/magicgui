@@ -4,7 +4,37 @@
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
 
-build functional GUIs with 2-way binding from functions, using magic.
+build GUIs from functions, using magic.
+
+## Installation
+
+```shell
+pip install magicgui
+```
+
+!!! note
+    You will need to have a supported GUI backend also installed in your environment.
+    Currently, the only supported backend is [Qt](https://www.qt.io/), via
+    [qtpy](https://github.com/spyder-ide/qtpy) (but [open an
+    issue](https://github.com/tlambert03/magicgui/issues) if you would like to see a
+    different backend supported).
+
+    To use with Qt, you will also need to have either
+    [PyQt5](https://pypi.org/project/PyQt5/) or
+    [PySide2](https://pypi.org/project/PySide2/) installed in your environment. For
+    example:
+
+    ```shell
+    pip install magicgui pyside2
+    ```
+
+## Introduction
+
+The core feature of `magicgui` is the `@magicgui` decorator, which, when used to decorate
+a function, will autogenerate a graphical user interface (GUI) by inspecting the function
+signature and adding an appropriate GUI widget for each argument.  Argument
+`types` are taken from [type hints](https://docs.python.org/3/library/typing.html) if
+provided, or inferred using the type of the  default value.
 
 ```python
 import math
