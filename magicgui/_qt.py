@@ -127,6 +127,10 @@ def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any
         widget.addItem(name, data)
 
 
+def get_categorical_widget():
+    return QDataComboBox
+
+
 def is_categorical(widget: WidgetType):
     return isinstance(widget, QComboBox)
 

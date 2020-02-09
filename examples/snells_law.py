@@ -37,4 +37,3 @@ with event_loop():
     gui.n1_changed.connect(print)
     # we can connect a callback function to the __call__ event on the function
     gui.called.connect(lambda x: gui.set_widget("result", str(x), position=-1))
-

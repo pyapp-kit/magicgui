@@ -1,13 +1,20 @@
 import functools
 import inspect
+import warnings
 from enum import Enum
-from typing import Any, Callable, Iterable, Optional, Sequence, Type, Union
+from typing import Any, Callable, Iterable, Optional, Type, Union, Dict
 
-from qtpy.QtWidgets import QHBoxLayout
+from qtpy.QtWidgets import QHBoxLayout  # XXX: Qt specific!
 
 from . import _qt as api
 
 # ######### decorator ######### #
+
+WIDGET_ATTR = "{}_widget"
+
+ChoicesType = Union[Iterable, Callable[[Type], Iterable]]
+_TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
+_CHOICES: Dict[type, ChoicesType] = {}
 
 
 def magicgui(
@@ -69,8 +76,6 @@ def magicgui(
 
 
 # ######### Base MagicGui Class ######### #
-
-WIDGET_ATTR = "{}_widget"
 
 
 class WidgetDescriptor:
@@ -179,23 +184,27 @@ class MagicGuiBase(api.WidgetType):
         """
         options = options or self.gui_options.get(name) or dict()
 
-        choices = options.get("choices")
+        if dtype is not None:
+            arg_type = dtype
+        elif value is not None:
+            arg_type = type(value)
+        else:
+            arg_type = type(None)
+
         # TODO: move choices logic out of this method
+        # argument specific choices override _CHOICES registered with `register_type`
+        choices = options.get("choices") or _type2choices(arg_type)
         if choices:
+            choices = choices(arg_type) if callable(choices) else choices  # type: ignore
             if (value is not None) and (value not in choices):
                 raise ValueError(
                     '"choices" option was provided, but the default value '
                     f"({value}) was not in the provided choices "
                     f"{choices}"
                 )
-            arg_type = Enum
-        elif dtype is not None:
-            arg_type = dtype
-        elif value is not None:
-            arg_type = type(value)
+            WidgetType = api.get_categorical_widget()
         else:
-            arg_type = type(None)
-        WidgetType = type2widget(arg_type)
+            WidgetType = type2widget(arg_type)
 
         existing_widget = getattr(self, WIDGET_ATTR.format(name), None)
         # if there is already a widget by this name...
@@ -213,7 +222,7 @@ class MagicGuiBase(api.WidgetType):
         setattr(self, WIDGET_ATTR.format(name), widget)
         self.add_widget_descriptor(name)
         if choices or issubclass(arg_type, Enum):
-            self.set_choices(name, choices or arg_type)
+            self.set_choices(name, choices or arg_type)  # type: ignore
 
         if value is not None:
             setattr(self, name, value)
@@ -234,13 +243,13 @@ class MagicGuiBase(api.WidgetType):
     def add_widget_descriptor(cls, name: str) -> None:
         setattr(cls, name, WidgetDescriptor(name))
 
-    def set_choices(self, name, choices: Union[Type[Enum], Iterable[Any]]) -> None:
+    def set_choices(self, name, choices: Iterable) -> None:
         widget = getattr(self, WIDGET_ATTR.format(name), None)
         if not widget:
             raise AttributeError(f"'{self}' object has no widget named '{name}'")
         if not api.is_categorical(widget):
             raise TypeError(f"'{name}' is not a categorical widget with choices.")
-        if inspect.isclass(choices) and issubclass(choices, Enum):
+        if inspect.isclass(choices) and issubclass(choices, Enum):  # type: ignore
             api.set_categorical_choices(widget, [(x.name, x) for x in choices])
         else:
             api.set_categorical_choices(widget, [(str(c), c) for c in choices])
@@ -294,8 +303,53 @@ class MagicGuiBase(api.WidgetType):
 # ######### UTIL FUNCTIONS ######### #
 
 
+def register_type(
+    type_: type,
+    *,
+    widget_type: Optional[Type[api.WidgetType]] = None,
+    choices: Optional[ChoicesType] = None,
+) -> None:
+    if widget_type is None and choices is None:
+        raise ValueError("either `widget_type` or `choices` must be provided.")
+
+    if choices is not None:
+        _CHOICES[type_] = choices
+        _TYPE_DEFS[type_] = api.get_categorical_widget()
+        if widget_type is not None:
+            warnings.warn(
+                "Providing `choices` overrides `widget_type`. Categorical widget will "
+                f"be used: {_TYPE_DEFS[type_]}"
+            )
+    else:
+        _TYPE_DEFS[type_] = widget_type
+
+
+def _type2widget(type_: type) -> Optional[Type[api.WidgetType]]:
+    # look for direct hits
+    if type_ in _TYPE_DEFS:
+        return _TYPE_DEFS[type_]
+    # look for subclasses
+    for registered_type in _TYPE_DEFS:
+        # TODO: is it necessary to check for isclass at this point?
+        if inspect.isclass(type_) and issubclass(type_, registered_type):
+            return _TYPE_DEFS[registered_type]
+
+
+def _type2choices(type_: type) -> Optional[ChoicesType]:
+    # look for direct hits
+    if type_ in _CHOICES:
+        return _CHOICES[type_]
+    # look for subclasses
+    for registered_type in _CHOICES:
+        # TODO: is it necessary to check for isclass at this point?
+        if inspect.isclass(type_) and issubclass(type_, registered_type):
+            return _CHOICES[registered_type]
+
+
 def type2widget(type_: type) -> Type[api.WidgetType]:
-    WidgetType = api.type2widget(type_)
+    WidgetType = _type2widget(type_)
+    if not WidgetType:
+        WidgetType = api.type2widget(type_)
     if not WidgetType:
         raise TypeError(f'Unable to convert type "{type_}" into a widget.')
     return WidgetType
