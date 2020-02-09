@@ -12,20 +12,16 @@ class Medium(Enum):
     Air = 1.0003
 
 
-@magicgui(call_button="calculate")
+@magicgui(call_button="calculate", result={"disabled": True, "fixedWidth": 100})
 def snells_law(
-    angle_of_incidence=30.0,
-    medium_1=Medium.Glass,
-    medium_2=Medium.Water,
-    degrees=True,
-    angle_of_refraction="...",
+    aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True,
 ):
     if degrees:
-        angle_of_incidence = math.radians(angle_of_incidence)
+        aoi = math.radians(aoi)
     try:
-        n1 = medium_1.value
-        n2 = medium_2.value
-        result = math.asin(n1 * math.sin(angle_of_incidence) / n2)
+        n1 = n1.value
+        n2 = n2.value
+        result = math.asin(n1 * math.sin(aoi) / n2)
         return round(math.degrees(result) if degrees else result, 2)
     except ValueError:  # math domain error
         return "TIR!"
@@ -38,6 +34,7 @@ with event_loop():
     gui = snells_law.Gui(show=True)
     # we can list for changes to parameters in the gui
     # ... these also trigger for direct parameter access on the gui object
-    gui.medium_1_changed.connect(print)
+    gui.n1_changed.connect(print)
     # we can connect a callback function to the __call__ event on the function
-    gui.called.connect(lambda result: gui.set_widget("angle_of_refraction", result))
+    gui.called.connect(lambda x: gui.set_widget("result", str(x), position=-1))
+

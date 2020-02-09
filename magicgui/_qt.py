@@ -1,7 +1,7 @@
 import sys
 from contextlib import contextmanager
 from enum import Enum
-from typing import Any, Callable, Dict, Iterable, NamedTuple, Type, Tuple
+from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Type, Tuple
 
 from qtpy.QtCore import Signal, SignalInstance
 from qtpy.QtWidgets import (
@@ -133,3 +133,20 @@ def is_categorical(widget: WidgetType):
 
 def get_categorical_index(widget: WidgetType, value: Any):
     return next(i for i in range(widget.count()) if widget.itemData(i) == value)
+
+
+def make_widget(
+    WidgetType: Type[WidgetType],
+    name: Optional[str] = None,
+    parent: WidgetType = None,
+    **kwargs,
+) -> WidgetType:
+    widget = WidgetType(parent=parent)
+    if name:
+        widget.setObjectName(name)
+    for key, val in kwargs.items():
+        setter = getattr(widget, f"set{key[0].upper() + key[1:]}", None)
+        if setter:
+            setter(val)
+
+    return widget

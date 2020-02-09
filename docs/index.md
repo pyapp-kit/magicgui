@@ -177,4 +177,4 @@ snell_gui = magic_snell.Gui(show=True)
 ## configuration and advanced usage
 
 The `@magicgui` decorator takes a number of options that allow you to configure the GUI
-and it's behavior... More on that soon!
+and it's behavior.  See [configuration](configuration.md) for more information.
