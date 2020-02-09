@@ -9,4 +9,4 @@
 
 build GUIs from functions, using magic.
 
-[Documentation](https://readthedocs.org/projects/magicgui/badge/?version=latest)
+[Documentation](https://magicgui.readthedocs.io/)
