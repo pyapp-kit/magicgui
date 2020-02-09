@@ -1,3 +1,5 @@
-mkdocs
-mkdocs-material
-Markdown<3.2
+mkdocs==1.0.4
+mkdocs-material==4.6.2
+Markdown==3.2
+pymdown-extensions==6.3
+mkdocs-minify-plugin==0.2.1
