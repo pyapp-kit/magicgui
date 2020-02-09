@@ -20,6 +20,7 @@ def magicgui(
     function: Callable = None,
     layout: Union[api.Layout, str] = "horizontal",
     call_button: Union[bool, str] = False,
+    auto_call: bool = False,
     parent: api.WidgetType = None,
     **kwargs: dict,
 ) -> Callable:
@@ -62,7 +63,11 @@ def magicgui(
 
             def __init__(self, show=False) -> None:
                 super().__init__(
-                    func, layout=_layout, call_button=call_button, **kwargs
+                    func,
+                    layout=_layout,
+                    call_button=call_button,
+                    auto_call=auto_call,
+                    **kwargs,
                 )
                 wrapper.called = self.called
                 if show:
@@ -111,7 +116,8 @@ class WidgetDescriptor:
 
 class MagicGuiBase(api.WidgetType):
 
-    called = api.Signal(object)
+    called = api.Signal(object)  # result of the function call
+    parameter_updated = api.Signal()  # name of the parameter that was changed
 
     WIDGET_ATTR = "{}_widget"
 
@@ -121,6 +127,7 @@ class MagicGuiBase(api.WidgetType):
         *,
         layout=QHBoxLayout,
         call_button=False,
+        auto_call=False,
         parent=None,
         **gui_options: dict,
     ) -> None:
@@ -145,12 +152,16 @@ class MagicGuiBase(api.WidgetType):
             self.call_button.clicked.connect(self.__call__)
             self.layout().addWidget(self.call_button)
 
+        if auto_call:
+            self.parameter_updated.connect(self.__call__)
+
     def set_widget(
         self,
         name: str,
         value: Optional[Any] = None,
         position: Optional[int] = None,
         dtype: Optional[Type] = None,
+        widget_type: Optional[api.WidgetType] = None,
         options: Optional[dict] = None,
     ) -> api.WidgetType:
         """Make a widget named `name` based on the type of signature param.
@@ -178,6 +189,7 @@ class MagicGuiBase(api.WidgetType):
             value was not one of the choices
         """
         options = options or self.gui_options.get(name) or dict()
+        _widget_type = widget_type or options.get("widget_type")
 
         if dtype is not None:
             arg_type = dtype
@@ -190,7 +202,9 @@ class MagicGuiBase(api.WidgetType):
         # argument specific choices override _CHOICES registered with `register_type`
         _choices = options.get("choices") or _type2choices(arg_type)
         choices = _choices(arg_type) if callable(_choices) else _choices  # type: ignore
-        if choices:
+        if _widget_type:
+            WidgetType = _widget_type
+        elif choices:
             if (value is not None) and (value not in choices):
                 raise ValueError(
                     '"choices" option was provided, but the default value '
@@ -212,10 +226,19 @@ class MagicGuiBase(api.WidgetType):
                 position = self.layout().indexOf(existing_widget)
                 delattr(self, name)
 
+        # create a new widget
         widget = api.make_widget(WidgetType, name=name, parent=self, **options)
-        setattr(self, f"{name}_changed", api.getter_setter_onchange(widget).onchange)
+
+        # connect on_change signals
+        change_signal = api.getter_setter_onchange(widget).onchange
+        setattr(self, f"{name}_changed", change_signal)
+        change_signal.connect(lambda: self.parameter_updated.emit())
+
+        # add widget to class and make descriptor
         setattr(self, self.WIDGET_ATTR.format(name), widget)
         self.add_widget_descriptor(name)
+
+        # update choices if it's a categorical
         if choices or issubclass(arg_type, Enum):
             if callable(_choices):
                 setattr(widget, "_get_choices", functools.partial(_choices, arg_type))
