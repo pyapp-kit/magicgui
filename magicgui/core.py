@@ -70,26 +70,45 @@ def magicgui(
 
 # ######### Base MagicGui Class ######### #
 
+WIDGET_ATTR = "{}_widget"
+
 
 class WidgetDescriptor:
-    def __init__(self, widget: api.WidgetType, name: Optional[str] = None) -> None:
-        self.widget = widget
+    """A descriptor to translate get/set calls into appropriate API for the widget.
+
+    How to use:
+    This descriptor is instantiated with the name of an attribute on the parent class.
+    (see, for example: MagicGuiBase.add_widget_descriptor).  This descriptor assumes
+    that the obj passed to the __get__/__set__ methods (i.e. the instance), has an
+    attribute named `WIDGET_ATTR.format(self.name)`.  If not, it will raise an
+    AttributeError. When `self.name` as accessed on the parent class, this descriptor
+    access the appropriate getter/setter on the widget instance.
+    """
+
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.getter, self.setter, self.onchange = api.getter_setter_onchange(widget)
 
     def __get__(self, obj, objtype) -> Any:
-        return self.getter()
+        widget = self._get_widget(obj)
+        return api.getter_setter_onchange(widget).getter()
 
     def __set__(self, obj, val) -> None:
-        if api.is_categorical(self.widget):
-            val = api.get_categorical_index(self.widget, val)
-        self.setter(val)
+        widget = self._get_widget(obj)
+        if api.is_categorical(widget):
+            val = api.get_categorical_index(widget, val)
+        return api.getter_setter_onchange(widget).setter(val)
 
     def __delete__(self, obj) -> None:
-        self.widget.parent().layout().removeWidget(self.widget)
-        self.widget.deleteLater()
-        if self.name:
-            delattr(type(obj), self.name)
+        widget = self._get_widget(obj)
+        obj.layout().removeWidget(widget)
+        widget.deleteLater()
+        delattr(type(obj), self.name)
+
+    def _get_widget(self, obj):
+        widget = getattr(obj, WIDGET_ATTR.format(self.name))
+        if not widget:
+            raise AttributeError(f'"{obj}" has no widget for parameter "{self.name}"')
+        return widget
 
 
 class MagicGuiBase(api.WidgetType):
@@ -111,6 +130,7 @@ class MagicGuiBase(api.WidgetType):
         self.setLayout(layout.value(self))
         self.arg_options = kwargs
         self.params = inspect.signature(func).parameters
+        self.param_names = tuple(self.params)
         for param in self.params.values():
             self.set_widget(
                 name=param.name,
@@ -157,7 +177,6 @@ class MagicGuiBase(api.WidgetType):
             if the 'choices' option was specified for this argument, but the default
             value was not one of the choices
         """
-        _widget_attr = name + "_widget"
 
         # TODO: move choices logic out of this method
         if choices:
@@ -177,24 +196,23 @@ class MagicGuiBase(api.WidgetType):
         WidgetType = type2widget(arg_type)
 
         position = None
-        existing_widget = getattr(self, _widget_attr, None)
+        existing_widget = getattr(self, WIDGET_ATTR.format(name), None)
         # if there is already a widget by this name...
         if existing_widget:
             # if it has the same widget type as the new one, update the value
             if isinstance(existing_widget, WidgetType):
-                setattr(self, name, value)
-                return
+                return setattr(self, name, value)
             # otherwise delete it, but get the position so we can insert the new one.
             else:
                 position = self.layout().indexOf(existing_widget)
                 delattr(self, name)
 
-        widget = WidgetType(parent=self)
-        setattr(self, _widget_attr, widget)
+        widget = WidgetType(parent=self)  # XXX: parent is Qt-specific
+        setattr(self, WIDGET_ATTR.format(name), widget)
+        self.add_widget_descriptor(name)
         if choices or issubclass(arg_type, Enum):
             self.set_choices(name, choices or arg_type)
 
-        self.add_widget_descriptor(name, widget)
         if value is not None:
             setattr(self, name, value)
         if position is not None:
@@ -205,11 +223,11 @@ class MagicGuiBase(api.WidgetType):
         return widget
 
     @classmethod
-    def add_widget_descriptor(cls, name, widget) -> None:
-        setattr(cls, name, WidgetDescriptor(widget, name))
+    def add_widget_descriptor(cls, name: str) -> None:
+        setattr(cls, name, WidgetDescriptor(name))
 
     def set_choices(self, name, choices: Union[Type[Enum], Iterable[Any]]) -> None:
-        widget = getattr(self, name + "_widget", None)
+        widget = getattr(self, WIDGET_ATTR.format(name), None)
         if not widget:
             raise AttributeError(f"'{self}' object has no widget named '{name}'")
         if not api.is_categorical(widget):
@@ -251,7 +269,7 @@ class MagicGuiBase(api.WidgetType):
         # get the current parameters from the gui
         _kwargs = self.current_kwargs
         # update them with any positional args from the function call
-        _kwargs.update({list(self.params)[n]: arg for n, arg in enumerate(args)})
+        _kwargs.update({self.param_names[n]: arg for n, arg in enumerate(args)})
         # then update them with any keyword argumnets from the function call
         _kwargs.update(kwargs)
         # finally, call the original function, emit the result as a signal, and return.
