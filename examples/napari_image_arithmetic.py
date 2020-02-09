@@ -5,17 +5,26 @@ import numpy
 from magicgui import magicgui
 from napari import Viewer, gui_qt, layers
 
+
+class Operation(Enum):
+    """To create nice dropdown menus with magicgui, it's best (but not required) to use
+    Enums.  here we make an Enum class for all of the image math operations we want to
+    allow."""
+    add = numpy.add
+    subtract = numpy.subtract
+    multiply = numpy.multiply
+    divide = numpy.divide
+
+
 with gui_qt():
+    # create a viewer and add a couple image layers
     viewer = Viewer()
     viewer.add_image(numpy.random.rand(10, 10), name=f"Layer 1")
     viewer.add_image(numpy.random.rand(10, 10), name=f"Layer 2")
 
-    class Operation(Enum):
-        add = numpy.add
-        subtract = numpy.subtract
-        multiply = numpy.multiply
-        divide = numpy.divide
-
+    # use the magic decorator!  This takes a function, generates a custom Widget class
+    # using the function signature, and adds that class as an attribute called "Gui" on
+    # the function.  The decorator also takes some (optional) arguments.
     @magicgui(
         layerA={"choices": viewer.layers},
         layerB={"choices": viewer.layers},
@@ -28,19 +37,35 @@ with gui_qt():
         return operation.value(layerA.data, layerB.data)
 
     def show_result(result):
-        # put the result into a new layer called "output" or overwrite if one exists.
+        """callback function for whenever the image_arithmetic functions is called"""
         try:
-            outlayer = next(l for l in viewer.layers if l.name == "result")
+            outlayer = viewer.layers["result"]
             outlayer.data = result
-        except StopIteration:
+        except KeyError:
             outlayer = viewer.add_image(data=result, name="result")
 
+    # instantiate the widget
     gui = image_arithmetic.Gui()
-    gui.called.connect(show_result)
+    # the function also acquires a signal that is emitted whenever it is called
+    # it receives the results of the function and can be hooked to any callback
+    # (note, this signal also lives at `gui.called`)
+    image_arithmetic.called.connect(show_result)
+    # add our new magicgui widget to the viewer
     viewer.window.add_dock_widget(gui)
+
+    # keep the dropdown menus in the gui in sync with the layer model
     viewer.layers.events.added.connect(
         lambda x: gui.set_choices("layerA", viewer.layers)
     )
     viewer.layers.events.added.connect(
         lambda x: gui.set_choices("layerB", viewer.layers)
     )
+    viewer.layers.events.removed.connect(
+        lambda x: gui.set_choices("layerA", viewer.layers)
+    )
+    viewer.layers.events.removed.connect(
+        lambda x: gui.set_choices("layerB", viewer.layers)
+    )
+
+    # Bonus:
+    
