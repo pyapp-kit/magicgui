@@ -1,26 +1,74 @@
 import functools
 import inspect
 from enum import Enum
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    Sequence,
-    Type,
-    Union,
-    Optional,
-)
+from typing import Any, Callable, Iterable, Optional, Sequence, Type, Union
 
 from qtpy.QtWidgets import QHBoxLayout
 
 from . import _qt as api
 
+# ######### decorator ######### #
 
-def type2widget(type_: type) -> Type[api.WidgetType]:
-    WidgetType = api.type2widget(type_)
-    if not WidgetType:
-        raise TypeError(f'Unable to convert type "{type_}" into a widget.')
-    return WidgetType
+
+def magicgui(
+    function: Callable = None,
+    layout: Union[api.Layout, str] = "horizontal",
+    call_button: Union[bool, str] = False,
+    parent: api.WidgetType = None,
+    **kwargs: dict,
+) -> Callable:
+    """a decorator
+
+    Parameters
+    ----------
+    function : Callable, optional
+        [description], by default None
+    layout : Union[api.Layout, str], optional
+        [description], by default "horizontal"
+    call_button : bool, optional
+        [description], by default False
+
+    Returns
+    -------
+    Callable
+        The original function is returned with a new attribute Gui.  Gui is a subclass
+        of MagicGui that, when instantiated, will create a widget representing the
+        signature of the original function.  Furthermore, *calling* that widget will
+        call the original function using the state of the Gui arguments.
+
+    Examples
+    --------
+
+
+    """
+    _layout = api.Layout[layout] if isinstance(layout, str) else layout
+
+    def inner_func(func: Callable) -> Type:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if hasattr(func, "widget"):
+                # a widget has been instantiated
+                return func.widget(*args, **kwargs)
+            return func(*args, **kwargs)
+
+        class MagicGui(MagicGuiBase):
+            __doc__ = f'MagicGui generated for function "{func.__name__}"'
+
+            def __init__(self, show=False) -> None:
+                super().__init__(
+                    func, layout=_layout, call_button=call_button, **kwargs
+                )
+                wrapper.called = self.called
+                if show:
+                    self.show()
+
+        wrapper.Gui = MagicGui
+        return wrapper
+
+    return inner_func if function is None else inner_func(function)
+
+
+# ######### Base MagicGui Class ######### #
 
 
 class MagicGuiBase(api.WidgetType):
@@ -221,59 +269,11 @@ class MagicGuiBase(api.WidgetType):
         return f"<MagicGui: {func_string}>"
 
 
-def magicgui(
-    function: Callable = None,
-    layout: Union[api.Layout, str] = "horizontal",
-    call_button: Union[bool, str] = False,
-    parent: api.WidgetType = None,
-    **kwargs: dict,
-) -> Callable:
-    """a decorator
-
-    Parameters
-    ----------
-    function : Callable, optional
-        [description], by default None
-    layout : Union[api.Layout, str], optional
-        [description], by default "horizontal"
-    call_button : bool, optional
-        [description], by default False
-
-    Returns
-    -------
-    Callable
-        The original function is returned with a new attribute Gui.  Gui is a subclass
-        of MagicGui that, when instantiated, will create a widget representing the
-        signature of the original function.  Furthermore, *calling* that widget will
-        call the original function using the state of the Gui arguments.
-
-    Examples
-    --------
+# ######### UTIL FUNCTIONS ######### #
 
 
-    """
-    _layout = api.Layout[layout] if isinstance(layout, str) else layout
-
-    def inner_func(func: Callable) -> Type:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            if hasattr(func, "widget"):
-                # a widget has been instantiated
-                return func.widget(*args, **kwargs)
-            return func(*args, **kwargs)
-
-        class MagicGui(MagicGuiBase):
-            __doc__ = f'MagicGui generated for function "{func.__name__}"'
-
-            def __init__(self, show=False) -> None:
-                super().__init__(
-                    func, layout=_layout, call_button=call_button, **kwargs
-                )
-                wrapper.called = self.called
-                if show:
-                    self.show()
-
-        wrapper.Gui = MagicGui
-        return wrapper
-
-    return inner_func if function is None else inner_func(function)
+def type2widget(type_: type) -> Type[api.WidgetType]:
+    WidgetType = api.type2widget(type_)
+    if not WidgetType:
+        raise TypeError(f'Unable to convert type "{type_}" into a widget.')
+    return WidgetType
