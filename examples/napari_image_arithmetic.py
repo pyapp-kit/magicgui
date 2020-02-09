@@ -30,6 +30,7 @@ class Operation(Enum):
 # rendered. In this case, we want any subclass of layers.Layer to be rendered as a
 # dropdown, but we only want layers of the type specified in the type hint to be shown.
 
+
 def get_layers(layer_type):
     return tuple(l for l in viewer.layers if isinstance(l, layer_type))
 
@@ -49,7 +50,7 @@ with gui_qt():
     # the function.
     @magicgui(call_button="execute")
     def image_arithmetic(
-        layerA: layers.Image, operation: Operation, layerB: layers.Layer
+        layerA: layers.Image, operation: Operation, layerB: layers.Image
     ) -> None:
         """Adds, subtracts, multiplies, or divides to image layers with equal shape."""
         return operation.value(layerA.data, layerB.data)
@@ -76,18 +77,10 @@ with gui_qt():
     # that is because of how we used `register_type` above.
 
     # keep the dropdown menus in the gui in sync with the layer model
-    viewer.layers.events.added.connect(
-        lambda x: gui.set_choices("layerA", viewer.layers)
-    )
-    viewer.layers.events.added.connect(
-        lambda x: gui.set_choices("layerB", viewer.layers)
-    )
-    viewer.layers.events.removed.connect(
-        lambda x: gui.set_choices("layerA", viewer.layers)
-    )
-    viewer.layers.events.removed.connect(
-        lambda x: gui.set_choices("layerB", viewer.layers)
-    )
+    viewer.layers.events.added.connect(lambda x: gui.fetch_choices("layerA"))
+    viewer.layers.events.added.connect(lambda x: gui.fetch_choices("layerB"))
+    viewer.layers.events.removed.connect(lambda x: gui.fetch_choices("layerA"))
+    viewer.layers.events.removed.connect(lambda x: gui.fetch_choices("layerB"))
 
     # Bonus:
 

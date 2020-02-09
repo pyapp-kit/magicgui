@@ -10,11 +10,10 @@ from . import _qt as api
 
 # ######### decorator ######### #
 
-WIDGET_ATTR = "{}_widget"
-
 ChoicesType = Union[Iterable, Callable[[Type], Iterable]]
 _TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
 _CHOICES: Dict[type, ChoicesType] = {}
+_NONE = object()  # stub to detect if a user passed None to an optional param
 
 
 def magicgui(
@@ -94,31 +93,27 @@ class WidgetDescriptor:
         self.name = name
 
     def __get__(self, obj, objtype) -> Any:
-        widget = self._get_widget(obj)
+        widget = obj.get_widget(self.name)
         return api.getter_setter_onchange(widget).getter()
 
     def __set__(self, obj, val) -> None:
-        widget = self._get_widget(obj)
+        widget = obj.get_widget(self.name)
         if api.is_categorical(widget):
             val = api.get_categorical_index(widget, val)
         return api.getter_setter_onchange(widget).setter(val)
 
     def __delete__(self, obj) -> None:
-        widget = self._get_widget(obj)
+        widget = obj.get_widget(self.name)
         obj.layout().removeWidget(widget)
         widget.deleteLater()
         delattr(type(obj), self.name)
-
-    def _get_widget(self, obj):
-        widget = getattr(obj, WIDGET_ATTR.format(self.name))
-        if not widget:
-            raise AttributeError(f'"{obj}" has no widget for parameter "{self.name}"')
-        return widget
 
 
 class MagicGuiBase(api.WidgetType):
 
     called = api.Signal(object)
+
+    WIDGET_ATTR = "{}_widget"
 
     def __init__(
         self,
@@ -193,9 +188,9 @@ class MagicGuiBase(api.WidgetType):
 
         # TODO: move choices logic out of this method
         # argument specific choices override _CHOICES registered with `register_type`
-        choices = options.get("choices") or _type2choices(arg_type)
+        _choices = options.get("choices") or _type2choices(arg_type)
+        choices = _choices(arg_type) if callable(_choices) else _choices  # type: ignore
         if choices:
-            choices = choices(arg_type) if callable(choices) else choices  # type: ignore
             if (value is not None) and (value not in choices):
                 raise ValueError(
                     '"choices" option was provided, but the default value '
@@ -206,7 +201,7 @@ class MagicGuiBase(api.WidgetType):
         else:
             WidgetType = type2widget(arg_type)
 
-        existing_widget = getattr(self, WIDGET_ATTR.format(name), None)
+        existing_widget = self.get_widget(name, None)
         # if there is already a widget by this name...
         if existing_widget:
             # if it has the same widget type as the new one, update the value
@@ -219,9 +214,11 @@ class MagicGuiBase(api.WidgetType):
 
         widget = api.make_widget(WidgetType, name=name, parent=self, **options)
         setattr(self, f"{name}_changed", api.getter_setter_onchange(widget).onchange)
-        setattr(self, WIDGET_ATTR.format(name), widget)
+        setattr(self, self.WIDGET_ATTR.format(name), widget)
         self.add_widget_descriptor(name)
         if choices or issubclass(arg_type, Enum):
+            if callable(_choices):
+                setattr(widget, "_get_choices", functools.partial(_choices, arg_type))
             self.set_choices(name, choices or arg_type)  # type: ignore
 
         if value is not None:
@@ -243,13 +240,28 @@ class MagicGuiBase(api.WidgetType):
     def add_widget_descriptor(cls, name: str) -> None:
         setattr(cls, name, WidgetDescriptor(name))
 
+    def get_widget(self, name: str, default: Any = _NONE) -> Optional[api.WidgetType]:
+        widget = getattr(self, self.WIDGET_ATTR.format(name), default)
+        if widget is _NONE:
+            raise AttributeError(
+                f"{self.__class__.__name__} has no widget named '{name}''."
+            )
+        return widget
+
+    def fetch_choices(self, name: str) -> None:
+        """update choices if a callable has been provided... otherwise raise."""
+        widget = self.get_widget(name)
+        if not hasattr(widget, "_get_choices"):
+            raise TypeError(
+                f"Widget '{name}' was not provided with a callable to get choices."
+            )
+        self.set_choices(name, widget._get_choices())
+
     def set_choices(self, name, choices: Iterable) -> None:
-        widget = getattr(self, WIDGET_ATTR.format(name), None)
-        if not widget:
-            raise AttributeError(f"'{self}' object has no widget named '{name}'")
+        widget = self.get_widget(name)
         if not api.is_categorical(widget):
             raise TypeError(f"'{name}' is not a categorical widget with choices.")
-        if inspect.isclass(choices) and issubclass(choices, Enum):  # type: ignore
+        if inspect.isclass(choices) and issubclass(choices, Enum):
             api.set_categorical_choices(widget, [(x.name, x) for x in choices])
         else:
             api.set_categorical_choices(widget, [(str(c), c) for c in choices])
