@@ -119,15 +119,17 @@ We can call our function in a few ways:
 
     ```python
     # in radians, overriding the value for the second medium (n2)
-    In [15]: snells_law(0.8, n2=Medium.Air, degrees=False)
-    Out[15]: 'Total internal reflection!'
+    In [7]: snells_law(0.8, n2=Medium.Air, degrees=False)
+    Out[7]: 'Total internal reflection!'
     ```
 
 ## connecting events
 
+### function calls
+
 Usually in a GUI you are looking for something to happen as a result of calling the
-function.  The original function (and the gui instance) will have a new `called` signal
-that you can connect to an arbitrary callback function:
+function.  The original function (and the gui instance) will have a new `called`
+attribute (a Qt Signal) that you can connect to an arbitrary callback function:
 
 ```python
 def my_callback(result):
@@ -137,8 +139,27 @@ def my_callback(result):
 snells_law.called.connect(my_callback)
 ```
 
-Now when you call `snells_law()`, or `snell_gui()` again, or click the `calculate` button
+Now when you call `snells_law()` or `snell_gui()`, or click the `calculate` button
 in the gui, `my_callback` will be called with the result of the calculation.
+
+### parameter changes
+
+You can also listen for changes on individual function parameters by connecting to the
+`<parameter>_changed` signal:
+
+```python
+# whenever the current value for n1 changes, print it to the console:
+snell_gui.n1_changed.connect(print)
+```
+
+This signal will be emitted regardless of whether the parameter was changed in the GUI or
+via by [directly setting the paramaeter on the gui instance](#two-way-data-binding).
+
+```python
+In [8]: snell_gui.n1 = Medium.Air
+Medium.Air
+```
+
 
 ## @optional
 

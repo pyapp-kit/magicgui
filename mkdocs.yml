@@ -32,3 +32,5 @@ markdown_extensions:
   - pymdownx.superfences # https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
   - pymdownx.emoji # https://facelessuser.github.io/pymdown-extensions/extensions/emoji/
   - pymdownx.details # https://facelessuser.github.io/pymdown-extensions/extensions/details/
+  - toc:
+      permalink: "&#128279;"

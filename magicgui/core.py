@@ -208,6 +208,7 @@ class MagicGuiBase(api.WidgetType):
                 delattr(self, name)
 
         widget = WidgetType(parent=self)  # XXX: parent is Qt-specific
+        setattr(self, f"{name}_changed", api.getter_setter_onchange(widget).onchange)
         setattr(self, WIDGET_ATTR.format(name), widget)
         self.add_widget_descriptor(name)
         if choices or issubclass(arg_type, Enum):

@@ -47,20 +47,6 @@ class GetSetOnChange(NamedTuple):
     onchange: SignalInstance
 
 
-def type2widget(type_: type) -> Type[WidgetType]:
-    simple: Dict[type, Type[WidgetType]] = {
-        bool: QCheckBox,
-        int: QSpinBox,
-        float: QDoubleSpinBox,
-        str: QLineEdit,
-        type(None): QLineEdit,
-    }
-    if type_ in simple:
-        return simple[type_]
-    elif issubclass(type_, Enum):
-        return QComboBox
-
-
 class Layout(Enum):
     vertical = QVBoxLayout
     horizontal = QHBoxLayout
@@ -73,15 +59,45 @@ class Layout(Enum):
         raise ValueError(f"'{value}' is not a valid Layout. Options include: {options}")
 
 
+class QDataComboBox(QComboBox):
+    currentDataChanged = Signal(object)
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.currentIndexChanged.connect(self._emit_data)
+
+    def _emit_data(self, index: int) -> None:
+        data = self.itemData(index)
+        if data is not None:
+            self.currentDataChanged.emit(data)
+
+
+def type2widget(type_: type) -> Type[WidgetType]:
+    simple: Dict[type, Type[WidgetType]] = {
+        bool: QCheckBox,
+        int: QSpinBox,
+        float: QDoubleSpinBox,
+        str: QLineEdit,
+        type(None): QLineEdit,
+    }
+    if type_ in simple:
+        return simple[type_]
+    elif issubclass(type_, Enum):
+        return QDataComboBox
+
+
 def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
     if isinstance(widget, QComboBox):
 
         def getter():
             return widget.itemData(widget.currentIndex())
 
-        return GetSetOnChange(
-            getter, widget.setCurrentIndex, widget.currentIndexChanged,
+        onchange = (
+            widget.currentDataChanged
+            if isinstance(widget, QDataComboBox)
+            else widget.currentIndexChanged
         )
+        return GetSetOnChange(getter, widget.setCurrentIndex, onchange)
     elif isinstance(widget, QStatusBar):
         return GetSetOnChange(
             widget.currentMessage, widget.showMessage, widget.messageChanged

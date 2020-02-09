@@ -32,8 +32,12 @@ def snells_law(
 
 
 with event_loop():
+    # the original function still works
     print(snells_law())
+    # we can create a gui
     gui = snells_law.Gui(show=True)
-    gui.called.connect(
-        lambda result: gui.set_widget("angle_of_refraction", result)
-    )
+    # we can list for changes to parameters in the gui
+    # ... these also trigger for direct parameter access on the gui object
+    gui.medium_1_changed.connect(print)
+    # we can connect a callback function to the __call__ event on the function
+    gui.called.connect(lambda result: gui.set_widget("angle_of_refraction", result))
