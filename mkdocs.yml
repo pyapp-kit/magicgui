@@ -17,3 +17,4 @@ markdown_extensions:
   - admonition  # notes/alerts: https://python-markdown.github.io/extensions/admonition/
   - smarty      # ASCI to HTML: https://python-markdown.github.io/extensions/smarty/
   - pymdownx.superfences
+  - pymdownx.emoji
