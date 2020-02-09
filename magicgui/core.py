@@ -156,7 +156,11 @@ class MagicGuiBase(api.WidgetType):
 
         return widget
 
-    def set_choices(self, name, choices: Union[Type[Enum], Iterable[Any]]):
+    @classmethod
+    def add_widget_descriptor(cls, name, widget) -> None:
+        setattr(cls, name, WidgetDescriptor(widget, name))
+
+    def set_choices(self, name, choices: Union[Type[Enum], Iterable[Any]]) -> None:
         widget = getattr(self, name + "_widget", None)
         if not widget:
             raise AttributeError(f"'{self}' object has no widget named '{name}'")
@@ -167,45 +171,50 @@ class MagicGuiBase(api.WidgetType):
         else:
             api.set_categorical_choices(widget, [(str(c), c) for c in choices])
 
-    @classmethod
-    def add_widget_descriptor(cls, name, widget):
-        setattr(cls, name, WidgetDescriptor(widget, name))
-
     @property
-    def _kwargs(self):
-        return {
-            param.name: getattr(self, param.name)
-            for param in self.params.values()
-            if param.default is not param.empty
-        }
-
-    @property
-    def _args(self):
-        return list(
-            getattr(self, param.name)
-            for param in self.params.values()
-            if param.default is param.empty
-        )
+    def current_kwargs(self) -> dict:
+        return {param.name: getattr(self, param.name) for param in self.params.values()}
 
     def __call__(self, *args, **kwargs) -> Any:
         """Call the original function with the current parameter values from the Gui.
 
+        It is also possible to override the current parameter values from the GUI by
+        providing args/kwargs to the function call.  Only those provided will override
+        the ones from the gui.  A `called` signal will also be emitted with the results.
+
         Returns
         -------
-        Any
+        result : Any
             whatever the return value of the original function would have been.
+
+        Examples
+        --------
+
+        gui = decorated_function.Gui(show=True)
+        # ... change parameters in the gui ... or by setting:  gui.param = something
+
+        # this will call the original function with the current parameters from the gui
+        decorated_function()
+        # this will override parameters from the gui with only the arg values specified
+        decorated_function(arg='something')
         """
-        _args = self._args
-        _kwargs = self._kwargs
-        for n, arg in enumerate(args):
-            _args[n] = arg
+
+        # everything will be delivered as a keyword argument to self.func ...
+        # get the current parameters from the gui
+        _kwargs = self.current_kwargs
+        # update them with any positional args from the function call
+        _kwargs.update({list(self.params)[n]: arg for n, arg in enumerate(args)})
+        # then update them with any keyword argumnets from the function call
         _kwargs.update(kwargs)
-        value = self.func(*_args, **_kwargs)
+        # finally, call the original function, emit the result as a signal, and return.
+        value = self.func(**_kwargs)
         self.called.emit(value)
         return value
 
     def __repr__(self):
-        return f"<MagicGui for '{self.func.__name__}'>"
+        sig_string = ", ".join([f"{n}={k}" for n, k in self.current_kwargs.items()])
+        func_string = f"{self.func.__name__}({sig_string})"
+        return f"<MagicGui: {func_string}>"
 
 
 def magicgui(
@@ -242,14 +251,6 @@ def magicgui(
     _layout = api.Layout[layout] if isinstance(layout, str) else layout
 
     def inner_func(func: Callable) -> Type:
-        class MagicGui(MagicGuiBase):
-            __doc__ = f'MagicGui generated for function "{func.__name__}"'
-
-            def __init__(self) -> None:
-                super().__init__(
-                    func, layout=_layout, call_button=call_button, **kwargs
-                )
-
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if hasattr(func, "widget"):
@@ -257,15 +258,18 @@ def magicgui(
                 return func.widget(*args, **kwargs)
             return func(*args, **kwargs)
 
-        setattr(wrapper, "Gui", MagicGui)
+        class MagicGui(MagicGuiBase):
+            __doc__ = f'MagicGui generated for function "{func.__name__}"'
 
-        def show_gui():
-            widget = MagicGui()
-            widget.show()
-            return widget
+            def __init__(self, show=False) -> None:
+                super().__init__(
+                    func, layout=_layout, call_button=call_button, **kwargs
+                )
+                wrapper.called = self.called
+                if show:
+                    self.show()
 
-        setattr(wrapper, "show", show_gui)
-
+        wrapper.Gui = MagicGui
         return wrapper
 
     return inner_func if function is None else inner_func(function)
