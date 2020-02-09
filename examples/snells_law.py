@@ -33,7 +33,7 @@ def snells_law(
 
 with event_loop():
     print(snells_law())
-    gui = snells_law.show()
+    gui = snells_law.Gui(show=True)
     gui.called.connect(
-        lambda result: gui.set_widget("angle_of_refraction", str(result))
+        lambda result: gui.set_widget("angle_of_refraction", result)
     )

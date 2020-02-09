@@ -24,7 +24,7 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
     aoi = math.radians(aoi) if degrees else aoi
     try:
         result = math.asin(n1.value * math.sin(aoi) / n2.value)
-        return round(math.degrees(result) if degrees else result, 2)
+        return math.degrees(result) if degrees else result
     except ValueError:
         # beyond the critical angle
         return "Total internal reflection!"
@@ -46,14 +46,14 @@ the function parameters.  As you make changes in your new GUI, these attributes 
 "Glass" to "Oil", and the corresponding parameter changes on `snell_gui`:
 
 ```python
-In [2]: snell_gui.aoi.n1
+In [2]: snell_gui.n1
 Out[2]: <Medium.Oil: 1.515>
 ```
 
 it goes both ways: change a parameter in the console and it will change in the GUI:
 
 ```python
-In [3]: snell_gui.aoi.aoi = 47
+In [3]: snell_gui.aoi = 47
 
 In [4]: print(snell_gui)
 <MagicGui: snells_law(aoi=47.0, n1=Medium.Glass, n2=Medium.Water, degrees=True)>
