@@ -10,7 +10,7 @@ with gui_qt():
     viewer.add_image(numpy.random.rand(10, 10), name=f"Layer 1")
     viewer.add_image(numpy.random.rand(10, 10), name=f"Layer 2")
 
-    class ImageMathMethod(Enum):
+    class Operation(Enum):
         add = numpy.add
         subtract = numpy.subtract
         multiply = numpy.multiply
@@ -22,10 +22,10 @@ with gui_qt():
         call_button="execute",
     )
     def image_arithmetic(
-        layerA: layers.Layer, method: ImageMathMethod, layerB: layers.Layer
+        layerA: layers.Layer, operation: Operation, layerB: layers.Layer
     ) -> None:
         """Adds, subtracts, multiplies, or divides to image layers with equal shape."""
-        return method.value(layerA.data, layerB.data)
+        return operation.value(layerA.data, layerB.data)
 
     def show_result(result):
         # put the result into a new layer called "output" or overwrite if one exists.
