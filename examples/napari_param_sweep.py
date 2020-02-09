@@ -1,6 +1,6 @@
 """
 This example shows how to accomplish a parameter sweep with magicgui.  It demonstrates:
-1. overriding the default widget type with a custom classa
+1. overriding the default widget type with a custom class
 2. the `auto_call` option, which calls the function whenever a parameter changes
 
 """
@@ -9,6 +9,7 @@ from napari import Viewer, gui_qt, layers
 from skimage.filters import gaussian
 from skimage.data import astronaut
 from qtpy.QtWidgets import QSlider
+from qtpy.QtCore import Qt
 
 
 def get_layers(layer_type):
@@ -20,6 +21,9 @@ register_type(layers.Layer, choices=get_layers)
 
 class QDoubleSlider(QSlider):
     PRECISION = 1000
+
+    def __init__(self, parent=None):
+        super().__init__(Qt.Horizontal, parent=parent)
 
     def value(self):
         return super().value() / self.PRECISION
@@ -38,7 +42,7 @@ with gui_qt():
 
     @magicgui(
         auto_call=True,
-        sigma={"widget_type": QDoubleSlider, "maximum": 4},
+        sigma={"widget_type": QDoubleSlider, "maximum": 4, "fixedWidth": 400},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
     def gaussian_blur(layer: layers.Image, sigma: float = 1, mode="nearest") -> None:
