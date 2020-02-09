@@ -2,7 +2,7 @@
 
 __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 from .core import magicgui
 from . import _qt as api
