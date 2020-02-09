@@ -122,13 +122,13 @@ class MagicGuiBase(api.WidgetType):
         layout=QHBoxLayout,
         call_button=False,
         parent=None,
-        **kwargs: dict,
+        **gui_options: dict,
     ) -> None:
         super().__init__(parent=parent)
         self.func = func
         setattr(func, "widget", self)
         self.setLayout(layout.value(self))
-        self.arg_options = kwargs
+        self.gui_options = gui_options
         self.params = inspect.signature(func).parameters
         self.param_names = tuple(self.params)
         for param in self.params.values():
@@ -136,7 +136,6 @@ class MagicGuiBase(api.WidgetType):
                 name=param.name,
                 value=(None if param.default is param.empty else param.default),
                 dtype=(None if param.annotation is param.empty else param.annotation),
-                **self.arg_options.get(param.name, {}),
             )
 
         if call_button:
@@ -149,9 +148,10 @@ class MagicGuiBase(api.WidgetType):
     def set_widget(
         self,
         name: str,
-        value: Any = None,
+        value: Optional[Any] = None,
+        position: Optional[int] = None,
         dtype: Optional[Type] = None,
-        choices: Optional[Sequence[str]] = None,
+        options: Optional[dict] = None,
     ) -> api.WidgetType:
         """Make a widget named `name` based on the type of signature param.
 
@@ -177,7 +177,9 @@ class MagicGuiBase(api.WidgetType):
             if the 'choices' option was specified for this argument, but the default
             value was not one of the choices
         """
+        options = options or self.gui_options.get(name) or dict()
 
+        choices = options.get("choices")
         # TODO: move choices logic out of this method
         if choices:
             if (value is not None) and (value not in choices):
@@ -195,7 +197,6 @@ class MagicGuiBase(api.WidgetType):
             arg_type = type(None)
         WidgetType = type2widget(arg_type)
 
-        position = None
         existing_widget = getattr(self, WIDGET_ATTR.format(name), None)
         # if there is already a widget by this name...
         if existing_widget:
@@ -207,7 +208,7 @@ class MagicGuiBase(api.WidgetType):
                 position = self.layout().indexOf(existing_widget)
                 delattr(self, name)
 
-        widget = WidgetType(parent=self)  # XXX: parent is Qt-specific
+        widget = api.make_widget(WidgetType, name=name, parent=self, **options)
         setattr(self, f"{name}_changed", api.getter_setter_onchange(widget).onchange)
         setattr(self, WIDGET_ATTR.format(name), widget)
         self.add_widget_descriptor(name)
@@ -217,6 +218,12 @@ class MagicGuiBase(api.WidgetType):
         if value is not None:
             setattr(self, name, value)
         if position is not None:
+            if not isinstance(position, int):
+                raise TypeError(
+                    f"`position` argument must be of type int. got: {type(position)}"
+                )
+            if position < 0:
+                position = self.layout().count() + position + 1
             self.layout().insertWidget(position, widget)
         else:
             self.layout().addWidget(widget)
