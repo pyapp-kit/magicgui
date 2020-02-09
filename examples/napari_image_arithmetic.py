@@ -10,6 +10,7 @@ class Operation(Enum):
     """To create nice dropdown menus with magicgui, it's best (but not required) to use
     Enums.  here we make an Enum class for all of the image math operations we want to
     allow."""
+
     add = numpy.add
     subtract = numpy.subtract
     multiply = numpy.multiply
@@ -46,6 +47,7 @@ with gui_qt():
 
     # instantiate the widget
     gui = image_arithmetic.Gui()
+
     # the function also acquires a signal that is emitted whenever it is called
     # it receives the results of the function and can be hooked to any callback
     # (note, this signal also lives at `gui.called`)
@@ -68,4 +70,18 @@ with gui_qt():
     )
 
     # Bonus:
-    
+
+    # there is two way binding between the data widgets in the gui and the attribute of
+    # the same name on the gui instance:
+    gui.operation = Operation.multiply  # changes the gui as well
+
+    # the original function is still functional.  It can be called with the
+    # original function signature with arguments. HOWEVER, the "default" values for the
+    # function stay in sync with the GUI.  So as the user changes the values in the gui:
+    # calling the original function will give results as if the gui values were provided
+    image_arithmetic()
+
+    # lastly, if you DO provide arguments to the original function call, they will
+    # override those provided by the GUI (note: the GUI will not change though unless
+    # you explicitly set those values as mentioned above)
+    image_arithmetic(operation=Operation.divide)
