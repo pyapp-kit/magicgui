@@ -11,7 +11,10 @@ edit_uri: ""
 
 theme:
   name: material
-  # custom_dir: docs/custom_theme
+  custom_dir: docs/custom_theme
+
+extra_javascript:
+  - https://code.jquery.com/jquery-3.4.1.min.js
 
 extra:
   social:
