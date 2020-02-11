@@ -93,7 +93,7 @@ def my_function(arg2: int, arg2: int, arg3: str):
     gui.called.connect(lambda result: gui.set_widget("greeting", result))
     ```
 
-    [<img src="/img/disabled_field.png" width="400"/>](img/disabled_field.png)
+    [<img src="../img/disabled_field.png" width="400"/>](../img/disabled_field.png)
 
     Note: It's rather unconventional to put the "output" variable in a python function
     signature... but it works for this example.  If you'd prefer, you can always omit the

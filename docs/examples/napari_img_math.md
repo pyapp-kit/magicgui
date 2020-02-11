@@ -5,7 +5,7 @@ image viewer for python.  It uses Qt for the GUI, so it's easy to extend napari 
 small, composable widgets created with `magicgui`.  Here we're going to build this simple
 image arithmetic widget with a few additional lines of code.
 
-<p align="center"><img src="/img/imagemath.gif" width="80%" /></p>
+<p align="center"><img src="../../img/imagemath.gif" width="80%" /></p>
 
 **This example demonstrates how to:**
 
