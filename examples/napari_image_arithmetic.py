@@ -58,10 +58,9 @@ with gui_qt():
     def show_result(result):
         """callback function for whenever the image_arithmetic functions is called"""
         try:
-            outlayer = viewer.layers["result"]
-            outlayer.data = result
+            viewer.layers["result"].data = result
         except KeyError:
-            outlayer = viewer.add_image(data=result, name="result")
+            viewer.add_image(data=result, name="result")
 
     # instantiate the widget
     gui = image_arithmetic.Gui()

@@ -64,10 +64,9 @@ image arithmetic widget with a few additional lines of code.
         def show_result(result):
             """callback function for whenever the image_arithmetic functions is called"""
             try:
-                outlayer = viewer.layers["result"]
-                outlayer.data = result
+                viewer.layers["result"].data = result
             except KeyError:
-                outlayer = viewer.add_image(data=result, name="result")
+                viewer.add_image(data=result, name="result")
 
         # instantiate the widget
         gui = image_arithmetic.Gui()
@@ -86,18 +85,28 @@ image arithmetic widget with a few additional lines of code.
 
 ## walkthrough
 
-### the magic part
-
 We're going to go a little out of order so that the other code makes more sense.  Let's
-start with the actual function we'd like to write to do some image arithmetic. Our
-function takes two `napari` [Image
+start with the actual function we'd like to write to do some image arithmetic.
+
+### the function
+
+Our function takes two `napari` [Image
 layers](https://napari.org/tutorials/fundamentals/image), and some mathematical operation
-(we'll restrict the options later).  When called, our function calls the selected
-operation on the two layers (which each have a `data` attribute that stores the array
-info).  Finally, we decorate the function with `@magicgui` and tell it we'd like to have
-a `call_button` that we can click to execute the function.
+(we'll restrict the options using an `Enum`).  When called, our function calls the
+selected operation on the two layers (which each have a `data` attribute that stores the
+array info).
 
 ```python
+def image_arithmetic(layerA: Image, operation: Operation, layerB: Image):
+    return operation.value(layerA.data, layerB.data)
+```
+
+### the magic part
+
+ Finally, we decorate the function with `@magicgui` and tell it we'd like to have
+a `call_button` that we can click to execute the function.
+
+```python hl_lines="1"
 @magicgui(call_button="execute")
 def image_arithmetic(layerA: Image, operation: Operation, layerB: Image):
     return operation.value(layerA.data, layerB.data)
@@ -106,10 +115,16 @@ def image_arithmetic(layerA: Image, operation: Operation, layerB: Image):
 That's it!  The `image_arithmetic` function now has an attribute `image_arithmetic.Gui`
 that we can call to instantiate our GUI.
 
+```python
+# instantiate the widget
+gui = image_arithmetic.Gui()
+```
+
 !!! note
     While [type hints](https://docs.python.org/3/library/typing.html) aren't always
-    required in `magicgui`, they are recommended... and they *are* required for certain
-    things, like the `Operation(Enum)` [used here for the
+    required in `magicgui`, they are recommended (see [type
+    inference](../../type_inference/#type-inference) )... and they *are* required for
+    certain things, like the `Operation(Enum)` [used here for the
     dropdown](#create-dropdowns-with-enums) and the `napari.image.Image` annotations that
     we have previously registered with `magicgui`.
 
@@ -133,9 +148,9 @@ class Operation(enum.Enum):
 
 `magicgui` knows how to handle most builtin types, but if provide an argument with a
 custom class for a type annotation, you will need to tell `magicgui` how to handle it.
-One way to do this is with a [`widget_type`](/configuration/#widget_type)
+One way to do this is with a [`widget_type`](../../configuration/#widget_type)
 argument-specific-option when calling `magicgui`.  However, you can do this globally for
-a specific type by using [`register_type`](/type_inference/#register_type) as shown in
+a specific type by using [`register_type`](../../type_inference/#register_type) as shown in
 this example, where we associate all annotations of type `napari.layers.Layer` with a
 callback function that gets all layers of a specific type from the viewer instance.
 
@@ -145,7 +160,7 @@ def get_layers(layer_type):
 register_type(Layer, choices=get_layers)
 ```
 
-see [`register_type`](/type_inference/#register_type) for usage details.
+see [`register_type`](../../type_inference/#register_type) for usage details.
 
 ### create the `magicgui` widget and add it to napari
 

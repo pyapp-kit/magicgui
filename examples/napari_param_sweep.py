@@ -6,10 +6,8 @@ This example shows how to accomplish a parameter sweep with magicgui.  It demons
 """
 from magicgui import magicgui, register_type
 from napari import Viewer, gui_qt, layers
-from skimage.filters import gaussian
-from skimage.data import astronaut
-from qtpy.QtWidgets import QSlider
-from qtpy.QtCore import Qt
+from skimage import data, filters
+from qtpy import QtWidgets, QtCore
 
 
 def get_layers(layer_type):
@@ -19,11 +17,12 @@ def get_layers(layer_type):
 register_type(layers.Layer, choices=get_layers)
 
 
-class QDoubleSlider(QSlider):
+# Qt Doesn't have a built in class for float sliders
+class QDoubleSlider(QtWidgets.QSlider):
     PRECISION = 1000
 
     def __init__(self, parent=None):
-        super().__init__(Qt.Horizontal, parent=parent)
+        super().__init__(QtCore.Qt.Horizontal, parent=parent)
 
     def value(self):
         return super().value() / self.PRECISION
@@ -36,17 +35,23 @@ class QDoubleSlider(QSlider):
 
 
 with gui_qt():
-    # create a viewer and add a couple image layers
+    # create a viewer and add some images
     viewer = Viewer()
-    viewer.add_image(astronaut().mean(-1))
+    viewer.add_image(data.astronaut().mean(-1), name="astronaut")
+    viewer.add_image(data.grass().astype('float'), name="grass")
 
+    # turn the gaussian blur function into a magicgui
+    # - `auto_call` tells magicgui to call the function whenever a parameter changes 
+    # - we use `widget_type` to override the default "float" widget on sigma
+    # - we provide some Qt-specific parameters
+    # - we contstrain the possible choices for `mode`
     @magicgui(
         auto_call=True,
-        sigma={"widget_type": QDoubleSlider, "maximum": 4, "fixedWidth": 400},
+        sigma={"widget_type": QDoubleSlider, "maximum": 6, "fixedWidth": 400},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
     def gaussian_blur(layer: layers.Image, sigma: float = 1, mode="nearest") -> None:
-        return gaussian(layer.data, sigma=sigma, mode=mode)
+        return filters.gaussian(layer.data, sigma=sigma, mode=mode)
 
     # instantiate the widget
     gui = gaussian_blur.Gui()
@@ -54,10 +59,9 @@ with gui_qt():
     def show_result(result):
         """callback function for whenever the image_arithmetic functions is called"""
         try:
-            outlayer = viewer.layers["blurred"]
-            outlayer.data = result
+            viewer.layers["result"].data = result
         except KeyError:
-            outlayer = viewer.add_image(data=result, name="blurred")
+            viewer.add_image(data=result, name="blurred")
 
     gaussian_blur.called.connect(show_result)
     viewer.window.add_dock_widget(gui)
