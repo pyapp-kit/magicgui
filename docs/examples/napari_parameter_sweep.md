@@ -17,15 +17,15 @@ example](napari_img_math.md)
 
 [⬇️](#the-magic-part) Create a `magicgui` widget that can be used in another program (napari)
 
-[⬇️](#create-dropdowns-with-enums) Automatically call our function when a parameter changes
+[⬇️](#the-magic-part) Automatically call our function when a parameter changes
 
-[⬇️](#create-dropdowns-with-enums) Provide `magicgui` with a custom widget for a specific argument
+[⬇️](#the-magic-part) Provide `magicgui` with a custom widget for a specific argument
 
-[⬇️](#create-dropdowns-with-enums) Use the `choices` option to create a dropdown
+[⬇️](#the-magic-part) Use the `choices` option to create a dropdown
 
-[⬇️](#register-a-custom-type) Tell `magicgui` how to handle a custom type annotation with `register_type()`
+[⬇️](#custom-widgets) Tell `magicgui` how to handle a custom type annotation with `register_type()`
 
-[⬇️](#connect-event-listeners-for-interactivity) Connect some event listeners to create interactivity.
+[⬇️](#connecting-events) Connect some event listeners to create interactivity.
   
 ## code
 
@@ -184,8 +184,8 @@ class QDoubleSlider(QtWidgets.QSlider):
         super().setMaximum(value * self.PRECISION)
 ```
 
-We could also registered this widget for *all* `float` type variables using the 
-`magicgui.register_type` function:
+We could also have registered this slider widget globally for *all* `float` type variables
+using the `magicgui.register_type` function:
 
 ```python
 from magicgui import register_type
@@ -193,4 +193,25 @@ from magicgui import register_type
 register_type(float, widget_type=QDoubleSlider)
 ```
 
+Note that we did that here, and in the [image arithmetic
+tutorial](../napari_img_math), for `napari.layer.Layer` types)
+
+```python
+def get_layers(layer_type):
+    return tuple(l for l in viewer.layers if isinstance(l, layer_type))
+register_type(layers.Layer, choices=get_layers)
+```
+
 see [`register_type`](../../type_inference/#register_type) for usage details.
+
+### connecting events
+
+As described in the [image arithmetic
+tutorial](../napari_img_math/#connect-event-listeners-for-interactivity), we connect a
+callback to the `gaussian_blur.called` signal to update the image in the napari viewer
+whenever our original function gets called (which is, in this case, whenever a
+parameter in the GUI changes)
+
+```python
+gaussian_blur.called.connect(show_result)
+```
