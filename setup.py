@@ -24,14 +24,16 @@ setup(
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Topic :: Scientific/Engineering :: Visualization"
     ],
-    description="makes a gui from a function, using magic.",
+    description="build GUIs from functions, using magic.",
     install_requires=requirements,
     license="MIT license",
     long_description=readme,
