@@ -59,7 +59,6 @@ For example to change the width and font for a specific field:
     of the string matches a corresponding setter on the widget. In this example, both
     "`font`" and "`Font`" keywords would properly call `widget.setFont()`
 
-
 ```python
 from qtpy.QtGui import QFont
 
@@ -111,4 +110,3 @@ def my_function(arg2: int, arg2: int, arg3: str):
     gui = my_function.Gui(show=True)
     gui.called.connect(lambda result: gui.set_widget("greeting", result, position=-1))
     ```
-    

@@ -67,7 +67,7 @@ the desired corresponding `widget_type` (a widget class in the chosen backend, s
 the `widget_type` to the default categorical widget (e.g. a `QComboBox` for Qt), but will
 also set the available choices as provided.  `choices` must be either an `Enum` subclass,
 a sequence (usually of `str`), or a callable function.  If a callable is provided, it
-must take a single argument: the `type` of the 
+must take a single argument: the `type` of the argument in the signature.
 
 ```python
 ChoicesType = Union[EnumMeta, Iterable, Callable[[Type], Iterable]]
@@ -124,7 +124,7 @@ from ._qt import MyCustomQtWidget
 try:
     from magicgui import register_type
 
-    register_type(MyCustomClass, MyCustomQtWidget)
+    register_type(MyCustomClass, widget_type=MyCustomQtWidget)
 except ImportError:
     pass
 ```

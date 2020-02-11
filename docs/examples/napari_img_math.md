@@ -7,15 +7,19 @@ image arithmetic widget with a few additional lines of code.
 
 <p align="center"><img src="../../img/imagemath.gif" width="80%" /></p>
 
+## outline
+
 **This example demonstrates how to:**
 
-- Create a `magicgui` widget that can be used in another program (napari)
-  [⬇️](#the-magic-part)
-- Use an `Enum` to create a dropdown menu [⬇️](#create-dropdowns-with-enums)
-- Tell `magicgui` how to handle a custom type annotation with `register_type()`
-  [⬇️](#register-a-custom-type)
-- Connect some event listeners to create interactivity.
-  [⬇️](#connect-event-listeners-for-interactivity)
+[⬇️](#the-magic-part) Create a `magicgui` widget that can be used in another program (napari)
+
+[⬇️](#create-dropdowns-with-enums) Use an `Enum` to create a dropdown menu
+
+[⬇️](#register-a-custom-type) Tell `magicgui` how to handle a custom type annotation with `register_type()`
+
+[⬇️](#connect-event-listeners-for-interactivity) Connect some event listeners to create interactivity.
+  
+## code
 
 *Code follows, with explanation below... You can also [get this example at github](https://github.com/tlambert03/magicgui/blob/master/examples/napari_image_arithmetic.py).*
 
