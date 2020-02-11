@@ -103,9 +103,10 @@ start with the actual function we'd like to write to apply a gaussian filter to 
 
 ### the function
 
-Our function is a very thin wrapper around [`skimage.filters.gaussian`](https://scikit-image.org/docs/dev/api/skimage.filters.html#skimage.filters.gaussian). It takes a `napari` [Image
-layer](https://napari.org/tutorials/fundamentals/image), a `sigma` to control the blur
-radius, and a `mode` that determines how edges are handled.
+Our function is a very thin wrapper around
+[`skimage.filters.gaussian`](https://scikit-image.org/docs/dev/api/skimage.filters.html#skimage.filters.gaussian).
+It takes a `napari` [Image layer](https://napari.org/tutorials/fundamentals/image), a
+`sigma` to control the blur radius, and a `mode` that determines how edges are handled.
 
 ```python
 def gaussian_blur(layer: layers.Image, sigma: float = 1, mode="nearest"):
