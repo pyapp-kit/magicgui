@@ -1,16 +1,23 @@
 import functools
 import inspect
 import warnings
-from enum import Enum
-from typing import Any, Callable, Iterable, Optional, Type, Union, Dict
-
-from qtpy.QtWidgets import QHBoxLayout  # XXX: Qt specific!
+from enum import EnumMeta
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Optional,
+    Type,
+    Union,
+    Dict,
+    Sequence,
+)
 
 from . import _qt as api
 
 # ######### decorator ######### #
 
-ChoicesType = Union[Iterable, Callable[[Type], Iterable]]
+ChoicesType = Union[EnumMeta, Iterable, Callable[[Type], Iterable]]
 _TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
 _CHOICES: Dict[type, ChoicesType] = {}
 _NONE = object()  # stub to detect if a user passed None to an optional param
@@ -22,7 +29,7 @@ def magicgui(
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     parent: api.WidgetType = None,
-    **kwargs: dict,
+    **param_options: dict,
 ) -> Callable:
     """a decorator
 
@@ -53,13 +60,14 @@ def magicgui(
     def inner_func(func: Callable) -> Type:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            if hasattr(func, "widget"):
+            if hasattr(func, "_widget"):
                 # a widget has been instantiated
-                return func.widget(*args, **kwargs)
+                return func._widget(*args, **kwargs)
             return func(*args, **kwargs)
 
         class MagicGui(MagicGuiBase):
-            __doc__ = f'MagicGui generated for function "{func.__name__}"'
+            if hasattr(func, "__name__"):
+                __doc__ = f'MagicGui generated for function "{func.__name__}"'
 
             def __init__(self, show=False) -> None:
                 super().__init__(
@@ -67,7 +75,7 @@ def magicgui(
                     layout=_layout,
                     call_button=call_button,
                     auto_call=auto_call,
-                    **kwargs,
+                    **param_options,
                 )
                 wrapper.called = self.called
                 if show:
@@ -125,20 +133,26 @@ class MagicGuiBase(api.WidgetType):
         self,
         func: Callable,
         *,
-        layout=QHBoxLayout,
-        call_button=False,
-        auto_call=False,
-        parent=None,
-        **gui_options: dict,
+        layout: api.Layout = api.Layout.horizontal,
+        call_button: Union[bool, str] = False,
+        auto_call: bool = False,
+        parent: api.WidgetType = None,
+        ignore: Optional[Sequence[str]] = None,
+        **param_options: Dict[str, Dict[str, Any]],
     ) -> None:
         super().__init__(parent=parent)
+        # this is how the original function object knows that an object has been created
+        setattr(func, "_widget", self)
         self.func = func
-        setattr(func, "widget", self)
         self.setLayout(layout.value(self))
-        self.gui_options = gui_options
-        self.params = inspect.signature(func).parameters
-        self.param_names = tuple(self.params)
-        for param in self.params.values():
+        self.param_options = param_options
+        sig = inspect.signature(func)
+
+        # TODO: should we let required positional args get skipped?
+        self.param_names = tuple(p for p in sig.parameters if p not in (ignore or []))
+        for param in sig.parameters.values():
+            if param.name not in self.param_names:
+                continue
             self.set_widget(
                 name=param.name,
                 value=(None if param.default is param.empty else param.default),
@@ -162,7 +176,7 @@ class MagicGuiBase(api.WidgetType):
         position: Optional[int] = None,
         dtype: Optional[Type] = None,
         widget_type: Optional[api.WidgetType] = None,
-        options: Optional[dict] = None,
+        options: Optional[Dict[str, ChoicesType]] = None,
     ) -> api.WidgetType:
         """Make a widget named `name` based on the type of signature param.
 
@@ -188,13 +202,14 @@ class MagicGuiBase(api.WidgetType):
             if the 'choices' option was specified for this argument, but the default
             value was not one of the choices
         """
-        options = options or self.gui_options.get(name) or dict()
+        options = options or self.param_options.get(name) or dict()
         _widget_type = widget_type or options.get("widget_type")
+        dtype = dtype or options.get("dtype")
 
         if dtype is not None:
             arg_type = dtype
         elif value is not None:
-            arg_type = type(value)
+            arg_type: Type = type(value)
         else:
             arg_type = type(None)
 
@@ -213,7 +228,13 @@ class MagicGuiBase(api.WidgetType):
                 )
             WidgetType = api.get_categorical_widget()
         else:
-            WidgetType = type2widget(arg_type)
+            try:
+                WidgetType = type2widget(arg_type)
+            except TypeError:
+                raise TypeError(
+                    "Unable to find the appropriate widget for arg "
+                    f'"{name}", type "{arg_type}" '
+                )
 
         existing_widget = self.get_widget(name, None)
         # if there is already a widget by this name...
@@ -239,9 +260,9 @@ class MagicGuiBase(api.WidgetType):
         self.add_widget_descriptor(name)
 
         # update choices if it's a categorical
-        if choices or issubclass(arg_type, Enum):
+        if choices or isinstance(arg_type, EnumMeta):
             if callable(_choices):
-                setattr(widget, "_get_choices", functools.partial(_choices, arg_type))
+                setattr(widget, "_get_choices", functools.partial(_choices, arg_type))  # type: ignore # noqa: E501
             self.set_choices(name, choices or arg_type)  # type: ignore
 
         if value is not None:
@@ -280,18 +301,18 @@ class MagicGuiBase(api.WidgetType):
             )
         self.set_choices(name, widget._get_choices())
 
-    def set_choices(self, name, choices: Iterable) -> None:
+    def set_choices(self, name, choices: ChoicesType) -> None:
         widget = self.get_widget(name)
         if not api.is_categorical(widget):
             raise TypeError(f"'{name}' is not a categorical widget with choices.")
-        if inspect.isclass(choices) and issubclass(choices, Enum):
+        if isinstance(choices, EnumMeta):
             api.set_categorical_choices(widget, [(x.name, x) for x in choices])
         else:
-            api.set_categorical_choices(widget, [(str(c), c) for c in choices])
+            api.set_categorical_choices(widget, [(str(c), c) for c in choices])  # type: ignore # noqa: E501
 
     @property
     def current_kwargs(self) -> dict:
-        return {param.name: getattr(self, param.name) for param in self.params.values()}
+        return {param: getattr(self, param) for param in self.param_names}
 
     def __call__(self, *args, **kwargs) -> Any:
         """Call the original function with the current parameter values from the Gui.
@@ -357,6 +378,13 @@ def register_type(
             )
     else:
         _TYPE_DEFS[type_] = widget_type
+
+
+def reset_type(type_):
+    global _TYPE_DEFS
+    global _CHOICES
+    del _TYPE_DEFS[type_]
+    del _CHOICES[type_]
 
 
 def _type2widget(type_: type) -> Optional[Type[api.WidgetType]]:
