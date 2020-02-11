@@ -11,7 +11,7 @@ edit_uri: ""
 
 theme:
   name: material
-  custom_dir: docs/custom_theme
+  # custom_dir: docs/custom_theme
 
 extra:
   social:
