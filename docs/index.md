@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
 
-build GUIs from functions, using magic.
+build GUIs from python functions, using magic.
 
 ## Installation
 

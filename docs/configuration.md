@@ -28,6 +28,51 @@ the function being decorated by `magicgui`.  These individual gui elements can b
 modified by providing an options `dict` to a keyword argument to the `magicgui` function
 with the same name as the argument in the signature that you want to modify:
 
+### `widget_type`
+
+`magicgui` makes some reasonable default guesses about what type of GUI widget to use,
+based on the type or type annotation of your argument, but you can override this, or
+provide specific instructions for custom types, using the `widget_type` option, which
+expects a widget class that can be instantiated.  For instance, to turn an `int` into
+a Qt Slider with a range (using [qt-specific options](#qt-specific-options)):
+
+```python
+from qtpy.QtWidgets import QSlider
+
+@magicgui(arg={'widget_type': QSlider, 'minimum': 10, 'maximum': 100})
+def my_func(arg=5):
+    ...
+```
+
+## Qt-specific options
+
+If you are using Qt as a backend (currently the only supported backend), you can provide
+***any*** string matching one of the `widget.set<ParameterName>` methods for the corresponding
+QWidget (see, for example, <a href="https://doc.qt.io/qt-5/qwidget-members.html"
+target="_blank">all of the members for QWidget</a>).  If a setter is detected, `magicgui`
+will call it with the value provided in the `magicgui` argument-specific.
+
+For example to change the width and font for a specific field:
+
+!!! hint
+    The first letter in the parameter name needn't be capitalized as long as the rest
+    of the string matches a corresponding setter on the widget. In this example, both
+    "`font`" and "`Font`" keywords would properly call `widget.setFont()`
+
+
+```python
+from qtpy.QtGui import QFont
+
+@magicgui(name={"fixedWidth": 200, "font": QFont('Arial', 20)})
+def my_function(name: str):
+    if name:
+        return f"Hello, {name}!"
+
+gui = my_function.Gui(show=True)
+```
+
+As another example, you can disable interactivity on a widget as follows:
+
 ```python
 # the widget for `arg3` will be disabled
 @magicgui(arg3={"disabled": True})
@@ -66,29 +111,4 @@ def my_function(arg2: int, arg2: int, arg3: str):
     gui = my_function.Gui(show=True)
     gui.called.connect(lambda result: gui.set_widget("greeting", result, position=-1))
     ```
-
-### Qt-specific options
-
-If you are using Qt as a backend (currently the only supported backend), you can provide
-***any*** string matching one of the `widget.set<ParameterName>` methods for the corresponding
-QWidget (see, for example, <a href="https://doc.qt.io/qt-5/qwidget-members.html"
-target="_blank">all of the members for QWidget</a>).  If a setter is detected, `magicgui`
-will call it with the value provided in the `magicgui` argument-specific.
-
-For example to change the width and font for a specific field:
-
-```python
-from qtpy.QtGui import QFont
-
-@magicgui(name={"fixedWidth": 200, "font": QFont('Arial', 20)})
-def my_function(name: str):
-    if name:
-        return f"Hello, {name}!"
-
-gui = my_function.Gui(show=True)
-```
-
-!!! info
-    The first letter in the parameter name needn't be capitalized as long as the rest
-    of the string matches a corresponding setter on the widget. In this example, both
-    "`font`" and "`Font`" keywords would properly call `widget.setFont()`
+    
