@@ -1,6 +1,6 @@
 import sys
 from contextlib import contextmanager
-from enum import Enum
+from enum import Enum, EnumMeta
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Type, Tuple
 
 from qtpy.QtCore import Signal, SignalInstance
@@ -82,7 +82,7 @@ def type2widget(type_: type) -> Type[WidgetType]:
     }
     if type_ in simple:
         return simple[type_]
-    elif issubclass(type_, Enum):
+    elif isinstance(type_, EnumMeta):
         return QDataComboBox
 
 
