@@ -384,7 +384,7 @@ class MagicGuiBase(api.WidgetType):
         # if there is already a widget by this name...
         if existing_widget:
             # if it has the same widget type as the new one, update the value
-            if isinstance(existing_widget, WidgetType):
+            if isinstance(existing_widget, WidgetType):  # type: ignore
                 return setattr(self, name, value)
             # otherwise delete it, but get the position so we can insert the new one.
             else:
@@ -411,7 +411,7 @@ class MagicGuiBase(api.WidgetType):
                     # on the widget
                     widget,
                     "_get_choices",
-                    functools.partial(_choices, self, arg_type),
+                    functools.partial(_choices, self, arg_type),  # type: ignore
                 )
             self.set_choices(name, choices or arg_type)
 
@@ -460,7 +460,7 @@ class MagicGuiBase(api.WidgetType):
         if isinstance(choices, EnumMeta):
             api.set_categorical_choices(widget, [(x.name, x) for x in choices])
         else:
-            api.set_categorical_choices(widget, [(str(c), c) for c in choices])
+            api.set_categorical_choices(widget, [(str(c), c) for c in choices])  # type: ignore # noqa: E501
 
     @property
     def current_kwargs(self) -> dict:
