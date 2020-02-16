@@ -1,6 +1,6 @@
 {
   "include": ["magicgui"],
   "reportTypeshedErrors": true,
-  "reportMissingImports": true,
+  "reportMissingImports": false,
   "reportMissingTypeStubs": false
 }
