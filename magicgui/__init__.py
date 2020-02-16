@@ -1,4 +1,4 @@
-"""magicgui is a utility for generating a GUI from a python function"""
+"""magicgui is a utility for generating a GUI from a python function."""
 
 __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"

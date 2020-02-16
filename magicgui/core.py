@@ -1,3 +1,36 @@
+# -*- coding: utf-8 -*-
+"""Core functionality of magicgui decorator and MagicGui class.
+
+magicgui autogenerates graphical user interfaces (GUIs) from python functions by
+introspecting signatures and matching argument types to widgets.  It provides two-way
+data-binding, such that modifying the parameters in the gui will change the effective
+"default" values in the original function, and changing parameters in the instantiated
+widget attributes will change those values in the GUI.
+
+Example
+-------
+This will create a GUI with an integer (SpinBox) and string (LineEdit) fields.
+
+>>> @magicgui
+... def my_function(a: int = 1, b: str = 'hello'):
+...     pass
+...
+... gui = my_function.Gui(show=True)
+
+
+Attributes
+----------
+MagicGuiBase : class
+    Most of the functionality is defined in this class, though it is not (usually)
+    intended to be called directly.
+
+magicgui : callable
+    Intended for use as a decorator.  Takes a function and various arguments and creates
+    a new MagicGui class (a subclass of MagicGuiBase) appropriate for the function.
+    That class is added as an attribute ``Gui`` to the function which can be called to
+    instantiate a GUI widget.
+"""
+
 import functools
 import inspect
 import warnings
@@ -17,7 +50,7 @@ from . import _qt as api
 
 # ######### decorator ######### #
 
-ChoicesType = Union[EnumMeta, Iterable, Callable[[Type], Iterable]]
+ChoicesType = Union[EnumMeta, Iterable, Callable[[api.WidgetType, Type], Iterable]]
 _TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
 _CHOICES: Dict[type, ChoicesType] = {}
 _NONE = object()  # stub to detect if a user passed None to an optional param
@@ -29,31 +62,52 @@ def magicgui(
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     parent: api.WidgetType = None,
+    ignore: Optional[Sequence[str]] = None,
     **param_options: dict,
 ) -> Callable:
-    """a decorator
+    """Create a MagicGui class for ``function`` and add it as an attribute ``Gui``.
 
     Parameters
     ----------
     function : Callable, optional
-        [description], by default None
-    layout : Union[api.Layout, str], optional
-        [description], by default "horizontal"
-    call_button : bool, optional
-        [description], by default False
+        The function to decorate.  Optional to allow bare decorator with optional
+        arguments. by default None
+    layout : api.Layout or str, optional
+        The type of layout to use.  If string, must be one of {'horizontal', 'vertical',
+        'form', 'grid'}, by default "horizontal"
+    call_button : bool or str, optional
+        If True, create an additional button that calls the original function when
+        clicked.  If a ``str``, set the button text. by default False
+    auto_call : bool, optional
+        If True, changing any parameter in either the GUI or the widget attributes
+        will call the original function with the current settings. by default False
+    parent : api.WidgetType, optional
+        An optional parent widget (note: this can be useful for inheriting styles),
+        by default None
+    ignore : list of str, optional
+        Parameters in the function signature that should be ignored when creating
+        the widget, by default None
+
+    **param_options : dict of dict
+        Any additional keyword arguments will be used as parameter-specific options.
+        Keywords MUST match the name of one of the arguments in the function
+        signature, and the value MUST be a dict.
 
     Returns
     -------
     Callable
-        The original function is returned with a new attribute Gui.  Gui is a subclass
-        of MagicGui that, when instantiated, will create a widget representing the
-        signature of the original function.  Furthermore, *calling* that widget will
+        The original function is returned with a new attribute ``Gui``.  Gui is a
+        subclass of MagicGui that, when instantiated, will create a widget representing
+        the signature of the original function.  Furthermore, *calling* that widget will
         call the original function using the state of the Gui arguments.
 
     Examples
     --------
-
-
+    >>> @magicgui
+    ... def my_function(a: int = 1, b: str = 'hello'):
+    ...     pass
+    ...
+    ... gui = my_function.Gui(show=True)
     """
     _layout = api.Layout[layout] if isinstance(layout, str) else layout
 
@@ -93,9 +147,12 @@ def magicgui(
 class WidgetDescriptor:
     """A descriptor to translate get/set calls into appropriate API for the widget.
 
+    In this design, the widget itself serves as the "source of truth" for the current
+    value of a given parameter.
+
     How to use:
     This descriptor is instantiated with the name of an attribute on the parent class.
-    (see, for example: MagicGuiBase.add_widget_descriptor).  This descriptor assumes
+    (see, for example: MagicGuiBase._add_widget_descriptor).  This descriptor assumes
     that the obj passed to the __get__/__set__ methods (i.e. the instance), has an
     attribute named `WIDGET_ATTR.format(self.name)`.  If not, it will raise an
     AttributeError. When `self.name` as accessed on the parent class, this descriptor
@@ -103,19 +160,29 @@ class WidgetDescriptor:
     """
 
     def __init__(self, name: str) -> None:
+        """Create a WidgetDescriptor for the attribute named ``name``.
+
+        Parameters
+        ----------
+        name : str
+            Attribute name.
+        """
         self.name = name
 
     def __get__(self, obj, objtype) -> Any:
+        """Get the current value from the widget."""
         widget = obj.get_widget(self.name)
         return api.getter_setter_onchange(widget).getter()
 
     def __set__(self, obj, val) -> None:
+        """Set the current value for the widget."""
         widget = obj.get_widget(self.name)
         if api.is_categorical(widget):
             val = api.get_categorical_index(widget, val)
         return api.getter_setter_onchange(widget).setter(val)
 
     def __delete__(self, obj) -> None:
+        """Remove the widget from the layout, cleanup, and remove from parent class."""
         widget = obj.get_widget(self.name)
         obj.layout().removeWidget(widget)
         widget.deleteLater()
@@ -123,6 +190,11 @@ class WidgetDescriptor:
 
 
 class MagicGuiBase(api.WidgetType):
+    """Main base class for MagicGui.
+
+    In most cases, this class will be subclassed into a useable MagicGui when the
+    magicgui decorator is called on a function.
+    """
 
     called = api.Signal(object)  # result of the function call
     parameter_updated = api.Signal()  # name of the parameter that was changed
@@ -140,24 +212,59 @@ class MagicGuiBase(api.WidgetType):
         ignore: Optional[Sequence[str]] = None,
         **param_options: Dict[str, Dict[str, Any]],
     ) -> None:
+        """Instantiate a MagicGui widget.
+
+        Parameters
+        ----------
+        func : Callable
+            The function being decorated
+        layout : api.Layout, optional
+            The type of layout to use, by default api.Layout.horizontal
+        call_button : bool or str, optional
+            If True, create an additional button that calls the original function when
+            clicked.  If a ``str``, set the button text. by default False
+        auto_call : bool, optional
+            If True, changing any parameter in either the GUI or the widget attributes
+            will call the original function with the current settings. by default False
+        parent : api.WidgetType, optional
+            An optional parent widget (note: this can be useful for inheriting styles),
+            by default None
+        ignore : list of str, optional
+            Parameters in the function signature that should be ignored when creating
+            the widget, by default None
+
+        **param_options : dict of dict
+            Any additional keyword arguments will be used as parameter-specific options.
+            Keywords MUST match the name of one of the arguments in the function
+            signature, and the value MUST be a dict.
+        """
         super().__init__(parent=parent)
         # this is how the original function object knows that an object has been created
         setattr(func, "_widget", self)
         self.func = func
         self.setLayout(layout.value(self))
-        self.param_options = param_options
         sig = inspect.signature(func)
+        for key, value in param_options.items():
+            if key not in sig.parameters:
+                raise TypeError(
+                    f"{self.__class__.__name__}() got an "
+                    f"unexpected keyword argument '{key}'"
+                )
+            if not isinstance(value, dict):
+                raise TypeError(f"value for keyword argument {key} should be a dict")
+        self.param_options = param_options
 
         # TODO: should we let required positional args get skipped?
-        self.param_names = tuple(p for p in sig.parameters if p not in (ignore or []))
+        self.param_names = []
         for param in sig.parameters.values():
-            if param.name not in self.param_names:
+            if param.name in (ignore or []):
                 continue
             self.set_widget(
                 name=param.name,
                 value=(None if param.default is param.empty else param.default),
                 dtype=(None if param.annotation is param.empty else param.annotation),
             )
+            self.param_names.append(param.name)
 
         if call_button:
             self.call_button = api.ButtonType(
@@ -169,6 +276,10 @@ class MagicGuiBase(api.WidgetType):
         if auto_call:
             self.parameter_updated.connect(self.__call__)
 
+    def setParent(self, parent):
+        """Set the parent widget."""
+        super().setParent(parent)
+
     def set_widget(
         self,
         name: str,
@@ -178,29 +289,62 @@ class MagicGuiBase(api.WidgetType):
         widget_type: Optional[api.WidgetType] = None,
         options: Optional[Dict[str, ChoicesType]] = None,
     ) -> api.WidgetType:
-        """Make a widget named `name` based on the type of signature param.
+        """Make a widget named ``name`` with value ``value``.  If exists, set value.
 
         A descriptor will also be added as an attribute to this class (named `name`).
         The descriptor provides the __get__ and __set__ methods that enable updating the
         GUI by simply setting the attribute on the MagicGui instance that has the same
         name as the argument in the function signature.
 
+        The argument type (which determines which GUI widget type will be used), is
+        inferred in this order:
+            1. if the ``dtype`` argument is provided, use it.
+            2. if not, if a ``dtype`` key is present in the ``options`` dict, use it.
+            3. if not, if ``value`` is provided, dtype = type(value)
+            4. otherwise, use type = type(None)  (fallback to the api NoneType widget)
+
+        The Widget type is inferred in this order:
+            1. if ``widget_type`` is not None, use it.
+            2. if not, if a ``widget_type`` key is present in the ``options`` dict, use
+               it.
+            3. if not, if a ``choices`` key is present in the ``options`` dict, use the
+               default categorical widget type for the current backend (e.g. QComboBox)
+            4. if not, call ``type2widget(dtype)`` the ``arg_type`` which isinferred as
+               described above.  See docstring for ``type2widget``.
+            5. if a widget type is stil not found. raise a TypeError.
+
         Parameters
         ----------
         name : str
-            the name of the argument in the function signature
-        param : inspect.Parameter
-            a parameter instance
-        choices : Optional[Sequence[str]]
-            If provided, typing for this widget will be overridden and it will become a
-            dropdown menu type (e.g. QComboBox for Qt), and `choices` will be added as
-            items in the menu.
+            the name of the parameter for which to s
+        value : Any, optional
+            The initial value for this parameter, by default None
+        position : int, optional
+            Position to insert this widget in the layout, by default will be appended to
+            the end of the layout.
+        dtype : type, optional
+            Type for this parameter.  See Summary above for order of type inference if
+            dtype is None.
+        widget_type : api.WidgetType, optional
+            Optional widget_type override.  If None, ``type2widget`` will be called on
+            dtype to determine the widget type. by default None
+        options : Optional[Dict[str, ChoicesType]], optional
+            [description], by default None
+
+        Returns
+        -------
+        api.WidgetType
+            The instantiated widget. The widget instance is also added to the current
+            class instance using setattr(self, self.WIDGET_ATTR.format(name), widget).
 
         Raises
         ------
         ValueError
-            if the 'choices' option was specified for this argument, but the default
-            value was not one of the choices
+            If ``choices`` is provided, but the default value is not in the choices.
+        TypeError
+            If an appropriate widget type cannot be found.
+        TypeError
+            If ``position`` is provided but is not an integer.
         """
         options = options or self.param_options.get(name) or dict()
         _widget_type = widget_type or options.get("widget_type")
@@ -216,7 +360,7 @@ class MagicGuiBase(api.WidgetType):
         # TODO: move choices logic out of this method
         # argument specific choices override _CHOICES registered with `register_type`
         _choices = options.get("choices") or _type2choices(arg_type)
-        choices = _choices(arg_type) if callable(_choices) else _choices  # type: ignore
+        choices = _choices(self, arg_type) if callable(_choices) else _choices
         if _widget_type:
             WidgetType = _widget_type
         elif choices:
@@ -257,13 +401,19 @@ class MagicGuiBase(api.WidgetType):
 
         # add widget to class and make descriptor
         setattr(self, self.WIDGET_ATTR.format(name), widget)
-        self.add_widget_descriptor(name)
+        self._add_widget_descriptor(name)
 
         # update choices if it's a categorical
         if choices or isinstance(arg_type, EnumMeta):
             if callable(_choices):
-                setattr(widget, "_get_choices", functools.partial(_choices, arg_type))  # type: ignore # noqa: E501
-            self.set_choices(name, choices or arg_type)  # type: ignore
+                setattr(
+                    # TODO: maybe this shouldn't be a partial, but rather store arg_typ
+                    # on the widget
+                    widget,
+                    "_get_choices",
+                    functools.partial(_choices, self, arg_type),
+                )
+            self.set_choices(name, choices or arg_type)
 
         if value is not None:
             setattr(self, name, value)
@@ -281,10 +431,11 @@ class MagicGuiBase(api.WidgetType):
         return widget
 
     @classmethod
-    def add_widget_descriptor(cls, name: str) -> None:
+    def _add_widget_descriptor(cls, name: str) -> None:
         setattr(cls, name, WidgetDescriptor(name))
 
     def get_widget(self, name: str, default: Any = _NONE) -> Optional[api.WidgetType]:
+        """Get widget instance for parameter named ``name``."""
         widget = getattr(self, self.WIDGET_ATTR.format(name), default)
         if widget is _NONE:
             raise AttributeError(
@@ -293,7 +444,7 @@ class MagicGuiBase(api.WidgetType):
         return widget
 
     def fetch_choices(self, name: str) -> None:
-        """update choices if a callable has been provided... otherwise raise."""
+        """Update choices if a callable has been provided... otherwise raise."""
         widget = self.get_widget(name)
         if not hasattr(widget, "_get_choices"):
             raise TypeError(
@@ -302,16 +453,18 @@ class MagicGuiBase(api.WidgetType):
         self.set_choices(name, widget._get_choices())
 
     def set_choices(self, name, choices: ChoicesType) -> None:
+        """Set possible choices for parameter ``name``."""
         widget = self.get_widget(name)
         if not api.is_categorical(widget):
             raise TypeError(f"'{name}' is not a categorical widget with choices.")
         if isinstance(choices, EnumMeta):
             api.set_categorical_choices(widget, [(x.name, x) for x in choices])
         else:
-            api.set_categorical_choices(widget, [(str(c), c) for c in choices])  # type: ignore # noqa: E501
+            api.set_categorical_choices(widget, [(str(c), c) for c in choices])
 
     @property
     def current_kwargs(self) -> dict:
+        """Get the current values in the gui to pass to a function call."""
         return {param: getattr(self, param) for param in self.param_names}
 
     def __call__(self, *args, **kwargs) -> Any:
@@ -328,7 +481,6 @@ class MagicGuiBase(api.WidgetType):
 
         Examples
         --------
-
         gui = decorated_function.Gui(show=True)
         # ... change parameters in the gui ... or by setting:  gui.param = something
 
@@ -337,7 +489,6 @@ class MagicGuiBase(api.WidgetType):
         # this will override parameters from the gui with only the arg values specified
         decorated_function(arg='something')
         """
-
         # everything will be delivered as a keyword argument to self.func ...
         # get the current parameters from the gui
         _kwargs = self.current_kwargs
@@ -351,6 +502,7 @@ class MagicGuiBase(api.WidgetType):
         return value
 
     def __repr__(self):
+        """Representation of the MagicGui with current function signature."""
         sig_string = ", ".join([f"{n}={k}" for n, k in self.current_kwargs.items()])
         func_string = f"{self.func.__name__}({sig_string})"
         return f"<MagicGui: {func_string}>"
@@ -365,6 +517,22 @@ def register_type(
     widget_type: Optional[Type[api.WidgetType]] = None,
     choices: Optional[ChoicesType] = None,
 ) -> None:
+    """Register a ``widget_type`` to be used for all parameters with type ``type_``.
+
+    Parameters
+    ----------
+    type_ : type
+        [description]
+    widget_type : Optional[Type[api.WidgetType]], optional
+        [description], by default None
+    choices : Optional[ChoicesType], optional
+        [description], by default None
+
+    Raises
+    ------
+    ValueError
+        [description]
+    """
     if widget_type is None and choices is None:
         raise ValueError("either `widget_type` or `choices` must be provided.")
 
@@ -381,21 +549,11 @@ def register_type(
 
 
 def reset_type(type_):
+    """Clear any previously-registered widget types for ``type_``."""
     global _TYPE_DEFS
     global _CHOICES
     del _TYPE_DEFS[type_]
     del _CHOICES[type_]
-
-
-def _type2widget(type_: type) -> Optional[Type[api.WidgetType]]:
-    # look for direct hits
-    if type_ in _TYPE_DEFS:
-        return _TYPE_DEFS[type_]
-    # look for subclasses
-    for registered_type in _TYPE_DEFS:
-        # TODO: is it necessary to check for isclass at this point?
-        if inspect.isclass(type_) and issubclass(type_, registered_type):
-            return _TYPE_DEFS[registered_type]
 
 
 def _type2choices(type_: type) -> Optional[ChoicesType]:
@@ -410,9 +568,44 @@ def _type2choices(type_: type) -> Optional[ChoicesType]:
 
 
 def type2widget(type_: type) -> Type[api.WidgetType]:
-    WidgetType = _type2widget(type_)
+    """Retrieve the WidgetType for argument type ``type_``.
+
+    Lookup occurs in this order:
+        1. If a widget type has been manually registered for ``type_`` using
+           ``register_type()``, return it.
+        2. If ``type_`` is a subclass of another registered type, return the widget type
+           registered for that superclass.
+        3. If the current GUI backend (e.g. Qt) declares a widget type for ``type_``,
+           return it.
+        4. If no match has been found, raise a TypeError.
+
+    Parameters
+    ----------
+    type_ : type
+        The argument type to look up
+
+    Returns
+    -------
+    Type[api.WidgetType]
+        A widget class for the current backend that can be instantiated.
+
+    Raises
+    ------
+    TypeError
+        If no matching widget type can be found for ``type_``.
+    """
+    # look for direct hits registered by the user
+    if type_ in _TYPE_DEFS:
+        return _TYPE_DEFS[type_]
+
+    # look for subclasses
+    for registered_type in _TYPE_DEFS:
+        # TODO: is it necessary to check for isclass at this point?
+        if inspect.isclass(type_) and issubclass(type_, registered_type):
+            return _TYPE_DEFS[registered_type]
+
+    # get default widget defined by current backend
+    WidgetType = api.type2widget(type_)
     if not WidgetType:
-        WidgetType = api.type2widget(type_)
-    if not WidgetType:
-        raise TypeError(f'Unable to convert type "{type_}" into a widget.')
+        raise TypeError(f'Unable to retrieve widget type for argument type "{type_}".')
     return WidgetType

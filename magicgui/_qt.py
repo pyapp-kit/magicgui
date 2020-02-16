@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Widgets and type-to-widget conversion for the Qt backend."""
+
 import sys
 from contextlib import contextmanager
 from enum import Enum, EnumMeta
@@ -42,12 +45,16 @@ SignalType = Signal
 
 
 class GetSetOnChange(NamedTuple):
+    """Named tuple for a (getter, setter, onchange) tuple."""
+
     getter: Callable[[], Any]
     setter: Callable[[Any], None]
     onchange: SignalInstance
 
 
 class Layout(Enum):
+    """QLayout options."""
+
     vertical = QVBoxLayout
     horizontal = QHBoxLayout
     grid = QGridLayout
@@ -60,6 +67,8 @@ class Layout(Enum):
 
 
 class QDataComboBox(QComboBox):
+    """A CombBox subclass that emits data objects when the index changes."""
+
     currentDataChanged = Signal(object)
 
     def __init__(self, parent=None) -> None:
@@ -73,6 +82,18 @@ class QDataComboBox(QComboBox):
 
 
 def type2widget(type_: type) -> Type[WidgetType]:
+    """Convert an python type to Qt widget.
+
+    Parameters
+    ----------
+    type_ : type
+        The argument type.
+
+    Returns
+    -------
+    WidgetType: Type[WidgetType]
+        A WidgetType Class that can be used for arg_type ``type_``.
+    """
     simple: Dict[type, Type[WidgetType]] = {
         bool: QCheckBox,
         int: QSpinBox,
@@ -87,6 +108,23 @@ def type2widget(type_: type) -> Type[WidgetType]:
 
 
 def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
+    """Return a GetSetOnChange tuple for widgets of class ``WidgetType``.
+
+    Parameters
+    ----------
+    widget : WidgetType
+        A widget class in Qt
+
+    Returns
+    -------
+    GetSetOnChange : tuple
+        (getter, setter, onchange) functions for this widget class.
+
+    Raises
+    ------
+    ValueError
+        If the widget class is unrecognzed.
+    """
     if isinstance(widget, QComboBox):
 
         def getter():
@@ -122,6 +160,7 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
 
 
 def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any]]):
+    """Set current items in categorical type ``widget`` to ``choices``."""
     names = [x[0] for x in choices]
     for i in range(widget.count()):
         if widget.itemText(i) not in names:
@@ -132,14 +171,17 @@ def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any
 
 
 def get_categorical_widget():
+    """Get the categorical widget type for Qt."""
     return QDataComboBox
 
 
 def is_categorical(widget: WidgetType):
+    """Return True if ``widget`` is a categorical widget."""
     return isinstance(widget, QComboBox)
 
 
 def get_categorical_index(widget: WidgetType, value: Any):
+    """Find the index of ``value`` in categorical-type ``widget``."""
     return next(i for i in range(widget.count()) if widget.itemData(i) == value)
 
 
@@ -149,6 +191,30 @@ def make_widget(
     parent: WidgetType = None,
     **kwargs,
 ) -> WidgetType:
+    """Instantiate a new widget of type ``WidgetType``.
+
+    This function allows for any ``widget.set<AttrName>()`` setter to be called by
+    providing the corresponding ``attrName: value`` as a key/value in pair in
+    ``**kwargs``.
+
+    Parameters
+    ----------
+    WidgetType : Type[WidgetType]
+        The widget class to create.
+    name : str, optional
+        Name of the widget.  If provided, will be set as ObjectName. by default None
+    parent : WidgetType, optional
+        Optional parent widget instance, by default None
+    **kwargs : dict
+        For each ``key`` in ``kwargs``, if there is a setter method on the instantiated
+        widget called ``set<key>``, it will called with ``kwargs[key]``.  Note, the
+        first letter of ``key`` needn't be capitalized.
+
+    Returns
+    -------
+    widget : WidgetType
+        The newly instantiated widget
+    """
     widget = WidgetType(parent=parent)
     if name:
         widget.setObjectName(name)
