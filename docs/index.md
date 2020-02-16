@@ -30,11 +30,12 @@ pip install magicgui
 
 ## Introduction
 
-The core feature of `magicgui` is the `@magicgui` decorator, which, when used to decorate
-a function, will autogenerate a graphical user interface (GUI) by inspecting the function
-signature and adding an appropriate GUI widget for each argument.  Argument
+The core feature of `magicgui` is the `@magicgui` decorator, which, when used to
+decorate a function, will autogenerate a graphical user interface (GUI) by inspecting
+the function signature and adding an appropriate GUI widget for each argument.  Argument
 `types` are taken from [type hints](https://docs.python.org/3/library/typing.html) if
-provided, or inferred using the type of the  default value.
+provided, or inferred using the type of the  default value.  The resulting GUI Class
+is added to the function as a new attribute named `Gui`.
 
 ```python
 import math
