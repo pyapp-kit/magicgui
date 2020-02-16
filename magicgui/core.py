@@ -56,91 +56,6 @@ _CHOICES: Dict[type, ChoicesType] = {}
 _NONE = object()  # stub to detect if a user passed None to an optional param
 
 
-def magicgui(
-    function: Callable = None,
-    layout: Union[api.Layout, str] = "horizontal",
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    parent: api.WidgetType = None,
-    ignore: Optional[Sequence[str]] = None,
-    **param_options: dict,
-) -> Callable:
-    """Create a MagicGui class for ``function`` and add it as an attribute ``Gui``.
-
-    Parameters
-    ----------
-    function : Callable, optional
-        The function to decorate.  Optional to allow bare decorator with optional
-        arguments. by default None
-    layout : api.Layout or str, optional
-        The type of layout to use.  If string, must be one of {'horizontal', 'vertical',
-        'form', 'grid'}, by default "horizontal"
-    call_button : bool or str, optional
-        If True, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False
-    auto_call : bool, optional
-        If True, changing any parameter in either the GUI or the widget attributes
-        will call the original function with the current settings. by default False
-    parent : api.WidgetType, optional
-        An optional parent widget (note: this can be useful for inheriting styles),
-        by default None
-    ignore : list of str, optional
-        Parameters in the function signature that should be ignored when creating
-        the widget, by default None
-
-    **param_options : dict of dict
-        Any additional keyword arguments will be used as parameter-specific options.
-        Keywords MUST match the name of one of the arguments in the function
-        signature, and the value MUST be a dict.
-
-    Returns
-    -------
-    Callable
-        The original function is returned with a new attribute ``Gui``.  Gui is a
-        subclass of MagicGui that, when instantiated, will create a widget representing
-        the signature of the original function.  Furthermore, *calling* that widget will
-        call the original function using the state of the Gui arguments.
-
-    Examples
-    --------
-    >>> @magicgui
-    ... def my_function(a: int = 1, b: str = 'hello'):
-    ...     pass
-    ...
-    ... gui = my_function.Gui(show=True)
-    """
-    _layout = api.Layout[layout] if isinstance(layout, str) else layout
-
-    def inner_func(func: Callable) -> Type:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            if hasattr(func, "_widget"):
-                # a widget has been instantiated
-                return func._widget(*args, **kwargs)
-            return func(*args, **kwargs)
-
-        class MagicGui(MagicGuiBase):
-            if hasattr(func, "__name__"):
-                __doc__ = f'MagicGui generated for function "{func.__name__}"'
-
-            def __init__(self, show=False) -> None:
-                super().__init__(
-                    func,
-                    layout=_layout,
-                    call_button=call_button,
-                    auto_call=auto_call,
-                    **param_options,
-                )
-                wrapper.called = self.called
-                if show:
-                    self.show()
-
-        wrapper.Gui = MagicGui
-        return wrapper
-
-    return inner_func if function is None else inner_func(function)
-
-
 # ######### Base MagicGui Class ######### #
 
 
@@ -275,10 +190,6 @@ class MagicGuiBase(api.WidgetType):
 
         if auto_call:
             self.parameter_updated.connect(self.__call__)
-
-    def setParent(self, parent):
-        """Set the parent widget."""
-        super().setParent(parent)
 
     def set_widget(
         self,
@@ -506,6 +417,96 @@ class MagicGuiBase(api.WidgetType):
         sig_string = ", ".join([f"{n}={k}" for n, k in self.current_kwargs.items()])
         func_string = f"{self.func.__name__}({sig_string})"
         return f"<MagicGui: {func_string}>"
+
+
+# ######### magicgui decorator ######### #
+
+
+def magicgui(
+    function: Callable = None,
+    layout: Union[api.Layout, str] = "horizontal",
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    parent: api.WidgetType = None,
+    ignore: Optional[Sequence[str]] = None,
+    **param_options: dict,
+) -> Callable:
+    """Create a MagicGui class for ``function`` and add it as an attribute ``Gui``.
+
+    Parameters
+    ----------
+    function : Callable, optional
+        The function to decorate.  Optional to allow bare decorator with optional
+        arguments. by default None
+    layout : api.Layout or str, optional
+        The type of layout to use.  If string, must be one of {'horizontal', 'vertical',
+        'form', 'grid'}, by default "horizontal"
+    call_button : bool or str, optional
+        If True, create an additional button that calls the original function when
+        clicked.  If a ``str``, set the button text. by default False
+    auto_call : bool, optional
+        If True, changing any parameter in either the GUI or the widget attributes
+        will call the original function with the current settings. by default False
+    parent : api.WidgetType, optional
+        An optional parent widget (note: this can be useful for inheriting styles),
+        by default None
+    ignore : list of str, optional
+        Parameters in the function signature that should be ignored when creating
+        the widget, by default None
+
+    **param_options : dict of dict
+        Any additional keyword arguments will be used as parameter-specific options.
+        Keywords MUST match the name of one of the arguments in the function
+        signature, and the value MUST be a dict.
+
+    Returns
+    -------
+    Callable
+        The original function is returned with a new attribute ``Gui``.  Gui is a
+        subclass of MagicGui that, when instantiated, will create a widget representing
+        the signature of the original function.  Furthermore, *calling* that widget will
+        call the original function using the state of the Gui arguments.
+
+    Examples
+    --------
+    >>> @magicgui
+    ... def my_function(a: int = 1, b: str = 'hello'):
+    ...     pass
+    ...
+    ... gui = my_function.Gui(show=True)
+    """
+    _layout = api.Layout[layout] if isinstance(layout, str) else layout
+
+    def inner_func(func: Callable) -> Type:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if hasattr(func, "_widget"):
+                # a widget has been instantiated
+                return func._widget(*args, **kwargs)
+            return func(*args, **kwargs)
+
+        class MagicGui(MagicGuiBase):
+            if hasattr(func, "__name__"):
+                __doc__ = f'MagicGui generated for function "{func.__name__}"'
+
+            def __init__(self, show=False) -> None:
+                super().__init__(
+                    func,
+                    layout=_layout,
+                    call_button=call_button,
+                    auto_call=auto_call,
+                    parent=parent,
+                    ignore=ignore,
+                    **param_options,
+                )
+                wrapper.called = self.called
+                if show:
+                    self.show()
+
+        wrapper.Gui = MagicGui
+        return wrapper
+
+    return inner_func if function is None else inner_func(function)
 
 
 # ######### UTIL FUNCTIONS ######### #
