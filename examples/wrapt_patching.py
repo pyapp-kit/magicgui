@@ -1,72 +1,247 @@
+"""Utilities for changing function signatures."""
 import inspect
-from typing import Callable, Dict
-import wrapt
-import napari
-from napari import layers
-from skimage import filters, data
-from functools import partial
-from magicgui import magicgui, register_type
 from ast import literal_eval
+from collections import OrderedDict, defaultdict
+from importlib import import_module
+from itertools import chain
+from types import ModuleType
+import typing  # noqa: F401 - needed for eval() statements
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    List,
+    ForwardRef,  # type: ignore
+    _GenericAlias,  # type: ignore
+)
+import re
+import wrapt
 from numpydoc.docscrape import FunctionDoc
-from qtpy.QtWidgets import QSlider
-from qtpy.QtCore import Qt
-from collections import defaultdict
-from pydoc import locate
+
+from magicgui import magicgui
+
+_TYPE_LOOKUP = {
+    "int": int,
+    "None": type(None),
+    "none": type(None),
+    "float": float,
+    "bool": bool,
+    "dict": Dict,
+    "boolean": bool,
+    "str": str,
+    "tuple": Tuple,
+    "list": List,
+    "scalar": Union[int, float],
+    "sequence": Sequence,
+    "iterable": Iterable,
+    "generator": Generator,
+    "function": Callable,
+    "callable": Callable,
+    "array-like": ForwardRef("numpy.ndarray"),
+    "array": ForwardRef("numpy.ndarray"),
+}
 
 
-class QDoubleSlider(QSlider):
-    PRECISION = 1000
-
-    def __init__(self, parent=None):
-        super().__init__(Qt.Horizontal, parent=parent)
-        self.setMaximum(10)
-
-    def value(self):
-        return super().value() / self.PRECISION
-
-    def setValue(self, value):
-        super().setValue(value * self.PRECISION)
-
-    def setMaximum(self, value):
-        super().setMaximum(value * self.PRECISION)
-
-
-def docstring_dtypes(func: Callable) -> Dict[str, type]:
-    dtypes = {}
-    for p in FunctionDoc(func).get("Parameters"):
-        type_name = p.type.split(",")[0]
-        type_name = "numpy.ndarray" if type_name.startswith("array") else type_name
-        _type = locate(type_name)
-        if _type:
-            dtypes[p.name] = _type
-    return dtypes
-
-
-def docstring_choices(func: Callable) -> Dict[str, set]:
-    """Finds parameters in the signature of `func` that declare a set of valid options.
+def typestr_to_typeobj(typestr: str) -> Optional[type]:
+    """Convert numpydoc style type string into typing object.
 
     Parameters
     ----------
-    func : Callable
-        the function
+    typestr : str
+        String describing a paramater type
 
     Returns
     -------
-    Dict[str, set]
-        param_name: {choices}
+    type or None
+        Type annotation.  If unable to parse, returns None.
+
+    Examples
+    --------
+    >>> typestr_to_typeobj('int or 3-Tuple of ints, optional')
+    typing.Union[int, typing.Tuple[int, int, int], NoneType]
     """
-    choices = {}
-    for p in FunctionDoc(func).get("Parameters"):
-        if p.type.startswith("{'"):
+    typestr = typestr.strip().strip(",")
+
+    if typestr.lower() in _TYPE_LOOKUP:
+        return _TYPE_LOOKUP[typestr.lower()]
+
+    match = re.match(r"^([\w-]+) of (\w+)$", typestr)
+    if match:
+        container, inner = match.groups()
+        n = None
+        if container.lower() not in _TYPE_LOOKUP:
+            tupmatch = re.match(r"(\d+)-tuple", container.lower())
+            if tupmatch:
+                n = int(tupmatch.groups()[0])
+                container = Tuple
+            else:
+                return ForwardRef(container)
+        else:
+            container = _TYPE_LOOKUP[container.lower()]
+        inner_type = _TYPE_LOOKUP.get(inner.lower())
+        if not inner_type:
+            if inner.lower().endswith("s"):
+                inner_type = _TYPE_LOOKUP.get(inner.lower()[:-1])
+            else:
+                inner_type = ForwardRef(inner)
+        if isinstance(n, int) and isinstance(inner_type, (type, _GenericAlias)):
+            i = inner_type.__name__ if isinstance(inner_type, type) else str(inner_type)
+            return eval(f'Tuple[{", ".join([i] * n)}]')
+        return (
+            container[inner_type, ...] if container == Tuple else container[inner_type]
+        )
+
+    if "optional" in typestr.lower():
+        if ", optional" in typestr.lower():
+            return Optional[typestr_to_typeobj(typestr.lower().split(", optional")[0])]
+        return Optional[typestr_to_typeobj(typestr.replace("optional", ""))]
+
+    if "or" in typestr.lower():
+        if "none" in typestr.lower():
+            newstr = typestr.lower().replace("none", "").strip()
+            return Optional[typestr_to_typeobj(newstr)]
+        _types = [typestr_to_typeobj(i) for i in typestr.split("or") if i.strip()]
+        # FIXME: is there a better way to do this??
+        if all([isinstance(t, (type, _GenericAlias)) for t in _types]):
+            ls = [t.__name__ if isinstance(t, type) else str(t) for t in _types]
+            return eval(f'Union[{", ".join(ls)}]')
+
+    if any(x in typestr for x in ("array",)):
+        return ForwardRef("numpy.ndarray")
+
+
+def guess_numpydoc_annotations(func: Callable) -> Dict[str, Dict[str, Any]]:
+    """Return a dict with type hints and/or choices for each parameter in the docstring.
+
+    Parameters
+    ----------
+    func : function
+        The function to parse
+
+    Returns
+    -------
+    param_dict : dict
+        dict where the keys are names of parameters in the signature of ``func``, and
+        the value is a dict with possible keys ``type``, and ``choices``.  ``type``
+        provides a typing object from ``typing`` that can be used in function signatures
+    """
+    param_dict = OrderedDict()
+    sig = inspect.signature(func)
+    for name, type_, description in FunctionDoc(func).get("Parameters"):
+        if name not in sig.parameters:
+            continue
+        if name not in param_dict:
+            param_dict[name] = {}
+        if type_.startswith("{'"):
             try:
-                choices[p.name] = literal_eval(p.type.split("},")[0] + "}")
+                param_dict[name]["choices"] = literal_eval(type_.split("},")[0] + "}")
             except Exception:
                 pass
-    return choices
+        param_dict[name]["type"] = typestr_to_typeobj(type_)
+    return param_dict
+
+
+def change_signature(
+    force_annotation: Optional[Dict[str, Type]] = None,
+    change_annotation: Optional[Dict[str, Type]] = None,
+    namespace: Optional[Dict[str, Any]] = None,
+) -> Callable[[Callable], Callable]:
+    """Change function signature.
+
+    Parameters
+    ----------
+    force_annotation : dict, optional
+        mapping of {argument_name: type_hint}.  Will force any arguments named
+        ``argument_name`` to be annotated as ``type_hint``.
+    change_annotation : dict
+        mapping of {current_hint: new_hint}.  Will force any arguments currently
+        annotated with a type of ``curent_hint`` to ``new_hint`.
+    namespace : dict
+        mapping of {name: object}.  Namespaces required for importing any types
+        declared as type annotations in the other arguments.
+
+    Returns
+    -------
+    adapter : callable
+        The returned function may be provided to the `adapter` argument of the
+        ``wrapt.decorator`` function.
+    """
+    force_annotation = force_annotation or dict()
+    change_annotation = change_annotation or dict()
+    namespace = namespace or dict()
+    if not namespace:
+        for val in chain(change_annotation.values(), force_annotation.values()):
+            mod = val.__module__.split(".")[0]
+            namespace[mod] = import_module(mod)
+
+    def argspec_factory(wrapped):
+        sig = inspect.signature(wrapped)
+        new_params = OrderedDict(sig.parameters.items())
+        for name, param in new_params.items():
+            if name in force_annotation:
+                new_params[name] = param.replace(annotation=force_annotation[name])
+        new_sig = sig.replace(parameters=list(new_params.values()))
+        _globals = {}
+        exec(f"def _func{new_sig}: pass", namespace, _globals)
+        return _globals["_func"]
+
+    return wrapt.adapter_factory(argspec_factory)
+
+
+def find_functions_with_arg_named(
+    module: ModuleType,
+    argname: Union[str, Sequence[str]],
+    match_all: Optional[bool] = False,
+    include_private: Optional[bool] = False,
+) -> Generator[Callable, None, None]:
+    """Yield all functions in module ``module`` that have an argument named ``argname``.
+
+    Parameters
+    ----------
+    module : ModuleType
+        The module to search
+    argname : str or list of str
+        name (or names)
+    match_all : bool, optional
+        if True, all provided argnames must be present in signature to match. by default
+        False
+    include_private : bool, optional
+        if True, include private functions (starting with '_'), by default False.
+
+    Returns
+    -------
+    Generator[Callable, None, None]
+        [description]
+
+    Yields
+    ------
+    Generator[Callable, None, None]
+        [description]
+    """
+    if isinstance(argname, str):
+        argname = [argname]
+
+    for funcname in dir(module):
+        if funcname.startswith("_") and not include_private:
+            continue
+        func = getattr(module, funcname)
+        if not inspect.isfunction(func):
+            continue
+        sig = inspect.signature(func)
+        _match = all if match_all else any
+        if _match([arg in sig.parameters for arg in argname]):
+            yield func
 
 
 def get_parameter_position(func: Callable, param: str) -> int:
-    """Returns the position of `param` in the signature of function `func`.
+    """Return the position of `param` in the signature of function `func`.
 
     Parameters
     ----------
@@ -90,101 +265,44 @@ def get_parameter_position(func: Callable, param: str) -> int:
         return -1
 
 
-def argspec_factory(wrapped, replace_annotations=None, ns=None):
-    """given a function, returns a new function"""
-    ns = ns or dict()
-    replace_annotations = replace_annotations or dict()
+if __name__ == "__main__":
+    from skimage import filters
+    from qtpy.QtWidgets import QApplication
 
-    sig = inspect.signature(wrapped)
-    new_params = []
-    for param in sig.parameters.values():
-        if param.name in replace_annotations:
-            new_annotation = replace_annotations[param.name]
-            param = param.replace(annotation=new_annotation)
-        new_params.append(param)
-    new_sig = sig.replace(parameters=new_params)
-    exec(f"def adapter{new_sig}: pass", ns, ns)
-    return ns["adapter"]
+    import napari
 
+    change_image_to_layer = change_signature({"image": napari.layers.Layer})
 
-image2layer = partial(
-    argspec_factory,
-    replace_annotations={"image": napari.layers.Layer},
-    ns={"napari": napari},
-)
+    @wrapt.decorator(adapter=change_image_to_layer)
+    def image_as_napari_layer(wrapped, instance=None, args=None, kwargs=None):
+        """Return a decorator that converts skimage functions to accept napari layers."""
+        image_idx = get_parameter_position(wrapped, "image")
+        if len(args) >= (image_idx + 1):
+            args = list(args)
+            if hasattr(args[image_idx], "data"):
+                args[image_idx] = args[image_idx].data
+        elif "image" in kwargs:
+            if hasattr(kwargs["image"], "data"):
+                kwargs["image"] = kwargs["image"].data
+        return wrapped(*args, **kwargs)
 
+    adapted_functions = [
+        image_as_napari_layer(f)
+        for f in find_functions_with_arg_named(filters, "image")
+    ]
 
-@wrapt.decorator(adapter=wrapt.adapter_factory(image2layer))
-def layer_adaptor(wrapped, instance=None, args=None, kwargs=None):
-    print("CALLED ", args, kwargs)
-    image_idx = get_parameter_position(wrapped, "image")
-    if len(args) >= (image_idx + 1):
-        args = list(args)
-        if hasattr(args[image_idx], "data"):
-            args[image_idx] = args[image_idx].data
-    elif "image" in kwargs:
-        if hasattr(kwargs["image"], "data"):
-            kwargs["image"] = kwargs["image"].data
-    return wrapped(*args, **kwargs)
+    guis = {}
+    for func in adapted_functions:
+        opts = defaultdict(dict)
+        opts.update({"ignore": ["output"], "auto_call": True})
+        annotations = guess_numpydoc_annotations(func)
+        for pname, value in annotations.items():
+            if "choices" in value:
+                opts[pname]["choices"] = value["choices"]
+            # if "type" in value:
+            #     opts[pname]["dtype"] = value["type"]
+        guis[func.__name__] = magicgui(func, **opts)
 
-
-def get_image_functions(module) -> Dict[str, Callable]:
-    adapted_functions = {}
-    for funcname in dir(module):
-        if funcname.startswith("_"):
-            continue
-        func = getattr(module, funcname)
-        if not inspect.isfunction(func):
-            continue
-        sig = inspect.signature(func)
-        if "image" in sig.parameters:
-            adapted_functions[funcname] = layer_adaptor(func)
-    return adapted_functions
-
-register_type(float, widget_type=QDoubleSlider)
-register_type(int, widget_type=QDoubleSlider)
-
-adapted_functions = get_image_functions(filters)
-guis = {}
-for k, func in adapted_functions.items():
-    opts = defaultdict(dict)
-    opts.update({"ignore": ["output"], "auto_call": True})
-    choices = docstring_choices(func)
-    dtypes = docstring_dtypes(func)
-    if choices:
-        for pname, choice in choices.items():
-            opts[pname]["choices"] = choice
-    if dtypes:
-        for pname, dtype in dtypes.items():
-            opts[pname]["dtype"] = dtype
-    guis[k] = magicgui(func, **opts)
-
-
-def get_layers(layer_type):
-    return tuple(l for l in viewer.layers if isinstance(l, layer_type))
-
-
-register_type(layers.Layer, choices=get_layers)
-
-
-with napari.gui_qt():
-    # create a viewer and add a couple image layers
-    viewer = napari.Viewer()
-    viewer.add_image(data.astronaut().mean(-1))
-
-    fun = guis['hessian']
-    # instantiate the widget
-    gui = fun.Gui()
-
-    def show_result(result):
-        """callback function for whenever the image_arithmetic functions is called"""
-        try:
-            outlayer = viewer.layers["blurred"]
-            outlayer.data = result
-        except KeyError:
-            outlayer = viewer.add_image(data=result, name="blurred")
-
-    fun.called.connect(show_result)
-    viewer.window.add_dock_widget(gui)
-    viewer.layers.events.added.connect(lambda x: gui.fetch_choices("image"))
-    viewer.layers.events.removed.connect(lambda x: gui.fetch_choices("image"))
+    app = QApplication([])
+    for func in guis.values():
+        func.Gui()
