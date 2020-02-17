@@ -33,18 +33,10 @@ magicgui : callable
 
 import functools
 import inspect
+import os
 import warnings
 from enum import EnumMeta
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    Optional,
-    Type,
-    Union,
-    Dict,
-    Sequence,
-)
+from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Type, Union
 
 from . import _qt as api
 
@@ -55,6 +47,7 @@ _TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
 _CHOICES: Dict[type, ChoicesType] = {}
 _NONE = object()  # stub to detect if a user passed None to an optional param
 
+SKIP_UNRECOGNIZED_TYPES = os.environ.get("MAGICGUI_SKIP_UNRECOGNIZED_TYPES", False)
 
 # ######### Base MagicGui Class ######### #
 
@@ -193,7 +186,7 @@ class MagicGuiBase(api.WidgetType):
         position: Optional[int] = None,
         dtype: Optional[Type] = None,
         widget_type: Optional[api.WidgetType] = None,
-        options: Optional[Dict[str, ChoicesType]] = None,
+        options: Optional[dict] = None,
     ) -> api.WidgetType:
         """Make a widget named ``name`` with value ``value``.  If exists, set value.
 
@@ -234,8 +227,17 @@ class MagicGuiBase(api.WidgetType):
         widget_type : api.WidgetType, optional
             Optional widget_type override.  If None, ``type2widget`` will be called on
             dtype to determine the widget type. by default None
-        options : Optional[Dict[str, ChoicesType]], optional
-            [description], by default None
+        options : dict, optional
+            Optional dict with argument-specific options.  If not provided, if ``name``
+            exists in self.param_options (i.e. if the magicgui was created with some
+            argument-specific options for this parameter), then those options will be
+            used.  Possible keys in this dict include:
+                dtype: overrides the argument type
+                widget_type: overrides the widget type
+                choices: sets this widget to a categorical type, and provides a list of
+                         valid choices, or a function to retrieve those choices.
+
+            TODO: consider removing the options arg, and making ``choices`` an arg.
 
         Returns
         -------
@@ -263,7 +265,6 @@ class MagicGuiBase(api.WidgetType):
         else:
             arg_type = type(None)
 
-        # TODO: move choices logic out of this method
         # argument specific choices override _CHOICES registered with `register_type`
         _choices = options.get("choices") or _type2choices(arg_type)
         choices = _choices(self, arg_type) if callable(_choices) else _choices
@@ -281,16 +282,20 @@ class MagicGuiBase(api.WidgetType):
             try:
                 WidgetType = type2widget(arg_type)
             except TypeError:
-                raise TypeError(
-                    "Unable to find the appropriate widget for arg "
-                    f'"{name}", type "{arg_type}" '
+                msg = (
+                    "Unable to find the appropriate widget for function "
+                    f'"{self.func.__name__}", arg "{name}", type "{arg_type}".'
                 )
+                if SKIP_UNRECOGNIZED_TYPES:
+                    warnings.warn(msg + " Skipping.")
+                    return
+                raise TypeError(msg)
 
         existing_widget = self.get_widget(name, None)
         # if there is already a widget by this name...
         if existing_widget:
             # if it has the same widget type as the new one, update the value
-            if isinstance(existing_widget, WidgetType):  # type: ignore
+            if isinstance(existing_widget, WidgetType):
                 return setattr(self, name, value)
             # otherwise delete it, but get the position so we can insert the new one.
             else:
@@ -317,7 +322,7 @@ class MagicGuiBase(api.WidgetType):
                     # on the widget
                     widget,
                     "_get_choices",
-                    functools.partial(_choices, self, arg_type),  # type: ignore
+                    functools.partial(_choices, self, arg_type),
                 )
             self.set_choices(name, choices or arg_type)
 
@@ -366,7 +371,7 @@ class MagicGuiBase(api.WidgetType):
         if isinstance(choices, EnumMeta):
             api.set_categorical_choices(widget, [(x.name, x) for x in choices])
         else:
-            api.set_categorical_choices(widget, [(str(c), c) for c in choices])  # type: ignore # noqa: E501
+            api.set_categorical_choices(widget, [(str(c), c) for c in choices])
 
     @property
     def current_kwargs(self) -> dict:
