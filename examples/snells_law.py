@@ -1,3 +1,5 @@
+"""Simple demonstration of magicgui."""
+
 from enum import Enum
 import math
 
@@ -6,6 +8,8 @@ from magicgui import event_loop, magicgui
 
 # dropdown boxes are best made by creating an enum
 class Medium(Enum):
+    """Enum for various media and their refractive indices."""
+
     Glass = 1.520
     Oil = 1.515
     Water = 1.333
@@ -16,6 +20,7 @@ class Medium(Enum):
 def snells_law(
     aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True,
 ):
+    """Calculate the angle of refraction given two media and an AOI."""
     if degrees:
         aoi = math.radians(aoi)
     try:
@@ -29,7 +34,6 @@ def snells_law(
 
 with event_loop():
     # the original function still works
-    print(snells_law())
     # we can create a gui
     gui = snells_law.Gui(show=True)
     # we can list for changes to parameters in the gui
