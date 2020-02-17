@@ -2,5 +2,7 @@
   "include": ["magicgui"],
   "reportTypeshedErrors": true,
   "reportMissingImports": false,
-  "reportMissingTypeStubs": false
+  "reportMissingTypeStubs": false,
+  "reportUnknownParameterType": false,
+  "reportUnknownArgumentType": false
 }

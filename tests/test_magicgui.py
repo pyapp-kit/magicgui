@@ -5,40 +5,81 @@
 from enum import Enum
 
 import pytest
+from inspect import signature
 from qtpy import QtWidgets as QtW
+from qtpy.QtCore import Qt
 
 from magicgui import magicgui
 
 
-class Medium(Enum):
-    Glass = 1.520
-    Oil = 1.515
-    Water = 1.333
-    Air = 1.0003
+@pytest.fixture
+def magic_func():
+    """Test function decorated by magicgui."""
 
-
-def test_magicgui(qtbot):
-    """Test basic magicgui functionality."""
-
-    @magicgui
+    @magicgui(call_button="my_button", auto_call=True)
     def func(a: str = "string", b: int = 3, c=7.1) -> str:
         return "works"
 
-    widget = func.Gui()
-    assert func() == "works"
-    assert widget.a == "string"
-    assert widget.b == 3
-    assert widget.c == 7.1
-    assert isinstance(widget.a_widget, QtW.QLineEdit)
-    assert isinstance(widget.b_widget, QtW.QSpinBox)
-    assert isinstance(widget.c_widget, QtW.QDoubleSpinBox)
+    return func
 
-    widget.show()
-    assert widget.isVisible()
+
+@pytest.fixture
+def magic_widget(qtbot, magic_func):
+    """Test instantiated widget."""
+    return magic_func.Gui()
+
+
+def test_magicgui(magic_widget):
+    """Test basic magicgui functionality."""
+    assert magic_widget.func() == "works"
+    assert magic_widget.a == "string"
+    assert magic_widget.b == 3
+    assert magic_widget.c == 7.1
+    assert isinstance(magic_widget.get_widget("a"), QtW.QLineEdit)
+    assert isinstance(magic_widget.get_widget("b"), QtW.QSpinBox)
+    assert isinstance(magic_widget.get_widget("c"), QtW.QDoubleSpinBox)
+
+    magic_widget.show()
+    assert magic_widget.isVisible()
+
+    # we can delete widgets
+    del magic_widget.a
+    with pytest.raises(AttributeError):
+        getattr(magic_widget, "a")
+
+    # they disappear from the layout
+    widg = magic_widget.get_widget("a")
+    assert magic_widget.layout().indexOf(widg) == -1
+
+
+def test_call_button(magic_widget):
+    """Test that the call button has been added."""
+    assert hasattr(magic_widget, "call_button")
+    assert isinstance(magic_widget.call_button, QtW.QPushButton)
+
+
+def test_auto_call(qtbot, magic_func):
+    """Test that changing a parameter calls the function."""
+    magic_widget = magic_func.Gui()
+
+    # changing the widget parameter calls the function
+    with qtbot.waitSignal(magic_func.called, timeout=1000):
+        magic_widget.b = 6
+
+    # changing the gui calls the function
+    with qtbot.waitSignal(magic_func.called, timeout=1000):
+        qtbot.keyClick(magic_widget.a_widget, Qt.Key_A, Qt.ControlModifier)
+        qtbot.keyClick(magic_widget.a_widget, Qt.Key_Delete)
 
 
 def test_dropdown_list_from_enum(qtbot):
     """Test that enums properly populate the dropdown menu with options."""
+
+    class Medium(Enum):
+        Glass = 1.520
+        Oil = 1.515
+        Water = 1.333
+        Air = 1.0003
 
     @magicgui
     def func(arg: Medium = Medium.Water):
@@ -75,9 +116,7 @@ def test_dropdown_list_from_str(qtbot):
 
 
 def test_multiple_gui_with_same_args(qtbot):
-    """Test that similarly named arguments from different decorated functions are
-    independent of one another.
-    """
+    """Test that similarly named arguments are independent of one another."""
 
     @magicgui
     def example1(a=2):
@@ -131,3 +170,43 @@ def test_multiple_gui_instance_independence(qtbot):
     assert example() == w2() == 4
     # the first function can only be accessed by calling the GUI
     assert w1() == 10
+
+
+def test_ignore_param(qtbot):
+    """Test that the ignore option works."""
+
+    @magicgui(ignore=["b", "c"])
+    def func(a: str = "string", b: int = 3, c=7.1) -> str:
+        return "works"
+
+    gui = func.Gui()
+    assert hasattr(gui, "a")
+    assert not hasattr(gui, "b")
+    assert not hasattr(gui, "c")
+    func()
+
+
+def test_bad_options(qtbot):
+    """Test that the ignore option works."""
+    with pytest.raises(TypeError):
+
+        @magicgui(b=7)  # type: ignore
+        def func(a="string", b=3, c=7.1):
+            return "works"
+
+
+def test_signature_repr(qtbot):
+    """Test that the gui makes a proper signature."""
+
+    @magicgui
+    def func(a="string", b=3, c=7.1):
+        ...
+
+    gui = func.Gui()
+    assert gui._current_signature() == str(signature(func))
+
+    # make sure it is up to date
+    gui.b = 0
+    assert gui._current_signature() == "(a='string', b=0, c=7.1)"
+    assert repr(gui) == "<MagicGui: func(a='string', b=0, c=7.1)>"
+

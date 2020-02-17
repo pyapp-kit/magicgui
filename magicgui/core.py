@@ -45,7 +45,6 @@ from . import _qt as api
 ChoicesType = Union[EnumMeta, Iterable, Callable[[api.WidgetType, Type], Iterable]]
 _TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
 _CHOICES: Dict[type, ChoicesType] = {}
-_NONE = object()  # stub to detect if a user passed None to an optional param
 
 SKIP_UNRECOGNIZED_TYPES = os.environ.get("MAGICGUI_SKIP_UNRECOGNIZED_TYPES", False)
 
@@ -156,14 +155,10 @@ class MagicGuiBase(api.WidgetType):
         self._arg_types: Dict[str, Type] = dict()
         self.func = func
         self.setLayout(layout.value(self))
-        sig = inspect.signature(func)
-        for key, value in param_options.items():
-            if not isinstance(value, dict):
-                raise TypeError(f"value for keyword argument {key} should be a dict")
         self.param_options = param_options
 
         # TODO: should we let required positional args get skipped?
-        for param in sig.parameters.values():
+        for param in inspect.signature(func).parameters.values():
             if param.name in (ignore or []):
                 continue
             self.set_widget(
@@ -482,10 +477,12 @@ class MagicGuiBase(api.WidgetType):
         self.called.emit(value)
         return value
 
+    def _current_signature(self):
+        return f'({", ".join([f"{n}={repr(k)}" for n, k in self.current_kwargs.items()])})'
+
     def __repr__(self):
         """Representation of the MagicGui with current function signature."""
-        sig_string = ", ".join([f"{n}={k}" for n, k in self.current_kwargs.items()])
-        func_string = f"{self.func.__name__}({sig_string})"
+        func_string = f"{self.func.__name__}{self._current_signature()}"
         return f"<MagicGui: {func_string}>"
 
 
@@ -545,6 +542,10 @@ def magicgui(
     ...
     ... gui = my_function.Gui(show=True)
     """
+    for key, value in param_options.items():
+        if not isinstance(value, dict):
+            raise TypeError(f"value for keyword argument {key} should be a dict")
+
     _layout = api.Layout[layout] if isinstance(layout, str) else layout
 
     def inner_func(func: Callable) -> Type:

@@ -92,7 +92,7 @@ class QDataComboBox(QComboBox):
             self.currentDataChanged.emit(data)
 
 
-def type2widget(type_: type) -> Type[WidgetType]:
+def type2widget(type_: type) -> Optional[Type[WidgetType]]:
     """Convert an python type to Qt widget.
 
     Parameters
@@ -143,7 +143,7 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
 
         onchange = (
             widget.currentDataChanged
-            if isinstance(widget, QDataComboBox)
+            if hasattr(widget, "currentDataChanged")
             else widget.currentIndexChanged
         )
         return GetSetOnChange(getter, widget.setCurrentIndex, onchange)
