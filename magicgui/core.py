@@ -160,11 +160,6 @@ class MagicGuiBase(api.WidgetType):
         self.setLayout(layout.value(self))
         sig = inspect.signature(func)
         for key, value in param_options.items():
-            if key not in sig.parameters:
-                raise TypeError(
-                    f"{self.__class__.__name__}() got an "
-                    f"unexpected keyword argument '{key}'"
-                )
             if not isinstance(value, dict):
                 raise TypeError(f"value for keyword argument {key} should be a dict")
         self.param_options = param_options
