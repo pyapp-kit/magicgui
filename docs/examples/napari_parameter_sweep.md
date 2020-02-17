@@ -26,7 +26,7 @@ example](napari_img_math.md)
 [⬇️](#custom-widgets) Tell `magicgui` how to handle a custom type annotation with `register_type()`
 
 [⬇️](#connecting-events) Connect some event listeners to create interactivity.
-  
+
 ## code
 
 *Code follows, with explanation below... You can also [get this example at github](
@@ -68,7 +68,7 @@ https://github.com/tlambert03/magicgui/blob/master/examples/napari_param_sweep.p
         viewer.add_image(data.grass().astype('float'), name="grass")
 
         # turn the gaussian blur function into a magicgui
-        # - `auto_call` tells magicgui to call the function whenever a parameter changes 
+        # - `auto_call` tells magicgui to call the function whenever a parameter changes
         # - we use `widget_type` to override the default "float" widget on sigma
         # - we provide some Qt-specific parameters
         # - we contstrain the possible choices for `mode`
@@ -146,7 +146,7 @@ def gaussian_blur(layer: layers.Image, sigma: float = 1, mode="nearest") -> None
       widget for the `sigma` widget, but rather to use the one we defined earlier.
     - we then set a couple [Qt-specific
       options](../../configuration/#qt-specific-options) on `sigma`, that will directly
-      call the `setMaximum()` (to set an upper limit on the slider values) and 
+      call the `setMaximum()` (to set an upper limit on the slider values) and
       `setFixedWidth()` methods (to control the width of the slider).
 - finally, we specify valid `choices` for the `mode` argument.  This turns that parameter
   into a categorical/dropdown type widget, and sets the options.

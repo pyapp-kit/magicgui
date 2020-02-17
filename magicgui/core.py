@@ -478,7 +478,9 @@ class MagicGuiBase(api.WidgetType):
         return value
 
     def _current_signature(self):
-        return f'({", ".join([f"{n}={repr(k)}" for n, k in self.current_kwargs.items()])})'
+        return (
+            f'({", ".join([f"{n}={repr(k)}" for n, k in self.current_kwargs.items()])})'
+        )
 
     def __repr__(self):
         """Representation of the MagicGui with current function signature."""

@@ -209,4 +209,3 @@ def test_signature_repr(qtbot):
     gui.b = 0
     assert gui._current_signature() == "(a='string', b=0, c=7.1)"
     assert repr(gui) == "<MagicGui: func(a='string', b=0, c=7.1)>"
-

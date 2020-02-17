@@ -17,7 +17,7 @@ the button.
 
 The `layout` option determines which layout class from the backend will be used.
 Currently, only Qt backends are supported and valid layout options include:
-`horizontal`, `vertical`, `form`, or `grid`.  
+`horizontal`, `vertical`, `form`, or `grid`.
 
 Layouts are a work in progress...
 

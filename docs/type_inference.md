@@ -95,7 +95,7 @@ def register_type(
     def get_current_layers():
         """some function to get current layers from the viewer"""
         ...
-    
+
     def get_layer_choices(arg_type):
         """callback that returns all layers of a specific type"""
         return tuple(l for l in get_current_layers() if isinstance(l, arg_type))
@@ -103,7 +103,7 @@ def register_type(
     # all sublcasses of layers.Layer will also use this callback
     # to retrieve the current "layer choices".
     register_type(layers.Layer, choices=get_layer_choices)
-    
+
     # ... then later
     # the `layer` argument here will be rendered as a dropdown populated *only*
     # by Image layers, (no other subclasses).

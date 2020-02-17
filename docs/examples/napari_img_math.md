@@ -18,7 +18,7 @@ image arithmetic widget with a few additional lines of code.
 [⬇️](#register-a-custom-type) Tell `magicgui` how to handle a custom type annotation with `register_type()`
 
 [⬇️](#connect-event-listeners-for-interactivity) Connect some event listeners to create interactivity.
-  
+
 ## code
 
 *Code follows, with explanation below... You can also [get this example at github](https://github.com/tlambert03/magicgui/blob/master/examples/napari_image_arithmetic.py).*
