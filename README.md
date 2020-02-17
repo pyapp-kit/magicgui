@@ -9,7 +9,7 @@
 
 build GUIs from functions, using magic.
 
-## [📖 Docs](https://magicgui.readthedocs.io/)
+## 📖 [Docs](https://magicgui.readthedocs.io/)
 
 ## Installation
 
