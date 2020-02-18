@@ -56,8 +56,9 @@ and usage examples.
 
 Contributions are welcome!
 
-Please note: `magicgui` attempts to adhere to strict coding rules and employs the following
-static analysis tools to prevent errors from being introduced into the codebase:
+Please note: `magicgui` attempts to adhere to strict coding rules and employs the
+following static analysis tools to prevent errors from being introduced into the
+codebase:
 
 - [black](https://github.com/psf/black) - code formatting
 - [flake8](https://github.com/PyCQA/flake8) - linting
@@ -65,8 +66,13 @@ static analysis tools to prevent errors from being introduced into the codebase:
 - [pyright](https://github.com/microsoft/pyright) - static type anaylsis
 - [codecov](https://codecov.io/) - test coverage
 
-When contributing, please consider installing pre-commit in your environment to run all of these checks prior to checking in new code.
+To prevent continuous integration failures when contributing, please consider installing
+[pre-commit](https://pre-commit.com/) in your environment to run all of these checks
+prior to checking in new code.
 
 ```shell
-$ pre-commit install
+pre-commit install
 ```
+
+To run pyright, you will need to install with `npm install -g pyright`,
+then run `pyright`.  See [their docs](https://github.com/microsoft/pyright) for details.
