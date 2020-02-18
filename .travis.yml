@@ -6,8 +6,8 @@ matrix:
     - python: 3.7
       env: TOXENV=py37
     - python: 3.8
-      matrix:
-        env:
+      env:
+        matrix:
           - TOXENV=py38
           - TOXENV=black
           - TOXENV=flake8
