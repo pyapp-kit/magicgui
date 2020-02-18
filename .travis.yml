@@ -10,12 +10,9 @@ script: tox -e ${TOXENV:=py${TRAVIS_PYTHON_VERSION//[.]/}}
 
 jobs:
   include:
-    -   env: TOXENV=lint
-        name: Lint
-    -   env: TOXENV=pyright 
-        name: Check typing
-    -   env: TOXENV=pydocstyle
-        name: Check docstrings
+    - { env: TOXENV=lint }
+    - { env: TOXENV=pydocstyle }
+    - { env: TOXENV=pyright }
     - stage: Deploy
       script: skip
       deploy:
