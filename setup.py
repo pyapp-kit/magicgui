@@ -45,6 +45,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/tlambert03/magicgui",
-    version="0.0.8",
+    version="0.1.0",
     zip_safe=False,
 )
