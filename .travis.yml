@@ -6,9 +6,7 @@ python:
 
 before_install: sudo apt-get install -y libdbus-1-3 libxkbcommon-x11-0 xvfb herbstluftwm
 install: pip install -U tox-travis
-script:
-  - echo ${TOXENV:=py${TRAVIS_PYTHON_VERSION//[.]/}}
-  - tox -e ${TOXENV:=py${TRAVIS_PYTHON_VERSION//[.]/}}
+script: tox -e ${TOXENV:=py${TRAVIS_PYTHON_VERSION//[.]/}}
 
 jobs:
   include:
