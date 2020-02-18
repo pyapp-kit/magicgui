@@ -10,6 +10,7 @@ coverage>=4.5.4
 twine>=1.14.0
 PySide2>=5.14.0
 pre-commit>=2.0.0
+pytest-cov>=2.8.1
 
 # tests
 tox>=3.14.0
