@@ -10,7 +10,7 @@ script: tox -e ${TOXENV:=py${TRAVIS_PYTHON_VERSION//[.]/}}
 
 jobs:
   include:
-    - { env: TOXENV="black,flake8" }
+    - { env: TOXENV='black,flake8' }
     - { env: TOXENV=pydocstyle }
     - { env: TOXENV=pyright }
     - stage: Deploy
