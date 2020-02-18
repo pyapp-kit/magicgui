@@ -24,7 +24,8 @@ deploy:
   password:
     secure: nQS9mn+K29NpoJtp+eahRIQU9R6i0JxBOObCht1+PJobTRwe+TNB8J86jo251MpPqqo38or8cs3rFZbwuzqxEzsm9eX/a7+r0BEUkyzyDu85kZ6agJhk/xHrao/crqaY8SkQJP1zpg2AUnSTJ4jUKBnUl+2uePHdvJkFZsrNMsa7E898NNt0fBrhD9EgLto1VCiS0hyctT+7wnlIbDrQZPMPtD5BAEePRNxjhTMKXwAt5anKo9l8izpVzeZXrTScFQt2wCm87H3V8m7+hP7w+J2uw/JKmo1ZDPbUiirUXNUxLdpbclgpgPaoykBThOwPgIPxFyId7hW4cAZ4hGYgBbUn+CT/Rg9mj/7ysdGhGsRH27bf9SxnQfNARFiaGN45oTQxZXxASQq91mPjhD1ZJHgfjUEuKuFJ+tcgr7QQgY1Qf9MYCLm5P7QRedBiIeBZ4XjJCnCQzCmHs8sBELWVxTG8MR2XRrgo5/X+eqemPHHxe6iE/gf7LplclV1Hps093BhPcbnirtj27V6JbrVeU9IDExWDUQjxWQz+WbCAnzFPAGU/X1Zl8YrGC3TSDI0KLspW0saxeXEJuiYPIPS1fPl1fKNSrKFVEDWquWgby/79zW5vRYuALPoZFGDmvy+MW5MkifSohLz6q2ukzFPswW/1AutsIwbYf3XEPP5+edA=
   on:
+    branch: master
     condition: $TOXENV = py38
+    python: 3.8
     tags: true
     repo: tlambert03/magicgui
-    python: 3.8
