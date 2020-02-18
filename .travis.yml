@@ -3,9 +3,16 @@ python:
 - 3.8
 - 3.7
 - 3.6
+env:
+  matrix:
+    - TOXENV=py36
+    - TOXENV=py37
+    - TOXENV=py38
+    - TOXENV=py38-flake8
+    - TOXENV=py38-black
 before_install: sudo apt-get install -y libdbus-1-3 libxkbcommon-x11-0 xvfb herbstluftwm
 install: pip install -U tox-travis
-script: tox
+script: tox -e $TOXENV
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
