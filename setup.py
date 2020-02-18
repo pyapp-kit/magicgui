@@ -4,7 +4,7 @@
 
 from setuptools import setup, find_packages
 
-with open("README.md") as readme_file:
+with open("README.md", encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
 requirements = []
@@ -37,6 +37,7 @@ setup(
     install_requires=requirements,
     license="MIT license",
     long_description=readme,
+    long_description_content_type='text/markdown',
     include_package_data=True,
     keywords="magicgui",
     name="magicgui",
