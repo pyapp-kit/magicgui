@@ -7,12 +7,12 @@ python:
 before_install: sudo apt-get install -y libdbus-1-3 libxkbcommon-x11-0 xvfb herbstluftwm
 install: pip install -U tox-travis
 script:
-  - echo ${TOXENV:=${TRAVIS_PYTHON_VERSION//[.]/}}
-  - tox -e ${TOXENV:=${TRAVIS_PYTHON_VERSION//[.]/}}
+  - echo ${TOXENV:=py${TRAVIS_PYTHON_VERSION//[.]/}}
+  - tox -e ${TOXENV:=py${TRAVIS_PYTHON_VERSION//[.]/}}
 
 jobs:
   include:
-    - { env: TOXENV=black, flake8 }
+    - { env: TOXENV=black,flake8 }
     - { env: TOXENV=pydocstyle }
     - { env: TOXENV=pyright }
     - stage: Deploy
