@@ -152,7 +152,9 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
             widget.currentMessage, widget.showMessage, widget.messageChanged
         )
     elif isinstance(widget, QLineEdit):
-        return GetSetOnChange(widget.text, widget.setText, widget.textChanged)
+        return GetSetOnChange(
+            widget.text, lambda x: widget.setText(str(x)), widget.textChanged
+        )
     elif isinstance(widget, (QAbstractButton, QGroupBox)):
         return GetSetOnChange(widget.isChecked, widget.setChecked, widget.toggled)
     elif isinstance(widget, QDateTimeEdit):

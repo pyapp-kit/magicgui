@@ -285,11 +285,12 @@ class MagicGuiBase(api.WidgetType):
         if _widget_type:
             WidgetType = _widget_type
         elif choices:
-            if (value is not None) and (value not in choices):
+            _choices = self.get_choices(name)
+            if (value is not None) and (value not in _choices):
                 raise ValueError(
                     '"choices" option was provided, but the default value '
                     f"({value}) was not in the provided choices "
-                    f"{choices}"
+                    f"{_choices}"
                 )
             WidgetType = api.get_categorical_widget()
         else:
@@ -617,16 +618,16 @@ def register_type(
             )
     elif widget_type is not None:
         _TYPE_DEFS[type_] = widget_type
-
-    raise ValueError("Either `widget_type` or `choices` must be provided.")
+    else:
+        raise ValueError("Either `widget_type` or `choices` must be provided.")
 
 
 def reset_type(type_):
     """Clear any previously-registered widget types for ``type_``."""
     global _TYPE_DEFS
     global _CHOICES
-    del _TYPE_DEFS[type_]
-    del _CHOICES[type_]
+    _TYPE_DEFS.pop(type_, None)
+    _CHOICES.pop(type_, None)
 
 
 def _type2choices(type_: type) -> Optional[ChoicesType]:
