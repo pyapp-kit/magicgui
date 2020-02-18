@@ -2,10 +2,24 @@
 
 """Tests for `magicgui._qt` module."""
 
+from enum import Enum
+
 import pytest
+from qtpy import QtCore
 from qtpy import QtWidgets as QtW
 
-from magicgui import _qt
+from magicgui import _qt, event_loop
+
+
+def test_event():
+    """Test that the event loop makes a Qt app."""
+    assert not QtW.QApplication.instance()
+    with event_loop():
+        app = QtW.QApplication.instance()
+        assert app
+        timer = QtCore.QTimer()
+        timer.timeout.connect(lambda: app.exit())
+        timer.start(100)
 
 
 @pytest.mark.parametrize(
@@ -46,3 +60,26 @@ def test_double_slider(qtbot):
     slider.setValue(5.5)
     assert slider.value() == 5.5
     assert QtW.QSlider.value(slider) == 5.5 * slider.PRECISION
+
+
+@pytest.mark.parametrize("type", [Enum, int, float, str, list, dict, set])
+def test_type2widget(type):
+    """Test that type2widget returns successfully."""
+    _qt.type2widget(type)
+
+
+def test_setters(qtbot):
+    """Test that make_widget accepts any arg that has a set<arg> method."""
+    w = _qt.make_widget(QtW.QDoubleSpinBox, "spinbox", minimum=2, Maximum=10)
+    assert w.minimum() == 2
+    assert w.maximum() == 10
+
+
+def test_set_categorical(qtbot):
+    """Test the categorical setter."""
+    W = _qt.get_categorical_widget()
+    w = W()
+    _qt.set_categorical_choices(w, (("a", 1), ("b", 2)))
+    assert [w.itemText(i) for i in range(w.count())] == ["a", "b"]
+    _qt.set_categorical_choices(w, (("a", 1), ("c", 3)))
+    assert [w.itemText(i) for i in range(w.count())] == ["a", "c"]
