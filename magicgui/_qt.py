@@ -63,18 +63,27 @@ class GetSetOnChange(NamedTuple):
     onchange: SignalInstance
 
 
-class Layout(Enum):
+class HelpfulEnum(EnumMeta):
+    """Metaclass that shows the available options on KeyError."""
+
+    def __getitem__(self, name: str) -> Enum:
+        """Get enum by name, or raise helpful KeyError."""
+        try:
+            return super().__getitem__(name)
+        except (TypeError, KeyError):
+            options = set(self.__members__.keys())
+            raise KeyError(
+                f"'{name}' is not a valid Layout. Options include: {options}"
+            )
+
+
+class Layout(Enum, metaclass=HelpfulEnum):
     """QLayout options."""
 
     vertical = QVBoxLayout
     horizontal = QHBoxLayout
     grid = QGridLayout
     form = QFormLayout
-
-    @classmethod
-    def _missing_(cls, value: object) -> Any:
-        options = cls._member_names_
-        raise ValueError(f"'{value}' is not a valid Layout. Options include: {options}")
 
 
 class QDataComboBox(QComboBox):

@@ -436,3 +436,18 @@ def test_register_types(qtbot):
 
     core.reset_type(str)
     core.reset_type(int)
+
+
+def test_parent_changed(qtbot, magic_widget):
+    """Test that setting MagicGui parent emits a signal."""
+    with qtbot.waitSignal(magic_widget.parentChanged, timeout=1000):
+        magic_widget.setParent(None)
+
+
+def test_layout_raises(qtbot):
+    """Test that unrecognized layouts raise an error."""
+    with pytest.raises(KeyError):
+
+        @magicgui(layout="df")
+        def test(a=1):
+            pass
