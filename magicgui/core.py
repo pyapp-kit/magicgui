@@ -40,13 +40,12 @@ from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Type, Unio
 
 from . import _qt as api
 
-# ######### decorator ######### #
 
 ChoicesType = Union[EnumMeta, Iterable, Callable[[api.WidgetType, Type], Iterable]]
 _TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
 _CHOICES: Dict[type, ChoicesType] = {}
-
 SKIP_UNRECOGNIZED_TYPES = os.environ.get("MAGICGUI_SKIP_UNRECOGNIZED_TYPES", False)
+
 
 # ######### Base MagicGui Class ######### #
 
@@ -281,10 +280,9 @@ class MagicGuiBase(api.WidgetType):
         )
         if choices:
             self.set_choices(name, choices)
+            WidgetType = api.get_categorical_widget()
 
-        if _widget_type:
-            WidgetType = _widget_type
-        elif choices:
+            # make sure any default value provided is actually in the choices.
             _choices = self.get_choices(name)
             if (value is not None) and (value not in _choices):
                 raise ValueError(
@@ -292,7 +290,8 @@ class MagicGuiBase(api.WidgetType):
                     f"({value}) was not in the provided choices "
                     f"{_choices}"
                 )
-            WidgetType = api.get_categorical_widget()
+        elif _widget_type:
+            WidgetType = _widget_type
         else:
             try:
                 WidgetType = type2widget(arg_type)
@@ -306,11 +305,11 @@ class MagicGuiBase(api.WidgetType):
                     return
                 raise TypeError(msg)
 
+        # check if there is already am existintg widget by this name...
         try:
             existing_widget = self.get_widget(name)
         except AttributeError:
             existing_widget = None
-        # if there is already a widget by this name...
         if existing_widget:
             # if it has the same widget type as the new one, update the value
             if isinstance(existing_widget, WidgetType):
@@ -321,7 +320,7 @@ class MagicGuiBase(api.WidgetType):
                 position = self.layout().indexOf(existing_widget)
                 delattr(self, name)
 
-        # create a new widget
+        # instantiate a new widget
         widget = api.make_widget(WidgetType, name=name, parent=self, **options)
 
         # connect on_change signals
@@ -329,11 +328,11 @@ class MagicGuiBase(api.WidgetType):
         setattr(self, f"{name}_changed", change_signal)
         change_signal.connect(lambda: self.parameter_updated.emit())
 
-        # add widget to class and make descriptor
+        # add widget attribute and make descriptor
         setattr(self, self.WIDGET_ATTR.format(name), widget)
         self._add_widget_descriptor(name)
 
-        # update choices if it's a categorical
+        # if choices were provided, update the options in the widget.
         if self.has_choices(name):
             self.refresh_choices(name)
 
@@ -341,7 +340,7 @@ class MagicGuiBase(api.WidgetType):
         if value is not None:
             setattr(self, name, value)
 
-        # add the widget to the layout
+        # add the widget to the layout (appended, or at a specific position)
         if position is not None:
             if not isinstance(position, int):
                 raise TypeError(
@@ -479,6 +478,7 @@ class MagicGuiBase(api.WidgetType):
         return value
 
     def _current_signature(self):
+        """Return the oritinal function signature, using current values from the GUI."""
         return (
             f'({", ".join([f"{n}={repr(k)}" for n, k in self.current_kwargs.items()])})'
         )
@@ -583,7 +583,7 @@ def magicgui(
     return inner_func if function is None else inner_func(function)
 
 
-# ######### UTIL FUNCTIONS ######### #
+# ######### UTILITY FUNCTIONS ######### #
 
 
 def register_type(
