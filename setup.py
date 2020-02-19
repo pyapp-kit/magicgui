@@ -17,7 +17,7 @@ setup(
     author="Talley Lambert",
     author_email="talley.lambert@gmail.com",
     description="build GUIs from functions, using magic.",
-    url="https://github.com/tlambert03/magicgui",
+    url="https://github.com/napari/magicgui",
     license="MIT license",
     long_description=readme,
     long_description_content_type="text/markdown",

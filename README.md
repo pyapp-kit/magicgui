@@ -3,10 +3,10 @@
 [![License](https://img.shields.io/pypi/l/magicgui.svg)](LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
-[![Build Status](https://img.shields.io/travis/tlambert03/magicgui.svg)](https://travis-ci.com/tlambert03/magicgui)
+[![Build Status](https://img.shields.io/travis/napari/magicgui.svg)](https://travis-ci.com/napari/magicgui)
 [![Docs](https://readthedocs.org/projects/magicgui/badge/?version=latest)](https://magicgui.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
-[![codecov](https://codecov.io/gh/tlambert03/magicgui/branch/master/graph/badge.svg)](https://codecov.io/gh/tlambert03/magicgui)
+[![codecov](https://codecov.io/gh/napari/magicgui/branch/master/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
 
 
 build GUIs from functions, using magic.
@@ -23,7 +23,7 @@ pip install magicgui pyside2  # or pyqt5 instead of pyside2
 ```
 
 > :information_source: If you'd like to help us extend support to a different backend,
-> please open an [issue](https://github.com/tlambert03/magicgui/issues).
+> please open an [issue](https://github.com/napari/magicgui/issues).
 
 ## Basic usage
 

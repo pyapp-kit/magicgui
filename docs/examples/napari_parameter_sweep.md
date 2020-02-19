@@ -30,7 +30,7 @@ example](napari_img_math.md)
 ## code
 
 *Code follows, with explanation below... You can also [get this example at github](
-https://github.com/tlambert03/magicgui/blob/master/examples/napari_param_sweep.py).*
+https://github.com/napari/magicgui/blob/master/examples/napari_param_sweep.py).*
 
 ???+ example "complete code"
 

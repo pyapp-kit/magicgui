@@ -21,7 +21,7 @@ image arithmetic widget with a few additional lines of code.
 
 ## code
 
-*Code follows, with explanation below... You can also [get this example at github](https://github.com/tlambert03/magicgui/blob/master/examples/napari_image_arithmetic.py).*
+*Code follows, with explanation below... You can also [get this example at github](https://github.com/napari/magicgui/blob/master/examples/napari_image_arithmetic.py).*
 
 ???+ example "complete code"
 

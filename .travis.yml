@@ -24,4 +24,4 @@ jobs:
         on:
           branch: master
           tags: true
-          repo: tlambert03/magicgui
+          repo: napari/magicgui

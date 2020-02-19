@@ -5,8 +5,8 @@ site_author: Talley Lambert
 site_url: https://magicgui.readthedocs.io/en/latest/
 
 # Repository
-repo_name: tlambert03/magicgui
-repo_url: https://github.com/tlambert03/magicgui
+repo_name: napari/magicgui
+repo_url: https://github.com/napari/magicgui
 edit_uri: ""
 
 theme:
@@ -19,7 +19,7 @@ extra_javascript:
 extra:
   social:
     - type: github
-      link: https://github.com/tlambert03/magicgui
+      link: https://github.com/napari/magicgui
     - type: twitter
       link: https://twitter.com/TalleyJLambert/
 
