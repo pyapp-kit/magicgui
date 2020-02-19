@@ -19,7 +19,7 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Backend: [e.g. Qt]
- - Version [e.g. 22]
+**Environment (please complete the following information):**
+ - OS: [e.g. Windows, Mac]
+ - backend: [e.g. Qt 5.13.0]
+ - magicgui version [e.g. 0.1.0]
