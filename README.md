@@ -1,4 +1,4 @@
-# magicgui
+# ![icon](resources/logo_long.png)
 
 [![License](https://img.shields.io/pypi/l/magicgui.svg)](LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
@@ -8,8 +8,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![codecov](https://codecov.io/gh/napari/magicgui/branch/master/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
 
-
-build GUIs from functions, using magic.
+**magicgui**: build GUIs from functions, using magic.
 
 ## 📖 [Docs](https://magicgui.readthedocs.io/)
 
