@@ -275,7 +275,7 @@ if __name__ == "__main__":
 
     @wrapt.decorator(adapter=change_image_to_layer)
     def image_as_napari_layer(wrapped, instance=None, args=None, kwargs=None):
-        """Return a decorator that converts skimage functions to accept napari layers."""
+        """Return decorator that converts skimage functions to accept napari layers."""
         image_idx = get_parameter_position(wrapped, "image")
         if len(args) >= (image_idx + 1):
             args = list(args)
