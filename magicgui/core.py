@@ -42,7 +42,6 @@ from typing import (
     Callable,
     DefaultDict,
     Dict,
-    Generic,
     Iterable,
     TypeVar,
     Optional,
@@ -112,7 +111,7 @@ class WidgetDescriptor:
         delattr(type(obj), self.name)
 
 
-class MagicGuiBase(api.WidgetType, Generic[MagicGuiType]):
+class MagicGuiBase(api.WidgetType):
     """Main base class for MagicGui.
 
     In most cases, this class will be subclassed into a useable MagicGui when the
