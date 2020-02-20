@@ -438,6 +438,38 @@ def test_register_types(qtbot):
     core.reset_type(int)
 
 
+def test_register_return_callback(qtbot):
+    """Test that registering a return callback works."""
+
+    def check_value(gui, value):
+        assert value == 1
+
+    class Base:
+        pass
+
+    class Sub(Base):
+        pass
+
+    register_type(int, return_callback=check_value)
+    register_type(Base, return_callback=check_value)
+
+    @magicgui
+    def func(a=1) -> int:
+        return a
+
+    _ = func.Gui()
+    func()
+    with pytest.raises(AssertionError):
+        func(3)
+
+    @magicgui
+    def func2(a=1) -> Sub:
+        return a
+
+    _ = func2.Gui()
+    func2()
+
+
 def test_parent_changed(qtbot, magic_widget):
     """Test that setting MagicGui parent emits a signal."""
     with qtbot.waitSignal(magic_widget.parentChanged, timeout=1000):
