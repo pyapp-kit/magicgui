@@ -446,8 +446,10 @@ def test_parent_changed(qtbot, magic_widget):
 
 def test_layout_raises(qtbot):
     """Test that unrecognized layouts raise an error."""
-    with pytest.raises(KeyError):
 
-        @magicgui(layout="df")
-        def test(a=1):
-            pass
+    @magicgui(layout="df")
+    def test(a=1):
+        pass
+
+    with pytest.raises(KeyError):
+        test.Gui()

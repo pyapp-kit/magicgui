@@ -29,6 +29,7 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QSlider,
+    QLabel,
 )
 
 
@@ -84,6 +85,22 @@ class Layout(Enum, metaclass=HelpfulEnum):
     horizontal = QHBoxLayout
     grid = QGridLayout
     form = QFormLayout
+
+    @staticmethod
+    def addWidget(layout, widget, label=""):
+        if isinstance(layout, QFormLayout):
+            return layout.addRow(label, widget)
+        elif isinstance(layout, (QHBoxLayout, QVBoxLayout)):
+            return layout.addWidget(widget)
+
+    @staticmethod
+    def insertLabeledWidget(layout, position, widget, label=""):
+        if position < 0:
+            position = layout.count() + position + 1
+        if isinstance(layout, QFormLayout):
+            layout.insertRow(position, label, widget)
+        else:
+            layout.insertWidget(position, widget)
 
 
 class QDataComboBox(QComboBox):

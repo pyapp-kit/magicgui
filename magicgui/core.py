@@ -111,7 +111,8 @@ class MagicGuiBase(api.WidgetType):
         self,
         func: Callable,
         *,
-        layout: api.Layout = api.Layout.horizontal,
+        layout: Union[api.Layout, str] = api.Layout.horizontal,
+        labels: bool = True,
         call_button: Union[bool, str] = False,
         auto_call: bool = False,
         parent: api.WidgetType = None,
@@ -145,6 +146,10 @@ class MagicGuiBase(api.WidgetType):
             signature, and the value MUST be a dict.
         """
         super().__init__(parent=parent)
+        layout = api.Layout[layout] if isinstance(layout, str) else layout
+        if labels and layout == api.Layout.vertical:
+            layout = api.Layout.form
+        self.setLayout(layout.value(self))
         # this is how the original function object knows that an object has been created
         setattr(func, "_widget", self)
         self.param_names = []
@@ -153,7 +158,6 @@ class MagicGuiBase(api.WidgetType):
         # mapping of param name, parameter type.  Will be set in set_widget.
         self._arg_types: Dict[str, Type] = dict()
         self.func = func
-        self.setLayout(layout.value(self))
         self.param_options = param_options
 
         # TODO: should we let required positional args get skipped?
@@ -172,7 +176,7 @@ class MagicGuiBase(api.WidgetType):
                 call_button if isinstance(call_button, str) else "call"
             )
             self.call_button.clicked.connect(self.__call__)
-            self.layout().addWidget(self.call_button)
+            api.Layout.addWidget(self.layout(), self.call_button)
 
         if auto_call:
             self.parameter_updated.connect(self.__call__)
@@ -346,12 +350,9 @@ class MagicGuiBase(api.WidgetType):
                 raise TypeError(
                     f"`position` argument must be of type int. got: {type(position)}"
                 )
-            if position < 0:
-                position = self.layout().count() + position + 1
-            self.layout().insertWidget(position, widget)
+            api.Layout.insertLabeledWidget(self.layout(), position, widget, label=name)
         else:
-            self.layout().addWidget(widget)
-
+            api.Layout.addWidget(self.layout(), widget, label=name)
         return widget
 
     @classmethod
@@ -549,8 +550,6 @@ def magicgui(
         if not isinstance(value, dict):
             raise TypeError(f"value for keyword argument {key} should be a dict")
 
-    _layout = api.Layout[layout] if isinstance(layout, str) else layout
-
     def inner_func(func: Callable) -> Type:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -566,7 +565,7 @@ def magicgui(
             def __init__(self, show=False) -> None:
                 super().__init__(
                     func,
-                    layout=_layout,
+                    layout=layout,
                     call_button=call_button,
                     auto_call=auto_call,
                     parent=parent,
@@ -639,6 +638,7 @@ def _type2choices(type_: type) -> Optional[ChoicesType]:
         # TODO: is it necessary to check for isclass at this point?
         if inspect.isclass(type_) and issubclass(type_, registered_type):
             return _CHOICES[registered_type]
+    return None
 
 
 def type2widget(type_: type) -> Type[api.WidgetType]:
