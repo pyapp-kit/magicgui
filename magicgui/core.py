@@ -603,8 +603,9 @@ def magicgui(
         return wrapper
 
     if function is None:
-        return inner_func 
+        return inner_func
     return inner_func(function)
+
 
 # ######### UTILITY FUNCTIONS ######### #
 
@@ -627,16 +628,18 @@ def register_type(
     type_ : type
         The type for which a widget class or return callback will be provided.
     widget_type : Optional[Type[api.WidgetType]], optional
-        A widget class from the current backend that should be used whenever ``type_`` is
-        used as the type annotation for an argument in a decorated function, by default None
+        A widget class from the current backend that should be used whenever ``type_``
+        is used as the type annotation for an argument in a decorated function,
+        by default None
     choices : enum or iterable or callable, optional
-        If provided, a categorical type widget will always be used for arguments of type 
-        ``type_``, and ``choices`` will be used to populate the widget.  By default None.
+        If provided, a categorical type widget will always be used for arguments of type
+        ``type_``, and ``choices`` will be used to populate the widget.
+        By default None.
     return_callback: callable, optional
         If provided, whenever ``type_`` is declared as the return type of a decorated
-        function, ``return_callback(widget, value)`` will be called whenever the decorated
-        function is called... where ``widget`` is the MagicGui instance, and ``value`` is
-        the return value of the decorated function.
+        function, ``return_callback(widget, value)`` will be called whenever the
+        decorated function is called... where ``widget`` is the MagicGui instance, and
+        ``value`` is the return value of the decorated function.
 
     Raises
     ------
@@ -673,7 +676,7 @@ def reset_type(type_):
 
 def _type2choices(type_: type) -> ChoicesType:
     """Check if choices have been registered for ``type_`` and return if so.
-    
+
     Parameters
     ----------
     type_ : type
@@ -697,7 +700,7 @@ def _type2choices(type_: type) -> ChoicesType:
 
 def _type2callback(type_: type) -> List[ReturnCallback]:
     """Check if return callbacks have been registered for ``type_`` and return if so.
-    
+
     Parameters
     ----------
     type_ : type
