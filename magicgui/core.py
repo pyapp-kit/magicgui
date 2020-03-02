@@ -164,6 +164,7 @@ class MagicGuiBase(api.WidgetType):
         # this is how the original function object knows that an object has been created
         setattr(func, "_widget", self)
         self.param_names = []
+        self._result_name: str = ""
         # Optional mapping of parameter name -> valid choices for that parameter
         self._choices: Dict[str, ChoicesType] = dict()
         # mapping of param name, parameter type.  Will be set in set_widget.
@@ -495,7 +496,7 @@ class MagicGuiBase(api.WidgetType):
         return_type = self.func.__annotations__.get("return")
         if return_type:
             for callback in _type2callback(return_type):
-                callback(self, value)
+                callback(self, value, return_type)
         return value
 
     def _current_signature(self):
@@ -503,6 +504,16 @@ class MagicGuiBase(api.WidgetType):
         return (
             f'({", ".join([f"{n}={repr(k)}" for n, k in self.current_kwargs.items()])})'
         )
+
+    @property
+    def result_name(self) -> str:
+        """Return a name that can be used for the result of this magicfunction."""
+        return self._result_name or (self.func.__name__ + "result")
+
+    @result_name.setter
+    def result_name(self, value: str):
+        """Set the result name of this MagicGui widget."""
+        self._result_name = value
 
     def __repr__(self):
         """Representation of the MagicGui with current function signature."""
@@ -609,7 +620,7 @@ def magicgui(
 # ######### UTILITY FUNCTIONS ######### #
 
 
-ReturnCallback = Callable[[MagicGuiBase, Any], None]
+ReturnCallback = Callable[[MagicGuiBase, Any, Type], None]
 _RETURN_CALLBACKS: DefaultDict[type, List[ReturnCallback]] = defaultdict(list)
 
 
