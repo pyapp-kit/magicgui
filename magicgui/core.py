@@ -647,9 +647,9 @@ def register_type(
         By default None.
     return_callback: callable, optional
         If provided, whenever ``type_`` is declared as the return type of a decorated
-        function, ``return_callback(widget, value)`` will be called whenever the
-        decorated function is called... where ``widget`` is the MagicGui instance, and
-        ``value`` is the return value of the decorated function.
+        function, ``return_callback(widget, value, return_type)`` will be called
+        whenever the decorated function is called... where ``widget`` is the MagicGui
+        instance, and ``value`` is the return value of the decorated function.
 
     Raises
     ------

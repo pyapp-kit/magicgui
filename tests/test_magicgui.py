@@ -441,7 +441,7 @@ def test_register_types(qtbot):
 def test_register_return_callback(qtbot):
     """Test that registering a return callback works."""
 
-    def check_value(gui, value):
+    def check_value(gui, value, rettype):
         assert value == 1
 
     class Base:
