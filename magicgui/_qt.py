@@ -6,7 +6,13 @@ from contextlib import contextmanager
 from enum import Enum, EnumMeta
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Type, Tuple
 
-from qtpy.QtCore import Signal, SignalInstance, Qt
+from qtpy.QtCore import Signal, Qt
+
+try:
+    from qtpy.QtCore import SignalInstance as SignalInstanceType
+except ImportError:
+    from qtpy.QtCore import pyqtBoundSignal as SignalInstanceType
+
 from qtpy.QtWidgets import (
     QAbstractButton,
     QAbstractSlider,
@@ -60,7 +66,7 @@ class GetSetOnChange(NamedTuple):
 
     getter: Callable[[], Any]
     setter: Callable[[Any], None]
-    onchange: SignalInstance
+    onchange: SignalInstanceType
 
 
 class HelpfulEnum(EnumMeta):
