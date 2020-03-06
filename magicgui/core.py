@@ -188,7 +188,8 @@ class MagicGuiBase(api.WidgetType):
             self.call_button = api.ButtonType(
                 call_button if isinstance(call_button, str) else "call"
             )
-            self.call_button.clicked.connect(self.__call__)
+            # using lambda because the clicked signal returns a value
+            self.call_button.clicked.connect(lambda checked: self.__call__())
             self.layout().addWidget(self.call_button)
 
         if auto_call:
