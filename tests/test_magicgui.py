@@ -100,10 +100,20 @@ def test_no_type_provided(qtbot):
     assert isinstance(gui.get_widget("a"), none_widget)
 
 
-def test_call_button(magic_widget):
-    """Test that the call button has been added."""
+def test_call_button(qtbot):
+    """Test that the call button has been added, and pressing it calls the function."""
+
+    @magicgui(call_button="my_button", auto_call=True)
+    def func(a: int, b: int = 3, c=7.1) -> None:
+        assert a == 7
+
+    magic_widget = func.Gui()
+
     assert hasattr(magic_widget, "call_button")
     assert isinstance(magic_widget.call_button, QtW.QPushButton)
+    magic_widget.a = 7
+
+    qtbot.mouseClick(magic_widget.call_button, Qt.LeftButton)
 
 
 def test_auto_call(qtbot, magic_func):
