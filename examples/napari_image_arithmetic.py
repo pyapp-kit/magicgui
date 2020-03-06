@@ -3,7 +3,7 @@ from enum import Enum
 
 import numpy
 
-from magicgui import magicgui, register_type
+from magicgui import magicgui
 from napari import Viewer, gui_qt, layers
 
 
@@ -21,46 +21,6 @@ class Operation(Enum):
     divide = numpy.divide
 
 
-# we're going to let magicgui know how to render one of our custom types (layers.Layer)
-#
-# the `register_types` function below accepts a type, and either a `widget_type`
-# OR a `choices` argument (choices takes precendence).
-#
-# If `widget_type` is provided, it must be a valid widget class for the gui backed
-# (e.g. QWidget).  If `choices` is provided, the widget is assumed to be a dropdown box.
-# `choices` must either be an iterable, or a callable.
-#
-# If it is a callable, it will be called with the type of the function parameter being
-# rendered. In this case, we want any subclass of layers.Layer to be rendered as a
-# dropdown, but we only want layers of the type specified in the type hint to be shown.
-def get_layer_choices(gui, layer_type):
-    try:
-        # look for the parent Viewer based on where the magicgui is docked.
-        # if the magicgui widget does not have a parent, it is unattached
-        # to any viewers, and therefore we cannot return a list of layers
-        viewer = gui.parent().qt_viewer.viewer
-        return tuple(l for l in viewer.layers if isinstance(l, layer_type))
-    except AttributeError:
-        return ()
-
-
-def show_result(gui, result):
-    """Show result of image_arithmetic in viewer."""
-    try:
-        viewer = gui.parent().qt_viewer.viewer
-    except AttributeError:
-        viewer = None
-
-    if viewer and (result is not None):
-        try:
-            viewer.layers["result"].data = result
-        except KeyError:
-            viewer.add_image(data=result, name="result")
-
-
-register_type(layers.Layer, choices=get_layer_choices, return_callback=show_result)
-
-
 with gui_qt():
     # create a viewer and add a couple image layers
     viewer = Viewer()
@@ -74,7 +34,7 @@ with gui_qt():
     @magicgui(call_button="execute")
     def image_arithmetic(
         layerA: layers.Image, operation: Operation, layerB: layers.Image
-    ) -> layers.Layer:
+    ) -> layers.Image:
         """Add, subtracts, multiplies, or divides to image layers with equal shape."""
         return operation.value(layerA.data, layerB.data)
 
