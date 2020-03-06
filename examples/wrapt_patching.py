@@ -10,6 +10,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    DefaultDict,
     Generator,
     Iterable,
     Optional,
@@ -80,7 +81,7 @@ def typestr_to_typeobj(typestr: str) -> Optional[type]:
             tupmatch = re.match(r"(\d+)-tuple", container.lower())
             if tupmatch:
                 n = int(tupmatch.groups()[0])
-                container = Tuple
+                cont_type = Tuple
             else:
                 return ForwardRef(container)
         else:
@@ -95,7 +96,7 @@ def typestr_to_typeobj(typestr: str) -> Optional[type]:
             i = inner_type.__name__ if isinstance(inner_type, type) else str(inner_type)
             return eval(f'Tuple[{", ".join([i] * n)}]')
         return (
-            container[inner_type, ...] if container == Tuple else container[inner_type]
+            cont_type[inner_type, ...] if cont_type is Tuple else cont_type[inner_type]
         )
 
     if "optional" in typestr.lower():
@@ -115,6 +116,7 @@ def typestr_to_typeobj(typestr: str) -> Optional[type]:
 
     if any(x in typestr for x in ("array",)):
         return ForwardRef("numpy.ndarray")
+    return None
 
 
 def guess_numpydoc_annotations(func: Callable) -> Dict[str, Dict[str, Any]]:
@@ -132,7 +134,7 @@ def guess_numpydoc_annotations(func: Callable) -> Dict[str, Dict[str, Any]]:
         the value is a dict with possible keys ``type``, and ``choices``.  ``type``
         provides a typing object from ``typing`` that can be used in function signatures
     """
-    param_dict = OrderedDict()
+    param_dict: Dict[str, Dict[str, Any]] = OrderedDict()
     sig = inspect.signature(func)
     for name, type_, description in FunctionDoc(func).get("Parameters"):
         if name not in sig.parameters:
@@ -293,7 +295,7 @@ if __name__ == "__main__":
 
     guis = {}
     for func in adapted_functions:
-        opts = defaultdict(dict)
+        opts: Dict[str, Any] = defaultdict(dict)
         opts.update({"ignore": ["output"], "auto_call": True})
         annotations = guess_numpydoc_annotations(func)
         for pname, value in annotations.items():
