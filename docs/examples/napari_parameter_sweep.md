@@ -34,32 +34,48 @@ https://github.com/napari/magicgui/blob/master/examples/napari_param_sweep.py).*
 
 ???+ example "complete code"
 
-    ```python hl_lines="7 8 9 38 39 40 41 42 47 57"
-    from magicgui import magicgui, register_type
+    ```python hl_lines="38 54 55 56 57 58 65"
+    from magicgui import magicgui
+    from magicgui._qt import QDoubleSlider
     from napari import Viewer, gui_qt, layers
     from skimage import data, filters
-    from qtpy import QtWidgets, QtCore
 
+    ######   THIS SECTION ONLY REQUIRED FOR NAPARI <= 0.2.12   ######
 
-    def get_layers(layer_type):
-        return tuple(l for l in viewer.layers if isinstance(l, layer_type))
-    register_type(layers.Layer, choices=get_layers)
+    # this section serves as an example on how to register your package's
+    # custom classes so that magicgui will know what to do when they
+    # encounter those classes used as type annotations.
 
-    # Qt Doesn't have a built in class for float sliders, so we make one
-    class QDoubleSlider(QtWidgets.QSlider):
-        PRECISION = 1000
+    # if you are using napari version > 0.2.12, it will come with napari
 
-        def __init__(self, parent=None):
-            super().__init__(QtCore.Qt.Horizontal, parent=parent)
+    from magicgui import register_type
 
-        def value(self):
-            return super().value() / self.PRECISION
+    def get_layers(gui, layer_type):
+        try:
+            viewer = gui.parent().qt_viewer.viewer
+            return tuple(l for l in viewer.layers if isinstance(l, layer_type))
+        except AttributeError:
+            return ()
 
-        def setValue(self, value):
-            super().setValue(value * self.PRECISION)
+    def show_layer_result(gui, result, return_type) -> None:
+        if result is None:
+            return
 
-        def setMaximum(self, value):
-            super().setMaximum(value * self.PRECISION)
+        try:
+            viewer = gui.parent().qt_viewer.viewer
+        except AttributeError:
+            return
+
+        try:
+            viewer.layers[gui.result_name].data = result
+        except KeyError:
+            adder = getattr(viewer, f"add_{return_type.__name__.lower()}")
+            adder(data=result, name=gui.result_name)
+
+    register_type(layers.Layer, choices=get_layers, return_callback=show_layer_result)
+
+    #################################################################
+
 
     with gui_qt():
         # create a viewer and add some images
@@ -77,23 +93,29 @@ https://github.com/napari/magicgui/blob/master/examples/napari_param_sweep.py).*
             sigma={"widget_type": QDoubleSlider, "maximum": 6, "fixedWidth": 400},
             mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
         )
-        def gaussian_blur(layer: layers.Image, sigma: float = 1, mode="nearest") -> None:
-            return filters.gaussian(layer.data, sigma=sigma, mode=mode)
+        def gaussian_blur(layer: layers.Image, sigma: float = 1., mode="nearest") -> None:
+            """Apply a gaussian blur to ``layer``."""
+            if layer:
+                return filters.gaussian(layer.data, sigma=sigma, mode=mode)
 
         # instantiate the widget
         gui = gaussian_blur.Gui()
+        # make sure the dropdown choices are always pulled from the current viewer.
+        gui.parentChanged.connect(gui.refresh_choices)
 
         def show_result(result):
-            """callback function for whenever the image_arithmetic functions is called"""
+            """callback function to Show result of image_arithmetic in viewer."""
             try:
                 viewer.layers["blurred"].data = result
             except KeyError:
                 viewer.add_image(data=result, name="blurred")
 
+        # when the function is called, update the image in the viewer
         gaussian_blur.called.connect(show_result)
+        # if a layer gets added or removed, refresh the dropdown choices
+        viewer.layers.events.changed.connect(lambda x: gui.refresh_choices("layer"))
+        # add the gui to the viewer as a dock widget
         viewer.window.add_dock_widget(gui)
-        viewer.layers.events.added.connect(lambda x: gui.fetch_choices("layer"))
-        viewer.layers.events.removed.connect(lambda x: gui.fetch_choices("layer"))
     ```
 
 ## walkthrough
@@ -134,22 +156,28 @@ Finally, we decorate the function with `@magicgui` and provide some options.
     sigma={"widget_type": QDoubleSlider, "maximum": 6, "fixedWidth": 400},
     mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
 )
-def gaussian_blur(layer: layers.Image, sigma: float = 1, mode="nearest") -> None:
-    return filters.gaussian(layer.data, sigma=sigma, mode=mode)
+def gaussian_blur(layer: layers.Image, sigma: float = 1., mode="nearest") -> None:
+    if layer:
+        return filters.gaussian(layer.data, sigma=sigma, mode=mode)
 ```
 
-- `auto_call=True` makes it so that the `gaussian_blur` function will be called with the
-  current parameters set in the GUI whenever one of the parameters changes.
-- We then use [argument-specific](../../configuration/#argument-specific-options)
-  parameters to modify the look & behavior of `sigma` and `mode`:
-    - `"widget_type": QDoubleSlider` tells `magicgui` not to use the standard (`float`)
-      widget for the `sigma` widget, but rather to use the one we defined earlier.
+- `auto_call=True` makes it so that the `gaussian_blur` function will be called
+  with the current parameters set in the GUI whenever one of the parameters
+  changes.
+- We then use
+  [argument-specific](../../configuration/#argument-specific-options) parameters
+  to modify the look & behavior of `sigma` and `mode`:
+    - `"widget_type": QDoubleSlider` tells `magicgui` not to use the standard
+      (`float`) widget for the `sigma` widget, but rather to use a custom widget
+      type.  This one comes built in with `magicgui`, but you are also welcome
+      to build your own if you do know some Qt.
     - we then set a couple [Qt-specific
-      options](../../configuration/#qt-specific-options) on `sigma`, that will directly
-      call the `setMaximum()` (to set an upper limit on the slider values) and
-      `setFixedWidth()` methods (to control the width of the slider).
-- finally, we specify valid `choices` for the `mode` argument.  This turns that parameter
-  into a categorical/dropdown type widget, and sets the options.
+      options](../../configuration/#qt-specific-options) on `sigma`, that will
+      directly call the `setMaximum()` (to set an upper limit on the slider
+      values) and `setFixedWidth()` methods (to control the width of the
+      slider).
+- finally, we specify valid `choices` for the `mode` argument.  This turns that
+  parameter into a categorical/dropdown type widget, and sets the options.
 
 The `gaussian_blur` function now has an attribute `gaussian_blur.Gui` that we can call to
 instantiate our GUI.
@@ -161,13 +189,16 @@ gui = gaussian_blur.Gui()
 
 ### custom widgets
 
-If you *do* know some Qt for python programming and would like to provide custom widgets
-for certain arguments this can be done in an argument-specific way, by providing the
-`widget_type` option in one of the argument-specific options `dict`s.  We do that here
-for the `sigma` parameter, directing it the custom `QDoubleSlider` class that we created
-earlier:
+If you *do* know some Qt for python programming and would like to provide custom
+widgets for certain arguments this can be done in an argument-specific way, by
+providing the `widget_type` option in one of the argument-specific options
+`dict`s.  We do that here for the `sigma` parameter, directing it the custom
+`QDoubleSlider` class from `magicgui._qt`. If you're curious, here's what that
+class looks like:
 
 ```python
+from qtpy import QtWidgets, QtCore
+
 class QDoubleSlider(QtWidgets.QSlider):
     PRECISION = 1000
 
@@ -184,8 +215,8 @@ class QDoubleSlider(QtWidgets.QSlider):
         super().setMaximum(value * self.PRECISION)
 ```
 
-We could also have registered this slider widget globally for *all* `float` type variables
-using the `magicgui.register_type` function:
+We could also have registered this slider widget globally for *all* `float` type
+variables using the `magicgui.register_type` function:
 
 ```python
 from magicgui import register_type
@@ -193,24 +224,29 @@ from magicgui import register_type
 register_type(float, widget_type=QDoubleSlider)
 ```
 
-Note that we did that here, and in the [image arithmetic
-tutorial](../napari_img_math), for `napari.layer.Layer` types)
+Note that we also included some support for napari-specific classes here by
+providing a function to retrieve current layers from the napari viewer, and to
+add any resulting images to the viewer.
 
 ```python
-def get_layers(layer_type):
-    return tuple(l for l in viewer.layers if isinstance(l, layer_type))
-register_type(layers.Layer, choices=get_layers)
+register_type(layers.Layer, choices=get_layers, return_callback=show_layer_result)
 ```
+and in the [image arithmetic tutorial](../napari_img_math), for `napari.layer.Layer` types)
 
-see [`register_type`](../../type_inference/#register_type) for usage details.
+**That code is there as an example**.  In
+versions *later* than 0.12.2, napari has this functionality built in already and
+you do *not* need to call `register_type` to annotate function arguments as a
+`napari.Layer` type.
+
+See [`register_type`](../../type_inference/#register_type) for usage details.
 
 ### connecting events
 
 As described in the [image arithmetic
-tutorial](../napari_img_math/#connect-event-listeners-for-interactivity), we connect a
-callback to the `gaussian_blur.called` signal to update the image in the napari viewer
-whenever our original function gets called (which is, in this case, whenever a
-parameter in the GUI changes)
+tutorial](../napari_img_math/#connect-event-listeners-for-interactivity), we
+connect a callback to the `gaussian_blur.called` signal to update the image in
+the napari viewer whenever our original function gets called (which is, in this
+case, whenever a parameter in the GUI changes)
 
 ```python
 gaussian_blur.called.connect(show_result)
