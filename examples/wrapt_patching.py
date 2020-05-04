@@ -10,7 +10,6 @@ from typing import (
     Any,
     Callable,
     Dict,
-    DefaultDict,
     Generator,
     Iterable,
     Optional,
