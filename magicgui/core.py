@@ -282,9 +282,9 @@ class MagicGuiBase(api.WidgetType):
         TypeError
             If ``position`` is provided but is not an integer.
         """
-        options = options or self.param_options.get(name) or dict()
-        _widget_type = widget_type or options.get("widget_type")
-        dtype = dtype or options.get("dtype")
+        _options: dict = options or self.param_options.get(name) or dict()
+        _widget_type = widget_type or _options.get("widget_type")
+        dtype = dtype or _options.get("dtype")
 
         if dtype is not None:
             arg_type: Type = dtype
@@ -297,7 +297,7 @@ class MagicGuiBase(api.WidgetType):
 
         # argument specific choices override _CHOICES registered with `register_type`
         choices: Optional[ChoicesType] = (
-            options.get("choices")
+            _options.get("choices")
             or _type2choices(arg_type)
             or (arg_type if isinstance(arg_type, EnumMeta) else None)
         )
@@ -344,7 +344,7 @@ class MagicGuiBase(api.WidgetType):
                 delattr(self, name)
 
         # instantiate a new widget
-        widget = api.make_widget(WidgetType, name=name, parent=self, **options)
+        widget = api.make_widget(WidgetType, name=name, parent=self, **_options)
 
         # connect on_change signals
         change_signal = api.getter_setter_onchange(widget).onchange
@@ -423,7 +423,8 @@ class MagicGuiBase(api.WidgetType):
             choices = self.get_choices(name)
             # choices are set as (name, data) tuples because we assume DataComboBox
             if isinstance(choices, EnumMeta):
-                api.set_categorical_choices(widget, [(x.name, x) for x in choices])
+                # TODO: figure out typing on Enums
+                api.set_categorical_choices(widget, [(x.name, x) for x in choices])  # type: ignore  # noqa
             else:
                 api.set_categorical_choices(widget, [(str(c), c) for c in choices])
 
@@ -541,6 +542,11 @@ class MagicGuiBase(api.WidgetType):
 
 
 # ######### magicgui decorator ######### #
+
+
+# TODO: make protocol
+# class MagicFunction(Protocol):
+#     Gui: MagicGuiBase
 
 
 def magicgui(
