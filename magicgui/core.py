@@ -192,6 +192,11 @@ class MagicGuiBase(api.WidgetType):
             self.call_button.clicked.connect(lambda checked: self.__call__())
             self.layout().addWidget(self.call_button)
 
+        # a convenience, allows widgets to change their choices depending on context
+        # particularly useful if a downstream library has registered a type with a
+        # choices function that traverses the parent tree for context.
+        self.parentChanged.connect(self.refresh_choices)
+
         if auto_call:
             self.parameter_updated.connect(self.__call__)
 
@@ -387,7 +392,20 @@ class MagicGuiBase(api.WidgetType):
     def refresh_choices(
         self, names: Optional[Union[str, Sequence[str]]] = None
     ) -> None:
-        """Update the GUI choices for all widgets or all parameters in ``names``."""
+        """Update the GUI choices for all widgets or all parameters in ``names``.
+
+        Parameters
+        ----------
+        names : str or sequence of str, optional
+            An attribute name or list of attribute names for which to update choices.
+            Must be one of the parameters with registered choices.  by default, all
+            registered choices will be updated.
+
+        Raises
+        ------
+        ValueError
+            If a name is provided that does not have registered choices.
+        """
         if isinstance(names, str):
             names = [names]
         if names:
@@ -509,7 +527,7 @@ class MagicGuiBase(api.WidgetType):
     @property
     def result_name(self) -> str:
         """Return a name that can be used for the result of this magicfunction."""
-        return self._result_name or (self.func.__name__ + "result")
+        return self._result_name or (self.func.__name__ + " result")
 
     @result_name.setter
     def result_name(self, value: str):
