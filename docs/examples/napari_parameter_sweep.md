@@ -42,6 +42,7 @@ https://github.com/napari/magicgui/blob/master/examples/napari_param_sweep.py).*
     from napari.layers import Image
     import skimage
 
+    ######   THIS SECTION ONLY REQUIRED FOR NAPARI <= 0.2.12   ######
 
     with napari.gui_qt():
         # create a viewer and add some images
