@@ -5,17 +5,18 @@ It demonstrates:
 2. the `auto_call` option, which calls the function whenever a parameter changes
 
 """
+import napari
+import skimage
 from magicgui import magicgui
 from magicgui._qt import QDoubleSlider
-from napari import Viewer, gui_qt, layers
-from skimage import data, filters
+from napari.layers import Image
 
 
-with gui_qt():
+with napari.gui_qt():
     # create a viewer and add some images
-    viewer = Viewer()
-    viewer.add_image(data.astronaut().mean(-1), name="astronaut")
-    viewer.add_image(data.grass().astype("float"), name="grass")
+    viewer = napari.Viewer()
+    viewer.add_image(skimage.data.astronaut().mean(-1), name="astronaut")
+    viewer.add_image(skimage.data.grass().astype("float"), name="grass")
 
     # turn the gaussian blur function into a magicgui
     # - `auto_call` tells magicgui to call the function whenever a parameter changes
@@ -27,24 +28,14 @@ with gui_qt():
         sigma={"widget_type": QDoubleSlider, "maximum": 6, "fixedWidth": 400},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
-    def gaussian_blur(layer: layers.Image, sigma: float = 1, mode="nearest") -> None:
+    def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
         """Apply a gaussian blur to ``layer``."""
         if layer:
-            return filters.gaussian(layer.data, sigma=sigma, mode=mode)
+            return skimage.filters.gaussian(layer.data, sigma=sigma, mode=mode)
 
     # instantiate the widget
     gui = gaussian_blur.Gui()
-    gui.parentChanged.connect(gui.refresh_choices)
-
-    def show_result(result):
-        """Show result of image_arithmetic in viewer."""
-        if result is not None:
-            try:
-                viewer.layers["blurred"].data = result
-            except KeyError:
-                viewer.add_image(data=result, name="blurred")
-
-    gaussian_blur.called.connect(show_result)
+    # Add it to the napari viewer
     viewer.window.add_dock_widget(gui)
-    viewer.layers.events.added.connect(lambda x: gui.refresh_choices("layer"))
-    viewer.layers.events.removed.connect(lambda x: gui.refresh_choices("layer"))
+    # update the layer dropdown menu when the layer list changes
+    viewer.layers.events.changed.connect(lambda x: gui.refresh_choices("layer"))
