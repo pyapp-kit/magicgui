@@ -12,7 +12,6 @@ jobs:
   include:
     - { env: TOXENV=lint }
     - { env: TOXENV=pydocstyle }
-    - { env: TOXENV=pyright }
     - stage: Deploy
       script: skip
       deploy:
