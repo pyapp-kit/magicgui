@@ -72,7 +72,7 @@ class GetSetOnChange(NamedTuple):
 class HelpfulEnum(EnumMeta):
     """Metaclass that shows the available options on KeyError."""
 
-    def __getitem__(self, name: str) -> Enum:
+    def __getitem__(self, name: str):
         """Get enum by name, or raise helpful KeyError."""
         try:
             return super().__getitem__(name)
@@ -131,6 +131,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         return simple[type_]
     elif isinstance(type_, EnumMeta):
         return QDataComboBox
+    return None
 
 
 def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:

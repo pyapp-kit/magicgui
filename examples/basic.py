@@ -1,5 +1,6 @@
-from magicgui import magicgui
 from qtpy.QtWidgets import QApplication
+
+from magicgui import magicgui
 
 running = True
 app = QApplication.instance()
