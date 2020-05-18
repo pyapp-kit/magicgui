@@ -127,7 +127,7 @@ class MagicGuiBase(api.WidgetType):
         self,
         func: Callable,
         *,
-        layout: Union[api.Layout, str] = api.Layout.horizontal,
+        layout: Union[api.Layout, str] = "horizontal",
         labels: bool = True,
         call_button: Union[bool, str] = False,
         auto_call: bool = False,
@@ -141,8 +141,11 @@ class MagicGuiBase(api.WidgetType):
         ----------
         func : Callable
             The function being decorated
-        layout : api.Layout, optional
-            The type of layout to use, by default api.Layout.horizontal
+        layout : api.Layout or str, optional
+            The type of layout to use.  If string, must be one of {'horizontal',
+            'vertical', 'form', 'grid'}, by default "horizontal"
+        labels : bool
+            Whether labels are shown in the widget. by default True
         call_button : bool or str, optional
             If True, create an additional button that calls the original function when
             clicked.  If a ``str``, set the button text. by default False
@@ -577,6 +580,8 @@ def magicgui(
     layout : api.Layout or str, optional
         The type of layout to use.  If string, must be one of {'horizontal', 'vertical',
         'form', 'grid'}, by default "horizontal"
+    labels : bool
+        Whether labels are shown in the widget. by default True
     call_button : bool or str, optional
         If True, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False
