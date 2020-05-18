@@ -39,10 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env:
-          TOXENV: lint
-          TOXENV: mypy
-          TOXENV: pydocstyle
+        toxenv: ['lint', 'mypy', 'pydocstyle']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
@@ -53,7 +50,7 @@ jobs:
         run: pip install tox
       - name: Test with tox
         run: tox
-        env: ${{ matrix.env }}
+        env: ${{ matrix.toxenv }}
 
 
   deploy:
