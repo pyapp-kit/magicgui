@@ -1,0 +1,79 @@
+name: tests
+
+on: push
+
+jobs:
+  test:
+    name: ${{ matrix.platform }} (${{ matrix.python-version }})
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Pre-install
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt install libxkbcommon-x11-0
+          /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools tox tox-gh-actions
+      - name: Test with tox
+        run: tox
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          DISPLAY: ':99.0'
+      - name: Coverage
+        if: runner.os == 'Linux'
+        uses: codecov/codecov-action@v1
+
+  qa:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toxenv: ['lint', 'mypy']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install tox
+        run: pip install tox
+      - name: Test with tox
+        env:
+          TOXENV: ${{ matrix.toxenv }}
+        run: tox
+
+
+  deploy:
+    needs: [test, qa]
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U setuptools setuptools_scm wheel twine
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_API_KEY }}
+        run: |
+          git tag
+          python setup.py sdist bdist_wheel
+          twine upload dist/*

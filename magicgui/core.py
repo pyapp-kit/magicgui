@@ -30,7 +30,6 @@ magicgui : callable
     That class is added as an attribute ``Gui`` to the function which can be called to
     instantiate a GUI widget.
 """
-
 from collections import defaultdict
 import functools
 import inspect
