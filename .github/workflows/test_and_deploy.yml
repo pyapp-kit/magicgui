@@ -11,8 +11,6 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
         platform: [ubuntu-latest, macos-latest, windows-latest]
-      env:
-        DISPLAY: ':99.0'
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -32,6 +30,7 @@ jobs:
         run: tox
         env:
           PLATFORM: ${{ matrix.platform }}
+          DISPLAY: ':99.0'
       - name: Coverage
         if: runner.os == "Linux"
         uses: codecov/codecov-action@v1
