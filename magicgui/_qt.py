@@ -6,7 +6,13 @@ from contextlib import contextmanager
 from enum import Enum, EnumMeta
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Type, Tuple
 
-from qtpy.QtCore import Signal, SignalInstance, Qt
+from qtpy.QtCore import Signal, Qt
+
+try:
+    from qtpy.QtCore import SignalInstance as SignalInstanceType
+except ImportError:
+    from qtpy.QtCore import pyqtBoundSignal as SignalInstanceType
+
 from qtpy.QtWidgets import (
     QAbstractButton,
     QAbstractSlider,
@@ -29,7 +35,6 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QSlider,
-    QLabel,
 )
 
 
@@ -61,13 +66,13 @@ class GetSetOnChange(NamedTuple):
 
     getter: Callable[[], Any]
     setter: Callable[[Any], None]
-    onchange: SignalInstance
+    onchange: SignalInstanceType
 
 
 class HelpfulEnum(EnumMeta):
     """Metaclass that shows the available options on KeyError."""
 
-    def __getitem__(self, name: str) -> Enum:
+    def __getitem__(self, name: str):
         """Get enum by name, or raise helpful KeyError."""
         try:
             return super().__getitem__(name)
@@ -142,6 +147,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         return simple[type_]
     elif isinstance(type_, EnumMeta):
         return QDataComboBox
+    return None
 
 
 def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:

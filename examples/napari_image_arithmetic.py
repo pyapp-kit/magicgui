@@ -4,7 +4,8 @@ from enum import Enum
 import numpy
 
 from magicgui import magicgui
-from napari import Viewer, gui_qt, layers
+from napari import Viewer, gui_qt
+from napari.layers import Image
 
 
 class Operation(Enum):
@@ -21,64 +22,26 @@ class Operation(Enum):
     divide = numpy.divide
 
 
-# we're going to let magicgui know how to render one of our custom types (layers.Layer)
-#
-# the `register_types` function below accepts a type, and either a `widget_type`
-# OR a `choices` argument (choices takes precendence).
-#
-# If `widget_type` is provided, it must be a valid widget class for the gui backed
-# (e.g. QWidget).  If `choices` is provided, the widget is assumed to be a dropdown box.
-# `choices` must either be an iterable, or a callable.
-#
-# If it is a callable, it will be called with the type of the function parameter being
-# rendered. In this case, we want any subclass of layers.Layer to be rendered as a
-# dropdown, but we only want layers of the type specified in the type hint to be shown.
-
-
 with gui_qt():
     # create a viewer and add a couple image layers
     viewer = Viewer()
-    viewer.add_shapes(20 * numpy.random.random((5, 4, 2)), name="Shapes")
     viewer.add_image(numpy.random.rand(20, 20), name=f"Layer 1")
     viewer.add_image(numpy.random.rand(20, 20), name=f"Layer 2")
 
     # use the magic decorator!  This takes a function, generates a custom Widget class
-    # using the function signature, and adds that class as an attribute called "Gui" on
+    # using the function signature, and adds that class as an attribute named "Gui" on
     # the function.
     @magicgui(call_button="execute")
-    def image_arithmetic(
-        layerA: layers.Image, operation: Operation, layerB: layers.Image
-    ) -> None:
+    def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> Image:
         """Add, subtracts, multiplies, or divides to image layers with equal shape."""
         return operation.value(layerA.data, layerB.data)
 
-    def show_result(result):
-        """Show result of image_arithmetic in viewer."""
-        if result is not None:
-            try:
-                viewer.layers["result"].data = result
-            except KeyError:
-                viewer.add_image(data=result, name="result")
-
     # instantiate the widget
     gui = image_arithmetic.Gui()
-    # parentChanged is a special signal set on MagicGui classes in the Qt backend
-    # we use it here to update the layer choices when the widget is docked in a viewer.
-    gui.parentChanged.connect(gui.refresh_choices)
-
-    # the function also acquires a signal that is emitted whenever it is called
-    # it receives the results of the function and can be hooked to any callback
-    # (note, this signal also lives at `gui.called`)
-    image_arithmetic.called.connect(show_result)
     # add our new magicgui widget to the viewer
     viewer.window.add_dock_widget(gui)
-
-    # notice how the dropdowns only show the current image layers... not the shapes.
-    # that is because of how we used `register_type` above.
-
     # keep the dropdown menus in the gui in sync with the layer model
-    viewer.layers.events.added.connect(lambda x: gui.refresh_choices())
-    viewer.layers.events.removed.connect(lambda x: gui.refresh_choices())
+    viewer.layers.events.changed.connect(lambda x: gui.refresh_choices())
 
     # Bonus:
 

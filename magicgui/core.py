@@ -31,19 +31,35 @@ magicgui : callable
     instantiate a GUI widget.
 """
 
+from collections import defaultdict
 import functools
 import inspect
 import os
 import warnings
 from enum import EnumMeta
-from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    Callable,
+    DefaultDict,
+    Dict,
+    Iterable,
+    TypeVar,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+    List,
+)
 
 from . import _qt as api
 
-
-ChoicesType = Union[EnumMeta, Iterable, Callable[[api.WidgetType, Type], Iterable]]
+MagicGuiType = TypeVar("MagicGuiType")
+ChoicesCallback = Callable[[MagicGuiType, Type], Iterable]
+ChoicesType = Union[EnumMeta, Iterable, ChoicesCallback]
 _TYPE_DEFS: Dict[type, Type[api.WidgetType]] = {}
 _CHOICES: Dict[type, ChoicesType] = {}
+
+
 SKIP_UNRECOGNIZED_TYPES = os.environ.get("MAGICGUI_SKIP_UNRECOGNIZED_TYPES", False)
 
 
@@ -153,6 +169,7 @@ class MagicGuiBase(api.WidgetType):
         # this is how the original function object knows that an object has been created
         setattr(func, "_widget", self)
         self.param_names = []
+        self._result_name: str = ""
         # Optional mapping of parameter name -> valid choices for that parameter
         self._choices: Dict[str, ChoicesType] = dict()
         # mapping of param name, parameter type.  Will be set in set_widget.
@@ -175,8 +192,14 @@ class MagicGuiBase(api.WidgetType):
             self.call_button = api.ButtonType(
                 call_button if isinstance(call_button, str) else "call"
             )
-            self.call_button.clicked.connect(self.__call__)
+            # using lambda because the clicked signal returns a value
+            self.call_button.clicked.connect(lambda checked: self.__call__())
             api.Layout.addWidget(self.layout(), self.call_button)
+
+        # a convenience, allows widgets to change their choices depending on context
+        # particularly useful if a downstream library has registered a type with a
+        # choices function that traverses the parent tree for context.
+        self.parentChanged.connect(self.refresh_choices)
 
         if auto_call:
             self.parameter_updated.connect(self.__call__)
@@ -263,14 +286,14 @@ class MagicGuiBase(api.WidgetType):
         TypeError
             If ``position`` is provided but is not an integer.
         """
-        options = options or self.param_options.get(name) or dict()
-        _widget_type = widget_type or options.get("widget_type")
-        dtype = dtype or options.get("dtype")
+        _options: dict = options or self.param_options.get(name) or dict()
+        _widget_type = widget_type or _options.get("widget_type")
+        dtype = dtype or _options.get("dtype")
 
         if dtype is not None:
-            arg_type = dtype
+            arg_type: Type = dtype
         elif value is not None:
-            arg_type: Type = type(value)
+            arg_type = type(value)
         else:
             arg_type = type(None)
 
@@ -278,7 +301,7 @@ class MagicGuiBase(api.WidgetType):
 
         # argument specific choices override _CHOICES registered with `register_type`
         choices: Optional[ChoicesType] = (
-            options.get("choices")
+            _options.get("choices")
             or _type2choices(arg_type)
             or (arg_type if isinstance(arg_type, EnumMeta) else None)
         )
@@ -306,12 +329,12 @@ class MagicGuiBase(api.WidgetType):
                 )
                 if SKIP_UNRECOGNIZED_TYPES:
                     warnings.warn(msg + " Skipping.")
-                    return
+                    return None
                 raise TypeError(msg)
 
         # check if there is already am existintg widget by this name...
         try:
-            existing_widget = self.get_widget(name)
+            existing_widget: Optional[api.WidgetType] = self.get_widget(name)
         except AttributeError:
             existing_widget = None
         if existing_widget:
@@ -325,7 +348,7 @@ class MagicGuiBase(api.WidgetType):
                 delattr(self, name)
 
         # instantiate a new widget
-        widget = api.make_widget(WidgetType, name=name, parent=self, **options)
+        widget = api.make_widget(WidgetType, name=name, parent=self, **_options)
 
         # connect on_change signals
         change_signal = api.getter_setter_onchange(widget).onchange
@@ -370,7 +393,20 @@ class MagicGuiBase(api.WidgetType):
     def refresh_choices(
         self, names: Optional[Union[str, Sequence[str]]] = None
     ) -> None:
-        """Update the GUI choices for all widgets or all parameters in ``names``."""
+        """Update the GUI choices for all widgets or all parameters in ``names``.
+
+        Parameters
+        ----------
+        names : str or sequence of str, optional
+            An attribute name or list of attribute names for which to update choices.
+            Must be one of the parameters with registered choices.  by default, all
+            registered choices will be updated.
+
+        Raises
+        ------
+        ValueError
+            If a name is provided that does not have registered choices.
+        """
         if isinstance(names, str):
             names = [names]
         if names:
@@ -388,7 +424,8 @@ class MagicGuiBase(api.WidgetType):
             choices = self.get_choices(name)
             # choices are set as (name, data) tuples because we assume DataComboBox
             if isinstance(choices, EnumMeta):
-                api.set_categorical_choices(widget, [(x.name, x) for x in choices])
+                # TODO: figure out typing on Enums
+                api.set_categorical_choices(widget, [(x.name, x) for x in choices])  # type: ignore  # noqa
             else:
                 api.set_categorical_choices(widget, [(str(c), c) for c in choices])
 
@@ -476,6 +513,11 @@ class MagicGuiBase(api.WidgetType):
         # finally, call the original function, emit the result as a signal, and return.
         value = self.func(**_kwargs)
         self.called.emit(value)
+
+        return_type = self.func.__annotations__.get("return")
+        if return_type:
+            for callback in _type2callback(return_type):
+                callback(self, value, return_type)
         return value
 
     def _current_signature(self):
@@ -483,6 +525,16 @@ class MagicGuiBase(api.WidgetType):
         return (
             f'({", ".join([f"{n}={repr(k)}" for n, k in self.current_kwargs.items()])})'
         )
+
+    @property
+    def result_name(self) -> str:
+        """Return a name that can be used for the result of this magicfunction."""
+        return self._result_name or (self.func.__name__ + " result")
+
+    @result_name.setter
+    def result_name(self, value: str):
+        """Set the result name of this MagicGui widget."""
+        self._result_name = value
 
     def __repr__(self):
         """Representation of the MagicGui with current function signature."""
@@ -493,9 +545,15 @@ class MagicGuiBase(api.WidgetType):
 # ######### magicgui decorator ######### #
 
 
+# TODO: make protocol
+# class MagicFunction(Protocol):
+#     Gui: MagicGuiBase
+
+
 def magicgui(
-    function: Callable = None,
+    function: Optional[Callable] = None,
     layout: Union[api.Layout, str] = "horizontal",
+    labels: bool = True,
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     parent: api.WidgetType = None,
@@ -550,12 +608,14 @@ def magicgui(
         if not isinstance(value, dict):
             raise TypeError(f"value for keyword argument {key} should be a dict")
 
-    def inner_func(func: Callable) -> Type:
+    _layout = api.Layout[layout] if isinstance(layout, str) else layout
+
+    def inner_func(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             if hasattr(func, "_widget"):
                 # a widget has been instantiated
-                return func._widget(*args, **kwargs)
+                return getattr(func, "_widget")(*args, **kwargs)
             return func(*args, **kwargs)
 
         class MagicGui(MagicGuiBase):
@@ -565,24 +625,31 @@ def magicgui(
             def __init__(self, show=False) -> None:
                 super().__init__(
                     func,
-                    layout=layout,
+                    layout=_layout,
+                    labels=labels,
                     call_button=call_button,
                     auto_call=auto_call,
                     parent=parent,
                     ignore=ignore,
                     **param_options,
                 )
-                wrapper.called = self.called
+                setattr(wrapper, "called", self.called)
                 if show:
                     self.show()
 
-        wrapper.Gui = MagicGui
+        setattr(wrapper, "Gui", MagicGui)
         return wrapper
 
-    return inner_func if function is None else inner_func(function)
+    if function is None:
+        return inner_func
+    return inner_func(function)
 
 
 # ######### UTILITY FUNCTIONS ######### #
+
+
+ReturnCallback = Callable[[MagicGuiBase, Any, Type], None]
+_RETURN_CALLBACKS: DefaultDict[type, List[ReturnCallback]] = defaultdict(list)
 
 
 def register_type(
@@ -590,23 +657,41 @@ def register_type(
     *,
     widget_type: Optional[Type[api.WidgetType]] = None,
     choices: Optional[ChoicesType] = None,
+    return_callback: Optional[ReturnCallback] = None,
 ) -> None:
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
 
     Parameters
     ----------
     type_ : type
-        [description]
+        The type for which a widget class or return callback will be provided.
     widget_type : Optional[Type[api.WidgetType]], optional
-        [description], by default None
-    choices : Optional[ChoicesType], optional
-        [description], by default None
+        A widget class from the current backend that should be used whenever ``type_``
+        is used as the type annotation for an argument in a decorated function,
+        by default None
+    choices : enum or iterable or callable, optional
+        If provided, a categorical type widget will always be used for arguments of type
+        ``type_``, and ``choices`` will be used to populate the widget.
+        By default None.
+    return_callback: callable, optional
+        If provided, whenever ``type_`` is declared as the return type of a decorated
+        function, ``return_callback(widget, value, return_type)`` will be called
+        whenever the decorated function is called... where ``widget`` is the MagicGui
+        instance, and ``value`` is the return value of the decorated function.
 
     Raises
     ------
     ValueError
         If both ``widget_type`` and ``choices`` are None
     """
+    if not (return_callback or choices or widget_type):
+        raise ValueError(
+            "One of `widget_type`, `choices`, or `return_callback` must be provided."
+        )
+
+    if return_callback is not None:
+        _RETURN_CALLBACKS[type_].append(return_callback)
+
     if choices is not None:
         _CHOICES[type_] = choices
         _TYPE_DEFS[type_] = api.get_categorical_widget()
@@ -617,19 +702,29 @@ def register_type(
             )
     elif widget_type is not None:
         _TYPE_DEFS[type_] = widget_type
-    else:
-        raise ValueError("Either `widget_type` or `choices` must be provided.")
+    return None
 
 
 def reset_type(type_):
-    """Clear any previously-registered widget types for ``type_``."""
-    global _TYPE_DEFS
-    global _CHOICES
+    """Clear any previously-registered widget types and callbacks for ``type_``."""
     _TYPE_DEFS.pop(type_, None)
     _CHOICES.pop(type_, None)
+    _RETURN_CALLBACKS.pop(type_, None)
 
 
-def _type2choices(type_: type) -> Optional[ChoicesType]:
+def _type2choices(type_: type) -> ChoicesType:
+    """Check if choices have been registered for ``type_`` and return if so.
+
+    Parameters
+    ----------
+    type_ : type
+        The type_ to look up.
+
+    Returns
+    -------
+    iterable or callable or None
+        A choices lookup iterable or callable.
+    """
     # look for direct hits
     if type_ in _CHOICES:
         return _CHOICES[type_]
@@ -638,7 +733,30 @@ def _type2choices(type_: type) -> Optional[ChoicesType]:
         # TODO: is it necessary to check for isclass at this point?
         if inspect.isclass(type_) and issubclass(type_, registered_type):
             return _CHOICES[registered_type]
-    return None
+    return []
+
+
+def _type2callback(type_: type) -> List[ReturnCallback]:
+    """Check if return callbacks have been registered for ``type_`` and return if so.
+
+    Parameters
+    ----------
+    type_ : type
+        The type_ to look up.
+
+    Returns
+    -------
+    list of callable
+        Where a return callback accepts two arguments (gui, value) and does something.
+    """
+    # look for direct hits
+    if type_ in _RETURN_CALLBACKS:
+        return _RETURN_CALLBACKS[type_]
+    # look for subclasses
+    for registered_type in _RETURN_CALLBACKS:
+        if inspect.isclass(type_) and issubclass(type_, registered_type):
+            return _RETURN_CALLBACKS[registered_type]
+    return []
 
 
 def type2widget(type_: type) -> Type[api.WidgetType]:

@@ -10,6 +10,7 @@ repo_url: https://github.com/napari/magicgui
 edit_uri: ""
 
 theme:
+  logo: img/logo.svg
   name: material
   custom_dir: docs/custom_theme
 

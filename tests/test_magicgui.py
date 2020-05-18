@@ -100,10 +100,20 @@ def test_no_type_provided(qtbot):
     assert isinstance(gui.get_widget("a"), none_widget)
 
 
-def test_call_button(magic_widget):
-    """Test that the call button has been added."""
+def test_call_button(qtbot):
+    """Test that the call button has been added, and pressing it calls the function."""
+
+    @magicgui(call_button="my_button", auto_call=True)
+    def func(a: int, b: int = 3, c=7.1) -> None:
+        assert a == 7
+
+    magic_widget = func.Gui()
+
     assert hasattr(magic_widget, "call_button")
     assert isinstance(magic_widget.call_button, QtW.QPushButton)
+    magic_widget.a = 7
+
+    qtbot.mouseClick(magic_widget.call_button, Qt.LeftButton)
 
 
 def test_auto_call(qtbot, magic_func):
@@ -436,6 +446,38 @@ def test_register_types(qtbot):
 
     core.reset_type(str)
     core.reset_type(int)
+
+
+def test_register_return_callback(qtbot):
+    """Test that registering a return callback works."""
+
+    def check_value(gui, value, rettype):
+        assert value == 1
+
+    class Base:
+        pass
+
+    class Sub(Base):
+        pass
+
+    register_type(int, return_callback=check_value)
+    register_type(Base, return_callback=check_value)
+
+    @magicgui
+    def func(a=1) -> int:
+        return a
+
+    _ = func.Gui()
+    func()
+    with pytest.raises(AssertionError):
+        func(3)
+
+    @magicgui
+    def func2(a=1) -> Sub:
+        return a
+
+    _ = func2.Gui()
+    func2()
 
 
 def test_parent_changed(qtbot, magic_widget):

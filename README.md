@@ -62,7 +62,7 @@ codebase:
 - [black](https://github.com/psf/black) - code formatting
 - [flake8](https://github.com/PyCQA/flake8) - linting
 - [pydocstyle](https://github.com/PyCQA/pydocstyle/) - docstring conventions
-- [pyright](https://github.com/microsoft/pyright) - static type anaylsis
+- [mypy](http://mypy-lang.org/) - static type anaylsis
 - [codecov](https://codecov.io/) - test coverage
 
 To prevent continuous integration failures when contributing, please consider installing
@@ -72,6 +72,3 @@ prior to checking in new code.
 ```shell
 pre-commit install
 ```
-
-To run pyright, you will need to install with `npm install -g pyright`,
-then run `pyright`.  See [their docs](https://github.com/microsoft/pyright) for details.
