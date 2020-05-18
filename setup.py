@@ -10,8 +10,9 @@ with open("README.md", encoding="utf-8") as readme_file:
 
 setup(
     name="magicgui",
-    version="0.1.3",
-    packages=find_packages(exclude=["tests"]),
+    use_scm_version={"write_to": "magicgui/_version.py"},
+    setup_requires=["setuptools_scm"],
+    packages=find_packages(),
     install_requires=["qtpy>=1.7.0"],
     python_requires=">=3.6",
     author="Talley Lambert",
