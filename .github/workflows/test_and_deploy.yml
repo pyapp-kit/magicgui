@@ -35,53 +35,29 @@ jobs:
         if: runner.os == 'Linux'
         uses: codecov/codecov-action@v1
 
-  lint:
+  qa:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env:
+          TOXENV: lint
+          TOXENV: mypy
+          TOXENV: pydocstyle
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools tox tox-gh-actions
+      - name: Install tox
+        run: pip install tox
       - name: Test with tox
-        run: tox -e lint
+        run: tox
+        env: ${{ matrix.env }}
 
-  docstyle:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools tox tox-gh-actions
-      - name: Test with tox
-        run: tox -e pydocstyle
-
-  mypy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools tox tox-gh-actions
-      - name: Test with tox
-        run: tox -e mypy
 
   deploy:
-    needs: [test, lint, docstyle, mypy]
+    needs: [test, qa]
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     steps:
