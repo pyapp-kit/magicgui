@@ -50,8 +50,8 @@ jobs:
       - name: Install tox
         run: pip install tox
       - name: Test with tox
-        run: tox
         env: ${{ matrix.toxenv }}
+        run: tox
 
 
   deploy:
