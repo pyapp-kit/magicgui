@@ -4,15 +4,9 @@
 import sys
 from contextlib import contextmanager
 from enum import Enum, EnumMeta
-from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Type, Tuple
+from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Type
 
-from qtpy.QtCore import Signal, Qt
-
-try:
-    from qtpy.QtCore import SignalInstance as SignalInstanceType
-except ImportError:
-    from qtpy.QtCore import pyqtBoundSignal as SignalInstanceType
-
+from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import (
     QAbstractButton,
     QAbstractSlider,
@@ -26,16 +20,23 @@ from qtpy.QtWidgets import (
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
+    QLabel,
+    QLayout,
     QLineEdit,
     QPushButton,
+    QSlider,
     QSpinBox,
     QSplitter,
     QStatusBar,
     QTabWidget,
     QVBoxLayout,
     QWidget,
-    QSlider,
 )
+
+try:
+    from qtpy.QtCore import SignalInstance as SignalInstanceType
+except ImportError:
+    from qtpy.QtCore import pyqtBoundSignal as SignalInstanceType
 
 
 @contextmanager
@@ -92,20 +93,30 @@ class Layout(Enum, metaclass=HelpfulEnum):
     form = QFormLayout
 
     @staticmethod
-    def addWidget(layout, widget, label=""):
+    def addWidget(layout: QLayout, widget: QWidget, label: str = ""):
+        """Add widget to arbitrary layout with optional label."""
         if isinstance(layout, QFormLayout):
             return layout.addRow(label, widget)
         elif isinstance(layout, (QHBoxLayout, QVBoxLayout)):
+            if label:
+                label_widget = QLabel(label)
+                label_widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+                layout.addWidget(label_widget)
             return layout.addWidget(widget)
 
     @staticmethod
-    def insertLabeledWidget(layout, position, widget, label=""):
+    def insertWidget(layout: QLayout, position: int, widget: QWidget, label: str = ""):
+        """Add widget to arbitrary layout at position, with optional label."""
         if position < 0:
             position = layout.count() + position + 1
         if isinstance(layout, QFormLayout):
             layout.insertRow(position, label, widget)
         else:
             layout.insertWidget(position, widget)
+            if label:
+                label_widget = QLabel(label)
+                label_widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+                layout.insertWidget(position, label_widget)
 
 
 class QDataComboBox(QComboBox):

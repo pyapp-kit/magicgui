@@ -162,6 +162,7 @@ class MagicGuiBase(api.WidgetType):
             signature, and the value MUST be a dict.
         """
         super().__init__(parent=parent)
+        self._with_labels = labels
         layout = api.Layout[layout] if isinstance(layout, str) else layout
         if labels and layout == api.Layout.vertical:
             layout = api.Layout.form
@@ -368,14 +369,20 @@ class MagicGuiBase(api.WidgetType):
             setattr(self, name, value)
 
         # add the widget to the layout (appended, or at a specific position)
+        label = name if self._with_labels else ""
+
         if position is not None:
             if not isinstance(position, int):
                 raise TypeError(
                     f"`position` argument must be of type int. got: {type(position)}"
                 )
-            api.Layout.insertLabeledWidget(self.layout(), position, widget, label=name)
+            if self._with_labels:
+                position *= 2
+                if position < 0:
+                    position += 1
+            api.Layout.insertWidget(self.layout(), position, widget, label=label)
         else:
-            api.Layout.addWidget(self.layout(), widget, label=name)
+            api.Layout.addWidget(self.layout(), widget, label=label)
         return widget
 
     @classmethod
@@ -608,8 +615,6 @@ def magicgui(
         if not isinstance(value, dict):
             raise TypeError(f"value for keyword argument {key} should be a dict")
 
-    _layout = api.Layout[layout] if isinstance(layout, str) else layout
-
     def inner_func(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
@@ -625,7 +630,7 @@ def magicgui(
             def __init__(self, show=False) -> None:
                 super().__init__(
                     func,
-                    layout=_layout,
+                    layout=layout,
                     labels=labels,
                     call_button=call_button,
                     auto_call=auto_call,

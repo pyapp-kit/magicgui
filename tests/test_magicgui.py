@@ -375,16 +375,20 @@ def test_positions(qtbot):
     assert get_layout_items(gui.layout()) == ["c", "b", "a"]
 
 
-def test_add_at_position(qtbot):
+@pytest.mark.parametrize("labels", [True, False], ids=["with-labels", "no-labels"])
+def test_add_at_position(labels, qtbot):
     """Test that adding widghet with position option puts widget in the right place."""
 
     def func(a=1, b=2, c=3):
         pass
 
     def get_layout_items(layout):
-        return [layout.itemAt(i).widget().objectName() for i in range(layout.count())]
+        items = [layout.itemAt(i).widget().objectName() for i in range(layout.count())]
+        if labels:
+            items = list(filter(None, items))
+        return items
 
-    gui = magicgui(func).Gui()
+    gui = magicgui(func, labels=labels).Gui()
     assert get_layout_items(gui.layout()) == ["a", "b", "c"]
     gui.set_widget("new", 1, position=1)
     assert get_layout_items(gui.layout()) == ["a", "new", "b", "c"]
