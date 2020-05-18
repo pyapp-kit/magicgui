@@ -32,7 +32,7 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
           DISPLAY: ':99.0'
       - name: Coverage
-        if: runner.os == "Linux"
+        if: runner.os == 'Linux'
         uses: codecov/codecov-action@v1
 
   lint:
