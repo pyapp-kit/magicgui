@@ -76,7 +76,6 @@ jobs:
     needs: [test, lint, docstyle, mypy]
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
-    if:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
