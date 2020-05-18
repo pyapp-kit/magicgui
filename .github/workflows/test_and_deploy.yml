@@ -38,6 +38,7 @@ jobs:
   qa:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         toxenv: ['lint', 'mypy', 'pydocstyle']
     steps:
