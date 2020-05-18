@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        toxenv: ['lint', 'mypy', 'pydocstyle']
+        toxenv: ['lint', 'mypy']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
