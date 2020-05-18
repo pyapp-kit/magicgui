@@ -25,7 +25,7 @@ jobs:
         env:
           PLATFORM: ${{ matrix.platform }}
       - name: Coverage
-        if: ${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.8' }}
+        if: ( ${{ matrix.platform }} == 'ubuntu-latest' ) && ( ${{ matrix.python-version }} == '3.8' )
         uses: codecov/codecov-action@v1
 
   lint:
