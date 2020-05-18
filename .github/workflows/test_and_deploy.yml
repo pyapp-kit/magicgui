@@ -7,6 +7,7 @@ jobs:
     name: ${{ matrix.platform }} (${{ matrix.python-version }})
     runs-on: ${{ matrix.platform }}
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
         platform: [ubuntu-latest, macos-latest, windows-latest]
