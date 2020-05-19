@@ -126,7 +126,8 @@ class MagicGuiBase(api.WidgetType):
         self,
         func: Callable,
         *,
-        layout: api.Layout = api.Layout.horizontal,
+        layout: Union[api.Layout, str] = "horizontal",
+        labels: bool = True,
         call_button: Union[bool, str] = False,
         auto_call: bool = False,
         parent: api.WidgetType = None,
@@ -139,8 +140,11 @@ class MagicGuiBase(api.WidgetType):
         ----------
         func : Callable
             The function being decorated
-        layout : api.Layout, optional
-            The type of layout to use, by default api.Layout.horizontal
+        layout : api.Layout or str, optional
+            The type of layout to use.  If string, must be one of {'horizontal',
+            'vertical', 'form', 'grid'}, by default "horizontal"
+        labels : bool
+            Whether labels are shown in the widget. by default True
         call_button : bool or str, optional
             If True, create an additional button that calls the original function when
             clicked.  If a ``str``, set the button text. by default False
@@ -160,6 +164,11 @@ class MagicGuiBase(api.WidgetType):
             signature, and the value MUST be a dict.
         """
         super().__init__(parent=parent)
+        self._with_labels = labels
+        layout = api.Layout[layout] if isinstance(layout, str) else layout
+        if labels and layout == api.Layout.vertical:
+            layout = api.Layout.form
+        self.setLayout(layout.value(self))
         # this is how the original function object knows that an object has been created
         setattr(func, "_widget", self)
         self.param_names = []
@@ -169,7 +178,6 @@ class MagicGuiBase(api.WidgetType):
         # mapping of param name, parameter type.  Will be set in set_widget.
         self._arg_types: Dict[str, Type] = dict()
         self.func = func
-        self.setLayout(layout.value(self))
         self.param_options = param_options
 
         # TODO: should we let required positional args get skipped?
@@ -189,7 +197,7 @@ class MagicGuiBase(api.WidgetType):
             )
             # using lambda because the clicked signal returns a value
             self.call_button.clicked.connect(lambda checked: self.__call__())
-            self.layout().addWidget(self.call_button)
+            api.Layout.addWidget(self.layout(), self.call_button)
 
         # a convenience, allows widgets to change their choices depending on context
         # particularly useful if a downstream library has registered a type with a
@@ -363,17 +371,20 @@ class MagicGuiBase(api.WidgetType):
             setattr(self, name, value)
 
         # add the widget to the layout (appended, or at a specific position)
+        label = name if self._with_labels else ""
+
         if position is not None:
             if not isinstance(position, int):
                 raise TypeError(
                     f"`position` argument must be of type int. got: {type(position)}"
                 )
-            if position < 0:
-                position = self.layout().count() + position + 1
-            self.layout().insertWidget(position, widget)
+            if self._with_labels:
+                position *= 2
+                if position < 0:
+                    position += 1
+            api.Layout.insertWidget(self.layout(), position, widget, label=label)
         else:
-            self.layout().addWidget(widget)
-
+            api.Layout.addWidget(self.layout(), widget, label=label)
         return widget
 
     @classmethod
@@ -551,6 +562,7 @@ class MagicGuiBase(api.WidgetType):
 def magicgui(
     function: Optional[Callable] = None,
     layout: Union[api.Layout, str] = "horizontal",
+    labels: bool = True,
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     parent: api.WidgetType = None,
@@ -567,6 +579,8 @@ def magicgui(
     layout : api.Layout or str, optional
         The type of layout to use.  If string, must be one of {'horizontal', 'vertical',
         'form', 'grid'}, by default "horizontal"
+    labels : bool
+        Whether labels are shown in the widget. by default True
     call_button : bool or str, optional
         If True, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False
@@ -605,8 +619,6 @@ def magicgui(
         if not isinstance(value, dict):
             raise TypeError(f"value for keyword argument {key} should be a dict")
 
-    _layout = api.Layout[layout] if isinstance(layout, str) else layout
-
     def inner_func(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
@@ -622,7 +634,8 @@ def magicgui(
             def __init__(self, show=False) -> None:
                 super().__init__(
                     func,
-                    layout=_layout,
+                    layout=layout,
+                    labels=labels,
                     call_button=call_button,
                     auto_call=auto_call,
                     parent=parent,
