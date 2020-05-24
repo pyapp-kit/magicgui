@@ -370,8 +370,11 @@ class MagicGuiBase(api.WidgetType):
         if value is not None:
             setattr(self, name, value)
 
+        is_visible = _options.get("visible", True)
+        if not is_visible:
+            widget.hide()
         # add the widget to the layout (appended, or at a specific position)
-        label = name if self._with_labels else ""
+        label = name if (self._with_labels and is_visible) else ""
 
         if position is not None:
             if not isinstance(position, int):

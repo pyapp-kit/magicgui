@@ -287,6 +287,20 @@ def test_ignore_param(qtbot):
     func()
 
 
+def test_invisible_param(qtbot):
+    """Test that the visible option works."""
+
+    @magicgui(a={"visible": False})
+    def func(a: str = "string", b: int = 3, c=7.1) -> str:
+        return "works"
+
+    gui = func.Gui()
+    assert hasattr(gui, "a")
+    assert not gui.get_widget("a").isVisible()
+    assert not gui.get_widget("b").isVisible()
+    func()
+
+
 def test_bad_options(qtbot):
     """Test that the ignore option works."""
     with pytest.raises(TypeError):
