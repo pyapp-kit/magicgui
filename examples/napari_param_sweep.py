@@ -6,7 +6,8 @@ It demonstrates:
 
 """
 import napari
-import skimage
+import skimage.data
+import skimage.filters
 from magicgui import magicgui
 from magicgui._qt import QDoubleSlider
 from napari.layers import Image
