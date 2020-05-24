@@ -1,18 +1,15 @@
-"""Example showing how to accomplish a napari parameter sweep with magicgui.
-
-It demonstrates:
-1. overriding the default widget type with a custom class
-2. the `auto_call` option, which calls the function whenever a parameter changes
+"""Example showing how to access the current napari viewer
 
 """
-import napari
 import skimage.data
 import skimage.filters
+
+import napari
 from magicgui import magicgui, register_type
-from typing import Type, Tuple
 
 
 def get_viewers(gui, *args):
+    """Get the viewer that the magicwidget is in."""
     try:
         return (gui.parent().qt_viewer.viewer,)
     except AttributeError:
@@ -29,7 +26,7 @@ with napari.gui_qt():
 
     @magicgui(call_button="call", viewer={"visible": False})
     def takes_viewer(viewer: napari.Viewer):
-        """Apply a gaussian blur to ``layer``."""
+        """Just print the viewer."""
         print(viewer)
 
     # instantiate the widget
