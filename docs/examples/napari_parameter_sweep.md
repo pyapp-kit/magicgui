@@ -35,12 +35,13 @@ https://github.com/napari/magicgui/blob/master/examples/napari_param_sweep.py).*
 
 ???+ example "complete code"
 
-    ```python hl_lines="19 20 21 22 23 30 32 34"
+    ```python hl_lines="20 21 22 23 24 31 33 35"
     from magicgui import magicgui
     from magicgui._qt import QDoubleSlider
     import napari
     from napari.layers import Image
-    import skimage
+    import skimage.data
+    import skimage.filters
 
     ######   THIS SECTION ONLY REQUIRED FOR NAPARI <= 0.2.12   ######
 
