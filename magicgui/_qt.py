@@ -4,6 +4,7 @@
 import sys
 from contextlib import contextmanager
 from enum import Enum, EnumMeta
+import pathlib
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Type
 
 from qtpy.QtCore import Qt, Signal
@@ -16,6 +17,7 @@ from qtpy.QtWidgets import (
     QComboBox,
     QDateTimeEdit,
     QDoubleSpinBox,
+    QFileDialog,
     QFormLayout,
     QGridLayout,
     QGroupBox,
@@ -152,6 +154,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         int: QSpinBox,
         float: QDoubleSpinBox,
         str: QLineEdit,
+        pathlib.Path: QFileDialog,
         type(None): QLineEdit,
     }
     if type_ in simple:
