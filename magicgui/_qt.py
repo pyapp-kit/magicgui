@@ -4,7 +4,7 @@
 import sys
 from contextlib import contextmanager
 from enum import Enum, EnumMeta
-import pathlib
+from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Type
 
 from qtpy.QtCore import Qt, Signal
@@ -154,13 +154,17 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         int: QSpinBox,
         float: QDoubleSpinBox,
         str: QLineEdit,
-        pathlib.Path: QFileDialog,
+        Path: MagicFileDialog,
         type(None): QLineEdit,
     }
     if type_ in simple:
         return simple[type_]
     elif isinstance(type_, EnumMeta):
         return QDataComboBox
+    else:
+        for key in simple.keys():
+            if issubclass(type_, key):
+                return simple[key]
     return None
 
 
@@ -216,9 +220,7 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
     elif isinstance(widget, QSplitter):
         return GetSetOnChange(widget.sizes, widget.setSizes, widget.splitterMoved)
     elif isinstance(widget, MagicFileDialog):
-        return GetSetOnChange(
-
-        )
+        return GetSetOnChange(widget.getOpenFileName, widget.setter, widget.fileSelected)
     raise ValueError(f"Unrecognized widget Type: {widget}")
 
 
@@ -321,3 +323,6 @@ class MagicFileDialog(QFileDialog):
         super().__init__(parent)
         self.setOption(QFileDialog.DontUseNativeDialog)
         self.setWindowFlags(self.windowFlags() & ~Qt.Dialog)
+
+    def setter(self, value):
+        pass
