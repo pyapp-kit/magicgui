@@ -215,6 +215,10 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
         )
     elif isinstance(widget, QSplitter):
         return GetSetOnChange(widget.sizes, widget.setSizes, widget.splitterMoved)
+    elif isinstance(widget, MagicFileDialog):
+        return GetSetOnChange(
+
+        )
     raise ValueError(f"Unrecognized widget Type: {widget}")
 
 
@@ -308,3 +312,12 @@ class QDoubleSlider(QSlider):
     def setMaximum(self, value):
         """Set maximum position of slider in float units."""
         super().setMaximum(value * self.PRECISION)
+
+
+class MagicFileDialog(QFileDialog):
+    """A FileDialog widget that is launched by a button press."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setOption(QFileDialog.DontUseNativeDialog)
+        self.setWindowFlags(self.windowFlags() & ~Qt.Dialog)
