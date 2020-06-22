@@ -3,6 +3,7 @@
 
 import sys
 from contextlib import contextmanager
+import datetime
 from enum import Enum, EnumMeta
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Type
 
@@ -152,6 +153,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         int: QSpinBox,
         float: QDoubleSpinBox,
         str: QLineEdit,
+        datetime.datetime: QDateTimeEdit,
         type(None): QLineEdit,
     }
     if type_ in simple:
