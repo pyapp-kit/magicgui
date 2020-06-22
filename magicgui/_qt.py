@@ -7,12 +7,14 @@ from enum import Enum, EnumMeta
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Type
 
 from qtpy.QtCore import Qt, Signal
+from PyQt5.QtGui import QColor
 from qtpy.QtWidgets import (
     QAbstractButton,
     QAbstractSlider,
     QAbstractSpinBox,
     QApplication,
     QCheckBox,
+    QColorDialog,
     QComboBox,
     QDateTimeEdit,
     QDoubleSpinBox,
@@ -37,6 +39,11 @@ try:
     from qtpy.QtCore import SignalInstance as SignalInstanceType
 except ImportError:
     from qtpy.QtCore import pyqtBoundSignal as SignalInstanceType
+
+try:
+    from colour import Color
+except ImportError:
+    Color = None
 
 
 @contextmanager
@@ -153,6 +160,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         float: QDoubleSpinBox,
         str: QLineEdit,
         type(None): QLineEdit,
+        QColor: QColorDialog,
     }
     if type_ in simple:
         return simple[type_]
@@ -212,6 +220,8 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
         )
     elif isinstance(widget, QSplitter):
         return GetSetOnChange(widget.sizes, widget.setSizes, widget.splitterMoved)
+    elif isinstance(widget, QColorDialog):
+        return GetSetOnChange(widget.currentColor, widget.setCurrentColor, widget.colorSelected)
     raise ValueError(f"Unrecognized widget Type: {widget}")
 
 
