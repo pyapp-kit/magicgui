@@ -336,7 +336,13 @@ class QDoubleSlider(QSlider):
 
 
 class FileDialogMode(Enum):
-    """QLayout options."""
+    """FileDialog mode options.
+
+    EXISTING_FILE - returns one existing file.
+    EXISTING_FILES - return one or more existing files.
+    OPTIONAL_FILE - return one file name that does not have to exist.
+    EXISTING_DIRECTORY - returns one existing directory.
+    """
 
     EXISTING_FILE = "getOpenFileName"
     EXISTING_FILES = "getOpenFileNames"
@@ -371,13 +377,7 @@ class MagicPathLineEdit(QWidget):
 
     @property
     def mode(self):
-        """Mode for the FileDialog.
-
-        existing_file - returns one existing file.
-        existing_files - return one or more existing files.
-        optional_file - return one file name that does not have to exist.
-        existing_directory - returns one existing directory.
-        """
+        """Mode for the FileDialog."""
         return self._mode
 
     @mode.setter
