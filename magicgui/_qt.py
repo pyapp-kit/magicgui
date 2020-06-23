@@ -1,11 +1,23 @@
 # -*- coding: utf-8 -*-
 """Widgets and type-to-widget conversion for the Qt backend."""
 
+import os
 import sys
 from contextlib import contextmanager
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Type
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import (
@@ -154,7 +166,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         int: QSpinBox,
         float: QDoubleSpinBox,
         str: QLineEdit,
-        Path: MagicFileDialog,
+        Path: MagicPathLineEdit,
         type(None): QLineEdit,
     }
     if type_ in simple:
@@ -219,8 +231,10 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
         )
     elif isinstance(widget, QSplitter):
         return GetSetOnChange(widget.sizes, widget.setSizes, widget.splitterMoved)
-    elif isinstance(widget, MagicFileDialog):
-        return GetSetOnChange(widget.getOpenFileName, widget.setter, widget.fileSelected)
+    elif isinstance(widget, MagicPathLineEdit):
+        return GetSetOnChange(
+            widget.get_path, widget.set_path, widget.line_edit.textChanged
+        )
     raise ValueError(f"Unrecognized widget Type: {widget}")
 
 
@@ -288,6 +302,11 @@ def make_widget(
         if setter:
             setter(val)
 
+    if isinstance(widget, MagicPathLineEdit):
+        if "mode" in kwargs:
+            widget.mode = kwargs["mode"]
+        if "filter" in kwargs:
+            widget.filter = kwargs["filter"]
     return widget
 
 
@@ -316,13 +335,97 @@ class QDoubleSlider(QSlider):
         super().setMaximum(value * self.PRECISION)
 
 
-class MagicFileDialog(QFileDialog):
-    """A FileDialog widget that is launched by a button press."""
+class FileDialogMode(Enum):
+    """QLayout options."""
 
-    def __init__(self, parent=None):
+    EXISTING_FILE = "getOpenFileName"
+    EXISTING_FILES = "getOpenFileNames"
+    OPTIONAL_FILE = "getSaveFileName"
+    EXISTING_DIRECTORY = "getExistingDirectory"
+
+
+class MagicPathLineEdit(QWidget):
+    """A LineEdit widget with a QFileDialog button."""
+
+    def __init__(
+        self,
+        parent=None,
+        mode: Union[FileDialogMode, str] = FileDialogMode.OPTIONAL_FILE,
+        filter: str = "",
+    ):
         super().__init__(parent)
-        self.setOption(QFileDialog.DontUseNativeDialog)
-        self.setWindowFlags(self.windowFlags() & ~Qt.Dialog)
+        self.line_edit = QLineEdit(self)
+        self.choose_btn = QPushButton("Choose file", self)
+        self.choose_btn.clicked.connect(self._on_choose_clicked)
+        self.mode = mode
+        self.filter: str = filter
+        layout = QHBoxLayout(self)
+        layout.addWidget(self.line_edit)
+        layout.addWidget(self.choose_btn)
 
-    def setter(self, value):
-        pass
+    def _help_text(self):
+        if self.mode is FileDialogMode.EXISTING_DIRECTORY:
+            return "Choose directory"
+        else:
+            return "Select file" + ("s" if self.mode.name.endswith("S") else "")
+
+    @property
+    def mode(self):
+        """Mode for the FileDialog.
+
+        existing_file - returns one existing file.
+        existing_files - return one or more existing files.
+        optional_file - return one file name that does not have to exist.
+        existing_directory - returns one existing directory.
+        """
+        return self._mode
+
+    @mode.setter
+    def mode(self, value: Union[FileDialogMode, str]):
+        mode: Union[FileDialogMode, str] = value
+        if isinstance(value, str):
+            try:
+                mode = FileDialogMode(value)
+            except ValueError:
+                try:
+                    mode = FileDialogMode[value.upper()]
+                except KeyError:
+                    pass
+        if not isinstance(mode, FileDialogMode):
+            raise ValueError(
+                f"{mode!r} is not a valid FileDialogMode. "
+                f"Options include {set(i.name.lower() for i in FileDialogMode)}"
+            )
+        self._mode = mode
+        self.choose_btn.setText(self._help_text())
+
+    def _on_choose_clicked(self):
+        show_dialog = getattr(QFileDialog, self.mode.value)
+        start_path = self.get_path()
+        if isinstance(start_path, tuple):
+            start_path = start_path[0]
+        start_path = os.fspath(os.path.abspath(os.path.expanduser(start_path)))
+        caption = self._help_text()
+        if self.mode is FileDialogMode.EXISTING_DIRECTORY:
+            result = show_dialog(self, caption, start_path)
+        else:
+            result, _ = show_dialog(self, caption, start_path, self.filter)
+        if result:
+            self.set_path(result)
+
+    def get_path(self) -> Union[Tuple[Path, ...], Path]:
+        """Get current file path."""
+        text = self.line_edit.text()
+        if self.mode is FileDialogMode.EXISTING_FILES:
+            return tuple(Path(p) for p in text.split(","))
+        return Path(text)
+
+    def set_path(self, value: Union[List[str], Tuple[str, ...], str, Path]):
+        """Set current file path."""
+        if isinstance(value, (list, tuple)):
+            value = ", ".join([os.fspath(p) for p in value])
+        if not isinstance(value, (str, Path)):
+            raise TypeError(
+                f"value must be a string, or list/tuple of strings, got {type(value)}"
+            )
+        self.line_edit.setText(str(value))
