@@ -5,22 +5,21 @@
 from enum import Enum
 
 import pytest
-
-# from qtpy import QtCore
+from qtpy import QtCore
 from qtpy import QtWidgets as QtW
 
-from magicgui import _qt
+from magicgui import _qt, event_loop
 
 
-# def test_event():
-#     """Test that the event loop makes a Qt app."""
-#     assert not QtW.QApplication.instance()
-#     with event_loop():
-#         app = QtW.QApplication.instance()
-#         assert app
-#         timer = QtCore.QTimer()
-#         timer.timeout.connect(lambda: app.exit())
-#         timer.start(100)
+def test_event():
+    """Test that the event loop makes a Qt app."""
+    assert not QtW.QApplication.instance()
+    with event_loop():
+        app = QtW.QApplication.instance()
+        assert app
+        timer = QtCore.QTimer()
+        timer.timeout.connect(lambda: app.exit())
+        timer.start(100)
 
 
 @pytest.mark.parametrize(
