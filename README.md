@@ -1,11 +1,11 @@
 # ![icon](resources/logo_long.png)
 
-[![License](https://img.shields.io/pypi/l/magicgui.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/napari/magicgui)](LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
+[![conda-forge](https://img.shields.io/conda/vn/conda-forge/magicgui)](https://anaconda.org/conda-forge/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
 [![Build Status](https://img.shields.io/travis/napari/magicgui.svg)](https://travis-ci.com/napari/magicgui)
 [![Docs](https://readthedocs.org/projects/magicgui/badge/?version=latest)](https://magicgui.readthedocs.io/en/latest/?badge=latest)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![codecov](https://codecov.io/gh/napari/magicgui/branch/master/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
 
 **magicgui**: build GUIs from functions, using magic.
@@ -17,8 +17,16 @@
 `magicgui` uses `pyqt` to support both `pyside2` and `pyqt5` backends.  However, you
 must have one of those installed for magicgui to work.
 
+install with pip
+
 ```bash
-pip install magicgui pyside2  # or pyqt5 instead of pyside2
+pip install magicgui pyqt5  # or pyside2 instead of pyqt5
+```
+
+or with conda:
+
+```bash
+conda install -c conda-forge magicgui pyqt  # or pyside2 instead of pyqt
 ```
 
 > :information_source: If you'd like to help us extend support to a different backend,
