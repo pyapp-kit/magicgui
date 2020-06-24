@@ -203,9 +203,14 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
     elif isinstance(widget, (QAbstractButton, QGroupBox)):
         return GetSetOnChange(widget.isChecked, widget.setChecked, widget.toggled)
     elif isinstance(widget, QDateTimeEdit):
-        return GetSetOnChange(
-            widget.dateTime, widget.setDateTime, widget.dateTimeChanged
-        )
+
+        def getter():
+            try:
+                return widget.dateTime().toPython()
+            except TypeError:
+                return widget.dateTime().toPyDateTime()
+
+        return GetSetOnChange(getter, widget.setDateTime, widget.dateTimeChanged)
     elif isinstance(widget, (QAbstractSpinBox, QAbstractSlider)):
         return GetSetOnChange(widget.value, widget.setValue, widget.valueChanged)
     elif isinstance(widget, QTabWidget):
