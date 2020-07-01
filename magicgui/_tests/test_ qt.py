@@ -95,10 +95,13 @@ def test_magicfiledialog(qtbot):
     assert filewidget.mode == _qt.FileDialogMode.OPTIONAL_FILE
 
     # set the mode
-    filewidget.mode = "getOpenFileNames"  # string input
+    # set mode with improperly capitalized Enum
+    filewidget.mode = _qt.FileDialogMode.eXiStInG_FiLeS  # odd capitalization
     assert filewidget.mode == _qt.FileDialogMode.EXISTING_FILES
-    filewidget.mode = _qt.FileDialogMode.EXISTING_DIRECTORY  # Enum input
+    # set mode with string input
+    filewidget.mode = "getExistingDirectory"
     assert filewidget.mode == _qt.FileDialogMode.EXISTING_DIRECTORY
+    # set mode
     with pytest.raises(ValueError):
         filewidget.mode = 123  # invalid mode
 
