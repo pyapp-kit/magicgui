@@ -166,7 +166,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         int: QSpinBox,
         float: QDoubleSpinBox,
         str: QLineEdit,
-        Path: MagicPathLineEdit,
+        Path: MagicFileDialog,
         type(None): QLineEdit,
     }
     if type_ in simple:
@@ -231,7 +231,7 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
         )
     elif isinstance(widget, QSplitter):
         return GetSetOnChange(widget.sizes, widget.setSizes, widget.splitterMoved)
-    elif isinstance(widget, MagicPathLineEdit):
+    elif isinstance(widget, MagicFileDialog):
         return GetSetOnChange(
             widget.get_path, widget.set_path, widget.line_edit.textChanged
         )
@@ -302,7 +302,7 @@ def make_widget(
         if setter:
             setter(val)
 
-    if isinstance(widget, MagicPathLineEdit):
+    if isinstance(widget, MagicFileDialog):
         if "mode" in kwargs:
             widget.mode = kwargs["mode"]
         if "filter" in kwargs:
@@ -350,7 +350,7 @@ class FileDialogMode(Enum):
     EXISTING_DIRECTORY = "getExistingDirectory"
 
 
-class MagicPathLineEdit(QWidget):
+class MagicFileDialog(QWidget):
     """A LineEdit widget with a QFileDialog button."""
 
     def __init__(
