@@ -3,6 +3,7 @@
 """Tests for `magicgui._qt` module."""
 
 from enum import Enum
+from pathlib import Path
 
 import pytest
 from qtpy import QtCore
@@ -83,3 +84,24 @@ def test_set_categorical(qtbot):
     assert [w.itemText(i) for i in range(w.count())] == ["a", "b"]
     _qt.set_categorical_choices(w, (("a", 1), ("c", 3)))
     assert [w.itemText(i) for i in range(w.count())] == ["a", "c"]
+
+
+def test_magicfiledialog(qtbot):
+    """Test the MagicFileDialog class."""
+    filewidget = _qt.MagicFileDialog()
+
+    # check default values
+    assert filewidget.get_path() == Path('.')
+    assert filewidget.mode == _qt.FileDialogMode.OPTIONAL_FILE
+
+    # set the mode
+    filewidget.mode = "getOpenFileNames"  # string input
+    assert filewidget.mode == _qt.FileDialogMode.EXISTING_FILES
+    filewidget.mode = _qt.FileDialogMode.EXISTING_DIRECTORY  # Enum input
+    assert filewidget.mode == _qt.FileDialogMode.EXISTING_DIRECTORY
+    with pytest.raises(ValueError):
+        filewidget.mode = 123  # invalid mode
+
+    # set the path
+    filewidget.set_path('my/example/path/')
+    assert filewidget.get_path() == Path('my/example/path/')
