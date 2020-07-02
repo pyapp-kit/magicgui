@@ -115,6 +115,8 @@ def test_magicfiledialog(qtbot):
     # set the path
     filewidget.set_path('my/example/path/')
     assert filewidget.get_path() == Path('my/example/path/')
+    with pytest.raises(TypeError):
+        filewidget.set_path(123)  # invalid type, only str/Path accepted
 
 
 @pytest.mark.skipif("sys.platform == 'darwin'")  # dialog box hangs on mac
