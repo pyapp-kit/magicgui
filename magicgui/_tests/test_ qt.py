@@ -78,6 +78,15 @@ def test_setters(qtbot):
     assert w.maximum() == 10
 
 
+def test_make_widget_magicfiledialog(qtbot):
+    """Test MagicFileDialog creation with kwargs 'mode' and 'filter'."""
+    w = _qt.make_widget(_qt.MagicFileDialog, "magicfiledialog",
+                        mode="r",
+                        filter="Images (*.tif *.tiff)")
+    assert w.mode == _qt.FileDialogMode.EXISTING_FILE
+    assert w.filter == "Images (*.tif *.tiff)"
+
+
 def test_datetimeedit(qtbot):
     """Test the datetime getter."""
     getter, setter, onchange = _qt.getter_setter_onchange(QtW.QDateTimeEdit())
