@@ -125,6 +125,8 @@ def test_magicfiledialog(qtbot):
     # set the path
     filewidget.set_path('my/example/path/')
     assert filewidget.get_path() == Path('my/example/path/')
+    filewidget.set_path('path/one.txt, path/two.txt')
+    assert filewidget.get_path() == Path('path/one.txt, path/two.txt')
     with pytest.raises(TypeError):
         filewidget.set_path(123)  # invalid type, only str/Path accepted
 
