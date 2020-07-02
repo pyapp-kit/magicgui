@@ -126,7 +126,7 @@ def test_magicfiledialog(qtbot):
     assert filewidget.get_path() == Path('my/example/path/')
 
     filewidget.mode = _qt.FileDialogMode.EXISTING_FILES
-    filewidget.set_path('path/one.txt,path/two.txt')
+    filewidget.set_path(['path/one.txt', 'path/two.txt'])
     assert filewidget.get_path() == (Path('path/one.txt'), Path('path/two.txt'))
 
     with pytest.raises(TypeError):
