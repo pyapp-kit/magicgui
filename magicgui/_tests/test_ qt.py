@@ -137,6 +137,7 @@ def test_magicfiledialog(qtbot):
 def test_magicfiledialog_opens_chooser(qtbot, mode):
     """Test the choose button opens a popup file dialog."""
     filewidget = _qt.MagicFileDialog()
+    filewidget.set_path('.')
     filewidget.mode = mode
 
     def handle_dialog():
