@@ -2,6 +2,7 @@
 
 """Tests for `magicgui._qt` module."""
 
+import datetime
 from enum import Enum
 from pathlib import Path
 
@@ -74,6 +75,12 @@ def test_setters(qtbot):
     w = _qt.make_widget(QtW.QDoubleSpinBox, "spinbox", minimum=2, Maximum=10)
     assert w.minimum() == 2
     assert w.maximum() == 10
+
+
+def test_datetimeedit(qtbot):
+    """Test the datetime getter."""
+    getter, setter, onchange = _qt.getter_setter_onchange(QtW.QDateTimeEdit())
+    assert isinstance(getter(), datetime.datetime)
 
 
 def test_set_categorical(qtbot):
