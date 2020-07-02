@@ -108,3 +108,20 @@ def test_magicfiledialog(qtbot):
     # set the path
     filewidget.set_path('my/example/path/')
     assert filewidget.get_path() == Path('my/example/path/')
+
+
+def test_magicfiledialog_opens_chooser(qtbot):
+    """Test the choose button opens a popup file dialog."""
+    filewidget = _qt.MagicFileDialog()
+
+    def handle_dialog():
+        popup_filedialog = next(
+            child
+            for child in filewidget.children()
+            if isinstance(child, QtW.QFileDialog)
+        )
+        assert isinstance(popup_filedialog, QtW.QFileDialog)
+        popup_filedialog.reject()
+
+    QtCore.QTimer().singleShot(400, handle_dialog)
+    filewidget._on_choose_clicked()
