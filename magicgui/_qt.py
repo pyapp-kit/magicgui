@@ -349,12 +349,18 @@ class FileDialogMode(Enum):
     EXISTING_FILES - return one or more existing files.
     OPTIONAL_FILE - return one file name that does not have to exist.
     EXISTING_DIRECTORY - returns one existing directory.
+    R - read mode, returns one existing file. Alias of EXISTING_FILE.
+    W - write mode, returns one file name that does not have to exist.
+        Alias of OPTIONAL_FILE.
     """
 
     EXISTING_FILE = "getOpenFileName"
     EXISTING_FILES = "getOpenFileNames"
     OPTIONAL_FILE = "getSaveFileName"
     EXISTING_DIRECTORY = "getExistingDirectory"
+    # Aliases
+    R = "getOpenFileName"
+    W = "getSaveFileName"
 
 
 class MagicFileDialog(QWidget):
