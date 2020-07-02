@@ -155,3 +155,17 @@ def test_magicfiledialog_opens_chooser(qtbot, mode):
 
     QtCore.QTimer().singleShot(400, handle_dialog)
     filewidget._on_choose_clicked()
+
+
+@pytest.mark.skipif("sys.platform == 'windows'")  # Windows only test
+def test_windows_magicfiledialog(qtbot):
+    w = _qt.type2widget(WindowsPath)
+    assert w is not None
+    assert _qt.MagicFileDialog in w.mro()  # since type(w) = sip.wrappertype
+
+
+@pytest.mark.skipif("sys.platform != 'windows'")  # Linux and Mac test
+def test_linux_mac_magifiledialog(qtbot):
+    w = _qt.type2widget(PosixPath)
+    assert w is not None
+    assert _qt.MagicFileDialog in w.mro()  # since type(w) = sip.wrappertype
