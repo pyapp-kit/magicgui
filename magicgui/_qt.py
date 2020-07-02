@@ -431,7 +431,7 @@ class MagicFileDialog(QWidget):
         """Get current file path."""
         text = self.line_edit.text()
         if self.mode is FileDialogMode.EXISTING_FILES:
-            return tuple(Path(p) for p in text.split(","))
+            return tuple(Path(p) for p in text.split(", "))
         return Path(text)
 
     def set_path(self, value: Union[List[str], Tuple[str, ...], str, Path]):

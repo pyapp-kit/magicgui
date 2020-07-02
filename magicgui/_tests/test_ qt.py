@@ -4,7 +4,7 @@
 
 import datetime
 from enum import Enum
-from pathlib import Path
+from pathlib import Path, PosixPath, WindowsPath
 
 import pytest
 from qtpy import QtCore
@@ -128,6 +128,8 @@ def test_magicfiledialog(qtbot):
     filewidget.mode = _qt.FileDialogMode.EXISTING_FILES
     filewidget.set_path(['path/one.txt', 'path/two.txt'])
     assert filewidget.get_path() == (Path('path/one.txt'), Path('path/two.txt'))
+    filewidget.set_path(['path/3.txt, path/4.txt'])
+    assert filewidget.get_path() == (Path('path/3.txt'), Path('path/4.txt'))
 
     with pytest.raises(TypeError):
         filewidget.set_path(123)  # invalid type, only str/Path accepted
