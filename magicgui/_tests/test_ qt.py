@@ -41,6 +41,7 @@ def test_event():
         QtW.QSplitter,
         QtW.QSlider,
         _qt.QDoubleSlider,
+        _qt.MagicFileDialog,
     ],
 )
 def test_get_set_change(qtbot, WidgetClass):
