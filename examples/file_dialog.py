@@ -5,7 +5,7 @@ from magicgui import event_loop, magicgui
 
 # may also add Qt-style filter to filename options:
 # e.g. {"filter": "Images (*.tif *.tiff)"}
-@magicgui(filename={"mode": "existing_file"})
+@magicgui(filename={"mode": "r"})
 def filepicker(filename=Path("~")):
     """Take a filename and do something with it."""
     print("The filename is:", filename)
