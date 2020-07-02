@@ -118,15 +118,17 @@ def test_magicfiledialog(qtbot):
     assert filewidget.mode == _qt.FileDialogMode.OPTIONAL_FILE
     filewidget.mode = "EXISTING_DIRECTORY"  # string input
     assert filewidget.mode == _qt.FileDialogMode.EXISTING_DIRECTORY
-    # set mode
     with pytest.raises(ValueError):
         filewidget.mode = 123  # invalid mode
 
     # set the path
     filewidget.set_path('my/example/path/')
     assert filewidget.get_path() == Path('my/example/path/')
-    filewidget.set_path('path/one.txt, path/two.txt')
-    assert filewidget.get_path() == Path('path/one.txt, path/two.txt')
+
+    filewidget.mode = _qt.FileDialogMode.EXISTING_FILES
+    filewidget.set_path('path/one.txt,path/two.txt')
+    assert filewidget.get_path() == (Path('path/one.txt'), Path('path/two.txt'))
+
     with pytest.raises(TypeError):
         filewidget.set_path(123)  # invalid type, only str/Path accepted
 
