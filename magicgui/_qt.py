@@ -175,10 +175,6 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         return simple[type_]
     elif isinstance(type_, EnumMeta):
         return QDataComboBox
-    else:
-        for key in simple.keys():
-            if issubclass(type_, key):
-                return simple[key]
     return None
 
 
