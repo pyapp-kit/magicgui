@@ -119,10 +119,15 @@ def test_magicfiledialog(qtbot):
         filewidget.set_path(123)  # invalid type, only str/Path accepted
 
 
-@pytest.mark.skipif("sys.platform == 'darwin'")  # dialog box hangs on mac
-def test_magicfiledialog_opens_chooser(qtbot):
+@pytest.mark.skipif("sys.platform == 'darwin'")  # dialog box hangs on Mac
+@pytest.mark.parametrize("mode", [
+    ('r'),  # existing file
+    ('EXISTING_DIRECTORY'),
+])
+def test_magicfiledialog_opens_chooser(qtbot, mode):
     """Test the choose button opens a popup file dialog."""
     filewidget = _qt.MagicFileDialog()
+    filewidget.mode = mode
 
     def handle_dialog():
         popup_filedialog = next(
