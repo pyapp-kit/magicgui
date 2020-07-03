@@ -83,7 +83,7 @@ def test_make_widget_magicfiledialog(qtbot):
     w = _qt.make_widget(
         _qt.MagicFileDialog, "magicfiledialog", mode="r", filter="Images (*.tif *.tiff)"
     )
-    assert w.mode == _qt.FileDialogMode.EXISTING_FILES
+    assert w.mode == _qt.FileDialogMode.EXISTING_FILE
     assert w.filter == "Images (*.tif *.tiff)"
 
 
