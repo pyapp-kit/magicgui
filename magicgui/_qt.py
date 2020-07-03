@@ -404,7 +404,10 @@ class MagicFileDialog(QWidget):
                 try:
                     mode = FileDialogMode[value.upper()]
                 except KeyError:
-                    pass
+                    pass  # leave mode as string type, raises ValueError later
+        # If mode is not a valid FileDialogMode enum type (eg: input string
+        # could not be recognised and converted properly in the if block above)
+        # then we raise a ValueError to alert the user.
         if not isinstance(mode, FileDialogMode):
             raise ValueError(
                 f"{mode!r} is not a valid FileDialogMode. "
