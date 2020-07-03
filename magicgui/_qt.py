@@ -360,7 +360,7 @@ class FileDialogMode(Enum):
     OPTIONAL_FILE = "getSaveFileName"
     EXISTING_DIRECTORY = "getExistingDirectory"
     # Aliases
-    R = "getOpenFileNames"
+    R = "getOpenFileName"
     W = "getSaveFileName"
 
 
