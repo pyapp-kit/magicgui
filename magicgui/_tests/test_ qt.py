@@ -137,7 +137,7 @@ def test_magicfiledialog(qtbot):
 
 
 @pytest.mark.skipif("sys.platform == 'darwin'")  # dialog box hangs on Mac
-@pytest.mark.parametrize("mode", [("r"), ("EXISTING_DIRECTORY")])
+@pytest.mark.parametrize("mode", ["r", "EXISTING_DIRECTORY"])
 def test_magicfiledialog_opens_chooser(qtbot, mode):
     """Test the choose button opens a popup file dialog."""
     filewidget = _qt.MagicFileDialog()
