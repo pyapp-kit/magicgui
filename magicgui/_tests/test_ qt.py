@@ -163,6 +163,8 @@ def test_magicfiledialog_opens_chooser(qtbot, mode):
 def test_magifiledialog_type2widget(containertype, pathtype):
     """Test we get a MagicFileDialog from a various Path types."""
     if containertype is not None:
-        assert _qt.type2widget(containertype[pathtype]) == _qt.MagicFilesDialog
+        Wdg = _qt.type2widget(containertype[pathtype])
+        assert Wdg == _qt.MagicFilesDialog
+        assert Wdg().mode == _qt.FileDialogMode.EXISTING_FILES
     else:
         assert _qt.type2widget(pathtype) == _qt.MagicFileDialog
