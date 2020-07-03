@@ -9,7 +9,7 @@ from collections import abc
 from contextlib import contextmanager
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import (  # type: ignore
+from typing import (
     Any,
     Callable,
     Dict,
@@ -20,7 +20,6 @@ from typing import (  # type: ignore
     Tuple,
     Type,
     Union,
-    _GenericAlias,
 )
 
 from qtpy.QtCore import Qt, Signal
@@ -152,7 +151,7 @@ class QDataComboBox(QComboBox):
             self.currentDataChanged.emit(data)
 
 
-def type2widget(type_: Union[type, _GenericAlias]) -> Optional[Type[WidgetType]]:
+def type2widget(type_: Union[type]) -> Optional[Type[WidgetType]]:
     """Convert an python type to Qt widget.
 
     Parameters
@@ -165,11 +164,11 @@ def type2widget(type_: Union[type, _GenericAlias]) -> Optional[Type[WidgetType]]
     WidgetType: Type[WidgetType]
         A WidgetType Class that can be used for arg_type ``type_``.
     """
-    if isinstance(type_, _GenericAlias):
-        org = type_.__origin__
-        arg = type_.__args__
-        arg = arg[0] if len(arg) else None
-        if inspect.isclass(org) and issubclass(org, abc.Sequence):
+    #
+    if hasattr(type_, "__origin__") and hasattr(type_, "__args__"):
+        orig = type_.__origin__  # type: ignore
+        arg = type_.__args__[0] if len(type_.__args__) else None  # type: ignore
+        if inspect.isclass(orig) and issubclass(orig, abc.Sequence):
             if inspect.isclass(arg) and issubclass(arg, Path):
                 return MagicFilesDialog
 
