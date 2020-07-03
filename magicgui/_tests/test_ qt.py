@@ -120,6 +120,7 @@ def test_magicfiledialog(qtbot):
     assert filewidget.mode == _qt.FileDialogMode.EXISTING_DIRECTORY
     with pytest.raises(ValueError):
         filewidget.mode = 123  # invalid mode
+        filewidget.mode = 'invalid_string'
 
     # set the path
     filewidget.set_path('my/example/path/')
