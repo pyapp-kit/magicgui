@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """Widgets and type-to-widget conversion for the Qt backend."""
 
+import datetime
+import inspect
 import os
 import sys
+from collections import abc
 from contextlib import contextmanager
-import datetime
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import (
+from typing import (  # type: ignore
     Any,
     Callable,
     Dict,
@@ -18,6 +20,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    _GenericAlias,
 )
 
 from qtpy.QtCore import Qt, Signal
@@ -149,7 +152,7 @@ class QDataComboBox(QComboBox):
             self.currentDataChanged.emit(data)
 
 
-def type2widget(type_: type) -> Optional[Type[WidgetType]]:
+def type2widget(type_: Union[type, _GenericAlias]) -> Optional[Type[WidgetType]]:
     """Convert an python type to Qt widget.
 
     Parameters
@@ -162,6 +165,14 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
     WidgetType: Type[WidgetType]
         A WidgetType Class that can be used for arg_type ``type_``.
     """
+    if isinstance(type_, _GenericAlias):
+        org = type_.__origin__
+        arg = type_.__args__
+        arg = arg[0] if len(arg) else None
+        if inspect.isclass(org) and issubclass(org, abc.Sequence):
+            if inspect.isclass(arg) and issubclass(arg, Path):
+                return MagicFilesDialog
+
     simple: Dict[type, Type[WidgetType]] = {
         bool: QCheckBox,
         int: QSpinBox,
@@ -177,7 +188,7 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         return QDataComboBox
     else:
         for key in simple.keys():
-            if issubclass(type_, key):
+            if inspect.isclass(type_) and issubclass(type_, key):
                 return simple[key]
     return None
 
@@ -349,10 +360,9 @@ class FileDialogMode(Enum):
     EXISTING_FILES - return one or more existing files.
     OPTIONAL_FILE - return one file name that does not have to exist.
     EXISTING_DIRECTORY - returns one existing directory.
-    R - read mode, returns one or more existing files.
-        Alias of EXISTING_FILES.
-    W - write mode, returns one file name that does not have to exist.
-        Alias of OPTIONAL_FILE.
+    R - read mode, Alias of EXISTING_FILES.
+    W - write mode, Alias of OPTIONAL_FILE.
+    W - directory mode, Alias of OPTIONAL_FILE.
     """
 
     EXISTING_FILE = "getOpenFileName"
@@ -362,6 +372,7 @@ class FileDialogMode(Enum):
     # Aliases
     R = "getOpenFileName"
     W = "getSaveFileName"
+    D = "getExistingDirectory"
 
 
 class MagicFileDialog(QWidget):
@@ -369,8 +380,9 @@ class MagicFileDialog(QWidget):
 
     def __init__(
         self,
+        *,
         parent=None,
-        mode: Union[FileDialogMode, str] = FileDialogMode.OPTIONAL_FILE,
+        mode: Union[FileDialogMode, str] = FileDialogMode.EXISTING_FILE,
         filter: str = "",
     ):
         super().__init__(parent)
@@ -446,3 +458,11 @@ class MagicFileDialog(QWidget):
                 f"value must be a string, or list/tuple of strings, got {type(value)}"
             )
         self.line_edit.setText(str(value))
+
+
+class MagicFilesDialog(MagicFileDialog):
+    """A LineEdit that forces multiple file selection with a QFileDialog button."""
+
+    def __init__(self, **kwargs):
+        kwargs["mode"] = "EXISTING_FILES"
+        super().__init__(**kwargs)
