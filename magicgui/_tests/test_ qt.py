@@ -23,6 +23,9 @@ def test_event():
         timer.start(100)
 
 
+
+
+
 @pytest.mark.parametrize(
     "WidgetClass",
     [
