@@ -11,6 +11,7 @@ from qtpy import QtCore
 from qtpy import QtWidgets as QtW
 
 from magicgui import _qt, event_loop
+from typing import Sequence, List, Tuple
 
 
 def test_event():
@@ -109,7 +110,7 @@ def test_magicfiledialog(qtbot):
 
     # check default values
     assert filewidget.get_path() == Path(".")
-    assert filewidget.mode == _qt.FileDialogMode.OPTIONAL_FILE
+    assert filewidget.mode == _qt.FileDialogMode.EXISTING_FILE
 
     # set the mode
     filewidget.mode = _qt.FileDialogMode.EXISTING_FILES  # Enum input
@@ -157,7 +158,13 @@ def test_magicfiledialog_opens_chooser(qtbot, mode):
     filewidget._on_choose_clicked()
 
 
+@pytest.mark.parametrize("containertype", [None, Tuple, List, Sequence])
 @pytest.mark.parametrize("pathtype", [PosixPath, WindowsPath, Path])
-def test_linux_mac_magifiledialog(pathtype):
+def test_magifiledialog_type2widget(containertype, pathtype):
     """Test we get a MagicFileDialog from a various Path types."""
-    assert _qt.type2widget(pathtype) == _qt.MagicFileDialog
+    if containertype is not None:
+        Wdg = _qt.type2widget(containertype[pathtype])
+        assert Wdg == _qt.MagicFilesDialog
+        assert Wdg().mode == _qt.FileDialogMode.EXISTING_FILES
+    else:
+        assert _qt.type2widget(pathtype) == _qt.MagicFileDialog
