@@ -117,8 +117,8 @@ class MagicGuiBase(api.WidgetType):
     magicgui decorator is called on a function.
     """
 
-    called = api.Signal(object)  # result of the function call
-    parameter_updated = api.Signal()  # name of the parameter that was changed
+    called = api.SignalType(object)  # result of the function call
+    parameter_updated = api.SignalType()  # name of the parameter that was changed
 
     WIDGET_ATTR = "{}_widget"
 
