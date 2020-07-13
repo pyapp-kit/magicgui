@@ -28,7 +28,7 @@ def test_event():
 @pytest.mark.parametrize(
     "WidgetClass",
     [
-        _qt.QDataComboBox,
+        _qt.widgets.QDataComboBox,
         QtW.QComboBox,
         QtW.QStatusBar,
         QtW.QLineEdit,
@@ -41,8 +41,8 @@ def test_event():
         QtW.QTabWidget,
         QtW.QSplitter,
         QtW.QSlider,
-        _qt.QDoubleSlider,
-        _qt.MagicFileDialog,
+        _qt.widgets.QDoubleSlider,
+        _qt.widgets.MagicFileDialog,
     ],
 )
 def test_get_set_change(qtbot, WidgetClass):
@@ -59,7 +59,7 @@ def test_get_set_change(qtbot, WidgetClass):
 
 def test_double_slider(qtbot):
     """Test basic slider functionality."""
-    slider = _qt.QDoubleSlider()
+    slider = _qt.widgets.QDoubleSlider()
     assert slider.value() == 0
     slider.setValue(5.5)
     assert slider.value() == 5.5
@@ -82,7 +82,10 @@ def test_setters(qtbot):
 def test_make_widget_magicfiledialog(qtbot):
     """Test MagicFileDialog creation with kwargs 'mode' and 'filter'."""
     w = _qt.make_widget(
-        _qt.MagicFileDialog, "magicfiledialog", mode="r", filter="Images (*.tif *.tiff)"
+        _qt.widgets.MagicFileDialog,
+        "magicfiledialog",
+        mode="r",
+        filter="Images (*.tif *.tiff)",
     )
     assert w.mode == _qt.FileDialogMode.EXISTING_FILE
     assert w.filter == "Images (*.tif *.tiff)"
@@ -106,7 +109,7 @@ def test_set_categorical(qtbot):
 
 def test_magicfiledialog(qtbot):
     """Test the MagicFileDialog class."""
-    filewidget = _qt.MagicFileDialog()
+    filewidget = _qt.widgets.MagicFileDialog()
 
     # check default values
     assert filewidget.get_path() == Path(".")
@@ -141,7 +144,7 @@ def test_magicfiledialog(qtbot):
 @pytest.mark.parametrize("mode", ["r", "EXISTING_DIRECTORY"])
 def test_magicfiledialog_opens_chooser(qtbot, mode):
     """Test the choose button opens a popup file dialog."""
-    filewidget = _qt.MagicFileDialog()
+    filewidget = _qt.widgets.MagicFileDialog()
     filewidget.set_path((".",))  # set_path with tuple for better code coverage
     filewidget.mode = mode
 
@@ -164,7 +167,7 @@ def test_magifiledialog_type2widget(containertype, pathtype):
     """Test we get a MagicFileDialog from a various Path types."""
     if containertype is not None:
         Wdg = _qt.type2widget(containertype[pathtype])
-        assert Wdg == _qt.MagicFilesDialog
+        assert Wdg == _qt.widgets.MagicFilesDialog
         assert Wdg().mode == _qt.FileDialogMode.EXISTING_FILES
     else:
-        assert _qt.type2widget(pathtype) == _qt.MagicFileDialog
+        assert _qt.type2widget(pathtype) == _qt.widgets.MagicFileDialog
