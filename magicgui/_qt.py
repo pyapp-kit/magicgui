@@ -5,6 +5,7 @@ import datetime
 import inspect
 import os
 import sys
+from ast import literal_eval
 from collections import abc
 from contextlib import contextmanager
 from enum import Enum, EnumMeta
@@ -465,3 +466,15 @@ class MagicFilesDialog(MagicFileDialog):
     def __init__(self, **kwargs):
         kwargs["mode"] = "EXISTING_FILES"
         super().__init__(**kwargs)
+
+
+class LiteralEvalEdit(QLineEdit):
+    """A LineEdit that returns the literal_eval() of the current text."""
+
+    def text(self):
+        """Get current text and convert to python literal."""
+        text = super().text()
+        return literal_eval(text)
+
+
+FALLBACK_WIDGET = LiteralEvalEdit
