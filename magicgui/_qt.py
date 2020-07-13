@@ -473,8 +473,7 @@ class LiteralEvalEdit(QLineEdit):
 
     def text(self):
         """Get current text and convert to python literal."""
-        text = super().text()
-        return literal_eval(text)
+        return literal_eval(super().text())
 
 
 FALLBACK_WIDGET = LiteralEvalEdit
