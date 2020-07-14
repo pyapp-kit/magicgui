@@ -9,7 +9,9 @@ from .categorical import (
 )
 from .constants import FileDialogMode, Layout
 from .types import ButtonType, SignalType
-from .widgets import WidgetType
+from .widgets import LiteralEvalEdit, WidgetType
+
+FALLBACK_WIDGET = LiteralEvalEdit
 
 __all__ = [
     "ButtonType",
@@ -25,4 +27,5 @@ __all__ = [
     "make_widget",
     "set_categorical_choices",
     "type2widget",
+    "FALLBACK_WIDGET",
 ]

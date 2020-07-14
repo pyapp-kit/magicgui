@@ -171,3 +171,10 @@ def test_magifiledialog_type2widget(containertype, pathtype):
         assert Wdg().mode == _qt.FileDialogMode.EXISTING_FILES
     else:
         assert _qt.type2widget(pathtype) == _qt.widgets.MagicFileDialog
+
+
+def test_literal_eval_edit():
+    """Test the literal eval widget converts text to python objects."""
+    widget = _qt.widgets.LiteralEvalEdit()
+    widget.setText("(1, 0)")
+    assert widget.text() == (1, 0)
