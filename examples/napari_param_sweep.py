@@ -9,7 +9,7 @@ import napari
 import skimage.data
 import skimage.filters
 from magicgui import magicgui
-from magicgui._qt import QDoubleSlider
+from magicgui._qt.widgets import QDoubleSlider
 from napari.layers import Image
 
 

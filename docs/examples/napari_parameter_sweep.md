@@ -37,7 +37,7 @@ https://github.com/napari/magicgui/blob/master/examples/napari_param_sweep.py).*
 
     ```python hl_lines="20 21 22 23 24 31 33 35"
     from magicgui import magicgui
-    from magicgui._qt import QDoubleSlider
+    from magicgui._qt.widgets import QDoubleSlider
     import napari
     from napari.layers import Image
     import skimage.data
