@@ -337,12 +337,13 @@ def test_unrecognized_types(qtbot):
         pass
 
     # don't know how to handle Something type
-    with pytest.raises(TypeError):
+    with pytest.warns(UserWarning):
         gui = func.Gui()
 
     # now it should not raise an error... but `arg` should not be in the gui
     core.SKIP_UNRECOGNIZED_TYPES = True
-    gui = func.Gui()
+    with pytest.warns(UserWarning):
+        gui = func.Gui()
     assert not hasattr(gui, "arg")
     assert hasattr(gui, "b")
 

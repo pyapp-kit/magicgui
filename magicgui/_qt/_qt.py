@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """Widgets and type-to-widget conversion for the Qt backend."""
 
-import sys
-from contextlib import contextmanager
 import datetime
-from enum import Enum, EnumMeta
-from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Type
+import inspect
+import sys
+from collections import abc
+from contextlib import contextmanager
+from enum import EnumMeta
+from pathlib import Path
+from typing import Any, Callable, Dict, NamedTuple, Optional, Type, Union
 
-from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import (
     QAbstractButton,
     QAbstractSlider,
@@ -17,22 +19,15 @@ from qtpy.QtWidgets import (
     QComboBox,
     QDateTimeEdit,
     QDoubleSpinBox,
-    QFormLayout,
-    QGridLayout,
     QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLayout,
     QLineEdit,
-    QPushButton,
-    QSlider,
     QSpinBox,
     QSplitter,
     QStatusBar,
     QTabWidget,
-    QVBoxLayout,
-    QWidget,
 )
+
+from .widgets import MagicFileDialog, MagicFilesDialog, QDataComboBox, WidgetType
 
 try:
     from qtpy.QtCore import SignalInstance as SignalInstanceType
@@ -48,94 +43,7 @@ def event_loop():
     app.exec_()
 
 
-class WidgetType(QWidget):
-    """Widget that reports when its parent has changed."""
-
-    parentChanged = Signal()
-
-    def setParent(self, parent):
-        """Set parent widget and emit signal."""
-        super().setParent(parent)
-        self.parentChanged.emit()
-
-
-ButtonType = QPushButton
-SignalType = Signal
-
-
-class GetSetOnChange(NamedTuple):
-    """Named tuple for a (getter, setter, onchange) tuple."""
-
-    getter: Callable[[], Any]
-    setter: Callable[[Any], None]
-    onchange: SignalInstanceType
-
-
-class HelpfulEnum(EnumMeta):
-    """Metaclass that shows the available options on KeyError."""
-
-    def __getitem__(self, name: str):
-        """Get enum by name, or raise helpful KeyError."""
-        try:
-            return super().__getitem__(name)
-        except (TypeError, KeyError):
-            options = set(self.__members__.keys())
-            raise KeyError(
-                f"'{name}' is not a valid Layout. Options include: {options}"
-            )
-
-
-class Layout(Enum, metaclass=HelpfulEnum):
-    """QLayout options."""
-
-    vertical = QVBoxLayout
-    horizontal = QHBoxLayout
-    grid = QGridLayout
-    form = QFormLayout
-
-    @staticmethod
-    def addWidget(layout: QLayout, widget: QWidget, label: str = ""):
-        """Add widget to arbitrary layout with optional label."""
-        if isinstance(layout, QFormLayout):
-            return layout.addRow(label, widget)
-        elif isinstance(layout, (QHBoxLayout, QVBoxLayout)):
-            if label:
-                label_widget = QLabel(label)
-                label_widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
-                layout.addWidget(label_widget)
-            return layout.addWidget(widget)
-
-    @staticmethod
-    def insertWidget(layout: QLayout, position: int, widget: QWidget, label: str = ""):
-        """Add widget to arbitrary layout at position, with optional label."""
-        if position < 0:
-            position = layout.count() + position + 1
-        if isinstance(layout, QFormLayout):
-            layout.insertRow(position, label, widget)
-        else:
-            layout.insertWidget(position, widget)
-            if label:
-                label_widget = QLabel(label)
-                label_widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
-                layout.insertWidget(position, label_widget)
-
-
-class QDataComboBox(QComboBox):
-    """A CombBox subclass that emits data objects when the index changes."""
-
-    currentDataChanged = Signal(object)
-
-    def __init__(self, parent=None) -> None:
-        super().__init__(parent)
-        self.currentIndexChanged.connect(self._emit_data)
-
-    def _emit_data(self, index: int) -> None:
-        data = self.itemData(index)
-        if data is not None:
-            self.currentDataChanged.emit(data)
-
-
-def type2widget(type_: type) -> Optional[Type[WidgetType]]:
+def type2widget(type_: Union[type]) -> Optional[Type[WidgetType]]:
     """Convert an python type to Qt widget.
 
     Parameters
@@ -148,11 +56,20 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
     WidgetType: Type[WidgetType]
         A WidgetType Class that can be used for arg_type ``type_``.
     """
+    #
+    if hasattr(type_, "__origin__") and hasattr(type_, "__args__"):
+        orig = type_.__origin__  # type: ignore
+        arg = type_.__args__[0] if len(type_.__args__) else None  # type: ignore
+        if inspect.isclass(orig) and issubclass(orig, abc.Sequence):
+            if inspect.isclass(arg) and issubclass(arg, Path):
+                return MagicFilesDialog
+
     simple: Dict[type, Type[WidgetType]] = {
         bool: QCheckBox,
         int: QSpinBox,
         float: QDoubleSpinBox,
         str: QLineEdit,
+        Path: MagicFileDialog,
         datetime.datetime: QDateTimeEdit,
         type(None): QLineEdit,
     }
@@ -160,7 +77,19 @@ def type2widget(type_: type) -> Optional[Type[WidgetType]]:
         return simple[type_]
     elif isinstance(type_, EnumMeta):
         return QDataComboBox
+    else:
+        for key in simple.keys():
+            if inspect.isclass(type_) and issubclass(type_, key):
+                return simple[key]
     return None
+
+
+class GetSetOnChange(NamedTuple):
+    """Named tuple for a (getter, setter, onchange) tuple."""
+
+    getter: Callable[[], Any]
+    setter: Callable[[Any], None]
+    onchange: SignalInstanceType
 
 
 def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
@@ -219,33 +148,11 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
         )
     elif isinstance(widget, QSplitter):
         return GetSetOnChange(widget.sizes, widget.setSizes, widget.splitterMoved)
+    elif isinstance(widget, MagicFileDialog):
+        return GetSetOnChange(
+            widget.get_path, widget.set_path, widget.line_edit.textChanged
+        )
     raise ValueError(f"Unrecognized widget Type: {widget}")
-
-
-def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any]]):
-    """Set current items in categorical type ``widget`` to ``choices``."""
-    names = [x[0] for x in choices]
-    for i in range(widget.count()):
-        if widget.itemText(i) not in names:
-            widget.removeItem(i)
-    for name, data in choices:
-        if widget.findText(name) == -1:
-            widget.addItem(name, data)
-
-
-def get_categorical_widget():
-    """Get the categorical widget type for Qt."""
-    return QDataComboBox
-
-
-def is_categorical(widget: WidgetType):
-    """Return True if ``widget`` is a categorical widget."""
-    return isinstance(widget, QComboBox)
-
-
-def get_categorical_index(widget: WidgetType, value: Any):
-    """Find the index of ``value`` in categorical-type ``widget``."""
-    return next(i for i in range(widget.count()) if widget.itemData(i) == value)
 
 
 def make_widget(
@@ -286,29 +193,9 @@ def make_widget(
         if setter:
             setter(val)
 
+    if isinstance(widget, MagicFileDialog):
+        if "mode" in kwargs:
+            widget.mode = kwargs["mode"]
+        if "filter" in kwargs:
+            widget.filter = kwargs["filter"]
     return widget
-
-
-# ############ WIDGETS ############ #
-
-
-class QDoubleSlider(QSlider):
-    """A Slider Widget that can handle float values."""
-
-    PRECISION = 1000
-
-    def __init__(self, parent=None):
-        super().__init__(Qt.Horizontal, parent=parent)
-        self.setMaximum(10)
-
-    def value(self):
-        """Get the slider value and convert to float."""
-        return super().value() / self.PRECISION
-
-    def setValue(self, value):
-        """Set integer slider position from float ``value``."""
-        super().setValue(value * self.PRECISION)
-
-    def setMaximum(self, value):
-        """Set maximum position of slider in float units."""
-        super().setMaximum(value * self.PRECISION)

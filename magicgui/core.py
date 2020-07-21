@@ -117,8 +117,8 @@ class MagicGuiBase(api.WidgetType):
     magicgui decorator is called on a function.
     """
 
-    called = api.Signal(object)  # result of the function call
-    parameter_updated = api.Signal()  # name of the parameter that was changed
+    called = api.SignalType(object)  # result of the function call
+    parameter_updated = api.SignalType()  # name of the parameter that was changed
 
     WIDGET_ATTR = "{}_widget"
 
@@ -326,14 +326,20 @@ class MagicGuiBase(api.WidgetType):
             try:
                 WidgetType = type2widget(arg_type)
             except TypeError:
+                funcname = getattr(self.func, "__name__", repr(self.func))
                 msg = (
                     "Unable to find the appropriate widget for function "
-                    f'"{self.func.__name__}", arg "{name}", type "{arg_type}".'
+                    f'"{funcname}", arg "{name}", type "{arg_type}".'
                 )
                 if SKIP_UNRECOGNIZED_TYPES:
                     warnings.warn(msg + " Skipping.")
                     return None
-                raise TypeError(msg)
+                warnings.warn(
+                    f"{msg} Falling back to {api.FALLBACK_WIDGET.__name__} widget."
+                )
+                WidgetType = api.FALLBACK_WIDGET
+                # TODO: make this behavior configurable
+                # raise TypeError(msg)
 
         # check if there is already am existintg widget by this name...
         try:
@@ -526,7 +532,7 @@ class MagicGuiBase(api.WidgetType):
         value = self.func(**_kwargs)
         self.called.emit(value)
 
-        return_type = self.func.__annotations__.get("return")
+        return_type = getattr(self.func, "__annotations__", {}).get("return")
         if return_type:
             for callback in _type2callback(return_type):
                 callback(self, value, return_type)

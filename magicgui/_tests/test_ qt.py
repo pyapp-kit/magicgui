@@ -2,14 +2,16 @@
 
 """Tests for `magicgui._qt` module."""
 
-from enum import Enum
 import datetime
+from enum import Enum
+from pathlib import Path, PosixPath, WindowsPath
 
 import pytest
 from qtpy import QtCore
 from qtpy import QtWidgets as QtW
 
 from magicgui import _qt, event_loop
+from typing import Sequence, List, Tuple
 
 
 def test_event():
@@ -26,7 +28,7 @@ def test_event():
 @pytest.mark.parametrize(
     "WidgetClass",
     [
-        _qt.QDataComboBox,
+        _qt.widgets.QDataComboBox,
         QtW.QComboBox,
         QtW.QStatusBar,
         QtW.QLineEdit,
@@ -39,7 +41,8 @@ def test_event():
         QtW.QTabWidget,
         QtW.QSplitter,
         QtW.QSlider,
-        _qt.QDoubleSlider,
+        _qt.widgets.QDoubleSlider,
+        _qt.widgets.MagicFileDialog,
     ],
 )
 def test_get_set_change(qtbot, WidgetClass):
@@ -56,7 +59,7 @@ def test_get_set_change(qtbot, WidgetClass):
 
 def test_double_slider(qtbot):
     """Test basic slider functionality."""
-    slider = _qt.QDoubleSlider()
+    slider = _qt.widgets.QDoubleSlider()
     assert slider.value() == 0
     slider.setValue(5.5)
     assert slider.value() == 5.5
@@ -76,6 +79,18 @@ def test_setters(qtbot):
     assert w.maximum() == 10
 
 
+def test_make_widget_magicfiledialog(qtbot):
+    """Test MagicFileDialog creation with kwargs 'mode' and 'filter'."""
+    w = _qt.make_widget(
+        _qt.widgets.MagicFileDialog,
+        "magicfiledialog",
+        mode="r",
+        filter="Images (*.tif *.tiff)",
+    )
+    assert w.mode == _qt.FileDialogMode.EXISTING_FILE
+    assert w.filter == "Images (*.tif *.tiff)"
+
+
 def test_datetimeedit(qtbot):
     """Test the datetime getter."""
     getter, setter, onchange = _qt.getter_setter_onchange(QtW.QDateTimeEdit())
@@ -90,3 +105,76 @@ def test_set_categorical(qtbot):
     assert [w.itemText(i) for i in range(w.count())] == ["a", "b"]
     _qt.set_categorical_choices(w, (("a", 1), ("c", 3)))
     assert [w.itemText(i) for i in range(w.count())] == ["a", "c"]
+
+
+def test_magicfiledialog(qtbot):
+    """Test the MagicFileDialog class."""
+    filewidget = _qt.widgets.MagicFileDialog()
+
+    # check default values
+    assert filewidget.get_path() == Path(".")
+    assert filewidget.mode == _qt.FileDialogMode.EXISTING_FILE
+
+    # set the mode
+    filewidget.mode = _qt.FileDialogMode.EXISTING_FILES  # Enum input
+    assert filewidget.mode == _qt.FileDialogMode.EXISTING_FILES
+    filewidget.mode = "oPtioNal_FiLe"  # improper capitalization
+    assert filewidget.mode == _qt.FileDialogMode.OPTIONAL_FILE
+    filewidget.mode = "EXISTING_DIRECTORY"  # string input
+    assert filewidget.mode == _qt.FileDialogMode.EXISTING_DIRECTORY
+    with pytest.raises(ValueError):
+        filewidget.mode = 123  # invalid mode
+        filewidget.mode = "invalid_string"
+
+    # set the path
+    filewidget.set_path("my/example/path/")
+    assert filewidget.get_path() == Path("my/example/path/")
+
+    filewidget.mode = _qt.FileDialogMode.EXISTING_FILES
+    filewidget.set_path(["path/one.txt", "path/two.txt"])
+    assert filewidget.get_path() == (Path("path/one.txt"), Path("path/two.txt"))
+    filewidget.set_path(["path/3.txt, path/4.txt"])
+    assert filewidget.get_path() == (Path("path/3.txt"), Path("path/4.txt"))
+
+    with pytest.raises(TypeError):
+        filewidget.set_path(123)  # invalid type, only str/Path accepted
+
+
+@pytest.mark.skipif("sys.platform == 'darwin'")  # dialog box hangs on Mac
+@pytest.mark.parametrize("mode", ["r", "EXISTING_DIRECTORY"])
+def test_magicfiledialog_opens_chooser(qtbot, mode):
+    """Test the choose button opens a popup file dialog."""
+    filewidget = _qt.widgets.MagicFileDialog()
+    filewidget.set_path((".",))  # set_path with tuple for better code coverage
+    filewidget.mode = mode
+
+    def handle_dialog():
+        popup_filedialog = next(
+            child
+            for child in filewidget.children()
+            if isinstance(child, QtW.QFileDialog)
+        )
+        assert isinstance(popup_filedialog, QtW.QFileDialog)
+        popup_filedialog.reject()
+
+    QtCore.QTimer().singleShot(400, handle_dialog)
+    filewidget._on_choose_clicked()
+
+
+@pytest.mark.parametrize("containertype", [None, Tuple, List, Sequence])
+@pytest.mark.parametrize("pathtype", [PosixPath, WindowsPath, Path])
+def test_magifiledialog_type2widget(containertype, pathtype):
+    """Test we get a MagicFileDialog from a various Path types."""
+    if containertype is not None:
+        Wdg = _qt.type2widget(containertype[pathtype])
+        assert Wdg == _qt.widgets.MagicFilesDialog
+        assert Wdg().mode == _qt.FileDialogMode.EXISTING_FILES
+    else:
+        assert _qt.type2widget(pathtype) == _qt.widgets.MagicFileDialog
+
+
+def test_literal_eval_edit():
+    """Test the literal eval widget converts text to python objects."""
+    widget = _qt.widgets.LiteralEvalEdit()
+    widget.setText("(1, 0)")
+    assert widget.text() == (1, 0)
