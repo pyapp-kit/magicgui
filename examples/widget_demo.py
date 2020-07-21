@@ -3,8 +3,10 @@
 from enum import Enum
 from datetime import datetime
 import math
+from pathlib import Path
 
 from magicgui import event_loop, magicgui
+
 
 class Medium(Enum):
     """Enum for various media and their refractive indices."""
@@ -22,7 +24,8 @@ def widget_demo(
     float=3.14159,
     string="Text goes here",
     dropdown=Medium.Glass,
-    datetime=datetime.now()
+    datetime=datetime.now(),
+    filename=Path.home()
 ):
     """Run some computation."""
     print("Running some computation...")
