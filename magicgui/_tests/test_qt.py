@@ -14,7 +14,7 @@ from qtpy import QtWidgets as QtW
 from magicgui import _qt, event_loop
 
 
-@pytest.mark.skipif("API_NAME == PyQt5", reason="Couldn't delete app on PyQt")
+@pytest.mark.skipif("API_NAME == 'PyQt5'", reason="Couldn't delete app on PyQt")
 def test_event():
     """Test that the event loop makes a Qt app."""
     if QtW.QApplication.instance():
