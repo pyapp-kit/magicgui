@@ -8,21 +8,19 @@ from pathlib import Path, PosixPath, WindowsPath
 from typing import List, Sequence, Tuple
 
 import pytest
-from qtpy import QtCore
+from qtpy import QtCore, API_NAME  # noqa
 from qtpy import QtWidgets as QtW
 
 from magicgui import _qt, event_loop
 
-try:
-    from sip import delete
-except ImportError:
-    from shiboken2 import delete
 
-
+@pytest.mark.skipif("API_NAME == PyQt5", reason="Couldn't delete app on PyQt")
 def test_event():
     """Test that the event loop makes a Qt app."""
     if QtW.QApplication.instance():
-        delete(QtW.QApplication.instance())
+        import shiboken2
+
+        shiboken2.delete(QtW.QApplication.instance())
     assert not QtW.QApplication.instance()
     with event_loop():
         app = QtW.QApplication.instance()
