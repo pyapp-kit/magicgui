@@ -4,6 +4,7 @@
 bump2version>=0.5.11
 wheel>=0.33.6
 flake8>=3.7.8
+flake8-docstrings>=1.5.0
 pydocstyle>=5.0.2
 black==19.10b0
 twine>=1.14.0
