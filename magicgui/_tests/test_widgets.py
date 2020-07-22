@@ -10,7 +10,6 @@ from magicgui._qt.widgets import QDoubleSlider, QLogSlider
 @pytest.mark.parametrize("SliderClass", [QDoubleSlider, QLogSlider])
 def test_slider(qtbot, SliderClass):
     """Test magicgui sliders."""
-
     slider = SliderClass()
     qtbot.addWidget(slider)
     assert slider.value() == 0  # default slider value is zero
