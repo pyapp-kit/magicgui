@@ -1,5 +1,6 @@
 """A Slider with a natural logarithmic scale."""
-import numpy as np
+import math
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QSlider
 
@@ -16,16 +17,16 @@ class QLogSlider(QSlider):
 
     def value(self):
         """Get the natural log slider value as a float."""
-        return np.log(super().value() / self.PRECISION)
+        return math.log(super().value() / self.PRECISION)
 
     def setValue(self, value):
         """Set integer slier position from float ``value``."""
-        super().setValue(np.exp(value) * self.PRECISION)
+        super().setValue(math.exp(value) * self.PRECISION)
 
     def setMinimum(self, value):
         """Set minimum position of slider in float units."""
-        super().setMinimum(np.exp(value) * self.PRECISION)
+        super().setMinimum(math.exp(value) * self.PRECISION)
 
     def setMaximum(self, value):
         """Set maximum position of slider in float units."""
-        super().setMaximum(np.exp(value) * self.PRECISION)
+        super().setMaximum(math.exp(value) * self.PRECISION)
