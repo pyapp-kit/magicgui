@@ -30,6 +30,8 @@ magicgui : callable
     That class is added as an attribute ``Gui`` to the function which can be called to
     instantiate a GUI widget.
 """
+from __future__ import annotations
+
 from collections import defaultdict
 import functools
 import inspect
@@ -80,7 +82,7 @@ class WidgetDescriptor:
     access the appropriate getter/setter on the widget instance.
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str):
         """Create a WidgetDescriptor for the attribute named ``name``.
 
         Parameters
@@ -90,19 +92,19 @@ class WidgetDescriptor:
         """
         self.name = name
 
-    def __get__(self, obj, objtype) -> Any:
+    def __get__(self, obj: MagicGuiBase, objtype: Type[MagicGuiBase]) -> Any:
         """Get the current value from the widget."""
         widget = obj.get_widget(self.name)
         return api.getter_setter_onchange(widget).getter()
 
-    def __set__(self, obj, val) -> None:
+    def __set__(self, obj: MagicGuiBase, val: Any) -> None:
         """Set the current value for the widget."""
         widget = obj.get_widget(self.name)
         if api.is_categorical(widget):
             val = api.get_categorical_index(widget, val)
         return api.getter_setter_onchange(widget).setter(val)
 
-    def __delete__(self, obj) -> None:
+    def __delete__(self, obj: MagicGuiBase) -> None:
         """Remove the widget from the layout, cleanup, and remove from parent class."""
         widget = obj.get_widget(self.name)
         obj.layout().removeWidget(widget)
@@ -133,7 +135,7 @@ class MagicGuiBase(api.WidgetType):
         parent: api.WidgetType = None,
         ignore: Optional[Sequence[str]] = None,
         **param_options: Dict[str, Dict[str, Any]],
-    ) -> None:
+    ):
         """Instantiate a MagicGui widget.
 
         Parameters
@@ -499,7 +501,7 @@ class MagicGuiBase(api.WidgetType):
         """Get the current values in the gui to pass to a function call."""
         return {param: getattr(self, param) for param in self.param_names}
 
-    def __call__(self, *args, **kwargs) -> Any:
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call the original function with the current parameter values from the Gui.
 
         It is also possible to override the current parameter values from the GUI by
@@ -538,7 +540,7 @@ class MagicGuiBase(api.WidgetType):
                 callback(self, value, return_type)
         return value
 
-    def _current_signature(self):
+    def _current_signature(self) -> str:
         """Return the oritinal function signature, using current values from the GUI."""
         return (
             f'({", ".join([f"{n}={repr(k)}" for n, k in self.current_kwargs.items()])})'
@@ -550,11 +552,11 @@ class MagicGuiBase(api.WidgetType):
         return self._result_name or (self.func.__name__ + " result")
 
     @result_name.setter
-    def result_name(self, value: str):
+    def result_name(self, value: str) -> None:
         """Set the result name of this MagicGui widget."""
         self._result_name = value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation of the MagicGui with current function signature."""
         func_string = f"{self.func.__name__}{self._current_signature()}"
         return f"<MagicGui: {func_string}>"
@@ -630,7 +632,7 @@ def magicgui(
 
     def inner_func(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             if hasattr(func, "_widget"):
                 # a widget has been instantiated
                 return getattr(func, "_widget")(*args, **kwargs)
@@ -640,7 +642,7 @@ def magicgui(
             if hasattr(func, "__name__"):
                 __doc__ = f'MagicGui generated for function "{func.__name__}"'
 
-            def __init__(self, show=False) -> None:
+            def __init__(self, show: bool = False):
                 super().__init__(
                     func,
                     layout=layout,
@@ -723,7 +725,7 @@ def register_type(
     return None
 
 
-def reset_type(type_):
+def reset_type(type_: Type) -> None:
     """Clear any previously-registered widget types and callbacks for ``type_``."""
     _TYPE_DEFS.pop(type_, None)
     _CHOICES.pop(type_, None)

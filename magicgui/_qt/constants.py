@@ -1,5 +1,6 @@
 """Constants for the _qt module."""
 from enum import Enum, EnumMeta
+from typing import Any
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
@@ -16,7 +17,7 @@ from qtpy.QtWidgets import (
 class HelpfulEnum(EnumMeta):
     """Metaclass that shows the available options on KeyError."""
 
-    def __getitem__(self, name: str):
+    def __getitem__(self, name: str) -> Any:
         """Get enum by name, or raise helpful KeyError."""
         try:
             return super().__getitem__(name)
@@ -58,7 +59,7 @@ class Layout(Enum, metaclass=HelpfulEnum):
     form = QFormLayout
 
     @staticmethod
-    def addWidget(layout: QLayout, widget: QWidget, label: str = ""):
+    def addWidget(layout: QLayout, widget: QWidget, label: str = "") -> None:
         """Add widget to arbitrary layout with optional label."""
         if isinstance(layout, QFormLayout):
             return layout.addRow(label, widget)
@@ -70,7 +71,9 @@ class Layout(Enum, metaclass=HelpfulEnum):
             return layout.addWidget(widget)
 
     @staticmethod
-    def insertWidget(layout: QLayout, position: int, widget: QWidget, label: str = ""):
+    def insertWidget(
+        layout: QLayout, position: int, widget: QWidget, label: str = ""
+    ) -> None:
         """Add widget to arbitrary layout at position, with optional label."""
         if position < 0:
             position = layout.count() + position + 1

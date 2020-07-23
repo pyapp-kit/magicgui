@@ -1,6 +1,6 @@
 """A CombBox subclass that emits data objects when the index changes."""
 from qtpy.QtCore import Signal
-from qtpy.QtWidgets import QComboBox
+from qtpy.QtWidgets import QComboBox, QWidget
 
 
 class QDataComboBox(QComboBox):
@@ -8,7 +8,7 @@ class QDataComboBox(QComboBox):
 
     currentDataChanged = Signal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
         self.currentIndexChanged.connect(self._emit_data)
 

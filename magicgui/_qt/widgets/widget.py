@@ -8,7 +8,7 @@ class WidgetType(QWidget):
 
     parentChanged = Signal()
 
-    def setParent(self, parent):
+    def setParent(self, parent: QWidget) -> None:
         """Set parent widget and emit signal."""
         super().setParent(parent)
         self.parentChanged.emit()
