@@ -23,10 +23,10 @@ class QLogSlider(QSlider):
         """Set integer slier position from float ``value``."""
         super().setValue(int(math.exp(value) * self.PRECISION))
 
-    def setMinimum(self, value):
+    def setMinimum(self, value: float):
         """Set minimum position of slider in float units."""
         super().setMinimum(int(math.exp(value) * self.PRECISION))
 
-    def setMaximum(self, value):
+    def setMaximum(self, value: float):
         """Set maximum position of slider in float units."""
         super().setMaximum(int(math.exp(value) * self.PRECISION))
