@@ -29,4 +29,4 @@ class QLogSlider(QSlider):
 
     def setMaximum(self, value):
         """Set maximum position of slider in float units."""
-        super().setMaximum(math.exp(value) * self.PRECISION)
+        super().setMaximum(int(math.exp(value) * self.PRECISION))
