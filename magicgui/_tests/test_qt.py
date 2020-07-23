@@ -5,17 +5,22 @@
 import datetime
 from enum import Enum
 from pathlib import Path, PosixPath, WindowsPath
+from typing import List, Sequence, Tuple
 
 import pytest
-from qtpy import QtCore
+from qtpy import QtCore, API_NAME
 from qtpy import QtWidgets as QtW
 
 from magicgui import _qt, event_loop
-from typing import Sequence, List, Tuple
 
 
+@pytest.mark.skipif(API_NAME == "PyQt5", reason="Couldn't delete app on PyQt")
 def test_event():
     """Test that the event loop makes a Qt app."""
+    if QtW.QApplication.instance():
+        import shiboken2
+
+        shiboken2.delete(QtW.QApplication.instance())
     assert not QtW.QApplication.instance()
     with event_loop():
         app = QtW.QApplication.instance()
