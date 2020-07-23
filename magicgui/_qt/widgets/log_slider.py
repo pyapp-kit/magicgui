@@ -19,7 +19,7 @@ class QLogSlider(QSlider):
         """Get the natural log slider value as a float."""
         return math.log(super().value() / self.PRECISION)
 
-    def setValue(self, value):
+    def setValue(self, value: float):
         """Set integer slier position from float ``value``."""
         super().setValue(int(math.exp(value) * self.PRECISION))
 
