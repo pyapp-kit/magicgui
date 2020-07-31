@@ -8,7 +8,7 @@ from collections import abc
 from contextlib import contextmanager
 from enum import EnumMeta
 from pathlib import Path
-from typing import Any, Callable, Dict, NamedTuple, Optional, Type, Union
+from typing import Any, Callable, Dict, NamedTuple, Optional, Type, Union, Iterator
 
 from qtpy.QtWidgets import (
     QAbstractButton,
@@ -36,7 +36,7 @@ except ImportError:
 
 
 @contextmanager
-def event_loop():
+def event_loop() -> Iterator:
     """Start a Qt event loop in which to run the application."""
     app = QApplication.instance() or QApplication(sys.argv)
     yield
@@ -159,7 +159,7 @@ def make_widget(
     WidgetType: Type[WidgetType],
     name: Optional[str] = None,
     parent: WidgetType = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> WidgetType:
     """Instantiate a new widget of type ``WidgetType``.
 

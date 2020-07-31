@@ -2,7 +2,7 @@
 import math
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QSlider
+from qtpy.QtWidgets import QSlider, QWidget
 
 
 class QLogSlider(QSlider):
@@ -10,13 +10,13 @@ class QLogSlider(QSlider):
 
     PRECISION = 1000
 
-    def __init__(self, parent=None, *, base=math.e):
+    def __init__(self, parent: QWidget = None, *, base: float = math.e):
         super().__init__(Qt.Horizontal, parent=parent)
         self.base = base
         self.setMinimum(0)
         self.setMaximum(10)
 
-    def value(self):
+    def value(self) -> float:
         """Get the natural log slider value as a float."""
         return math.log(super().value() / self.PRECISION, self.base)
 

@@ -2,7 +2,6 @@
 
 from enum import Enum
 from datetime import datetime
-import math
 from pathlib import Path
 
 from magicgui import event_loop, magicgui
@@ -25,7 +24,7 @@ def widget_demo(
     string="Text goes here",
     dropdown=Medium.Glass,
     datetime=datetime.now(),
-    filename=Path.home()
+    filename=Path.home(),
 ):
     """Run some computation."""
     print("Running some computation...")

@@ -1,5 +1,5 @@
 """Stuff for handling categorical data."""
-from typing import Iterable, Tuple, Any
+from typing import Iterable, Tuple, Any, Type
 
 from qtpy.QtWidgets import QComboBox
 
@@ -17,16 +17,16 @@ def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any
             widget.addItem(name, data)
 
 
-def get_categorical_widget():
+def get_categorical_widget() -> Type[QDataComboBox]:
     """Get the categorical widget type for Qt."""
     return QDataComboBox
 
 
-def is_categorical(widget: WidgetType):
+def is_categorical(widget: WidgetType) -> bool:
     """Return True if ``widget`` is a categorical widget."""
     return isinstance(widget, QComboBox)
 
 
-def get_categorical_index(widget: WidgetType, value: Any):
+def get_categorical_index(widget: WidgetType, value: Any) -> int:
     """Find the index of ``value`` in categorical-type ``widget``."""
     return next(i for i in range(widget.count()) if widget.itemData(i) == value)

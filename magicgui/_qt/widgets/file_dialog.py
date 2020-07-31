@@ -1,7 +1,7 @@
 """Widgets that handle file dialogs."""
 import os
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Any
 
 from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 
@@ -14,7 +14,7 @@ class MagicFileDialog(QWidget):
     def __init__(
         self,
         *,
-        parent=None,
+        parent: QWidget = None,
         mode: Union[FileDialogMode, str] = FileDialogMode.EXISTING_FILE,
         filter: str = "",
     ):
@@ -22,20 +22,20 @@ class MagicFileDialog(QWidget):
         self.line_edit = QLineEdit(self)
         self.choose_btn = QPushButton("Choose file", self)
         self.choose_btn.clicked.connect(self._on_choose_clicked)
-        self.mode = mode
+        self.mode = mode  # type: ignore
         self.filter: str = filter
         layout = QHBoxLayout(self)
         layout.addWidget(self.line_edit)
         layout.addWidget(self.choose_btn)
 
-    def _help_text(self):
+    def _help_text(self) -> str:
         if self.mode is FileDialogMode.EXISTING_DIRECTORY:
             return "Choose directory"
         else:
             return "Select file" + ("s" if self.mode.name.endswith("S") else "")
 
     @property
-    def mode(self):
+    def mode(self) -> FileDialogMode:
         """Mode for the FileDialog."""
         return self._mode
 
@@ -63,9 +63,8 @@ class MagicFileDialog(QWidget):
 
     def _on_choose_clicked(self):
         show_dialog = getattr(QFileDialog, self.mode.value)
-        start_path = self.get_path()
-        if isinstance(start_path, tuple):
-            start_path = start_path[0]
+        _p = self.get_path()
+        start_path: Union[Path, str] = _p[0] if isinstance(_p, tuple) else _p
         start_path = os.fspath(os.path.abspath(os.path.expanduser(start_path)))
         caption = self._help_text()
         if self.mode is FileDialogMode.EXISTING_DIRECTORY:
@@ -96,6 +95,6 @@ class MagicFileDialog(QWidget):
 class MagicFilesDialog(MagicFileDialog):
     """A LineEdit that forces multiple file selection with a QFileDialog button."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         kwargs["mode"] = "EXISTING_FILES"
         super().__init__(**kwargs)
