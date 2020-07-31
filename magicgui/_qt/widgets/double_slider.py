@@ -16,10 +16,10 @@ class QDoubleSlider(QSlider):
         """Get the slider value and convert to float."""
         return super().value() / self.PRECISION
 
-    def setValue(self, value: float) -> None:
+    def setValue(self, value: float):
         """Set integer slider position from float ``value``."""
         super().setValue(int(value * self.PRECISION))
 
-    def setMaximum(self, value: float) -> None:
+    def setMaximum(self, value: float):
         """Set maximum position of slider in float units."""
         super().setMaximum(int(value * self.PRECISION))

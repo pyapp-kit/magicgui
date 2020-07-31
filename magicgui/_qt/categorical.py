@@ -6,9 +6,7 @@ from qtpy.QtWidgets import QComboBox
 from .widgets import QDataComboBox, WidgetType
 
 
-def set_categorical_choices(
-    widget: WidgetType, choices: Iterable[Tuple[str, Any]]
-) -> None:
+def set_categorical_choices(widget: WidgetType, choices: Iterable[Tuple[str, Any]]):
     """Set current items in categorical type ``widget`` to ``choices``."""
     names = [x[0] for x in choices]
     for i in range(widget.count()):

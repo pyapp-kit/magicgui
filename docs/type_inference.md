@@ -77,7 +77,7 @@ def register_type(
     *,
     widget_type: Optional[Type[api.WidgetType]] = None,
     choices: Optional[ChoicesType] = None,
-) -> None:
+):
     if widget_type is None and choices is None:
         raise ValueError("either `widget_type` or `choices` must be provided.")
     ...

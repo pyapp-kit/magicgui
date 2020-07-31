@@ -1,5 +1,5 @@
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.5.0
+  rev: v3.2.0
   hooks:
     - id: end-of-file-fixer
     - id: trailing-whitespace
@@ -8,14 +8,14 @@
   hooks:
     - id: black
 - repo: https://gitlab.com/pycqa/flake8
-  rev: 3.7.9
+  rev: 3.8.3
   hooks:
     - id: flake8
       pass_filenames: true
-      # this seems to need to be here in addition to setup.cfg
-      exclude: vendored|__init__.py|examples
+      exclude: examples
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v0.782
   hooks:
     - id: mypy
       additional_dependencies: [tokenize-rt==3.2.0]
+      exclude: examples

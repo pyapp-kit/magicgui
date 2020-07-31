@@ -17,7 +17,7 @@ class MagicFileDialog(QWidget):
         parent: QWidget = None,
         mode: Union[FileDialogMode, str] = FileDialogMode.EXISTING_FILE,
         filter: str = "",
-    ) -> None:
+    ):
         super().__init__(parent)
         self.line_edit = QLineEdit(self)
         self.choose_btn = QPushButton("Choose file", self)
@@ -40,7 +40,7 @@ class MagicFileDialog(QWidget):
         return self._mode
 
     @mode.setter
-    def mode(self, value: Union[FileDialogMode, str]) -> None:
+    def mode(self, value: Union[FileDialogMode, str]):
         mode: Union[FileDialogMode, str] = value
         if isinstance(value, str):
             try:
@@ -61,7 +61,7 @@ class MagicFileDialog(QWidget):
         self._mode = mode
         self.choose_btn.setText(self._help_text())
 
-    def _on_choose_clicked(self) -> None:
+    def _on_choose_clicked(self):
         show_dialog = getattr(QFileDialog, self.mode.value)
         _p = self.get_path()
         start_path: Union[Path, str] = _p[0] if isinstance(_p, tuple) else _p
@@ -81,7 +81,7 @@ class MagicFileDialog(QWidget):
             return tuple(Path(p) for p in text.split(", "))
         return Path(text)
 
-    def set_path(self, value: Union[List[str], Tuple[str, ...], str, Path]) -> None:
+    def set_path(self, value: Union[List[str], Tuple[str, ...], str, Path]):
         """Set current file path."""
         if isinstance(value, (list, tuple)):
             value = ", ".join([os.fspath(p) for p in value])
@@ -95,6 +95,6 @@ class MagicFileDialog(QWidget):
 class MagicFilesDialog(MagicFileDialog):
     """A LineEdit that forces multiple file selection with a QFileDialog button."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any):
         kwargs["mode"] = "EXISTING_FILES"
         super().__init__(**kwargs)

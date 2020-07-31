@@ -112,7 +112,7 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
     """
     if isinstance(widget, QComboBox):
 
-        def getter() -> Any:
+        def getter():
             return widget.itemData(widget.currentIndex())
 
         onchange = (
@@ -133,7 +133,7 @@ def getter_setter_onchange(widget: WidgetType) -> GetSetOnChange:
         return GetSetOnChange(widget.isChecked, widget.setChecked, widget.toggled)
     elif isinstance(widget, QDateTimeEdit):
 
-        def getter() -> Any:
+        def getter():
             try:
                 return widget.dateTime().toPython()
             except TypeError:

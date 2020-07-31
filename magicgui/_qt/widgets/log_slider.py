@@ -20,14 +20,14 @@ class QLogSlider(QSlider):
         """Get the natural log slider value as a float."""
         return math.log(super().value() / self.PRECISION, self.base)
 
-    def setValue(self, value: float) -> None:
+    def setValue(self, value: float):
         """Set integer slier position from float ``value``."""
         super().setValue(int(math.pow(self.base, value) * self.PRECISION))
 
-    def setMinimum(self, value: float) -> None:
+    def setMinimum(self, value: float):
         """Set minimum position of slider in float units."""
         super().setMinimum(int(math.pow(self.base, value) * self.PRECISION))
 
-    def setMaximum(self, value: float) -> None:
+    def setMaximum(self, value: float):
         """Set maximum position of slider in float units."""
         super().setMaximum(int(math.pow(self.base, value) * self.PRECISION))

@@ -104,7 +104,7 @@ def test_call_button(qtbot):
     """Test that the call button has been added, and pressing it calls the function."""
 
     @magicgui(call_button="my_button", auto_call=True)
-    def func(a: int, b: int = 3, c=7.1) -> None:
+    def func(a: int, b: int = 3, c=7.1):
         assert a == 7
 
     magic_widget = func.Gui()

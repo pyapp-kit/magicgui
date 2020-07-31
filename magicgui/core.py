@@ -92,19 +92,19 @@ class WidgetDescriptor:
         """
         self.name = name
 
-    def __get__(self, obj: MagicGuiBase, objtype: Type[MagicGuiBase]) -> Any:
+    def __get__(self, obj: MagicGuiBase, objtype: Type[MagicGuiBase]):
         """Get the current value from the widget."""
         widget = obj.get_widget(self.name)
         return api.getter_setter_onchange(widget).getter()
 
-    def __set__(self, obj: MagicGuiBase, val: Any) -> None:
+    def __set__(self, obj: MagicGuiBase, val: Any):
         """Set the current value for the widget."""
         widget = obj.get_widget(self.name)
         if api.is_categorical(widget):
             val = api.get_categorical_index(widget, val)
         return api.getter_setter_onchange(widget).setter(val)
 
-    def __delete__(self, obj: MagicGuiBase) -> None:
+    def __delete__(self, obj: MagicGuiBase):
         """Remove the widget from the layout, cleanup, and remove from parent class."""
         widget = obj.get_widget(self.name)
         obj.layout().removeWidget(widget)
@@ -399,7 +399,7 @@ class MagicGuiBase(api.WidgetType):
         return widget
 
     @classmethod
-    def _add_widget_descriptor(cls, name: str) -> None:
+    def _add_widget_descriptor(cls, name: str):
         setattr(cls, name, WidgetDescriptor(name))
 
     def get_widget(self, name: str) -> api.WidgetType:
@@ -410,9 +410,7 @@ class MagicGuiBase(api.WidgetType):
             cls_name = self.__class__.__name__
             raise AttributeError(f"{cls_name} has no widget named '{name}'.")
 
-    def refresh_choices(
-        self, names: Optional[Union[str, Sequence[str]]] = None
-    ) -> None:
+    def refresh_choices(self, names: Optional[Union[str, Sequence[str]]] = None):
         """Update the GUI choices for all widgets or all parameters in ``names``.
 
         Parameters
@@ -484,7 +482,7 @@ class MagicGuiBase(api.WidgetType):
             return choices(self, self._arg_types[name])
         return choices
 
-    def set_choices(self, name: str, choices: ChoicesType) -> None:
+    def set_choices(self, name: str, choices: ChoicesType):
         """Set possible choices for parameter ``name``."""
         if not choices:
             raise ValueError("choices cannot be None")
@@ -501,7 +499,7 @@ class MagicGuiBase(api.WidgetType):
         """Get the current values in the gui to pass to a function call."""
         return {param: getattr(self, param) for param in self.param_names}
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, *args: Any, **kwargs: Any):
         """Call the original function with the current parameter values from the Gui.
 
         It is also possible to override the current parameter values from the GUI by
@@ -552,7 +550,7 @@ class MagicGuiBase(api.WidgetType):
         return self._result_name or (self.func.__name__ + " result")
 
     @result_name.setter
-    def result_name(self, value: str) -> None:
+    def result_name(self, value: str):
         """Set the result name of this MagicGui widget."""
         self._result_name = value
 
@@ -632,7 +630,7 @@ def magicgui(
 
     def inner_func(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
+        def wrapper(*args: Any, **kwargs: Any):
             if hasattr(func, "_widget"):
                 # a widget has been instantiated
                 return getattr(func, "_widget")(*args, **kwargs)
@@ -678,7 +676,7 @@ def register_type(
     widget_type: Optional[Type[api.WidgetType]] = None,
     choices: Optional[ChoicesType] = None,
     return_callback: Optional[ReturnCallback] = None,
-) -> None:
+):
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
 
     Parameters
@@ -725,7 +723,7 @@ def register_type(
     return None
 
 
-def reset_type(type_: Type) -> None:
+def reset_type(type_: Type):
     """Clear any previously-registered widget types and callbacks for ``type_``."""
     _TYPE_DEFS.pop(type_, None)
     _CHOICES.pop(type_, None)
