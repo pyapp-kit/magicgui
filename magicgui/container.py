@@ -21,8 +21,7 @@ class Container(MutableSequence[Widget]):
         _app = use_app(app)
         assert _app.native
 
-        self._base: BaseContainer = getattr(_app.backend_module, "Container")()
-        self._base.orientation = orientation
+        self._base: BaseContainer = _app.get_obj("Container")(orientation)
         self._return_annotation = return_annotation
         for w in widgets:
             self.append(w)
@@ -31,7 +30,7 @@ class Container(MutableSequence[Widget]):
         for widget in self:
             if name == widget.name:
                 return widget
-        return object.__getattribute__(self, name)
+        raise AttributeError(f"'Container' object has no attribute {name!r}")
 
     def __delitem__(self, key: Union[int, slice]):
         if isinstance(key, slice):
@@ -79,12 +78,12 @@ class Container(MutableSequence[Widget]):
         return f"<magicgui.Container at {hex(id(self))} with {len(self)} widgets>"
 
     @classmethod
-    def from_signature(cls, sig: Signature) -> Container:
-        return MagicSignature.from_signature(sig).to_container()
+    def from_signature(cls, sig: Signature, **kwargs) -> Container:
+        return MagicSignature.from_signature(sig).to_container(**kwargs)
 
     @classmethod
-    def from_callable(cls, obj: Callable) -> Container:
-        return magic_signature(obj).to_container()
+    def from_callable(cls, obj: Callable, **kwargs) -> Container:
+        return magic_signature(obj).to_container(**kwargs)
 
     def to_signature(self) -> MagicSignature:
         params = [
@@ -96,6 +95,7 @@ class Container(MutableSequence[Widget]):
                 options=w._options,
             )
             for w in self
+            if w.name and not w.gui_only
         ]
         return MagicSignature(params, return_annotation=self._return_annotation)
 

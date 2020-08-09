@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from enum import EnumMeta
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -11,49 +10,44 @@ from typing import (
     Optional,
     Protocol,
     Tuple,
-    Type,
-    TypedDict,
-    Union,
     runtime_checkable,
 )
 
 if TYPE_CHECKING:
     from magicgui.widget import Widget
 
-Number = Union[int, float]
 
-# TODO: organize something other than strings
-WIDGETS = {
-    # Buttons
-    "CheckBox",
-    "PushButton",
-    "RadioButton",
-    "ToolButton",
-    # Numbers
-    "SpinBox",
-    "FloatSpinBox",
-    "Slider",
-    "LogSlider"
-    # Strings
-    "LineEdit",
-    "TextEdit",
-    "Label",
-    # Status
-    "StatusBar",
-    # Dates
-    "DateTimeWidget",
-    "DateWidget",
-    "TimeWidget",
-    # Choices
-    "ComboBox",
-    "Listbox",
-    # Container
-    "GroupBox",
-}
+# Protocols ----------------------------------------------------------------------
+
+# -> BaseWidget
+#      - _mg_show_widget
+#      - _mg_hide_widget
+#      - _mg_get_native_widget
+#
+#      ↪ BaseValueWidget
+#           - _mg_get_value
+#           - _mg_set_value
+#           - _mg_bind_change_callback
+#
+#           ↪ BaseRangedWidget
+#                - _mg_get_minimum
+#                - _mg_set_minimum
+#                - _mg_get_maximum
+#                - _mg_set_maximum
+#                - _mg_get_step
+#                - _mg_set_step
+#                - [_mg_get_range]
+#                - [_mg_set_range]
+#
+#           ↪ BaseCategoricalWidget
+#                - _mg_get_choices
+#                - _mg_set_choices
 
 
 @runtime_checkable
-class SupportsShowHide(Protocol):
+class BaseWidget(Protocol):
+    """All must have show/hide and return the native widget."""
+
     @abstractmethod
     def _mg_show_widget(self):
         """Show the widget."""
@@ -64,12 +58,14 @@ class SupportsShowHide(Protocol):
         """Hide the widget."""
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mg_get_native_widget(self):
+        raise NotImplementedError()
 
-class BaseWidget(SupportsShowHide, ABC):
-    def __init__(self, mg_widget: "Widget"):
-        self._mg_widget = mg_widget
 
-    # INTERFACE ------------------------------
+@runtime_checkable
+class BaseValueWidget(BaseWidget, Protocol):
+    """Widget that has a current value, with getter/setter and on_change callback."""
 
     @abstractmethod
     def _mg_get_value(self) -> Any:
@@ -86,90 +82,117 @@ class BaseWidget(SupportsShowHide, ABC):
         """Bind callback to value change event."""
         raise NotImplementedError()
 
-    @abstractmethod
-    def _mg_get_native_widget(self):
-        raise NotImplementedError()
 
-
-class BaseNumberWidget(BaseWidget, ABC):
-    @property
-    def minimum(self) -> Number:
-        return self._mg_get_minimum()
-
-    @minimum.setter
-    def minimum(self, value: Number):
-        self._mg_set_minimum(value)
-
-    @property
-    def maximum(self) -> Number:
-        return self._mg_get_maximum()
-
-    @maximum.setter
-    def maximum(self, value: Number):
-        self._mg_set_maximum(value)
-
-    @property
-    def step(self) -> Number:
-        return self._mg_get_step()
-
-    @step.setter
-    def step(self, value: Number):
-        self._mg_set_step(value)
-
-    @property
-    def range(self) -> Tuple[Number, Number]:
-        return self._mg_get_range()
-
-    @range.setter
-    def range(self, value: Tuple[Number, Number]):
-        self._mg_set_range(value)
-
-    # INTERFACE ------------------------------
+# note that "float" type hints also accept ints
+# https://www.python.org/dev/peps/pep-0484/#the-numeric-tower
+@runtime_checkable
+class BaseRangedWidget(BaseValueWidget, Protocol):
+    """Value widget that supports numbers within a provided min/max range."""
 
     @abstractmethod
-    def _mg_get_minimum(self) -> Number:
+    def _mg_get_minimum(self) -> float:
         """Get the minimum possible value."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mg_set_minimum(self, value: Number):
+    def _mg_set_minimum(self, value: float):
         """Set the minimum possible value."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mg_get_maximum(self) -> Number:
+    def _mg_get_maximum(self) -> float:
         """Get the maximum possible value."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mg_set_maximum(self, value: Number):
+    def _mg_set_maximum(self, value: float):
         """Set the maximum possible value."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mg_get_step(self) -> Number:
+    def _mg_get_step(self) -> float:
         """Get the step size."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mg_set_step(self, value: Number):
+    def _mg_set_step(self, value: float):
         """Set the step size."""
         raise NotImplementedError()
 
-    def _mg_set_range(self, value: Tuple[Number, Number]):
-        """Set the step size."""
+    def _mg_set_range(self, value: Tuple[float, float]):
+        """Set min/max simultaneously.  Implementation optional."""
         self._mg_set_minimum(value[0])
         self._mg_set_maximum(value[1])
 
-    def _mg_get_range(self) -> Tuple[Number, Number]:
-        """Set the step size."""
+    def _mg_get_range(self) -> Tuple[float, float]:
+        """Get the current range.  Implementation optional."""
         return self._mg_get_minimum(), self._mg_get_maximum()
 
 
 @runtime_checkable
+class SupportsChoices(Protocol):
+    """Widget that has a set of valid choices."""
+
+    @abstractmethod
+    def _mg_get_choices(self) -> Tuple[Tuple[str, Any]]:
+        """Get available choices."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_set_choices(self, choices: Iterable[Tuple[str, Any]]):
+        """Set available choices."""
+        raise NotImplementedError()
+
+
+@runtime_checkable
+class BaseCategoricalWidget(BaseValueWidget, SupportsChoices, Protocol):
+    """Categorical widget, that has a set of valid choices, and a current value."""
+
+    pass
+
+
+class BaseButtonWidget(BaseValueWidget):
+    """The "value" in a ButtonWidget is the current (checked) state."""
+
+
+class BaseDateTimeWidget(BaseValueWidget):
+    """The "value" in a ButtonWidget is the current (checked) state."""
+
+
+# @runtime_checkable
+# class SupportsText(Protocol):
+#     """Widget that have text (in addition to value) for string-like widgets."""
+
+#     @property
+#     def text(self):
+#         """Text of the widget."""
+#         return self._mg_get_text()
+
+#     @text.setter
+#     def text(self, value):
+#         self._mg_set_text(value)
+
+#     @abstractmethod
+#     def _mg_set_text(self, value) -> None:
+#         """Set text."""
+#         raise NotImplementedError()
+
+#     @abstractmethod
+#     def _mg_get_text(self) -> str:
+#         """Get text."""
+#         raise NotImplementedError()
+
+
+# CONTAINER ----------------------------------------------------------------------
+
+
+@runtime_checkable
 class SupportsOrientation(Protocol):
+    """Widget that can be reoriented."""
+
     @property
     def orientation(self):
+        """Orientation of the widget."""
         return self._mg_get_orientation()
 
     @orientation.setter
@@ -177,38 +200,59 @@ class SupportsOrientation(Protocol):
         assert value in {"horizontal", "vertical"}
         self._mg_set_orientation(value)
 
-    # INTERFACE ------------------------------
-
     @abstractmethod
     def _mg_set_orientation(self, value) -> None:
-        """Set orientation, value will be 'horizontal' or 'vertical'"""
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mg_get_orientation(self) -> str:
-        """Set orientation, return either 'horizontal' or 'vertical'"""
+        """Get orientation, return either 'horizontal' or 'vertical'."""
         raise NotImplementedError()
 
 
-@runtime_checkable
-class SupportsChoices(Protocol):
-    @abstractmethod
-    def _mg_get_choices(self) -> Tuple[Tuple[str, Any]]:
-        """Show the widget."""
-        raise NotImplementedError()
+class BaseContainer(BaseWidget, SupportsOrientation, Protocol):
+    """Widget that can contain other widgets."""
 
     @abstractmethod
-    def _mg_set_choices(self, choices: Iterable[Tuple[str, Any]]):
-        """Show the widget."""
+    def _mg_add_widget(self, widget: "Widget"):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_insert_widget(self, position: int, widget: "Widget"):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_remove_widget(self, widget: "Widget"):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_remove_index(self, position: int):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_count(self) -> int:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_index(self, widget: "Widget") -> int:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_get_index(self, index: int) -> "Optional[Widget]":
+        """(return None instead of index error)."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_get_native_layout(self) -> Any:
         raise NotImplementedError()
 
 
-class BaseCategoricalWidget(BaseWidget, SupportsChoices):
-    pass
+# APPLICATION --------------------------------------------------------------------
 
 
 class BaseApplicationBackend(ABC):
-    """BaseApplicationBackend()
+    """Backend Application object.
 
     Abstract class that provides an interface between backends and Application.
     Each backend must implement a subclass of BaseApplicationBackend, and
@@ -257,42 +301,3 @@ class BaseApplicationBackend(ABC):
     @abstractmethod
     def _mg_stop_timer(self):
         """Stop timer.  Should check for the existence of the timer."""
-
-
-class BaseContainer(SupportsOrientation, SupportsShowHide, ABC):
-    """Base layout interface."""
-
-    # INTERFACE ------------------------------
-
-    @abstractmethod
-    def _mg_add_widget(self, widget: "Widget"):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_insert_widget(self, position: int, widget: "Widget"):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_remove_widget(self, widget: "Widget"):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_remove_index(self, position: int):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_count(self) -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_index(self, widget: "Widget") -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_get_index(self, index: int) -> "Optional[Widget]":
-        """(return None instead of index error)."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_get_native_layout(self) -> Any:
-        raise NotImplementedError()

@@ -1,12 +1,9 @@
 import inspect
-from functools import wraps
 from typing import Any, Callable, Optional, Sequence, Union
 
 from magicgui.application import use_app
 from magicgui.container import Container
 from magicgui.widget import Widget
-
-import inspect
 
 
 def magicgui(
@@ -66,7 +63,7 @@ def magicgui(
     ... gui = my_function.Gui(show=True)
     """
 
-    def inner_func(func: Callable) -> Callable:
+    def inner_func(func: Callable) -> GuiFunction:
         if param_options:
             valid = set(inspect.signature(func).parameters)
             invalid = set(param_options) - valid
@@ -80,34 +77,7 @@ def magicgui(
                 s = "s" if len(bad) > 1 else ""
                 raise TypeError(f"Value for parameter{s} {bad} must be a dict")
 
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any):
-            if hasattr(func, "_widget"):
-                # a widget has been instantiated
-                return getattr(func, "_widget")(*args, **kwargs)
-            return func(*args, **kwargs)
-
-        class MagicGui(MagicGuiBase):
-            if hasattr(func, "__name__"):
-                __doc__ = f'MagicGui generated for function "{func.__name__}"'
-
-            def __init__(self, show: bool = False):
-                super().__init__(
-                    func,
-                    layout=layout,
-                    labels=labels,
-                    call_button=call_button,
-                    auto_call=auto_call,
-                    parent=parent,
-                    ignore=ignore,
-                    **param_options,
-                )
-                setattr(wrapper, "called", self.called)
-                if show:
-                    self.show()
-
-        setattr(wrapper, "Gui", MagicGui)
-        return wrapper
+        return GuiFunction(func, call_button, orientation=layout)
 
     if function is None:
         return inner_func
@@ -116,17 +86,35 @@ def magicgui(
 
 
 class GuiFunction:
-    def __init__(self, function, call_button: Union[bool, str] = False, app=None):
+    def __new__(
+        cls,
+        function,
+        call_button: Union[bool, str] = True,
+        app=None,
+        orientation="horizontal",
+        show=False,
+    ) -> "GuiFunction":
+
+        # don't redecorate already-wrapped function
+        if isinstance(function, GuiFunction):
+            return function
+
+        self = super().__new__(cls)
         app = use_app(app)
-        self.widgets = Container.from_callable(function)
+        self.widgets = Container.from_callable(function, orientation=orientation)
         self._function = function
 
         if call_button:
-            self.call_button = Widget(options={"widget_type": "PushButton"})
-            call_button if isinstance(call_button, str) else "call"
+            self.call_button = Widget.create(
+                options={"widget_type": "PushButton"}, gui_only=True
+            )
             # using lambda because the clicked signal returns a value
-            self.call_button.value_changed.connect(lambda x: self.__call__())
+            self.call_button.changed.connect(lambda x: self.__call__())
             self.widgets.append(self.call_button)
+
+        if show:
+            self.show()
+        return self
 
     def __getattr__(self, name):
         if name != "widgets":
@@ -134,7 +122,7 @@ class GuiFunction:
                 return getattr(self.widgets, name)
             except AttributeError:
                 pass
-        return object.__getattribute__(self, name)
+        raise AttributeError(f"'GuiFunction' object has no attribute {name!r}")
 
     def __setattr__(self, name, value):
         if name != "widgets":
@@ -174,16 +162,16 @@ class GuiFunction:
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
+        print("returning", value)
         # self.called.emit(value)
-
-        return_type = self.widgets._return_annotation
+        # return_type = self.widgets._return_annotation
         # if return_type:
         #     for callback in _type2callback(return_type):
         #         callback(self, value, return_type)
         return value
 
     def __repr__(self) -> str:
-        fname = f"{self._function.__module__}.{self._function.__qualname__}"
+        fname = f"{self._function.__module__}.{self._function.__name__}"
         return f"<GuiFunction {fname}{self.widgets.to_signature()}>"
 
     def show(self):

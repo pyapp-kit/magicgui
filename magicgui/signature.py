@@ -114,7 +114,7 @@ class MagicParameter(Parameter):
     def to_widget(self, app: AppRef = None):
         value = None if self.default is self.empty else self.default
         annotation, options = split_annotated_type(self.annotation)
-        return Widget(
+        return Widget.create(
             value, annotation, options=options, app=app, name=self.name, kind=self.kind,
         )
 
@@ -146,13 +146,13 @@ class MagicSignature(Signature):
             {n: p.to_widget(app) for n, p in self.parameters.items()}
         )
 
-    def to_container(self, app: AppRef = None) -> "Container":
+    def to_container(self, **kwargs) -> "Container":
         from magicgui.container import Container
 
         return Container(
-            app=app,
-            widgets=list(self.widgets(app).values()),
+            widgets=list(self.widgets(kwargs.get("app")).values()),
             return_annotation=self.return_annotation,
+            **kwargs,
         )
 
 

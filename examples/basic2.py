@@ -3,8 +3,8 @@
 from enum import Enum
 import math
 
-from magicgui.signature import magic_signature
 from magicgui import event_loop
+from magicgui.decorator import GuiFunction
 from typing_extensions import Annotated
 
 
@@ -43,8 +43,5 @@ def snells_law(
 
 
 with event_loop():
-    ms = magic_signature(snells_law)
-    w = ms.to_container()
-    print(w)
-    print(w.to_signature())
-    w.show()
+    g = GuiFunction(snells_law)
+    g.show()
