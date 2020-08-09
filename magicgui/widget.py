@@ -4,12 +4,12 @@ import inspect
 import pathlib
 from collections import abc
 from enum import EnumMeta
-from typing import Any, Callable, Optional, Set, Type, Union
+from typing import Any, Callable, Optional, Set, Type, Union, Iterable, Tuple, TypedDict
 
 from typing_extensions import get_args, get_origin  # type: ignore
 
-from .application import Application, use_app, AppRef
-from .base import BaseWidget, SupportsChoices
+from .application import AppRef, use_app
+from .base import BaseWidget, BaseCategoricalWidget, SupportsChoices
 
 WidgetRef = Optional[str]
 TypeMatcher = Callable[[Any, Optional[Type], Optional[dict]], WidgetRef]
@@ -103,20 +103,37 @@ class SignalConnector:
 
 class Widget:
     _widget: BaseWidget
+    value_changed: SignalConnector
+
+    def __new__(cls, *args, **kwargs):
+        # FIXME: Works... but ugly?
+        if cls is Widget and kwargs.get("options", {}).get("choices"):
+            return super().__new__(CategoricalWidget)
+        return super().__new__(cls)
 
     def __init__(
         self,
         value: Any = None,
         annotation=None,
         options: dict = {},
-        app: AppRef = None,
         name: str = "",
         kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        app: AppRef = None,
     ):
-        _app = use_app(app)
         # Make sure that the app is active
+        _app = use_app(app)
         assert _app.native
+        self.name = name
+        self.annotation = annotation
+        self.default = value
+        self._kind = kind
+        self._options = options
+        self._create_native(value, annotation, options, _app)
+        if value:
+            self.value = value
+        self.value_changed = SignalConnector(self._widget._mg_bind_change_callback)
 
+    def _create_native(self, value, annotation, options, _app):
         widget_type = pick_widget_type(value, annotation, options)
         if widget_type is None:
             raise ValueError("Could not determine widget type")
@@ -129,20 +146,16 @@ class Widget:
                 f"in backend {_app.backend_name!r}\n"
                 f"Looked in: {_app.backend_module!r}"
             )
-
-        print(backend_widget)
         self._widget = backend_widget(mg_widget=self)
-        if "choices" in options:
-            if not isinstance(self._widget, SupportsChoices):
-                raise InvalidOption(f"widget {widget!r} does not support 'choices'")
-            self._widget.set_choices(options["choices"])
-        if value:
-            self.value = value
-        self.changed = SignalConnector(self._widget._mg_bind_change_callback)
-        self.name = name
-        self._kind = kind
-        self._options = options
-        self._annotation = annotation
+
+    @property
+    def is_mandatory(self) -> bool:
+        if self._kind in (
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ):
+            return self.default is inspect.Parameter.empty
+        return False
 
     @property
     def value(self):
@@ -167,8 +180,77 @@ class Widget:
         """Return type of widget."""
         return self.__class__.__name__
 
+    # def __repr__(self):
+    #     """Return string representation of widget."""
+    #     _type = type(self.native)
+    #     backend = f"{_type.__module__}.{_type.__qualname__}"
+    #     return f"<Magic {self.widget_type} ({backend!r}) at {hex(id(self))}>"
+
+    def __repr__(self) -> str:
+        return (
+            f"Widget(value={self.value!r}, annotation={self.annotation!r}, "
+            f"options={self._options}, name={self.name!r}, kind={self._kind})"
+        )
+
+
+ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
+ChoicesCallback = Callable[["CategoricalWidget"], ChoicesIterable]
+
+
+class ChoicesDict(TypedDict):
+    choices: ChoicesIterable
+    key: Callable[[Any], str]
+
+
+ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, ChoicesDict]
+
+
+class CategoricalWidget(Widget):
+    _widget: BaseCategoricalWidget
+
+    def __init__(self, *args, **kwargs):
+        self._default_choices = kwargs.get("options", {}).get("choices")
+        super().__init__(*args, **kwargs)
+
+    def _create_native(self, value, annotation, options, _app):
+        super()._create_native(value, annotation, options, _app)
+        if not isinstance(self._widget, SupportsChoices):
+            raise InvalidOption(f"widget {self._widget!r} does not support 'choices'")
+        self.reset_choices()
+
+    def reset_choices(self):
+        # particularly useful if self._default_choices is a
+        self.choices = self._default_choices
+
+    @property
+    def choices(self):
+        return tuple(i[0] for i in self._widget._mg_get_choices())
+
+    @choices.setter
+    def choices(self, choices: ChoicesType):
+        if isinstance(choices, EnumMeta):
+            str_func: Callable = lambda x: str(x.name)
+        else:
+            str_func = str
+        if isinstance(choices, dict):
+            if not ("choices" in choices and "key" in choices):
+                raise ValueError(
+                    "When setting choices with a dict, the dict must have keys "
+                    "'choices' (Iterable), and 'key' (callable that takes a each value "
+                    "in `choices` and returns a string."
+                )
+            _choices = choices["choices"]
+            str_func = choices["key"]
+        elif not isinstance(choices, EnumMeta) and callable(choices):
+            _choices = choices(self)
+        else:
+            _choices = choices
+        if not all(isinstance(i, tuple) and len(i) == 2 for i in _choices):
+            _choices = [(str_func(i), i) for i in _choices]
+        return self._widget._mg_set_choices(_choices)
+
     def __repr__(self):
         """Return string representation of widget."""
         _type = type(self.native)
         backend = f"{_type.__module__}.{_type.__qualname__}"
-        return f"<Magic {self.widget_type} ({backend!r}) at {hex(id(self))}>"
+        return f"<MagicCategoricalWidget ({backend!r}) at {hex(id(self))}>"

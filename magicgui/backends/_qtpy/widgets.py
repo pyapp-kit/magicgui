@@ -5,7 +5,7 @@ from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QObject, Qt, Signal
 
 from magicgui.base import (
-    BaseLayout,
+    BaseContainer,
     BaseNumberWidget,
     BaseWidget,
     SupportsChoices,
@@ -270,12 +270,14 @@ class DateTimeEdit(QBaseWidget):
             return self._qwidget.dateTime().toPyDateTime()
 
 
-class Layout(BaseLayout, SupportsOrientation):
+class Container(BaseContainer, SupportsOrientation):
     def __init__(self, orientation="horizontal"):
         if orientation == "horizontal":
             self._layout: QtW.QLayout = QtW.QHBoxLayout()
         else:
             self._layout = QtW.QFormLayout()
+        self._widget = QtW.QWidget()
+        self._widget.setLayout(self._layout)
 
     def _mg_add_widget(self, widget: Widget):
         label = widget.name
@@ -350,3 +352,11 @@ class Layout(BaseLayout, SupportsOrientation):
 
     def _mg_get_native_layout(self) -> QtW.QLayout:
         return self._layout
+
+    def _mg_show_widget(self):
+        """Show the container."""
+        self._widget.show()
+
+    def _mg_hide_widget(self):
+        """Hide the container."""
+        self._widget.hide()

@@ -2,18 +2,19 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-
+from enum import EnumMeta
 from typing import (
-    Callable,
-    Optional,
-    Any,
-    Iterable,
-    TypedDict,
-    Tuple,
-    Union,
-    Protocol,
-    runtime_checkable,
     TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Optional,
+    Protocol,
+    Tuple,
+    Type,
+    TypedDict,
+    Union,
+    runtime_checkable,
 )
 
 if TYPE_CHECKING:
@@ -51,7 +52,20 @@ WIDGETS = {
 }
 
 
-class BaseWidget(ABC):
+@runtime_checkable
+class SupportsShowHide(Protocol):
+    @abstractmethod
+    def _mg_show_widget(self):
+        """Show the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_hide_widget(self):
+        """Hide the widget."""
+        raise NotImplementedError()
+
+
+class BaseWidget(SupportsShowHide, ABC):
     def __init__(self, mg_widget: "Widget"):
         self._mg_widget = mg_widget
 
@@ -74,16 +88,6 @@ class BaseWidget(ABC):
 
     @abstractmethod
     def _mg_get_native_widget(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_show_widget(self):
-        """Show the widget."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mg_hide_widget(self):
-        """Hide the widget."""
         raise NotImplementedError()
 
 
@@ -186,39 +190,8 @@ class SupportsOrientation(Protocol):
         raise NotImplementedError()
 
 
-class ChoicesDict(TypedDict):
-    choices: Union[Iterable[Tuple[str, Any]], Iterable[Any]]
-    key: Callable[[Any], str]
-
-
 @runtime_checkable
 class SupportsChoices(Protocol):
-    @property
-    def choices(self):
-        return tuple(i[0] for i in self._mg_get_choices())
-
-    @choices.setter
-    def choices(
-        self, choices: Union[Iterable[Tuple[str, Any]], Iterable[Any], ChoicesDict],
-    ):
-        str_func: Callable = str
-        if isinstance(choices, dict):
-            if not ("choices" in choices and "key" in choices):
-                raise ValueError(
-                    "When setting choices with a dict, the dict must have keys "
-                    "'choices' (Iterable), and 'key' (callable that takes a each value "
-                    "in `choices` and returns a string."
-                )
-            _choices = choices["choices"]
-            str_func = choices["key"]
-        else:
-            _choices = choices
-        if not all(isinstance(i, tuple) and len(i) == 2 for i in _choices):
-            _choices = [(str_func(i), i) for i in _choices]
-        return self._mg_set_choices(_choices)
-
-    # INTERFACE ------------------------------
-
     @abstractmethod
     def _mg_get_choices(self) -> Tuple[Tuple[str, Any]]:
         """Show the widget."""
@@ -228,6 +201,10 @@ class SupportsChoices(Protocol):
     def _mg_set_choices(self, choices: Iterable[Tuple[str, Any]]):
         """Show the widget."""
         raise NotImplementedError()
+
+
+class BaseCategoricalWidget(BaseWidget, SupportsChoices):
+    pass
 
 
 class BaseApplicationBackend(ABC):
@@ -282,7 +259,7 @@ class BaseApplicationBackend(ABC):
         """Stop timer.  Should check for the existence of the timer."""
 
 
-class BaseLayout(SupportsOrientation, ABC):
+class BaseContainer(SupportsOrientation, SupportsShowHide, ABC):
     """Base layout interface."""
 
     # INTERFACE ------------------------------

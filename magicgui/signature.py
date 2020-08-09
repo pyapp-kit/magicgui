@@ -1,21 +1,24 @@
-from inspect import Parameter, Signature, signature, _ParameterKind
-from typing_extensions import _AnnotatedAlias, Annotated
+from enum import EnumMeta
+from inspect import Parameter, Signature, _ParameterKind, signature
+from types import MappingProxyType
 from typing import (
-    Optional,
-    Tuple,
-    Sequence,
-    Callable,
+    TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Mapping,
-    TYPE_CHECKING,
+    Optional,
+    Sequence,
+    Tuple,
 )
-from types import MappingProxyType
-from magicgui.widget import Widget
+
+from typing_extensions import Annotated, _AnnotatedAlias
+
 from magicgui.application import AppRef
+from magicgui.widget import Widget
 
 if TYPE_CHECKING:
-    from magicgui.layout import Layout
+    from magicgui.container import Container
 
 
 def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
@@ -44,6 +47,8 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
     if options and not isinstance(options, dict):
         raise TypeError("'options' must be a dict")
     _options = (options or dict()).copy()
+    if isinstance(annotation, EnumMeta):
+        _options.setdefault("choices", annotation)
 
     if isinstance(annotation, _AnnotatedAlias):
         hint, anno_options = split_annotated_type(annotation)
@@ -141,10 +146,14 @@ class MagicSignature(Signature):
             {n: p.to_widget(app) for n, p in self.parameters.items()}
         )
 
-    def to_layout(self, app: AppRef = None) -> "Layout":
-        from magicgui.layout import Layout
+    def to_container(self, app: AppRef = None) -> "Container":
+        from magicgui.container import Container
 
-        return Layout(app=app, widgets=list(self.widgets(app).values()))
+        return Container(
+            app=app,
+            widgets=list(self.widgets(app).values()),
+            return_annotation=self.return_annotation,
+        )
 
 
 def magic_signature(obj: Callable, *, follow_wrapped: bool = True) -> MagicSignature:
