@@ -26,7 +26,7 @@ class Container(MutableSequence[Widget]):
         self._return_annotation = return_annotation
         for w in widgets:
             self.append(w)
-    
+
     def __getattr__(self, name: str):
         for widget in self:
             if name == widget.name:

@@ -48,4 +48,3 @@ with event_loop():
     print(w)
     print(w.to_signature())
     w.show()
-
