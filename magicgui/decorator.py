@@ -162,6 +162,7 @@ class FunctionGui:
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
+        print("returned,", value)
         # self.called.emit(value)
         # return_type = self.widgets._return_annotation
         # if return_type:

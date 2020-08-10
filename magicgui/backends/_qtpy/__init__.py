@@ -4,6 +4,7 @@ from .widgets import (
     ComboBox,
     Container,
     DateTimeEdit,
+    FloatSlider,
     FloatSpinBox,
     Label,
     LineEdit,
@@ -26,6 +27,7 @@ __all__ = [
     "PushButton",
     "RadioButton",
     "Slider",
+    "FloatSlider",
     "SpinBox",
     "TextEdit",
 ]

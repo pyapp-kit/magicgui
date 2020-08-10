@@ -80,7 +80,6 @@ class MagicParameter(Parameter):
         annotation: Any = Parameter.empty,
         gui_options: Optional[dict] = None,
     ):
-        print("MagicParameter", name, annotation, gui_options)
         if annotation is Parameter.empty:
             annotation = Any if default is Parameter.empty else type(default)
         _annotation = make_annotated(annotation, gui_options)

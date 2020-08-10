@@ -4,9 +4,7 @@ import inspect
 import pathlib
 from collections import abc
 from enum import Enum, EnumMeta, auto
-from typing import Any, Callable, Optional, Set, Type, Union
-
-from typing_extensions import get_args, get_origin  # type: ignore
+from typing import Any, Callable, Optional, Set, Type, Union, get_args, get_origin
 
 from magicgui.application import AppRef, use_app
 from magicgui.base import BaseWidget
@@ -14,6 +12,8 @@ from magicgui.utils import camel2snake, snake2camel
 
 
 class MissingWidget(RuntimeError):
+    """Raised when a backend widget cannot be found."""
+
     pass
 
 
@@ -25,6 +25,8 @@ class _WidgetKindMeta(EnumMeta):
 
 
 class WidgetKind(Enum, metaclass=_WidgetKindMeta):
+    """Known kinds of widgets.  CamelCase versions used for backend lookup."""
+
     def _generate_next_value_(name, start, count, last_values):
         return snake2camel(name)
 
@@ -55,6 +57,7 @@ class WidgetKind(Enum, metaclass=_WidgetKindMeta):
 
     @property
     def snake_name(self):
+        """Return snake_case version of the name."""
         return camel2snake(self.value)
 
 
@@ -81,7 +84,7 @@ def sequence_of_paths(value, annotation, options) -> Optional[WidgetRef]:
         args = get_args(annotation)
         if not (inspect.isclass(orig) and args):
             return None
-        if issubclass(orig, abc.Sequence):
+        if isinstance(orig, abc.Sequence):
             if inspect.isclass(args[0]) and issubclass(args[0], pathlib.Path):
                 return WidgetKind.FILE_EDIT
     elif value:

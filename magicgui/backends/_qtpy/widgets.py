@@ -122,7 +122,7 @@ class QBaseRangedWidget(QBaseValueWidget, BaseRangedWidget):
 
     def _mg_set_step(self, value: float):
         """Set the step size."""
-        self._qwidget.setRange(value)
+        self._qwidget.setSingleStep(value)
 
     def _mg_set_range(self, value: Tuple[float, float]):
         """Get the step size."""
@@ -284,6 +284,47 @@ class Slider(QBaseRangedWidget, SupportsOrientation):
         """Get current value of the widget."""
         orientation = self._qwidget.orientation()
         return "vertical" if orientation == Qt.Vertical else "horizontal"
+
+
+class FloatSlider(Slider):
+    """A Slider Widget that can handle float values."""
+
+    PRECISION = 1000
+
+    def _mg_get_value(self) -> float:
+        return super()._mg_get_value() / self.PRECISION
+
+    def _mg_set_value(self, value) -> None:
+        super()._mg_set_value(int(value * self.PRECISION))
+
+    def _mg_get_minimum(self) -> float:
+        """Get the minimum possible value."""
+        return super()._mg_get_minimum() / self.PRECISION
+
+    def _mg_set_minimum(self, value: float):
+        """Set the minimum possible value."""
+        super()._mg_set_minimum(int(value * self.PRECISION))
+
+    def _mg_get_maximum(self) -> float:
+        """Set the maximum possible value."""
+        return super()._mg_get_maximum() / self.PRECISION
+
+    def _mg_set_maximum(self, value: float):
+        """Set the maximum possible value."""
+        super()._mg_set_maximum(int(value * self.PRECISION))
+
+    def _mg_get_step(self) -> float:
+        """Get the step size."""
+        return super()._mg_get_step() / self.PRECISION
+
+    def _mg_set_step(self, value: float):
+        """Set the step size."""
+        super()._mg_set_step(int(value * self.PRECISION))
+
+    def _mg_set_range(self, value: Tuple[float, float]):
+        """Get the step size."""
+        _range = (int(value[0] * self.PRECISION), int(value[0] * self.PRECISION))
+        super()._mg_set_range(_range)
 
 
 class ComboBox(QBaseValueWidget, BaseCategoricalWidget):

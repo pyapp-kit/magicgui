@@ -20,11 +20,16 @@ def choices(obj):
     return ["a", "b", "c"]
 
 
-@magicgui(call_button="calculate", b={"choices": choices})
+@magicgui(
+    call_button="calculate",
+    aoi={"widget_type": "FloatSlider", "maximum": 10},
+    b={"choices": choices},
+)
 def snells_law(
     aoi=30.0, n1=Medium.Glass, n2=Medium.Water, b: str = "c", degrees=True,
 ):
     """Calculate the angle of refraction given two media and an AOI."""
+    print(aoi)
     if degrees:
         aoi = math.radians(aoi)
     try:

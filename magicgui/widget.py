@@ -152,7 +152,16 @@ class ValueWidget(Widget):
 class RangedWidget(ValueWidget):
     """Widget with a contstrained value wraps BaseRangedWidget protocol."""
 
+    DEFAULT_MIN = 0
+    DEFAULT_MAX = 100
+    DEFAULT_STEP = 1
     _widget: BaseRangedWidget
+
+    def _post_init(self):
+        super()._post_init()
+        self.minimum = self._options.get("minimum", self.DEFAULT_MIN)
+        self.maximum = self._options.get("maximum", self.DEFAULT_MAX)
+        self.step = self._options.get("step", self.DEFAULT_STEP)
 
     @property
     def minimum(self) -> float:
