@@ -1,6 +1,5 @@
 from ..base import BaseApplicationBackend
 
-# ------------------------ application
 
 # qt implementation
 class ApplicationBackend(BaseApplicationBackend):
