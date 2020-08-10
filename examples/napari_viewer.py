@@ -1,10 +1,10 @@
 """Example showing how to access the current napari viewer
 
 """
+import napari
 import skimage.data
 import skimage.filters
 
-import napari
 from magicgui import magicgui, register_type
 
 

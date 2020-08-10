@@ -3,14 +3,13 @@
 """Tests for `magicgui` package."""
 
 from enum import Enum
+from inspect import signature
 
 import pytest
-from inspect import signature
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import Qt
 
-from magicgui import magicgui, register_type
-from magicgui import core
+from magicgui import core, magicgui, register_type
 from magicgui._qt import type2widget
 
 

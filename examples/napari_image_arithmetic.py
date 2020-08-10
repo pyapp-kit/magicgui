@@ -2,10 +2,10 @@
 from enum import Enum
 
 import numpy
-
-from magicgui import magicgui
 from napari import Viewer, gui_qt
 from napari.layers import Image
+
+from magicgui import magicgui
 
 
 class Operation(Enum):

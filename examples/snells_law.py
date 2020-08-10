@@ -1,7 +1,7 @@
 """Simple demonstration of magicgui."""
 
-from enum import Enum
 import math
+from enum import Enum
 
 from magicgui import event_loop, magicgui
 

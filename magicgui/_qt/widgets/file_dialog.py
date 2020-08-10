@@ -1,7 +1,7 @@
 """Widgets that handle file dialogs."""
 import os
 from pathlib import Path
-from typing import List, Tuple, Union, Any
+from typing import Any, List, Tuple, Union
 
 from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 

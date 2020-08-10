@@ -8,7 +8,7 @@ from collections import abc
 from contextlib import contextmanager
 from enum import EnumMeta
 from pathlib import Path
-from typing import Any, Callable, Dict, NamedTuple, Optional, Type, Union, Iterator
+from typing import Any, Callable, Dict, Iterator, NamedTuple, Optional, Type, Union
 
 from qtpy.QtWidgets import (
     QAbstractButton,

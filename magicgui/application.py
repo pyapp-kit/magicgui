@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import signal
 from importlib import import_module
 from types import ModuleType
 from typing import Optional, Union
-import signal
+
 from .backends import BACKENDS
 from .base import BaseApplicationBackend
 

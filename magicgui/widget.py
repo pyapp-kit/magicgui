@@ -11,8 +11,8 @@ from magicgui.base import (
     BaseWidget,
     SupportsChoices,
 )
-from magicgui.type_map import _get_backend_widget
 from magicgui.event import EventEmitter
+from magicgui.type_map import _get_backend_widget
 
 WidgetRef = Optional[str]
 TypeMatcher = Callable[[Any, Optional[Type], Optional[dict]], WidgetRef]

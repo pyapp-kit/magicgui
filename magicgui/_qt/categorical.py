@@ -1,5 +1,5 @@
 """Stuff for handling categorical data."""
-from typing import Iterable, Tuple, Any, Type
+from typing import Any, Iterable, Tuple, Type
 
 from qtpy.QtWidgets import QComboBox
 

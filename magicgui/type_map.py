@@ -8,8 +8,8 @@ from typing import Any, Callable, Optional, Set, Type, Union
 
 from typing_extensions import get_args, get_origin  # type: ignore
 
-from magicgui.base import BaseWidget
 from magicgui.application import AppRef, use_app
+from magicgui.base import BaseWidget
 from magicgui.utils import camel2snake, snake2camel
 
 

@@ -1,3 +1,11 @@
+- repo: https://github.com/asottile/seed-isort-config
+  rev: v2.2.0
+  hooks:
+    - id: seed-isort-config
+- repo: https://github.com/pre-commit/mirrors-isort
+  rev: v5.3.2
+  hooks:
+    - id: isort
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v3.2.0
   hooks:

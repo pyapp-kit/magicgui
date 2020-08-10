@@ -3,10 +3,9 @@ from __future__ import annotations
 import inspect
 from typing import Any, Callable, Optional, Sequence, Union
 
-from magicgui.application import use_app
+from magicgui.application import AppRef, use_app
 from magicgui.container import Container
 from magicgui.widget import Widget
-from magicgui.application import AppRef
 
 
 def magicgui(

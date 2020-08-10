@@ -1,7 +1,7 @@
 """Widget demonstration of magicgui."""
 
-from enum import Enum
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 
 from magicgui import event_loop, magicgui

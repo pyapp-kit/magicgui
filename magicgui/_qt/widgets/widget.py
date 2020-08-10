@@ -1,6 +1,6 @@
 """Base Widget Type."""
-from qtpy.QtWidgets import QWidget
 from qtpy.QtCore import Signal
+from qtpy.QtWidgets import QWidget
 
 
 class WidgetType(QWidget):

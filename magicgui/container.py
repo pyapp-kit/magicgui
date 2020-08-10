@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Union, Sequence, overload, MutableSequence, Callable, Optional
+from inspect import Signature
+from typing import Callable, MutableSequence, Optional, Sequence, Union, overload
 
 from magicgui.application import use_app
-from magicgui.signature import MagicSignature, magic_signature, MagicParameter
 from magicgui.base import BaseContainer
-from inspect import Signature
-from magicgui.widget import Widget, ValueWidget
 from magicgui.event import EventEmitter
+from magicgui.signature import MagicParameter, MagicSignature, magic_signature
+from magicgui.widget import ValueWidget, Widget
 
 
 class Container(MutableSequence[Widget]):

@@ -1,27 +1,28 @@
 """Utilities for changing function signatures."""
 import inspect
+import re
+import typing  # noqa: F401 - needed for eval() statements
 from ast import literal_eval
 from collections import OrderedDict, defaultdict
 from importlib import import_module
 from itertools import chain
 from types import ModuleType
-import typing  # noqa: F401 - needed for eval() statements
+from typing import ForwardRef  # type: ignore
+from typing import _GenericAlias  # type: ignore
 from typing import (
     Any,
     Callable,
     Dict,
     Generator,
     Iterable,
+    List,
     Optional,
     Sequence,
     Tuple,
     Type,
     Union,
-    List,
-    ForwardRef,  # type: ignore
-    _GenericAlias,  # type: ignore
 )
-import re
+
 import wrapt
 from numpydoc.docscrape import FunctionDoc
 
@@ -267,10 +268,9 @@ def get_parameter_position(func: Callable, param: str) -> int:
 
 
 if __name__ == "__main__":
-    from skimage import filters
-    from qtpy.QtWidgets import QApplication
-
     import napari
+    from qtpy.QtWidgets import QApplication
+    from skimage import filters
 
     change_image_to_layer = change_signature({"image": napari.layers.Layer})
 

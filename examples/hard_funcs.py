@@ -1,10 +1,11 @@
 """problematic functions"""
 
-from magicgui import magicgui, event_loop
-from skimage import filters
-from skimage.data import grass
 from functools import partial
 
+from skimage import filters
+from skimage.data import grass
+
+from magicgui import event_loop, magicgui
 
 with event_loop():
     for n in [

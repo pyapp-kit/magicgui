@@ -8,7 +8,7 @@ from pathlib import Path, PosixPath, WindowsPath
 from typing import List, Sequence, Tuple
 
 import pytest
-from qtpy import QtCore, API_NAME
+from qtpy import API_NAME, QtCore
 from qtpy import QtWidgets as QtW
 
 from magicgui import _qt, event_loop

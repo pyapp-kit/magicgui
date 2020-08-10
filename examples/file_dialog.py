@@ -1,7 +1,8 @@
 """FileDialog with magicgui."""
 from pathlib import Path
-from magicgui import event_loop, magicgui
 from typing import Sequence
+
+from magicgui import event_loop, magicgui
 
 
 # may also add Qt-style filter to filename options:

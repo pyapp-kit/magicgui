@@ -1,15 +1,15 @@
 """Widget implementations (adaptors) for the Qt backend."""
-from typing import Any, Iterable, Tuple, Union, Optional
+from typing import Any, Iterable, Optional, Tuple, Union
 
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QObject, Qt, Signal
 
 from magicgui.base import (
+    BaseCategoricalWidget,
     BaseContainer,
     BaseRangedWidget,
-    BaseWidget,
     BaseValueWidget,
-    BaseCategoricalWidget,
+    BaseWidget,
     SupportsOrientation,
 )
 from magicgui.widget import Widget

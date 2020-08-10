@@ -2,6 +2,7 @@
 
 """Tests for `magicgui` widgets."""
 import math
+
 import pytest
 
 from magicgui._qt.widgets import QDoubleSlider, QLogSlider

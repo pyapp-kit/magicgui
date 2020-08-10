@@ -32,11 +32,11 @@ magicgui : callable
 """
 from __future__ import annotations
 
-from collections import defaultdict
 import functools
 import inspect
 import os
 import warnings
+from collections import defaultdict
 from enum import EnumMeta
 from typing import (
     Any,
@@ -44,12 +44,12 @@ from typing import (
     DefaultDict,
     Dict,
     Iterable,
-    TypeVar,
+    List,
     Optional,
     Sequence,
     Type,
+    TypeVar,
     Union,
-    List,
 )
 
 from . import _qt as api

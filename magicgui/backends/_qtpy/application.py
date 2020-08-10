@@ -1,5 +1,6 @@
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QApplication
+
 from ...base import BaseApplicationBackend
 
 
