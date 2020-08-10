@@ -81,6 +81,9 @@ class Widget:
         self.native._magic_widget = self
 
         self._post_init()
+
+        if not options.get("visible", True):
+            self.hide()
         if self.default:
             self.value = self.default
 
