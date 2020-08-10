@@ -1,15 +1,18 @@
 from __future__ import annotations
 
-from typing import Union, Sequence, overload, MutableSequence, Callable
+from typing import Union, Sequence, overload, MutableSequence, Callable, Optional
 
 from magicgui.application import use_app
 from magicgui.signature import MagicSignature, magic_signature, MagicParameter
 from magicgui.base import BaseContainer
 from inspect import Signature
-from magicgui.widget import Widget
+from magicgui.widget import Widget, ValueWidget
+from magicgui.event import EventEmitter
 
 
 class Container(MutableSequence[Widget]):
+    changed: EventEmitter
+
     def __init__(
         self,
         *,
@@ -20,7 +23,7 @@ class Container(MutableSequence[Widget]):
     ):
         _app = use_app(app)
         assert _app.native
-
+        self.changed = EventEmitter(source=self, type="changed")
         self._base: BaseContainer = _app.get_obj("Container")(orientation)
         self._return_annotation = return_annotation
         for w in widgets:
@@ -44,10 +47,10 @@ class Container(MutableSequence[Widget]):
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> MutableSequence[Widget]:
+    def __getitem__(self, key: slice) -> MutableSequence[Widget]:  # noqa: F811
         ...
 
-    def __getitem__(self, key):
+    def __getitem__(self, key):  # noqa: F811
         if isinstance(key, slice):
             out = []
             for idx in range(*key.indices(len(self))):
@@ -67,8 +70,10 @@ class Container(MutableSequence[Widget]):
     def __setitem__(self, key, value):
         raise NotImplementedError("magicgui.Container does not support item setting.")
 
-    def insert(self, key: int, value: Widget):
-        self._base._mg_insert_widget(key, value)
+    def insert(self, key: int, widget: Widget):
+        if isinstance(widget, ValueWidget):
+            widget.changed.connect(lambda x: self.changed())
+        self._base._mg_insert_widget(key, widget)
 
     @property
     def native(self):
@@ -82,8 +87,10 @@ class Container(MutableSequence[Widget]):
         return MagicSignature.from_signature(sig).to_container(**kwargs)
 
     @classmethod
-    def from_callable(cls, obj: Callable, **kwargs) -> Container:
-        return magic_signature(obj).to_container(**kwargs)
+    def from_callable(
+        cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
+    ) -> Container:
+        return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
 
     def to_signature(self) -> MagicSignature:
         params = [
@@ -92,7 +99,7 @@ class Container(MutableSequence[Widget]):
                 kind=w._kind,
                 default=w.value,
                 annotation=w.annotation,
-                options=w._options,
+                gui_options=w._options,
             )
             for w in self
             if w.name and not w.gui_only

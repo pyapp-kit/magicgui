@@ -4,8 +4,7 @@ from enum import Enum
 import math
 
 from magicgui import event_loop
-from magicgui.decorator import GuiFunction
-from typing_extensions import Annotated
+from magicgui.decorator import magicgui
 
 
 class Medium(Enum):
@@ -18,17 +17,12 @@ class Medium(Enum):
 
 
 def choices(obj):
-    print(obj.name, obj.annotation)
     return ["a", "b", "c"]
 
 
-# @magicgui(call_button="calculate", result={"disabled": True, "fixedWidth": 100})
+@magicgui(call_button="calculate", b={"choices": choices})
 def snells_law(
-    aoi=30.0,
-    n1=Medium.Glass,
-    n2=Medium.Water,
-    b: Annotated[str, {"choices": choices}] = "c",
-    degrees=True,
+    aoi=30.0, n1=Medium.Glass, n2=Medium.Water, b: str = "c", degrees=True,
 ):
     """Calculate the angle of refraction given two media and an AOI."""
     if degrees:
@@ -43,5 +37,4 @@ def snells_law(
 
 
 with event_loop():
-    g = GuiFunction(snells_law)
-    g.show()
+    snells_law.show()

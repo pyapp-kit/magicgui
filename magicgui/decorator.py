@@ -1,14 +1,17 @@
+from __future__ import annotations
+
 import inspect
 from typing import Any, Callable, Optional, Sequence, Union
 
 from magicgui.application import use_app
 from magicgui.container import Container
 from magicgui.widget import Widget
+from magicgui.application import AppRef
 
 
 def magicgui(
     function: Optional[Callable] = None,
-    layout: str = "horizontal",
+    orientation: str = "horizontal",
     labels: bool = True,
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
@@ -23,8 +26,8 @@ def magicgui(
     function : Callable, optional
         The function to decorate.  Optional to allow bare decorator with optional
         arguments. by default None
-    layout : api.Layout or str, optional
-        The type of layout to use.  If string, must be one of {'horizontal', 'vertical',
+    orientation : str, optional
+        The type of layout to use. Must be one of {'horizontal', 'vertical',
         'form', 'grid'}, by default "horizontal"
     labels : bool
         Whether labels are shown in the widget. by default True
@@ -63,21 +66,14 @@ def magicgui(
     ... gui = my_function.Gui(show=True)
     """
 
-    def inner_func(func: Callable) -> GuiFunction:
-        if param_options:
-            valid = set(inspect.signature(func).parameters)
-            invalid = set(param_options) - valid
-            if invalid:
-                raise ValueError(
-                    "keyword arguments MUST match parameters in the decorated function."
-                    f"\nExtra keys: {invalid}"
-                )
-            bad = {v for v in param_options.values() if not isinstance(v, dict)}
-            if bad:
-                s = "s" if len(bad) > 1 else ""
-                raise TypeError(f"Value for parameter{s} {bad} must be a dict")
-
-        return GuiFunction(func, call_button, orientation=layout)
+    def inner_func(func: Callable) -> FunctionGui:
+        return FunctionGui(
+            function=func,
+            call_button=call_button,
+            orientation=orientation,
+            param_options=param_options,
+            auto_call=auto_call,
+        )
 
     if function is None:
         return inner_func
@@ -85,23 +81,31 @@ def magicgui(
         return inner_func(function)
 
 
-class GuiFunction:
+class FunctionGui:
+    """Wrapper for a container of widgets representing a callable object."""
+
+    widgets: Container
+
     def __new__(
         cls,
-        function,
+        function: Callable,
         call_button: Union[bool, str] = True,
-        app=None,
-        orientation="horizontal",
+        orientation: str = "horizontal",
+        app: AppRef = None,
         show=False,
-    ) -> "GuiFunction":
-
-        # don't redecorate already-wrapped function
-        if isinstance(function, GuiFunction):
+        auto_call=False,
+        param_options: Optional[dict] = None,
+    ) -> FunctionGui:
+        """Create a new FunctionGui instance."""
+        if isinstance(function, FunctionGui):
+            # don't redecorate already-wrapped function
             return function
 
         self = super().__new__(cls)
         app = use_app(app)
-        self.widgets = Container.from_callable(function, orientation=orientation)
+        self.widgets = Container.from_callable(
+            function, orientation=orientation, gui_options=param_options
+        )
         self._function = function
 
         if call_button:
@@ -112,19 +116,24 @@ class GuiFunction:
             self.call_button.changed.connect(lambda x: self.__call__())
             self.widgets.append(self.call_button)
 
+        if True or auto_call:
+            self.widgets.changed.connect(lambda *x: self.__call__())
+
         if show:
             self.show()
         return self
 
     def __getattr__(self, name):
+        """If ``name`` is the name of one of the parameters, get the widget."""
         if name != "widgets":
             try:
                 return getattr(self.widgets, name)
             except AttributeError:
                 pass
-        raise AttributeError(f"'GuiFunction' object has no attribute {name!r}")
+        raise AttributeError(f"'FunctionGui' object has no attribute {name!r}")
 
     def __setattr__(self, name, value):
+        """If ``name`` is the name of one of the parameters, set the current value."""
         if name != "widgets":
             widget = getattr(self.widgets, name, None)
             if widget:
@@ -146,23 +155,14 @@ class GuiFunction:
 
         Examples
         --------
-        gui = decorated_function.Gui(show=True)
+        gui = FunctionGui(func, show=True)
         # ... change parameters in the gui ... or by setting:  gui.param = something
-
-        # this will call the original function with the current parameters from the gui
-        decorated_function()
-        # this will override parameters from the gui with only the arg values specified
-        decorated_function(arg='something')
         """
-        # everything will be delivered as a keyword argument to self.func ...
-        # get the current parameters from the gui
-
         sig = self.widgets.to_signature()
         bound = sig.bind(*args, **kwargs)
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
-        print("returning", value)
         # self.called.emit(value)
         # return_type = self.widgets._return_annotation
         # if return_type:
@@ -171,13 +171,19 @@ class GuiFunction:
         return value
 
     def __repr__(self) -> str:
+        """Return string representation of instance."""
         fname = f"{self._function.__module__}.{self._function.__name__}"
-        return f"<GuiFunction {fname}{self.widgets.to_signature()}>"
+        return f"<FunctionGui {fname}{self.widgets.to_signature()}>"
 
     def show(self):
+        """Show the widget."""
         self.widgets.show()
+
+    def hide(self):
+        """Hide the widget."""
+        self.widgets.hide()
 
     @property
     def __signature__(self) -> inspect.Signature:
-        # this lets inspect.signature() still work on a wrapped function.
+        """Return signature object, for compatibility with inspect.signature()."""
         return self.widgets.to_signature()

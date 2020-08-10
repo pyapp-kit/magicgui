@@ -47,6 +47,8 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
     if options and not isinstance(options, dict):
         raise TypeError("'options' must be a dict")
     _options = (options or dict()).copy()
+
+    # FIXME: the auto-choices for enums should go in type_map instead
     if isinstance(annotation, EnumMeta):
         _options.setdefault("choices", annotation)
 
@@ -76,20 +78,13 @@ class MagicParameter(Parameter):
         *,
         default: Any = Parameter.empty,
         annotation: Any = Parameter.empty,
-        options: Optional[dict] = None,
+        gui_options: Optional[dict] = None,
     ):
+        print("MagicParameter", name, annotation, gui_options)
         if annotation is Parameter.empty:
             annotation = Any if default is Parameter.empty else type(default)
-        _annotation = make_annotated(annotation, options)
+        _annotation = make_annotated(annotation, gui_options)
         super().__init__(name, kind, default=default, annotation=_annotation)
-
-    @classmethod
-    def from_parameter(cls, param: Parameter):
-        if isinstance(param, MagicParameter):
-            return param
-        return cls(
-            param.name, param.kind, default=param.default, annotation=param.annotation
-        )
 
     @property
     def options(self) -> dict:
@@ -118,6 +113,18 @@ class MagicParameter(Parameter):
             value, annotation, options=options, app=app, name=self.name, kind=self.kind,
         )
 
+    @classmethod
+    def from_parameter(cls, param: Parameter, gui_options: Optional[dict] = None):
+        if isinstance(param, MagicParameter):
+            return param
+        return cls(
+            param.name,
+            param.kind,
+            default=param.default,
+            annotation=param.annotation,
+            gui_options=gui_options,
+        )
+
 
 class MagicSignature(Signature):
     parameters: Mapping[str, MagicParameter]
@@ -127,18 +134,24 @@ class MagicSignature(Signature):
         parameters: Optional[Sequence[Parameter]] = None,
         *,
         return_annotation=Signature.empty,
+        gui_options: Optional[Dict[str, dict]] = None,
     ):
-        params = [MagicParameter.from_parameter(p) for p in parameters or []]
+        params = [
+            MagicParameter.from_parameter(p, (gui_options or {}).get(p.name))
+            for p in parameters or []
+        ]
         super().__init__(params, return_annotation=return_annotation)
 
     @classmethod
-    def from_signature(cls, sig: Signature):
+    def from_signature(cls, sig: Signature, gui_options=None):
         if type(sig) is cls:
             return sig
         elif not isinstance(sig, Signature):
             raise TypeError("'sig' must be an instance of 'inspect.Signature'")
         return cls(
-            list(sig.parameters.values()), return_annotation=sig.return_annotation,
+            list(sig.parameters.values()),
+            return_annotation=sig.return_annotation,
+            gui_options=gui_options,
         )
 
     def widgets(self, app: AppRef = None):
@@ -156,6 +169,24 @@ class MagicSignature(Signature):
         )
 
 
-def magic_signature(obj: Callable, *, follow_wrapped: bool = True) -> MagicSignature:
+def magic_signature(
+    obj: Callable,
+    *,
+    gui_options: Optional[Dict[str, dict]] = None,
+    follow_wrapped: bool = True,
+) -> MagicSignature:
     sig = signature(obj, follow_wrapped=follow_wrapped)
-    return MagicSignature.from_signature(sig)
+
+    if gui_options:
+        invalid = set(gui_options) - set(sig.parameters)
+        if invalid:
+            raise ValueError(
+                "keyword arguments MUST match parameters in the decorated function."
+                f"\nExtra keys: {invalid}"
+            )
+        bad = {v for v in gui_options.values() if not isinstance(v, dict)}
+        if bad:
+            s = "s" if len(bad) > 1 else ""
+            raise TypeError(f"Value for parameter{s} {bad} must be a dict")
+
+    return MagicSignature.from_signature(sig, gui_options=gui_options)

@@ -12,6 +12,7 @@ from magicgui.base import (
     SupportsChoices,
 )
 from magicgui.type_map import _get_backend_widget
+from magicgui.event import EventEmitter
 
 WidgetRef = Optional[str]
 TypeMatcher = Callable[[Any, Optional[Type], Optional[dict]], WidgetRef]
@@ -26,14 +27,6 @@ class ChoicesDict(TypedDict):
 
     choices: ChoicesIterable
     key: Callable[[Any], str]
-
-
-class SignalConnector:
-    def __init__(self, connector: Callable):
-        self.connector = connector
-
-    def connect(self, callback: Callable[[Any], None]):
-        self.connector(callback)
 
 
 class Widget:
@@ -135,11 +128,13 @@ class ValueWidget(Widget):
     """Widget with a value, wrapping the BaseValueWidget protocol."""
 
     _widget: BaseValueWidget
-    changed: SignalConnector
+    changed: EventEmitter
 
     def _post_init(self):
         super()._post_init()
-        self.changed = SignalConnector(self._widget._mg_bind_change_callback)
+        self.changed = EventEmitter(source=self, type="changed")
+        # TODO: fix this pattern
+        self._widget._mg_bind_change_callback(lambda x: self.changed(value=x))
 
     @property
     def value(self):
@@ -199,6 +194,7 @@ class CategoricalWidget(ValueWidget):
     _widget: BaseCategoricalWidget
 
     def _post_init(self):
+        super()._post_init()
         self._default_choices = self._options.get("choices")
         if not isinstance(self._widget, SupportsChoices):
             raise ValueError(f"widget {self._widget!r} does not support 'choices'")
