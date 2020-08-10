@@ -193,11 +193,11 @@ class RangedWidget(ValueWidget):
     @property
     def range(self) -> Tuple[float, float]:
         """Range of allowable values for the widget."""
-        return self._widget._mg_get_range()
+        return self.minimum, self.maximum
 
     @range.setter
     def range(self, value: Tuple[float, float]):
-        self._widget._mg_set_range(value)
+        self.minimum, self.maximum = value
 
 
 class CategoricalWidget(ValueWidget):

@@ -8,6 +8,7 @@ from typing import Any, Callable, Optional, Set, Type, Union, get_args, get_orig
 
 from magicgui.application import AppRef, use_app
 from magicgui.base import BaseWidget
+from magicgui.subwidgets import MAP
 from magicgui.utils import camel2snake, snake2camel
 
 
@@ -147,9 +148,19 @@ def _get_backend_widget(value, annotation, options, app: AppRef) -> Type[BaseWid
     _app = use_app(app)
     try:
         return _app.get_obj(widget_type.value)
-    except AttributeError as e:
-        raise MissingWidget(
-            f"Could not find an implementation of widget type {widget_type!r} "
-            f"in backend {_app.backend_name!r}\n"
-            f"Looked in: {_app.backend_module!r}"
-        ) from e
+    except AttributeError:
+        # TODO: Cleanup?
+        val = widget_type.value
+        for key, func in MAP.items():
+            if val.startswith(key):
+                subval = val[len(key) :]  # noqa
+                try:
+                    superclass: Type[BaseWidget] = _app.get_obj(subval)
+                    return func(superclass)
+                except AttributeError:
+                    pass
+    raise MissingWidget(
+        f"Could not find an implementation of widget type {widget_type.value!r} "
+        f"in backend {_app.backend_name!r}\n"
+        f"Looked in: {_app.backend_module!r}"
+    )

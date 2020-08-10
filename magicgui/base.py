@@ -36,8 +36,6 @@ if TYPE_CHECKING:
 #                - _mg_set_maximum
 #                - _mg_get_step
 #                - _mg_set_step
-#                - [_mg_get_range]
-#                - [_mg_set_range]
 #
 #           ↪ BaseCategoricalWidget
 #                - _mg_get_choices
@@ -118,15 +116,6 @@ class BaseRangedWidget(BaseValueWidget, Protocol):
     def _mg_set_step(self, value: float):
         """Set the step size."""
         raise NotImplementedError()
-
-    def _mg_set_range(self, value: Tuple[float, float]):
-        """Set min/max simultaneously.  Implementation optional."""
-        self._mg_set_minimum(value[0])
-        self._mg_set_maximum(value[1])
-
-    def _mg_get_range(self) -> Tuple[float, float]:
-        """Get the current range.  Implementation optional."""
-        return self._mg_get_minimum(), self._mg_get_maximum()
 
 
 @runtime_checkable
