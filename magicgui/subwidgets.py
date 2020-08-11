@@ -2,7 +2,7 @@ import math
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
 
-from magicgui.base import BaseRangedWidget, BaseValueWidget
+from magicgui.bases import BaseRangedWidget, BaseValueWidget
 
 C = TypeVar("C")
 F = TypeVar("F")

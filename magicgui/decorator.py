@@ -33,11 +33,11 @@ def magicgui(
     app: AppRef = None,
     **param_options: dict,
 ):
-    """Create a MagicGui class for ``function`` and add it as an attribute ``Gui``.
+    """Create a FunctionGui class for ``function`` and add it as an attribute ``Gui``.
 
     Parameters
     ----------
-function : Callable, optional
+    function : Callable, optional
         The function to decorate.  Optional to allow bare decorator with optional
         arguments. by default None
     orientation : str, optional

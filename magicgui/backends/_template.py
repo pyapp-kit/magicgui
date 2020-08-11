@@ -1,4 +1,4 @@
-from ..base import BaseApplicationBackend
+from magicgui.bases import BaseApplicationBackend
 
 
 # qt implementation

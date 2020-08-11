@@ -4,7 +4,7 @@ from typing import Any, Iterable, Optional, Tuple, Union
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QObject, Qt, Signal
 
-from magicgui.base import (
+from magicgui.bases import (
     BaseCategoricalWidget,
     BaseContainer,
     BaseRangedWidget,

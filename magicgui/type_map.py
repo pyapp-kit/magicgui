@@ -8,7 +8,7 @@ from enum import Enum, EnumMeta, auto
 from typing import Any, Callable, Optional, Set, Type, Union, get_args, get_origin
 
 from magicgui.application import AppRef, use_app
-from magicgui.base import BaseWidget
+from magicgui.bases import BaseWidget
 from magicgui.subwidgets import MAP
 
 

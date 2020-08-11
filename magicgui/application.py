@@ -6,8 +6,8 @@ from importlib import import_module
 from types import ModuleType
 from typing import Iterator, Optional, Union
 
-from .backends import BACKENDS
-from .base import BaseApplicationBackend
+from magicgui.backends import BACKENDS
+from magicgui.bases import BaseApplicationBackend
 
 
 @contextmanager

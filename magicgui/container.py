@@ -4,7 +4,7 @@ from inspect import Signature
 from typing import Callable, MutableSequence, Optional, Sequence, Union, overload
 
 from magicgui.application import use_app
-from magicgui.base import BaseContainer
+from magicgui.bases import BaseContainer
 from magicgui.event import EventEmitter
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
 from magicgui.widget import ValueWidget, Widget

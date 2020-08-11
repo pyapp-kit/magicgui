@@ -4,7 +4,7 @@ from enum import EnumMeta
 from typing import Any, Callable, Iterable, Optional, Set, Tuple, Type, TypedDict, Union
 
 from magicgui.application import AppRef, use_app
-from magicgui.base import (
+from magicgui.bases import (
     BaseCategoricalWidget,
     BaseRangedWidget,
     BaseValueWidget,
