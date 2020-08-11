@@ -72,15 +72,12 @@ class Container(MutableSequence[Widget]):
 
     def insert(self, key: int, widget: Widget):
         if isinstance(widget, ValueWidget):
-            widget.changed.connect(lambda x: self.changed())
+            widget.changed.connect(lambda x: self.changed(value=self))
         self._base._mg_insert_widget(key, widget)
 
     @property
     def native(self):
         return self._base._mg_get_native_layout()
-
-    def __repr__(self) -> str:
-        return f"<magicgui.Container at {hex(id(self))} with {len(self)} widgets>"
 
     @classmethod
     def from_signature(cls, sig: Signature, **kwargs) -> Container:
@@ -111,3 +108,6 @@ class Container(MutableSequence[Widget]):
 
     def hide(self):
         self._base._mg_hide_widget()
+
+    def __repr__(self) -> str:
+        return f"<Container {self.to_signature()}>"

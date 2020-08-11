@@ -96,7 +96,7 @@ class Application:
         self.create()
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, *exc_details):
         """Exit context manager for this application."""
         # enable ctrl-C
         signal.signal(signal.SIGINT, lambda *a: self.quit())

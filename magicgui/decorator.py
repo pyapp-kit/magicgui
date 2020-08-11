@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import inspect
+from contextlib import contextmanager
 from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
 
-from magicgui.application import AppRef, use_app
+from magicgui.application import Application, AppRef, use_app
 from magicgui.container import Container
 from magicgui.widget import Widget
 
@@ -11,41 +12,25 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 @overload
-def magicgui(
-    function: F,
-    orientation: str = "horizontal",
-    labels: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    parent: Any = None,
-    ignore: Optional[Sequence[str]] = None,
-    **param_options: dict,
-) -> FunctionGui:
+def magicgui(function: F) -> FunctionGui:
     ...
 
 
 @overload
-def magicgui(
-    function=None,
-    orientation: str = "horizontal",
-    labels: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    parent: Any = None,
-    ignore: Optional[Sequence[str]] = None,
-    **param_options: dict,
-) -> Callable[[F], FunctionGui]:
+def magicgui(function=None, **k) -> Callable[[F], FunctionGui]:
     ...
 
 
 def magicgui(
-    function: Optional[Callable] = None,
+    function: Optional[F] = None,
+    *,
     orientation: str = "horizontal",
     labels: bool = True,
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     parent: Any = None,
     ignore: Optional[Sequence[str]] = None,
+    app: AppRef = None,
     **param_options: dict,
 ):
     """Create a MagicGui class for ``function`` and add it as an attribute ``Gui``.
@@ -102,6 +87,7 @@ function : Callable, optional
             orientation=orientation,
             param_options=param_options,
             auto_call=auto_call,
+            app=app,
         )
 
     if function is None:
@@ -114,6 +100,7 @@ class FunctionGui:
     """Wrapper for a container of widgets representing a callable object."""
 
     widgets: Container
+    __magicgui_app__: Application
 
     def __new__(
         cls,
@@ -131,10 +118,12 @@ class FunctionGui:
             return function
 
         self = super().__new__(cls)
-        app = use_app(app)
+        self.__magicgui_app__ = use_app(app)
+        # this must be the first thing set
         self.widgets = Container.from_callable(
             function, orientation=orientation, gui_options=param_options
         )
+
         self._function = function
 
         if call_button:
@@ -154,7 +143,7 @@ class FunctionGui:
 
     def __getattr__(self, name):
         """If ``name`` is the name of one of the parameters, get the widget."""
-        if name != "widgets":
+        if name != "widgets" and hasattr(self, "widgets"):
             try:
                 return getattr(self.widgets, name)
             except AttributeError:
@@ -163,7 +152,7 @@ class FunctionGui:
 
     def __setattr__(self, name, value):
         """If ``name`` is the name of one of the parameters, set the current value."""
-        if name != "widgets":
+        if name != "widgets" and hasattr(self, "widgets"):
             widget = getattr(self.widgets, name, None)
             if widget:
                 widget.value = value
@@ -205,9 +194,20 @@ class FunctionGui:
         fname = f"{self._function.__module__}.{self._function.__name__}"
         return f"<FunctionGui {fname}{self.widgets.to_signature()}>"
 
-    def show(self):
+    def show(self, run=False):
         """Show the widget."""
         self.widgets.show()
+        if run:
+            self.__magicgui_app__.run()
+
+    @contextmanager
+    def shown(self):
+        """Context manager to show the widget."""
+        try:
+            self.show()
+            yield self.__magicgui_app__.__enter__()
+        finally:
+            self.__magicgui_app__.__exit__()
 
     def hide(self):
         """Hide the widget."""

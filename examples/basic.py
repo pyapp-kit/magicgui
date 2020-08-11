@@ -1,10 +1,10 @@
-from magicgui import event_loop, magicgui
+from magicgui import magicgui
 
 
 @magicgui
-def example(arg=1):
-    return arg
+def example(x=1, y="hi"):
+    return x, y
 
 
-with event_loop():
-    example.show()
+example.widgets.changed.connect(lambda e: print(e.value))
+example.show(run=True)
