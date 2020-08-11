@@ -2,6 +2,7 @@
 import datetime
 import inspect
 import pathlib
+import re
 from collections import abc
 from enum import Enum, EnumMeta, auto
 from typing import Any, Callable, Optional, Set, Type, Union, get_args, get_origin
@@ -9,7 +10,14 @@ from typing import Any, Callable, Optional, Set, Type, Union, get_args, get_orig
 from magicgui.application import AppRef, use_app
 from magicgui.base import BaseWidget
 from magicgui.subwidgets import MAP
-from magicgui.utils import camel2snake, snake2camel
+
+
+def camel2snake(name):
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+
+
+def snake2camel(name):
+    return "".join(word.title() for word in name.split("_"))
 
 
 class MissingWidget(RuntimeError):

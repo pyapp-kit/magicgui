@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import signal
+from contextlib import contextmanager
 from importlib import import_module
 from types import ModuleType
-from typing import Optional, Union
+from typing import Iterator, Optional, Union
 
 from .backends import BACKENDS
 from .base import BaseApplicationBackend
+
+
+@contextmanager
+def event_loop(backend=None) -> Iterator:
+    """Start an event loop in which to run the application."""
+    with Application(backend) as app:
+        yield app
 
 
 class Application:
@@ -34,6 +42,8 @@ class Application:
 
     def _use(self, backend_name=None):
         """Select a backend by name."""
+        if not backend_name:
+            backend_name = "qt"
         if not backend_name or backend_name.lower() not in BACKENDS:
             raise ValueError(
                 f"backend_name must be one of {set(BACKENDS)!r}, "

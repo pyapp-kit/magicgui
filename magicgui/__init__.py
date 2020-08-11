@@ -8,9 +8,7 @@ __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"
 
 
-from . import _qt as api
-from .core import MagicGuiBase, magicgui, register_type
-
-event_loop = api.event_loop
+from .application import event_loop
+from .decorator import magicgui
 
 __all__ = ["magicgui", "register_type", "MagicGuiBase", "event_loop", "api"]

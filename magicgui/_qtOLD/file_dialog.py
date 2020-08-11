@@ -1,11 +1,46 @@
 """Widgets that handle file dialogs."""
 import os
+from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import Any, List, Tuple, Union
 
 from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 
-from ..constants import FileDialogMode
+
+class HelpfulEnum(EnumMeta):
+    """Metaclass that shows the available options on KeyError."""
+
+    def __getitem__(self, name: str):
+        """Get enum by name, or raise helpful KeyError."""
+        try:
+            return super().__getitem__(name)
+        except (TypeError, KeyError):
+            options = set(self.__members__.keys())
+            raise KeyError(
+                f"'{name}' is not a valid Layout. Options include: {options}"
+            )
+
+
+class FileDialogMode(Enum, metaclass=HelpfulEnum):
+    """FileDialog mode options.
+
+    EXISTING_FILE - returns one existing file.
+    EXISTING_FILES - return one or more existing files.
+    OPTIONAL_FILE - return one file name that does not have to exist.
+    EXISTING_DIRECTORY - returns one existing directory.
+    R - read mode, Alias of EXISTING_FILES.
+    W - write mode, Alias of OPTIONAL_FILE.
+    W - directory mode, Alias of OPTIONAL_FILE.
+    """
+
+    EXISTING_FILE = "getOpenFileName"
+    EXISTING_FILES = "getOpenFileNames"
+    OPTIONAL_FILE = "getSaveFileName"
+    EXISTING_DIRECTORY = "getExistingDirectory"
+    # Aliases
+    R = "getOpenFileName"
+    W = "getSaveFileName"
+    D = "getExistingDirectory"
 
 
 class MagicFileDialog(QWidget):

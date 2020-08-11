@@ -1,11 +1,41 @@
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import AppRef, use_app
 from magicgui.container import Container
 from magicgui.widget import Widget
+
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+@overload
+def magicgui(
+    function: F,
+    orientation: str = "horizontal",
+    labels: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    parent: Any = None,
+    ignore: Optional[Sequence[str]] = None,
+    **param_options: dict,
+) -> FunctionGui:
+    ...
+
+
+@overload
+def magicgui(
+    function=None,
+    orientation: str = "horizontal",
+    labels: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    parent: Any = None,
+    ignore: Optional[Sequence[str]] = None,
+    **param_options: dict,
+) -> Callable[[F], FunctionGui]:
+    ...
 
 
 def magicgui(
@@ -17,12 +47,12 @@ def magicgui(
     parent: Any = None,
     ignore: Optional[Sequence[str]] = None,
     **param_options: dict,
-) -> Callable:
+):
     """Create a MagicGui class for ``function`` and add it as an attribute ``Gui``.
 
     Parameters
     ----------
-    function : Callable, optional
+function : Callable, optional
         The function to decorate.  Optional to allow bare decorator with optional
         arguments. by default None
     orientation : str, optional
