@@ -5,8 +5,7 @@ from contextlib import contextmanager
 from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef, use_app
-from magicgui.container import Container
-from magicgui.widget import Widget
+from magicgui.widget import Container, Widget
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -28,6 +27,7 @@ def magicgui(
     labels: bool = True,
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
+    result_widget: bool = False,
     parent: Any = None,
     ignore: Optional[Sequence[str]] = None,
     app: AppRef = None,
@@ -87,6 +87,7 @@ def magicgui(
             orientation=orientation,
             param_options=param_options,
             auto_call=auto_call,
+            result_widget=result_widget,
             app=app,
         )
 
@@ -108,8 +109,9 @@ class FunctionGui:
         call_button: Union[bool, str] = True,
         orientation: str = "horizontal",
         app: AppRef = None,
-        show=False,
-        auto_call=False,
+        show: bool = False,
+        auto_call: bool = False,
+        result_widget: bool = False,
         param_options: Optional[dict] = None,
     ) -> FunctionGui:
         """Create a new FunctionGui instance."""
@@ -127,12 +129,19 @@ class FunctionGui:
         self._function = function
 
         if call_button:
-            self.call_button = Widget.create(
+            self._call_button = Widget.create(
                 options={"widget_type": "PushButton"}, gui_only=True
             )
             # using lambda because the clicked signal returns a value
-            self.call_button.changed.connect(lambda x: self.__call__())
-            self.widgets.append(self.call_button)
+            self._call_button.changed.connect(lambda x: self.__call__())
+            self.widgets.append(self._call_button)
+
+        self._result_widget = None
+        if result_widget:
+            self._result_widget = Widget.create(
+                options={"widget_type": "LineEdit", "disabled": True}, gui_only=True
+            )
+            self.widgets.append(self._result_widget)
 
         if True or auto_call:
             self.widgets.changed.connect(lambda *x: self.__call__())
@@ -182,6 +191,9 @@ class FunctionGui:
 
         value = self._function(*bound.args, **bound.kwargs)
         print("returned,", value)
+        if self._result_widget is not None:
+            self._result_widget.value = value
+
         # self.called.emit(value)
         # return_type = self.widgets._return_annotation
         # if return_type:
@@ -217,3 +229,8 @@ class FunctionGui:
     def __signature__(self) -> inspect.Signature:
         """Return signature object, for compatibility with inspect.signature()."""
         return self.widgets.to_signature()
+
+
+class E:
+    def __del__(self):
+        print("Destructor called, Employee deleted.")

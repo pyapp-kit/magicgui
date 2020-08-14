@@ -18,7 +18,7 @@ from magicgui.application import AppRef
 from magicgui.widget import Widget
 
 if TYPE_CHECKING:
-    from magicgui.container import Container
+    from magicgui.widget import Container
 
 
 def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
@@ -159,7 +159,7 @@ class MagicSignature(Signature):
         )
 
     def to_container(self, **kwargs) -> "Container":
-        from magicgui.container import Container
+        from magicgui.widget import Container
 
         return Container(
             widgets=list(self.widgets(kwargs.get("app")).values()),

@@ -1,18 +1,43 @@
 """magicgui Widget class that wraps all backend widgets."""
+from __future__ import annotations
+
 import inspect
+import os
 from enum import EnumMeta
-from typing import Any, Callable, Iterable, Optional, Set, Tuple, Type, TypedDict, Union
+from inspect import Signature
+from pathlib import Path
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    TypedDict,
+    Union,
+    overload,
+)
 
 from magicgui.application import AppRef, use_app
 from magicgui.bases import (
     BaseCategoricalWidget,
+    BaseContainer,
     BaseRangedWidget,
     BaseValueWidget,
     BaseWidget,
     SupportsChoices,
 )
+from magicgui.constants import FileDialogMode, WidgetKind
 from magicgui.event import EventEmitter
-from magicgui.type_map import _get_backend_widget
+from magicgui.type_map import _get_backend_widget, pick_widget_type
+
+if TYPE_CHECKING:
+    from magicgui.signature import MagicSignature
+
 
 WidgetRef = Optional[str]
 TypeMatcher = Callable[[Any, Optional[Type], Optional[dict]], WidgetRef]
@@ -34,6 +59,7 @@ class Widget:
 
     _widget: BaseWidget
 
+    # TODO: add widget_type
     @staticmethod
     def create(
         value: Any = None,
@@ -48,7 +74,18 @@ class Widget:
         # Make sure that the app is active
         kwargs = locals().copy()
         _app = use_app(kwargs.pop("app"))
-        wdg_class = _get_backend_widget(value, annotation, options, app)
+
+        widget_type = pick_widget_type(value, annotation, options)
+        if widget_type is None:
+            raise ValueError(
+                f"Could not determine widget type for value={value!r}, "
+                f"annotation={annotation!r}, options={options}, app={app}"
+            )
+        if widget_type is WidgetKind.FILE_EDIT:
+            del kwargs["options"]
+            return FileEdit(**kwargs)
+
+        wdg_class = _get_backend_widget(widget_type, app)
         assert _app.native
         kwargs["wdg_class"] = wdg_class
         if isinstance(wdg_class, BaseCategoricalWidget):
@@ -254,3 +291,205 @@ class CategoricalWidget(ValueWidget):
         _type = type(self.native)
         backend = f"{_type.__module__}.{_type.__qualname__}"
         return f"<MagicCategoricalWidget ({backend!r}) at {hex(id(self))}>"
+
+
+class Container(MutableSequence[Widget], Widget):
+    changed: EventEmitter
+    _widget: BaseContainer
+
+    def __init__(
+        self,
+        *,
+        orientation="horizontal",
+        widgets: Sequence[Widget] = [],
+        app=None,
+        return_annotation=Signature.empty,
+        name: Optional[str] = None,
+        value: Any = None,
+        annotation=None,
+        options: dict = {},
+        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        gui_only=False,
+    ):
+        self._app = use_app(app)
+        assert self._app.native
+        Widget.__init__(
+            self,
+            wdg_class=self._app.get_obj("Container"),
+            name=name,
+            value=value,
+            annotation=annotation,
+            options=options,
+            kind=kind,
+            gui_only=gui_only,
+        )
+        self.changed = EventEmitter(source=self, type="changed")
+        self._return_annotation = return_annotation
+        for w in widgets:
+            self.append(w)
+
+    def __getattr__(self, name: str):
+        for widget in self:
+            if name == widget.name:
+                return widget
+        raise AttributeError(f"'Container' object has no attribute {name!r}")
+
+    def __delitem__(self, key: Union[int, slice]):
+        if isinstance(key, slice):
+            for idx in range(*key.indices(len(self))):
+                self._widget._mg_remove_index(idx)
+        else:
+            self._widget._mg_remove_index(key)
+
+    @overload
+    def __getitem__(self, key: int) -> Widget:
+        ...
+
+    @overload
+    def __getitem__(self, key: slice) -> MutableSequence[Widget]:  # noqa: F811
+        ...
+
+    def __getitem__(self, key):  # noqa: F811
+        if isinstance(key, slice):
+            out = []
+            for idx in range(*key.indices(len(self))):
+                item = self._widget._mg_get_index(idx)
+                if item:
+                    out.append(item)
+            return out
+
+        item = self._widget._mg_get_index(key)
+        if not item:
+            raise IndexError("Container index out of range")
+        return item
+
+    def __len__(self) -> int:
+        return self._widget._mg_count()
+
+    def __setitem__(self, key, value):
+        raise NotImplementedError("magicgui.Container does not support item setting.")
+
+    def insert(self, key: int, widget: Widget):
+        if isinstance(widget, ValueWidget):
+            widget.changed.connect(lambda x: self.changed(value=self))
+        self._widget._mg_insert_widget(key, widget)
+
+    @property
+    def native_layout(self):
+        return self._widget._mg_get_native_layout()
+
+    @classmethod
+    def from_signature(cls, sig: Signature, **kwargs) -> Container:
+        from magicgui.signature import MagicSignature
+
+        return MagicSignature.from_signature(sig).to_container(**kwargs)
+
+    @classmethod
+    def from_callable(
+        cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
+    ) -> Container:
+        from magicgui.signature import magic_signature
+
+        return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
+
+    def to_signature(self) -> MagicSignature:
+        from magicgui.signature import MagicParameter, MagicSignature
+
+        params = [
+            MagicParameter(
+                name=w.name,
+                kind=w._kind,
+                default=w.value,
+                annotation=w.annotation,
+                gui_options=w._options,
+            )
+            for w in self
+            if w.name and not w.gui_only
+        ]
+        return MagicSignature(params, return_annotation=self._return_annotation)
+
+    def __repr__(self) -> str:
+        return f"<Container {self.to_signature()}>"
+
+
+PathLike = Union[Path, str, bytes]
+
+
+class FileEdit(Container):
+    """A LineEdit widget with a button that opens a FileDialog"""
+
+    def __init__(
+        self,
+        *,
+        name: Optional[str] = None,
+        value: Optional[PathLike] = None,
+        annotation=None,
+        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        gui_only=False,
+        orientation="horizontal",
+        app: AppRef = None,
+        mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
+    ):
+        self.line_edit = Widget.create(options={"widget_type": "LineEdit"})
+        self.choose_btn = Widget.create(options={"widget_type": "PushButton"})
+        self.mode = mode
+        super().__init__(
+            orientation=orientation,
+            widgets=[self.line_edit, self.choose_btn],
+            app=app,
+            name=name,
+            value=value,
+            annotation=annotation,
+            kind=kind,
+            gui_only=gui_only,
+        )
+        self._show_file_dialog = self._app.get_obj("show_file_dialog")
+        self.choose_btn.changed.connect(self._on_choose_clicked)
+
+    @property
+    def mode(self) -> FileDialogMode:
+        """Mode for the FileDialog."""
+        return self._mode
+
+    @mode.setter
+    def mode(self, value: Union[FileDialogMode, str]):
+        self._mode = FileDialogMode(value)
+        # self.choose_btn.value = self._help_text()
+
+    def _on_choose_clicked(self, event=None):
+        _p = self.value
+        start_path: Path = _p[0] if isinstance(_p, tuple) else _p
+        start_path = os.fspath(start_path.expanduser().absolute())
+        result = self._show_file_dialog(
+            self.mode, caption=self._help_text(), start_path=start_path
+        )
+        if result:
+            self.value = result
+
+    @property
+    def value(self) -> Union[Tuple[Path, ...], Path]:
+        """Return current value of the widget.  This may be interpreted by backends."""
+        text = self.line_edit.value
+        if self.mode is FileDialogMode.EXISTING_FILES:
+            return tuple(Path(p) for p in text.split(", "))
+        return Path(text)
+
+    @value.setter
+    def value(self, value: Union[Sequence[PathLike], PathLike]):
+        """Set current file path."""
+        if isinstance(value, (list, tuple)):
+            value = ", ".join([os.fspath(p) for p in value])
+        if not isinstance(value, (str, Path)):
+            raise TypeError(
+                f"value must be a string, or list/tuple of strings, got {type(value)}"
+            )
+        self.line_edit.value = os.fspath(Path(value).expanduser().absolute())
+
+    def _help_text(self) -> str:
+        if self.mode is FileDialogMode.EXISTING_DIRECTORY:
+            return "Choose directory"
+        else:
+            return "Select file" + ("s" if self.mode.name.endswith("S") else "")
+
+    def __repr__(self) -> str:
+        return f"<LineEdit mode={self.mode.value!r}, value={self.value!r}>"

@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
-from magicgui import event_loop, magicgui
+from magicgui import magicgui
 
 
 class Medium(Enum):
@@ -16,7 +16,7 @@ class Medium(Enum):
     Air = 1.0003
 
 
-@magicgui(call_button="Calculate", result={"disabled": True, "fixedWidth": 100})
+@magicgui(call_button="Calculate", result_widget=True)
 def widget_demo(
     boolean=True,
     integer=1,
@@ -28,15 +28,7 @@ def widget_demo(
 ):
     """Run some computation."""
     print("Running some computation...")
-    return "Result!"
 
 
-with event_loop():
-    # the original function still works
-    # we can create a gui
-    gui = widget_demo.Gui(show=True)
-    # we can list for changes to parameters in the gui
-    # ... these also trigger for direct parameter access on the gui object
-    gui.string_changed.connect(print)
-    # we can connect a callback function to the __call__ event on the function
-    gui.called.connect(lambda x: gui.set_widget("result", str(x), position=-1))
+widget_demo.widgets.changed.connect(print)
+widget_demo.show(run=True)

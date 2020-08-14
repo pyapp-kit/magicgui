@@ -1,6 +1,6 @@
 import math
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, TypeVar
 
 from magicgui.bases import BaseRangedWidget, BaseValueWidget
 
@@ -73,4 +73,8 @@ make_log_class = lru_cache(
     )
 )
 
-MAP = {"Float": make_float_class, "Log": make_log_class}
+
+MAP: Dict[str, Callable] = {
+    "Float*": make_float_class,
+    "Log*": make_log_class,
+}

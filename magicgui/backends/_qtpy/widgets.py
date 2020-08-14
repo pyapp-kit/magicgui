@@ -12,6 +12,7 @@ from magicgui.bases import (
     BaseWidget,
     SupportsOrientation,
 )
+from magicgui.constants import FileDialogMode
 from magicgui.widget import Widget
 
 
@@ -29,7 +30,20 @@ class QBaseWidget(BaseWidget):
     def _mg_hide_widget(self):
         self._qwidget.hide()
 
-    def _mg_get_native_widget(self):
+    def _mg_get_enabled(self) -> bool:
+        return self._qwidget.enabled()
+
+    def _mg_set_enabled(self, enabled: bool):
+        self._qwidget.setEnabled(enabled)
+
+    def _mg_get_parent(self) -> Widget:
+        p = self._qwidget.parent()
+        return p._magic_widget if p else None
+
+    def _mg_set_parent(self, widget: Widget):
+        self._qwidget.setParent(widget.native)
+
+    def _mg_get_native_widget(self) -> QtW.QWidget:
         return self._qwidget
 
 
@@ -334,3 +348,25 @@ class DateTimeEdit(QBaseValueWidget):
             return self._qwidget.dateTime().toPython()
         except TypeError:
             return self._qwidget.dateTime().toPyDateTime()
+
+
+FILE_DIALOG_MODES = {
+    FileDialogMode.EXISTING_FILE: QtW.QFileDialog.getOpenFileName,
+    FileDialogMode.EXISTING_FILES: QtW.QFileDialog.getOpenFileNames,
+    FileDialogMode.OPTIONAL_FILE: QtW.QFileDialog.getSaveFileName,
+    FileDialogMode.EXISTING_DIRECTORY: QtW.QFileDialog.getExistingDirectory,
+}
+
+
+def show_file_dialog(
+    mode: Union[str, FileDialogMode] = FileDialogMode.EXISTING_FILE,
+    caption: str = None,
+    start_path: str = None,
+    parent=None,
+) -> Optional[str]:
+    show_dialog = FILE_DIALOG_MODES[FileDialogMode(mode)]
+    if mode is FileDialogMode.EXISTING_DIRECTORY:
+        result = show_dialog(parent, caption, start_path)
+    else:
+        result, _ = show_dialog(parent, caption, start_path)
+    return result or None

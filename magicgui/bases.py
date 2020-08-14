@@ -57,6 +57,22 @@ class BaseWidget(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
+    def _mg_get_enabled(self) -> bool:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_set_enabled(self, enabled: bool):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_get_parent(self) -> Widget:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_set_parent(self, widget: Widget):
+        raise NotImplementedError()
+
+    @abstractmethod
     def _mg_get_native_widget(self):
         raise NotImplementedError()
 

@@ -125,7 +125,7 @@ def _use_app(backend_name: str = "qt"):
         names = current.backend_name.lower().replace("(", " ").strip(") ")
         _nm = [n for n in names.split(" ") if n]
         if backend_name and backend_name.lower() not in _nm:
-            raise RuntimeError("Can only select a backend once, already using {_nm}.")
+            raise RuntimeError(f"Can only select a backend once, already using {_nm}.")
         else:
             return current  # Current backend matches backend_name
 
