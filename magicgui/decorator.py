@@ -133,8 +133,9 @@ class FunctionGui:
             if isinstance(call_button, str):
                 options["text"] = call_button
             self._call_button = Widget.create(options=options, gui_only=True)
-            # using lambda because the clicked signal returns a value
-            self._call_button.changed.connect(lambda x: self.__call__())
+            if not auto_call:  # (otherwise it already get's called)
+                # using lambda because the clicked signal returns a value
+                self._call_button.changed.connect(lambda x: self.__call__())
             self.widgets.append(self._call_button)
 
         self._result_widget = None
@@ -144,7 +145,7 @@ class FunctionGui:
             )
             self.widgets.append(self._result_widget)
 
-        if True or auto_call:
+        if auto_call:
             self.widgets.changed.connect(lambda *x: self.__call__())
 
         if show:
