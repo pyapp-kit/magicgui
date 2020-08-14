@@ -231,8 +231,3 @@ class FunctionGui:
     def __signature__(self) -> inspect.Signature:
         """Return signature object, for compatibility with inspect.signature()."""
         return self.widgets.to_signature()
-
-
-class E:
-    def __del__(self):
-        print("Destructor called, Employee deleted.")
