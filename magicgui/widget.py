@@ -119,6 +119,8 @@ class Widget:
 
         self._post_init()
 
+        if options.get("disabled", False) or not options.get("enabled", True):
+            self.enabled = False
         if not options.get("visible", True):
             self.hide()
         if self.default:
@@ -150,6 +152,22 @@ class Widget:
     def hide(self):
         """Hide widget."""
         self._widget._mg_hide_widget()
+
+    @property
+    def enabled(self) -> bool:
+        return self._widget._mg_get_enabled()
+
+    @enabled.setter
+    def enabled(self, value: bool):
+        self._widget._mg_set_enabled(value)
+
+    @property
+    def parent(self) -> Widget:
+        return self._widget._mg_get_parent()
+
+    @parent.setter
+    def parent(self, value: Widget):
+        self._widget._mg_set_parent(value)
 
     @property
     def widget_type(self) -> str:
