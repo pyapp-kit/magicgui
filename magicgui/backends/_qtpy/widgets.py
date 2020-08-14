@@ -11,6 +11,7 @@ from magicgui.bases import (
     BaseValueWidget,
     BaseWidget,
     SupportsOrientation,
+    SupportsText,
 )
 from magicgui.constants import FileDialogMode
 from magicgui.widget import Widget
@@ -142,16 +143,26 @@ class QBaseRangedWidget(QBaseValueWidget, BaseRangedWidget):
 # BUTTONS
 
 
-class QBaseButtonWidget(QBaseValueWidget):
+class QBaseButtonWidget(QBaseValueWidget, SupportsText):
     _qwidget: Union[QtW.QCheckBox, QtW.QPushButton, QtW.QRadioButton, QtW.QToolButton]
 
     def __init__(self, qwidg):
         super().__init__(qwidg, "isChecked", "setChecked", "toggled")
 
+    def _mg_set_text(self, value: str) -> None:
+        """Set text."""
+        self._qwidget.setText(str(value))
 
-class PushButton(QBaseValueWidget):
+    def _mg_get_text(self) -> str:
+        """Get text."""
+        return self._qwidget.text()
+
+
+class PushButton(QBaseButtonWidget):
     def __init__(self):
-        super().__init__(QtW.QPushButton, "isChecked", "setChecked", "clicked")
+        QBaseValueWidget.__init__(
+            self, QtW.QPushButton, "isChecked", "setChecked", "clicked"
+        )
 
 
 class CheckBox(QBaseButtonWidget):
@@ -164,7 +175,7 @@ class RadioButton(QBaseButtonWidget):
         super().__init__(QtW.QRadioButton)
 
 
-# class ToolButton(QBaseButtonWidget, BaseToolButton):
+# class ToolButton(QBaseButtonWidget):
 #     def __init__(self):
 #         super().__init__(QtW.QToolButton)
 

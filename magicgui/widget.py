@@ -24,6 +24,7 @@ from typing import (
 
 from magicgui.application import AppRef, use_app
 from magicgui.bases import (
+    BaseButtonWidget,
     BaseCategoricalWidget,
     BaseContainer,
     BaseRangedWidget,
@@ -92,6 +93,8 @@ class Widget:
             return CategoricalWidget(**kwargs)
         if isinstance(wdg_class, BaseRangedWidget):
             return RangedWidget(**kwargs)
+        if isinstance(wdg_class, BaseButtonWidget):
+            return ButtonWidget(**kwargs)
         if isinstance(wdg_class, BaseValueWidget):
             return ValueWidget(**kwargs)
         return Widget(**kwargs)
@@ -202,6 +205,26 @@ class ValueWidget(Widget):
     @value.setter
     def value(self, value):
         return self._widget._mg_set_value(value)
+
+
+class ButtonWidget(ValueWidget):
+    """Widget with a value, wrapping the BaseValueWidget protocol."""
+
+    _widget: BaseButtonWidget
+    changed: EventEmitter
+
+    def _post_init(self):
+        super()._post_init()
+        self.text = self._options.get("text", "button")
+
+    @property
+    def text(self):
+        """Text of the widget."""
+        return self._widget._mg_get_text()
+
+    @text.setter
+    def text(self, value):
+        self._widget._mg_set_text(value)
 
 
 class RangedWidget(ValueWidget):
@@ -472,14 +495,21 @@ class FileEdit(Container):
     @mode.setter
     def mode(self, value: Union[FileDialogMode, str]):
         self._mode = FileDialogMode(value)
-        # self.choose_btn.value = self._help_text()
+        self.choose_btn.text = self._btn_text
+
+    @property
+    def _btn_text(self) -> str:
+        if self.mode is FileDialogMode.EXISTING_DIRECTORY:
+            return "Choose directory"
+        else:
+            return "Select file" + ("s" if self.mode.name.endswith("S") else "")
 
     def _on_choose_clicked(self, event=None):
         _p = self.value
         start_path: Path = _p[0] if isinstance(_p, tuple) else _p
         start_path = os.fspath(start_path.expanduser().absolute())
         result = self._show_file_dialog(
-            self.mode, caption=self._help_text(), start_path=start_path
+            self.mode, caption=self._btn_text, start_path=start_path
         )
         if result:
             self.value = result
@@ -502,12 +532,6 @@ class FileEdit(Container):
                 f"value must be a string, or list/tuple of strings, got {type(value)}"
             )
         self.line_edit.value = os.fspath(Path(value).expanduser().absolute())
-
-    def _help_text(self) -> str:
-        if self.mode is FileDialogMode.EXISTING_DIRECTORY:
-            return "Choose directory"
-        else:
-            return "Select file" + ("s" if self.mode.name.endswith("S") else "")
 
     def __repr__(self) -> str:
         return f"<LineEdit mode={self.mode.value!r}, value={self.value!r}>"

@@ -156,36 +156,28 @@ class BaseCategoricalWidget(BaseValueWidget, SupportsChoices, Protocol):
     pass
 
 
-class BaseButtonWidget(BaseValueWidget):
-    """The "value" in a ButtonWidget is the current (checked) state."""
-
-
 class BaseDateTimeWidget(BaseValueWidget):
     """The "value" in a ButtonWidget is the current (checked) state."""
 
 
-# @runtime_checkable
-# class SupportsText(Protocol):
-#     """Widget that have text (in addition to value) for string-like widgets."""
+@runtime_checkable
+class SupportsText(Protocol):
+    """Widget that have text (in addition to value)... like buttons."""
 
-#     @property
-#     def text(self):
-#         """Text of the widget."""
-#         return self._mg_get_text()
+    @abstractmethod
+    def _mg_set_text(self, value: str) -> None:
+        """Set text."""
+        raise NotImplementedError()
 
-#     @text.setter
-#     def text(self, value):
-#         self._mg_set_text(value)
+    @abstractmethod
+    def _mg_get_text(self) -> str:
+        """Get text."""
+        raise NotImplementedError()
 
-#     @abstractmethod
-#     def _mg_set_text(self, value) -> None:
-#         """Set text."""
-#         raise NotImplementedError()
 
-#     @abstractmethod
-#     def _mg_get_text(self) -> str:
-#         """Get text."""
-#         raise NotImplementedError()
+@runtime_checkable
+class BaseButtonWidget(BaseValueWidget, SupportsText, Protocol):
+    """The "value" in a ButtonWidget is the current (checked) state."""
 
 
 # CONTAINER ----------------------------------------------------------------------
