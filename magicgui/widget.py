@@ -345,6 +345,7 @@ class Container(MutableSequence[Widget], Widget):
         widgets: Sequence[Widget] = [],
         app=None,
         return_annotation=Signature.empty,
+        # stuff for Widget.__init__
         name: Optional[str] = None,
         value: Any = None,
         annotation=None,
@@ -473,7 +474,7 @@ class FileEdit(Container):
     ):
         self.line_edit = Widget.create(options={"widget_type": "LineEdit"})
         self.choose_btn = Widget.create(options={"widget_type": "PushButton"})
-        self.mode = mode
+        self.mode = mode  # sets the button text too
         super().__init__(
             orientation=orientation,
             widgets=[self.line_edit, self.choose_btn],
