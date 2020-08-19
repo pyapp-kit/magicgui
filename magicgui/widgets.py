@@ -26,81 +26,157 @@
     ↪ Container
         - Container
 """
-from __future__ import annotations
 
 import inspect
 import os
 from pathlib import Path
-from typing import Any, Sequence, Tuple, Union
+from typing import Any, Sequence, Tuple, Type, Union
 
 from magicgui import widget_wrappers as ww
 from magicgui.application import use_app
 from magicgui.constants import FileDialogMode
 
 
-class Label(ww.ValueWidget):
+def backend_widget(cls) -> Type[ww.Widget]:
+    def __init__(self, **kwargs):
+        kwargs["widget_type"] = cls.__name__
+        super(cls, self).__init__(**kwargs)
+
+    params = {}
+    for klass in reversed(inspect.getmro(cls)):
+        sig = inspect.signature(getattr(klass, "__init__"))
+        for name, param in sig.parameters.items():
+            if name in ("self", "widget_type", "kwargs", "args", "kwds"):
+                continue
+            params[name] = param
+
+    cls.__init__ = __init__
+    cls.__signature__ = inspect.Signature(sorted(params.values(), key=lambda x: x.kind))
+    return cls
+
+
+_widget_doc = """{}
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the parameter represented by this widget. by default ""
+    kind : str, optional
+        The ``inspect._ParameterKind`` represented by this widget.  Used in building
+        signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
+    default : Any, optional
+        The default & starting value for the widget, by default None
+    annotation : Any, optional
+        The type annotation for the parameter represented by the widget, by default None
+    gui_only : bool, optional
+        Whether the widget should be considered "only for the gui", or if it should be
+        included in any widget container signatures, by default False"""
+
+_button_widget_doc = _widget_doc
+_button_widget_doc += """
+    text : str, optional
+        The text to display on the button. by default "Text\""""
+
+_range_widget_doc = _widget_doc
+_range_widget_doc += """
+    minimum : float, optional
+        The minimum allowable value, by default 0
+    maximum : float, optional
+        The maximum allowable value, by default 100
+    step : float, optional
+        The step size for incrementing the value, by default 1"""
+
+_slider_widget_doc = _range_widget_doc
+_slider_widget_doc += """
+    orientation : str, {{'horizontal', 'vertical'}}
+        The orientation for the slider, by default "horizontal\""""
+
+_combo_box_doc = _widget_doc
+_combo_box_doc += """
+    choices : Enum, Iterable, or Callable
+        Available choices displayed in the combo box."""
+
+
+@backend_widget
+class Label(ww.ValueWidget):  # noqa: D101
+    __doc__ = _widget_doc.format("A non-editable text or image display.")
+
+
+@backend_widget
+class LineEdit(ww.ValueWidget):  # noqa: D101
+    __doc__ = _widget_doc.format("A one-line text editor.")
+
+
+@backend_widget
+class TextEdit(ww.ValueWidget):  # noqa: D101
+    __doc__ = _widget_doc.format(
+        "A widget to edit and display both plain and rich text."
+    )
+
+
+@backend_widget
+class DateTimeEdit(ww.ValueWidget):  # noqa: D101
+    __doc__ = _widget_doc.format("A widget for editing dates and times.")
+
+
+@backend_widget
+class PushButton(ww.ButtonWidget):  # noqa: D101
+    __doc__ = _button_widget_doc.format("A command button.")
+
+
+@backend_widget
+class CheckBox(ww.ButtonWidget):  # noqa: D101
+    __doc__ = _button_widget_doc.format("A checkbox with a text label.")
+
+
+@backend_widget
+class RadioButton(ww.ButtonWidget):  # noqa: D101
+    __doc__ = _button_widget_doc.format("A radio button with a text label")
+
+
+@backend_widget
+class SpinBox(ww.RangedWidget):  # noqa: D101
+    __doc__ = _range_widget_doc.format(
+        "A widget to edit an integer with clickable up/down arrows."
+    )
+
+
+@backend_widget
+class FloatSpinBox(ww.RangedWidget):  # noqa: D101
+    __doc__ = _range_widget_doc.format(
+        "A widget to edit a float with clickable up/down arrows."
+    )
+
+
+@backend_widget
+class Slider(ww.SliderWidget):  # noqa: D101
+    __doc__ = _slider_widget_doc.format(
+        "A slider widget to adjust a numerical value within a range."
+    )
+
+
+@backend_widget
+class ComboBox(ww.CategoricalWidget):  # noqa: D101
+    __doc__ = _combo_box_doc.format(
+        "A categorical widget, allowing selection between multiple choices."
+    )
+
+
+@backend_widget
+class Container(ww.Container):  # noqa: D101
     pass
-
-
-class LineEdit(ww.ValueWidget):
-    def __init__(
-        self,
-        name: "str" = "",
-        kind=None,
-        default: "Any" = None,
-        annotation: "Any" = None,
-        gui_only=False,
-    ):
-        super()
-
-
-class TextEdit(ww.ValueWidget):
-    pass
-
-
-class DateTimeEdit(ww.ValueWidget):
-    pass
-
-
-class PushButton(ww.ButtonWidget):
-    pass
-
-
-class CheckBox(ww.ButtonWidget):
-    pass
-
-
-class RadioButton(ww.ButtonWidget):
-    pass
-
-
-class SpinBox(ww.RangedWidget):
-    pass
-
-
-class Slider(ww.RangedWidget):
-    pass
-
-
-class ComboBox(ww.CategoricalWidget):
-    pass
-
-
-class Container(ww.Container):
-    """Widget that can contain other widgets."""
 
 
 PathLike = Union[Path, str, bytes]
 
 
 class FileEdit(Container):
-    """A LineEdit widget with a button that opens a FileDialog"""
+    """A LineEdit widget with a button that opens a FileDialog."""
 
     def __init__(
         self,
-        *,
         name: str = "",
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        kind: str = "POSITIONAL_OR_KEYWORD",
         default: Any = inspect.Parameter.empty,
         annotation=None,
         gui_only=False,
@@ -118,7 +194,6 @@ class FileEdit(Container):
             default=default,
             annotation=annotation,
             gui_only=gui_only,
-            widget_type="Container",
         )
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
         self.choose_btn.changed.connect(self._on_choose_clicked)
@@ -170,4 +245,5 @@ class FileEdit(Container):
         self.line_edit.value = os.fspath(Path(value).expanduser().absolute())
 
     def __repr__(self) -> str:
-        return f"<LineEdit mode={self.mode.value!r}, value={self.value!r}>"
+        """String representation."""
+        return f"<FileEdit mode={self.mode.value!r}, value={self.value!r}>"

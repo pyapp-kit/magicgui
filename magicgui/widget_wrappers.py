@@ -1,5 +1,5 @@
 """magicgui Widget class that wraps all backend widgets."""
-from __future__ import annotations
+
 
 import inspect
 from enum import EnumMeta
@@ -29,6 +29,7 @@ from magicgui.protocols import (
     CategoricalWidgetProtocol,
     ContainerProtocol,
     RangedWidgetProtocol,
+    SliderWidgetProtocol,
     ValueWidgetProtocol,
     WidgetProtocol,
 )
@@ -70,8 +71,8 @@ class Widget:
     @staticmethod
     def create(
         name: str = "",
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        default: Any = inspect.Parameter.empty,
+        kind: str = "POSITIONAL_OR_KEYWORD",
+        default: Any = None,
         annotation: Any = None,
         gui_only=False,
         widget_type: Union[str, Type[WidgetProtocol], None] = None,
@@ -80,49 +81,53 @@ class Widget:
     ):
 
         kwargs = locals()
+        kwargs.pop("widget_type")
         _app = use_app(kwargs.pop("app"))
         assert _app.native
-
         if isinstance(widget_type, WidgetProtocol):
             wdg_class = widget_type
-        elif isinstance(widget_type, str):
-            app = use_app()
-            assert app.native
-            wdg_class = app.get_obj(widget_type)
         else:
             wdg_class = pick_widget_type(default, annotation, options)
-            if not isinstance(wdg_class, WidgetProtocol):
-                if isinstance(wdg_class, WidgetKind):
-                    wdg_class = wdg_class.value
-                app = use_app()
-                assert app.native
-                wdg_class = app.get_obj(wdg_class)
+            if isinstance(wdg_class, WidgetKind):
+                wdg_class = wdg_class.value
+
+            from magicgui import widgets
+
+            if wdg_class in dir(widgets):
+                return getattr(widgets, str(wdg_class))(
+                    **kwargs, **kwargs.pop("options")
+                )
+
+            app = use_app()
+            assert app.native
+            wdg_class = app.get_obj(wdg_class)
 
         # pick the appropriate subclass for the given protocol
         # order matters
         for p in ("Categorical", "Ranged", "Button", "Value", ""):
             prot = getattr(protocols, f"{p}WidgetProtocol")
             if isinstance(wdg_class, prot):
-                kwargs["widget_type"] = wdg_class
-                return globals()[f"{p}Widget"](**kwargs, **kwargs.pop("options"))
+                return globals()[f"{p}Widget"](
+                    widget_type=wdg_class, **kwargs, **kwargs.pop("options")
+                )
 
         raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
     def __init__(
         self,
-        widget_type: Type[WidgetProtocol],
+        widget_type: Union[str, Type[WidgetProtocol]],
         name: str = "",
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        default: Any = inspect.Parameter.empty,
+        kind: str = "POSITIONAL_OR_KEYWORD",
+        default: Any = None,
         annotation: Any = None,
         gui_only=False,
     ):
-        self._instance_check(widget_type)
-        self._widget = widget_type()
+        _widget_type: Type[WidgetProtocol] = self._resolve_widget(widget_type)
+        self._widget = _widget_type()
 
         self.name: str = name
         self.annotation: Any = annotation
-        self.kind: inspect._ParameterKind = kind
+        self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
         self.gui_only = gui_only
         self.visible: bool = True
 
@@ -131,11 +136,22 @@ class Widget:
         self._post_init()
 
         self.default = default
-        if default and default is not inspect.Parameter.empty:
-            self.value = self.default
 
-    def _instance_check(self, cls):
-        assert isinstance(cls, WidgetProtocol)
+    @classmethod
+    def _resolve_widget(
+        cls, widget_type: Union[str, Type[WidgetProtocol]]
+    ) -> Type[WidgetProtocol]:
+        if isinstance(widget_type, str):
+            app = use_app()
+            assert app.native
+            _widget_type = app.get_obj(widget_type)
+        else:
+            _widget_type = widget_type
+
+        prot = getattr(protocols, cls.__annotations__["_widget"].__name__)
+        if not isinstance(_widget_type, prot):
+            raise TypeError("{widget_type} does not implement the proper protocol")
+        return _widget_type
 
     def _post_init(self):
         pass
@@ -168,11 +184,11 @@ class Widget:
         self._widget._mg_set_enabled(value)
 
     @property
-    def parent(self) -> Widget:
+    def parent(self) -> "Widget":
         return self._widget._mg_get_parent()
 
     @parent.setter
-    def parent(self, value: Widget):
+    def parent(self, value: "Widget"):
         self._widget._mg_set_parent(value)
 
     @property
@@ -191,14 +207,17 @@ class ValueWidget(Widget):
     _widget: ValueWidgetProtocol
     changed: EventEmitter
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.default is not None:
+            self.value = self.default
+
     def _post_init(self):
+        super()._post_init()
         self.changed = EventEmitter(source=self, type="changed")
         self._widget._mg_bind_change_callback(
             lambda *x: self.changed(value=x[0] if x else None)
         )
-
-    def _instance_check(self, cls):
-        assert isinstance(cls, ValueWidgetProtocol)
 
     @property
     def value(self):
@@ -212,7 +231,7 @@ class ValueWidget(Widget):
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
         return (
-            f"Widget(value={self.value!r}, annotation={self.annotation!r}, "
+            f"{self.widget_type}(value={self.value!r}, annotation={self.annotation!r}, "
             f"name={self.name!r})"
         )
 
@@ -223,23 +242,9 @@ class ButtonWidget(ValueWidget):
     _widget: ButtonWidgetProtocol
     changed: EventEmitter
 
-    def __init__(
-        self,
-        widget_type: Union[str, Type[ButtonWidgetProtocol], None],
-        name: str = "",
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        default: Any = inspect.Parameter.empty,
-        annotation=None,
-        text: str = "Text",
-        gui_only=False,
-    ):
-        kwargs = locals()
-        [kwargs.pop(i) for i in ("self", "__class__", "text")]
+    def __init__(self, text: str = "Text", **kwargs):
         super().__init__(**kwargs)
         self.text = text
-
-    def _instance_check(self, cls):
-        assert isinstance(cls, ButtonWidgetProtocol)
 
     @property
     def options(self) -> dict:
@@ -263,27 +268,13 @@ class RangedWidget(ValueWidget):
     _widget: RangedWidgetProtocol
 
     def __init__(
-        self,
-        widget_type: Union[str, Type[RangedWidgetProtocol], None],
-        name: str = "",
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        default: Any = inspect.Parameter.empty,
-        annotation=None,
-        minimum: float = 0,
-        maximum: float = 100,
-        step: float = 1,
-        gui_only=False,
+        self, minimum: float = 0, maximum: float = 100, step: float = 1, **kwargs
     ):
-        kwargs = locals()
-        [kwargs.pop(i) for i in ("self", "__class__", "minimum", "maximum", "step")]
         super().__init__(**kwargs)
 
         self.minimum = minimum
         self.maximum = maximum
         self.step = step
-
-    def _instance_check(self, cls):
-        assert isinstance(cls, RangedWidgetProtocol)
 
     @property
     def options(self) -> dict:
@@ -328,31 +319,33 @@ class RangedWidget(ValueWidget):
         self.minimum, self.maximum = value
 
 
+class SliderWidget(RangedWidget):
+
+    _widget: SliderWidgetProtocol
+
+    def __init__(self, orientation: str = "horizontal", **kwargs):
+        super().__init__(**kwargs)
+
+        self.orientation = orientation
+
+    @property
+    def options(self) -> dict:
+        d = super().options.copy()
+        d.update({"orientation": self.orientation})
+        return d
+
+
 class CategoricalWidget(ValueWidget):
     """Widget with a value and choices, wrapping the BaseCategoricalWidget protocol."""
 
     _widget: CategoricalWidgetProtocol
 
-    def __init__(
-        self,
-        widget_type: Union[str, Type[CategoricalWidgetProtocol], None],
-        name: str = "",
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        default: Any = inspect.Parameter.empty,
-        annotation=None,
-        choices: ChoicesType = (),
-        gui_only=False,
-    ):
+    def __init__(self, choices: ChoicesType = (), **kwargs):
         self._default_choices = choices
-
-        kwargs = locals()
-        [kwargs.pop(i) for i in ("self", "__class__", "choices")]
         super().__init__(**kwargs)
 
-    def _instance_check(self, cls):
-        assert isinstance(cls, CategoricalWidgetProtocol)
-
     def _post_init(self):
+        super()._post_init()
         self.reset_choices()
 
     @property
@@ -407,21 +400,11 @@ class Container(Widget, MutableSequence[Widget]):
 
     def __init__(
         self,
-        widget_type: Union[str, Type[ContainerProtocol], None],
-        *,
-        orientation="horizontal",
-        widgets: Sequence[Widget] = [],
-        return_annotation=Signature.empty,
-        # stuff for Widget.__init__
-        name: str = "",
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        default: Any = inspect.Parameter.empty,
-        annotation=None,
-        gui_only=False,
+        orientation: str = "horizontal",
+        widgets: Sequence[Widget] = (),
+        return_annotation: Any = None,
+        **kwargs,
     ):
-        kwargs = locals().copy()
-        for i in ("self", "__class__", "orientation", "widgets", "return_annotation"):
-            del kwargs[i]
         super().__init__(**kwargs)
 
         self.changed = EventEmitter(source=self, type="changed")
@@ -480,7 +463,7 @@ class Container(Widget, MutableSequence[Widget]):
         return self._widget._mg_get_native_layout()
 
     @classmethod
-    def from_signature(cls, sig: Signature, **kwargs) -> Container:
+    def from_signature(cls, sig: Signature, **kwargs) -> "Container":
         from magicgui.signature import MagicSignature
 
         return MagicSignature.from_signature(sig).to_container(**kwargs)
@@ -488,12 +471,12 @@ class Container(Widget, MutableSequence[Widget]):
     @classmethod
     def from_callable(
         cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
-    ) -> Container:
+    ) -> "Container":
         from magicgui.signature import magic_signature
 
         return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
 
-    def to_signature(self) -> MagicSignature:
+    def to_signature(self) -> "MagicSignature":
         from magicgui.signature import MagicParameter, MagicSignature
 
         params = [

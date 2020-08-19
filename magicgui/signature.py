@@ -103,7 +103,12 @@ class MagicParameter(Parameter):
         value = None if self.default is self.empty else self.default
         annotation, options = split_annotated_type(self.annotation)
         return Widget.create(
-            value, annotation, options=options, app=app, name=self.name, kind=self.kind,
+            name=self.name,
+            kind=self.kind.name,
+            default=value,
+            annotation=annotation,
+            app=app,
+            **options,
         )
 
     @classmethod

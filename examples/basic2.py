@@ -3,7 +3,6 @@
 import math
 from enum import Enum
 
-from magicgui import event_loop
 from magicgui.decorator import magicgui
 
 
@@ -33,5 +32,4 @@ def snells_law(
         return "TIR!"
 
 
-with event_loop():
-    snells_law.show()
+snells_law.show(run=True)
