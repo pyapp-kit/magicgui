@@ -7,7 +7,9 @@ from types import ModuleType
 from typing import Iterator, Optional, Union
 
 from magicgui.backends import BACKENDS
-from magicgui.bases import BaseApplicationBackend
+from magicgui.protocols import BaseApplicationBackend
+
+DEFAULT_BACKEND = "qt"
 
 
 @contextmanager
@@ -43,7 +45,7 @@ class Application:
     def _use(self, backend_name=None):
         """Select a backend by name."""
         if not backend_name:
-            backend_name = "qt"
+            backend_name = DEFAULT_BACKEND
         if not backend_name or backend_name.lower() not in BACKENDS:
             raise ValueError(
                 f"backend_name must be one of {set(BACKENDS)!r}, "
@@ -59,7 +61,7 @@ class Application:
             return getattr(self.backend_module, name)
         except AttributeError as e:
             raise AttributeError(
-                f"Could not retrieve object {name} from backend {self.backend_module}"
+                f"Could not import object {name!r} from backend {self.backend_module}"
             ) from e
 
     def run(self):
@@ -105,8 +107,7 @@ class Application:
         self._backend._mg_stop_timer()
 
 
-# TODO: make this not default to qt
-def _use_app(backend_name: str = "qt"):
+def _use_app(backend_name: str = None):
     """Get/create the default Application object.
 
     It is safe to call this function multiple times, as long as
@@ -122,10 +123,13 @@ def _use_app(backend_name: str = "qt"):
     # If we already have a default_app, raise error or return
     current = Application._instance
     if current is not None:
-        names = current.backend_name.lower().replace("(", " ").strip(") ")
-        _nm = [n for n in names.split(" ") if n]
-        if backend_name and backend_name.lower() not in _nm:
-            raise RuntimeError(f"Can only select a backend once, already using {_nm}.")
+        if backend_name:
+            names = current.backend_name.lower().replace("(", " ").strip(") ")
+            _nm = [n for n in names.split(" ") if n]
+            if backend_name.lower() not in _nm:
+                raise RuntimeError(
+                    f"Can only select a backend once, already using {_nm}."
+                )
         else:
             return current  # Current backend matches backend_name
 
@@ -137,7 +141,7 @@ def _use_app(backend_name: str = "qt"):
 AppRef = Union[Application, str, None]
 
 
-def use_app(app: AppRef) -> Application:
+def use_app(app: AppRef = None) -> Application:
     """Get/create the default Application object.  See _use_app docstring."""
     if app is None:
         return _use_app()

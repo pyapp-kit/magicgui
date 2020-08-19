@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef, use_app
-from magicgui.widget import Container, Widget
+from magicgui.widgets import Container, LineEdit, PushButton
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -129,10 +129,8 @@ class FunctionGui:
         self._function = function
 
         if call_button:
-            options = {"widget_type": "PushButton"}
-            if isinstance(call_button, str):
-                options["text"] = call_button
-            self._call_button = Widget.create(options=options, gui_only=True)
+            text = call_button if isinstance(call_button, str) else "Run"
+            self._call_button = PushButton(gui_only=True, text=text)
             if not auto_call:  # (otherwise it already get's called)
                 # using lambda because the clicked signal returns a value
                 self._call_button.changed.connect(lambda x: self.__call__())
@@ -140,9 +138,8 @@ class FunctionGui:
 
         self._result_widget = None
         if result_widget:
-            self._result_widget = Widget.create(
-                options={"widget_type": "LineEdit", "disabled": True}, gui_only=True
-            )
+            self._result_widget = LineEdit(gui_only=True)
+            self._result_widget.enabled = False
             self.widgets.append(self._result_widget)
 
         if auto_call:

@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 import inspect
-import os
 from enum import EnumMeta
 from inspect import Signature
-from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,19 +20,19 @@ from typing import (
     overload,
 )
 
-from magicgui.application import AppRef, use_app
-from magicgui.bases import (
-    BaseButtonWidget,
-    BaseCategoricalWidget,
-    BaseContainer,
-    BaseRangedWidget,
-    BaseValueWidget,
-    BaseWidget,
-    SupportsChoices,
+from magicgui import protocols
+from magicgui.application import use_app
+from magicgui.constants import WidgetKind
+from magicgui.events import EventEmitter
+from magicgui.protocols import (
+    ButtonWidgetProtocol,
+    CategoricalWidgetProtocol,
+    ContainerProtocol,
+    RangedWidgetProtocol,
+    ValueWidgetProtocol,
+    WidgetProtocol,
 )
-from magicgui.constants import FileDialogMode, WidgetKind
-from magicgui.event import EventEmitter
-from magicgui.type_map import _get_backend_widget, pick_widget_type
+from magicgui.type_map import pick_widget_type
 
 if TYPE_CHECKING:
     from magicgui.signature import MagicSignature
@@ -55,93 +53,96 @@ class ChoicesDict(TypedDict):
     key: Callable[[Any], str]
 
 
+# -> WidgetProtocol
+#      ↪ ValueWidgetProtocol
+#           ↪ RangedWidgetProtocol
+#                ↪ SliderWidgetProtocol (+ SupportsOrientation)
+#           ↪ ButtonWidgetProtocol (+ SupportsText)
+#           ↪ CategoricalWidgetProtocol
+#      ↪ ContainerProtocol (+ SupportsOrientation)
+
+
 class Widget:
-    """Basic Widget, wrapping the BaseWidget protocol."""
+    """Basic Widget, wrapping a class that implements WidgetProtocol."""
 
-    _widget: BaseWidget
+    _widget: WidgetProtocol
 
-    # TODO: add widget_type
     @staticmethod
     def create(
-        value: Any = None,
-        annotation=None,
-        options: dict = {},
-        name: Optional[str] = None,
+        name: str = "",
         kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        app: AppRef = None,
+        default: Any = inspect.Parameter.empty,
+        annotation: Any = None,
         gui_only=False,
+        widget_type: Union[str, Type[WidgetProtocol], None] = None,
+        app=None,
+        **options,
     ):
-        """Widget factory. All widgets should be created with this method."""
-        # Make sure that the app is active
-        kwargs = locals().copy()
+
+        kwargs = locals()
         _app = use_app(kwargs.pop("app"))
-
-        widget_type = pick_widget_type(value, annotation, options)
-        if widget_type is None:
-            raise ValueError(
-                f"Could not determine widget type for value={value!r}, "
-                f"annotation={annotation!r}, options={options}, app={app}"
-            )
-        if widget_type is WidgetKind.FILE_EDIT:
-            del kwargs["options"]
-            return FileEdit(**kwargs)
-
-        wdg_class = _get_backend_widget(widget_type, app)
         assert _app.native
-        kwargs["wdg_class"] = wdg_class
-        if isinstance(wdg_class, BaseCategoricalWidget):
-            return CategoricalWidget(**kwargs)
-        if isinstance(wdg_class, BaseRangedWidget):
-            return RangedWidget(**kwargs)
-        if isinstance(wdg_class, BaseButtonWidget):
-            return ButtonWidget(**kwargs)
-        if isinstance(wdg_class, BaseValueWidget):
-            return ValueWidget(**kwargs)
-        return Widget(**kwargs)
+
+        if isinstance(widget_type, WidgetProtocol):
+            wdg_class = widget_type
+        elif isinstance(widget_type, str):
+            app = use_app()
+            assert app.native
+            wdg_class = app.get_obj(widget_type)
+        else:
+            wdg_class = pick_widget_type(default, annotation, options)
+            if not isinstance(wdg_class, WidgetProtocol):
+                if isinstance(wdg_class, WidgetKind):
+                    wdg_class = wdg_class.value
+                app = use_app()
+                assert app.native
+                wdg_class = app.get_obj(wdg_class)
+
+        # pick the appropriate subclass for the given protocol
+        # order matters
+        for p in ("Categorical", "Ranged", "Button", "Value", ""):
+            prot = getattr(protocols, f"{p}WidgetProtocol")
+            if isinstance(wdg_class, prot):
+                kwargs["widget_type"] = wdg_class
+                return globals()[f"{p}Widget"](**kwargs, **kwargs.pop("options"))
+
+        raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
     def __init__(
         self,
-        wdg_class: Type[BaseWidget],
-        name: Optional[str] = None,
-        value: Any = None,
-        annotation=None,
-        options: dict = {},
+        widget_type: Type[WidgetProtocol],
+        name: str = "",
         kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        default: Any = inspect.Parameter.empty,
+        annotation: Any = None,
         gui_only=False,
     ):
-        self.name = name
-        self.default = value
-        self.annotation = annotation
-        self._options = options
-        self._kind = kind
-        self.gui_only = gui_only
+        self._instance_check(widget_type)
+        self._widget = widget_type()
 
-        self._widget = wdg_class()
+        self.name: str = name
+        self.annotation: Any = annotation
+        self.kind: inspect._ParameterKind = kind
+        self.gui_only = gui_only
+        self.visible: bool = True
+
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
-
         self._post_init()
 
-        if options.get("disabled", False) or not options.get("enabled", True):
-            self.enabled = False
-        if not options.get("visible", True):
-            self.hide()
-        if self.default:
+        self.default = default
+        if default and default is not inspect.Parameter.empty:
             self.value = self.default
 
+    def _instance_check(self, cls):
+        assert isinstance(cls, WidgetProtocol)
+
     def _post_init(self):
-        """For subclasses, so they don't have to recreate init signature."""
         pass
 
     @property
-    def is_mandatory(self) -> bool:
-        """Whether the parameter represented by this widget is mandatory."""
-        if self._kind in (
-            inspect.Parameter.POSITIONAL_OR_KEYWORD,
-            inspect.Parameter.POSITIONAL_ONLY,
-        ):
-            return self.default is inspect.Parameter.empty
-        return False
+    def options(self) -> dict:
+        return {"enabled": self.enabled, "visible": self.visible}
 
     @property
     def native(self):
@@ -151,10 +152,12 @@ class Widget:
     def show(self):
         """Show widget."""
         self._widget._mg_show_widget()
+        self.visible = True
 
     def hide(self):
         """Hide widget."""
         self._widget._mg_hide_widget()
+        self.visible = False
 
     @property
     def enabled(self) -> bool:
@@ -179,23 +182,23 @@ class Widget:
 
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
-        return (
-            f"Widget(value={self.value!r}, annotation={self.annotation!r}, "
-            f"options={self._options}, name={self.name!r}, kind={self._kind})"
-        )
+        return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
 
 
 class ValueWidget(Widget):
     """Widget with a value, wrapping the BaseValueWidget protocol."""
 
-    _widget: BaseValueWidget
+    _widget: ValueWidgetProtocol
     changed: EventEmitter
 
     def _post_init(self):
-        super()._post_init()
         self.changed = EventEmitter(source=self, type="changed")
-        # TODO: fix this pattern
-        self._widget._mg_bind_change_callback(lambda x: self.changed(value=x))
+        self._widget._mg_bind_change_callback(
+            lambda *x: self.changed(value=x[0] if x else None)
+        )
+
+    def _instance_check(self, cls):
+        assert isinstance(cls, ValueWidgetProtocol)
 
     @property
     def value(self):
@@ -206,16 +209,43 @@ class ValueWidget(Widget):
     def value(self, value):
         return self._widget._mg_set_value(value)
 
+    def __repr__(self) -> str:
+        """Return representation of widget of instsance."""
+        return (
+            f"Widget(value={self.value!r}, annotation={self.annotation!r}, "
+            f"name={self.name!r})"
+        )
+
 
 class ButtonWidget(ValueWidget):
     """Widget with a value, wrapping the BaseValueWidget protocol."""
 
-    _widget: BaseButtonWidget
+    _widget: ButtonWidgetProtocol
     changed: EventEmitter
 
-    def _post_init(self):
-        super()._post_init()
-        self.text = self._options.get("text", "button")
+    def __init__(
+        self,
+        widget_type: Union[str, Type[ButtonWidgetProtocol], None],
+        name: str = "",
+        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        default: Any = inspect.Parameter.empty,
+        annotation=None,
+        text: str = "Text",
+        gui_only=False,
+    ):
+        kwargs = locals()
+        [kwargs.pop(i) for i in ("self", "__class__", "text")]
+        super().__init__(**kwargs)
+        self.text = text
+
+    def _instance_check(self, cls):
+        assert isinstance(cls, ButtonWidgetProtocol)
+
+    @property
+    def options(self) -> dict:
+        d = super().options.copy()
+        d.update({"text": self.text})
+        return d
 
     @property
     def text(self):
@@ -230,16 +260,36 @@ class ButtonWidget(ValueWidget):
 class RangedWidget(ValueWidget):
     """Widget with a contstrained value wraps BaseRangedWidget protocol."""
 
-    DEFAULT_MIN = 0
-    DEFAULT_MAX = 100
-    DEFAULT_STEP = 1
-    _widget: BaseRangedWidget
+    _widget: RangedWidgetProtocol
 
-    def _post_init(self):
-        super()._post_init()
-        self.minimum = self._options.get("minimum", self.DEFAULT_MIN)
-        self.maximum = self._options.get("maximum", self.DEFAULT_MAX)
-        self.step = self._options.get("step", self.DEFAULT_STEP)
+    def __init__(
+        self,
+        widget_type: Union[str, Type[RangedWidgetProtocol], None],
+        name: str = "",
+        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        default: Any = inspect.Parameter.empty,
+        annotation=None,
+        minimum: float = 0,
+        maximum: float = 100,
+        step: float = 1,
+        gui_only=False,
+    ):
+        kwargs = locals()
+        [kwargs.pop(i) for i in ("self", "__class__", "minimum", "maximum", "step")]
+        super().__init__(**kwargs)
+
+        self.minimum = minimum
+        self.maximum = maximum
+        self.step = step
+
+    def _instance_check(self, cls):
+        assert isinstance(cls, RangedWidgetProtocol)
+
+    @property
+    def options(self) -> dict:
+        d = super().options.copy()
+        d.update({"minimum": self.minimum, "maximum": self.maximum, "step": self.step})
+        return d
 
     @property
     def minimum(self) -> float:
@@ -281,14 +331,35 @@ class RangedWidget(ValueWidget):
 class CategoricalWidget(ValueWidget):
     """Widget with a value and choices, wrapping the BaseCategoricalWidget protocol."""
 
-    _widget: BaseCategoricalWidget
+    _widget: CategoricalWidgetProtocol
+
+    def __init__(
+        self,
+        widget_type: Union[str, Type[CategoricalWidgetProtocol], None],
+        name: str = "",
+        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        default: Any = inspect.Parameter.empty,
+        annotation=None,
+        choices: ChoicesType = (),
+        gui_only=False,
+    ):
+        self._default_choices = choices
+
+        kwargs = locals()
+        [kwargs.pop(i) for i in ("self", "__class__", "choices")]
+        super().__init__(**kwargs)
+
+    def _instance_check(self, cls):
+        assert isinstance(cls, CategoricalWidgetProtocol)
 
     def _post_init(self):
-        super()._post_init()
-        self._default_choices = self._options.get("choices")
-        if not isinstance(self._widget, SupportsChoices):
-            raise ValueError(f"widget {self._widget!r} does not support 'choices'")
         self.reset_choices()
+
+    @property
+    def options(self) -> dict:
+        d = super().options.copy()
+        d.update({"choices": self._default_choices})
+        return d
 
     def reset_choices(self):
         """Reset choices to the default state.
@@ -327,44 +398,32 @@ class CategoricalWidget(ValueWidget):
             _choices = [(str_func(i), i) for i in _choices]
         return self._widget._mg_set_choices(_choices)
 
-    def __repr__(self):
-        """Return string representation of widget."""
-        _type = type(self.native)
-        backend = f"{_type.__module__}.{_type.__qualname__}"
-        return f"<MagicCategoricalWidget ({backend!r}) at {hex(id(self))}>"
 
+class Container(Widget, MutableSequence[Widget]):
+    """Widget that can contain other widgets."""
 
-class Container(MutableSequence[Widget], Widget):
     changed: EventEmitter
-    _widget: BaseContainer
+    _widget: ContainerProtocol
 
     def __init__(
         self,
+        widget_type: Union[str, Type[ContainerProtocol], None],
         *,
         orientation="horizontal",
         widgets: Sequence[Widget] = [],
-        app=None,
         return_annotation=Signature.empty,
         # stuff for Widget.__init__
-        name: Optional[str] = None,
-        value: Any = None,
-        annotation=None,
-        options: dict = {},
+        name: str = "",
         kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        default: Any = inspect.Parameter.empty,
+        annotation=None,
         gui_only=False,
     ):
-        self._app = use_app(app)
-        assert self._app.native
-        Widget.__init__(
-            self,
-            wdg_class=self._app.get_obj("Container"),
-            name=name,
-            value=value,
-            annotation=annotation,
-            options=options,
-            kind=kind,
-            gui_only=gui_only,
-        )
+        kwargs = locals().copy()
+        for i in ("self", "__class__", "orientation", "widgets", "return_annotation"):
+            del kwargs[i]
+        super().__init__(**kwargs)
+
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
         for w in widgets:
@@ -438,101 +497,9 @@ class Container(MutableSequence[Widget], Widget):
         from magicgui.signature import MagicParameter, MagicSignature
 
         params = [
-            MagicParameter(
-                name=w.name,
-                kind=w._kind,
-                default=w.value,
-                annotation=w.annotation,
-                gui_options=w._options,
-            )
-            for w in self
-            if w.name and not w.gui_only
+            MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]
         return MagicSignature(params, return_annotation=self._return_annotation)
 
     def __repr__(self) -> str:
         return f"<Container {self.to_signature()}>"
-
-
-PathLike = Union[Path, str, bytes]
-
-
-class FileEdit(Container):
-    """A LineEdit widget with a button that opens a FileDialog"""
-
-    def __init__(
-        self,
-        *,
-        name: Optional[str] = None,
-        value: Optional[PathLike] = None,
-        annotation=None,
-        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
-        gui_only=False,
-        orientation="horizontal",
-        app: AppRef = None,
-        mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
-    ):
-        self.line_edit = Widget.create(options={"widget_type": "LineEdit"})
-        self.choose_btn = Widget.create(options={"widget_type": "PushButton"})
-        self.mode = mode  # sets the button text too
-        super().__init__(
-            orientation=orientation,
-            widgets=[self.line_edit, self.choose_btn],
-            app=app,
-            name=name,
-            value=value,
-            annotation=annotation,
-            kind=kind,
-            gui_only=gui_only,
-        )
-        self._show_file_dialog = self._app.get_obj("show_file_dialog")
-        self.choose_btn.changed.connect(self._on_choose_clicked)
-
-    @property
-    def mode(self) -> FileDialogMode:
-        """Mode for the FileDialog."""
-        return self._mode
-
-    @mode.setter
-    def mode(self, value: Union[FileDialogMode, str]):
-        self._mode = FileDialogMode(value)
-        self.choose_btn.text = self._btn_text
-
-    @property
-    def _btn_text(self) -> str:
-        if self.mode is FileDialogMode.EXISTING_DIRECTORY:
-            return "Choose directory"
-        else:
-            return "Select file" + ("s" if self.mode.name.endswith("S") else "")
-
-    def _on_choose_clicked(self, event=None):
-        _p = self.value
-        start_path: Path = _p[0] if isinstance(_p, tuple) else _p
-        start_path = os.fspath(start_path.expanduser().absolute())
-        result = self._show_file_dialog(
-            self.mode, caption=self._btn_text, start_path=start_path
-        )
-        if result:
-            self.value = result
-
-    @property
-    def value(self) -> Union[Tuple[Path, ...], Path]:
-        """Return current value of the widget.  This may be interpreted by backends."""
-        text = self.line_edit.value
-        if self.mode is FileDialogMode.EXISTING_FILES:
-            return tuple(Path(p) for p in text.split(", "))
-        return Path(text)
-
-    @value.setter
-    def value(self, value: Union[Sequence[PathLike], PathLike]):
-        """Set current file path."""
-        if isinstance(value, (list, tuple)):
-            value = ", ".join([os.fspath(p) for p in value])
-        if not isinstance(value, (str, Path)):
-            raise TypeError(
-                f"value must be a string, or list/tuple of strings, got {type(value)}"
-            )
-        self.line_edit.value = os.fspath(Path(value).expanduser().absolute())
-
-    def __repr__(self) -> str:
-        return f"<LineEdit mode={self.mode.value!r}, value={self.value!r}>"

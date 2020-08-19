@@ -1,7 +1,7 @@
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QApplication
 
-from magicgui.bases import BaseApplicationBackend
+from magicgui.protocols import BaseApplicationBackend
 
 
 # qt implementation

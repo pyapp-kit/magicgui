@@ -6,10 +6,7 @@ from collections import abc
 from enum import EnumMeta
 from typing import Any, Callable, Optional, Set, Type, get_args, get_origin
 
-from magicgui.application import AppRef, use_app
-from magicgui.bases import BaseWidget
 from magicgui.constants import WidgetKind
-from magicgui.subwidgets import MAP
 
 
 class MissingWidget(RuntimeError):
@@ -18,7 +15,7 @@ class MissingWidget(RuntimeError):
     pass
 
 
-TypeMatcher = Callable[[Any, Optional[Type], Optional[dict]], Optional[WidgetKind]]
+TypeMatcher = Callable[[Any, Optional[Type]], Optional[WidgetKind]]
 _TYPE_MATCHERS: Set[TypeMatcher] = set()
 
 
@@ -29,11 +26,8 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 
 
 @type_matcher
-def sequence_of_paths(value, annotation, options) -> Optional[WidgetKind]:
+def sequence_of_paths(value, annotation) -> Optional[WidgetKind]:
     """Determine if value/annotation is a Sequence[pathlib.Path]."""
-
-    def is_path(v):
-        return None
 
     if annotation:
         orig = get_origin(annotation)
@@ -52,9 +46,9 @@ def sequence_of_paths(value, annotation, options) -> Optional[WidgetKind]:
 
 
 @type_matcher
-def simple_type(value, annotation, options) -> Optional[WidgetKind]:
+def simple_type(value, annotation) -> Optional[WidgetKind]:
     """Check simple type mappings."""
-    dtype = (get_origin(annotation) or annotation) if annotation else type(value)
+    dtype = resolve_type(value, annotation)
 
     simple = {
         bool: WidgetKind.CHECK_BOX,
@@ -74,42 +68,24 @@ def simple_type(value, annotation, options) -> Optional[WidgetKind]:
     return None
 
 
+def resolve_type(value: Any, annotation: Any) -> Type:
+    return (get_origin(annotation) or annotation) if annotation else type(value)
+
+
 def pick_widget_type(
     value: Any = None, annotation: Optional[Type] = None, options: dict = {},
-) -> Optional[WidgetKind]:
+) -> WidgetKind:
     """Pick the appropriate magicgui widget type for ``value`` with ``annotation``."""
     if "widget_type" in options:
         return WidgetKind(options["widget_type"])
 
-    dtype = (get_origin(annotation) or annotation) if annotation else type(value)
+    dtype = resolve_type(value, annotation)
 
     if isinstance(dtype, EnumMeta) or "choices" in options:
         return WidgetKind.COMBO_BOX
 
     for matcher in _TYPE_MATCHERS:
-        widget_type = matcher(value, annotation, options)
+        widget_type = matcher(value, annotation)
         if widget_type:
             return widget_type
-    return None
-
-
-def _get_backend_widget(widget_type: WidgetKind, app: AppRef) -> Type[BaseWidget]:
-    _app = use_app(app)
-    try:
-        return _app.get_obj(widget_type.value)
-    except AttributeError:
-        # TODO: Cleanup?
-        val = widget_type.value
-        for key, func in MAP.items():
-            if val.startswith(key):
-                subval = val[len(key) :]  # noqa
-                try:
-                    superclass: Type[BaseWidget] = _app.get_obj(subval)
-                    return func(superclass)
-                except AttributeError:
-                    pass
-    raise MissingWidget(
-        f"Could not find an implementation of widget type {widget_type.value!r} "
-        f"in backend {_app.backend_name!r}\n"
-        f"Looked in: {_app.backend_module!r}"
-    )
+    raise ValueError("Could not pick widget.")

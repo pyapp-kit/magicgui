@@ -15,10 +15,10 @@ from typing import (
 from typing_extensions import Annotated, _AnnotatedAlias
 
 from magicgui.application import AppRef
-from magicgui.widget import Widget
+from magicgui.widget_wrappers import Widget
 
 if TYPE_CHECKING:
-    from magicgui.widget import Container
+    from magicgui.widgets import Container
 
 
 def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
@@ -89,12 +89,6 @@ class MagicParameter(Parameter):
     def options(self) -> dict:
         return split_annotated_type(self.annotation)[1]
 
-    @property
-    def is_mandatory(self) -> bool:
-        if self.kind in (self.POSITIONAL_OR_KEYWORD, self.POSITIONAL_ONLY):
-            return self.default is self.empty
-        return False
-
     def __repr__(self):
         return super().__repr__()[:-1] + f" {self.options}>"
 
@@ -110,6 +104,16 @@ class MagicParameter(Parameter):
         annotation, options = split_annotated_type(self.annotation)
         return Widget.create(
             value, annotation, options=options, app=app, name=self.name, kind=self.kind,
+        )
+
+    @classmethod
+    def from_widget(cls, widget: Widget):
+        return cls(
+            name=str(widget.name),
+            kind=widget.kind,
+            default=getattr(widget, "value", None),
+            annotation=widget.annotation,
+            gui_options=widget.options,
         )
 
     @classmethod
@@ -159,7 +163,7 @@ class MagicSignature(Signature):
         )
 
     def to_container(self, **kwargs) -> "Container":
-        from magicgui.widget import Container
+        from magicgui.widgets import Container
 
         return Container(
             widgets=list(self.widgets(kwargs.get("app")).values()),

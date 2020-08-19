@@ -2,7 +2,7 @@ import math
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, TypeVar
 
-from magicgui.bases import BaseRangedWidget, BaseValueWidget
+from magicgui.protocols import RangedWidgetProtocol, ValueWidgetProtocol
 
 C = TypeVar("C")
 F = TypeVar("F")
@@ -23,12 +23,12 @@ def transform_get_set(
     set_transform: Optional[Callable[[Any], Any]] = None,
     prefix: str = "Transformed",
 ):
-    if not issubclass(cls, BaseValueWidget):
+    if not issubclass(cls, ValueWidgetProtocol):
         raise TypeError(
             "Class must implement `BaseValueWidget` to transform getter and setter."
         )
     suffixes = ["value"]
-    if issubclass(cls, BaseRangedWidget):
+    if issubclass(cls, RangedWidgetProtocol):
         suffixes.extend(["maximum", "minimum", "step"])
 
     new_cls = type(f"{prefix}{cls.__name__}", (cls,), {"__module__": __name__})

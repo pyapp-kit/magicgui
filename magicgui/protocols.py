@@ -19,17 +19,29 @@ if TYPE_CHECKING:
 
 # Protocols ----------------------------------------------------------------------
 
-# -> BaseWidget
+# -> SupportsText  # different than "value"
+#      - _mg_get_text
+#      - _mg_set_text
+#
+# -> SupportsOrientation
+#      - _mg_get_orientation
+#      - _mg_set_orientation
+#
+# -> WidgetProtocol
 #      - _mg_show_widget
 #      - _mg_hide_widget
 #      - _mg_get_native_widget
 #
-#      ↪ BaseValueWidget
+#      ↪ ValueWidgetProtocol
 #           - _mg_get_value
 #           - _mg_set_value
 #           - _mg_bind_change_callback
 #
-#           ↪ BaseRangedWidget
+#           ↪ ButtonWidgetProtocol (+ SupportsText)
+#                - _mg_get_text
+#                - _mg_set_text
+#
+#           ↪ RangedWidgetProtocol
 #                - _mg_get_minimum
 #                - _mg_set_minimum
 #                - _mg_get_maximum
@@ -37,13 +49,27 @@ if TYPE_CHECKING:
 #                - _mg_get_step
 #                - _mg_set_step
 #
-#           ↪ BaseCategoricalWidget
+#                ↪ SliderWidgetProtocol (+ SupportsOrientation)
+#                     - _mg_get_orientation
+#                     - _mg_set_orientation
+#
+#           ↪ CategoricalWidgetProtocol
 #                - _mg_get_choices
 #                - _mg_set_choices
+#
+#      ↪ ContainerProtocol (+ SupportsOrientation)
+#                - _mg_add_widget
+#                - _mg_insert_widget
+#                - _mg_remove_widget
+#                - _mg_remove_index
+#                - _mg_count
+#                - _mg_index
+#                - _mg_get_index
+#                - _mg_get_native_layout
 
 
 @runtime_checkable
-class BaseWidget(Protocol):
+class WidgetProtocol(Protocol):
     """All must have show/hide and return the native widget."""
 
     @abstractmethod
@@ -78,7 +104,7 @@ class BaseWidget(Protocol):
 
 
 @runtime_checkable
-class BaseValueWidget(BaseWidget, Protocol):
+class ValueWidgetProtocol(WidgetProtocol, Protocol):
     """Widget that has a current value, with getter/setter and on_change callback."""
 
     @abstractmethod
@@ -100,7 +126,7 @@ class BaseValueWidget(BaseWidget, Protocol):
 # note that "float" type hints also accept ints
 # https://www.python.org/dev/peps/pep-0484/#the-numeric-tower
 @runtime_checkable
-class BaseRangedWidget(BaseValueWidget, Protocol):
+class RangedWidgetProtocol(ValueWidgetProtocol, Protocol):
     """Value widget that supports numbers within a provided min/max range."""
 
     @abstractmethod
@@ -150,14 +176,10 @@ class SupportsChoices(Protocol):
 
 
 @runtime_checkable
-class BaseCategoricalWidget(BaseValueWidget, SupportsChoices, Protocol):
+class CategoricalWidgetProtocol(ValueWidgetProtocol, SupportsChoices, Protocol):
     """Categorical widget, that has a set of valid choices, and a current value."""
 
     pass
-
-
-class BaseDateTimeWidget(BaseValueWidget):
-    """The "value" in a ButtonWidget is the current (checked) state."""
 
 
 @runtime_checkable
@@ -176,11 +198,8 @@ class SupportsText(Protocol):
 
 
 @runtime_checkable
-class BaseButtonWidget(BaseValueWidget, SupportsText, Protocol):
+class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, Protocol):
     """The "value" in a ButtonWidget is the current (checked) state."""
-
-
-# CONTAINER ----------------------------------------------------------------------
 
 
 @runtime_checkable
@@ -208,7 +227,15 @@ class SupportsOrientation(Protocol):
         raise NotImplementedError()
 
 
-class BaseContainer(BaseWidget, SupportsOrientation, Protocol):
+@runtime_checkable
+class SliderWidgetProtocol(RangedWidgetProtocol, SupportsOrientation, Protocol):
+    """Protocol for implementing a slider widget."""
+
+
+# CONTAINER ----------------------------------------------------------------------
+
+
+class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     """Widget that can contain other widgets."""
 
     @abstractmethod

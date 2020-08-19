@@ -4,20 +4,20 @@ from typing import Any, Iterable, Optional, Tuple, Union
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QObject, Qt, Signal
 
-from magicgui.bases import (
-    BaseCategoricalWidget,
-    BaseContainer,
-    BaseRangedWidget,
-    BaseValueWidget,
-    BaseWidget,
+from magicgui.constants import FileDialogMode
+from magicgui.protocols import (
+    CategoricalWidgetProtocol,
+    ContainerProtocol,
+    RangedWidgetProtocol,
     SupportsOrientation,
     SupportsText,
+    ValueWidgetProtocol,
+    WidgetProtocol,
 )
-from magicgui.constants import FileDialogMode
-from magicgui.widget import Widget
+from magicgui.widget_wrappers import Widget
 
 
-class QBaseWidget(BaseWidget):
+class QBaseWidget(WidgetProtocol):
     """Implements show/hide/native."""
 
     _qwidget: QtW.QWidget
@@ -32,7 +32,7 @@ class QBaseWidget(BaseWidget):
         self._qwidget.hide()
 
     def _mg_get_enabled(self) -> bool:
-        return self._qwidget.enabled()
+        return self._qwidget.isEnabled()
 
     def _mg_set_enabled(self, enabled: bool):
         self._qwidget.setEnabled(enabled)
@@ -48,7 +48,7 @@ class QBaseWidget(BaseWidget):
         return self._qwidget
 
 
-class QBaseValueWidget(QBaseWidget, BaseValueWidget):
+class QBaseValueWidget(QBaseWidget, ValueWidgetProtocol):
     """Implements get/set/bind_change."""
 
     def __init__(
@@ -87,7 +87,8 @@ class Label(QBaseStringWidget):
         super().__init__(QtW.QLabel, "text", "setText", "")
 
     def _mg_bind_change_callback(self, callback):
-        raise NotImplementedError("QLabel has no change signal")
+        # raise NotImplementedError("QLabel has no change signal")
+        pass
 
     def _mg_set_value(self, value) -> None:
         # TODO: provide support for images as np.arrays
@@ -107,7 +108,7 @@ class TextEdit(QBaseStringWidget):
 # NUMBERS
 
 
-class QBaseRangedWidget(QBaseValueWidget, BaseRangedWidget):
+class QBaseRangedWidget(QBaseValueWidget, RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
     _qwidget: Union[QtW.QDoubleSpinBox, QtW.QSpinBox, QtW.QSlider]
@@ -187,7 +188,7 @@ class Signals(QObject):
     changed = Signal(object)
 
 
-class Container(QBaseWidget, BaseContainer, SupportsOrientation):
+class Container(QBaseWidget, ContainerProtocol, SupportsOrientation):
     def __init__(self, orientation="horizontal"):
         QBaseWidget.__init__(self, QtW.QWidget)
         if orientation == "horizontal":
@@ -304,7 +305,7 @@ class Slider(QBaseRangedWidget, SupportsOrientation):
         return "vertical" if orientation == Qt.Vertical else "horizontal"
 
 
-class ComboBox(QBaseValueWidget, BaseCategoricalWidget):
+class ComboBox(QBaseValueWidget, CategoricalWidgetProtocol):
     _qwidget: QtW.QComboBox
 
     def __init__(self):
@@ -329,6 +330,10 @@ class ComboBox(QBaseValueWidget, BaseCategoricalWidget):
     def _mg_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
         # FIXME: still not clearing all old choices correctly.
+        if not list(choices):
+            self._qwidget.clear()
+            return
+
         names = {x[0] for x in choices}
         for i in range(self._qwidget.count()):
             if self._qwidget.itemText(i) not in names:
