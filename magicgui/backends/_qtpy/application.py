@@ -16,7 +16,8 @@ class ApplicationBackend(BaseApplicationBackend):
 
     def _mg_run(self):
         app = self._mg_get_native_app()
-        if not getattr(app, "_in_event_loop", False):
+        # only start the event loop if magicgui created it
+        if app.objectName() == "magicgui":
             return app.exec_()
 
     def _mg_quit(self):
@@ -24,7 +25,11 @@ class ApplicationBackend(BaseApplicationBackend):
 
     def _mg_get_native_app(self):
         # Get native app
-        return QApplication.instance() or QApplication([])
+        app = QApplication.instance()
+        if not app:
+            app = QApplication([])
+            app.setObjectName("magicgui")
+        return app
 
     def _mg_start_timer(self, interval=0, on_timeout=None, single=False):
         self._timer = QTimer()
