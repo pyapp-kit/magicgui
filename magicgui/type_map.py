@@ -4,9 +4,23 @@ import inspect
 import pathlib
 from collections import abc
 from enum import EnumMeta
-from typing import Any, Callable, Optional, Set, Type, get_args, get_origin
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Optional,
+    Set,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 
-from magicgui.constants import WidgetKind
+from magicgui import widgets
+from magicgui.protocols import WidgetProtocol
+
+if TYPE_CHECKING:
+    from magicgui.widget_wrappers import Widget
 
 
 class MissingWidget(RuntimeError):
@@ -15,7 +29,9 @@ class MissingWidget(RuntimeError):
     pass
 
 
-TypeMatcher = Callable[[Any, Optional[Type]], Optional[WidgetKind]]
+WidgetClass = Union[Type["Widget"], Type[WidgetProtocol]]
+WidgetClassRef = Union[str, WidgetClass]
+TypeMatcher = Callable[[Any, Optional[Type]], Optional[WidgetClassRef]]
 _TYPE_MATCHERS: Set[TypeMatcher] = set()
 
 
@@ -26,7 +42,7 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 
 
 @type_matcher
-def sequence_of_paths(value, annotation) -> Optional[WidgetKind]:
+def sequence_of_paths(value, annotation) -> Optional[WidgetClassRef]:
     """Determine if value/annotation is a Sequence[pathlib.Path]."""
 
     if annotation:
@@ -36,28 +52,28 @@ def sequence_of_paths(value, annotation) -> Optional[WidgetKind]:
             return None
         if isinstance(orig, abc.Sequence):
             if inspect.isclass(args[0]) and issubclass(args[0], pathlib.Path):
-                return WidgetKind.FILE_EDIT
+                return widgets.FileEdit
     elif value:
         if isinstance(value, abc.Sequence) and all(
             isinstance(v, pathlib.Path) for v in value
         ):
-            return WidgetKind.FILE_EDIT
+            return widgets.FileEdit
     return None
 
 
 @type_matcher
-def simple_type(value, annotation) -> Optional[WidgetKind]:
+def simple_type(value, annotation) -> Optional[WidgetClassRef]:
     """Check simple type mappings."""
     dtype = resolve_type(value, annotation)
 
     simple = {
-        bool: WidgetKind.CHECK_BOX,
-        int: WidgetKind.SPIN_BOX,
-        float: WidgetKind.FLOAT_SPIN_BOX,
-        str: WidgetKind.LINE_EDIT,
-        pathlib.Path: WidgetKind.FILE_EDIT,
-        datetime.datetime: WidgetKind.DATE_TIME_EDIT,
-        type(None): WidgetKind.LINE_EDIT,
+        bool: widgets.CheckBox,
+        int: widgets.SpinBox,
+        float: widgets.FloatSpinBox,
+        str: widgets.LineEdit,
+        pathlib.Path: widgets.FileEdit,
+        datetime.datetime: widgets.DateTimeEdit,
+        type(None): widgets.LineEdit,
     }
     if dtype in simple:
         return simple[dtype]
@@ -74,18 +90,41 @@ def resolve_type(value: Any, annotation: Any) -> Type:
 
 def pick_widget_type(
     value: Any = None, annotation: Optional[Type] = None, options: dict = {},
-) -> WidgetKind:
+) -> WidgetClassRef:
     """Pick the appropriate magicgui widget type for ``value`` with ``annotation``."""
     if "widget_type" in options:
-        return WidgetKind(options["widget_type"])
+        return options["widget_type"]
 
     dtype = resolve_type(value, annotation)
 
     if isinstance(dtype, EnumMeta) or "choices" in options:
-        return WidgetKind.COMBO_BOX
+        return "magicgui.widgets.ComboBox"
 
     for matcher in _TYPE_MATCHERS:
         widget_type = matcher(value, annotation)
         if widget_type:
             return widget_type
     raise ValueError("Could not pick widget.")
+
+
+def get_widget_class(
+    value: Any = None, annotation: Optional[Type] = None, options: dict = {}
+) -> WidgetClass:
+    from magicgui.widget_wrappers import Widget
+
+    widget_type = pick_widget_type(value, annotation, options)
+    if isinstance(widget_type, str):
+        widget_class: WidgetClass = _import_class(widget_type)
+    else:
+        widget_class = widget_type
+
+    assert isinstance(widget_class, WidgetProtocol) or issubclass(widget_class, Widget)
+    return widget_class
+
+
+def _import_class(class_name: str) -> WidgetClass:
+    import importlib
+
+    mod_name, name = class_name.rsplit(".", 1)
+    mod = importlib.import_module(mod_name)
+    return getattr(mod, name)

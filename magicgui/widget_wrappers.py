@@ -1,6 +1,4 @@
 """magicgui Widget class that wraps all backend widgets."""
-
-
 import inspect
 from enum import EnumMeta
 from inspect import Signature
@@ -22,7 +20,6 @@ from typing import (
 
 from magicgui import protocols
 from magicgui.application import use_app
-from magicgui.constants import WidgetKind
 from magicgui.events import EventEmitter
 from magicgui.protocols import (
     ButtonWidgetProtocol,
@@ -33,7 +30,7 @@ from magicgui.protocols import (
     ValueWidgetProtocol,
     WidgetProtocol,
 )
-from magicgui.type_map import pick_widget_type
+from magicgui.type_map import get_widget_class
 
 if TYPE_CHECKING:
     from magicgui.signature import MagicSignature
@@ -87,20 +84,10 @@ class Widget:
         if isinstance(widget_type, WidgetProtocol):
             wdg_class = widget_type
         else:
-            wdg_class = pick_widget_type(default, annotation, options)
-            if isinstance(wdg_class, WidgetKind):
-                wdg_class = wdg_class.value
-
-            from magicgui import widgets
-
-            if wdg_class in dir(widgets):
-                return getattr(widgets, str(wdg_class))(
-                    **kwargs, **kwargs.pop("options")
-                )
-
-            app = use_app()
-            assert app.native
-            wdg_class = app.get_obj(wdg_class)
+            wdg_class = get_widget_class(default, annotation, options)
+            if inspect.isclass(wdg_class) and issubclass(wdg_class, Widget):
+                kwargs.update(kwargs.pop("options"))
+                return wdg_class(**kwargs)
 
         # pick the appropriate subclass for the given protocol
         # order matters
