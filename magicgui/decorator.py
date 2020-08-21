@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from contextlib import contextmanager
-from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
+from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef, use_app
 from magicgui.widgets import Container, LineEdit, PushButton
@@ -130,7 +130,7 @@ class FunctionGui:
 
         if call_button:
             text = call_button if isinstance(call_button, str) else "Run"
-            self._call_button = PushButton(gui_only=True, text=text)
+            self._call_button = PushButton(gui_only=True, text=text, name="call_button")
             if not auto_call:  # (otherwise it already get's called)
                 # using lambda because the clicked signal returns a value
                 self._call_button.changed.connect(lambda x: self.__call__())
@@ -138,7 +138,7 @@ class FunctionGui:
 
         self._result_widget = None
         if result_widget:
-            self._result_widget = LineEdit(gui_only=True)
+            self._result_widget = LineEdit(gui_only=True, name="result")
             self._result_widget.enabled = False
             self.widgets.append(self._result_widget)
 
@@ -148,6 +148,11 @@ class FunctionGui:
         if show:
             self.show()
         return self
+
+    def __dir__(self) -> List[str]:
+        d = list(super().__dir__())
+        d.extend([w.name for w in self.widgets if not w.gui_only])
+        return d
 
     def __getattr__(self, name):
         """If ``name`` is the name of one of the parameters, get the widget."""
