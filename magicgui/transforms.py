@@ -1,4 +1,5 @@
 import math
+from ast import literal_eval
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
 
@@ -62,7 +63,7 @@ def transform_get_set(
 FLOAT_PRECISION = 1000
 LOG_BASE = math.e
 
-make_float_class = lru_cache(
+make_float = lru_cache(
     partial(
         transform_get_set,
         get_transform=lambda x: x / FLOAT_PRECISION,
@@ -71,11 +72,24 @@ make_float_class = lru_cache(
     )
 )
 
-make_log_class = lru_cache(
+make_log = lru_cache(
     partial(
         transform_get_set,
         get_transform=lambda x: math.log(x / FLOAT_PRECISION, LOG_BASE),
         set_transform=lambda x: int(math.pow(LOG_BASE, x) * FLOAT_PRECISION),
         prefix="Log",
     )
+)
+
+
+def _literal_eval(x):
+    if x == "":
+        return ""
+    elif x.lower == "none":
+        return None
+    return literal_eval(x)
+
+
+make_literal_eval = lru_cache(
+    partial(transform_get_set, get_transform=_literal_eval, prefix="LiteralEval")
 )

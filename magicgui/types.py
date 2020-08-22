@@ -15,8 +15,8 @@ TypeMatcher = Callable[[Any, Optional[Type], Optional[dict]], WidgetRef]
 ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
 ChoicesCallback = Callable[["CategoricalWidget"], ChoicesIterable]
 ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, "ChoicesDict"]
-PathLike = Union[Path, str, bytes]
 ReturnCallback = Callable[["FunctionGui", Any, Type], None]
+PathLike = Union[Path, str, bytes]
 
 
 class ChoicesDict(TypedDict):

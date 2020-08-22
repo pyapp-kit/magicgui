@@ -4,17 +4,8 @@ from typing import Any, Iterable, Optional, Tuple, Union
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
 
-from magicgui.constants import FileDialogMode
-from magicgui.protocols import (
-    CategoricalWidgetProtocol,
-    ContainerProtocol,
-    RangedWidgetProtocol,
-    SupportsOrientation,
-    SupportsText,
-    ValueWidgetProtocol,
-    WidgetProtocol,
-)
-from magicgui.widgets import Widget
+from magicgui import protocols
+from magicgui.widgets import FileDialogMode, Widget
 
 
 class EventFilter(QObject):
@@ -28,7 +19,7 @@ class EventFilter(QObject):
         return False
 
 
-class QBaseWidget(WidgetProtocol):
+class QBaseWidget(protocols.WidgetProtocol):
     """Implements show/hide/native."""
 
     _qwidget: QtW.QWidget
@@ -64,7 +55,7 @@ class QBaseWidget(WidgetProtocol):
         self._event_filter.parentChanged.connect(callback)
 
 
-class QBaseValueWidget(QBaseWidget, ValueWidgetProtocol):
+class QBaseValueWidget(QBaseWidget, protocols.ValueWidgetProtocol):
     """Implements get/set/bind_change."""
 
     def __init__(
@@ -124,7 +115,7 @@ class TextEdit(QBaseStringWidget):
 # NUMBERS
 
 
-class QBaseRangedWidget(QBaseValueWidget, RangedWidgetProtocol):
+class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
     _qwidget: Union[QtW.QDoubleSpinBox, QtW.QSpinBox, QtW.QSlider]
@@ -160,7 +151,7 @@ class QBaseRangedWidget(QBaseValueWidget, RangedWidgetProtocol):
 # BUTTONS
 
 
-class QBaseButtonWidget(QBaseValueWidget, SupportsText):
+class QBaseButtonWidget(QBaseValueWidget, protocols.SupportsText):
     _qwidget: Union[QtW.QCheckBox, QtW.QPushButton, QtW.QRadioButton, QtW.QToolButton]
 
     def __init__(self, qwidg):
@@ -200,7 +191,9 @@ class RadioButton(QBaseButtonWidget):
 # CATEGORICAL
 
 
-class Container(QBaseWidget, ContainerProtocol, SupportsOrientation):
+class Container(
+    QBaseWidget, protocols.ContainerProtocol, protocols.SupportsOrientation
+):
     def __init__(self, orientation="horizontal"):
         QBaseWidget.__init__(self, QtW.QWidget)
         if orientation == "horizontal":
@@ -292,7 +285,7 @@ class FloatSpinBox(QBaseRangedWidget):
         super()._mg_set_value(float(value))
 
 
-class Slider(QBaseRangedWidget, SupportsOrientation):
+class Slider(QBaseRangedWidget, protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
     def __init__(self):
@@ -310,7 +303,7 @@ class Slider(QBaseRangedWidget, SupportsOrientation):
         return "vertical" if orientation == Qt.Vertical else "horizontal"
 
 
-class ComboBox(QBaseValueWidget, CategoricalWidgetProtocol):
+class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
     _qwidget: QtW.QComboBox
 
     def __init__(self):
@@ -370,7 +363,7 @@ class DateTimeEdit(QBaseValueWidget):
             return self._qwidget.dateTime().toPyDateTime()
 
 
-FILE_DIALOG_MODES = {
+QFILE_DIALOG_MODES = {
     FileDialogMode.EXISTING_FILE: QtW.QFileDialog.getOpenFileName,
     FileDialogMode.EXISTING_FILES: QtW.QFileDialog.getOpenFileNames,
     FileDialogMode.OPTIONAL_FILE: QtW.QFileDialog.getSaveFileName,
@@ -384,7 +377,7 @@ def show_file_dialog(
     start_path: str = None,
     parent=None,
 ) -> Optional[str]:
-    show_dialog = FILE_DIALOG_MODES[FileDialogMode(mode)]
+    show_dialog = QFILE_DIALOG_MODES[FileDialogMode(mode)]
     if mode is FileDialogMode.EXISTING_DIRECTORY:
         result = show_dialog(parent, caption, start_path)
     else:

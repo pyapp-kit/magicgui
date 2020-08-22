@@ -14,7 +14,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from magicgui.widget import Widget
+    from magicgui.widgets import Widget
 
 
 # Protocols ----------------------------------------------------------------------
