@@ -29,32 +29,43 @@
 
 import inspect
 import os
+from functools import wraps
 from pathlib import Path
 from typing import Any, Sequence, Tuple, Type, Union
 
 from magicgui import widget_wrappers as ww
 from magicgui.application import use_app
 from magicgui.constants import FileDialogMode
+from magicgui.subwidgets import make_float_class, make_log_class
 
 
-def backend_widget(cls) -> Type[ww.Widget]:
-    def __init__(self, **kwargs):
-        app = use_app()
-        assert app.native
-        kwargs["widget_type"] = app.get_obj(cls.__name__)
-        super(cls, self).__init__(**kwargs)
+def backend_widget(cls=None, widget_name=None, transform=None):
+    @wraps(cls)
+    def wrapper(cls) -> Type[ww.Widget]:
+        def __init__(self, **kwargs):
+            app = use_app()
+            assert app.native
+            widget = app.get_obj(widget_name or cls.__name__)
+            if transform:
+                widget = transform(widget)
+            kwargs["widget_type"] = widget
+            super(cls, self).__init__(**kwargs)
 
-    params = {}
-    for klass in reversed(inspect.getmro(cls)):
-        sig = inspect.signature(getattr(klass, "__init__"))
-        for name, param in sig.parameters.items():
-            if name in ("self", "widget_type", "kwargs", "args", "kwds"):
-                continue
-            params[name] = param
+        params = {}
+        for klass in reversed(inspect.getmro(cls)):
+            sig = inspect.signature(getattr(klass, "__init__"))
+            for name, param in sig.parameters.items():
+                if name in ("self", "widget_type", "kwargs", "args", "kwds"):
+                    continue
+                params[name] = param
 
-    cls.__init__ = __init__
-    cls.__signature__ = inspect.Signature(sorted(params.values(), key=lambda x: x.kind))
-    return cls
+        cls.__init__ = __init__
+        cls.__signature__ = inspect.Signature(
+            sorted(params.values(), key=lambda x: x.kind)
+        )
+        return cls
+
+    return wrapper(cls) if cls else wrapper
 
 
 _widget_doc = """{}
@@ -154,6 +165,20 @@ class FloatSpinBox(ww.RangedWidget):  # noqa: D101
 class Slider(ww.SliderWidget):  # noqa: D101
     __doc__ = _slider_widget_doc.format(
         "A slider widget to adjust a numerical value within a range."
+    )
+
+
+@backend_widget(widget_name="Slider", transform=make_float_class)
+class FloatSlider(ww.SliderWidget):  # noqa: D101
+    __doc__ = _slider_widget_doc.format(
+        "A slider widget to adjust a float value within a range."
+    )
+
+
+@backend_widget(widget_name="Slider", transform=make_log_class)
+class LogSlider(ww.SliderWidget):  # noqa: D101
+    __doc__ = _slider_widget_doc.format(
+        "A slider widget to adjust a numerical value logarithmically within a range."
     )
 
 

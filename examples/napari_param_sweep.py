@@ -11,7 +11,7 @@ import skimage.filters
 from napari.layers import Image
 
 from magicgui import magicgui
-from magicgui.widgets import Slider
+from magicgui.widgets import FloatSlider
 
 with napari.gui_qt():
     # create a viewer and add some images
@@ -26,7 +26,7 @@ with napari.gui_qt():
     # - we contstrain the possible choices for `mode`
     @magicgui(
         auto_call=True,
-        sigma={"widget_type": Slider, "maximum": 6},
+        sigma={"widget_type": FloatSlider, "maximum": 6},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
     def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:

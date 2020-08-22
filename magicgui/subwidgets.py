@@ -1,6 +1,6 @@
 import math
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
 
 from magicgui.application import use_app
 from magicgui.protocols import RangedWidgetProtocol, ValueWidgetProtocol
@@ -57,6 +57,8 @@ def transform_get_set(
     return new_cls
 
 
+# TODO: make these accessible from the instance again without losing this pattern.
+
 FLOAT_PRECISION = 1000
 LOG_BASE = math.e
 
@@ -74,12 +76,6 @@ make_log_class = lru_cache(
         transform_get_set,
         get_transform=lambda x: math.log(x / FLOAT_PRECISION, LOG_BASE),
         set_transform=lambda x: int(math.pow(LOG_BASE, x) * FLOAT_PRECISION),
-        prefix="Float",
+        prefix="Log",
     )
 )
-
-
-MAP: Dict[str, Callable] = {
-    "Float*": make_float_class,
-    "Log*": make_log_class,
-}
