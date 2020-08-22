@@ -3,7 +3,7 @@
 import math
 from enum import Enum
 
-from magicgui.decorator import magicgui
+from magicgui import magicgui
 
 
 class Medium(Enum):
@@ -15,12 +15,11 @@ class Medium(Enum):
     Air = 1.0003
 
 
-@magicgui(call_button="calculate")
+@magicgui(call_button="calculate", result_widget=True)
 def snells_law(
     aoi=1.0, n1=Medium.Glass, n2=Medium.Water, degrees=True,
 ):
     """Calculate the angle of refraction given two media and an AOI."""
-    print("aoi in function", aoi)
     if degrees:
         aoi = math.radians(aoi)
     try:

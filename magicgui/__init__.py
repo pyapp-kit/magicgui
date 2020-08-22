@@ -9,7 +9,7 @@ __email__ = "talley.lambert@gmail.com"
 
 
 from .application import event_loop
-from .decorator import magicgui
+from .function_gui import magicgui
 from .type_map import register_type
 
 __all__ = ["magicgui", "register_type", "MagicGuiBase", "event_loop", "api"]

@@ -5,7 +5,6 @@ import pathlib
 from collections import abc, defaultdict
 from enum import EnumMeta
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     DefaultDict,
@@ -14,20 +13,14 @@ from typing import (
     Optional,
     Tuple,
     Type,
-    Union,
     cast,
     get_args,
     get_origin,
 )
 
-from typing_extensions import TypedDict
-
 from magicgui import widgets
 from magicgui.protocols import WidgetProtocol
-
-if TYPE_CHECKING:
-    from magicgui.decorator import FunctionGui
-    from magicgui.widget_wrappers import ChoicesType, Widget
+from magicgui.types import ReturnCallback, WidgetClass, WidgetOptions, WidgetRef
 
 
 class MissingWidget(RuntimeError):
@@ -36,40 +29,26 @@ class MissingWidget(RuntimeError):
     pass
 
 
-WidgetClass = Union[Type["Widget"], Type[WidgetProtocol]]
-WidgetClassRef = Union[str, WidgetClass]
-
-
-ReturnCallback = Callable[["FunctionGui", Any, Type], None]
 _RETURN_CALLBACKS: DefaultDict[type, List[ReturnCallback]] = defaultdict(list)
 
+WidgetTuple = Tuple[WidgetRef, WidgetOptions]
+TypeMatcher = Callable[[Any, Optional[Type]], Optional[WidgetTuple]]
 
-class WidgetOptions(TypedDict, total=False):
-    widget_type: WidgetClassRef
-    choices: "ChoicesType"
-    gui_only: bool
-    visible: bool
-    enabled: bool
-    text: str
-    minimum: float
-    maximum: float
-    step: float
-    orientation: str
-
-
-TypeMatcher = Callable[
-    [Any, Optional[Type]], Optional[Tuple[WidgetClassRef, WidgetOptions]]
-]
-
-_TYPE_DEFS: Dict[type, Tuple[WidgetClassRef, WidgetOptions]] = {}
 _TYPE_MATCHERS: List[TypeMatcher] = list()
+_TYPE_DEFS: Dict[type, WidgetTuple] = dict()
 
 
 def is_subclass(obj, superclass):
+    """Safely check if obj is a subclass of superclass."""
     try:
         return issubclass(obj, superclass)
     except Exception:
         return False
+
+
+def normalize_type(value: Any, annotation: Any) -> Type:
+    """Return annotation type origin or dtype of value."""
+    return (get_origin(annotation) or annotation) if annotation else type(value)
 
 
 def type_matcher(func: TypeMatcher) -> TypeMatcher:
@@ -79,31 +58,9 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 
 
 @type_matcher
-def sequence_of_paths(
-    value, annotation
-) -> Optional[Tuple[WidgetClassRef, WidgetOptions]]:
-    """Determine if value/annotation is a Sequence[pathlib.Path]."""
-
-    if annotation:
-        orig = get_origin(annotation)
-        args = get_args(annotation)
-        if not (inspect.isclass(orig) and args):
-            return None
-        if isinstance(orig, abc.Sequence):
-            if is_subclass(args[0], pathlib.Path):
-                return widgets.FileEdit, {}
-    elif value:
-        if isinstance(value, abc.Sequence) and all(
-            isinstance(v, pathlib.Path) for v in value
-        ):
-            return widgets.FileEdit, {}
-    return None
-
-
-@type_matcher
-def simple_type(value, annotation) -> Optional[Tuple[WidgetClassRef, WidgetOptions]]:
+def simple_types(value, annotation) -> Optional[WidgetTuple]:
     """Check simple type mappings."""
-    dtype = resolve_type(value, annotation)
+    dtype = normalize_type(value, annotation)
 
     simple = {
         bool: widgets.CheckBox,
@@ -123,19 +80,34 @@ def simple_type(value, annotation) -> Optional[Tuple[WidgetClassRef, WidgetOptio
     return None
 
 
-def resolve_type(value: Any, annotation: Any) -> Type:
-    return (get_origin(annotation) or annotation) if annotation else type(value)
+@type_matcher
+def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
+    """Determine if value/annotation is a Sequence[pathlib.Path]."""
+    if annotation:
+        orig = get_origin(annotation)
+        args = get_args(annotation)
+        if not (inspect.isclass(orig) and args):
+            return None
+        if isinstance(orig, abc.Sequence):
+            if is_subclass(args[0], pathlib.Path):
+                return widgets.FileEdit, {}
+    elif value:
+        if isinstance(value, abc.Sequence) and all(
+            isinstance(v, pathlib.Path) for v in value
+        ):
+            return widgets.FileEdit, {}
+    return None
 
 
 def pick_widget_type(
     value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {},
-) -> Tuple[WidgetClassRef, WidgetOptions]:
+) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
         return widget_type, options
 
-    dtype = resolve_type(value, annotation)
+    dtype = normalize_type(value, annotation)
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
@@ -154,24 +126,29 @@ def pick_widget_type(
 
 
 def get_widget_class(
-    value: Any = None, annotation: Optional[Type] = None, options: dict = {}
+    value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {}
 ) -> Tuple[WidgetClass, WidgetOptions]:
-    from magicgui.widget_wrappers import Widget
 
     _options = cast(WidgetOptions, options)
     widget_type, _options = pick_widget_type(value, annotation, _options)
-    print("widget_type", widget_type)
+
     if isinstance(widget_type, str):
         widget_class: WidgetClass = _import_class(widget_type)
     else:
         widget_class = widget_type
 
-    assert isinstance(widget_class, WidgetProtocol) or is_subclass(widget_class, Widget)
+    assert isinstance(widget_class, WidgetProtocol) or is_subclass(
+        widget_class, widgets.Widget
+    )
     return widget_class, _options
 
 
 def _import_class(class_name: str) -> WidgetClass:
     import importlib
+
+    # import from magicgui widgets if not explicitly namespaced
+    if "." not in class_name:
+        class_name = "magicgui.widgets." + class_name
 
     mod_name, name = class_name.rsplit(".", 1)
     mod = importlib.import_module(mod_name)
@@ -190,7 +167,7 @@ def validate_return_callback(func):
 def register_type(
     type_: type,
     *,
-    widget_type: WidgetClassRef = None,
+    widget_type: WidgetRef = None,
     return_callback: Optional[ReturnCallback] = None,
     **options,
 ):
@@ -239,9 +216,8 @@ def register_type(
                 f"be used for type {type_}"
             )
     elif widget_type is not None:
-        from magicgui.widget_wrappers import Widget
 
-        if not isinstance(widget_type, (str, Widget, WidgetProtocol)):
+        if not isinstance(widget_type, (str, widgets.Widget, WidgetProtocol)):
             raise TypeError(
                 '"widget_type" must be either a string, Widget, or WidgetProtocol'
             )

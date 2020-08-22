@@ -7,8 +7,7 @@ from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, over
 from magicgui.application import Application, AppRef, use_app
 from magicgui.events import EventEmitter
 from magicgui.type_map import _type2callback
-from magicgui.widget_wrappers import CategoricalWidget
-from magicgui.widgets import Container, LineEdit, PushButton
+from magicgui.widgets import CategoricalWidget, Container, LineEdit, PushButton
 
 F = TypeVar("F", bound=Callable[..., Any])
 

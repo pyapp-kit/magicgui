@@ -9,15 +9,16 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    cast,
 )
 
 from typing_extensions import Annotated, _AnnotatedAlias
 
 from magicgui.application import AppRef
-from magicgui.widget_wrappers import Widget
+from magicgui.types import WidgetOptions
 
 if TYPE_CHECKING:
-    from magicgui.widgets import Container
+    from magicgui.widgets import Container, Widget
 
 
 def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
@@ -55,14 +56,16 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
     return Annotated[annotation, _options]
 
 
-def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, Dict[str, Any]]:
+def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, WidgetOptions]:
     if not isinstance(annotation, _AnnotatedAlias):
         raise TypeError("Type hint must be an 'Annotated' type.")
     if not isinstance(annotation.__metadata__[0], dict):
         raise TypeError(
             "Invalid Annotated format for magicgui. First arg must be a dict"
         )
-    return annotation.__args__[0], annotation.__metadata__[0]
+
+    meta = cast(WidgetOptions, annotation.__metadata__[0])
+    return annotation.__args__[0], meta
 
 
 class MagicParameter(Parameter):
@@ -81,7 +84,7 @@ class MagicParameter(Parameter):
         super().__init__(name, kind, default=default, annotation=_annotation)
 
     @property
-    def options(self) -> dict:
+    def options(self) -> WidgetOptions:
         return split_annotated_type(self.annotation)[1]
 
     def __repr__(self):
@@ -95,6 +98,8 @@ class MagicParameter(Parameter):
         )
 
     def to_widget(self, app: AppRef = None):
+        from magicgui.widgets import Widget
+
         value = None if self.default is self.empty else self.default
         annotation, options = split_annotated_type(self.annotation)
         return Widget.create(
@@ -103,11 +108,11 @@ class MagicParameter(Parameter):
             default=value,
             annotation=annotation,
             app=app,
-            **options,
+            options=options,
         )
 
     @classmethod
-    def from_widget(cls, widget: Widget):
+    def from_widget(cls, widget: "Widget"):
         return cls(
             name=str(widget.name),
             kind=widget.kind,

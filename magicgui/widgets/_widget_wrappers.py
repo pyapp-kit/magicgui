@@ -3,17 +3,13 @@ import inspect
 from enum import EnumMeta
 from inspect import Signature
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
-    Iterable,
     MutableSequence,
     Optional,
     Sequence,
-    Set,
     Tuple,
     Type,
-    TypedDict,
     Union,
     overload,
 )
@@ -21,34 +17,8 @@ from typing import (
 from magicgui import protocols
 from magicgui.application import use_app
 from magicgui.events import EventEmitter
-from magicgui.protocols import (
-    ButtonWidgetProtocol,
-    CategoricalWidgetProtocol,
-    ContainerProtocol,
-    RangedWidgetProtocol,
-    SliderWidgetProtocol,
-    ValueWidgetProtocol,
-    WidgetProtocol,
-)
-
-if TYPE_CHECKING:
-    from magicgui.signature import MagicSignature
-
-
-WidgetRef = Optional[str]
-TypeMatcher = Callable[[Any, Optional[Type], Optional[dict]], WidgetRef]
-_TYPE_MATCHERS: Set[TypeMatcher] = set()
-ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
-ChoicesCallback = Callable[["CategoricalWidget"], ChoicesIterable]
-ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, "ChoicesDict"]
-
-
-class ChoicesDict(TypedDict):
-    """Dict Type for setting choices in a categorical widget."""
-
-    choices: ChoicesIterable
-    key: Callable[[Any], str]
-
+from magicgui.signature import MagicParameter, MagicSignature, magic_signature
+from magicgui.types import ChoicesType, WidgetOptions
 
 # -> WidgetProtocol
 #      ↪ ValueWidgetProtocol
@@ -62,7 +32,7 @@ class ChoicesDict(TypedDict):
 class Widget:
     """Basic Widget, wrapping a class that implements WidgetProtocol."""
 
-    _widget: WidgetProtocol
+    _widget: protocols.WidgetProtocol
 
     @staticmethod
     def create(
@@ -72,39 +42,36 @@ class Widget:
         annotation: Any = None,
         gui_only=False,
         app=None,
-        **options,
+        widget_type: Union[str, Type[protocols.WidgetProtocol], None] = None,
+        options: WidgetOptions = dict(),
     ):
-        kwargs = locals()
-        # kwargs.pop("widget_type")
-        _app = use_app(kwargs.pop("app"))
+        _app = use_app(app)
         assert _app.native
-        if isinstance(kwargs.get("widget_type"), WidgetProtocol):
-            wdg_class = kwargs.get("widget_type")
-        else:
+        if not isinstance(widget_type, protocols.WidgetProtocol):
             from magicgui.type_map import get_widget_class
 
+            if widget_type:
+                options["widget_type"] = widget_type
             wdg_class, opts = get_widget_class(default, annotation, options)
-
-            if inspect.isclass(wdg_class) and issubclass(wdg_class, Widget):
-                opts.update(kwargs.pop("options"))
-                kwargs.update(opts)
-                kwargs.pop("widget_type", None)
-                return wdg_class(**kwargs)
+            if issubclass(wdg_class, Widget):
+                opts.update(options)
+                return wdg_class(**opts)  # type: ignore
+            options.pop("widget_type", None)
+        else:
+            wdg_class = widget_type
 
         # pick the appropriate subclass for the given protocol
         # order matters
         for p in ("Categorical", "Ranged", "Button", "Value", ""):
             prot = getattr(protocols, f"{p}WidgetProtocol")
             if isinstance(wdg_class, prot):
-                return globals()[f"{p}Widget"](
-                    widget_type=wdg_class, **kwargs, **kwargs.pop("options")
-                )
+                return globals()[f"{p}Widget"](widget_type=wdg_class, **options)
 
         raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
     def __init__(
         self,
-        widget_type: Union[str, Type[WidgetProtocol]],
+        widget_type: Type[protocols.WidgetProtocol],
         name: str = "",
         kind: str = "POSITIONAL_OR_KEYWORD",
         default: Any = None,
@@ -182,7 +149,7 @@ class Widget:
 class ValueWidget(Widget):
     """Widget with a value, wrapping the BaseValueWidget protocol."""
 
-    _widget: ValueWidgetProtocol
+    _widget: protocols.ValueWidgetProtocol
     changed: EventEmitter
 
     def __init__(self, **kwargs):
@@ -217,7 +184,7 @@ class ValueWidget(Widget):
 class ButtonWidget(ValueWidget):
     """Widget with a value, wrapping the BaseValueWidget protocol."""
 
-    _widget: ButtonWidgetProtocol
+    _widget: protocols.ButtonWidgetProtocol
     changed: EventEmitter
 
     def __init__(self, text: str = "Text", **kwargs):
@@ -243,7 +210,7 @@ class ButtonWidget(ValueWidget):
 class RangedWidget(ValueWidget):
     """Widget with a contstrained value wraps BaseRangedWidget protocol."""
 
-    _widget: RangedWidgetProtocol
+    _widget: protocols.RangedWidgetProtocol
 
     def __init__(
         self, minimum: float = 0, maximum: float = 100, step: float = 1, **kwargs
@@ -299,7 +266,7 @@ class RangedWidget(ValueWidget):
 
 class SliderWidget(RangedWidget):
 
-    _widget: SliderWidgetProtocol
+    _widget: protocols.SliderWidgetProtocol
 
     def __init__(self, orientation: str = "horizontal", **kwargs):
         super().__init__(**kwargs)
@@ -316,7 +283,7 @@ class SliderWidget(RangedWidget):
 class CategoricalWidget(ValueWidget):
     """Widget with a value and choices, wrapping the BaseCategoricalWidget protocol."""
 
-    _widget: CategoricalWidgetProtocol
+    _widget: protocols.CategoricalWidgetProtocol
 
     def __init__(self, choices: ChoicesType = (), **kwargs):
         self._default_choices = choices
@@ -375,7 +342,7 @@ class Container(Widget, MutableSequence[Widget]):
     """Widget that can contain other widgets."""
 
     changed: EventEmitter
-    _widget: ContainerProtocol
+    _widget: protocols.ContainerProtocol
 
     def __init__(
         self,
@@ -442,21 +409,15 @@ class Container(Widget, MutableSequence[Widget]):
 
     @classmethod
     def from_signature(cls, sig: Signature, **kwargs) -> "Container":
-        from magicgui.signature import MagicSignature
-
         return MagicSignature.from_signature(sig).to_container(**kwargs)
 
     @classmethod
     def from_callable(
         cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
     ) -> "Container":
-        from magicgui.signature import magic_signature
-
         return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
 
     def to_signature(self) -> "MagicSignature":
-        from magicgui.signature import MagicParameter, MagicSignature
-
         params = [
             MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]

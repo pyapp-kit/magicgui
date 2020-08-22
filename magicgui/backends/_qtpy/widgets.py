@@ -14,7 +14,7 @@ from magicgui.protocols import (
     ValueWidgetProtocol,
     WidgetProtocol,
 )
-from magicgui.widget_wrappers import Widget
+from magicgui.widgets import Widget
 
 
 class EventFilter(QObject):

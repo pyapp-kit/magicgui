@@ -33,10 +33,11 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Sequence, Tuple, Type, Union
 
-from magicgui import widget_wrappers as ww
 from magicgui.application import use_app
 from magicgui.constants import FileDialogMode
-from magicgui.subwidgets import make_float_class, make_log_class
+from magicgui.types import PathLike
+from magicgui.widgets import _widget_wrappers as ww
+from magicgui.widgets.transforms import make_float_class, make_log_class
 
 
 def backend_widget(cls=None, widget_name=None, transform=None):
@@ -60,6 +61,7 @@ def backend_widget(cls=None, widget_name=None, transform=None):
                 params[name] = param
 
         cls.__init__ = __init__
+        cls.__module__ = "magicgui.widgets"
         cls.__signature__ = inspect.Signature(
             sorted(params.values(), key=lambda x: x.kind)
         )
@@ -194,11 +196,10 @@ class Container(ww.Container):  # noqa: D101
     pass
 
 
-PathLike = Union[Path, str, bytes]
-
-
 class FileEdit(Container):
     """A LineEdit widget with a button that opens a FileDialog."""
+
+    __module__ = "magicgui.widgets"
 
     def __init__(
         self,
