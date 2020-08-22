@@ -30,7 +30,6 @@ from magicgui.protocols import (
     ValueWidgetProtocol,
     WidgetProtocol,
 )
-from magicgui.type_map import get_widget_class
 
 if TYPE_CHECKING:
     from magicgui.signature import MagicSignature
@@ -72,21 +71,24 @@ class Widget:
         default: Any = None,
         annotation: Any = None,
         gui_only=False,
-        widget_type: Union[str, Type[WidgetProtocol], None] = None,
         app=None,
         **options,
     ):
-
         kwargs = locals()
-        kwargs.pop("widget_type")
+        # kwargs.pop("widget_type")
         _app = use_app(kwargs.pop("app"))
         assert _app.native
-        if isinstance(widget_type, WidgetProtocol):
-            wdg_class = widget_type
+        if isinstance(kwargs.get("widget_type"), WidgetProtocol):
+            wdg_class = kwargs.get("widget_type")
         else:
-            wdg_class = get_widget_class(default, annotation, options)
+            from magicgui.type_map import get_widget_class
+
+            wdg_class, opts = get_widget_class(default, annotation, options)
+
             if inspect.isclass(wdg_class) and issubclass(wdg_class, Widget):
-                kwargs.update(kwargs.pop("options"))
+                opts.update(kwargs.pop("options"))
+                kwargs.update(opts)
+                kwargs.pop("widget_type", None)
                 return wdg_class(**kwargs)
 
         # pick the appropriate subclass for the given protocol
@@ -109,36 +111,25 @@ class Widget:
         annotation: Any = None,
         gui_only=False,
     ):
-        _widget_type: Type[WidgetProtocol] = self._resolve_widget(widget_type)
-        self._widget = _widget_type()
+        prot = getattr(protocols, self.__class__.__annotations__["_widget"].__name__)
+        if not isinstance(widget_type, prot):
+            raise TypeError(f"{widget_type!r} does not implement the proper protocol")
+        self._widget = widget_type()
 
         self.name: str = name
-        self.annotation: Any = annotation
         self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
+        self.default = default
+        self.annotation: Any = annotation
         self.gui_only = gui_only
         self.visible: bool = True
+        self.parent_changed = EventEmitter(source=self, type="parent_changed")
+        self._widget._mg_bind_parent_change_callback(
+            lambda *x: self.parent_changed(value=self.parent)
+        )
 
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
         self._post_init()
-
-        self.default = default
-
-    @classmethod
-    def _resolve_widget(
-        cls, widget_type: Union[str, Type[WidgetProtocol]]
-    ) -> Type[WidgetProtocol]:
-        if isinstance(widget_type, str):
-            app = use_app()
-            assert app.native
-            _widget_type = app.get_obj(widget_type)
-        else:
-            _widget_type = widget_type
-
-        prot = getattr(protocols, cls.__annotations__["_widget"].__name__)
-        if not isinstance(_widget_type, prot):
-            raise TypeError("{widget_type} does not implement the proper protocol")
-        return _widget_type
 
     def _post_init(self):
         pass
@@ -334,6 +325,7 @@ class CategoricalWidget(ValueWidget):
     def _post_init(self):
         super()._post_init()
         self.reset_choices()
+        self.parent_changed.connect(self.reset_choices)
 
     @property
     def options(self) -> dict:
@@ -341,7 +333,7 @@ class CategoricalWidget(ValueWidget):
         d.update({"choices": self._default_choices})
         return d
 
-    def reset_choices(self):
+    def reset_choices(self, event=None):
         """Reset choices to the default state.
 
         If self._default_choices is a callable, this may NOT be the exact same set of
@@ -393,7 +385,6 @@ class Container(Widget, MutableSequence[Widget]):
         **kwargs,
     ):
         super().__init__(**kwargs)
-
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
         for w in widgets:
@@ -403,7 +394,7 @@ class Container(Widget, MutableSequence[Widget]):
         for widget in self:
             if name == widget.name:
                 return widget
-        raise AttributeError(f"'Container' object has no attribute {name!r}")
+        return object.__getattribute__(self, name)
 
     def __delitem__(self, key: Union[int, slice]):
         if isinstance(key, slice):

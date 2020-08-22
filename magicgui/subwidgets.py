@@ -2,6 +2,7 @@ import math
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, TypeVar
 
+from magicgui.application import use_app
 from magicgui.protocols import RangedWidgetProtocol, ValueWidgetProtocol
 
 C = TypeVar("C")
@@ -23,6 +24,10 @@ def transform_get_set(
     set_transform: Optional[Callable[[Any], Any]] = None,
     prefix: str = "Transformed",
 ):
+    if isinstance(cls, str):
+        app = use_app()
+        assert app.native
+        cls = app.get_obj(cls)
     if not issubclass(cls, ValueWidgetProtocol):
         raise TypeError(
             "Class must implement `BaseValueWidget` to transform getter and setter."

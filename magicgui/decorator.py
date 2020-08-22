@@ -5,6 +5,9 @@ from contextlib import contextmanager
 from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef, use_app
+from magicgui.events import EventEmitter
+from magicgui.type_map import _type2callback
+from magicgui.widget_wrappers import CategoricalWidget
 from magicgui.widgets import Container, LineEdit, PushButton
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -125,7 +128,8 @@ class FunctionGui:
         self.widgets = Container.from_callable(
             function, orientation=orientation, gui_options=param_options
         )
-
+        self.called = EventEmitter(self, type="called")
+        self._result_name = ""
         self._function = function
 
         if call_button:
@@ -161,7 +165,7 @@ class FunctionGui:
                 return getattr(self.widgets, name)
             except AttributeError:
                 pass
-        raise AttributeError(f"'FunctionGui' object has no attribute {name!r}")
+        return object.__getattribute__(self, name)
 
     def __setattr__(self, name, value):
         """If ``name`` is the name of one of the parameters, set the current value."""
@@ -194,15 +198,14 @@ class FunctionGui:
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
-        print("returned,", value)
         if self._result_widget is not None:
             self._result_widget.value = value
 
-        # self.called.emit(value)
-        # return_type = self.widgets._return_annotation
-        # if return_type:
-        #     for callback in _type2callback(return_type):
-        #         callback(self, value, return_type)
+        return_type = self.widgets._return_annotation
+        if return_type:
+            for callback in _type2callback(return_type):
+                callback(self, value, return_type)
+        self.called(value=value)
         return value
 
     def __repr__(self) -> str:
@@ -233,3 +236,18 @@ class FunctionGui:
     def __signature__(self) -> inspect.Signature:
         """Return signature object, for compatibility with inspect.signature()."""
         return self.widgets.to_signature()
+
+    @property
+    def result_name(self) -> str:
+        """Return a name that can be used for the result of this magicfunction."""
+        return self._result_name or (self._function.__name__ + " result")
+
+    @result_name.setter
+    def result_name(self, value: str):
+        """Set the result name of this MagicGui widget."""
+        self._result_name = value
+
+    def reset_choices(self, event=None):
+        for widget in self.widgets:
+            if isinstance(widget, CategoricalWidget):
+                widget.reset_choices()

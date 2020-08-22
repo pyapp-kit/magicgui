@@ -2,7 +2,7 @@
 from typing import Any, Iterable, Optional, Tuple, Union
 
 from qtpy import QtWidgets as QtW
-from qtpy.QtCore import QObject, Qt, Signal
+from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
 
 from magicgui.constants import FileDialogMode
 from magicgui.protocols import (
@@ -17,6 +17,17 @@ from magicgui.protocols import (
 from magicgui.widget_wrappers import Widget
 
 
+class EventFilter(QObject):
+    parentChanged = Signal()
+    valueChanged = Signal(object)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.ParentChange:
+            # FIXME: error prone... but we need this to emit AFTER the event is handled
+            QTimer().singleShot(1, self.parentChanged.emit)
+        return False
+
+
 class QBaseWidget(WidgetProtocol):
     """Implements show/hide/native."""
 
@@ -24,6 +35,8 @@ class QBaseWidget(WidgetProtocol):
 
     def __init__(self, qwidg: QtW.QWidget):
         self._qwidget = qwidg()
+        self._event_filter = EventFilter()
+        self._qwidget.installEventFilter(self._event_filter)
 
     def _mg_show_widget(self):
         self._qwidget.show()
@@ -37,15 +50,18 @@ class QBaseWidget(WidgetProtocol):
     def _mg_set_enabled(self, enabled: bool):
         self._qwidget.setEnabled(enabled)
 
-    def _mg_get_parent(self) -> Widget:
-        p = self._qwidget.parent()
-        return p._magic_widget if p else None
+    # TODO: this used to return _magic_widget ... figure out what we should be returning
+    def _mg_get_parent(self):
+        return self._qwidget.parent()
 
     def _mg_set_parent(self, widget: Widget):
         self._qwidget.setParent(widget.native)
 
     def _mg_get_native_widget(self) -> QtW.QWidget:
         return self._qwidget
+
+    def _mg_bind_parent_change_callback(self, callback):
+        self._event_filter.parentChanged.connect(callback)
 
 
 class QBaseValueWidget(QBaseWidget, ValueWidgetProtocol):
@@ -184,10 +200,6 @@ class RadioButton(QBaseButtonWidget):
 # CATEGORICAL
 
 
-class Signals(QObject):
-    changed = Signal(object)
-
-
 class Container(QBaseWidget, ContainerProtocol, SupportsOrientation):
     def __init__(self, orientation="horizontal"):
         QBaseWidget.__init__(self, QtW.QWidget)
@@ -203,10 +215,6 @@ class Container(QBaseWidget, ContainerProtocol, SupportsOrientation):
         if isinstance(self._layout, QtW.QFormLayout):
             self._layout.addRow(label, _widget)
         else:
-            # if label:
-            #     label_widget = QtW.QLabel(label)
-            #     label_widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
-            #     self._layout.addWidget(label_widget)
             self._layout.addWidget(_widget)
 
     def _mg_insert_widget(self, position: int, widget: Widget):
@@ -219,10 +227,6 @@ class Container(QBaseWidget, ContainerProtocol, SupportsOrientation):
             self._layout.insertRow(position, label, _widget)
         else:
             self._layout.insertWidget(position, _widget)
-            # if label:
-            #     label_widget = QtW.QLabel(label)
-            #     label_widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
-            #     self._layout.insertWidget(position, label_widget)
 
     def _mg_remove_widget(self, widget: Widget):
         if isinstance(self._layout, QtW.QFormLayout):
@@ -293,6 +297,7 @@ class Slider(QBaseRangedWidget, SupportsOrientation):
 
     def __init__(self):
         super().__init__(QtW.QSlider)
+        self._mg_set_orientation("horizontal")
 
     def _mg_set_orientation(self, value) -> Any:
         """Get current value of the widget."""
@@ -310,16 +315,15 @@ class ComboBox(QBaseValueWidget, CategoricalWidgetProtocol):
 
     def __init__(self):
         super().__init__(QtW.QComboBox, "isChecked", "setCurrentIndex", "")
-        self.signals = Signals()
         self._qwidget.currentIndexChanged.connect(self._emit_data)
 
     def _emit_data(self, index: int):
         data = self._qwidget.itemData(index)
         if data is not None:
-            self.signals.changed.emit(data)
+            self._event_filter.valueChanged.emit(data)
 
     def _mg_bind_change_callback(self, callback):
-        self.signals.changed.connect(callback)
+        self._event_filter.valueChanged.connect(callback)
 
     def _mg_get_value(self) -> Any:
         return self._qwidget.itemData(self._qwidget.currentIndex())

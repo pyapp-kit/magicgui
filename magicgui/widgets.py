@@ -39,7 +39,9 @@ from magicgui.constants import FileDialogMode
 
 def backend_widget(cls) -> Type[ww.Widget]:
     def __init__(self, **kwargs):
-        kwargs["widget_type"] = cls.__name__
+        app = use_app()
+        assert app.native
+        kwargs["widget_type"] = app.get_obj(cls.__name__)
         super(cls, self).__init__(**kwargs)
 
     params = {}

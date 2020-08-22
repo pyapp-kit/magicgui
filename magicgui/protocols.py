@@ -102,6 +102,11 @@ class WidgetProtocol(Protocol):
     def _mg_get_native_widget(self):
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mg_bind_parent_change_callback(self, callback: Callable[[Any], None]):
+        """Bind callback to parent change event."""
+        raise NotImplementedError()
+
 
 @runtime_checkable
 class ValueWidgetProtocol(WidgetProtocol, Protocol):

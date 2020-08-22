@@ -1,4 +1,3 @@
-from enum import EnumMeta
 from inspect import Parameter, Signature, _ParameterKind, signature
 from types import MappingProxyType
 from typing import (
@@ -47,10 +46,6 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
     if options and not isinstance(options, dict):
         raise TypeError("'options' must be a dict")
     _options = (options or dict()).copy()
-
-    # FIXME: the auto-choices for enums should go in type_map instead
-    if isinstance(annotation, EnumMeta):
-        _options.setdefault("choices", annotation)
 
     if isinstance(annotation, _AnnotatedAlias):
         hint, anno_options = split_annotated_type(annotation)
