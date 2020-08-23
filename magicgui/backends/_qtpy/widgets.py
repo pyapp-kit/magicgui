@@ -226,15 +226,14 @@ class Container(
             self._layout.removeRow(widget.native)
         else:
             self._layout.removeWidget(widget.native)
+        widget.native.setParent(None)
 
     def _mg_remove_index(self, position: int):
         # TODO: normalize position in superclass
         if position < 0:
             position = self._mg_count() + position + 1
-        if isinstance(self._layout, QtW.QFormLayout):
-            self._layout.removeRow(position)
-        else:
-            self._layout.takeAt(position)
+        item = self._layout.takeAt(position)
+        item.widget().setParent(None)
 
     def _mg_count(self) -> int:
         return self._layout.count()

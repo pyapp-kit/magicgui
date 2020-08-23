@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import (
     Any,
     Callable,
+    List,
     MutableSequence,
     Optional,
     Sequence,
@@ -104,6 +105,7 @@ class Widget:
         kind: str = "POSITIONAL_OR_KEYWORD",
         default: Any = None,
         annotation: Any = None,
+        visible: bool = True,
         gui_only=False,
     ):
         prot = getattr(protocols, self.__class__.__annotations__["_widget"].__name__)
@@ -125,6 +127,8 @@ class Widget:
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
         self._post_init()
+        if not visible:
+            self.hide()
 
     def _post_init(self):
         pass
@@ -215,9 +219,9 @@ class ButtonWidget(ValueWidget):
     _widget: protocols.ButtonWidgetProtocol
     changed: EventEmitter
 
-    def __init__(self, text: str = "Text", **kwargs):
+    def __init__(self, text: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
-        self.text = text
+        self.text = text or self.name
 
     @property
     def options(self) -> dict:
@@ -323,6 +327,18 @@ class CategoricalWidget(ValueWidget):
         self.parent_changed.connect(self.reset_choices)
 
     @property
+    def value(self):
+        return self._widget._mg_get_value()
+
+    @value.setter
+    def value(self, value):
+        if value not in self.choices:
+            raise ValueError(
+                f"{value!r} is not a valid choice. must be in {self.choices}"
+            )
+        return self._widget._mg_set_value(value)
+
+    @property
     def options(self) -> dict:
         d = super().options.copy()
         d.update({"choices": self._default_choices})
@@ -340,7 +356,7 @@ class CategoricalWidget(ValueWidget):
     @property
     def choices(self):
         """Available value choices for this widget."""
-        return tuple(i[0] for i in self._widget._mg_get_choices())
+        return tuple(i[1] for i in self._widget._mg_get_choices())
 
     @choices.setter
     def choices(self, choices: ChoicesType):

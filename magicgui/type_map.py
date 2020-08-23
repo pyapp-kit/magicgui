@@ -69,7 +69,8 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         str: widgets.LineEdit,
         pathlib.Path: widgets.FileEdit,
         datetime.datetime: widgets.DateTimeEdit,
-        type(None): widgets.LineEdit,
+        type(None): widgets.LiteralEvalLineEdit,
+        Any: widgets.LiteralEvalLineEdit,
     }
     if dtype in simple:
         return simple[dtype], {}
@@ -122,7 +123,7 @@ def pick_widget_type(
         _widget_type = matcher(value, annotation)
         if _widget_type:
             return _widget_type
-    raise ValueError("Could not pick widget.")
+    raise ValueError(f"Could not pick widget for type: {dtype!r}")
 
 
 def get_widget_class(
