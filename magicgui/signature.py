@@ -184,7 +184,6 @@ def magic_signature(
     follow_wrapped: bool = True,
 ) -> MagicSignature:
     sig = signature(obj, follow_wrapped=follow_wrapped)
-
     if gui_options:
         invalid = set(gui_options) - set(sig.parameters)
         if invalid:

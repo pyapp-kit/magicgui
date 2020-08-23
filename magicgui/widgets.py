@@ -68,27 +68,32 @@ class Widget:
         widget_type: Union[str, Type[protocols.WidgetProtocol], None] = None,
         options: WidgetOptions = dict(),
     ):
-        _app = use_app(app)
+        kwargs = locals()
+        _app = use_app(kwargs.pop("app"))
         assert _app.native
-        if not isinstance(widget_type, protocols.WidgetProtocol):
+        if isinstance(widget_type, protocols.WidgetProtocol):
+            wdg_class = widget_type
+        else:
             from magicgui.type_map import get_widget_class
 
             if widget_type:
                 options["widget_type"] = widget_type
             wdg_class, opts = get_widget_class(default, annotation, options)
+
             if issubclass(wdg_class, Widget):
-                opts.update(options)
-                return wdg_class(**opts)  # type: ignore
-            options.pop("widget_type", None)
-        else:
-            wdg_class = widget_type
+                opts.update(kwargs.pop("options"))
+                kwargs.update(opts)
+                kwargs.pop("widget_type", None)
+                return wdg_class(**kwargs)
 
         # pick the appropriate subclass for the given protocol
         # order matters
         for p in ("Categorical", "Ranged", "Button", "Value", ""):
             prot = getattr(protocols, f"{p}WidgetProtocol")
             if isinstance(wdg_class, prot):
-                return globals()[f"{p}Widget"](widget_type=wdg_class, **options)
+                return globals()[f"{p}Widget"](
+                    widget_type=wdg_class, **kwargs, **kwargs.pop("options")
+                )
 
         raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
