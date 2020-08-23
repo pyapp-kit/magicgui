@@ -1,24 +1,23 @@
-from __future__ import annotations
-
-import inspect
 from contextlib import contextmanager
-from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union, overload
+from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef, use_app
 from magicgui.events import EventEmitter
+from magicgui.protocols import ContainerProtocol
+from magicgui.signature import magic_signature
 from magicgui.type_map import _type2callback
-from magicgui.widgets import CategoricalWidget, Container, LineEdit, PushButton
+from magicgui.widgets import Container, LineEdit, PushButton
 
 F = TypeVar("F", bound=Callable[..., Any])
 
 
 @overload
-def magicgui(function: F) -> FunctionGui:
+def magicgui(function: F) -> "FunctionGui":
     ...
 
 
 @overload
-def magicgui(function=None, **k) -> Callable[[F], FunctionGui]:
+def magicgui(function=None, **k) -> Callable[[F], "FunctionGui"]:
     ...
 
 
@@ -99,14 +98,14 @@ def magicgui(
         return inner_func(function)
 
 
-class FunctionGui:
+class FunctionGui(Container):
     """Wrapper for a container of widgets representing a callable object."""
 
-    widgets: Container
     __magicgui_app__: Application
+    _widget: ContainerProtocol
 
-    def __new__(
-        cls,
+    def __init__(
+        self,
         function: Callable,
         call_button: Union[bool, str] = True,
         orientation: str = "horizontal",
@@ -115,18 +114,21 @@ class FunctionGui:
         auto_call: bool = False,
         result_widget: bool = False,
         param_options: Optional[dict] = None,
-    ) -> FunctionGui:
+    ):
         """Create a new FunctionGui instance."""
-        if isinstance(function, FunctionGui):
-            # don't redecorate already-wrapped function
-            return function
+        # if isinstance(function, FunctionGui):
+        #     # don't redecorate already-wrapped function
+        #     return function
 
-        self = super().__new__(cls)
         self.__magicgui_app__ = use_app(app)
-        # this must be the first thing set
-        self.widgets = Container.from_callable(
-            function, orientation=orientation, gui_options=param_options
+
+        sig = magic_signature(function, gui_options=param_options)
+        super().__init__(
+            orientation=orientation,
+            widgets=list(sig.widgets(app).values()),
+            return_annotation=sig.return_annotation,
         )
+
         self.called = EventEmitter(self, type="called")
         self._result_name = ""
         self._function = function
@@ -135,45 +137,20 @@ class FunctionGui:
             text = call_button if isinstance(call_button, str) else "Run"
             self._call_button = PushButton(gui_only=True, text=text, name="call_button")
             if not auto_call:  # (otherwise it already get's called)
-                # using lambda because the clicked signal returns a value
-                self._call_button.changed.connect(lambda x: self.__call__())
-            self.widgets.append(self._call_button)
+                self._call_button.changed.connect(lambda e: self.__call__())
+            self.append(self._call_button)
 
-        self._result_widget = None
+        self._result_widget: Optional[LineEdit] = None
         if result_widget:
             self._result_widget = LineEdit(gui_only=True, name="result")
             self._result_widget.enabled = False
-            self.widgets.append(self._result_widget)
+            self.append(self._result_widget)
 
         if auto_call:
-            self.widgets.changed.connect(lambda *x: self.__call__())
+            self.changed.connect(lambda e: self.__call__())
 
         if show:
             self.show()
-        return self
-
-    def __dir__(self) -> List[str]:
-        d = list(super().__dir__())
-        d.extend([w.name for w in self.widgets if not w.gui_only])
-        return d
-
-    def __getattr__(self, name):
-        """If ``name`` is the name of one of the parameters, get the widget."""
-        if name != "widgets" and hasattr(self, "widgets"):
-            try:
-                return getattr(self.widgets, name)
-            except AttributeError:
-                pass
-        return object.__getattribute__(self, name)
-
-    def __setattr__(self, name, value):
-        """If ``name`` is the name of one of the parameters, set the current value."""
-        if name != "widgets" and hasattr(self, "widgets"):
-            widget = getattr(self.widgets, name, None)
-            if widget:
-                widget.value = value
-                return
-        super().__setattr__(name, value)
 
     def __call__(self, *args: Any, **kwargs: Any):
         """Call the original function with the current parameter values from the Gui.
@@ -192,7 +169,7 @@ class FunctionGui:
         gui = FunctionGui(func, show=True)
         # ... change parameters in the gui ... or by setting:  gui.param = something
         """
-        sig = self.widgets.to_signature()
+        sig = self.to_signature()
         bound = sig.bind(*args, **kwargs)
         bound.apply_defaults()
 
@@ -200,7 +177,7 @@ class FunctionGui:
         if self._result_widget is not None:
             self._result_widget.value = value
 
-        return_type = self.widgets._return_annotation
+        return_type = self._return_annotation
         if return_type:
             for callback in _type2callback(return_type):
                 callback(self, value, return_type)
@@ -210,11 +187,11 @@ class FunctionGui:
     def __repr__(self) -> str:
         """Return string representation of instance."""
         fname = f"{self._function.__module__}.{self._function.__name__}"
-        return f"<FunctionGui {fname}{self.widgets.to_signature()}>"
+        return f"<FunctionGui {fname}{self.to_signature()}>"
 
     def show(self, run=False):
         """Show the widget."""
-        self.widgets.show()
+        super().show()
         if run:
             self.__magicgui_app__.run()
 
@@ -222,19 +199,10 @@ class FunctionGui:
     def shown(self):
         """Context manager to show the widget."""
         try:
-            self.show()
+            super().show()
             yield self.__magicgui_app__.__enter__()
         finally:
             self.__magicgui_app__.__exit__()
-
-    def hide(self):
-        """Hide the widget."""
-        self.widgets.hide()
-
-    @property
-    def __signature__(self) -> inspect.Signature:
-        """Return signature object, for compatibility with inspect.signature()."""
-        return self.widgets.to_signature()
 
     @property
     def result_name(self) -> str:
@@ -245,8 +213,3 @@ class FunctionGui:
     def result_name(self, value: str):
         """Set the result name of this MagicGui widget."""
         self._result_name = value
-
-    def reset_choices(self, event=None):
-        for widget in self.widgets:
-            if isinstance(widget, CategoricalWidget):
-                widget.reset_choices()

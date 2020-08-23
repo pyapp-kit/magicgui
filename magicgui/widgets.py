@@ -391,13 +391,6 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
                 return widget
         return object.__getattribute__(self, name)
 
-    def __delitem__(self, key: Union[int, slice]):
-        if isinstance(key, slice):
-            for idx in range(*key.indices(len(self))):
-                self._widget._mg_remove_index(idx)
-        else:
-            self._widget._mg_remove_index(key)
-
     @overload
     def __getitem__(self, key: int) -> Widget:
         ...
@@ -414,17 +407,36 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
                 if item:
                     out.append(item)
             return out
-
+        elif isinstance(key, int):
+            if key < 0:
+                key += len(self)
         item = self._widget._mg_get_index(key)
         if not item:
             raise IndexError("Container index out of range")
         return item
+
+    def __delattr__(self, name: str):
+        self.remove(getattr(self, name))
+
+    def __delitem__(self, key: Union[int, slice]):
+        if isinstance(key, slice):
+            for idx in range(*key.indices(len(self))):
+                self._widget._mg_remove_index(idx)
+        else:
+            if key < 0:
+                key += len(self)
+            self._widget._mg_remove_index(key)
 
     def __len__(self) -> int:
         return self._widget._mg_count()
 
     def __setitem__(self, key, value):
         raise NotImplementedError("magicgui.Container does not support item setting.")
+
+    def __dir__(self) -> List[str]:
+        d = list(super().__dir__())
+        d.extend([w.name for w in self if not w.gui_only])
+        return d
 
     def insert(self, key: int, widget: Widget):
         if isinstance(widget, ValueWidget):
@@ -444,6 +456,16 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
     ) -> "Container":
         return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
+
+    @property
+    def __signature__(self) -> inspect.Signature:
+        """Return signature object, for compatibility with inspect.signature()."""
+        return self.to_signature()
+
+    def reset_choices(self, event=None):
+        for widget in self:
+            if isinstance(widget, CategoricalWidget):
+                widget.reset_choices()
 
     def to_signature(self) -> "MagicSignature":
         params = [
