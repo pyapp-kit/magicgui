@@ -111,8 +111,9 @@ class Widget:
         prot = getattr(protocols, self.__class__.__annotations__["_widget"].__name__)
         if not isinstance(widget_type, prot):
             raise TypeError(f"{widget_type!r} does not implement the proper protocol")
+        app = use_app()
+        assert app.native
         self._widget = widget_type()
-
         self.name: str = name
         self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
         self.default = default

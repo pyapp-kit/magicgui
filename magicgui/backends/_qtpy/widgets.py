@@ -25,6 +25,8 @@ class QBaseWidget(protocols.WidgetProtocol):
     _qwidget: QtW.QWidget
 
     def __init__(self, qwidg: QtW.QWidget):
+        print(qwidg)
+        print(QtW.QApplication.instance())
         self._qwidget = qwidg()
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)

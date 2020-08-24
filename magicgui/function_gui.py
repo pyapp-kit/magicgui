@@ -121,7 +121,6 @@ class FunctionGui(Container):
         #     return function
 
         self.__magicgui_app__ = use_app(app)
-
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             orientation=orientation,

@@ -234,6 +234,7 @@ class EventEmitter(object):
         self._blocked = {None: 0}
 
         # used to detect emitter loops
+        self._emitting = False
         self.source = source
         self.default_args = {}
         if type is not None:
@@ -471,6 +472,8 @@ class EventEmitter(object):
         """
         # This is a VERY highly used method; must be fast!
         blocked = self._blocked
+        if self._emitting:
+            raise RuntimeError("EventEmitter loop detected!")
 
         # create / massage event as needed
         event = self._prepare_event(*args, **kwargs)
@@ -478,6 +481,7 @@ class EventEmitter(object):
         # Add our source to the event; remove it after all callbacks have been
         # invoked.
         event._push_source(self.source)
+        self._emitting = True
         try:
             if blocked.get(None, 0) > 0:  # this is the same as self.blocked()
                 return event
@@ -504,6 +508,7 @@ class EventEmitter(object):
             for cb in rem:
                 self.disconnect(cb)
         finally:
+            self._emitting = False
             if event._pop_source() != self.source:
                 raise RuntimeError("Event source-stack mismatch.")
 

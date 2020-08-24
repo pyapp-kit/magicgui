@@ -11,7 +11,7 @@ import pytest
 from qtpy import API_NAME, QtCore
 from qtpy import QtWidgets as QtW
 
-from magicgui import _qt, event_loop
+from magicgui import event_loop, widgets
 
 
 @pytest.mark.skipif(API_NAME == "PyQt5", reason="Couldn't delete app on PyQt")
@@ -33,21 +33,18 @@ def test_event():
 @pytest.mark.parametrize(
     "WidgetClass",
     [
-        _qt.widgets.QDataComboBox,
-        QtW.QComboBox,
-        QtW.QStatusBar,
-        QtW.QLineEdit,
-        QtW.QPushButton,
-        QtW.QGroupBox,
-        QtW.QDateTimeEdit,
-        QtW.QSpinBox,
-        QtW.QDoubleSpinBox,
-        QtW.QAbstractSlider,
-        QtW.QTabWidget,
-        QtW.QSplitter,
-        QtW.QSlider,
-        _qt.widgets.QDoubleSlider,
-        _qt.widgets.MagicFileDialog,
+        widgets.ComboBox,
+        widgets.LineEdit,
+        widgets.PushButton,
+        widgets.DateTimeEdit,
+        widgets.SpinBox,
+        widgets.FloatSpinBox,
+        widgets.AbstractSlider,
+        widgets.TabWidget,
+        widgets.Splitter,
+        widgets.Slider,
+        widgets.FloatSlider,
+        widgets.FileEdit,
     ],
 )
 def test_get_set_change(qtbot, WidgetClass):
@@ -60,28 +57,6 @@ def test_get_set_change(qtbot, WidgetClass):
 
     with pytest.raises(ValueError):
         _qt.getter_setter_onchange(Random())  # type: ignore
-
-
-def test_double_slider(qtbot):
-    """Test basic slider functionality."""
-    slider = _qt.widgets.QDoubleSlider()
-    assert slider.value() == 0
-    slider.setValue(5.5)
-    assert slider.value() == 5.5
-    assert QtW.QSlider.value(slider) == 5.5 * slider.PRECISION
-
-
-@pytest.mark.parametrize("type", [Enum, int, float, str, list, dict, set])
-def test_type2widget(type):
-    """Test that type2widget returns successfully."""
-    _qt.type2widget(type)
-
-
-def test_setters(qtbot):
-    """Test that make_widget accepts any arg that has a set<arg> method."""
-    w = _qt.make_widget(QtW.QDoubleSpinBox, "spinbox", minimum=2, Maximum=10)
-    assert w.minimum() == 2
-    assert w.maximum() == 10
 
 
 def test_make_widget_magicfiledialog(qtbot):
