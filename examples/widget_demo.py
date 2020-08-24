@@ -16,11 +16,14 @@ class Medium(Enum):
     Air = 1.0003
 
 
-@magicgui(call_button="Calculate", result_widget=True)
+@magicgui(
+    call_button="Calculate", another_float={"widget_type": "Slider"}, result_widget=True
+)
 def widget_demo(
     boolean=True,
     integer=1,
     float=3.14159,
+    another_float=4.5,
     string="Text goes here",
     dropdown=Medium.Glass,
     datetime=datetime.now(),
@@ -28,7 +31,8 @@ def widget_demo(
 ):
     """Run some computation."""
     print("Running some computation...")
+    return "result!"
 
 
-widget_demo.widgets.changed.connect(print)
+widget_demo.changed.connect(lambda event: print(widget_demo))
 widget_demo.show(run=True)
