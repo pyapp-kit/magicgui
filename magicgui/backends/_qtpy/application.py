@@ -6,6 +6,8 @@ from magicgui.protocols import BaseApplicationBackend
 
 # qt implementation
 class ApplicationBackend(BaseApplicationBackend):
+    _app: QApplication
+
     def _mg_get_backend_name(self):
         return "qt"
 
@@ -25,11 +27,11 @@ class ApplicationBackend(BaseApplicationBackend):
 
     def _mg_get_native_app(self):
         # Get native app
-        app = QApplication.instance()
-        if not app:
-            app = QApplication([])
-            app.setObjectName("magicgui")
-        return app
+        self._app = QApplication.instance()
+        if not self._app:
+            self._app = QApplication([])
+            self._app.setObjectName("magicgui")
+        return self._app
 
     def _mg_start_timer(self, interval=0, on_timeout=None, single=False):
         self._timer = QTimer()
