@@ -18,5 +18,6 @@ with event_loop():
         # "wiener",
     ]:
         func = partial(getattr(filters, n), grass())
-        gui = magicgui(func, call_button="print").Gui(show=True)
-        gui.called.connect(print)
+        func = magicgui(func, call_button="print")
+        func.called.connect(print)
+        func.show()

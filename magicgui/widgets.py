@@ -749,5 +749,70 @@ class FileEdit(Container):
         self.line_edit.value = os.fspath(Path(value).expanduser().absolute())
 
     def __repr__(self) -> str:
-        """String representation."""
+        """Return string representation."""
         return f"<FileEdit mode={self.mode.value!r}, value={self.value!r}>"
+
+
+class RangeEdit(Container):
+    """A widget to represent range objects, with start/stop/step."""
+
+    def __init__(
+        self,
+        name: str = "",
+        kind: str = "POSITIONAL_OR_KEYWORD",
+        default: Any = inspect.Parameter.empty,
+        annotation=None,
+        gui_only=False,
+        orientation="horizontal",
+        start=0,
+        stop=10,
+        step=1,
+    ):
+        self.start = SpinBox(default=start)
+        self.stop = SpinBox(default=stop)
+        self.step = SpinBox(default=step)
+        super().__init__(
+            orientation=orientation,
+            widgets=[self.start, self.stop, self.step],
+            name=name,
+            kind=kind,
+            default=default,
+            annotation=annotation,
+            gui_only=gui_only,
+        )
+
+    @property
+    def value(self) -> range:
+        """Return current value of the widget.  This may be interpreted by backends."""
+        return range(self.start.value, self.stop.value, self.step.value)
+
+    @value.setter
+    def value(self, value: range):
+        """Set current file path."""
+        self.start.value = value.start
+        self.stop.value = value.stop
+        self.step.value = value.step
+
+    def __repr__(self) -> str:
+        """Return string representation."""
+        return f"<RangeEdit value={self.value!r}>"
+
+
+class SliceEdit(RangeEdit):
+    """A widget to represent range objects, with start/stop/step."""
+
+    @property  # type: ignore
+    def value(self) -> slice:  # type: ignore
+        """Return current value of the widget.  This may be interpreted by backends."""
+        return slice(self.start.value, self.stop.value, self.step.value)
+
+    @value.setter
+    def value(self, value: slice):
+        """Set current file path."""
+        self.start.value = value.start
+        self.stop.value = value.stop
+        self.step.value = value.step
+
+    def __repr__(self) -> str:
+        """Return string representation."""
+        return f"<SliceEdit value={self.value!r}>"

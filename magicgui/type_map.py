@@ -71,6 +71,8 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         datetime.datetime: widgets.DateTimeEdit,
         type(None): widgets.LiteralEvalLineEdit,
         Any: widgets.LiteralEvalLineEdit,
+        range: widgets.RangeEdit,
+        slice: widgets.SliceEdit,
     }
     if dtype in simple:
         return simple[dtype], {}
