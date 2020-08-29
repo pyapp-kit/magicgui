@@ -7,7 +7,7 @@ from typing_extensions import TypedDict
 if TYPE_CHECKING:
     from magicgui.function_gui import FunctionGui
     from magicgui.protocols import WidgetProtocol
-    from magicgui.widgets import CategoricalWidget, Widget
+    from magicgui.widgets import CategoricalWidget, FileDialogMode, Widget
 
 WidgetClass = Union[Type["Widget"], Type["WidgetProtocol"]]
 WidgetRef = Union[str, WidgetClass]
@@ -37,3 +37,4 @@ class WidgetOptions(TypedDict, total=False):
     maximum: float
     step: float
     orientation: str
+    mode: Union[str, "FileDialogMode"]

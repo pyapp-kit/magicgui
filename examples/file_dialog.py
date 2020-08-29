@@ -5,8 +5,6 @@ from typing import Sequence
 from magicgui import event_loop, magicgui
 
 
-# may also add Qt-style filter to filename options:
-# e.g. {"filter": "Images (*.tif *.tiff)"}
 @magicgui(filename={"mode": "r"})
 def filepicker(filename=Path("~")):
     """Take a filename and do something with it."""
@@ -23,6 +21,7 @@ def filespicker(filenames: Sequence[Path]):
 
 
 with event_loop():
-    gui = filepicker.Gui(show=True)
-    gui.filename_changed.connect(print)
-    gui2 = filespicker.Gui(show=True)
+    filepicker.show()
+    filespicker.show()
+    filepicker.filename.changed.connect(lambda e: print(e.value.value))
+    filespicker.filenames.changed.connect(lambda e: print(e.value.value))

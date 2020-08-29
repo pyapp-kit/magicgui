@@ -89,14 +89,14 @@ def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
         args = get_args(annotation)
         if not (inspect.isclass(orig) and args):
             return None
-        if isinstance(orig, abc.Sequence):
+        if is_subclass(orig, abc.Sequence) or isinstance(orig, abc.Sequence):
             if is_subclass(args[0], pathlib.Path):
-                return widgets.FileEdit, {}
+                return widgets.FileEdit, {"mode": "rm"}
     elif value:
         if isinstance(value, abc.Sequence) and all(
             isinstance(v, pathlib.Path) for v in value
         ):
-            return widgets.FileEdit, {}
+            return widgets.FileEdit, {"mode": "rm"}
     return None
 
 
