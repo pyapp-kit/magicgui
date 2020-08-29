@@ -107,25 +107,31 @@ class FunctionGui(Container):
     def __init__(
         self,
         function: Callable,
-        call_button: Union[bool, str] = True,
+        call_button: Union[bool, str] = False,
         orientation: str = "horizontal",
         app: AppRef = None,
         show: bool = False,
         auto_call: bool = False,
         result_widget: bool = False,
         param_options: Optional[dict] = None,
+        name: str = None,
+        **k,
     ):
         """Create a new FunctionGui instance."""
         # if isinstance(function, FunctionGui):
         #     # don't redecorate already-wrapped function
         #     return function
-
+        extra = set(k) - set(["kind", "default", "annotation", "gui_only"])
+        if extra:
+            s = "s" if len(extra) > 1 else ""
+            raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
         self.__magicgui_app__ = use_app(app)
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             orientation=orientation,
             widgets=list(sig.widgets(app).values()),
             return_annotation=sig.return_annotation,
+            name=name or function.__name__,
         )
 
         self.called = EventEmitter(self, type="called")

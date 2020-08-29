@@ -2,6 +2,7 @@
 import datetime
 import inspect
 import pathlib
+import types
 from collections import abc, defaultdict
 from enum import EnumMeta
 from typing import (
@@ -18,7 +19,7 @@ from typing import (
     get_origin,
 )
 
-from magicgui import widgets
+from magicgui import function_gui, widgets
 from magicgui.protocols import WidgetProtocol
 from magicgui.types import ReturnCallback, WidgetClass, WidgetOptions, WidgetRef
 
@@ -84,6 +85,15 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
 
 
 @type_matcher
+def callable_type(value, annotation) -> Optional[WidgetTuple]:
+    dtype = normalize_type(value, annotation)
+
+    if dtype in (types.FunctionType,):
+        return function_gui.FunctionGui, {"function": value}  # type: ignore
+    return None
+
+
+@type_matcher
 def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
     """Determine if value/annotation is a Sequence[pathlib.Path]."""
     if annotation:
@@ -125,6 +135,8 @@ def pick_widget_type(
         _widget_type = matcher(value, annotation)
         if _widget_type:
             return _widget_type
+
+    # return widgets.LiteralEvalLineEdit, {}
     raise ValueError(f"Could not pick widget for type: {dtype!r}")
 
 
