@@ -409,7 +409,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         return object.__getattribute__(self, name)
 
     @overload
-    def __getitem__(self, key: int) -> Widget:
+    def __getitem__(self, key: Union[int, str]) -> Widget:
         ...
 
     @overload
@@ -417,6 +417,8 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         ...
 
     def __getitem__(self, key):  # noqa: F811
+        if isinstance(key, str):
+            return self.__getattr__(key)
         if isinstance(key, slice):
             out = []
             for idx in range(*key.indices(len(self))):
@@ -432,8 +434,16 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
             raise IndexError("Container index out of range")
         return item
 
+    def index(self, value: Any, start=0, stop=9223372036854775807) -> int:
+        if isinstance(value, str):
+            value = getattr(self, value)
+        return super().index(value, start, stop)
+
+    def remove(self, value: Union[Widget, str]):
+        super().remove(value)  # type: ignore
+
     def __delattr__(self, name: str):
-        self.remove(getattr(self, name))
+        self.remove(name)
 
     def __delitem__(self, key: Union[int, slice]):
         if isinstance(key, slice):

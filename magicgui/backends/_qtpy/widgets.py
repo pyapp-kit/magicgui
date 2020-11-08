@@ -15,7 +15,13 @@ class EventFilter(QObject):
     def eventFilter(self, obj, event):
         if event.type() == QEvent.ParentChange:
             # FIXME: error prone... but we need this to emit AFTER the event is handled
-            QTimer().singleShot(1, self.parentChanged.emit)
+            def _try_emit():
+                try:
+                    self.parentChanged.emit()
+                except AttributeError:
+                    pass
+
+            QTimer().singleShot(0, _try_emit)
         return False
 
 
