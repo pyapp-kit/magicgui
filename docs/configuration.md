@@ -47,8 +47,8 @@ def my_func(arg=5):
 ### `display_name`
 
 By default, the label which will be displayed next to the widget will have the
-variable's name. If you wish to modify that you may include in the argument's
-options dictionary the `display_name` key with the desired label:
+variable's name. If you wish to modify that, add a `display_name` entry to the argument's
+options dictionary with the desired label:
 
 ```python
 @magicgui(user_address={'display_name': 'Address'})
