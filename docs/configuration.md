@@ -44,6 +44,18 @@ def my_func(arg=5):
     ...
 ```
 
+### `display_name`
+
+By default, the label which will be displayed next to the widget will have the
+variable's name. If you wish to modify that you may include in the argument's
+options dictionary the `display_name` key with the desired label:
+
+```python
+@magicgui(user_address={'display_name': 'Address'})
+def get_address(user_address: str):
+    ...
+```
+
 ## Qt-specific options
 
 If you are using Qt as a backend (currently the only supported backend), you can provide
