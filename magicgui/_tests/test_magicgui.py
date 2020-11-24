@@ -66,11 +66,10 @@ def test_overriding_widget_type(qtbot):
     assert gui.a == "1"
 
 
-def test_overriding_arg_display_name(qtbot):
-    """Test that a new label is given to a widget based on
-    the 'display_name' key."""
+def test_overriding_arg_label(qtbot):
+    """Test that `label` overrides the default label text."""
 
-    @magicgui(a={"display_name": "b"})
+    @magicgui(a={"label": "b"})
     def func(a: int = 1):
         pass
 

@@ -359,8 +359,8 @@ class MagicGuiBase(api.WidgetType):
                 delattr(self, name)
 
         # generate the label that will appear next to the widget
-        display_name = str(_options.get("display_name", name))
-        _options.pop("display_name", None)
+        display_name = str(_options.get("label", name))
+        _options.pop("label", None)
 
         # instantiate a new widget
         widget = api.make_widget(WidgetType, name=name, parent=self, **_options)

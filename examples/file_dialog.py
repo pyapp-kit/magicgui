@@ -14,8 +14,8 @@ def filepicker(filename=Path("~")):
 
 
 # Sequence of paths
-# We change the label using "display_name" for added clarity
-@magicgui(filenames={"display_name": "Choose multiple files:"})
+# We change the label using "label" for added clarity
+@magicgui(filenames={"label": "Choose multiple files:"})
 def filespicker(filenames: Sequence[Path]):
     """Take a filename and do something with it."""
     print("The filenames are:", filenames)
