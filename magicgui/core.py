@@ -343,7 +343,7 @@ class MagicGuiBase(api.WidgetType):
                 # TODO: make this behavior configurable
                 # raise TypeError(msg)
 
-        # check if there is already am existintg widget by this name...
+        # check if there is already an existing widget by this name...
         try:
             existing_widget: Optional[api.WidgetType] = self.get_widget(name)
         except AttributeError:
@@ -357,6 +357,10 @@ class MagicGuiBase(api.WidgetType):
             else:
                 position = self.layout().indexOf(existing_widget)
                 delattr(self, name)
+
+        # generate the label that will appear next to the widget
+        display_name = str(_options.get("label", name))
+        _options.pop("label", None)
 
         # instantiate a new widget
         widget = api.make_widget(WidgetType, name=name, parent=self, **_options)
@@ -382,7 +386,7 @@ class MagicGuiBase(api.WidgetType):
         if not is_visible:
             widget.hide()
         # add the widget to the layout (appended, or at a specific position)
-        label = name if (self._with_labels and is_visible) else ""
+        label = display_name if (self._with_labels and is_visible) else ""
 
         if position is not None:
             if not isinstance(position, int):

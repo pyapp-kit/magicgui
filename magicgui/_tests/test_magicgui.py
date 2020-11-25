@@ -66,6 +66,17 @@ def test_overriding_widget_type(qtbot):
     assert gui.a == "1"
 
 
+def test_overriding_arg_label(qtbot):
+    """Test that `label` overrides the default label text."""
+
+    @magicgui(a={"label": "b"})
+    def func(a: int = 1):
+        pass
+
+    gui = func.Gui()
+    assert gui.children()[-1].text() == "b"
+
+
 def test_overriding_arg_type(qtbot):
     """Test overriding the widget type of a parameter."""
     # a will now be a LineEdit instead of a spinbox
