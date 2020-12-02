@@ -53,12 +53,111 @@ For more information see http://github.com/vispy/vispy/wiki/API_Events
 from __future__ import division
 
 import inspect
+import logging
+import sys
 import traceback
 import weakref
 from collections import OrderedDict
+from typing import Optional
 
-from vispy.ext.six import string_types
-from vispy.util.logs import _handle_exception, logger
+logger = logging.getLogger(__name__)
+
+logging_types = dict(
+    debug=logging.DEBUG,
+    info=logging.INFO,
+    warning=logging.WARNING,
+    error=logging.ERROR,
+    critical=logging.CRITICAL,
+)
+
+
+def log_exception(level="warning", tb_skip=2):
+    """
+    Send an exception and traceback to the logger.
+
+    This function is used in cases where an exception is handled safely but
+    nevertheless should generate a descriptive error message. An extra line
+    is inserted into the stack trace indicating where the exception was caught.
+
+    Parameters
+    ----------
+    level : str
+        See ``set_log_level`` for options.
+    tb_skip : int
+        The number of traceback entries to ignore, prior to the point where
+        the exception was caught. The default is 2.
+    """
+    stack = "".join(traceback.format_stack()[:-tb_skip])
+    tb = traceback.format_exception(*sys.exc_info())
+    msg = tb[0]  # "Traceback (most recent call last):"
+    msg += stack
+    msg += "  << caught exception here: >>\n"
+    msg += "".join(tb[1:]).rstrip()
+    logger.log(logging_types[level], msg)
+
+
+def _handle_exception(
+    ignore_callback_errors, print_callback_errors, obj, cb_event=None, node=None
+):
+    """Helper for prining errors in callbacks
+
+    See EventEmitter._invoke_callback for a use example.
+    """
+
+    if not hasattr(obj, "_vispy_err_registry"):
+        obj._vispy_err_registry = {}
+    registry = obj._vispy_err_registry
+
+    if cb_event is not None:
+        cb, event = cb_event
+        exp_type = "callback"
+    else:
+        exp_type = "node"
+    type_, value, tb = sys.exc_info()
+    if tb:
+        tb = tb.tb_next  # Skip *this* frame
+    sys.last_type = type_
+    sys.last_value = value
+    sys.last_traceback = tb
+    del tb  # Get rid of it in this namespace
+    # Handle
+    if not ignore_callback_errors:
+        raise
+    if print_callback_errors != "never":
+        this_print: Optional[str] = "full"
+        if print_callback_errors in ("first", "reminders"):
+            # need to check to see if we've hit this yet
+            if exp_type == "callback":
+                key = repr(cb) + repr(event)
+            else:
+                key = repr(node)
+            if key in registry:
+                registry[key] += 1
+                if print_callback_errors == "first":
+                    this_print = None
+                else:  # reminders
+                    import math
+
+                    ii = registry[key]
+                    # Use logarithmic selection
+                    # (1, 2, ..., 10, 20, ..., 100, 200, ...)
+                    if ii == (2 ** int(math.log2(ii))):
+                        this_print = ii
+                    else:
+                        this_print = None
+            else:
+                registry[key] = 1
+        if this_print == "full":
+            log_exception()
+            if exp_type == "callback":
+                logger.error("Invoking %s for %s" % (cb, event))
+            else:  # == 'node':
+                logger.error("Drawing node %s" % node)
+        elif this_print is not None:
+            if exp_type == "callback":
+                logger.error("Invoking %s repeat %s" % (cb, this_print))
+            else:  # == 'node':
+                logger.error("Drawing node %s repeat %s" % (node, this_print))
 
 
 class Event(object):
@@ -373,7 +472,7 @@ class EventEmitter(object):
                     ref = callback.__class__.__name__
             else:
                 ref = None
-        elif not isinstance(ref, string_types):
+        elif not isinstance(ref, str):
             raise TypeError("ref must be a bool or string")
         if ref is not None and ref in self._callback_refs:
             raise ValueError('ref "%s" is not unique' % ref)
