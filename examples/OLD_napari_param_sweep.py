@@ -11,6 +11,7 @@ import skimage.filters
 from napari.layers import Image
 
 from magicgui import magicgui
+from magicgui._qt.widgets import QDoubleSlider
 
 with napari.gui_qt():
     # create a viewer and add some images
@@ -25,7 +26,7 @@ with napari.gui_qt():
     # - we contstrain the possible choices for `mode`
     @magicgui(
         auto_call=True,
-        sigma={"widget_type": "FloatSlider", "maximum": 6},
+        sigma={"widget_type": QDoubleSlider, "maximum": 6, "fixedWidth": 400},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
     def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
@@ -33,7 +34,9 @@ with napari.gui_qt():
         if layer:
             return skimage.filters.gaussian(layer.data, sigma=sigma, mode=mode)
 
+    # instantiate the widget
+    gui = gaussian_blur.Gui()
     # Add it to the napari viewer
-    viewer.window.add_dock_widget(gaussian_blur)
+    viewer.window.add_dock_widget(gui)
     # update the layer dropdown menu when the layer list changes
-    viewer.layers.events.changed.connect(gaussian_blur.reset_choices)
+    viewer.layers.events.changed.connect(lambda x: gui.refresh_choices("layer"))
