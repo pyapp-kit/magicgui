@@ -375,7 +375,27 @@ class CategoricalWidget(ValueWidget):
             _choices = choices["choices"]
             str_func = choices["key"]
         elif not isinstance(choices, EnumMeta) and callable(choices):
-            _choices = choices(self)
+            try:
+                _choices = choices(self)
+            except TypeError:
+                import inspect
+                import warnings
+
+                n_params = len(inspect.signature(choices).parameters)
+                if n_params > 1:
+                    warnings.warn(
+                        "\nAs of magicgui 0.2.0, a `choices` callable may accept only "
+                        "a single positional\nargument (an instance of "
+                        "`magicgui.widgets.CategoricalWidget`), and must return\nan "
+                        f"iterable (the choices to show). Function {choices.__name__!r}"
+                        f" accepts {n_params} arguments.\n"
+                        "In the future, this will raise an exception.",
+                        DeprecationWarning,
+                    )
+                    # pre 0.2.0 API
+                    _choices = choices(self.native, self.annotation)  # type: ignore
+                else:
+                    raise
         else:
             _choices = choices
         if not all(isinstance(i, tuple) and len(i) == 2 for i in _choices):
@@ -493,6 +513,16 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         for widget in self:
             if isinstance(widget, CategoricalWidget):
                 widget.reset_choices()
+
+    def refresh_choices(self, event=None):
+        import warnings
+
+        warnings.warn(
+            "\n`ContainerWidget.refresh_choices` is deprecated and will be removed in a"
+            " future version, please use `ContainerWidget.reset_choices` instead.",
+            FutureWarning,
+        )
+        return self.reset_choices(event)
 
     def to_signature(self) -> "MagicSignature":
         params = [

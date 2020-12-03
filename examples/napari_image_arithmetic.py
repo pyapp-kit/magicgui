@@ -28,9 +28,8 @@ with gui_qt():
     viewer.add_image(numpy.random.rand(20, 20), name="Layer 1")
     viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
 
-    # use the magic decorator!  This takes a function, generates a custom Widget class
-    # using the function signature, and adds that class as an attribute named "Gui" on
-    # the function.
+    # use the magic decorator!  This takes a function, and generates a widget instance
+    # using the function signature.
     @magicgui(call_button="execute")
     def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> Image:
         """Add, subtracts, multiplies, or divides to image layers with equal shape."""
@@ -40,23 +39,8 @@ with gui_qt():
     viewer.window.add_dock_widget(image_arithmetic)
 
     # keep the dropdown menus in the gui in sync with the layer model
-    viewer.layers.events.changed.connect(image_arithmetic.reset_choices)
+    viewer.layers.events.inserted.connect(image_arithmetic.reset_choices)
+    viewer.layers.events.removed.connect(image_arithmetic.reset_choices)
 
-    # Bonus:
-
-    # there is two way binding between the data widgets in the gui and the attribute of
-    # the same name on the gui instance:
-    # gui.operation = Operation.multiply  # changes the gui as well
-
-    # the original function is still functional.  It can be called with the
-    # original function signature with arguments. HOWEVER, the "default" values for the
-    # function stay in sync with the GUI.  So as the user changes the values in the gui:
-    # calling the original function will give results as if the gui values were provided
-
-    # image_arithmetic()
-
-    # lastly, if you DO provide arguments to the original function call, they will
-    # override those provided by the GUI (note: the GUI will not change though unless
-    # you explicitly set those values as mentioned above)
-
-    # image_arithmetic(operation=Operation.divide)
+    # note: the function may still be called directly as usual!
+    # new_image = image_arithmetic(img_a, Operation.add, img_b)

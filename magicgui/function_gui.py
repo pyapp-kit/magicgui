@@ -218,3 +218,16 @@ class FunctionGui(Container):
     def result_name(self, value: str):
         """Set the result name of this MagicGui widget."""
         self._result_name = value
+
+    def Gui(self):
+        import warnings
+
+        warnings.warn(
+            "Creating a widget instance with `my_function.Gui()` is deprecated,\n"
+            "the magicgui decorator now returns a widget instance directly, so you\n"
+            "should simply use the function itself as a magicgui widget, or call\n"
+            "`my_function.show() to run the application.\n"
+            "In a future version, the `Gui` attribute will be removed.",
+            FutureWarning,
+        )
+        return self
