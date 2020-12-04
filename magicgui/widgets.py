@@ -64,6 +64,7 @@ class Widget:
         kind: str = "POSITIONAL_OR_KEYWORD",
         default: Any = None,
         annotation: Any = None,
+        label=None,
         gui_only=False,
         app=None,
         widget_type: Union[str, Type[protocols.WidgetProtocol], None] = None,
@@ -105,6 +106,7 @@ class Widget:
         kind: str = "POSITIONAL_OR_KEYWORD",
         default: Any = None,
         annotation: Any = None,
+        label=None,
         visible: bool = True,
         gui_only=False,
     ):
@@ -117,6 +119,7 @@ class Widget:
         self.name: str = name
         self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
         self.default = default
+        self._label = label
         self.annotation: Any = annotation
         self.gui_only = gui_only
         self.visible: bool = True
@@ -177,6 +180,14 @@ class Widget:
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
         return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
+
+    @property
+    def label(self):
+        return self.name if self._label is None else self._label
+
+    @label.setter
+    def label(self, value):
+        self._label = value
 
 
 class ValueWidget(Widget):
@@ -414,8 +425,10 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         orientation: str = "horizontal",
         widgets: Sequence[Widget] = (),
         return_annotation: Any = None,
+        labels=True,
         **kwargs,
     ):
+        self.labels = labels
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
@@ -489,6 +502,10 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         if isinstance(widget, ValueWidget):
             widget.changed.connect(lambda x: self.changed(value=self))
         self._widget._mg_insert_widget(key, widget)
+        if self.labels:
+            if isinstance(widget, ButtonWidget):
+                return
+            self._widget._mg_insert_widget(key, Label(default=widget.label))
 
     @property
     def native_layout(self):
@@ -538,6 +555,24 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
 
 def backend_widget(cls=None, widget_name=None, transform=None):
+    """[summary]
+
+    Parameters
+    ----------
+    cls : [type], optional
+        The class being decorated, by default None.
+    widget_name : [type], optional
+        The name of the backend widget to wrap. If None, the name of the class being
+        decorated is used.  By default None.
+    transform : [type], optional
+        [description], by default None
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+
     @wraps(cls)
     def wrapper(cls) -> Type[Widget]:
         def __init__(self, **kwargs):

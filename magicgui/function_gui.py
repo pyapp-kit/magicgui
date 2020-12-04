@@ -29,7 +29,6 @@ def magicgui(
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
-    parent: Any = None,
     ignore: Optional[Sequence[str]] = None,
     app: AppRef = None,
     **param_options: dict,
@@ -52,9 +51,6 @@ def magicgui(
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
-    parent : api.WidgetType, optional
-        An optional parent widget (note: this can be useful for inheriting styles),
-        by default None
     ignore : list of str, optional
         Parameters in the function signature that should be ignored when creating
         the widget, by default None
@@ -86,6 +82,7 @@ def magicgui(
             function=func,
             call_button=call_button,
             orientation=orientation,
+            labels=labels,
             param_options=param_options,
             auto_call=auto_call,
             result_widget=result_widget,
@@ -109,6 +106,7 @@ class FunctionGui(Container):
         function: Callable,
         call_button: Union[bool, str] = False,
         orientation: str = "horizontal",
+        labels=True,
         app: AppRef = None,
         show: bool = False,
         auto_call: bool = False,
@@ -129,6 +127,7 @@ class FunctionGui(Container):
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             orientation=orientation,
+            labels=labels,
             widgets=list(sig.widgets(app).values()),
             return_annotation=sig.return_annotation,
             name=name or function.__name__,
