@@ -1,4 +1,50 @@
-"""Abstract base classes (Interfaces) for backends to implement."""
+"""Protocols (Interfaces) for backends to implement.
+
+└── -> WidgetProtocol/
+    ├── _mg_show_widget
+    ├── _mg_hide_widget
+    ├── _mg_get_native_widget
+    ├── ↪ ValueWidgetProtocol/
+    │   ├── _mg_get_value
+    │   ├── _mg_set_value
+    │   ├── _mg_bind_change_callback
+    │   ├── ↪ ButtonWidgetProtocol (+ SupportsText)/
+    │   │   ├── _mg_get_text
+    │   │   └── _mg_set_text
+    │   ├── ↪ RangedWidgetProtocol/
+    │   │   ├── _mg_get_minimum
+    │   │   ├── _mg_set_minimum
+    │   │   ├── _mg_get_maximum
+    │   │   ├── _mg_set_maximum
+    │   │   ├── _mg_get_step
+    │   │   ├── _mg_set_step
+    │   │   └── ↪ SliderWidgetProtocol (+ SupportsOrientation)/
+    │   │       ├── _mg_get_orientation
+    │   │       └── _mg_set_orientation
+    │   └── ↪ CategoricalWidgetProtocol/
+    │       ├── _mg_get_choices
+    │       └── _mg_set_choices
+    └── ↪ ContainerProtocol (+ SupportsOrientation)/
+        ├── _mg_add_widget
+        ├── _mg_insert_widget
+        ├── _mg_remove_widget
+        ├── _mg_remove_index
+        ├── _mg_count
+        ├── _mg_index
+        ├── _mg_get_index
+        └── _mg_get_native_layout
+
+
+-> SupportsText  # different than "value"
+     - _mg_get_text
+     - _mg_set_text
+
+
+-> SupportsOrientation
+     - _mg_get_orientation
+     - _mg_set_orientation
+
+"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -14,58 +60,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from magicgui.widgets import Widget
-
-
-# Protocols ----------------------------------------------------------------------
-
-# -> SupportsText  # different than "value"
-#      - _mg_get_text
-#      - _mg_set_text
-#
-# -> SupportsOrientation
-#      - _mg_get_orientation
-#      - _mg_set_orientation
-#
-# -> WidgetProtocol
-#      - _mg_show_widget
-#      - _mg_hide_widget
-#      - _mg_get_native_widget
-#
-#      ↪ ValueWidgetProtocol
-#           - _mg_get_value
-#           - _mg_set_value
-#           - _mg_bind_change_callback
-#
-#           ↪ ButtonWidgetProtocol (+ SupportsText)
-#                - _mg_get_text
-#                - _mg_set_text
-#
-#           ↪ RangedWidgetProtocol
-#                - _mg_get_minimum
-#                - _mg_set_minimum
-#                - _mg_get_maximum
-#                - _mg_set_maximum
-#                - _mg_get_step
-#                - _mg_set_step
-#
-#                ↪ SliderWidgetProtocol (+ SupportsOrientation)
-#                     - _mg_get_orientation
-#                     - _mg_set_orientation
-#
-#           ↪ CategoricalWidgetProtocol
-#                - _mg_get_choices
-#                - _mg_set_choices
-#
-#      ↪ ContainerProtocol (+ SupportsOrientation)
-#                - _mg_add_widget
-#                - _mg_insert_widget
-#                - _mg_remove_widget
-#                - _mg_remove_index
-#                - _mg_count
-#                - _mg_index
-#                - _mg_get_index
-#                - _mg_get_native_layout
+    from magicgui.widgets._bases import Widget
 
 
 @runtime_checkable

@@ -3,8 +3,7 @@ from ast import literal_eval
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
 
-from magicgui.application import use_app
-from magicgui.protocols import RangedWidgetProtocol, ValueWidgetProtocol
+from magicgui.widgets._protocols import RangedWidgetProtocol, ValueWidgetProtocol
 
 C = TypeVar("C")
 F = TypeVar("F")
@@ -26,6 +25,8 @@ def transform_get_set(
     prefix: str = "Transformed",
 ):
     if isinstance(cls, str):
+        from magicgui.application import use_app
+
         app = use_app()
         assert app.native
         cls = app.get_obj(cls)

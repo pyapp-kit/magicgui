@@ -4,8 +4,9 @@ from typing import Any, Iterable, Optional, Tuple, Union
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
 
-from magicgui import protocols
-from magicgui.widgets import FileDialogMode, Widget
+from magicgui.types import FileDialogMode
+from magicgui.widgets import _protocols as protocols
+from magicgui.widgets._bases import Widget
 
 
 class EventFilter(QObject):

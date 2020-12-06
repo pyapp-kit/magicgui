@@ -3,10 +3,10 @@ from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef, use_app
 from magicgui.events import EventEmitter
-from magicgui.protocols import ContainerProtocol
 from magicgui.signature import magic_signature
 from magicgui.type_map import _type2callback
 from magicgui.widgets import Container, LineEdit, PushButton
+from magicgui.widgets._protocols import ContainerProtocol
 
 F = TypeVar("F", bound=Callable[..., Any])
 

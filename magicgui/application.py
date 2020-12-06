@@ -4,10 +4,12 @@ import signal
 from contextlib import contextmanager
 from importlib import import_module
 from types import ModuleType
-from typing import Iterator, Optional, Union
+from typing import TYPE_CHECKING, Iterator, Optional, Union
 
 from magicgui.backends import BACKENDS
-from magicgui.protocols import BaseApplicationBackend
+
+if TYPE_CHECKING:
+    from magicgui.widgets._protocols import BaseApplicationBackend
 
 DEFAULT_BACKEND = "qt"
 
@@ -23,7 +25,7 @@ class Application:
     """MagicGui Application, wrapping a native BaseApplicationBackend implementation."""
 
     _backend_module: ModuleType
-    _backend: BaseApplicationBackend
+    _backend: "BaseApplicationBackend"
     _instance: Optional[Application] = None
 
     def __init__(self, backend_name: Optional[str] = None):

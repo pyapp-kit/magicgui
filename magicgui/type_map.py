@@ -20,8 +20,8 @@ from typing import (
 )
 
 from magicgui import function_gui, widgets
-from magicgui.protocols import WidgetProtocol
 from magicgui.types import ReturnCallback, WidgetClass, WidgetOptions, WidgetRef
+from magicgui.widgets._protocols import WidgetProtocol
 
 
 class MissingWidget(RuntimeError):
@@ -153,7 +153,7 @@ def get_widget_class(
         widget_class = widget_type
 
     assert isinstance(widget_class, WidgetProtocol) or is_subclass(
-        widget_class, widgets.Widget
+        widget_class, widgets._bases.Widget
     )
     return widget_class, _options
 
@@ -167,7 +167,7 @@ def _import_class(class_name: str) -> WidgetClass:
 
     mod_name, name = class_name.rsplit(".", 1)
     mod = importlib.import_module(mod_name)
-    return getattr(mod, name)
+    return getattr(mod, name.title())
 
 
 def validate_return_callback(func):
@@ -232,7 +232,7 @@ def register_type(
             )
     elif widget_type is not None:
 
-        if not isinstance(widget_type, (str, widgets.Widget, WidgetProtocol)):
+        if not isinstance(widget_type, (str, widgets._bases.Widget, WidgetProtocol)):
             raise TypeError(
                 '"widget_type" must be either a string, Widget, or WidgetProtocol'
             )

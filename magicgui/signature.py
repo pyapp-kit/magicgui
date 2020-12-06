@@ -18,7 +18,8 @@ from magicgui.application import AppRef
 from magicgui.types import WidgetOptions
 
 if TYPE_CHECKING:
-    from magicgui.widgets import Container, Widget
+    from magicgui.widgets import Container
+    from magicgui.widgets._bases import Widget
 
 
 def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
@@ -98,7 +99,7 @@ class MagicParameter(Parameter):
         )
 
     def to_widget(self, app: AppRef = None):
-        from magicgui.widgets import Widget
+        from magicgui.widgets._bases import Widget
 
         value = None if self.default is self.empty else self.default
         annotation, options = split_annotated_type(self.annotation)
