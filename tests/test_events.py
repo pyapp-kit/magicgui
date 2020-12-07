@@ -542,11 +542,11 @@ def test_event_connect_order():
 
     old_e = e
 
-    def e2():
+    def e():  # type: ignore
         return
 
-    assert_raises(ValueError, em.connect, e2, ref=True)  # duplicate name
-    em.connect(e2)
+    assert_raises(ValueError, em.connect, e, ref=True)  # duplicate name
+    em.connect(e)
     assert_equal((None, "a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     assert_equal((e, a, b, c, d, old_e, f), tuple(em.callbacks))
 

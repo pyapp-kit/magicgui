@@ -1,4 +1,4 @@
-"""This module contains "final" widgets ready to be instantiated by the user.
+"""Widgets backed by a backend implementation, ready to be instantiated by the user.
 
 All of these widgets should provide the `widget_type` argument to their
 super().__init__ calls.
@@ -9,8 +9,8 @@ import os
 from pathlib import Path
 from typing import Callable, Sequence, Tuple, Type, Union
 
+from magicgui._parse import docstring_to_param_list, param_list_to_str
 from magicgui.application import use_app
-from magicgui.parse import docstring_to_param_list, param_list_to_str
 from magicgui.types import FileDialogMode, PathLike
 
 from ._bases import (
@@ -27,6 +27,19 @@ from ._transforms import make_float, make_literal_eval
 
 
 def merge_super_sigs(cls, exclude=("self", "widget_type", "kwargs", "args", "kwds")):
+    """Merge the signature and kwarg docs from all superclasses, for clearer docs.
+
+    Parameters
+    ----------
+    exclude : tuple, optional
+        A list of parameter names to excluded from the merged docs/signature,
+        by default ("self", "widget_type", "kwargs", "args", "kwds")
+
+    Returns
+    -------
+    Type
+        The modified class (can be used as a decorator)
+    """
     params = {}
     param_docs = []
     for sup in reversed(inspect.getmro(cls)):
@@ -48,7 +61,7 @@ def merge_super_sigs(cls, exclude=("self", "widget_type", "kwargs", "args", "kwd
 def backend_widget(
     cls: Type = None, widget_name: str = None, transform: Callable[[Type], Type] = None
 ):
-    """Decorator that matches a widget class to the backend widget of the same.
+    """Decorate cls to inject the backend widget of the same name.
 
     The purpose of this decorator is to "inject" the appropriate backend
     `widget_type` argument into the `Widget.__init__` function, according to the
@@ -125,7 +138,7 @@ class CheckBox(ButtonWidget):
 
 @backend_widget
 class RadioButton(ButtonWidget):
-    """A radio button with a text label"""
+    """A radio button with a text label."""
 
 
 @backend_widget
@@ -155,7 +168,7 @@ class LogSlider(TransformedRangedWidget):
     Parameters
     ----------
     base : Enum, Iterable, or Callable
-        Available choices displayed in the combo box.
+        The base to use for the log, by default math.e.
     """
 
     def __init__(
@@ -187,6 +200,7 @@ class LogSlider(TransformedRangedWidget):
 
     @property
     def base(self):
+        """Return base used for the log."""
         return self._base
 
     @base.setter

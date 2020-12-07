@@ -1,3 +1,7 @@
+"""The FunctionGui class is a Container subclass designed to represent a function.
+
+The core `magicgui` decorator returns an instance of a FunctionGui widget.
+"""
 from typing import Any, Callable, Optional, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef
@@ -7,16 +11,153 @@ from magicgui.type_map import _type2callback
 from magicgui.widgets import Container, LineEdit, PushButton
 from magicgui.widgets._protocols import ContainerProtocol
 
+
+class FunctionGui(Container):
+    """Wrapper for a container of widgets representing a callable object."""
+
+    __magicgui_app__: Application
+    _widget: ContainerProtocol
+
+    def __init__(
+        self,
+        function: Callable,
+        call_button: Union[bool, str] = False,
+        orientation: str = "horizontal",
+        labels=True,
+        app: AppRef = None,
+        show: bool = False,
+        auto_call: bool = False,
+        result_widget: bool = False,
+        param_options: Optional[dict] = None,
+        name: str = None,
+        **k,
+    ):
+        """Create a new FunctionGui instance."""
+        # if isinstance(function, FunctionGui):
+        #     # don't redecorate already-wrapped function
+        #     return function
+        extra = set(k) - set(["kind", "default", "annotation", "gui_only"])
+        if extra:
+            s = "s" if len(extra) > 1 else ""
+            raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
+        sig = magic_signature(function, gui_options=param_options)
+        super().__init__(
+            orientation=orientation,
+            labels=labels,
+            widgets=list(sig.widgets(app).values()),
+            return_annotation=sig.return_annotation,
+            name=name or function.__name__,
+        )
+
+        self.called = EventEmitter(self, type="called")
+        self._result_name = ""
+        self._function = function
+
+        if call_button:
+            text = call_button if isinstance(call_button, str) else "Run"
+            self._call_button = PushButton(gui_only=True, text=text, name="call_button")
+            if not auto_call:  # (otherwise it already get's called)
+                self._call_button.changed.connect(lambda e: self.__call__())
+            self.append(self._call_button)
+
+        self._result_widget: Optional[LineEdit] = None
+        if result_widget:
+            self._result_widget = LineEdit(gui_only=True, name="result")
+            self._result_widget.enabled = False
+            self.append(self._result_widget)
+
+        if auto_call:
+            self.changed.connect(lambda e: self.__call__())
+
+        if show:
+            self.show()
+
+    @property
+    def __signature__(self):
+        """Return an inspect.Signature subclass.
+
+        The sig represents the original wrapped function, but with defaults and types
+        from the widget (if different).
+        """
+        return self.to_signature()
+
+    def __call__(self, *args: Any, **kwargs: Any):
+        """Call the original function with the current parameter values from the Gui.
+
+        It is also possible to override the current parameter values from the GUI by
+        providing args/kwargs to the function call.  Only those provided will override
+        the ones from the gui.  A `called` signal will also be emitted with the results.
+
+        Returns
+        -------
+        result : Any
+            whatever the return value of the original function would have been.
+
+        Examples
+        --------
+        gui = FunctionGui(func, show=True)
+
+        # then change parameters in the gui, or by setting:  gui.param.value = something
+
+        gui()  # calls the original function with the current parameters
+        """
+        sig = self.to_signature()
+        bound = sig.bind(*args, **kwargs)
+        bound.apply_defaults()
+
+        value = self._function(*bound.args, **bound.kwargs)
+        if self._result_widget is not None:
+            self._result_widget.value = value
+
+        return_type = self._return_annotation
+        if return_type:
+            for callback in _type2callback(return_type):
+                callback(self, value, return_type)
+        self.called(value=value)
+        return value
+
+    def __repr__(self) -> str:
+        """Return string representation of instance."""
+        fname = f"{self._function.__module__}.{self._function.__name__}"
+        return f"<FunctionGui {fname}{self.to_signature()}>"
+
+    @property
+    def result_name(self) -> str:
+        """Return a name that can be used for the result of this magicfunction."""
+        return self._result_name or (self._function.__name__ + " result")
+
+    @result_name.setter
+    def result_name(self, value: str):
+        """Set the result name of this MagicGui widget."""
+        self._result_name = value
+
+    def Gui(self):
+        """Create a widget instance [DEPRECATED]."""
+        import warnings
+
+        warnings.warn(
+            "Creating a widget instance with `my_function.Gui()` is deprecated,\n"
+            "the magicgui decorator now returns a widget instance directly, so you\n"
+            "should simply use the function itself as a magicgui widget, or call\n"
+            "`my_function.show() to run the application.\n"
+            "In a future version, the `Gui` attribute will be removed.",
+            FutureWarning,
+        )
+        return self
+
+
+# ==================   magicgui decorator   ===================================
+
 F = TypeVar("F", bound=Callable[..., Any])
 
 
 @overload
-def magicgui(function: F, **k) -> "FunctionGui":
+def magicgui(function: F, **k) -> FunctionGui:  # noqa: D103
     ...
 
 
 @overload
-def magicgui(function=None, **k) -> Callable[[F], "FunctionGui"]:
+def magicgui(function=None, **k) -> Callable[[F], FunctionGui]:  # noqa: D103
     ...
 
 
@@ -90,131 +231,3 @@ def magicgui(
         return inner_func
     else:
         return inner_func(function)
-
-
-class FunctionGui(Container):
-    """Wrapper for a container of widgets representing a callable object."""
-
-    __magicgui_app__: Application
-    _widget: ContainerProtocol
-
-    def __init__(
-        self,
-        function: Callable,
-        call_button: Union[bool, str] = False,
-        orientation: str = "horizontal",
-        labels=True,
-        app: AppRef = None,
-        show: bool = False,
-        auto_call: bool = False,
-        result_widget: bool = False,
-        param_options: Optional[dict] = None,
-        name: str = None,
-        **k,
-    ):
-        """Create a new FunctionGui instance."""
-        # if isinstance(function, FunctionGui):
-        #     # don't redecorate already-wrapped function
-        #     return function
-        extra = set(k) - set(["kind", "default", "annotation", "gui_only"])
-        if extra:
-            s = "s" if len(extra) > 1 else ""
-            raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
-        sig = magic_signature(function, gui_options=param_options)
-        super().__init__(
-            orientation=orientation,
-            labels=labels,
-            widgets=list(sig.widgets(app).values()),
-            return_annotation=sig.return_annotation,
-            name=name or function.__name__,
-        )
-
-        self.called = EventEmitter(self, type="called")
-        self._result_name = ""
-        self._function = function
-
-        if call_button:
-            text = call_button if isinstance(call_button, str) else "Run"
-            self._call_button = PushButton(gui_only=True, text=text, name="call_button")
-            if not auto_call:  # (otherwise it already get's called)
-                self._call_button.changed.connect(lambda e: self.__call__())
-            self.append(self._call_button)
-
-        self._result_widget: Optional[LineEdit] = None
-        if result_widget:
-            self._result_widget = LineEdit(gui_only=True, name="result")
-            self._result_widget.enabled = False
-            self.append(self._result_widget)
-
-        if auto_call:
-            self.changed.connect(lambda e: self.__call__())
-
-        if show:
-            self.show()
-
-    @property
-    def __signature__(self):
-        return self.to_signature()
-
-    def __call__(self, *args: Any, **kwargs: Any):
-        """Call the original function with the current parameter values from the Gui.
-
-        It is also possible to override the current parameter values from the GUI by
-        providing args/kwargs to the function call.  Only those provided will override
-        the ones from the gui.  A `called` signal will also be emitted with the results.
-
-        Returns
-        -------
-        result : Any
-            whatever the return value of the original function would have been.
-
-        Examples
-        --------
-        gui = FunctionGui(func, show=True)
-
-        # then change parameters in the gui, or by setting:  gui.param.value = something
-
-        gui()  # calls the original function with the current parameters
-        """
-        sig = self.to_signature()
-        bound = sig.bind(*args, **kwargs)
-        bound.apply_defaults()
-
-        value = self._function(*bound.args, **bound.kwargs)
-        if self._result_widget is not None:
-            self._result_widget.value = value
-
-        return_type = self._return_annotation
-        if return_type:
-            for callback in _type2callback(return_type):
-                callback(self, value, return_type)
-        self.called(value=value)
-        return value
-
-    def __repr__(self) -> str:
-        """Return string representation of instance."""
-        fname = f"{self._function.__module__}.{self._function.__name__}"
-        return f"<FunctionGui {fname}{self.to_signature()}>"
-
-    @property
-    def result_name(self) -> str:
-        """Return a name that can be used for the result of this magicfunction."""
-        return self._result_name or (self._function.__name__ + " result")
-
-    @result_name.setter
-    def result_name(self, value: str):
-        """Set the result name of this MagicGui widget."""
-        self._result_name = value
-
-    def Gui(self):
-        import warnings
-
-        warnings.warn(
-            "Creating a widget instance with `my_function.Gui()` is deprecated,\n"
-            "the magicgui decorator now returns a widget instance directly, so you\n"
-            "should simply use the function itself as a magicgui widget, or call\n"
-            "`my_function.show() to run the application.\n"
-            "In a future version, the `Gui` attribute will be removed.",
-            FutureWarning,
-        )
-        return self

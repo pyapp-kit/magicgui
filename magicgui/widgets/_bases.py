@@ -1,4 +1,4 @@
-"""This module declares Widget base classes.
+"""Widget base classes.
 
 All magicgui ``Widget`` bases compose a backend widget that implements one of the
 widget protocols defined in ``magicgui.widgets._protocols``.
@@ -46,6 +46,8 @@ Widget (wraps WidgetProtocol)
     └── Container
 
 """
+from __future__ import annotations
+
 import inspect
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
@@ -68,7 +70,7 @@ from magicgui.application import use_app
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
 from magicgui.types import ChoicesType, WidgetOptions
-from magicgui.widgets import _protocols as protocols
+from magicgui.widgets import _protocols
 
 if TYPE_CHECKING:
     from ._concrete import Container
@@ -100,11 +102,11 @@ class Widget:
         included in any widget container signatures, by default False
     """
 
-    _widget: protocols.WidgetProtocol
+    _widget: _protocols.WidgetProtocol
 
     def __init__(
         self,
-        widget_type: Type[protocols.WidgetProtocol],
+        widget_type: Type[_protocols.WidgetProtocol],
         name: str = "",
         kind: str = "POSITIONAL_OR_KEYWORD",
         default: Any = None,
@@ -113,7 +115,10 @@ class Widget:
         visible: bool = True,
         gui_only=False,
     ):
-        prot = getattr(protocols, self.__class__.__annotations__["_widget"].__name__)
+        _prot = self.__class__.__annotations__["_widget"]
+        if not isinstance(_prot, str):
+            _prot = _prot.__name__
+        prot = getattr(_protocols, _prot.replace("_protocols.", ""))
         if not isinstance(widget_type, prot):
             raise TypeError(f"{widget_type!r} does not implement the proper protocol")
         self.__magicgui_app__ = use_app()
@@ -146,13 +151,59 @@ class Widget:
         label=None,
         gui_only=False,
         app=None,
-        widget_type: Union[str, Type[protocols.WidgetProtocol], None] = None,
+        widget_type: Union[str, Type[_protocols.WidgetProtocol], None] = None,
         options: WidgetOptions = dict(),
     ):
+        """Create and return appropriate widget subclass.
+
+        This factory function can be used to create a widget appropriate for the
+        provided `default` value and/or `annotation` provided.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name of the parameter represented by this widget. by default ""
+        kind : str, optional
+            The ``inspect._ParameterKind`` represented by this widget.  Used in building
+            signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
+        default : Any, optional
+            The default & starting value for the widget, by default None
+        annotation : Any, optional
+            The type annotation for the parameter represented by the widget, by default
+            None
+        label : str
+            A string to use for an associated Label widget (if this widget is being
+            shown in a `Container` widget, and labels are on).  By default, `name` will
+            be used. Note: `name` refers the name of the parameter, as might be used in
+            a signature, whereas label is just the label for that widget in the GUI.
+        gui_only : bool, optional
+            Whether the widget should be considered "only for the gui", or if it should
+            be included in any widget container signatures, by default False
+        app : str, optional
+            The backend to use, by default None
+        widget_type : str or Type[WidgetProtocol] or None
+            A class implementing a widget protocol or a string with the name of a
+            magicgui widget type (e.g. "Label", "PushButton", etc...).
+            If provided, this widget type will be used instead of the type
+            autodetermined from ``default`` and/or ``annotation`` above.
+        options : WidgetOptions, optional
+            Dict of options to pass to the Widget constructor, by default dict()
+
+        Returns
+        -------
+        Widget
+            An instantiated widget subclass
+
+        Raises
+        ------
+        TypeError
+            If the provided or autodetected ``widget_type`` does not implement any known
+            widget protocols from widgets._protocols.
+        """
         kwargs = locals()
         _app = use_app(kwargs.pop("app"))
         assert _app.native
-        if isinstance(widget_type, protocols.WidgetProtocol):
+        if isinstance(widget_type, _protocols.WidgetProtocol):
             wdg_class = widget_type
         else:
             from magicgui.type_map import get_widget_class
@@ -170,7 +221,7 @@ class Widget:
         # pick the appropriate subclass for the given protocol
         # order matters
         for p in ("Categorical", "Ranged", "Button", "Value", ""):
-            prot = getattr(protocols, f"{p}WidgetProtocol")
+            prot = getattr(_protocols, f"{p}WidgetProtocol")
             if isinstance(wdg_class, prot):
                 return globals()[f"{p}Widget"](
                     widget_type=wdg_class, **kwargs, **kwargs.pop("options")
@@ -183,6 +234,7 @@ class Widget:
 
     @property
     def options(self) -> dict:
+        """Return options currently being used in this widget."""
         # return {"enabled": self.enabled, "visible": self.visible}
         return {"visible": self.visible}
 
@@ -214,6 +266,7 @@ class Widget:
 
     @property
     def enabled(self) -> bool:
+        """Whether widget is enabled (editable)."""
         return self._widget._mg_get_enabled()
 
     @enabled.setter
@@ -221,11 +274,12 @@ class Widget:
         self._widget._mg_set_enabled(value)
 
     @property
-    def parent(self) -> "Widget":
+    def parent(self) -> Widget:
+        """Return the parent widget."""
         return self._widget._mg_get_parent()
 
     @parent.setter
-    def parent(self, value: "Widget"):
+    def parent(self, value: Widget):
         self._widget._mg_set_parent(value)
 
     @property
@@ -239,6 +293,7 @@ class Widget:
 
     @property
     def label(self):
+        """Return a label to use for this widget when present in Containers."""
         return self.name if self._label is None else self._label
 
     @label.setter
@@ -246,10 +301,13 @@ class Widget:
         self._label = value
 
 
+create_widget = Widget.create
+
+
 class ValueWidget(Widget):
     """Widget with a value, Wraps ValueWidgetProtocol."""
 
-    _widget: protocols.ValueWidgetProtocol
+    _widget: _protocols.ValueWidgetProtocol
     changed: EventEmitter
 
     def __init__(self, **kwargs):
@@ -290,7 +348,7 @@ class ButtonWidget(ValueWidget):
         The text to display on the button. If not provided, will use `name`.
     """
 
-    _widget: protocols.ButtonWidgetProtocol
+    _widget: _protocols.ButtonWidgetProtocol
     changed: EventEmitter
 
     def __init__(self, text: Optional[str] = None, **kwargs):
@@ -299,6 +357,7 @@ class ButtonWidget(ValueWidget):
 
     @property
     def options(self) -> dict:
+        """Return options currently being used in this widget."""
         d = super().options.copy()
         d.update({"text": self.text})
         return d
@@ -326,7 +385,7 @@ class RangedWidget(ValueWidget):
         The step size for incrementing the value, by default 1
     """
 
-    _widget: protocols.RangedWidgetProtocol
+    _widget: _protocols.RangedWidgetProtocol
 
     def __init__(
         self, minimum: float = 0, maximum: float = 100, step: float = 1, **kwargs
@@ -339,6 +398,7 @@ class RangedWidget(ValueWidget):
 
     @property
     def options(self) -> dict:
+        """Return options currently being used in this widget."""
         d = super().options.copy()
         d.update({"minimum": self.minimum, "maximum": self.maximum, "step": self.step})
         return d
@@ -401,7 +461,7 @@ class TransformedRangedWidget(RangedWidget, ABC):
         The step size for incrementing the value, by default 1
     """
 
-    _widget: protocols.RangedWidgetProtocol
+    _widget: _protocols.RangedWidgetProtocol
 
     def __init__(
         self,
@@ -483,7 +543,7 @@ class SliderWidget(RangedWidget):
         The orientation for the slider, by default "horizontal"
     """
 
-    _widget: protocols.SliderWidgetProtocol
+    _widget: _protocols.SliderWidgetProtocol
 
     def __init__(self, orientation: str = "horizontal", **kwargs):
         super().__init__(**kwargs)
@@ -492,6 +552,7 @@ class SliderWidget(RangedWidget):
 
     @property
     def options(self) -> dict:
+        """Return options currently being used in this widget."""
         d = super().options.copy()
         d.update({"orientation": self.orientation})
         return d
@@ -506,7 +567,7 @@ class CategoricalWidget(ValueWidget):
         Available choices displayed in the combo box.
     """
 
-    _widget: protocols.CategoricalWidgetProtocol
+    _widget: _protocols.CategoricalWidgetProtocol
 
     def __init__(self, choices: ChoicesType = (), **kwargs):
         self._default_choices = choices
@@ -519,6 +580,7 @@ class CategoricalWidget(ValueWidget):
 
     @property
     def value(self):
+        """Return current value of the widget."""
         return self._widget._mg_get_value()
 
     @value.setter
@@ -531,6 +593,7 @@ class CategoricalWidget(ValueWidget):
 
     @property
     def options(self) -> dict:
+        """Return options currently being used in this widget."""
         d = super().options.copy()
         d.update({"choices": self._default_choices})
         return d
@@ -626,7 +689,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     """
 
     changed: EventEmitter
-    _widget: protocols.ContainerProtocol
+    _widget: _protocols.ContainerProtocol
     _initialized = False
 
     def __init__(
@@ -646,12 +709,14 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         self._initialized = True
 
     def __getattr__(self, name: str):
+        """Return attribute ``name``.  Will return a widget if present."""
         for widget in self:
             if name == widget.name:
                 return widget
         return object.__getattribute__(self, name)
 
     def __setattr__(self, name: str, value: Any):
+        """Set attribute ``name``.  Prevents changing widget if present, (use del)."""
         if self._initialized:
             for widget in self:
                 if name == widget.name:
@@ -663,14 +728,15 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         object.__setattr__(self, name, value)
 
     @overload
-    def __getitem__(self, key: Union[int, str]) -> Widget:
+    def __getitem__(self, key: Union[int, str]) -> Widget:  # noqa: D105
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> MutableSequence[Widget]:  # noqa: F811
+    def __getitem__(self, key: slice) -> MutableSequence[Widget]:  # noqa: F811, D105
         ...
 
     def __getitem__(self, key):  # noqa: F811
+        """Get item by integer, str, or slice."""
         if isinstance(key, str):
             return self.__getattr__(key)
         if isinstance(key, slice):
@@ -689,17 +755,21 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         return item
 
     def index(self, value: Any, start=0, stop=9223372036854775807) -> int:
+        """Return index of a specific widget instance (or widget name)."""
         if isinstance(value, str):
             value = getattr(self, value)
         return super().index(value, start, stop)
 
     def remove(self, value: Union[Widget, str]):
+        """Remove a widget instance (may also be string name of widget)."""
         super().remove(value)  # type: ignore
 
     def __delattr__(self, name: str):
+        """Delete a widget by name."""
         self.remove(name)
 
     def __delitem__(self, key: Union[int, slice]):
+        """Delete a widget by integer or slice index."""
         if isinstance(key, slice):
             for idx in range(*key.indices(len(self))):
                 self._widget._mg_remove_index(idx)
@@ -709,17 +779,21 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
             self._widget._mg_remove_index(key)
 
     def __len__(self) -> int:
+        """Return the count of widgets."""
         return self._widget._mg_count()
 
     def __setitem__(self, key, value):
+        """Prevent assignment by index."""
         raise NotImplementedError("magicgui.Container does not support item setting.")
 
     def __dir__(self) -> List[str]:
+        """Add subwidget names to the dir() call for this widget."""
         d = list(super().__dir__())
         d.extend([w.name for w in self if not w.gui_only])
         return d
 
     def insert(self, key: int, widget: Widget):
+        """Insert widget at `key`."""
         if isinstance(widget, ValueWidget):
             widget.changed.connect(lambda x: self.changed(value=self))
         self._widget._mg_insert_widget(key, widget)
@@ -732,16 +806,22 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     @property
     def native_layout(self):
+        """Return the layout widget used by the backend."""
         return self._widget._mg_get_native_layout()
 
     @classmethod
-    def from_signature(cls, sig: inspect.Signature, **kwargs) -> "Container":
+    def from_signature(cls, sig: inspect.Signature, **kwargs) -> Container:
+        """Create a Container widget from an inspect.Signature object."""
         return MagicSignature.from_signature(sig).to_container(**kwargs)
 
     @classmethod
     def from_callable(
         cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
-    ) -> "Container":
+    ) -> Container:
+        """Create a Container widget from a callable object.
+
+        In most cases, it will be preferable to create a ``FunctionGui`` instead.
+        """
         return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
 
     @property
@@ -750,11 +830,18 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         return self.to_signature()
 
     def reset_choices(self, event=None):
+        """Reset choices for all Categorical subWidgets to the default state.
+
+        If widget._default_choices is a callable, this may NOT be the exact same set of
+        choices as when the widget was instantiated, if the callable relies on external
+        state.
+        """
         for widget in self:
             if isinstance(widget, CategoricalWidget):
                 widget.reset_choices()
 
     def refresh_choices(self, event=None):
+        """Alias for reset_choices [Deprecated]."""
         import warnings
 
         warnings.warn(
@@ -764,11 +851,13 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         )
         return self.reset_choices(event)
 
-    def to_signature(self) -> "MagicSignature":
+    def to_signature(self) -> MagicSignature:
+        """Return a MagicSignature object representing the current state of the gui."""
         params = [
             MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]
         return MagicSignature(params, return_annotation=self._return_annotation)
 
     def __repr__(self) -> str:
+        """Return a repr."""
         return f"<Container {self.to_signature()}>"

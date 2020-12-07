@@ -47,10 +47,3 @@ def param_list_to_str(param_list: List[Parameter]) -> List[str]:
             out += [" " * 4 + line for line in param.desc]
     out += [""]
     return out
-
-
-def join_class_mro_params(cls):
-    params = []
-    for sup in reversed(cls.mro()):
-        params += docstring_to_param_list(getattr(sup, "__doc__", ""))
-    print("\n".join(param_list_to_str(params)))

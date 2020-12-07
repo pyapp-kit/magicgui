@@ -7,7 +7,7 @@ from magicgui.widgets._protocols import RangedWidgetProtocol, ValueWidgetProtoco
 
 if TYPE_CHECKING:
 
-    def lru_cache(maxsize: int = 128) -> Callable:
+    def lru_cache(maxsize: int = 128) -> Callable:  # noqa: D103
         pass
 
 
@@ -21,6 +21,7 @@ def transform_get_set(
     set_transform: Optional[Callable[[Any], Any]] = None,
     prefix: str = "Transformed",
 ):
+    """Overly complicated decorator to transform the get/set methods of a class."""
     if isinstance(cls, str):
         from magicgui.application import use_app
 

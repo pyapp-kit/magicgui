@@ -260,7 +260,7 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mg_get_index(self, index: int) -> "Optional[Widget]":
+    def _mg_get_index(self, index: int) -> Optional[Widget]:
         """(return None instead of index error)."""
         raise NotImplementedError()
 

@@ -76,6 +76,7 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
 
 @type_matcher
 def callable_type(value, annotation) -> Optional[WidgetTuple]:
+    """Determine if value/annotation is a function type."""
     dtype = normalize_type(value, annotation)
 
     if dtype in (types.FunctionType,):
@@ -133,7 +134,24 @@ def pick_widget_type(
 def get_widget_class(
     value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {}
 ) -> Tuple[WidgetClass, WidgetOptions]:
+    """Return a WidgetClass appropriate for the given parameters.
 
+    Parameters
+    ----------
+    value : Any, optional
+        A python value.  Will be used to determine the widget type if an ``annotation``
+        is not explicitly provided by default None
+    annotation : Optional[Type], optional
+        A type annotation, by default None
+    options : WidgetOptions, optional
+        Options to pass when constructing the widget, by default {}
+
+    Returns
+    -------
+    Tuple[WidgetClass, WidgetOptions]
+        The WidgetClass, and WidgetOptions that can be used for params. WidgetOptions
+        may be different than the options passed in.
+    """
     _options = cast(WidgetOptions, options)
     widget_type, _options = pick_widget_type(value, annotation, _options)
 
@@ -160,7 +178,7 @@ def _import_class(class_name: str) -> WidgetClass:
     return getattr(mod, name)
 
 
-def validate_return_callback(func):
+def _validate_return_callback(func):
     try:
         sig = inspect.signature(func)
         # the signature must accept three arguments
@@ -206,7 +224,7 @@ def register_type(
         )
 
     if return_callback is not None:
-        validate_return_callback(return_callback)
+        _validate_return_callback(return_callback)
         _RETURN_CALLBACKS[type_].append(return_callback)
 
     _options = cast(WidgetOptions, options)

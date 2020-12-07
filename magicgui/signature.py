@@ -1,16 +1,9 @@
+"""MagicguiSignature objects are an extension to inspect.Signature objects."""
+from __future__ import annotations
+
 import inspect
 from types import MappingProxyType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Dict, Mapping, Sequence, Tuple, cast
 
 from typing_extensions import Annotated, _AnnotatedAlias
 
@@ -22,7 +15,7 @@ if TYPE_CHECKING:
     from magicgui.widgets._bases import Widget
 
 
-def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
+def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
     """Merge a annotation and an options dict into an Annotated type.
 
     Parameters
@@ -44,7 +37,6 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
         If ``annotation`` is an Annotated option but the metadata is not a dict
         If ``annotation`` is not a valid type.
     """
-
     if options and not isinstance(options, dict):
         raise TypeError("'options' must be a dict")
     _options = (options or dict()).copy()
@@ -58,6 +50,7 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
 
 
 def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, WidgetOptions]:
+    """Split an Annotated type into its base type and options dict."""
     if not isinstance(annotation, _AnnotatedAlias):
         raise TypeError("Type hint must be an 'Annotated' type.")
     if not isinstance(annotation.__metadata__[0], dict):
@@ -70,6 +63,25 @@ def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, WidgetOption
 
 
 class MagicParameter(inspect.Parameter):
+    """A Parameter subclass that is closely linked to a magicgui.Widget object.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the parameter represented by this widget. by default ""
+    kind : inspect._ParameterKind, optional
+        The ``inspect._ParameterKind`` represented by this widget.  Used in building
+        signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
+    default : Any, optional
+        The default & starting value for the widget, by default None
+    annotation : Any, optional
+        The type annotation for the parameter represented by the widget, by default
+        None
+    options : dict, optional
+        Dict of options to pass to the Widget constructor, by default dict()
+
+    """
+
     def __init__(
         self,
         name: str,
@@ -77,8 +89,9 @@ class MagicParameter(inspect.Parameter):
         *,
         default: Any = inspect.Parameter.empty,
         annotation: Any = inspect.Parameter.empty,
-        gui_options: Optional[dict] = None,
+        gui_options: dict = None,
     ):
+
         if annotation is inspect.Parameter.empty:
             annotation = Any if default is inspect.Parameter.empty else type(default)
         _annotation = make_annotated(annotation, gui_options)
@@ -86,15 +99,17 @@ class MagicParameter(inspect.Parameter):
 
     @property
     def options(self) -> WidgetOptions:
+        """Return just this options part of the annotation."""
         return split_annotated_type(self.annotation)[1]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return __repr__, replacing NoneType if present."""
         rep = super().__repr__()[:-1] + f" {self.options}>"
         rep = rep.replace(": NoneType = ", "=")
         return rep
 
-    def __str__(self):
-        # discard options for repr
+    def __str__(self) -> str:
+        """Return string representation of the Parameter in a signature."""
         hint, _ = split_annotated_type(self.annotation)
         return str(
             inspect.Parameter(
@@ -102,7 +117,8 @@ class MagicParameter(inspect.Parameter):
             )
         )
 
-    def to_widget(self, app: AppRef = None):
+    def to_widget(self, app: AppRef = None) -> Widget:
+        """Create and return a widget for this object."""
         from magicgui.widgets._bases import Widget
 
         value = None if self.default is self.empty else self.default
@@ -117,7 +133,8 @@ class MagicParameter(inspect.Parameter):
         )
 
     @classmethod
-    def from_widget(cls, widget: "Widget"):
+    def from_widget(cls, widget: "Widget") -> MagicParameter:
+        """Create a MagicParameter object representing a widget."""
         return cls(
             name=str(widget.name),
             kind=widget.kind,
@@ -128,8 +145,9 @@ class MagicParameter(inspect.Parameter):
 
     @classmethod
     def from_parameter(
-        cls, param: inspect.Parameter, gui_options: Optional[dict] = None
-    ):
+        cls, param: inspect.Parameter, gui_options: dict = None
+    ) -> MagicParameter:
+        """Create MagicParameter from an inspect.Parameter."""
         if isinstance(param, MagicParameter):
             return param
         return cls(
@@ -142,14 +160,28 @@ class MagicParameter(inspect.Parameter):
 
 
 class MagicSignature(inspect.Signature):
+    """A Signature subclass that is closely linked to a magicgui.Container object.
+
+    Parameters
+    ----------
+    parameters : Optional[Sequence[inspect.Parameter]], optional
+        A list of parameters to include in the Signature, by default None
+    return_annotation : Type or str, optional
+        An optional return annotation to use when representing this container of
+        widgets as an inspect.Signature, by default inspect.Signature.empty
+    gui_options : Optional[Dict[str, dict]], optional
+        A mapping of parameter name to options for each individual parameter,
+        by default None
+    """
+
     parameters: Mapping[str, MagicParameter]
 
     def __init__(
         self,
-        parameters: Optional[Sequence[inspect.Parameter]] = None,
+        parameters: Sequence[inspect.Parameter] = None,
         *,
         return_annotation=inspect.Signature.empty,
-        gui_options: Optional[Dict[str, dict]] = None,
+        gui_options: Dict[str, dict] = None,
     ):
         params = [
             MagicParameter.from_parameter(p, (gui_options or {}).get(p.name))
@@ -158,9 +190,10 @@ class MagicSignature(inspect.Signature):
         super().__init__(params, return_annotation=return_annotation)
 
     @classmethod
-    def from_signature(cls, sig: inspect.Signature, gui_options=None):
+    def from_signature(cls, sig: inspect.Signature, gui_options=None) -> MagicSignature:
+        """Convert regular inspect.Signature to MagicSignature."""
         if type(sig) is cls:
-            return sig
+            return cast(MagicSignature, sig)
         elif not isinstance(sig, inspect.Signature):
             raise TypeError("'sig' must be an instance of 'inspect.Signature'")
         return cls(
@@ -169,12 +202,14 @@ class MagicSignature(inspect.Signature):
             gui_options=gui_options,
         )
 
-    def widgets(self, app: AppRef = None):
+    def widgets(self, app: AppRef = None) -> MappingProxyType:
+        """Return mapping from parameters to widgets for all params in Signature."""
         return MappingProxyType(
             {n: p.to_widget(app) for n, p in self.parameters.items()}
         )
 
-    def to_container(self, **kwargs) -> "Container":
+    def to_container(self, **kwargs) -> Container:
+        """Return a ``magicgui.widgets.Container`` for this MagicSignature."""
         from magicgui.widgets import Container
 
         return Container(
@@ -185,11 +220,36 @@ class MagicSignature(inspect.Signature):
 
 
 def magic_signature(
-    obj: Callable,
-    *,
-    gui_options: Optional[Dict[str, dict]] = None,
-    follow_wrapped: bool = True,
+    obj: Callable, *, gui_options: Dict[str, dict] = None, follow_wrapped: bool = True
 ) -> MagicSignature:
+    """Create a MagicSignature from a callable object.
+
+    This is magicgui's equivalent of ``inspect.signature`` and is a core
+    part of the FunctionGui creation when using the `@magicgui` decorator.
+
+    Parameters
+    ----------
+    obj : Callable
+        The function being inspected.
+    gui_options : Optional[Dict[str, dict]], optional
+        A dict of name: widget_options dict for each parameter in the function.
+        Will be passed to `MagicSignature.from_signature` by default None
+    follow_wrapped : bool, optional
+        passed to inspect.signature, by default True
+
+    Returns
+    -------
+    MagicSignature
+        Signature object representing the callable.
+
+    Raises
+    ------
+    ValueError
+        If ``gui_options`` are provided with keyword arguments that do not match
+        parameters in the decorated function.
+    TypeError
+        If any of the values in ``gui_options`` are not dicts.
+    """
     sig = inspect.signature(obj, follow_wrapped=follow_wrapped)
     if gui_options:
         invalid = set(gui_options) - set(sig.parameters)

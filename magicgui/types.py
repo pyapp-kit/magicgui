@@ -1,3 +1,4 @@
+"""Types used in magicgui."""
 from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type, Union
@@ -43,6 +44,8 @@ class ChoicesDict(TypedDict):
 
 
 class WidgetOptions(TypedDict, total=False):
+    """Recognized options when instantiating a Widget."""
+
     widget_type: WidgetRef
     choices: ChoicesType
     gui_only: bool

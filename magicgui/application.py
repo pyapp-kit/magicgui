@@ -1,3 +1,4 @@
+"""Magicgui application object, wrapping a backend application."""
 from __future__ import annotations
 
 import signal
@@ -59,6 +60,7 @@ class Application:
         self._backend = self.get_obj("ApplicationBackend")()
 
     def get_obj(self, name: str):
+        """Get the backend object for the given ``name`` (such as a widget)."""
         try:
             return getattr(self.backend_module, name)
         except AttributeError as e:
@@ -114,6 +116,7 @@ class Application:
         on_timeout: Optional[Callable[[], None]] = None,
         single_shot: bool = False,
     ):
+        """Start a timer with a given interval, optional callback, and single_shot."""
         self._backend._mg_start_timer(interval, on_timeout, single=single_shot)
 
 

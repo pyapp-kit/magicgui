@@ -5,7 +5,7 @@ from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
 
 from magicgui.types import FileDialogMode
-from magicgui.widgets import _protocols as protocols
+from magicgui.widgets import _protocols
 from magicgui.widgets._bases import Widget
 
 
@@ -26,7 +26,7 @@ class EventFilter(QObject):
         return False
 
 
-class QBaseWidget(protocols.WidgetProtocol):
+class QBaseWidget(_protocols.WidgetProtocol):
     """Implements show/hide/native."""
 
     _qwidget: QtW.QWidget
@@ -59,11 +59,10 @@ class QBaseWidget(protocols.WidgetProtocol):
         return self._qwidget
 
     def _mg_bind_parent_change_callback(self, callback):
-        print("bind", callback)
         self._event_filter.parentChanged.connect(callback)
 
 
-class QBaseValueWidget(QBaseWidget, protocols.ValueWidgetProtocol):
+class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
     """Implements get/set/bind_change."""
 
     def __init__(self, qwidg: QtW.QWidget, getter: str, setter: str, onchange: str):
@@ -121,7 +120,7 @@ class TextEdit(QBaseStringWidget):
 # NUMBERS
 
 
-class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
+class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
     _qwidget: Union[QtW.QDoubleSpinBox, QtW.QSpinBox, QtW.QSlider]
@@ -157,7 +156,7 @@ class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
 # BUTTONS
 
 
-class QBaseButtonWidget(QBaseValueWidget, protocols.SupportsText):
+class QBaseButtonWidget(QBaseValueWidget, _protocols.SupportsText):
     _qwidget: Union[QtW.QCheckBox, QtW.QPushButton, QtW.QRadioButton, QtW.QToolButton]
 
     def __init__(self, qwidg):
@@ -198,7 +197,7 @@ class RadioButton(QBaseButtonWidget):
 
 
 class Container(
-    QBaseWidget, protocols.ContainerProtocol, protocols.SupportsOrientation
+    QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
     def __init__(self, orientation="horizontal"):
         QBaseWidget.__init__(self, QtW.QWidget)
@@ -290,7 +289,7 @@ class FloatSpinBox(QBaseRangedWidget):
         super()._mg_set_value(float(value))
 
 
-class Slider(QBaseRangedWidget, protocols.SupportsOrientation):
+class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
     def __init__(self):
@@ -308,7 +307,7 @@ class Slider(QBaseRangedWidget, protocols.SupportsOrientation):
         return "vertical" if orientation == Qt.Vertical else "horizontal"
 
 
-class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
+class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     _qwidget: QtW.QComboBox
 
     def __init__(self):
