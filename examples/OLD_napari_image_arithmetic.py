@@ -55,9 +55,3 @@ with gui_qt():
     # viewer.layers.events.removed.connect(image_arithmetic.reset_choices)
     viewer.layers.events.inserted.connect(gui.refresh_choices)
     viewer.layers.events.removed.connect(gui.refresh_choices)
-
-    # Bonus:
-
-    # there is two way binding between the data widgets in the gui and the attribute of
-    # the same name on the gui instance:
-    gui.operation = Operation.multiply  # changes the gui as well

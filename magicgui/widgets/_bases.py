@@ -646,13 +646,13 @@ class CategoricalWidget(ValueWidget):
                 n_params = len(inspect.signature(choices).parameters)
                 if n_params > 1:
                     warnings.warn(
-                        "\nAs of magicgui 0.2.0, a `choices` callable may accept only "
-                        "a single positional\nargument (an instance of "
+                        "\n\nAs of magicgui 0.2.0, a `choices` callable may accept only"
+                        " a single positional\nargument (an instance of "
                         "`magicgui.widgets.CategoricalWidget`), and must return\nan "
                         f"iterable (the choices to show). Function {choices.__name__!r}"
                         f" accepts {n_params} arguments.\n"
-                        "In the future, this will raise an exception.",
-                        DeprecationWarning,
+                        "In the future, this will raise an exception.\n",
+                        FutureWarning,
                     )
                     # pre 0.2.0 API
                     _choices = choices(self.native, self.annotation)  # type: ignore
@@ -851,8 +851,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
                 widget.reset_choices()
 
     def refresh_choices(self, event=None):
-        """Alias for reset_choices [Deprecated]."""
-
+        """Alias for reset_choices [DEPRECATED: use reset_choices]."""
         warnings.warn(
             "\n`ContainerWidget.refresh_choices` is deprecated and will be removed in a"
             " future version, please use `ContainerWidget.reset_choices` instead.",
