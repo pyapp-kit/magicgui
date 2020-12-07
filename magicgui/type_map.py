@@ -7,7 +7,7 @@ from collections import abc, defaultdict
 from enum import EnumMeta
 from typing import Any, Callable, DefaultDict, Dict, List, Optional, Tuple, Type, cast
 
-from typing_extensions import get_args, get_origin  # type: ignore
+from typing_extensions import get_args, get_origin
 
 from magicgui import function_gui, widgets
 from magicgui.types import ReturnCallback, WidgetClass, WidgetOptions, WidgetRef
