@@ -2,20 +2,21 @@
 
 """Tests for `magicgui` package."""
 
+import inspect
 from enum import Enum
-from inspect import signature
 
 import pytest
 from qtpy.QtCore import Qt
 
 from magicgui import magicgui, register_type, type_map, widgets
+from magicgui.signature import MagicSignature
 
 
 @pytest.fixture
 def magic_func():
     """Test function decorated by magicgui."""
 
-    @magicgui(call_button="my_button", auto_call=True)
+    @magicgui(call_button="my_button", auto_call=True, labels=False)
     def func(a: str = "works", b: int = 3, c=7.1) -> str:
         return a + str(b)
 
@@ -47,7 +48,7 @@ def test_magicgui(magic_func):
         magic_func.index(a)
 
 
-def test_overriding_widget_type(qtbot):
+def test_overriding_widget_type():
     """Test overriding the widget type of a parameter."""
     # a will now be a LineEdit instead of a spinbox
     @magicgui(a={"widget_type": "LineEdit"})
@@ -58,7 +59,7 @@ def test_overriding_widget_type(qtbot):
     assert func.a.value == "1"
 
 
-def test_no_type_provided(qtbot):
+def test_no_type_provided():
     """Test position args with unknown type."""
 
     @magicgui
@@ -68,7 +69,7 @@ def test_no_type_provided(qtbot):
     assert isinstance(func.a, widgets.LiteralEvalLineEdit)
 
 
-def test_call_button(qtbot):
+def test_call_button():
     """Test that the call button has been added, and pressing it calls the function."""
 
     @magicgui(call_button="my_button", auto_call=True)
@@ -92,7 +93,7 @@ def test_auto_call(qtbot, magic_func):
         qtbot.keyClick(magic_func.a.native, Qt.Key_Delete)
 
 
-def test_dropdown_list_from_enum(qtbot):
+def test_dropdown_list_from_enum():
     """Test that enums properly populate the dropdown menu with options."""
 
     class Medium(Enum):
@@ -110,7 +111,7 @@ def test_dropdown_list_from_enum(qtbot):
     assert list(func.arg.choices) == list(Medium.__members__.values())
 
 
-def test_dropdown_list_from_choices(qtbot):
+def test_dropdown_list_from_choices():
     """Test that providing the 'choices' argument with a list of strings works."""
     CHOICES = ["Oil", "Water", "Air"]
 
@@ -129,7 +130,7 @@ def test_dropdown_list_from_choices(qtbot):
             ...
 
 
-def test_dropdown_list_from_callable(qtbot):
+def test_dropdown_list_from_callable():
     """Test that providing the 'choices' argument with a callable works."""
     CHOICES = ["Oil", "Water", "Air"]
 
@@ -147,8 +148,7 @@ def test_dropdown_list_from_callable(qtbot):
     func.reset_choices()
 
 
-@pytest.mark.xfail(reason="swapping a widget does not remove the old one", strict=True)
-def test_changing_widget_types(magic_func):
+def test_changing_widget_attr_fails(magic_func):
     """Test set_widget will either update or change an existing widget."""
     assert magic_func.a.value == "works"
     widget1 = magic_func.a
@@ -156,15 +156,13 @@ def test_changing_widget_types(magic_func):
 
     # changing it to a different type will destroy and create a new widget
     widget2 = widgets.Widget.create(default=1, name="a")
-    magic_func.a = widget2
-    assert magic_func.a.value == 1
-    assert widget1 != widget2
-    assert isinstance(widget2, widgets.SpinBox)
+    with pytest.raises(AttributeError):
+        magic_func.a = widget2
 
-    assert magic_func[0] == widget2  # fails
+    assert magic_func.a == widget1
 
 
-def test_multiple_gui_with_same_args(qtbot):
+def test_multiple_gui_with_same_args():
     """Test that similarly named arguments are independent of one another."""
 
     @magicgui
@@ -191,7 +189,7 @@ def test_multiple_gui_with_same_args(qtbot):
     assert example2() == 4
 
 
-def test_multiple_gui_instance_independence(qtbot):
+def test_multiple_gui_instance_independence():
     """Test that multiple instance of the same decorated function are independent."""
 
     def example(a=2):
@@ -217,21 +215,7 @@ def test_multiple_gui_instance_independence(qtbot):
     assert w2() == 4
 
 
-@pytest.mark.xfail(reason="ignore has not be reimplemented in v0.2.0+", strict=True)
-def test_ignore_param(qtbot):
-    """Test that the ignore option works."""
-
-    @magicgui(ignore=["b", "c"])
-    def func(a: str = "string", b: int = 3, c=7.1) -> str:
-        return "works"
-
-    assert hasattr(func, "a")
-    assert not hasattr(func, "b")
-    assert not hasattr(func, "c")
-    func()
-
-
-def test_invisible_param(qtbot):
+def test_invisible_param():
     """Test that the visible option works."""
 
     @magicgui(a={"visible": False})
@@ -245,7 +229,7 @@ def test_invisible_param(qtbot):
     func()
 
 
-def test_bad_options(qtbot):
+def test_bad_options():
     """Test that invalid parameter options raise TypeError."""
     with pytest.raises(TypeError):
 
@@ -254,28 +238,30 @@ def test_bad_options(qtbot):
             return "works"
 
 
-@pytest.mark.xfail(reason="MagicSignatures are slightly different")
-def test_signature_repr(qtbot):
+# @pytest.mark.xfail(reason="MagicSignatures are slightly different")
+def test_signature_repr():
     """Test that the gui makes a proper signature."""
 
-    def func(a="string", b=3, c=7.1):
-        ...
+    def func(a: str = "string", b: int = 3, c: float = 7.1):
+        return locals()
 
     magic_func = magicgui(func)
 
-    # <MagicSignature (a: str = 'string', b: int = 3, c: float = 7.1)> != <Signature (a='string', b=3, c=7.1)>  # noqa
-    assert signature(magic_func) == signature(func)
+    # the STRING signature representation should be the same as the original function
+    assert str(inspect.signature(magic_func)) == str(inspect.signature(func))
+    # however, the magic_func signature is an enhance MagicSignature object:
+    assert isinstance(inspect.signature(magic_func), MagicSignature)
+    assert isinstance(inspect.signature(func), inspect.Signature)
 
     # make sure it is up to date
     magic_func.b.value = 0
     assert (
-        str(signature(magic_func))
-        == "(a: str = 'string', b: float = 0, c: float = 7.1)"
+        str(inspect.signature(magic_func))
+        == "(a: str = 'string', b: int = 0, c: float = 7.1)"
     )
-    # assert repr(gui) == "<MagicGui: func(a='string', b=0, c=7.1)>"
 
 
-def test_unrecognized_types(qtbot):
+def test_unrecognized_types():
     """Test error handling when an arg with an unrecognized type is encountered."""
 
     class Something:
@@ -295,7 +281,7 @@ def test_unrecognized_types(qtbot):
     # assert hasattr(gui, "b")
 
 
-def test_set_choices_raises(qtbot):
+def test_set_choices_raises():
     """Test failures on setting choices."""
 
     @magicgui(mood={"choices": ["happy", "sad"]})
@@ -308,7 +294,7 @@ def test_set_choices_raises(qtbot):
         func.mood.choices = 1
 
 
-def test_get_choices_raises(qtbot):
+def test_get_choices_raises():
     """Test failures on getting choices."""
 
     @magicgui(mood={"choices": [1, 2, 3]})
@@ -322,7 +308,7 @@ def test_get_choices_raises(qtbot):
 
 
 @pytest.mark.skip(reason="does not yet work")
-def test_positions(qtbot):
+def test_positions():
     """Test that providing position options puts widget in the right place."""
 
     def func(a=1, b=2, c=3):
@@ -331,35 +317,39 @@ def test_positions(qtbot):
     def get_layout_items(layout):
         return [layout.itemAt(i).widget().objectName() for i in range(layout.count())]
 
-    gui = magicgui(func).Gui()
+    gui = magicgui(func)
     assert get_layout_items(gui.layout()) == ["a", "b", "c"]
     gui = magicgui(func, a={"position": 2}, b={"position": 1}).Gui()
     assert get_layout_items(gui.layout()) == ["c", "b", "a"]
 
 
-@pytest.mark.xfail(reason="labels not yet reimplemented")
-@pytest.mark.parametrize("labels", [True, False], ids=["with-labels", "no-labels"])
-def test_add_at_position(labels, qtbot):
+@pytest.mark.parametrize(
+    "labels",
+    [
+        pytest.param(
+            True, marks=pytest.mark.xfail(reason="indexing still wrong with labels")
+        ),
+        False,
+    ],
+    ids=["with-labels", "no-labels"],
+)
+def test_add_at_position(labels):
     """Test that adding widghet with position option puts widget in the right place."""
 
     def func(a=1, b=2, c=3):
         pass
 
-    def get_layout_items(layout):
-        items = [layout.itemAt(i).widget().objectName() for i in range(layout.count())]
+    def get_layout_items(gui):
+        lay = gui.native.layout()
+        items = [lay.itemAt(i).widget()._magic_widget.name for i in range(lay.count())]
         if labels:
             items = list(filter(None, items))
         return items
 
     gui = magicgui(func, labels=labels)
-    assert get_layout_items(gui.layout()) == ["a", "b", "c"]
-    gui.set_widget("new", 1, position=1)
-    assert get_layout_items(gui.layout()) == ["a", "new", "b", "c"]
-    gui.set_widget("new2", 1, position=-2)
-    assert get_layout_items(gui.layout()) == ["a", "new", "b", "new2", "c"]
-
-    with pytest.raises(TypeError):
-        gui.set_widget("hi", 1, position=1.5)
+    assert get_layout_items(gui) == ["a", "b", "c"]
+    gui.insert(1, widgets.Widget.create(name="new"))
+    assert get_layout_items(gui) == ["a", "new", "b", "c"]
 
 
 def test_original_function_works(magic_func):
@@ -375,7 +365,7 @@ def test_show(qtbot, magic_func):
     assert magic_func.visible
 
 
-def test_register_types(qtbot):
+def test_register_types():
     """Test that we can register custom widget classes for certain types."""
     # must provide a non-None choices or widget_type
     with pytest.raises(ValueError):
@@ -415,7 +405,7 @@ def test_register_types(qtbot):
     del type_map._TYPE_DEFS[int]
 
 
-def test_register_return_callback(qtbot):
+def test_register_return_callback():
     """Test that registering a return callback works."""
 
     def check_value(gui, value, rettype):
@@ -445,7 +435,7 @@ def test_register_return_callback(qtbot):
     func2()
 
 
-@pytest.mark.xfail(reason="need to rethink how to test this")
+# @pytest.mark.xfail(reason="need to rethink how to test this")
 def test_parent_changed(qtbot, magic_func):
     """Test that setting MagicGui parent emits a signal."""
     with qtbot.waitSignal(magic_func.parent_changed, timeout=1000):

@@ -1,7 +1,6 @@
-from contextlib import contextmanager
-from typing import Any, Callable, Optional, Sequence, TypeVar, Union, overload
+from typing import Any, Callable, Optional, TypeVar, Union, overload
 
-from magicgui.application import Application, AppRef, use_app
+from magicgui.application import Application, AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import magic_signature
 from magicgui.type_map import _type2callback
@@ -12,7 +11,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 @overload
-def magicgui(function: F) -> "FunctionGui":
+def magicgui(function: F, **k) -> "FunctionGui":
     ...
 
 
@@ -29,7 +28,6 @@ def magicgui(
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
-    ignore: Optional[Sequence[str]] = None,
     app: AppRef = None,
     **param_options: dict,
 ):
@@ -51,9 +49,6 @@ def magicgui(
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
-    ignore : list of str, optional
-        Parameters in the function signature that should be ignored when creating
-        the widget, by default None
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
@@ -78,7 +73,7 @@ def magicgui(
     """
 
     def inner_func(func: Callable) -> FunctionGui:
-        return FunctionGui(
+        func_gui = FunctionGui(
             function=func,
             call_button=call_button,
             orientation=orientation,
@@ -88,6 +83,8 @@ def magicgui(
             result_widget=result_widget,
             app=app,
         )
+        func_gui.__wrapped__ = func
+        return func_gui
 
     if function is None:
         return inner_func
@@ -123,7 +120,6 @@ class FunctionGui(Container):
         if extra:
             s = "s" if len(extra) > 1 else ""
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
-        self.__magicgui_app__ = use_app(app)
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             orientation=orientation,
@@ -156,6 +152,10 @@ class FunctionGui(Container):
         if show:
             self.show()
 
+    @property
+    def __signature__(self):
+        return self.to_signature()
+
     def __call__(self, *args: Any, **kwargs: Any):
         """Call the original function with the current parameter values from the Gui.
 
@@ -171,7 +171,10 @@ class FunctionGui(Container):
         Examples
         --------
         gui = FunctionGui(func, show=True)
-        # ... change parameters in the gui ... or by setting:  gui.param = something
+
+        # then change parameters in the gui, or by setting:  gui.param.value = something
+
+        gui()  # calls the original function with the current parameters
         """
         sig = self.to_signature()
         bound = sig.bind(*args, **kwargs)
@@ -192,21 +195,6 @@ class FunctionGui(Container):
         """Return string representation of instance."""
         fname = f"{self._function.__module__}.{self._function.__name__}"
         return f"<FunctionGui {fname}{self.to_signature()}>"
-
-    def show(self, run=False):
-        """Show the widget."""
-        super().show()
-        if run:
-            self.__magicgui_app__.run()
-
-    @contextmanager
-    def shown(self):
-        """Context manager to show the widget."""
-        try:
-            super().show()
-            yield self.__magicgui_app__.__enter__()
-        finally:
-            self.__magicgui_app__.__exit__()
 
     @property
     def result_name(self) -> str:

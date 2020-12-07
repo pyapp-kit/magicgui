@@ -1,3 +1,4 @@
+from ._bases import Widget
 from ._concrete import (
     CheckBox,
     ComboBox,
@@ -38,4 +39,5 @@ __all__ = [
     "Slider",
     "SpinBox",
     "TextEdit",
+    "Widget",
 ]

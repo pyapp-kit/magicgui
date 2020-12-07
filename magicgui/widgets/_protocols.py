@@ -1,5 +1,9 @@
 """Protocols (Interfaces) for backends to implement.
 
+These protocols define the methods that a backend must implement
+to be compatible with the magicgui API.  All magicgui-specific
+abstract methods are prefaced with `_mg_`
+
 └── -> WidgetProtocol/
     ├── _mg_show_widget
     ├── _mg_hide_widget

@@ -1,15 +1,16 @@
-"""[summary]
+"""This module contains "final" widgets ready to be instantiated by the user.
 
-
+All of these widgets should provide the `widget_type` argument to their
+super().__init__ calls.
 """
 import inspect
+import math
 import os
-from functools import wraps
 from pathlib import Path
-from typing import Any, Sequence, Tuple, Type, Union
+from typing import Callable, Sequence, Tuple, Type, Union
 
-from magicgui import transforms
 from magicgui.application import use_app
+from magicgui.parse import docstring_to_param_list, param_list_to_str
 from magicgui.types import FileDialogMode, PathLike
 
 from ._bases import (
@@ -18,72 +19,58 @@ from ._bases import (
     ContainerWidget,
     RangedWidget,
     SliderWidget,
+    TransformedRangedWidget,
     ValueWidget,
     Widget,
 )
-
-_widget_doc = """{}
-
-    Parameters
-    ----------
-    name : str, optional
-        The name of the parameter represented by this widget. by default ""
-    kind : str, optional
-        The ``inspect._ParameterKind`` represented by this widget.  Used in building
-        signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
-    default : Any, optional
-        The default & starting value for the widget, by default None
-    annotation : Any, optional
-        The type annotation for the parameter represented by the widget, by default None
-    gui_only : bool, optional
-        Whether the widget should be considered "only for the gui", or if it should be
-        included in any widget container signatures, by default False"""
-
-_button_widget_doc = _widget_doc
-_button_widget_doc += """
-    text : str, optional
-        The text to display on the button. by default "Text\""""
-
-_range_widget_doc = _widget_doc
-_range_widget_doc += """
-    minimum : float, optional
-        The minimum allowable value, by default 0
-    maximum : float, optional
-        The maximum allowable value, by default 100
-    step : float, optional
-        The step size for incrementing the value, by default 1"""
-
-_slider_widget_doc = _range_widget_doc
-_slider_widget_doc += """
-    orientation : str, {{'horizontal', 'vertical'}}
-        The orientation for the slider, by default "horizontal\""""
-
-_combo_box_doc = _widget_doc
-_combo_box_doc += """
-    choices : Enum, Iterable, or Callable
-        Available choices displayed in the combo box."""
+from ._transforms import make_float, make_literal_eval
 
 
-def backend_widget(cls=None, widget_name=None, transform=None):
-    """[summary]
+def merge_super_sigs(cls, exclude=("self", "widget_type", "kwargs", "args", "kwds")):
+    params = {}
+    param_docs = []
+    for sup in reversed(inspect.getmro(cls)):
+        sig = inspect.signature(getattr(sup, "__init__"))
+        for name, param in sig.parameters.items():
+            if name in exclude:
+                continue
+            params[name] = param
+
+        param_docs += docstring_to_param_list(getattr(sup, "__doc__", ""))
+
+    cls.__signature__ = inspect.Signature(sorted(params.values(), key=lambda x: x.kind))
+    param_docs = [p for p in param_docs if p.name not in exclude]
+    cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
+    cls.__doc__ += "\n".join(param_list_to_str(param_docs))
+    return cls
+
+
+def backend_widget(
+    cls: Type = None, widget_name: str = None, transform: Callable[[Type], Type] = None
+):
+    """Decorator that matches a widget class to the backend widget of the same.
+
+    The purpose of this decorator is to "inject" the appropriate backend
+    `widget_type` argument into the `Widget.__init__` function, according to the
+    app currently being used (i.e. returned by `use_app()`).
 
     Parameters
     ----------
-    cls : [type], optional
+    cls : Type, optional
         The class being decorated, by default None.
-    widget_name : [type], optional
+    widget_name : str, optional
         The name of the backend widget to wrap. If None, the name of the class being
         decorated is used.  By default None.
-    transform : [type], optional
-        [description], by default None
+    transform : callable, optional
+        A optional function that takes a class and returns a class.  May be used
+        to transform the characteristics/methods of the class, by default None
 
     Returns
     -------
-    [type]
-        [description]
+    cls : Type
+        The final concrete class backed by a backend widget.
     """
 
-    @wraps(cls)
     def wrapper(cls) -> Type[Widget]:
         def __init__(self, **kwargs):
             app = use_app()
@@ -94,141 +81,152 @@ def backend_widget(cls=None, widget_name=None, transform=None):
             kwargs["widget_type"] = widget
             super(cls, self).__init__(**kwargs)
 
-        params = {}
-        for klass in reversed(inspect.getmro(cls)):
-            sig = inspect.signature(getattr(klass, "__init__"))
-            for name, param in sig.parameters.items():
-                if name in ("self", "widget_type", "kwargs", "args", "kwds"):
-                    continue
-                params[name] = param
-
         cls.__init__ = __init__
-        cls.__signature__ = inspect.Signature(
-            sorted(params.values(), key=lambda x: x.kind)
-        )
+        cls = merge_super_sigs(cls)
         return cls
 
     return wrapper(cls) if cls else wrapper
 
 
 @backend_widget
-class Label(ValueWidget):  # noqa: D101
-    __doc__ = _widget_doc.format("A non-editable text or image display.")
+class Label(ValueWidget):
+    """A non-editable text or image display."""
 
 
 @backend_widget
-class LineEdit(ValueWidget):  # noqa: D101
-    __doc__ = _widget_doc.format("A one-line text editor.")
+class LineEdit(ValueWidget):
+    """A one-line text editor."""
 
 
-@backend_widget(widget_name="LineEdit", transform=transforms.make_literal_eval)
-class LiteralEvalLineEdit(ValueWidget):  # noqa: D101
-    __doc__ = _widget_doc.format(
-        "A one-line text editor that evaluates strings as python literals."
-    )
-
-
-@backend_widget
-class TextEdit(ValueWidget):  # noqa: D101
-    __doc__ = _widget_doc.format(
-        "A widget to edit and display both plain and rich text."
-    )
+@backend_widget(widget_name="LineEdit", transform=make_literal_eval)
+class LiteralEvalLineEdit(ValueWidget):
+    """A one-line text editor that evaluates strings as python literals."""
 
 
 @backend_widget
-class DateTimeEdit(ValueWidget):  # noqa: D101
-    __doc__ = _widget_doc.format("A widget for editing dates and times.")
+class TextEdit(ValueWidget):
+    """A widget to edit and display both plain and rich text."""
 
 
 @backend_widget
-class PushButton(ButtonWidget):  # noqa: D101
-    __doc__ = _button_widget_doc.format("A command button.")
+class DateTimeEdit(ValueWidget):
+    """A widget for editing dates and times."""
 
 
 @backend_widget
-class CheckBox(ButtonWidget):  # noqa: D101
-    __doc__ = _button_widget_doc.format("A checkbox with a text label.")
+class PushButton(ButtonWidget):
+    """A clickable command button."""
 
 
 @backend_widget
-class RadioButton(ButtonWidget):  # noqa: D101
-    __doc__ = _button_widget_doc.format("A radio button with a text label")
+class CheckBox(ButtonWidget):
+    """A checkbox with a text label."""
 
 
 @backend_widget
-class SpinBox(RangedWidget):  # noqa: D101
-    __doc__ = _range_widget_doc.format(
-        "A widget to edit an integer with clickable up/down arrows."
-    )
+class RadioButton(ButtonWidget):
+    """A radio button with a text label"""
 
 
 @backend_widget
-class FloatSpinBox(RangedWidget):  # noqa: D101
-    __doc__ = _range_widget_doc.format(
-        "A widget to edit a float with clickable up/down arrows."
-    )
+class SpinBox(RangedWidget):
+    """A widget to edit an integer with clickable up/down arrows."""
 
 
 @backend_widget
-class Slider(SliderWidget):  # noqa: D101
-    __doc__ = _slider_widget_doc.format(
-        "A slider widget to adjust a numerical value within a range."
-    )
-
-
-@backend_widget(widget_name="Slider", transform=transforms.make_float)
-class FloatSlider(SliderWidget):  # noqa: D101
-    __doc__ = _slider_widget_doc.format(
-        "A slider widget to adjust a float value within a range."
-    )
-
-
-@backend_widget(widget_name="Slider", transform=transforms.make_log)
-class LogSlider(SliderWidget):  # noqa: D101
-    __doc__ = _slider_widget_doc.format(
-        "A slider widget to adjust a numerical value logarithmically within a range."
-    )
+class FloatSpinBox(RangedWidget):
+    """A widget to edit a float with clickable up/down arrows."""
 
 
 @backend_widget
-class ComboBox(CategoricalWidget):  # noqa: D101
-    __doc__ = _combo_box_doc.format(
-        "A categorical widget, allowing selection between multiple choices."
-    )
+class Slider(SliderWidget):
+    """A slider widget to adjust an integer value within a range."""
 
 
-@backend_widget
-class Container(ContainerWidget):  # noqa: D101
-    pass
+@backend_widget(widget_name="Slider", transform=make_float)
+class FloatSlider(SliderWidget):
+    """A slider widget to adjust a float value within a range."""
 
 
-class FileEdit(Container):
-    """A LineEdit widget with a button that opens a FileDialog."""
+@merge_super_sigs
+class LogSlider(TransformedRangedWidget):
+    """A slider widget to adjust a numerical value logarithmically within a range.
+
+    Parameters
+    ----------
+    base : Enum, Iterable, or Callable
+        Available choices displayed in the combo box.
+    """
 
     def __init__(
-        self,
-        name: str = "",
-        kind: str = "POSITIONAL_OR_KEYWORD",
-        default: Any = inspect.Parameter.empty,
-        annotation=None,
-        gui_only=False,
-        orientation="horizontal",
-        mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
-        label=None,
+        self, minimum: float = 1, maximum: float = 100, base: float = math.e, **kwargs,
     ):
+        self._base = base
+        app = use_app()
+        assert app.native
+        super().__init__(
+            minimum=minimum,
+            maximum=maximum,
+            widget_type=app.get_obj("Slider"),
+            **kwargs,
+        )
+
+    @property
+    def _scale(self):
+        minv = math.log(self.minimum, self.base)
+        maxv = math.log(self.maximum, self.base)
+        return (maxv - minv) / (self._max_pos - self._min_pos)
+
+    def _value_from_position(self, position):
+        minv = math.log(self.minimum, self.base)
+        return math.pow(self.base, minv + self._scale * (position - self._min_pos))
+
+    def _position_from_value(self, value):
+        minv = math.log(self.minimum, self.base)
+        return (math.log(value, self.base) - minv) / self._scale + self._min_pos
+
+    @property
+    def base(self):
+        return self._base
+
+    @base.setter
+    def base(self, base):
+        prev = self.value
+        self._base = base
+        self.value = prev
+
+
+@backend_widget
+class ComboBox(CategoricalWidget):
+    """A dropdown menu, allowing selection between multiple choices."""
+
+
+@backend_widget
+class Container(ContainerWidget):
+    """A Widget to contain other widgets."""
+
+
+@merge_super_sigs
+class FileEdit(Container):
+    """A LineEdit widget with a button that opens a FileDialog.
+
+    Parameters
+    ----------
+    mode : FileDialogMode or str
+        The mode used for the file dialog:
+            'r': returns one existing file.
+            'rm': return one or more existing files.
+            'w': return one file name that does not have to exist.
+            'd': returns one existing directory.
+
+    """
+
+    def __init__(self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, **kwargs):
         self.line_edit = LineEdit()
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
-        super().__init__(
-            orientation=orientation,
-            widgets=[self.line_edit, self.choose_btn],
-            name=name,
-            kind=kind,
-            default=default,
-            annotation=annotation,
-            gui_only=gui_only,
-            label=label,
-        )
+        kwargs["widgets"] = [self.line_edit, self.choose_btn]
+        super().__init__(**kwargs)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
         self.choose_btn.changed.connect(self._on_choose_clicked)
 
@@ -252,9 +250,9 @@ class FileEdit(Container):
     def _on_choose_clicked(self, event=None):
         _p = self.value
         start_path: Path = _p[0] if isinstance(_p, tuple) else _p
-        start_path = os.fspath(start_path.expanduser().absolute())
+        _start_path = os.fspath(start_path.expanduser().absolute())
         result = self._show_file_dialog(
-            self.mode, caption=self._btn_text, start_path=start_path
+            self.mode, caption=self._btn_text, start_path=_start_path
         )
         if result:
             self.value = result
@@ -283,33 +281,32 @@ class FileEdit(Container):
         return f"<FileEdit mode={self.mode.value!r}, value={self.value!r}>"
 
 
+@merge_super_sigs
 class RangeEdit(Container):
-    """A widget to represent range objects, with start/stop/step."""
+    """A widget to represent a python range object, with start/stop/step.
 
-    def __init__(
-        self,
-        name: str = "",
-        kind: str = "POSITIONAL_OR_KEYWORD",
-        default: Any = inspect.Parameter.empty,
-        annotation=None,
-        gui_only=False,
-        orientation="horizontal",
-        start=0,
-        stop=10,
-        step=1,
-    ):
+    A range object produces a sequence of integers from start (inclusive)
+    to stop (exclusive) by step.  range(i, j) produces i, i+1, i+2, ..., j-1.
+    start defaults to 0, and stop is omitted!  range(4) produces 0, 1, 2, 3.
+    These are exactly the valid indices for a list of 4 elements.
+    When step is given, it specifies the increment (or decrement).
+
+    Parameters
+    ----------
+    start : int, optional
+        The range start value, by default 0
+    stop : int, optional
+        The range stop value, by default 10
+    step : int, optional
+        The range step value, by default 1
+    """
+
+    def __init__(self, start=0, stop=10, step=1, **kwargs):
         self.start = SpinBox(default=start)
         self.stop = SpinBox(default=stop)
         self.step = SpinBox(default=step)
-        super().__init__(
-            orientation=orientation,
-            widgets=[self.start, self.stop, self.step],
-            name=name,
-            kind=kind,
-            default=default,
-            annotation=annotation,
-            gui_only=gui_only,
-        )
+        kwargs["widgets"] = [self.start, self.stop, self.step]
+        super().__init__(**kwargs)
 
     @property
     def value(self) -> range:
@@ -325,11 +322,17 @@ class RangeEdit(Container):
 
     def __repr__(self) -> str:
         """Return string representation."""
-        return f"<RangeEdit value={self.value!r}>"
+        return f"<{self.__class__.__name__} value={self.value!r}>"
 
 
 class SliceEdit(RangeEdit):
-    """A widget to represent range objects, with start/stop/step."""
+    """A widget to represent range objects, with start/stop/step.
+
+    slice(stop)
+    slice(start, stop[, step])
+
+    Slice objects may be used for extended slicing (e.g. a[0:10:2])
+    """
 
     @property  # type: ignore
     def value(self) -> slice:  # type: ignore
@@ -342,7 +345,3 @@ class SliceEdit(RangeEdit):
         self.start.value = value.start
         self.stop.value = value.stop
         self.step.value = value.step
-
-    def __repr__(self) -> str:
-        """Return string representation."""
-        return f"<SliceEdit value={self.value!r}>"

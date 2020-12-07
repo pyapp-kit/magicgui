@@ -1,4 +1,4 @@
-from inspect import Parameter, Signature, _ParameterKind, signature
+import inspect
 from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
@@ -53,7 +53,7 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
         hint, anno_options = split_annotated_type(annotation)
         _options.update(anno_options)
         annotation = hint
-    annotation = Any if annotation is Parameter.empty else annotation
+    annotation = Any if annotation is inspect.Parameter.empty else annotation
     return Annotated[annotation, _options]
 
 
@@ -69,18 +69,18 @@ def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, WidgetOption
     return annotation.__args__[0], meta
 
 
-class MagicParameter(Parameter):
+class MagicParameter(inspect.Parameter):
     def __init__(
         self,
         name: str,
-        kind: _ParameterKind = Parameter.POSITIONAL_OR_KEYWORD,
+        kind: inspect._ParameterKind = inspect.Parameter.POSITIONAL_OR_KEYWORD,
         *,
-        default: Any = Parameter.empty,
-        annotation: Any = Parameter.empty,
+        default: Any = inspect.Parameter.empty,
+        annotation: Any = inspect.Parameter.empty,
         gui_options: Optional[dict] = None,
     ):
-        if annotation is Parameter.empty:
-            annotation = Any if default is Parameter.empty else type(default)
+        if annotation is inspect.Parameter.empty:
+            annotation = Any if default is inspect.Parameter.empty else type(default)
         _annotation = make_annotated(annotation, gui_options)
         super().__init__(name, kind, default=default, annotation=_annotation)
 
@@ -89,13 +89,17 @@ class MagicParameter(Parameter):
         return split_annotated_type(self.annotation)[1]
 
     def __repr__(self):
-        return super().__repr__()[:-1] + f" {self.options}>"
+        rep = super().__repr__()[:-1] + f" {self.options}>"
+        rep = rep.replace(": NoneType = ", "=")
+        return rep
 
     def __str__(self):
         # discard options for repr
         hint, _ = split_annotated_type(self.annotation)
         return str(
-            Parameter(self.name, self.kind, default=self.default, annotation=hint)
+            inspect.Parameter(
+                self.name, self.kind, default=self.default, annotation=hint
+            )
         )
 
     def to_widget(self, app: AppRef = None):
@@ -123,7 +127,9 @@ class MagicParameter(Parameter):
         )
 
     @classmethod
-    def from_parameter(cls, param: Parameter, gui_options: Optional[dict] = None):
+    def from_parameter(
+        cls, param: inspect.Parameter, gui_options: Optional[dict] = None
+    ):
         if isinstance(param, MagicParameter):
             return param
         return cls(
@@ -135,14 +141,14 @@ class MagicParameter(Parameter):
         )
 
 
-class MagicSignature(Signature):
+class MagicSignature(inspect.Signature):
     parameters: Mapping[str, MagicParameter]
 
     def __init__(
         self,
-        parameters: Optional[Sequence[Parameter]] = None,
+        parameters: Optional[Sequence[inspect.Parameter]] = None,
         *,
-        return_annotation=Signature.empty,
+        return_annotation=inspect.Signature.empty,
         gui_options: Optional[Dict[str, dict]] = None,
     ):
         params = [
@@ -152,10 +158,10 @@ class MagicSignature(Signature):
         super().__init__(params, return_annotation=return_annotation)
 
     @classmethod
-    def from_signature(cls, sig: Signature, gui_options=None):
+    def from_signature(cls, sig: inspect.Signature, gui_options=None):
         if type(sig) is cls:
             return sig
-        elif not isinstance(sig, Signature):
+        elif not isinstance(sig, inspect.Signature):
             raise TypeError("'sig' must be an instance of 'inspect.Signature'")
         return cls(
             list(sig.parameters.values()),
@@ -184,7 +190,7 @@ def magic_signature(
     gui_options: Optional[Dict[str, dict]] = None,
     follow_wrapped: bool = True,
 ) -> MagicSignature:
-    sig = signature(obj, follow_wrapped=follow_wrapped)
+    sig = inspect.signature(obj, follow_wrapped=follow_wrapped)
     if gui_options:
         invalid = set(gui_options) - set(sig.parameters)
         if invalid:

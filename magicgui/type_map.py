@@ -167,7 +167,7 @@ def _import_class(class_name: str) -> WidgetClass:
 
     mod_name, name = class_name.rsplit(".", 1)
     mod = importlib.import_module(mod_name)
-    return getattr(mod, name.title())
+    return getattr(mod, name)
 
 
 def validate_return_callback(func):
