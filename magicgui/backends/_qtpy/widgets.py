@@ -66,9 +66,7 @@ class QBaseWidget(protocols.WidgetProtocol):
 class QBaseValueWidget(QBaseWidget, protocols.ValueWidgetProtocol):
     """Implements get/set/bind_change."""
 
-    def __init__(
-        self, qwidg: QtW.QWidget, getter: str, setter: str, onchange: str,
-    ):
+    def __init__(self, qwidg: QtW.QWidget, getter: str, setter: str, onchange: str):
         super().__init__(qwidg)
         self._getter_name = getter
         self._setter_name = setter

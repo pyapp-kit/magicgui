@@ -17,9 +17,7 @@ class Medium(Enum):
 
 
 @magicgui(call_button="calculate", result={"disabled": True, "fixedWidth": 100})
-def snells_law(
-    aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True,
-):
+def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
     """Calculate the angle of refraction given two media and an AOI."""
     if degrees:
         aoi = math.radians(aoi)

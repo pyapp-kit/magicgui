@@ -3,6 +3,7 @@
 # Distributed under the (new) BSD License. See LICENSE.txt for more info.
 import copy
 import functools
+from typing import Any
 
 from magicgui.events import Event, EventEmitter
 
@@ -34,7 +35,7 @@ class TypedEvent(Event):
 
 
 class Record:
-    result = None
+    result: Any = None
 
     def __call__(self, ev, key=None):
         # get a copy of all event attributes because these may change
@@ -197,7 +198,7 @@ def test_prebuilt_event():
     ev = Event(type="my_type")
     em(ev)
     record_event.assert_result(event=ev, type="my_type")
-    assert not hasattr(record_event.result[0], "key1")
+    assert not hasattr(record_event.result[0], "key1")  # type: ignore
 
 
 def test_emitter_subclass():
@@ -399,10 +400,10 @@ def test_source_stack_integrity():
 
     em.disconnect()
 
-    def cb(ev):
+    def cb2(ev):
         ev._sources = []
 
-    em.connect(cb)
+    em.connect(cb2)
 
     try:
         em()
@@ -541,11 +542,11 @@ def test_event_connect_order():
 
     old_e = e
 
-    def e():
+    def e2():
         return
 
-    assert_raises(ValueError, em.connect, e, ref=True)  # duplicate name
-    em.connect(e)
+    assert_raises(ValueError, em.connect, e2, ref=True)  # duplicate name
+    em.connect(e2)
     assert_equal((None, "a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     assert_equal((e, a, b, c, d, old_e, f), tuple(em.callbacks))
 

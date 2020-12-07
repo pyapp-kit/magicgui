@@ -159,7 +159,7 @@ class LogSlider(TransformedRangedWidget):
     """
 
     def __init__(
-        self, minimum: float = 1, maximum: float = 100, base: float = math.e, **kwargs,
+        self, minimum: float = 1, maximum: float = 100, base: float = math.e, **kwargs
     ):
         self._base = base
         app = use_app()
