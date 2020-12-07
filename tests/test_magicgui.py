@@ -435,7 +435,7 @@ def test_register_return_callback():
     func2()
 
 
-# @pytest.mark.xfail(reason="need to rethink how to test this")
+@pytest.mark.skip(reason="need to rethink how to test this")
 def test_parent_changed(qtbot, magic_func):
     """Test that setting MagicGui parent emits a signal."""
     with qtbot.waitSignal(magic_func.parent_changed, timeout=1000):

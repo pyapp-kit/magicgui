@@ -572,8 +572,8 @@ class EventEmitter(object):
         """
         # This is a VERY highly used method; must be fast!
         blocked = self._blocked
-        # if self._emitting:
-        #     raise RuntimeError("EventEmitter loop detected!")
+        if self._emitting:
+            raise RuntimeError("EventEmitter loop detected!")
 
         # create / massage event as needed
         event = self._prepare_event(*args, **kwargs)

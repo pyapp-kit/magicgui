@@ -59,6 +59,7 @@ class QBaseWidget(protocols.WidgetProtocol):
         return self._qwidget
 
     def _mg_bind_parent_change_callback(self, callback):
+        print("bind", callback)
         self._event_filter.parentChanged.connect(callback)
 
 
