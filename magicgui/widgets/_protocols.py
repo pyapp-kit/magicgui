@@ -52,16 +52,9 @@ abstract methods are prefaced with `_mg_`
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Optional,
-    Protocol,
-    Tuple,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple
+
+from typing_extensions import Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from magicgui.widgets._bases import Widget

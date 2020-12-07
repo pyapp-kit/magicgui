@@ -1,16 +1,13 @@
 import math
 from ast import literal_eval
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from magicgui.widgets._protocols import RangedWidgetProtocol, ValueWidgetProtocol
 
-C = TypeVar("C")
-F = TypeVar("F")
-
 if TYPE_CHECKING:
 
-    def lru_cache(f: F) -> F:
+    def lru_cache(maxsize: int = 128) -> Callable:
         pass
 
 
@@ -64,21 +61,12 @@ def transform_get_set(
 FLOAT_PRECISION = 1000
 LOG_BASE = math.e
 
-make_float = lru_cache(
+make_float = lru_cache(maxsize=32)(
     partial(
         transform_get_set,
         get_transform=lambda x: x / FLOAT_PRECISION,
         set_transform=lambda x: int(x * FLOAT_PRECISION),
         prefix="Float",
-    )
-)
-
-make_log = lru_cache(
-    partial(
-        transform_get_set,
-        get_transform=lambda x: math.log(x / FLOAT_PRECISION, LOG_BASE),
-        set_transform=lambda x: int(math.pow(LOG_BASE, x) * FLOAT_PRECISION),
-        prefix="Log",
     )
 )
 
@@ -91,6 +79,6 @@ def _literal_eval(x):
     return literal_eval(x)
 
 
-make_literal_eval = lru_cache(
-    partial(transform_get_set, get_transform=_literal_eval, prefix="LiteralEval")
+make_literal_eval = lru_cache(maxsize=32)(
+    partial(transform_get_set, get_transform=_literal_eval, prefix="LiteralEval"),
 )

@@ -83,6 +83,9 @@ def test_call_button():
 
 def test_auto_call(qtbot, magic_func):
     """Test that changing a parameter calls the function."""
+
+    # TODO: remove qtbot requirement so we can test other backends eventually.
+
     # changing the widget parameter calls the function
     with qtbot.waitSignal(magic_func.called, timeout=1000):
         magic_func.b.value = 6
@@ -358,7 +361,7 @@ def test_original_function_works(magic_func):
     assert magic_func("hi") == "hi3"
 
 
-def test_show(qtbot, magic_func):
+def test_show(magic_func):
     """Test that the show option works."""
     # assert not magic_func.visible
     magic_func.show()
@@ -435,8 +438,8 @@ def test_register_return_callback():
     func2()
 
 
-@pytest.mark.skip(reason="need to rethink how to test this")
-def test_parent_changed(qtbot, magic_func):
-    """Test that setting MagicGui parent emits a signal."""
-    with qtbot.waitSignal(magic_func.parent_changed, timeout=1000):
-        magic_func.native.setParent(None)
+# @pytest.mark.skip(reason="need to rethink how to test this")
+# def test_parent_changed(qtbot, magic_func):
+#     """Test that setting MagicGui parent emits a signal."""
+#     with qtbot.waitSignal(magic_func.parent_changed, timeout=1000):
+#         magic_func.native.setParent(None)

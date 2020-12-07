@@ -4,7 +4,7 @@ import signal
 from contextlib import contextmanager
 from importlib import import_module
 from types import ModuleType
-from typing import TYPE_CHECKING, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Callable, Iterator, Optional, Union
 
 from magicgui.backends import BACKENDS
 
@@ -107,6 +107,14 @@ class Application:
         self._backend._mg_start_timer(500, lambda: None)
         self._backend._mg_run()
         self._backend._mg_stop_timer()
+
+    def start_timer(
+        self,
+        interval: int = 1000,
+        on_timeout: Optional[Callable[[], None]] = None,
+        single_shot: bool = False,
+    ):
+        self._backend._mg_start_timer(interval, on_timeout, single=single_shot)
 
 
 def _use_app(backend_name: str = None):

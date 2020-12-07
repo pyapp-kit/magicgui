@@ -40,6 +40,6 @@ def test_event():
         widgets.FileEdit,
     ],
 )
-def test_get_set_change(qtbot, WidgetClass):
+def test_get_set_change(WidgetClass):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
     _ = WidgetClass()

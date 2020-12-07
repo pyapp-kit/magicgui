@@ -5,19 +5,9 @@ import pathlib
 import types
 from collections import abc, defaultdict
 from enum import EnumMeta
-from typing import (
-    Any,
-    Callable,
-    DefaultDict,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    cast,
-    get_args,
-    get_origin,
-)
+from typing import Any, Callable, DefaultDict, Dict, List, Optional, Tuple, Type, cast
+
+from typing_extensions import get_args, get_origin  # type: ignore
 
 from magicgui import function_gui, widgets
 from magicgui.types import ReturnCallback, WidgetClass, WidgetOptions, WidgetRef
@@ -113,7 +103,7 @@ def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
 
 
 def pick_widget_type(
-    value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {},
+    value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {}
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
     if "widget_type" in options:
