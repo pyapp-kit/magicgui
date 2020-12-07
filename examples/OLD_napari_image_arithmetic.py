@@ -45,10 +45,12 @@ with gui_qt():
         return operation.value(layerA.data, layerB.data)
 
     # Gui() is DEPRECATED
-    gui = image_arithmetic.Gui()
-    viewer.window.add_dock_widget(gui.native)
     # you should now just add the decorated function directly:
     # viewer.window.add_dock_widget(image_arithmetic)
+    gui = image_arithmetic.Gui()
+    viewer.window.add_dock_widget(gui.native)
+    # NOTE: gui.native will not be necessary after
+    # https://github.com/napari/napari/pull/1994
 
     # Use `reset_choices` instead now:
     # viewer.layers.events.inserted.connect(image_arithmetic.reset_choices)

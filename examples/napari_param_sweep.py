@@ -34,6 +34,8 @@ with napari.gui_qt():
             return skimage.filters.gaussian(layer.data, sigma=sigma, mode=mode)
 
     # Add it to the napari viewer
+    # NOTE: using `.native` will not be necessary after
+    # https://github.com/napari/napari/pull/1994
     viewer.window.add_dock_widget(gaussian_blur.native)
     # update the layer dropdown menu when the layer list changes
     viewer.layers.events.changed.connect(gaussian_blur.reset_choices)
