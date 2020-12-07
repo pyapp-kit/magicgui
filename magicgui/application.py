@@ -19,7 +19,10 @@ DEFAULT_BACKEND = "qt"
 def event_loop(backend=None) -> Iterator:
     """Start an event loop in which to run the application."""
     with Application(backend) as app:
-        yield app
+        try:
+            yield app
+        except Exception as e:
+            print("An error was encountered in the event loop:\n", str(e))
 
 
 class Application:
@@ -106,9 +109,9 @@ class Application:
         """Exit context manager for this application."""
         # enable ctrl-C
         signal.signal(signal.SIGINT, lambda *a: self.quit())
-        self._backend._mg_start_timer(500, lambda: None)
-        self._backend._mg_run()
-        self._backend._mg_stop_timer()
+        # self._backend._mg_start_timer(500, lambda: None)
+        # self._backend._mg_run()
+        # self._backend._mg_stop_timer()
 
     def start_timer(
         self,

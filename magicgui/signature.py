@@ -255,8 +255,8 @@ def magic_signature(
         invalid = set(gui_options) - set(sig.parameters)
         if invalid:
             raise ValueError(
-                "keyword arguments MUST match parameters in the decorated function."
-                f"\nExtra keys: {invalid}"
+                "keyword arguments (gui_options) MUST match parameters in the "
+                f"decorated function.\nGot extra keys: {invalid}"
             )
         bad = {v for v in gui_options.values() if not isinstance(v, dict)}
         if bad:

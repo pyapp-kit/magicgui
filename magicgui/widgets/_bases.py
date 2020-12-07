@@ -49,6 +49,7 @@ Widget (wraps WidgetProtocol)
 from __future__ import annotations
 
 import inspect
+import warnings
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from enum import EnumMeta
@@ -114,7 +115,17 @@ class Widget:
         label=None,
         visible: bool = True,
         gui_only=False,
+        **extra,
     ):
+        if extra:
+
+            warnings.warn(
+                f"\n\n{self.__class__.__name__}.__init__() got unexpected "
+                f"keyword arguments {set(extra)!r}.\n"
+                "In the future this will raise an exception\n",
+                FutureWarning,
+            )
+
         _prot = self.__class__.__annotations__["_widget"]
         if not isinstance(_prot, str):
             _prot = _prot.__name__
@@ -631,7 +642,6 @@ class CategoricalWidget(ValueWidget):
             try:
                 _choices = choices(self)
             except TypeError:
-                import warnings
 
                 n_params = len(inspect.signature(choices).parameters)
                 if n_params > 1:
@@ -842,7 +852,6 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     def refresh_choices(self, event=None):
         """Alias for reset_choices [Deprecated]."""
-        import warnings
 
         warnings.warn(
             "\n`ContainerWidget.refresh_choices` is deprecated and will be removed in a"

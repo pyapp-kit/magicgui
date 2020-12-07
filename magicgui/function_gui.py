@@ -13,7 +13,41 @@ from magicgui.widgets._protocols import ContainerProtocol
 
 
 class FunctionGui(Container):
-    """Wrapper for a container of widgets representing a callable object."""
+    """Wrapper for a container of widgets representing a callable object.
+
+    Parameters
+    ----------
+    function : Callable
+        A callable to turn into a GUI
+    call_button : bool or str, optional
+        If True, create an additional button that calls the original function when
+        clicked.  If a ``str``, set the button text. by default False
+    orientation : str, optional
+        The type of layout to use. Must be one of {'horizontal', 'vertical',
+        'form', 'grid'}, by default "horizontal"
+    labels : bool
+        Whether labels are shown in the widget. by default True
+    app : magicgui.Application or str, optional
+        A backend to use, by default None (use the default backend.)
+    show : bool, optional
+        Whether to immediately show the widget, by default False
+    auto_call : bool, optional
+        If True, changing any parameter in either the GUI or the widget attributes
+        will call the original function with the current settings. by default False
+    result_widget : bool, optional
+        Whether to display a LineEdit widget the output of the function when called,
+        by default False
+    gui_options : dict, optional
+        A dict of name: widget_options dict for each parameter in the function.
+        Will be passed to `magic_signature` by default None
+    name : str, optional
+        A name to assign to the Container widget, by default `function.__name__`
+
+    Raises
+    ------
+    TypeError
+        [description]
+    """
 
     __magicgui_app__: Application
     _widget: ContainerProtocol
@@ -30,13 +64,10 @@ class FunctionGui(Container):
         result_widget: bool = False,
         param_options: Optional[dict] = None,
         name: str = None,
-        **k,
+        **kwargs,
     ):
-        """Create a new FunctionGui instance."""
-        # if isinstance(function, FunctionGui):
-        #     # don't redecorate already-wrapped function
-        #     return function
-        extra = set(k) - set(["kind", "default", "annotation", "gui_only"])
+        # consume extra Widget keywords
+        extra = set(kwargs) - set(["kind", "default", "annotation", "gui_only"])
         if extra:
             s = "s" if len(extra) > 1 else ""
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
@@ -71,6 +102,20 @@ class FunctionGui(Container):
 
         if show:
             self.show()
+
+    def __getattr__(self, value):
+        """Catch deprecated _name_changed attribute."""
+        if value.endswith("_changed"):
+            import warnings
+
+            widget_name = value.replace("_changed", "")
+            warnings.warn(
+                "\nThe `<name>_changed` signal has been removed in magicgui 0.2.0.\n"
+                f"Use 'widget.{widget_name}.changed' instead of 'widget.{value}'",
+                FutureWarning,
+            )
+            return getattr(self, widget_name).changed
+        return super().__getattr__(value)
 
     @property
     def __signature__(self):
@@ -131,18 +176,20 @@ class FunctionGui(Container):
         """Set the result name of this MagicGui widget."""
         self._result_name = value
 
-    def Gui(self):
+    def Gui(self, show=False):
         """Create a widget instance [DEPRECATED]."""
         import warnings
 
         warnings.warn(
-            "Creating a widget instance with `my_function.Gui()` is deprecated,\n"
+            "\n\nCreating a widget instance with `my_function.Gui()` is deprecated,\n"
             "the magicgui decorator now returns a widget instance directly, so you\n"
             "should simply use the function itself as a magicgui widget, or call\n"
-            "`my_function.show() to run the application.\n"
-            "In a future version, the `Gui` attribute will be removed.",
+            "`my_function.show(run=True/False)` to run the application.\n"
+            "In a future version, the `Gui` attribute will be removed.\n",
             FutureWarning,
         )
+        if show:
+            self.show(run=True)
         return self
 
 
@@ -212,6 +259,9 @@ def magicgui(
     ...
     ... gui = my_function.Gui(show=True)
     """
+    if "result" in param_options:
+        param_options.pop("result")
+        result_widget = True
 
     def inner_func(func: Callable) -> FunctionGui:
         func_gui = FunctionGui(

@@ -1,4 +1,12 @@
-"""Basic example of using magicgui to create an Image Arithmetic GUI in napari."""
+"""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DEPRECATED!  DON'T USE THIS
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+This example is just here for aiding in migration to v0.2.0.
+see examples/napari_image_arithmetic.py instead
+
+"""
 from enum import Enum
 
 import numpy
@@ -25,8 +33,8 @@ class Operation(Enum):
 with gui_qt():
     # create a viewer and add a couple image layers
     viewer = Viewer()
-    viewer.add_image(numpy.random.rand(20, 20), name=f"Layer 1")
-    viewer.add_image(numpy.random.rand(20, 20), name=f"Layer 2")
+    viewer.add_image(numpy.random.rand(20, 20), name="Layer 1")
+    viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
 
     # use the magic decorator!  This takes a function, generates a custom Widget class
     # using the function signature, and adds that class as an attribute named "Gui" on
@@ -36,11 +44,15 @@ with gui_qt():
         """Add, subtracts, multiplies, or divides to image layers with equal shape."""
         return operation.value(layerA.data, layerB.data)
 
-    # instantiate the widget
+    # Gui() is DEPRECATED
     gui = image_arithmetic.Gui()
-    # add our new magicgui widget to the viewer
     viewer.window.add_dock_widget(gui.native)
-    # keep the dropdown menus in the gui in sync with the layer model
+    # you should now just add the decorated function directly:
+    # viewer.window.add_dock_widget(image_arithmetic)
+
+    # Use `reset_choices` instead now:
+    # viewer.layers.events.inserted.connect(image_arithmetic.reset_choices)
+    # viewer.layers.events.removed.connect(image_arithmetic.reset_choices)
     viewer.layers.events.inserted.connect(gui.refresh_choices)
     viewer.layers.events.removed.connect(gui.refresh_choices)
 
