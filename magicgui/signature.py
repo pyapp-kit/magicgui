@@ -1,4 +1,16 @@
-"""MagicguiSignature objects are an extension to inspect.Signature objects."""
+"""MagicSignature objects are an extension to inspect.Signature objects.
+
+The basic idea is that there is a tight connection between an individual Parameter
+in a function signature and an individual magicgui.Widget, and a connection between
+a full function Signature (a collection of parameters) and a magicgui.Container
+(a collection of widgets).  It should be easy to go from function signature to Container
+(with ``MagicSignature.to_container()``) and from Container to signature (using
+``ContainerWidget.to_signature()``).
+
+calling ``inspect.signature`` on a function decorated with `magicgui` still works,
+(it returns a ``MagicSignature``, which is a subclass of ``inspect.Signature``)
+
+"""
 from __future__ import annotations
 
 import inspect
