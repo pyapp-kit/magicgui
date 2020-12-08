@@ -109,9 +109,9 @@ class Application:
         """Exit context manager for this application."""
         # enable ctrl-C
         signal.signal(signal.SIGINT, lambda *a: self.quit())
-        # self._backend._mg_start_timer(500, lambda: None)
-        # self._backend._mg_run()
-        # self._backend._mg_stop_timer()
+        self._backend._mg_start_timer(500, lambda: None)
+        self._backend._mg_run()
+        self._backend._mg_stop_timer()
 
     def start_timer(
         self,

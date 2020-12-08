@@ -46,4 +46,4 @@ with event_loop():
     # ... these also trigger for direct parameter access on the gui object
     gui.n1_changed.connect(print)
     # we can connect a callback function to the __call__ event on the function
-    gui.called.connect(lambda x: gui.set_widget("result", str(x), position=-1))
+    gui.called.connect(lambda e: print("result is", e.value))

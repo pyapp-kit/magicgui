@@ -184,12 +184,12 @@ class FunctionGui(Container):
             "\n\nCreating a widget instance with `my_function.Gui()` is deprecated,\n"
             "the magicgui decorator now returns a widget instance directly, so you\n"
             "should simply use the function itself as a magicgui widget, or call\n"
-            "`my_function.show(run=True/False)` to run the application.\n"
+            "`my_function.show(run=True)` to run the application.\n"
             "In a future version, the `Gui` attribute will be removed.\n",
             FutureWarning,
         )
         if show:
-            self.show(run=True)
+            self.show()
         return self
 
 
