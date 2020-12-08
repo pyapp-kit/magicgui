@@ -99,6 +99,11 @@ class WidgetProtocol(Protocol):
         """Bind callback to parent change event."""
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mg_render(self):
+        """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
+        raise NotImplementedError()
+
 
 @runtime_checkable
 class ValueWidgetProtocol(WidgetProtocol, Protocol):

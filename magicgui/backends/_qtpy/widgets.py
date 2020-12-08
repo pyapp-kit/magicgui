@@ -1,6 +1,7 @@
 """Widget implementations (adaptors) for the Qt backend."""
 from typing import Any, Iterable, Optional, Tuple, Union
 
+import qtpy
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
 
@@ -60,6 +61,26 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mg_bind_parent_change_callback(self, callback):
         self._event_filter.parentChanged.connect(callback)
+
+    def _mg_render(self):
+        try:
+            import numpy as np
+        except ImportError:
+            raise ModuleNotFoundError(
+                "could not find module 'numpy'. "
+                "Please `pip install numpy` to render widgets."
+            ) from None
+
+        img = self._qwidget.grab().toImage()
+        bits = img.constBits()
+        h, w, c = img.height(), img.width(), 4
+        if qtpy.API_NAME == "PySide2":
+            arr = np.array(bits).reshape(h, w, c)
+        else:
+            bits.setsize(h * w * c)
+            arr = np.frombuffer(bits, np.uint8).reshape(h, w, c)
+
+        return arr[:, :, [2, 1, 0, 3]]
 
 
 class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):

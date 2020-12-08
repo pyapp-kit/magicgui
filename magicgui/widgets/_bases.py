@@ -74,6 +74,8 @@ from magicgui.types import ChoicesType, WidgetOptions
 from magicgui.widgets import _protocols
 
 if TYPE_CHECKING:
+    import numpy as np
+
     from ._concrete import Container
 
 
@@ -313,6 +315,28 @@ class Widget:
     @label.setter
     def label(self, value):
         self._label = value
+
+    def render(self) -> "np.ndarray":
+        """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
+        return self._widget._mg_render()
+
+    def _repr_png_(self):
+        """Return PNG representation of the widget for QtConsole."""
+        from io import BytesIO
+
+        try:
+            from imageio import imsave
+        except ImportError:
+            print(
+                "(For a nicer magicgui widget representation in "
+                "Jupyter, please `pip install imageio`)"
+            )
+            return None
+
+        with BytesIO() as file_obj:
+            imsave(file_obj, self.render(), format="png")
+            file_obj.seek(0)
+            return file_obj.read()
 
 
 create_widget = Widget.create
