@@ -2,6 +2,7 @@
 
 The core `magicgui` decorator returns an instance of a FunctionGui widget.
 """
+import warnings
 from typing import Any, Callable, Optional, TypeVar, Union, overload
 
 from magicgui.application import Application, AppRef
@@ -87,7 +88,7 @@ class FunctionGui(Container):
         if call_button:
             text = call_button if isinstance(call_button, str) else "Run"
             self._call_button = PushButton(gui_only=True, text=text, name="call_button")
-            if not auto_call:  # (otherwise it already get's called)
+            if not auto_call:  # (otherwise it already gets called)
                 self._call_button.changed.connect(lambda e: self.__call__())
             self.append(self._call_button)
 
@@ -106,8 +107,6 @@ class FunctionGui(Container):
     def __getattr__(self, value):
         """Catch deprecated _name_changed attribute."""
         if value.endswith("_changed"):
-            import warnings
-
             widget_name = value.replace("_changed", "")
             warnings.warn(
                 "\nThe `<name>_changed` signal has been removed in magicgui 0.2.0.\n"
@@ -178,8 +177,6 @@ class FunctionGui(Container):
 
     def Gui(self, show=False):
         """Create a widget instance [DEPRECATED]."""
-        import warnings
-
         warnings.warn(
             "\n\nCreating a widget instance with `my_function.Gui()` is deprecated,\n"
             "the magicgui decorator now returns a widget instance directly, so you\n"
@@ -260,6 +257,12 @@ def magicgui(
     ... gui = my_function.Gui(show=True)
     """
     if "result" in param_options:
+        warnings.warn(
+            "\n\nThe 'result' option is deprecated and will be removed in the future."
+            "Please use `result_widget=True` instead.\n",
+            FutureWarning,
+        )
+
         param_options.pop("result")
         result_widget = True
 

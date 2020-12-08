@@ -24,6 +24,7 @@ class Medium(Enum):
     Air = 1.0003
 
 
+# result is deprecated ... use result_widget=True
 @magicgui(call_button="calculate", result={"disabled": True, "fixedWidth": 100})
 def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
     """Calculate the angle of refraction given two media and an AOI."""
@@ -39,11 +40,12 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
 
 
 with event_loop():
-    # the original function still works
-    # we can create a gui
-    gui = snells_law.Gui(show=True)
-    # we can list for changes to parameters in the gui
-    # ... these also trigger for direct parameter access on the gui object
+
+    # snells_law is *already* a gui in magicgui >= 0.2.0
+    gui = snells_law.Gui(show=True)  # Gui() is deprecated
+
+    # this snytax is deprecated, use snells_law.n1.changed.conect...
     gui.n1_changed.connect(print)
+
     # we can connect a callback function to the __call__ event on the function
     gui.called.connect(lambda e: print("result is", e.value))
