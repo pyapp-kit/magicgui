@@ -2,7 +2,7 @@ from magicgui import magicgui
 
 
 @magicgui
-def example(x=1, y="hi"):
+def example(x: int, y="hi"):
     return x, y
 
 

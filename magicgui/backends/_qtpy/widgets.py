@@ -199,38 +199,33 @@ class RadioButton(QBaseButtonWidget):
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, orientation="horizontal"):
+    def __init__(self, orientation="vertical"):
         QBaseWidget.__init__(self, QtW.QWidget)
         if orientation == "horizontal":
             self._layout: QtW.QLayout = QtW.QHBoxLayout()
         else:
-            self._layout = QtW.QFormLayout()
+            self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
 
+    def _mg_get_margins(self) -> Tuple[int, int, int, int]:
+        return self._layout.contentsMargins()
+
+    def _mg_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+        self._layout.setContentsMargins(*margins)
+
     def _mg_add_widget(self, widget: Widget):
-        label = widget.name
         _widget = widget.native
-        if isinstance(self._layout, QtW.QFormLayout):
-            self._layout.addRow(label, _widget)
-        else:
-            self._layout.addWidget(_widget)
+        self._layout.addWidget(_widget)
 
     def _mg_insert_widget(self, position: int, widget: Widget):
-        label = widget.name
         _widget = widget.native
         if position < 0:
             position = self._mg_count() + position + 1
 
-        if isinstance(self._layout, QtW.QFormLayout):
-            self._layout.insertRow(position, label, _widget)
-        else:
-            self._layout.insertWidget(position, _widget)
+        self._layout.insertWidget(position, _widget)
 
     def _mg_remove_widget(self, widget: Widget):
-        if isinstance(self._layout, QtW.QFormLayout):
-            self._layout.removeRow(widget.native)
-        else:
-            self._layout.removeWidget(widget.native)
+        self._layout.removeWidget(widget.native)
         widget.native.setParent(None)
 
     def _mg_remove_index(self, position: int):
@@ -244,10 +239,7 @@ class Container(
         return self._layout.count()
 
     def _mg_index(self, widget: Widget) -> int:
-        if isinstance(self._layout, QtW.QFormLayout):
-            return self._layout.l.getWidgetPosition(widget.native)[0]
-        else:
-            return self._layout.indexOf(widget.native)
+        return self._layout.indexOf(widget.native)
 
     def _mg_get_index(self, index: int) -> Optional[Widget]:
         # We need to return a magicgui.Widget object, so this currently
@@ -260,7 +252,10 @@ class Container(
 
     def _mg_set_orientation(self, value) -> None:
         """Set orientation, value will be 'horizontal' or 'vertical'"""
-        pass
+        raise NotImplementedError(
+            "Sorry, changing orientation after instantiation "
+            "is not yet implemented for Qt."
+        )
 
     def _mg_get_orientation(self) -> str:
         """Set orientation, return either 'horizontal' or 'vertical'"""

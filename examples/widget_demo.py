@@ -17,7 +17,11 @@ class Medium(Enum):
 
 
 @magicgui(
-    call_button="Calculate", another_float={"widget_type": "Slider"}, result_widget=True
+    call_button="Calculate",
+    orientation="vertical",
+    result_widget=True,
+    another_float={"widget_type": "Slider"},
+    filename={"label": "Pick a file:"},
 )
 def widget_demo(
     boolean=True,
@@ -31,7 +35,7 @@ def widget_demo(
 ):
     """Run some computation."""
     print("Running some computation...")
-    return "result!"
+    return locals().values()
 
 
 widget_demo.changed.connect(lambda event: print(widget_demo))

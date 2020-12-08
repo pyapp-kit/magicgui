@@ -101,6 +101,8 @@ class Widget:
     gui_only : bool, optional
         Whether the widget should be considered "only for the gui", or if it should be
         included in any widget container signatures, by default False
+    backend_kwargs : dict, optional
+        keyword argument to pass to the backend widget constructor.
     """
 
     _widget: _protocols.WidgetProtocol
@@ -115,6 +117,7 @@ class Widget:
         label=None,
         visible: bool = True,
         gui_only=False,
+        backend_kwargs=dict(),
         **extra,
     ):
         if extra:
@@ -134,7 +137,7 @@ class Widget:
             raise TypeError(f"{widget_type!r} does not implement the proper protocol")
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
-        self._widget = widget_type()
+        self._widget = widget_type(**backend_kwargs)
         self.name: str = name
         self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
         self.default = default
@@ -711,6 +714,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         **kwargs,
     ):
         self.labels = labels
+        kwargs["backend_kwargs"] = {"orientation": orientation}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
@@ -815,29 +819,19 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
             self._widget._mg_insert_widget(key, label)
 
     @property
+    def margins(self) -> Tuple[int, int, int, int]:
+        """Return margin between the content and edges of the container."""
+        return self._widget._mg_get_margins()
+
+    @margins.setter
+    def margins(self, margins: Tuple[int, int, int, int]) -> None:
+        # left, top, right, bottom
+        self._widget._mg_set_margins(margins)
+
+    @property
     def native_layout(self):
         """Return the layout widget used by the backend."""
         return self._widget._mg_get_native_layout()
-
-    @classmethod
-    def from_signature(cls, sig: inspect.Signature, **kwargs) -> Container:
-        """Create a Container widget from an inspect.Signature object."""
-        return MagicSignature.from_signature(sig).to_container(**kwargs)
-
-    @classmethod
-    def from_callable(
-        cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
-    ) -> Container:
-        """Create a Container widget from a callable object.
-
-        In most cases, it will be preferable to create a ``FunctionGui`` instead.
-        """
-        return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
-
-    @property
-    def __signature__(self) -> inspect.Signature:
-        """Return signature object, for compatibility with inspect.signature()."""
-        return self.to_signature()
 
     def reset_choices(self, event=None):
         """Reset choices for all Categorical subWidgets to the default state.
@@ -859,12 +853,32 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         )
         return self.reset_choices(event)
 
+    @property
+    def __signature__(self) -> inspect.Signature:
+        """Return signature object, for compatibility with inspect.signature()."""
+        return self.to_signature()
+
     def to_signature(self) -> MagicSignature:
         """Return a MagicSignature object representing the current state of the gui."""
         params = [
             MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]
         return MagicSignature(params, return_annotation=self._return_annotation)
+
+    @classmethod
+    def from_signature(cls, sig: inspect.Signature, **kwargs) -> Container:
+        """Create a Container widget from an inspect.Signature object."""
+        return MagicSignature.from_signature(sig).to_container(**kwargs)
+
+    @classmethod
+    def from_callable(
+        cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
+    ) -> Container:
+        """Create a Container widget from a callable object.
+
+        In most cases, it will be preferable to create a ``FunctionGui`` instead.
+        """
+        return magic_signature(obj, gui_options=gui_options).to_container(**kwargs)
 
     def __repr__(self) -> str:
         """Return a repr."""

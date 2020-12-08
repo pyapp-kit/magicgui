@@ -210,7 +210,10 @@ class SupportsOrientation(Protocol):
 
     @orientation.setter
     def orientation(self, value):
-        assert value in {"horizontal", "vertical"}
+        if value not in {"horizontal", "vertical"}:
+            raise ValueError(
+                "Only horizontal and vertical orientation are currently supported"
+            )
         self._mg_set_orientation(value)
 
     @abstractmethod
@@ -266,6 +269,14 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
 
     @abstractmethod
     def _mg_get_native_layout(self) -> Any:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_get_margins(self) -> Tuple[int, int, int, int]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mg_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
         raise NotImplementedError()
 
 

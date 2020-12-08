@@ -240,7 +240,9 @@ class FileEdit(Container):
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
+        kwargs["labels"] = False
         super().__init__(**kwargs)
+        self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
         self.choose_btn.changed.connect(self._on_choose_clicked)
 
