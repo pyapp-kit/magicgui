@@ -26,7 +26,7 @@ class FunctionGui(Container):
     orientation : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical',
         'form', 'grid'}, by default "horizontal"
-    labels : bool
+    labels : bool, optional
         Whether labels are shown in the widget. by default True
     app : magicgui.Application or str, optional
         A backend to use, by default None (use the default backend.)
@@ -226,7 +226,7 @@ def magicgui(
     orientation : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical',
         'form', 'grid'}, by default "horizontal"
-    labels : bool
+    labels : bool, optional
         Whether labels are shown in the widget. by default True
     call_button : bool or str, optional
         If True, create an additional button that calls the original function when
