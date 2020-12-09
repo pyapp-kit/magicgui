@@ -3,6 +3,10 @@
     max-width: 61rem;
 }
 
-.highlight {
+.highlight-python .highlight {
     border-radius: 0.4rem !important;
+}
+
+.highlight pre{
+    padding: 0.6rem 0.9rem;
 }

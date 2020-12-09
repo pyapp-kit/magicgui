@@ -2,3 +2,5 @@ jupyter-book
 matplotlib
 numpy
 ghp-import
+sphinx_material
+jupytext
