@@ -1,0 +1,8 @@
+/* custom styles */
+.md-grid {
+    max-width: 61rem;
+}
+
+.highlight {
+    border-radius: 0.4rem !important;
+}

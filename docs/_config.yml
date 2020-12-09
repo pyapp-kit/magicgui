@@ -1,0 +1,48 @@
+#######################################################################################
+# A default configuration that will be loaded for all jupyter books
+# See the documentation for help and more options:
+# https://jupyterbook.org/customize/config.html
+
+#######################################################################################
+# Book settings
+title: magicgui # The title of the book. Will be placed in the left navbar.
+author: Talley Lambert # The author of the book
+copyright: "2020" # Copyright year to be placed in the footer
+logo: img/logo.svg # A path to the book logo
+
+sphinx:
+  config:
+    html_theme: "sphinx_material"
+    html_show_sourcelink: False
+    templates_path:
+      - "_templates"
+    html_static_path:
+      - "_static"
+    html_style: styles.css
+    pygments_style: 'default'
+    html_theme_options:
+      base_url: "http://magicgui.readthedocs.io/" # Specify a base_url used to generate sitemap.xml links
+      repo_url: "https://github.com/napari/magicgui/"
+      repo_name: "napari/magicgui"
+      # google_analytics_account: "UA-XXXXX"
+      # html_minify: True
+      # html_prettify: True
+      # css_minify: True
+      # logo_icon: "&#xe3e4"
+      repo_type: "github"
+      globaltoc_depth: 2
+      # Color Options: red, pink, purple, deep-purple, indigo, blue,
+      # light-blue, cyan, teal, green, light-green, lime, yellow,
+      # amber, orange, deep-orange, brown, grey, blue-grey, and white.
+      color_primary: dark-blue
+      color_accent: "cyan"
+      # touch_icon: "images/apple-icon-152x152.png"
+      theme_color: "#2196f3"
+      master_doc: False
+      # version_dropdown: True,
+    html_sidebars:
+      "**":
+        - globaltoc.html
+        - logo-text.html
+        - localtoc.html
+        - searchbox.html
