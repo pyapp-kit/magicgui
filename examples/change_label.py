@@ -1,7 +1,8 @@
 from magicgui import magicgui
 
 
-@magicgui(x={"label": "A Label"})
+# use a different label than the default (the parameter name) in the UI
+@magicgui(x={"label": "widget to set x"})
 def example(x=1, y="hi"):
     return x, y
 
