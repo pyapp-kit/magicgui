@@ -1,6 +1,21 @@
+---
+jupytext:
+  cell_metadata_filter: -all
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: 0.12
+    jupytext_version: 1.7.1
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
+
 # magicgui 🧙
 
-[![License](https://img.shields.io/pypi/l/magicgui.svg)](LICENSE)
+[![License](https://img.shields.io/pypi/l/magicgui.svg)](../LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
 
@@ -36,7 +51,7 @@ the function signature and adding an appropriate GUI widget for each argument.  
 provided, or inferred using the type of the  default value.  The resulting GUI Class
 is added to the function as a new attribute named `Gui`.
 
-```python
+```{code-cell}
 import math
 from enum import Enum
 from magicgui import magicgui
@@ -58,15 +73,19 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
     except ValueError:
         # beyond the critical angle
         return "Total internal reflection!"
-
-# your function will have a new attribute "Gui"
-# calling it instantiates the widget (and, optionally, shows it)
-snell_gui = snells_law.Gui(show=True)
 ```
 
 ## et voilà
 
-[<img src="img/snells.png" width="542"/>](img/snells.png)
+```{code-cell}
+snells_law.show()
+```
+
+```{eval-rst}
+.. autoclass:: magicgui.magicgui
+    :show-inheritance:
+    :members: parse
+```
 
 ## two-way data binding
 

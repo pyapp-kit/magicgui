@@ -4,3 +4,5 @@ numpy
 ghp-import
 sphinx_material
 jupytext
+imageio
+sphinx-autodoc-typehints

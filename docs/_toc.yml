@@ -1,7 +1,8 @@
 # Table of contents
 # Learn more at https://jupyterbook.org/customize/toc.html
 - file: index
-- file: content
   sections:
-    - file: markdown
+    - file: index
+    - file: configuration
+    - file: type_inference
     - file: notebooks

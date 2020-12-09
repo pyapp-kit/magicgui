@@ -10,7 +10,17 @@ author: Talley Lambert # The author of the book
 copyright: "2020" # Copyright year to be placed in the footer
 logo: img/logo.svg # A path to the book logo
 
+# Execution settings
+execute:
+  execute_notebooks: force
+
 sphinx:
+  extra_extensions:
+    - sphinx.ext.napoleon
+    - sphinx.ext.viewcode
+    - sphinx.ext.autodoc
+    - sphinx_autodoc_typehints
+
   config:
     html_theme: "sphinx_material"
     html_show_sourcelink: False
@@ -19,7 +29,7 @@ sphinx:
     html_static_path:
       - "_static"
     html_style: styles.css
-    pygments_style: 'default'
+    pygments_style: "default"
     html_theme_options:
       base_url: "http://magicgui.readthedocs.io/" # Specify a base_url used to generate sitemap.xml links
       repo_url: "https://github.com/napari/magicgui/"

@@ -265,6 +265,7 @@ class Widget:
         self.visible = True
         if run:
             self.__magicgui_app__.run()
+        return self  # useful for generating repr in sphinx
 
     @contextmanager
     def shown(self):
