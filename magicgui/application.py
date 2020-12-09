@@ -39,7 +39,7 @@ class Application:
     def backend_name(self) -> str:
         """Return name of the GUI backend that this app wraps."""
         if self._backend is not None:
-            return self._backend._mg_get_backend_name()
+            return self._backend._mgui_get_backend_name()
         else:
             return ""
 
@@ -73,16 +73,16 @@ class Application:
 
     def run(self):
         """Enter the native GUI event loop."""
-        return self._backend._mg_run()
+        return self._backend._mgui_run()
 
     @property
     def native(self):
         """Return the native GUI application instance."""
-        return self._backend._mg_get_native_app()
+        return self._backend._mgui_get_native_app()
 
     def quit(self):
         """Quit the native GUI event loop."""
-        return self._backend._mg_quit()
+        return self._backend._mgui_quit()
 
     def create(self):
         """Create the native application."""
@@ -91,7 +91,7 @@ class Application:
 
     def process_events(self):
         """Process all pending GUI events."""
-        return self._backend._mg_process_events()
+        return self._backend._mgui_process_events()
 
     def __repr__(self):
         """Return repr for this instance."""
@@ -109,9 +109,9 @@ class Application:
         """Exit context manager for this application."""
         # enable ctrl-C
         signal.signal(signal.SIGINT, lambda *a: self.quit())
-        self._backend._mg_start_timer(500, lambda: None)
-        self._backend._mg_run()
-        self._backend._mg_stop_timer()
+        self._backend._mgui_start_timer(500, lambda: None)
+        self._backend._mgui_run()
+        self._backend._mgui_stop_timer()
 
     def start_timer(
         self,
@@ -120,7 +120,7 @@ class Application:
         single_shot: bool = False,
     ):
         """Start a timer with a given interval, optional callback, and single_shot."""
-        self._backend._mg_start_timer(interval, on_timeout, single=single_shot)
+        self._backend._mgui_start_timer(interval, on_timeout, single=single_shot)
 
 
 def _use_app(backend_name: str = None):

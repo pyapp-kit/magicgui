@@ -39,7 +39,7 @@ def transform_get_set(
     new_cls = type(f"{prefix}{cls.__name__}", (cls,), {"__module__": __name__})
     for suffix in suffixes:
         if get_transform:
-            meth_name = f"_mg_get_{suffix}"
+            meth_name = f"_mgui_get_{suffix}"
             old_getter = getattr(new_cls, meth_name, None)
 
             def new_getter(obj, old_getter=old_getter, transform=get_transform):
@@ -47,7 +47,7 @@ def transform_get_set(
 
             setattr(new_cls, meth_name, new_getter)
         if set_transform:
-            meth_name = f"_mg_set_{suffix}"
+            meth_name = f"_mgui_set_{suffix}"
             old_setter = getattr(new_cls, meth_name, None)
 
             def new_setter(obj, val, old_setter=old_setter, transform=set_transform):

@@ -37,32 +37,32 @@ class QBaseWidget(_protocols.WidgetProtocol):
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
-    def _mg_show_widget(self):
+    def _mgui_show_widget(self):
         self._qwidget.show()
 
-    def _mg_hide_widget(self):
+    def _mgui_hide_widget(self):
         self._qwidget.hide()
 
-    def _mg_get_enabled(self) -> bool:
+    def _mgui_get_enabled(self) -> bool:
         return self._qwidget.isEnabled()
 
-    def _mg_set_enabled(self, enabled: bool):
+    def _mgui_set_enabled(self, enabled: bool):
         self._qwidget.setEnabled(enabled)
 
     # TODO: this used to return _magic_widget ... figure out what we should be returning
-    def _mg_get_parent(self):
+    def _mgui_get_parent(self):
         return self._qwidget.parent()
 
-    def _mg_set_parent(self, widget: Widget):
+    def _mgui_set_parent(self, widget: Widget):
         self._qwidget.setParent(widget.native)
 
-    def _mg_get_native_widget(self) -> QtW.QWidget:
+    def _mgui_get_native_widget(self) -> QtW.QWidget:
         return self._qwidget
 
-    def _mg_bind_parent_change_callback(self, callback):
+    def _mgui_bind_parent_change_callback(self, callback):
         self._event_filter.parentChanged.connect(callback)
 
-    def _mg_render(self):
+    def _mgui_render(self):
         try:
             import numpy as np
         except ImportError:
@@ -92,13 +92,13 @@ class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
         self._setter_name = setter
         self._onchange_name = onchange
 
-    def _mg_get_value(self) -> Any:
+    def _mgui_get_value(self) -> Any:
         return getattr(self._qwidget, self._getter_name)()
 
-    def _mg_set_value(self, value) -> None:
+    def _mgui_set_value(self, value) -> None:
         getattr(self._qwidget, self._setter_name)(value)
 
-    def _mg_bind_change_callback(self, callback):
+    def _mgui_bind_change_callback(self, callback):
         signal_instance = getattr(self._qwidget, self._onchange_name, None)
         if signal_instance:
             signal_instance.connect(callback)
@@ -110,8 +110,8 @@ class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
 class QBaseStringWidget(QBaseValueWidget):
     _qwidget: Union[QtW.QLineEdit, QtW.QTextEdit]
 
-    def _mg_set_value(self, value) -> None:
-        super()._mg_set_value(str(value))
+    def _mgui_set_value(self, value) -> None:
+        super()._mgui_set_value(str(value))
 
 
 class Label(QBaseStringWidget):
@@ -119,13 +119,13 @@ class Label(QBaseStringWidget):
     def __init__(self):
         super().__init__(QtW.QLabel, "text", "setText", "")
 
-    def _mg_bind_change_callback(self, callback):
+    def _mgui_bind_change_callback(self, callback):
         # raise NotImplementedError("QLabel has no change signal")
         pass
 
-    def _mg_set_value(self, value) -> None:
+    def _mgui_set_value(self, value) -> None:
         # TODO: provide support for images as np.arrays
-        super()._mg_set_value(str(value))
+        super()._mgui_set_value(str(value))
 
 
 class LineEdit(QBaseStringWidget):
@@ -149,27 +149,27 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     def __init__(self, qwidg):
         super().__init__(qwidg, "value", "setValue", "valueChanged")
 
-    def _mg_get_minimum(self) -> float:
+    def _mgui_get_minimum(self) -> float:
         """Get the minimum possible value."""
         return self._qwidget.minimum()
 
-    def _mg_set_minimum(self, value: float):
+    def _mgui_set_minimum(self, value: float):
         """Set the minimum possible value."""
         self._qwidget.setMinimum(value)
 
-    def _mg_get_maximum(self) -> float:
+    def _mgui_get_maximum(self) -> float:
         """Set the maximum possible value."""
         return self._qwidget.maximum()
 
-    def _mg_set_maximum(self, value: float):
+    def _mgui_set_maximum(self, value: float):
         """Set the maximum possible value."""
         self._qwidget.setMaximum(value)
 
-    def _mg_get_step(self) -> float:
+    def _mgui_get_step(self) -> float:
         """Get the step size."""
         return self._qwidget.singleStep()
 
-    def _mg_set_step(self, value: float):
+    def _mgui_set_step(self, value: float):
         """Set the step size."""
         self._qwidget.setSingleStep(value)
 
@@ -183,11 +183,11 @@ class QBaseButtonWidget(QBaseValueWidget, _protocols.SupportsText):
     def __init__(self, qwidg):
         super().__init__(qwidg, "isChecked", "setChecked", "toggled")
 
-    def _mg_set_text(self, value: str) -> None:
+    def _mgui_set_text(self, value: str) -> None:
         """Set text."""
         self._qwidget.setText(str(value))
 
-    def _mg_get_text(self) -> str:
+    def _mgui_get_text(self) -> str:
         """Get text."""
         return self._qwidget.text()
 
@@ -228,41 +228,41 @@ class Container(
             self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
 
-    def _mg_get_margins(self) -> Tuple[int, int, int, int]:
+    def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
         return self._layout.contentsMargins()
 
-    def _mg_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+    def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
         self._layout.setContentsMargins(*margins)
 
-    def _mg_add_widget(self, widget: Widget):
+    def _mgui_add_widget(self, widget: Widget):
         _widget = widget.native
         self._layout.addWidget(_widget)
 
-    def _mg_insert_widget(self, position: int, widget: Widget):
+    def _mgui_insert_widget(self, position: int, widget: Widget):
         _widget = widget.native
         if position < 0:
-            position = self._mg_count() + position + 1
+            position = self._mgui_count() + position + 1
 
         self._layout.insertWidget(position, _widget)
 
-    def _mg_remove_widget(self, widget: Widget):
+    def _mgui_remove_widget(self, widget: Widget):
         self._layout.removeWidget(widget.native)
         widget.native.setParent(None)
 
-    def _mg_remove_index(self, position: int):
+    def _mgui_remove_index(self, position: int):
         # TODO: normalize position in superclass
         if position < 0:
-            position = self._mg_count() + position + 1
+            position = self._mgui_count() + position + 1
         item = self._layout.takeAt(position)
         item.widget().setParent(None)
 
-    def _mg_count(self) -> int:
+    def _mgui_count(self) -> int:
         return self._layout.count()
 
-    def _mg_index(self, widget: Widget) -> int:
+    def _mgui_index(self, widget: Widget) -> int:
         return self._layout.indexOf(widget.native)
 
-    def _mg_get_index(self, index: int) -> Optional[Widget]:
+    def _mgui_get_index(self, index: int) -> Optional[Widget]:
         # We need to return a magicgui.Widget object, so this currently
         # requires storing the original object as a hidden attribute.
         # better way?
@@ -271,21 +271,21 @@ class Container(
             return item.widget()._magic_widget
         return None
 
-    def _mg_set_orientation(self, value) -> None:
+    def _mgui_set_orientation(self, value) -> None:
         """Set orientation, value will be 'horizontal' or 'vertical'"""
         raise NotImplementedError(
             "Sorry, changing orientation after instantiation "
             "is not yet implemented for Qt."
         )
 
-    def _mg_get_orientation(self) -> str:
+    def _mgui_get_orientation(self) -> str:
         """Set orientation, return either 'horizontal' or 'vertical'"""
         if isinstance(self, QtW.QHBoxLayout):
             return "horizontal"
         else:
             return "vertical"
 
-    def _mg_get_native_layout(self) -> QtW.QLayout:
+    def _mgui_get_native_layout(self) -> QtW.QLayout:
         return self._layout
 
 
@@ -293,16 +293,16 @@ class SpinBox(QBaseRangedWidget):
     def __init__(self):
         super().__init__(QtW.QSpinBox)
 
-    def _mg_set_value(self, value) -> None:
-        super()._mg_set_value(int(value))
+    def _mgui_set_value(self, value) -> None:
+        super()._mgui_set_value(int(value))
 
 
 class FloatSpinBox(QBaseRangedWidget):
     def __init__(self):
         super().__init__(QtW.QDoubleSpinBox)
 
-    def _mg_set_value(self, value) -> None:
-        super()._mg_set_value(float(value))
+    def _mgui_set_value(self, value) -> None:
+        super()._mgui_set_value(float(value))
 
 
 class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
@@ -310,14 +310,14 @@ class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
 
     def __init__(self):
         super().__init__(QtW.QSlider)
-        self._mg_set_orientation("horizontal")
+        self._mgui_set_orientation("horizontal")
 
-    def _mg_set_orientation(self, value) -> Any:
+    def _mgui_set_orientation(self, value) -> Any:
         """Get current value of the widget."""
         orientation = Qt.Vertical if value == "vertical" else Qt.Horizontal
         self._qwidget.setOrientation(orientation)
 
-    def _mg_get_orientation(self) -> Any:
+    def _mgui_get_orientation(self) -> Any:
         """Get current value of the widget."""
         orientation = self._qwidget.orientation()
         return "vertical" if orientation == Qt.Vertical else "horizontal"
@@ -335,16 +335,16 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         if data is not None:
             self._event_filter.valueChanged.emit(data)
 
-    def _mg_bind_change_callback(self, callback):
+    def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)
 
-    def _mg_get_value(self) -> Any:
+    def _mgui_get_value(self) -> Any:
         return self._qwidget.itemData(self._qwidget.currentIndex())
 
-    def _mg_set_value(self, value) -> None:
+    def _mgui_set_value(self, value) -> None:
         self._qwidget.setCurrentIndex(self._qwidget.findData(value))
 
-    def _mg_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
+    def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
         # FIXME: still not clearing all old choices correctly.
         if not list(choices):
@@ -358,13 +358,13 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         for name, data in choices:
             if self._qwidget.findText(name) == -1:
                 self._qwidget.addItem(name, data)
-        current = self._mg_get_value()
+        current = self._mgui_get_value()
         if current not in {x[1] for x in choices}:
             first = next(iter(choices))[1]
             self._qwidget.setCurrentIndex(self._qwidget.findData(first))
             self._qwidget.removeItem(self._qwidget.findData(current))
 
-    def _mg_get_choices(self) -> Tuple[Tuple[str, Any]]:
+    def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
         """Show the widget."""
         return tuple(  # type: ignore
             (self._qwidget.itemText(i), self._qwidget.itemData(i))
@@ -376,7 +376,7 @@ class DateTimeEdit(QBaseValueWidget):
     def __init__(self):
         super().__init__(QtW.QDateTimeEdit, "", "setDateTime", "dateTimeChanged")
 
-    def _mg_get_value(self):
+    def _mgui_get_value(self):
         try:
             return self._qwidget.dateTime().toPython()
         except TypeError:
