@@ -210,8 +210,6 @@ def register_type(
         whenever the decorated function is called... where ``widget`` is the MagicGui
         instance, and ``value`` is the return value of the decorated function.
 
-    OPTIONS
-
     Raises
     ------
     ValueError

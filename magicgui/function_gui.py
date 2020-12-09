@@ -234,6 +234,11 @@ def magicgui(
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
+    result_widget : bool, optional
+        Whether to display a LineEdit widget the output of the function when called,
+        by default False
+    app : magicgui.Application or str, optional
+        A backend to use, by default None (use the default backend.)
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.

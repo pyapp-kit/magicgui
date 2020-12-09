@@ -148,7 +148,7 @@ class Widget:
         self.gui_only = gui_only
         self.visible: bool = True
         self.parent_changed = EventEmitter(source=self, type="parent_changed")
-        self._widget._mg_bind_parent_change_callback(
+        self._widget._mgui_bind_parent_change_callback(
             lambda *x: self.parent_changed(value=self.parent)
         )
 
@@ -257,11 +257,11 @@ class Widget:
     @property
     def native(self):
         """Return native backend widget."""
-        return self._widget._mg_get_native_widget()
+        return self._widget._mgui_get_native_widget()
 
     def show(self, run=False):
         """Show the widget."""
-        self._widget._mg_show_widget()
+        self._widget._mgui_show_widget()
         self.visible = True
         if run:
             self.__magicgui_app__.run()
@@ -278,26 +278,26 @@ class Widget:
 
     def hide(self):
         """Hide widget."""
-        self._widget._mg_hide_widget()
+        self._widget._mgui_hide_widget()
         self.visible = False
 
     @property
     def enabled(self) -> bool:
         """Whether widget is enabled (editable)."""
-        return self._widget._mg_get_enabled()
+        return self._widget._mgui_get_enabled()
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._widget._mg_set_enabled(value)
+        self._widget._mgui_set_enabled(value)
 
     @property
     def parent(self) -> Widget:
         """Return the parent widget."""
-        return self._widget._mg_get_parent()
+        return self._widget._mgui_get_parent()
 
     @parent.setter
     def parent(self, value: Widget):
-        self._widget._mg_set_parent(value)
+        self._widget._mgui_set_parent(value)
 
     @property
     def widget_type(self) -> str:
@@ -319,7 +319,7 @@ class Widget:
 
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
-        return self._widget._mg_render()
+        return self._widget._mgui_render()
 
     def _repr_png_(self):
         """Return PNG representation of the widget for QtConsole."""
@@ -357,18 +357,18 @@ class ValueWidget(Widget):
     def _post_init(self):
         super()._post_init()
         self.changed = EventEmitter(source=self, type="changed")
-        self._widget._mg_bind_change_callback(
+        self._widget._mgui_bind_change_callback(
             lambda *x: self.changed(value=x[0] if x else None)
         )
 
     @property
     def value(self):
         """Return current value of the widget.  This may be interpreted by backends."""
-        return self._widget._mg_get_value()
+        return self._widget._mgui_get_value()
 
     @value.setter
     def value(self, value):
-        return self._widget._mg_set_value(value)
+        return self._widget._mgui_set_value(value)
 
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
@@ -404,11 +404,11 @@ class ButtonWidget(ValueWidget):
     @property
     def text(self):
         """Text of the widget."""
-        return self._widget._mg_get_text()
+        return self._widget._mgui_get_text()
 
     @text.setter
     def text(self, value):
-        self._widget._mg_set_text(value)
+        self._widget._mgui_set_text(value)
 
 
 class RangedWidget(ValueWidget):
@@ -445,29 +445,29 @@ class RangedWidget(ValueWidget):
     @property
     def minimum(self) -> float:
         """Minimum allowable value for the widget."""
-        return self._widget._mg_get_minimum()
+        return self._widget._mgui_get_minimum()
 
     @minimum.setter
     def minimum(self, value: float):
-        self._widget._mg_set_minimum(value)
+        self._widget._mgui_set_minimum(value)
 
     @property
     def maximum(self) -> float:
         """Maximum allowable value for the widget."""
-        return self._widget._mg_get_maximum()
+        return self._widget._mgui_get_maximum()
 
     @maximum.setter
     def maximum(self, value: float):
-        self._widget._mg_set_maximum(value)
+        self._widget._mgui_set_maximum(value)
 
     @property
     def step(self) -> float:
         """Step size for widget values."""
-        return self._widget._mg_get_step()
+        return self._widget._mgui_get_step()
 
     @step.setter
     def step(self, value: float):
-        self._widget._mg_set_step(value)
+        self._widget._mgui_set_step(value)
 
     @property
     def range(self) -> Tuple[float, float]:
@@ -517,9 +517,9 @@ class TransformedRangedWidget(RangedWidget, ABC):
         self._max_pos = max_pos
         ValueWidget.__init__(self, **kwargs)
 
-        self._widget._mg_set_minimum(self._min_pos)
-        self._widget._mg_set_maximum(self._max_pos)
-        self._widget._mg_set_step(step)
+        self._widget._mgui_set_minimum(self._min_pos)
+        self._widget._mgui_set_maximum(self._max_pos)
+        self._widget._mgui_set_step(step)
 
     # Just a linear scaling example.
     # Replace _value_from_position, and _position_from_value in subclasses
@@ -544,11 +544,11 @@ class TransformedRangedWidget(RangedWidget, ABC):
     @property
     def value(self):
         """Return current value of the widget."""
-        return self._value_from_position(self._widget._mg_get_value())
+        return self._value_from_position(self._widget._mgui_get_value())
 
     @value.setter
     def value(self, value):
-        return self._widget._mg_set_value(self._position_from_value(value))
+        return self._widget._mgui_set_value(self._position_from_value(value))
 
     @property
     def minimum(self) -> float:
@@ -620,7 +620,7 @@ class CategoricalWidget(ValueWidget):
     @property
     def value(self):
         """Return current value of the widget."""
-        return self._widget._mg_get_value()
+        return self._widget._mgui_get_value()
 
     @value.setter
     def value(self, value):
@@ -628,7 +628,7 @@ class CategoricalWidget(ValueWidget):
             raise ValueError(
                 f"{value!r} is not a valid choice. must be in {self.choices}"
             )
-        return self._widget._mg_set_value(value)
+        return self._widget._mgui_set_value(value)
 
     @property
     def options(self) -> dict:
@@ -649,7 +649,7 @@ class CategoricalWidget(ValueWidget):
     @property
     def choices(self):
         """Available value choices for this widget."""
-        return tuple(i[1] for i in self._widget._mg_get_choices())
+        return tuple(i[1] for i in self._widget._mgui_get_choices())
 
     @choices.setter
     def choices(self, choices: ChoicesType):
@@ -690,7 +690,7 @@ class CategoricalWidget(ValueWidget):
             _choices = choices
         if not all(isinstance(i, tuple) and len(i) == 2 for i in _choices):
             _choices = [(str_func(i), i) for i in _choices]
-        return self._widget._mg_set_choices(_choices)
+        return self._widget._mgui_set_choices(_choices)
 
 
 class ContainerWidget(Widget, MutableSequence[Widget]):
@@ -781,14 +781,14 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         if isinstance(key, slice):
             out = []
             for idx in range(*key.indices(len(self))):
-                item = self._widget._mg_get_index(idx)
+                item = self._widget._mgui_get_index(idx)
                 if item:
                     out.append(item)
             return out
         elif isinstance(key, int):
             if key < 0:
                 key += len(self)
-        item = self._widget._mg_get_index(key)
+        item = self._widget._mgui_get_index(key)
         if not item:
             raise IndexError("Container index out of range")
         return item
@@ -811,15 +811,15 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         """Delete a widget by integer or slice index."""
         if isinstance(key, slice):
             for idx in range(*key.indices(len(self))):
-                self._widget._mg_remove_index(idx)
+                self._widget._mgui_remove_index(idx)
         else:
             if key < 0:
                 key += len(self)
-            self._widget._mg_remove_index(key)
+            self._widget._mgui_remove_index(key)
 
     def __len__(self) -> int:
         """Return the count of widgets."""
-        return self._widget._mg_count()
+        return self._widget._mgui_count()
 
     def __setitem__(self, key, value):
         """Prevent assignment by index."""
@@ -835,28 +835,28 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         """Insert widget at `key`."""
         if isinstance(widget, ValueWidget):
             widget.changed.connect(lambda x: self.changed(value=self))
-        self._widget._mg_insert_widget(key, widget)
+        self._widget._mgui_insert_widget(key, widget)
         if self.labels:
             # no labels for button widgets (push buttons, checkboxes, have their own)
             if isinstance(widget, ButtonWidget):
                 return
             label = Widget.create(widget_type="Label", default=widget.label)
-            self._widget._mg_insert_widget(key, label)
+            self._widget._mgui_insert_widget(key, label)
 
     @property
     def margins(self) -> Tuple[int, int, int, int]:
         """Return margin between the content and edges of the container."""
-        return self._widget._mg_get_margins()
+        return self._widget._mgui_get_margins()
 
     @margins.setter
     def margins(self, margins: Tuple[int, int, int, int]) -> None:
         # left, top, right, bottom
-        self._widget._mg_set_margins(margins)
+        self._widget._mgui_set_margins(margins)
 
     @property
     def native_layout(self):
         """Return the layout widget used by the backend."""
-        return self._widget._mg_get_native_layout()
+        return self._widget._mgui_get_native_layout()
 
     def reset_choices(self, event=None):
         """Reset choices for all Categorical subWidgets to the default state.
