@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 @magicgui(call_button="execute", background={"maximum": 200})
 def subtract_background(
-    layerA: "napari.layers.Image", background: int = 100
+    layerA: "napari.layers.Image", background: int = 50
 ) -> "napari.layers.Image":
     """Add, subtracts, multiplies, or divides to image layers with equal shape."""
     if layerA:

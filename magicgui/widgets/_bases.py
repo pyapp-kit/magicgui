@@ -429,11 +429,10 @@ class RangedWidget(ValueWidget):
         self, minimum: float = 0, maximum: float = 100, step: float = 1, **kwargs
     ):
         super().__init__(**kwargs)
+
         self.minimum = minimum
         self.maximum = maximum
         self.step = step
-        with self.changed.blocker():
-            self.value = self.default
 
     @property
     def options(self) -> dict:
