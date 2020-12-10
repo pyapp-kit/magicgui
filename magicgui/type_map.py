@@ -52,9 +52,16 @@ def _evaluate_forwardref(type_: ForwardRef) -> Any:
     """Convert typing.ForwardRef into an actual object."""
     from importlib import import_module
 
-    _module = type_.__forward_arg__.split(".", maxsplit=1)[0]
-    globalns = globals().copy()
-    globalns.update({_module: import_module(_module)})
+    try:
+        _module = type_.__forward_arg__.split(".", maxsplit=1)[0]
+        globalns = globals().copy()
+        globalns.update({_module: import_module(_module)})
+    except ImportError as e:
+        raise ImportError(
+            "Could not resolve the magicgui forward reference annotation: "
+            f"{type_.__forward_arg__!r}."
+        ) from e
+
     return type_._evaluate(globalns, {})
 
 
