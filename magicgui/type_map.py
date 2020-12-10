@@ -2,6 +2,7 @@
 import datetime
 import inspect
 import pathlib
+import sys
 import types
 from collections import abc, defaultdict
 from enum import EnumMeta
@@ -62,7 +63,11 @@ def _evaluate_forwardref(type_: ForwardRef) -> Any:
             f"{type_.__forward_arg__!r}."
         ) from e
 
-    return type_._evaluate(globalns, {})
+    if sys.version_info < (3, 9):
+        return type_._evaluate(globalns, {})
+    # Even though it is the right signature for python 3.9, mypy complains with
+    # `error: Too many arguments for "_evaluate" of "ForwardRef"` hence the cast...
+    return cast(Any, type_)._evaluate(globalns, {}, set())
 
 
 def normalize_type(value: Any, annotation: Any) -> Type:
