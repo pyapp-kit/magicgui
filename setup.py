@@ -36,12 +36,10 @@ setup(
     ],
     extras_require={
         "PySide2": [
-            "PySide2>=5.12.0 ; sys_platform != 'linux'",
-            "PySide2<5.15 ; sys_platform == 'linux'",
+            "PySide2>=5.13 ; python_version=='3.7'",
+            "PySide2>=5.14 ; python_version=='3.8'",
+            "PySide2>=5.15 ; python_version=='3.9'",
         ],
-        "PyQt5": [
-            "PyQt5>=5.12.0 ; sys_platform != 'linux'",
-            "PyQt5<5.15 ; sys_platform == 'linux'",
-        ],
+        "PyQt5": "PyQt5>=5.12.0",
     },
 )
