@@ -1,11 +1,10 @@
 """FileDialog with magicgui."""
 from pathlib import Path
-from magicgui import event_loop, magicgui
 from typing import Sequence
 
+from magicgui import event_loop, magicgui
 
-# may also add Qt-style filter to filename options:
-# e.g. {"filter": "Images (*.tif *.tiff)"}
+
 @magicgui(filename={"mode": "r"})
 def filepicker(filename=Path("~")):
     """Take a filename and do something with it."""
@@ -15,7 +14,8 @@ def filepicker(filename=Path("~")):
 
 # Sequence of paths
 # We change the label using "label" for added clarity
-@magicgui(filenames={"label": "Choose multiple files:"})
+# the filter argument restricts file types
+@magicgui(filenames={"label": "Choose Tiff files:", "filter": "*.tif"})
 def filespicker(filenames: Sequence[Path]):
     """Take a filename and do something with it."""
     print("The filenames are:", filenames)
@@ -23,6 +23,7 @@ def filespicker(filenames: Sequence[Path]):
 
 
 with event_loop():
-    gui = filepicker.Gui(show=True)
-    gui.filename_changed.connect(print)
-    gui2 = filespicker.Gui(show=True)
+    filepicker.show()
+    filespicker.show()
+    filepicker.filename.changed.connect(lambda e: print(e.value.value))
+    filespicker.filenames.changed.connect(lambda e: print(e.value.value))

@@ -1,20 +1,10 @@
-from qtpy.QtWidgets import QApplication
-
 from magicgui import magicgui
-
-running = True
-app = QApplication.instance()
-if not app:
-    running = False
-    app = QApplication([])
 
 
 @magicgui
-def example(arg=1):
-    return arg
+def example(x: int, y="hi"):
+    return x, y
 
 
-widget = example.Gui(show=True)
-
-if not running:
-    app.exec_()
+example.changed.connect(lambda e: print(e.value))
+example.show(run=True)
