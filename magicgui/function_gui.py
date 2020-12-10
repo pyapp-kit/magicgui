@@ -151,7 +151,8 @@ class FunctionGui(Container):
 
         value = self._function(*bound.args, **bound.kwargs)
         if self._result_widget is not None:
-            self._result_widget.value = value
+            with self._result_widget.changed.blocker():
+                self._result_widget.value = value
 
         return_type = self._return_annotation
         if return_type:

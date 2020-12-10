@@ -1,6 +1,6 @@
 import pytest
 
-from magicgui import widgets
+from magicgui import magicgui, widgets
 
 
 @pytest.mark.parametrize(
@@ -9,3 +9,13 @@ from magicgui import widgets
 def test_widgets(WidgetClass):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
     _ = WidgetClass()
+
+
+def test_autocall_no_runtime_error():
+    """Make sure changing a value doesn't cause an autocall infinite loop."""
+
+    @magicgui(auto_call=True, result_widget=True)
+    def func(input=1):
+        return round(input, 4)
+
+    func.input.value = 2
