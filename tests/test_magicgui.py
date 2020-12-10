@@ -6,7 +6,6 @@ import inspect
 from enum import Enum
 
 import pytest
-from qtpy.QtCore import Qt
 
 from magicgui import magicgui, register_type, type_map, widgets
 from magicgui.signature import MagicSignature
@@ -81,19 +80,17 @@ def test_call_button():
     func.a.value = 7
 
 
-def test_auto_call(qtbot, magic_func):
+def test_auto_call(magic_func):
     """Test that changing a parameter calls the function."""
+    assert magic_func() == "works3"
+    events = []  # type: ignore
 
-    # TODO: remove qtbot requirement so we can test other backends eventually.
-
-    # changing the widget parameter calls the function
-    with qtbot.waitSignal(magic_func.called, timeout=1000):
-        magic_func.b.value = 6
-
-    # changing the gui calls the function
-    with qtbot.waitSignal(magic_func.called, timeout=1000):
-        qtbot.keyClick(magic_func.a.native, Qt.Key_A, Qt.ControlModifier)
-        qtbot.keyClick(magic_func.a.native, Qt.Key_Delete)
+    magic_func.called.connect(events.append)
+    assert not events
+    # # changing the widget parameter calls the function
+    magic_func.b.value = 6
+    # an event was fired and the .value of the event was the result of calling the func
+    assert events and events[-1].value == "works6"
 
 
 def test_dropdown_list_from_enum():
