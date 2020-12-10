@@ -24,8 +24,8 @@ class FunctionGui(Container):
         If True, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False
     orientation : str, optional
-        The type of layout to use. Must be one of {'horizontal', 'vertical',
-        'form', 'grid'}, by default "horizontal"
+        The type of layout to use. Must be one of {'horizontal', 'vertical'}.
+        by default "horizontal".
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     app : magicgui.Application or str, optional
@@ -225,8 +225,8 @@ def magicgui(
         The function to decorate.  Optional to allow bare decorator with optional
         arguments. by default None
     orientation : str, optional
-        The type of layout to use. Must be one of {'horizontal', 'vertical',
-        'form', 'grid'}, by default "horizontal"
+        The type of layout to use. Must be one of {'horizontal', 'vertical'}.
+        by default "horizontal".
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     call_button : bool or str, optional
