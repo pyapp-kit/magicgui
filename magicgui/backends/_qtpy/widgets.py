@@ -395,11 +395,13 @@ def show_file_dialog(
     mode: Union[str, FileDialogMode] = FileDialogMode.EXISTING_FILE,
     caption: str = None,
     start_path: str = None,
+    filter: str = None,
     parent=None,
 ) -> Optional[str]:
     show_dialog = QFILE_DIALOG_MODES[FileDialogMode(mode)]
+    args = (parent, caption, start_path, filter)
     if mode is FileDialogMode.EXISTING_DIRECTORY:
-        result = show_dialog(parent, caption, start_path)
+        result = show_dialog(*args)
     else:
-        result, _ = show_dialog(parent, caption, start_path)
+        result, _ = show_dialog(*args)
     return result or None

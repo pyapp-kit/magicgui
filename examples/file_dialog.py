@@ -14,7 +14,8 @@ def filepicker(filename=Path("~")):
 
 # Sequence of paths
 # We change the label using "label" for added clarity
-@magicgui(filenames={"label": "Choose multiple files:"})
+# the filter argument restricts file types
+@magicgui(filenames={"label": "Choose Tiff files:", "filter": "*.tif"})
 def filespicker(filenames: Sequence[Path]):
     """Take a filename and do something with it."""
     print("The filenames are:", filenames)

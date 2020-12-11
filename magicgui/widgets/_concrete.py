@@ -232,13 +232,18 @@ class FileEdit(Container):
             'rm': return one or more existing files.
             'w': return one file name that does not have to exist.
             'd': returns one existing directory.
-
+    filter : str, optional
+        The filter is used to specify the kind of files that should be shown.
+        It should be a glob-style string, like '*.png' (this may be backend-specific)
     """
 
-    def __init__(self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, **kwargs):
+    def __init__(
+        self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, filter=None, **kwargs
+    ):
         self.line_edit = LineEdit()
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
+        self.filter = filter
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
         kwargs["labels"] = False
         super().__init__(**kwargs)
@@ -268,7 +273,10 @@ class FileEdit(Container):
         start_path: Path = _p[0] if isinstance(_p, tuple) else _p
         _start_path = os.fspath(start_path.expanduser().absolute())
         result = self._show_file_dialog(
-            self.mode, caption=self._btn_text, start_path=_start_path
+            self.mode,
+            caption=self._btn_text,
+            start_path=_start_path,
+            filter=self.filter,
         )
         if result:
             self.value = result

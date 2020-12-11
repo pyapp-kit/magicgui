@@ -26,7 +26,7 @@ def event_loop(backend=None) -> Iterator:
 
 
 class Application:
-    """MagicGui Application, wrapping a native BaseApplicationBackend implementation."""
+    """Magicgui Application, wrapping a native BaseApplicationBackend implementation."""
 
     _backend_module: ModuleType
     _backend: "BaseApplicationBackend"
