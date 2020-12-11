@@ -2,10 +2,22 @@
 import datetime
 import inspect
 import pathlib
+import sys
 import types
 from collections import abc, defaultdict
 from enum import EnumMeta
-from typing import Any, Callable, DefaultDict, Dict, List, Optional, Tuple, Type, cast
+from typing import (
+    Any,
+    Callable,
+    DefaultDict,
+    Dict,
+    ForwardRef,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    cast,
+)
 
 from typing_extensions import get_args, get_origin
 
@@ -35,6 +47,27 @@ def is_subclass(obj, superclass):
         return issubclass(obj, superclass)
     except Exception:
         return False
+
+
+def _evaluate_forwardref(type_: ForwardRef) -> Any:
+    """Convert typing.ForwardRef into an actual object."""
+    from importlib import import_module
+
+    try:
+        _module = type_.__forward_arg__.split(".", maxsplit=1)[0]
+        globalns = globals().copy()
+        globalns.update({_module: import_module(_module)})
+    except ImportError as e:
+        raise ImportError(
+            "Could not resolve the magicgui forward reference annotation: "
+            f"{type_.__forward_arg__!r}."
+        ) from e
+
+    if sys.version_info < (3, 9):
+        return type_._evaluate(globalns, {})
+    # Even though it is the right signature for python 3.9, mypy complains with
+    # `error: Too many arguments for "_evaluate" of "ForwardRef"` hence the cast...
+    return cast(Any, type_)._evaluate(globalns, {}, set())
 
 
 def normalize_type(value: Any, annotation: Any) -> Type:
@@ -110,6 +143,9 @@ def pick_widget_type(
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
         return widget_type, options
+
+    if isinstance(annotation, ForwardRef):
+        annotation = _evaluate_forwardref(annotation)
 
     dtype = normalize_type(value, annotation)
 
