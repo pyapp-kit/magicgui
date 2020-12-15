@@ -312,9 +312,9 @@ class BaseApplicationBackend(ABC):
     def _mgui_quit(self):
         """Quit the native GUI event loop."""
 
+    @abstractmethod
     def _mgui_get_native_app(self):
         """Return the native GUI application instance."""
-        return self
 
     @abstractmethod
     def _mgui_start_timer(

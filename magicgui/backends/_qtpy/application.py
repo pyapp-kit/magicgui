@@ -1,10 +1,12 @@
-from qtpy.QtCore import QTimer
+import sys
+
+from qtpy.QtCore import Qt, QTimer
 from qtpy.QtWidgets import QApplication
 
+from magicgui.application import APPLICATION_NAME
 from magicgui.widgets._protocols import BaseApplicationBackend
 
 
-# qt implementation
 class ApplicationBackend(BaseApplicationBackend):
     _app: QApplication
 
@@ -19,7 +21,7 @@ class ApplicationBackend(BaseApplicationBackend):
     def _mgui_run(self):
         app = self._mgui_get_native_app()
         # only start the event loop if magicgui created it
-        if app.objectName() == "magicgui":
+        if app.applicationName() == APPLICATION_NAME:
             return app.exec_()
 
     def _mgui_quit(self):
@@ -29,8 +31,9 @@ class ApplicationBackend(BaseApplicationBackend):
         # Get native app
         self._app = QApplication.instance()
         if not self._app:
-            self._app = QApplication([])
-            self._app.setObjectName("magicgui")
+            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+            self._app = QApplication(sys.argv)
+            self._app.setApplicationName(APPLICATION_NAME)
         return self._app
 
     def _mgui_start_timer(self, interval=0, on_timeout=None, single=False):
