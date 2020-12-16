@@ -855,7 +855,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     @property
     def orientation(self):
-        """Return the orientation of the widget"""
+        """Return the orientation of the widget."""
         return self._orientation
 
     @orientation.setter

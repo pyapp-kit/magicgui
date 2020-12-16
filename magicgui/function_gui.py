@@ -250,7 +250,6 @@ class FunctionGui(Container):
 
         Example
         -------
-
         >>> class MyClass:
         ...     @magicgui
         ...     def my_method(self, x=1):
@@ -258,11 +257,9 @@ class FunctionGui(Container):
         ...
         >>> c = MyClass()
         >>> c.my_method  # the FunctionGui that can be used as a widget
-        >>> c.my_method(34)  # calling it works as usual, with `c` provided as `self`
+        >>> c.my_method(x=34)  # calling it works as usual, with `c` provided as `self`
         {'self': <__main__.MyClass object at 0x7fb610e455e0>, 'x': 34}
-
         """
-
         if obj is not None:
             if id(obj) not in self._instance_guis:
                 method = getattr(obj.__class__, self._function.__name__)
@@ -272,6 +269,7 @@ class FunctionGui(Container):
         return self
 
     def __set__(self, obj, value):
+        """Prevent setting a magicgui attribute."""
         raise AttributeError("Can't set magicgui attribute")
 
     def Gui(self, show=False):
