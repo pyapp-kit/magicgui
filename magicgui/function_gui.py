@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import Any, Callable, Dict, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Optional, Sequence, TypeVar, Union, overload
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -118,15 +118,35 @@ class FunctionGui(Container):
         if show:
             self.show()
 
-    def bind(self, kwargs):
+    def bind(self, kwargs: dict):
+        """Bind key/value pairs to the function signature.
+
+        Values supplied here will be permanently bound to the corresponding parameters:
+        their widgets will be hidden from the GUI and the value will be used for the
+        corresponding parameter when the function is called.
+
+        Parameters
+        ----------
+        kwargs :  dict, optional
+            A mapping of parameter names to values to bind.
+        """
         self._bound.update(kwargs)
         for name, value in kwargs.items():
             getattr(self, name).hide()
 
-    def unbind(self, args):
+    def unbind(self, args: Sequence):
+        """Unbind keys from the function signature.
+
+        Parameters
+        ----------
+        args : sequence
+            A sequence of parameter names.  If any are currently bound to a value, the
+            binding will be cleared and the widget will be shown.
+        """
         for name in args:
-            del self._bound[name]
-            getattr(self, name).show()
+            if name in self._bound:
+                del self._bound[name]
+                getattr(self, name).show()
 
     def __getattr__(self, value):
         """Catch deprecated _name_changed attribute."""
