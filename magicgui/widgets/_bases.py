@@ -148,6 +148,7 @@ class Widget:
         self.gui_only = gui_only
         self.visible: bool = True
         self.parent_changed = EventEmitter(source=self, type="parent_changed")
+        self.label_changed = EventEmitter(source=self, type="label_changed")
         self._widget._mgui_bind_parent_change_callback(
             lambda *x: self.parent_changed(value=self.parent)
         )
@@ -315,6 +316,7 @@ class Widget:
     @label.setter
     def label(self, value):
         self._label = value
+        self.label_changed(value=value)
 
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
@@ -717,7 +719,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to intialize the container, by default None.
     labels : bool, optional
-        Whethter each widget should be shown with a corresponding Label widget to the
+        Whether each widget should be shown with a corresponding Label widget to the
         left, by default True.  Note: the text for each widget defaults to
         ``widget.name``, but can be overriden by setting ``widget.label``.
     return_annotation : Type or str, optional
@@ -737,7 +739,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         return_annotation: Any = None,
         **kwargs,
     ):
-        self.labels = labels
+        self._labels = labels
         kwargs["backend_kwargs"] = {"orientation": orientation}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
@@ -790,7 +792,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         item = self._widget._mgui_get_index(key)
         if not item:
             raise IndexError("Container index out of range")
-        return item
+        return getattr(item, "_inner_widget", item)
 
     def index(self, value: Any, start=0, stop=9223372036854775807) -> int:
         """Return index of a specific widget instance (or widget name)."""
@@ -834,13 +836,15 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         """Insert widget at `key`."""
         if isinstance(widget, ValueWidget):
             widget.changed.connect(lambda x: self.changed(value=self))
-        self._widget._mgui_insert_widget(key, widget)
+        _widget = widget
+
         if self.labels:
-            # no labels for button widgets (push buttons, checkboxes, have their own)
-            if isinstance(widget, ButtonWidget):
-                return
-            label = Widget.create(widget_type="Label", default=widget.label)
-            self._widget._mgui_insert_widget(key, label)
+            from ._concrete import _LabeledWidget
+
+            if not isinstance(widget, (_LabeledWidget, ButtonWidget)):
+                _widget = _LabeledWidget(widget)
+
+        self._widget._mgui_insert_widget(key, _widget)
 
     @property
     def margins(self) -> Tuple[int, int, int, int]:
@@ -907,3 +911,18 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     def __repr__(self) -> str:
         """Return a repr."""
         return f"<Container {self.to_signature()}>"
+
+    @property
+    def labels(self) -> bool:
+        """Whether widgets are presented with labels."""
+        return self._labels
+
+    @labels.setter
+    def labels(self, value: bool):
+        if value == self._labels:
+            return
+        self._labels = value
+
+        for index, _ in enumerate(self):
+            widget = self.pop(index)
+            self.insert(index, widget)

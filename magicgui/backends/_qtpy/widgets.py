@@ -118,6 +118,7 @@ class Label(QBaseStringWidget):
     # (can be both string or pixmap)
     def __init__(self):
         super().__init__(QtW.QLabel, "text", "setText", "")
+        self._qwidget.setSizePolicy(QtW.QSizePolicy.Fixed, QtW.QSizePolicy.Fixed)
 
     def _mgui_bind_change_callback(self, callback):
         # raise NotImplementedError("QLabel has no change signal")

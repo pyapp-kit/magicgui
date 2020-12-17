@@ -369,3 +369,46 @@ class SliceEdit(RangeEdit):
         self.start.value = value.start
         self.stop.value = value.stop
         self.step.value = value.step
+
+
+class _LabeledWidget(Container):
+    """Simple container that wraps a widget and provides a label."""
+
+    def __init__(
+        self,
+        widget: Widget,
+        label: str = None,
+        position: str = "left",
+        **kwargs,
+    ):
+        orientation = "horizontal" if position in ("left", "right") else "vertical"
+        kwargs["backend_kwargs"] = {"orientation": orientation}
+        self._inner_widget = widget
+        self._label_widget = Label(default=label or widget.label)
+        super().__init__(**kwargs)
+        self.labels = False  # important to avoid infinite recursion during insert!
+        self._inner_widget.label_changed.connect(self._on_label_change)
+        self.extend([self._label_widget, widget])
+        self.margins = (0, 0, 0, 0)
+
+    def __repr__(self) -> str:
+        """Return string representation."""
+        return f"Labeled{self._inner_widget!r}"
+
+    def __getattr__(self, name):
+        """Pass attribute access to the inner widget."""
+        if name in ("value", "name"):
+            return getattr(self._inner_widget, name)
+        elif name in ("label",):
+            return getattr(self._label_widget, name)
+
+    def __setattr__(self, name, value):
+        """Pass attribute access to the inner widget."""
+        if name in ("value"):
+            return setattr(self._inner_widget, name, value)
+        elif name in ("label",):
+            return setattr(self._label_widget, name, value)
+        return object.__setattr__(self, name, value)
+
+    def _on_label_change(self, event):
+        self._label_widget.value = event.value
