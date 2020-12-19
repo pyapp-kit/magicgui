@@ -734,6 +734,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         **kwargs,
     ):
         self.labels = labels
+        self._orientation = orientation
         kwargs["backend_kwargs"] = {"orientation": orientation}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
@@ -847,6 +848,17 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     def margins(self, margins: Tuple[int, int, int, int]) -> None:
         # left, top, right, bottom
         self._widget._mgui_set_margins(margins)
+
+    @property
+    def orientation(self):
+        """Return the orientation of the widget."""
+        return self._orientation
+
+    @orientation.setter
+    def orientation(self, value):
+        raise NotImplementedError(
+            "It is not yet possible to change orientation after instantiation"
+        )
 
     @property
     def native_layout(self):

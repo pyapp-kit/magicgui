@@ -51,10 +51,10 @@ def function(ri = RefractiveIndex.Water):
     ...
 ```
 
-- use `arg['choices']` when calling `@magicgui`.
+- use `arg['choices']` when calling `@magicgui` on a function that has a parameter named `arg`.
 
 ```python
-@magicgui(arg={"choices": ["Oil", "Water", "Air"]})
+@magicgui(ri={"choices": ["Oil", "Water", "Air"]})
 def function(ri="Water"):
     ...
 ```
