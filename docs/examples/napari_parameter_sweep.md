@@ -6,7 +6,7 @@ small, composable widgets created with `magicgui`.  Here, we demonstrate how to 
 interactive widget that lets you immediately see the effect of changing one of the
 parameters of your function.
 
-<p align="center"><img src="../../img/param_sweep.gif" width="80%" /></p>
+<p align="center"><img src="../../images/param_sweep.gif" width="80%" /></p>
 
 *See also: *Some of this tutorial overlaps with topics covered in the [napari image arithmetic
 example](napari_img_math.md)

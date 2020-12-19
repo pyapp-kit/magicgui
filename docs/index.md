@@ -15,7 +15,7 @@ kernelspec:
 
 # magicgui 🧙
 
-[![License](https://img.shields.io/pypi/l/magicgui.svg)](../LICENSE)
+[![License](https://img.shields.io/pypi/l/magicgui.svg)](https://github.com/napari/magicgui/blob/master/LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
 
@@ -196,4 +196,4 @@ snell_gui = magic_snell.Gui(show=True)
 ## configuration and advanced usage
 
 The `@magicgui` decorator takes a number of options that allow you to configure the GUI
-and it's behavior.  See [configuration](configuration.md) for more information.
+and it's behavior.  See [configuration](basics/configuration) for more information.

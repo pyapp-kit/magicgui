@@ -1,49 +1,42 @@
 """Widget base classes.
 
-All magicgui ``Widget`` bases compose a backend widget that implements one of the
-widget protocols defined in ``magicgui.widgets._protocols``.
+All magicgui :class:`Widget` bases comprise a backend widget that implements one of the
+widget protocols defined in ``magicgui.widgets._protocols``.  The basic composition
+pattern is as follows:
 
-```
-class Widget:
-    _widget: protocols.WidgetProtocol
+.. code-block:: python
 
-    def __init__(self, widget_type: Type[protocols.WidgetProtocol]):
-        self._widget = widget_type() # instantiation of the backend widget.
-```
+   class Widget:
+
+       def __init__(
+            self,
+
+            # widget_type is a class, likely from the `backends` module
+            # that implements one of the `WidgetProtocols` defined in _protocols.
+            widget_type: Type[protocols.WidgetProtocol],
+
+            # backend_kwargs is a key-value map of arguments that will be provided
+            # to the concrete (backend) implementation of the WidgetProtocol
+            backend_kwargs: dict = dict(),
+
+            # additional kwargs will be provided to the magicgui.Widget itself
+            # things like, `name`, `default`, etc...
+            **kwargs
+        ):
+           # instantiation of the backend widget.
+           self._widget = widget_type(**backend_kwargs)
+
+           # ... go on to set other kwargs
+
 
 These widgets are unlikely to be instantiated directly, (unless you're creating a custom
 widget that implements one of the WidgetProtocols... as the backed widgets do).
 Instead, one will usually instantiate the widgets in `magicgui.widgets._concrete`...
 which are all available direcly in the `magicgui.widgets` namespace.
 
-The one exception is the ``Widget.create`` factory method, which may be used to create
+The ``create_widget`` factory function may be used to create
 a widget subclass appropriate for the arguments passed (such as "default" or
 "annotation").
-
-
-Main Widget Types
------------------
-
-Widget (wraps WidgetProtocol)
-├── ↪ ValueWidget (wraps ValueWidgetProtocol)
-│   ├── Label
-│   ├── LineEdit
-│   ├── TextEdit
-│   ├── DateTimeEdit
-│   ├── ↪ ButtonWidget (wraps ButtonWidgetProtocol)
-│   │   ├── PushButton
-│   │   ├── CheckBox
-│   │   └── RadioButton
-│   ├── ↪ RangedWidget (wraps RangedWidgetProtocol)
-│   │   ├── SpinBox
-│   │   ├── FloatSpinBox
-│   │   └── ↪ SliderWidget (wraps SliderWidgetProtocol)
-│   │       ├── Slider
-│   │       └── FloatSlider
-│   └── ↪ CategoricalWidget (wraps CategoricalWidgetProtocol)
-│       └── ComboBox
-└── ↪ ContainerWidget (wraps ContainerProtocol)/
-    └── Container
 
 """
 from __future__ import annotations
@@ -79,6 +72,93 @@ if TYPE_CHECKING:
     from ._concrete import Container
 
 
+def create_widget(
+    name: str = "",
+    kind: str = "POSITIONAL_OR_KEYWORD",
+    default: Any = None,
+    annotation: Any = None,
+    label=None,
+    gui_only=False,
+    app=None,
+    widget_type: Union[str, Type[_protocols.WidgetProtocol], None] = None,
+    options: WidgetOptions = dict(),
+):
+    """Create and return appropriate widget subclass.
+
+    This factory function can be used to create a widget appropriate for the
+    provided `default` value and/or `annotation` provided.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the parameter represented by this widget. by default ``""``
+    kind : str, optional
+        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
+        signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
+    default : Any, optional
+        The default & starting value for the widget, by default ``None``
+    annotation : Any, optional
+        The type annotation for the parameter represented by the widget, by default
+        ``None``
+    label : str
+        A string to use for an associated Label widget (if this widget is being
+        shown in a `Container` widget, and labels are on).  By default, `name` will
+        be used. Note: `name` refers the name of the parameter, as might be used in
+        a signature, whereas label is just the label for that widget in the GUI.
+    gui_only : bool, optional
+        Whether the widget should be considered "only for the gui", or if it should
+        be included in any widget container signatures, by default False
+    app : str, optional
+        The backend to use, by default ``None``
+    widget_type : str or Type[WidgetProtocol] or None
+        A class implementing a widget protocol or a string with the name of a
+        magicgui widget type (e.g. "Label", "PushButton", etc...).
+        If provided, this widget type will be used instead of the type
+        autodetermined from ``default`` and/or ``annotation`` above.
+    options : WidgetOptions, optional
+        Dict of options to pass to the Widget constructor, by default dict()
+
+    Returns
+    -------
+    Widget
+        An instantiated widget subclass
+
+    Raises
+    ------
+    TypeError
+        If the provided or autodetected ``widget_type`` does not implement any known
+        widget protocols from widgets._protocols.
+    """
+    kwargs = locals()
+    _app = use_app(kwargs.pop("app"))
+    assert _app.native
+    if isinstance(widget_type, _protocols.WidgetProtocol):
+        wdg_class = widget_type
+    else:
+        from magicgui.type_map import get_widget_class
+
+        if widget_type:
+            options["widget_type"] = widget_type
+        wdg_class, opts = get_widget_class(default, annotation, options)
+
+        if issubclass(wdg_class, Widget):
+            opts.update(kwargs.pop("options"))
+            kwargs.update(opts)
+            kwargs.pop("widget_type", None)
+            return wdg_class(**kwargs)
+
+    # pick the appropriate subclass for the given protocol
+    # order matters
+    for p in ("Categorical", "Ranged", "Button", "Value", ""):
+        prot = getattr(_protocols, f"{p}WidgetProtocol")
+        if isinstance(wdg_class, prot):
+            return globals()[f"{p}Widget"](
+                widget_type=wdg_class, **kwargs, **kwargs.pop("options")
+            )
+
+    raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
+
+
 class Widget:
     """Basic Widget, wrapping a class that implements WidgetProtocol.
 
@@ -89,12 +169,13 @@ class Widget:
     name : str, optional
         The name of the parameter represented by this widget. by default ""
     kind : str, optional
-        The ``inspect._ParameterKind`` represented by this widget.  Used in building
+        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
         signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
     default : Any, optional
-        The default & starting value for the widget, by default None
+        The default & starting value for the widget, by default ``None``
     annotation : Any, optional
-        The type annotation for the parameter represented by the widget, by default None
+        The type annotation for the parameter represented by the widget, by default
+        ``None``
     label : str
         A string to use for an associated Label widget (if this widget is being shown in
         a `Container` widget, and labels are on).  By default, `name` will be used.
@@ -157,93 +238,6 @@ class Widget:
         self._post_init()
         if not visible:
             self.hide()
-
-    @staticmethod
-    def create(
-        name: str = "",
-        kind: str = "POSITIONAL_OR_KEYWORD",
-        default: Any = None,
-        annotation: Any = None,
-        label=None,
-        gui_only=False,
-        app=None,
-        widget_type: Union[str, Type[_protocols.WidgetProtocol], None] = None,
-        options: WidgetOptions = dict(),
-    ):
-        """Create and return appropriate widget subclass.
-
-        This factory function can be used to create a widget appropriate for the
-        provided `default` value and/or `annotation` provided.
-
-        Parameters
-        ----------
-        name : str, optional
-            The name of the parameter represented by this widget. by default ""
-        kind : str, optional
-            The ``inspect._ParameterKind`` represented by this widget.  Used in building
-            signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
-        default : Any, optional
-            The default & starting value for the widget, by default None
-        annotation : Any, optional
-            The type annotation for the parameter represented by the widget, by default
-            None
-        label : str
-            A string to use for an associated Label widget (if this widget is being
-            shown in a `Container` widget, and labels are on).  By default, `name` will
-            be used. Note: `name` refers the name of the parameter, as might be used in
-            a signature, whereas label is just the label for that widget in the GUI.
-        gui_only : bool, optional
-            Whether the widget should be considered "only for the gui", or if it should
-            be included in any widget container signatures, by default False
-        app : str, optional
-            The backend to use, by default None
-        widget_type : str or Type[WidgetProtocol] or None
-            A class implementing a widget protocol or a string with the name of a
-            magicgui widget type (e.g. "Label", "PushButton", etc...).
-            If provided, this widget type will be used instead of the type
-            autodetermined from ``default`` and/or ``annotation`` above.
-        options : WidgetOptions, optional
-            Dict of options to pass to the Widget constructor, by default dict()
-
-        Returns
-        -------
-        Widget
-            An instantiated widget subclass
-
-        Raises
-        ------
-        TypeError
-            If the provided or autodetected ``widget_type`` does not implement any known
-            widget protocols from widgets._protocols.
-        """
-        kwargs = locals()
-        _app = use_app(kwargs.pop("app"))
-        assert _app.native
-        if isinstance(widget_type, _protocols.WidgetProtocol):
-            wdg_class = widget_type
-        else:
-            from magicgui.type_map import get_widget_class
-
-            if widget_type:
-                options["widget_type"] = widget_type
-            wdg_class, opts = get_widget_class(default, annotation, options)
-
-            if issubclass(wdg_class, Widget):
-                opts.update(kwargs.pop("options"))
-                kwargs.update(opts)
-                kwargs.pop("widget_type", None)
-                return wdg_class(**kwargs)
-
-        # pick the appropriate subclass for the given protocol
-        # order matters
-        for p in ("Categorical", "Ranged", "Button", "Value", ""):
-            prot = getattr(_protocols, f"{p}WidgetProtocol")
-            if isinstance(wdg_class, prot):
-                return globals()[f"{p}Widget"](
-                    widget_type=wdg_class, **kwargs, **kwargs.pop("options")
-                )
-
-        raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
     def _post_init(self):
         pass
@@ -338,9 +332,6 @@ class Widget:
             imsave(file_obj, self.render(), format="png")
             file_obj.seek(0)
             return file_obj.read()
-
-
-create_widget = Widget.create
 
 
 class ValueWidget(Widget):
@@ -716,14 +707,15 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         The orientation for the container.  must be one of {'horizontal', 'vertical'}.
         by default "horizontal"
     widgets : Sequence[Widget], optional
-        A sequence of widgets with which to intialize the container, by default None.
+        A sequence of widgets with which to intialize the container, by default
+        ``None``.
     labels : bool, optional
         Whethter each widget should be shown with a corresponding Label widget to the
         left, by default True.  Note: the text for each widget defaults to
         ``widget.name``, but can be overriden by setting ``widget.label``.
     return_annotation : Type or str, optional
         An optional return annotation to use when representing this container of
-        widgets as an inspect.Signature, by default None
+        widgets as an inspect.Signature, by default ``None``
     """
 
     changed: EventEmitter
@@ -840,7 +832,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
             # no labels for button widgets (push buttons, checkboxes, have their own)
             if isinstance(widget, ButtonWidget):
                 return
-            label = Widget.create(widget_type="Label", default=widget.label)
+            label = create_widget(widget_type="Label", default=widget.label)
             self._widget._mgui_insert_widget(key, label)
 
     @property

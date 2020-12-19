@@ -26,7 +26,9 @@ from ._bases import (
 from ._transforms import make_float, make_literal_eval
 
 
-def merge_super_sigs(cls, exclude=("self", "widget_type", "kwargs", "args", "kwds")):
+def merge_super_sigs(
+    cls, exclude=("self", "widget_type", "kwargs", "args", "kwds", "extra")
+):
     """Merge the signature and kwarg docs from all superclasses, for clearer docs.
 
     Parameters
@@ -51,7 +53,9 @@ def merge_super_sigs(cls, exclude=("self", "widget_type", "kwargs", "args", "kwd
 
         param_docs += docstring_to_param_list(getattr(sup, "__doc__", ""))
 
-    cls.__signature__ = inspect.Signature(sorted(params.values(), key=lambda x: x.kind))
+    cls.__init__.__signature__ = inspect.Signature(
+        sorted(params.values(), key=lambda x: x.kind)
+    )
     param_docs = [p for p in param_docs if p.name not in exclude]
     cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
     cls.__doc__ += "\n".join(param_list_to_str(param_docs))

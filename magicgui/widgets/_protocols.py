@@ -1,53 +1,10 @@
-"""Protocols (Interfaces) for backends to implement.
+"""Protocols (interfaces) for backends to implement.
 
-These protocols define the methods that a backend must implement
-to be compatible with the magicgui API.  All magicgui-specific
-abstract methods are prefaced with `_mgui_`
+Each class in this module is a :class:`typing.Protocol` that specifies a set of
+:func:`~abc.abstractmethod` that a backend widget must implement to be compatible with
+the magicgui API.  All magicgui-specific abstract methods are prefaced with ``_mgui_*``.
 
-└── -> WidgetProtocol/
-    ├── _mgui_show_widget
-    ├── _mgui_hide_widget
-    ├── _mgui_get_native_widget
-    ├── ↪ ValueWidgetProtocol/
-    │   ├── _mgui_get_value
-    │   ├── _mgui_set_value
-    │   ├── _mgui_bind_change_callback
-    │   ├── ↪ ButtonWidgetProtocol (+ SupportsText)/
-    │   │   ├── _mgui_get_text
-    │   │   └── _mgui_set_text
-    │   ├── ↪ RangedWidgetProtocol/
-    │   │   ├── _mgui_get_minimum
-    │   │   ├── _mgui_set_minimum
-    │   │   ├── _mgui_get_maximum
-    │   │   ├── _mgui_set_maximum
-    │   │   ├── _mgui_get_step
-    │   │   ├── _mgui_set_step
-    │   │   └── ↪ SliderWidgetProtocol (+ SupportsOrientation)/
-    │   │       ├── _mgui_get_orientation
-    │   │       └── _mgui_set_orientation
-    │   └── ↪ CategoricalWidgetProtocol/
-    │       ├── _mgui_get_choices
-    │       └── _mgui_set_choices
-    └── ↪ ContainerProtocol (+ SupportsOrientation)/
-        ├── _mgui_add_widget
-        ├── _mgui_insert_widget
-        ├── _mgui_remove_widget
-        ├── _mgui_remove_index
-        ├── _mgui_count
-        ├── _mgui_index
-        ├── _mgui_get_index
-        └── _mgui_get_native_layout
-
-
--> SupportsText  # different than "value"
-     - _mgui_get_text
-     - _mgui_set_text
-
-
--> SupportsOrientation
-     - _mgui_get_orientation
-     - _mgui_set_orientation
-
+For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 """
 from __future__ import annotations
 
@@ -57,20 +14,22 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple
 from typing_extensions import Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    import numpy as np
+
     from magicgui.widgets._bases import Widget
 
 
 @runtime_checkable
 class WidgetProtocol(Protocol):
-    """All must have show/hide and return the native widget."""
+    """Base Widget Protocol: specifies methods that all widgets must provide."""
 
     @abstractmethod
-    def _mgui_show_widget(self):
+    def _mgui_show_widget(self) -> None:
         """Show the widget."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_hide_widget(self):
+    def _mgui_hide_widget(self) -> None:
         """Hide the widget."""
         raise NotImplementedError()
 
@@ -79,7 +38,7 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_enabled(self, enabled: bool):
+    def _mgui_set_enabled(self, enabled: bool) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -87,20 +46,22 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_parent(self, widget: Widget):
+    def _mgui_set_parent(self, widget: Widget) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_get_native_widget(self):
+    def _mgui_get_native_widget(self) -> Any:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_bind_parent_change_callback(self, callback: Callable[[Any], None]):
+    def _mgui_bind_parent_change_callback(
+        self, callback: Callable[[Any], None]
+    ) -> None:
         """Bind callback to parent change event."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_render(self):
+    def _mgui_render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         raise NotImplementedError()
 
@@ -120,7 +81,7 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_bind_change_callback(self, callback: Callable[[Any], None]):
+    def _mgui_bind_change_callback(self, callback: Callable[[Any], None]) -> None:
         """Bind callback to value change event."""
         raise NotImplementedError()
 
@@ -137,7 +98,7 @@ class RangedWidgetProtocol(ValueWidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_minimum(self, value: float):
+    def _mgui_set_minimum(self, value: float) -> None:
         """Set the minimum possible value."""
         raise NotImplementedError()
 
@@ -147,7 +108,7 @@ class RangedWidgetProtocol(ValueWidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_maximum(self, value: float):
+    def _mgui_set_maximum(self, value: float) -> None:
         """Set the maximum possible value."""
         raise NotImplementedError()
 
@@ -157,7 +118,7 @@ class RangedWidgetProtocol(ValueWidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_step(self, value: float):
+    def _mgui_set_step(self, value: float) -> None:
         """Set the step size."""
         raise NotImplementedError()
 
@@ -172,7 +133,7 @@ class SupportsChoices(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]):
+    def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
         """Set available choices."""
         raise NotImplementedError()
 
@@ -209,12 +170,12 @@ class SupportsOrientation(Protocol):
     """Widget that can be reoriented."""
 
     @property
-    def orientation(self):
+    def orientation(self) -> str:
         """Orientation of the widget."""
         return self._mgui_get_orientation()
 
     @orientation.setter
-    def orientation(self, value):
+    def orientation(self, value: str) -> None:
         if value not in {"horizontal", "vertical"}:
             raise ValueError(
                 "Only horizontal and vertical orientation are currently supported"
@@ -244,19 +205,19 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     """Widget that can contain other widgets."""
 
     @abstractmethod
-    def _mgui_add_widget(self, widget: "Widget"):
+    def _mgui_add_widget(self, widget: "Widget") -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_insert_widget(self, position: int, widget: "Widget"):
+    def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_remove_widget(self, widget: "Widget"):
+    def _mgui_remove_widget(self, widget: "Widget") -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_remove_index(self, position: int):
+    def _mgui_remove_index(self, position: int) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -301,20 +262,20 @@ class BaseApplicationBackend(ABC):
         """Return the name of the backend."""
 
     @abstractmethod
-    def _mgui_process_events(self):
+    def _mgui_process_events(self) -> None:
         """Process all pending GUI events."""
 
     @abstractmethod
-    def _mgui_run(self):
+    def _mgui_run(self) -> None:
         """Start the application."""
 
     @abstractmethod
-    def _mgui_quit(self):
+    def _mgui_quit(self) -> None:
         """Quit the native GUI event loop."""
 
-    def _mgui_get_native_app(self):
+    @abstractmethod
+    def _mgui_get_native_app(self) -> Any:
         """Return the native GUI application instance."""
-        return self
 
     @abstractmethod
     def _mgui_start_timer(
@@ -322,7 +283,7 @@ class BaseApplicationBackend(ABC):
         interval: int = 0,
         on_timeout: Optional[Callable[[], None]] = None,
         single: bool = False,
-    ):
+    ) -> None:
         """Create and start a timer.
 
         Parameters
@@ -336,5 +297,5 @@ class BaseApplicationBackend(ABC):
         """
 
     @abstractmethod
-    def _mgui_stop_timer(self):
+    def _mgui_stop_timer(self) -> None:
         """Stop timer.  Should check for the existence of the timer."""

@@ -6,7 +6,7 @@ to extend napari with small, composable widgets created with `magicgui`.  Here
 we're going to build this simple image arithmetic widget with a few additional
 lines of code.
 
-<p align="center"><img src="../../img/imagemath.gif" width="80%" /></p>
+<p align="center"><img src="../../images/imagemath.gif" width="80%" /></p>
 
 ## outline
 

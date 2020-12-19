@@ -9,11 +9,11 @@ Documentation for magicgui
 If you'd like to develop on and build the magicgui book, you should:
 
 - Clone this repository and run
-- Run `pip install -r requirements.txt` (it is recommended you do this within a virtual environment)
-- (Recommended) Remove the existing `magicgui/_build/` directory
-- Run `jupyter-book build magicgui/`
+- Run `pip install -r docs/requirements.txt` (it is recommended you do this within a virtual environment)
+- (Recommended) Remove the existing `magicgui/docs/_build/` directory
+- Run `jupyter-book build docs`
 
-A fully-rendered HTML version of the book will be built in `magicgui/_build/html/`.
+A fully-rendered HTML version of the book will be built in `magicgui/docs/_build/html/`.
 
 ### Hosting the book
 
@@ -22,7 +22,7 @@ The html version of the book is hosted on the `gh-pages` branch of this repo. A 
 If you wish to disable this automation, you may remove the GitHub actions workflow and build the book manually by:
 
 - Navigating to your local build; and running,
-- `ghp-import -n -p -f magicgui/_build/html`
+- `ghp-import -n -p -f magicgui/docs/_build/html`
 
 This will automatically push your build to the `gh-pages` branch. More information on this hosting process can be found [here](https://jupyterbook.org/publish/gh-pages.html#manually-host-your-book-with-github-pages).
 

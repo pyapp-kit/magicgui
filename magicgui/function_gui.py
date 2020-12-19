@@ -116,6 +116,10 @@ class FunctionGui(Container):
             return getattr(self, widget_name).changed
         return super().__getattr__(value)
 
+    # def __delitem__(self, key: Union[int, slice]):
+    #     """Delete a widget by integer or slice index."""
+    #     raise AttributeError("can't delete items from a FunctionGui")
+
     @property
     def __signature__(self):
         """Return an inspect.Signature subclass.
@@ -123,6 +127,8 @@ class FunctionGui(Container):
         The sig represents the original wrapped function, but with defaults and types
         from the widget (if different).
         """
+        # FIXME: if someone has manually deleted widgets from the container, it may go
+        # out of sync with the function signature.  Should prevent that.
         return self.to_signature()
 
     def __call__(self, *args: Any, **kwargs: Any):

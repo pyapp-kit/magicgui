@@ -158,7 +158,7 @@ def test_changing_widget_attr_fails(magic_func):
     assert isinstance(widget1, widgets.LineEdit)
 
     # changing it to a different type will destroy and create a new widget
-    widget2 = widgets.Widget.create(default=1, name="a")
+    widget2 = widgets.create_widget(default=1, name="a")
     with pytest.raises(AttributeError):
         magic_func.a = widget2
 
@@ -351,7 +351,7 @@ def test_add_at_position(labels):
 
     gui = magicgui(func, labels=labels)
     assert get_layout_items(gui) == ["a", "b", "c"]
-    gui.insert(1, widgets.Widget.create(name="new"))
+    gui.insert(1, widgets.create_widget(name="new"))
     assert get_layout_items(gui) == ["a", "new", "b", "c"]
 
 

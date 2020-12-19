@@ -1,8 +1,20 @@
 # Table of contents
 # Learn more at https://jupyterbook.org/customize/toc.html
 - file: index
-  sections:
-    - file: index
-    - file: configuration
-    - file: type_inference
-    - file: notebooks
+
+- part: Get started
+  chapters:
+    - file: basics/configuration
+    - file: basics/type_inference
+    - file: basics/notebooks
+
+- part: Examples
+  chapters:
+    - file: examples/napari_img_math
+    - file: examples/napari_parameter_sweep
+
+- part: API
+  chapters:
+    - file: api/widgets
+    - file: api/bases
+    - file: api/protocols

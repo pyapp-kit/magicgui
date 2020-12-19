@@ -6,3 +6,4 @@ sphinx_material
 jupytext
 imageio
 sphinx-autodoc-typehints
+sphinxcontrib-bibtex<2.0.0

@@ -67,7 +67,7 @@ snell_gui = snells_law.Gui(show=True)
 
 ## et voilà
 
-[<img src="img/snells.png" width="542"/>](img/snells.png)
+[<img src="images/snells.png" width="542"/>](images/snells.png)
 
 ## two-way data binding
 

@@ -23,6 +23,12 @@
   /* filter: box-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.2)); */
 }
 
+/* autosummary table */
+.longtable tr td:first-child {
+  width: 30%;
+  white-space: nowrap;
+}
+
 /* AUTODOC */
 
 dl.module,

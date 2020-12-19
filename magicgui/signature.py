@@ -82,7 +82,7 @@ class MagicParameter(inspect.Parameter):
     name : str, optional
         The name of the parameter represented by this widget. by default ""
     kind : inspect._ParameterKind, optional
-        The ``inspect._ParameterKind`` represented by this widget.  Used in building
+        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
         signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
     default : Any, optional
         The default & starting value for the widget, by default None
@@ -131,11 +131,11 @@ class MagicParameter(inspect.Parameter):
 
     def to_widget(self, app: AppRef = None) -> Widget:
         """Create and return a widget for this object."""
-        from magicgui.widgets._bases import Widget
+        from magicgui.widgets._bases import create_widget
 
         value = None if self.default is self.empty else self.default
         annotation, options = split_annotated_type(self.annotation)
-        return Widget.create(
+        return create_widget(
             name=self.name,
             kind=self.kind.name,
             default=value,

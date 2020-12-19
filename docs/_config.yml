@@ -1,35 +1,76 @@
 #######################################################################################
-# A default configuration that will be loaded for all jupyter books
-# See the documentation for help and more options:
-# https://jupyterbook.org/customize/config.html
-
-#######################################################################################
 # Book settings
-title: magicgui # The title of the book. Will be placed in the left navbar.
+title: "magicgui" # The title of the book. Will be placed in the left navbar.
+logo: images/logo.svg # A path to the book logo
 author: Talley Lambert # The author of the book
+email: talley.lambert@gmail.com
 copyright: "2020" # Copyright year to be placed in the footer
-logo: img/logo.svg # A path to the book logo
 
 # Execution settings
 execute:
-  execute_notebooks: force
+  execute_notebooks: cache  # or 'force'
+  exclude_patterns:
+    - 'README.md'
+
+only_build_toc_files: true
+
+# html:
+#   favicon: images/favicon.ico
+#   google_analytics_id: UA-xxxxxxxx-x
+#   home_page_in_navbar: false
+#   use_edit_page_button: true
+#   use_repository_button: true
+#   use_issues_button: true
+#   # baseurl: https://jupyterbook.org/
+
+repository:
+  url: https://github.com/napari/magicgui
+  branch: master
+  path_to_book: docs
+
+# launch_buttons:
+#   notebook_interface: "jupyterlab" # The interface interactive links will activate ["classic", "jupyterlab"]
+#   binderhub_url: "https://mybinder.org"
+#   colab_url: "https://colab.research.google.com"
+#   thebe: true
 
 sphinx:
+  local_extensions:
+    - ../magicgui
+
   extra_extensions:
-    - sphinx.ext.napoleon
     - sphinx.ext.viewcode
+    - sphinx.ext.napoleon
     - sphinx.ext.autodoc
     - sphinx_autodoc_typehints
+    - sphinx.ext.autosummary
 
   config:
-    html_theme: "sphinx_material"
-    html_show_sourcelink: False
+    # set_type_checking_flag: True  # don't yet know how to add to path with jupyter-book
+    autosummary_generate: True
+    autosummary_imported_members: True
+    # autodoc_typehints: signature
+    autodoc_default_options:
+        special-members: False
+        undoc-members: True
+        show-inheritance: True
+    # add_module_names: False
+    exclude_patterns:
+      - README.md
     templates_path:
       - "_templates"
+    html_show_sourcelink: False
     html_static_path:
       - "_static"
     html_style: styles.css
     pygments_style: "default"
+
+    intersphinx_mapping:
+      python:
+        - "https://docs.python.org/3"
+        - null
+
+    html_theme: "sphinx_material"
     html_theme_options:
       base_url: "http://magicgui.readthedocs.io/" # Specify a base_url used to generate sitemap.xml links
       repo_url: "https://github.com/napari/magicgui/"
