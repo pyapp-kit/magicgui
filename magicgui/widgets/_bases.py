@@ -1,5 +1,8 @@
 """Widget base classes.
 
+These will rarely be used directly by end-users, instead see the "concrete" widgets
+exported in ``magicgui.widgets``.
+
 All magicgui :class:`Widget` bases comprise a backend widget that implements one of the
 widget protocols defined in ``magicgui.widgets._protocols``.  The basic composition
 pattern is as follows:

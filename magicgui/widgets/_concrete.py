@@ -59,6 +59,8 @@ def merge_super_sigs(
     param_docs = [p for p in param_docs if p.name not in exclude]
     cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
     cls.__doc__ += "\n".join(param_list_to_str(param_docs))
+    # this makes docs linking work... but requires that all of these be in __init__
+    cls.__module__ = "magicgui.widgets"
     return cls
 
 

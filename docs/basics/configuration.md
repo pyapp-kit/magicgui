@@ -1,4 +1,4 @@
-# configuration
+# Configuration
 
 If used without arguments, the `@magicgui` decorator will build you a GUI using the
 default settings.  However, `magicgui` also accepts a number of options to configure your
@@ -16,10 +16,8 @@ the button.
 ### `layout`
 
 The `layout` option determines which layout class from the backend will be used.
-Currently, only Qt backends are supported and valid layout options include:
-`horizontal`, `vertical`, `form`, or `grid`.
-
-Layouts are a work in progress...
+Currently, only `horizontal`, `vertical` are supported.
+Grid Layouts are a work in progress...
 
 ## argument-specific options
 

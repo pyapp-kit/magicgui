@@ -11,8 +11,6 @@ lines of code.
 :align: center
 ```
 
-<!-- <p align="center"><img src="../../images/imagemath.gif" width="80%" /></p> -->
-
 ## outline
 
 **This example demonstrates how to:**
@@ -30,19 +28,22 @@ create interactivity.
 *Code follows, with explanation below... You can also [get this example at
 github](https://github.com/napari/magicgui/blob/master/examples/napari_image_arithmetic.py).*
 
-???+ example "complete code"
-
 ```python
-import enum
+from enum import Enum
+
 import numpy
 import napari
 from napari.layers import Image
+
 from magicgui import magicgui
 
+class Operation(Enum):
+    """A set of valid arithmetic operations for image_arithmetic.
 
-# Enums are a convenient way to get a dropdown menu
-class Operation(enum.Enum):
-    """A set of valid arithmetic operations for image_arithmetic."""
+    To create nice dropdown menus with magicgui, it's best (but not required) to use
+    Enums.  Here we make an Enum class for all of the image math operations we want to
+    allow.
+    """
     add = numpy.add
     subtract = numpy.subtract
     multiply = numpy.multiply
@@ -50,23 +51,23 @@ class Operation(enum.Enum):
 
 
 with napari.gui_qt():
-    # create a new viewer with a couple image layers
+    # create a viewer and add a couple image layers
     viewer = napari.Viewer()
-    viewer.add_image(numpy.random.rand(20, 20), name=f"Layer 1")
-    viewer.add_image(numpy.random.rand(20, 20), name=f"Layer 2")
+    viewer.add_image(numpy.random.rand(20, 20), name="Layer 1")
+    viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
 
     # here's the magicgui!  We also use the additional `call_button` option
     @magicgui(call_button="execute")
     def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> Image:
-        """Adds, subtracts, multiplies, or divides two image layers of similar shape."""
+        """Add, subtracts, multiplies, or divides to image layers with equal shape."""
         return operation.value(layerA.data, layerB.data)
 
-    # instantiate the widget
-    gui = image_arithmetic.Gui()
-    # add our new widget to the napari viewer
-    viewer.window.add_dock_widget(gui)
+    # add our new magicgui widget to the viewer
+    viewer.window.add_dock_widget(image_arithmetic)
+
     # keep the dropdown menus in the gui in sync with the layer model
-    viewer.layers.events.changed.connect(lambda x: gui.refresh_choices())
+    viewer.layers.events.inserted.connect(image_arithmetic.reset_choices)
+    viewer.layers.events.removed.connect(image_arithmetic.reset_choices)
 ```
 
 ## walkthrough

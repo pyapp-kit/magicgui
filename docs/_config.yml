@@ -69,6 +69,9 @@ sphinx:
       python:
         - "https://docs.python.org/3"
         - null
+      napari:
+        - "https://napari.org/docs/0.4.0/"
+        - null
 
     html_theme: "sphinx_material"
     html_theme_options:

@@ -12,6 +12,8 @@ Functions
 
    create_widget
 
+.. currentmodule:: magicgui.widgets
+
 Value Widgets
 =============
 
