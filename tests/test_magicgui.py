@@ -443,3 +443,23 @@ def test_register_return_callback():
 #     """Test that setting MagicGui parent emits a signal."""
 #     with qtbot.waitSignal(magic_func.parent_changed, timeout=1000):
 #         magic_func.native.setParent(None)
+
+
+def test_function_binding():
+    class MyObject:
+        def __init__(self, name):
+            self.name = name
+            self.counter = 0.0
+
+        @magicgui(auto_call=True)
+        def method(self, sigma: float = 1):
+            self.counter = self.counter + sigma
+            return self.name, self.counter
+
+    a = MyObject("a")
+    b = MyObject("b")
+
+    assert a.method() == ("a", 1)
+    assert b.method(sigma=4) == ("b", 4)
+    assert a.method() == ("a", 2)
+    assert b.method() == ("b", 5)
