@@ -39,7 +39,7 @@ jobs:
           pip install -r docs/requirements.txt
 
       - name: Build the book
-        uses: GabrielBB/xvfb-action@latest
+        uses: GabrielBB/xvfb-action@v1.4
         with:
           run: -s '-screen 0 1280x800x16' jupyter-book build docs
 
