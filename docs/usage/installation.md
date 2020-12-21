@@ -12,7 +12,7 @@ or Conda:
 conda install magicgui
 ```
 
-````{note}
+````{important}
 You will need to have a supported GUI backend also installed in your environment.
 Currently, the only supported backend is [Qt](https://www.qt.io/), via
 [qtpy](https://github.com/spyder-ide/qtpy) (but [open an

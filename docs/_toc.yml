@@ -2,11 +2,11 @@
 # Learn more at https://jupyterbook.org/customize/toc.html
 - file: index
 
-- part: Introduction
+- part: Usage
   chapters:
-    - file: intro/installation
-    - file: intro/configuration
-    - file: intro/types_widgets
+    - file: usage/installation
+    - file: usage/configuration
+    - file: usage/types_widgets
 
 - part: Examples
   chapters:

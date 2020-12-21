@@ -22,7 +22,7 @@ kernelspec:
 
 Build GUIs from python functions, using magic.
 
-```{include} intro/installation.md
+```{include} usage/installation.md
 ```
 
 ## from function to GUI
@@ -191,4 +191,4 @@ function = magicgui(function, **kwargs)
 ## configuration and advanced usage
 
 The `@magicgui` decorator takes a number of options that allow you to configure the GUI
-and it's behavior.  See [configuration](intro/configuration) for more information.
+and it's behavior.  See [configuration](usage/configuration) for more information.
