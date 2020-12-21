@@ -114,11 +114,13 @@ def add(a: int, b: int = 15) -> int:
 add.show()
 ```
 
+```{caution}
 The keys in the parameter-specific options dict must be valid arguments
 for the corresponding widget type from {mod}`magicgui.widgets`.  In this
 example, the `a_string` paremeter would be turned into a
 {class}`~magicgui.widgets.LineEdit` widget, which does not take an
 argument "`minimum`":
+```
 
 ```{code-cell} python
 ---
