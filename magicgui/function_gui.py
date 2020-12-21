@@ -320,7 +320,7 @@ def magicgui(
     bind: Dict[str, Any] = None,
     **param_options: dict,
 ):
-    """Create a FunctionGui class for ``function`` and add it as an attribute ``Gui``.
+    """Return a :class:`FunctionGui` for ``function``.
 
     Parameters
     ----------
