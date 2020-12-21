@@ -22,4 +22,4 @@
     - file: api/protocols
     - file: api/type_map
     - file: api/types
-    - file: api/v0.2.0
+    - file: api/v0_2_0

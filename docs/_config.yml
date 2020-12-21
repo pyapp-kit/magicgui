@@ -7,19 +7,7 @@ email: talley.lambert@gmail.com
 copyright: "2020" # Copyright year to be placed in the footer
 only_build_toc_files: true
 execute:
-  allow_errors: false
   execute_notebooks: cache  # or 'force'
-exclude_patterns: ['README.md']
-
-
-# html:
-#   favicon: images/favicon.ico
-#   google_analytics_id: UA-xxxxxxxx-x
-#   home_page_in_navbar: false
-#   use_edit_page_button: true
-#   use_repository_button: true
-#   use_issues_button: true
-#   # baseurl: https://jupyterbook.org/
 
 repository:
   url: https://github.com/napari/magicgui
@@ -45,17 +33,16 @@ sphinx:
     # set_type_checking_flag: True  # don't yet know how to add to path with jupyter-book
     autosummary_generate: True
     autosummary_imported_members: True
-    # autodoc_typehints: signature
     autodoc_default_options:
         special-members: False
         undoc-members: True
         show-inheritance: True
     templates_path:
       - "_templates"
-    html_show_sourcelink: False
     html_static_path:
       - "_static"
     html_style: styles.css
+    html_show_sourcelink: False
     pygments_style: "default"
 
     intersphinx_mapping:
@@ -72,18 +59,13 @@ sphinx:
       repo_url: "https://github.com/napari/magicgui/"
       repo_name: "napari/magicgui"
       # google_analytics_account: "UA-XXXXX"
-      # html_minify: True
       # html_prettify: True
-      # css_minify: True
-      # logo_icon: "&#xe3e4"
+      html_minify: True
+      css_minify: True
       repo_type: "github"
       globaltoc_depth: 2
-      # Color Options: red, pink, purple, deep-purple, indigo, blue,
-      # light-blue, cyan, teal, green, light-green, lime, yellow,
-      # amber, orange, deep-orange, brown, grey, blue-grey, and white.
       color_primary: dark-blue
       color_accent: "cyan"
-      # touch_icon: "images/apple-icon-152x152.png"
       theme_color: "#2196f3"
       master_doc: False
       # version_dropdown: True,

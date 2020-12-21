@@ -171,7 +171,7 @@ viewer.window.add_dock_widget(image_arithmetic)
 
 ```{caution}
 This api has changed slightly with version 0.2.0 of magicgui.  See the
-[migration guide](../../api/v0.2.0.md) if you are migrating from a previous version.
+[migration guide](../../api/v0_2_0) if you are migrating from a previous version.
 ```
 
 ### connect event listeners for interactivity
