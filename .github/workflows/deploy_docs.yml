@@ -32,21 +32,16 @@ jobs:
         run: |
           sudo apt-get install -y libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 \
             libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
-            libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0
+            libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 xvfb
       - name: Install dependencies
         run: |
           pip install .[pyqt5]
           pip install -r docs/requirements.txt
 
+      # Build the book
       - name: Build the book
-        uses: GabrielBB/xvfb-action@v1.4
-        with:
-          run: -s '-screen 0 1280x800x16' jupyter-book build docs
-
-      # # Build the book
-      # - name: Build the book
-      #   run: |
-      #     jupyter-book build docs
+        run: |
+          xvfb-run --auto-servernum -s '-screen 0 1280x800x16' jupyter-book build docs
 
       # Deploy the book's HTML to gh-pages branch
       - name: GitHub Pages action
