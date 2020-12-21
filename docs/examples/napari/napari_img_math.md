@@ -6,7 +6,7 @@ to extend napari with small, composable widgets created with `magicgui`.  Here
 we're going to build this simple image arithmetic widget with a few additional
 lines of code.
 
-```{image} ../images/imagemath.gif
+```{image} ../../images/imagemath.gif
 :width: 80%
 :align: center
 ```
@@ -89,7 +89,7 @@ arithmetic.
 
 Our function takes two `napari` [Image
 layers](https://napari.org/tutorials/fundamentals/image), and some mathematical
-operation (we'll restrict the options using an `Enum`).  When called, our
+operation (we'll restrict the options using an {class}`~enum.Enum`).  When called, our
 function calls the selected operation on the two layers (which each have a
 `data` attribute that stores the array info).
 
@@ -130,30 +130,26 @@ def image_arithmetic(layerA: Image, operation: Operation, layerB: Image):
     return operation.value(layerA.data, layerB.data)
 ```
 
-That's it!  The `image_arithmetic` function now has an attribute `image_arithmetic.Gui`
-that we can call to instantiate our GUI.
-
-```python
-# instantiate the widget
-gui = image_arithmetic.Gui()
-```
+That's it!  The `image_arithmetic` function is now a
+{class}`~magicgui.function_gui.FunctionGui` that can be shown, or incorporated
+into other GUIs (such as the napari GUI shown in this example)
 
 ```{note}
 While [type hints](https://docs.python.org/3/library/typing.html) aren't
-always required in `magicgui`, they are recommended (see [type
-inference](../../type_inference/#type-inference) )... and they *are*
-required for certain things, like the `Operation(Enum)` [used here for the
-dropdown](#create-dropdowns-with-enums) and the `napari.layers.Image`
+always required in `magicgui`, they are recommended (see {ref}`type-inference` )...
+and they *are* required for certain things, like the `Operation(Enum)` [used here
+for the dropdown](#create-dropdowns-with-enums) and the
+{class}`napari.layers.Image <napari.layers.image.image.Image>`
 annotations that `napari` has registered with `magicgui`.
 ```
 
 ### create dropdowns with Enums
 
-We'd like the user to be able to select the operation (`add`, `subtract`, `multiply`,
-`divide`) using a dropdown menu.  `Enum`s offer a convenient way to restrict values to a
-strict set of options, while providing `name: value` pairs for each of the options.
-Here, the value for each choice is the actual function we would like to have called when
-that option is selected.
+We'd like the user to be able to select the operation (`add`, `subtract`,
+`multiply`, `divide`) using a dropdown menu.  {class}`~enum.Enum`s offer a
+convenient way to restrict values to a strict set of options, while providing
+`name: value` pairs for each of the options. Here, the value for each choice is
+the actual function we would like to have called when that option is selected.
 
 ```python
 class Operation(enum.Enum):
@@ -163,43 +159,52 @@ class Operation(enum.Enum):
     divide = numpy.divide
 ```
 
-### create the `magicgui` widget and add it to napari
+### add it to napari
 
-When we decorated the `image_arithmetic` function above, it acquired a new attribute,
-`Gui`, which when called, instantiates a new widget for your function. `Gui()` takes an
-optional `show=True` argument, which was not used here, so the gui will not be shown
-until it actually gets attached to the viewer.
+When we decorated the `image_arithmetic` function above, it became a
+{class}`~magicgui.function_gui.FunctionGui`.  Napari recognizes this type,
+so we can simply add it to the napari viewer as follows:
 
 ```python
-# instantiate the widget
-gui = image_arithmetic.Gui()
-# we use a napari method to add our new widget to the viewer
-viewer.window.add_dock_widget(gui)
+viewer.window.add_dock_widget(image_arithmetic)
+```
+
+```{caution}
+This api has changed slightly with version 0.2.0 of magicgui.  See the
+[migration guide](../../api/v0.2.0.md) if you are migrating from a previous version.
 ```
 
 ### connect event listeners for interactivity
 
 What fun is a GUI without some interactivity?  Let's make stuff happen.
 
-We connect the `gui.refresh_choices` function to the
-`viewer.layers.events.changed` event from `napari`, to make sure that the
+We connect the `image_arithmetic.reset_choices` function to the
+`viewer.layers.events.inserted/removed` event from `napari`, to make sure that the
 dropdown menus stay in sync if a layer gets added or removed from the napari
 window:
 
 ```python
-viewer.layers.events.changed.connect(lambda x: gui.refresh_choices())
+viewer.layers.events.inserted.connect(image_arithmetic.reset_choices)
+viewer.layers.events.removed.connect(image_arithmetic.reset_choices)
 ```
 
-An additional offering from `magicgui` here is that the decorated function
-(`image_arithmetic`) also acquires a new attribute/signal "`called`" that can be
-connected to callback functions of your choice.  Then, whenever the gui widget
-*or the* *original function* are called, the result will be passed to your
-callback function:
+````{tip}
+An additional offering from `magicgui` here is that the decorated function also
+acquires a new attribute "`called`" that can be connected to callback functions
+of your choice.  Then, whenever the gui widget *or the original function* are
+called, the result will be passed to your callback function:
 
 ```python
-def print_mean(result):
-    """callback function that accepts the image math result"""
-    print(result.mean())
+def print_mean(event):
+    """Callback function that accepts an event"""
+    # the event.value attribute has the result of calling the function
+    print(event.value.mean())
 
 image_arithmetic.called.connect(print_mean)
 ```
+
+```python
+>>> image_arithmetic()
+1.0060037881040373
+```
+````

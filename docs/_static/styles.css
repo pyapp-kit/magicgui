@@ -23,6 +23,11 @@
   border: 1px solid #ccc;
 }
 
+/* code-cell background */
+div.cell div.cell_input {
+  background-color: #f8f8f8 !important;
+}
+
 /* autosummary table */
 .longtable tr td:first-child {
   width: 30%;

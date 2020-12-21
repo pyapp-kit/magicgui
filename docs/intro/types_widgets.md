@@ -19,6 +19,10 @@ The central feature of `magicgui` is conversion from an argument type declared
 in a function signature, to an appropriate widget type for the given backend.
 This page describes the logic used.
 
+```{eval-rst}
+.. _type-inference:
+```
+
 ## type inference
 
 `magicgui` determines the `type` of an argument as follows:
@@ -80,7 +84,7 @@ To provide custom behavior for a specific object type, you may use the
 
 ```{hint}
 This is how [napari](https://napari.org) registers itself to handle napari-specific
-types in magicgui functions, as shown in [the examples](../examples/napari_img_math.md)
+types in magicgui functions, as shown in [the examples](../examples/napari/napari_img_math.md)
 ```
 
 ## drop-down menus

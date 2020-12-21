@@ -17,7 +17,7 @@ kernelspec:
 
 If used without arguments, the {func}`~magicgui.magicgui` decorator will build
 you a GUI using the default settings, making some reasonable default guesses
-about [what type of GUI widget to use](type_inference), based on the type or
+about [what type of GUI widget to use](types_widgets), based on the type or
 type annotation of your argument:
 
 ```{code-cell} python
@@ -96,6 +96,10 @@ def add(a: int, b: int) -> int:
     return a + b
 
 add.show()
+```
+
+```{eval-rst}
+.. _parameter-specific-options:
 ```
 
 ## parameter-specific options

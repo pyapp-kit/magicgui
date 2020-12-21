@@ -191,4 +191,4 @@ function = magicgui(function, **kwargs)
 ## configuration and advanced usage
 
 The `@magicgui` decorator takes a number of options that allow you to configure the GUI
-and it's behavior.  See [configuration](basics/configuration) for more information.
+and it's behavior.  See [configuration](intro/configuration) for more information.

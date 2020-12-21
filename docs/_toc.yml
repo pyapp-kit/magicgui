@@ -6,12 +6,12 @@
   chapters:
     - file: intro/installation
     - file: intro/configuration
-    - file: intro/type_inference
+    - file: intro/types_widgets
 
 - part: Examples
   chapters:
-    - file: examples/napari_img_math
-    - file: examples/napari_parameter_sweep
+    - file: examples/napari/napari_img_math
+    - file: examples/napari/napari_parameter_sweep
 
 - part: API
   chapters:

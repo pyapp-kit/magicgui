@@ -6,13 +6,13 @@ to extend napari with small, composable widgets created with `magicgui`.  Here,
 we demonstrate how to build a interactive widget that lets you immediately see
 the effect of changing one of the parameters of your function.
 
-```{image} ../images/param_sweep.gif
+```{image} ../../images/param_sweep.gif
 :width: 80%
 :align: center
 ```
 
 *See also:* Some of this tutorial overlaps with topics covered in the [napari
-image arithmetic example](napari_img_math.md)
+image arithmetic example](napari_img_math)
 
 ## outline
 
@@ -36,7 +36,11 @@ argument
 *Code follows, with explanation below... You can also [get this example at
 github](https://github.com/napari/magicgui/blob/master/examples/napari_param_sweep.py).*
 
-```python
+```{code-block} python
+---
+lineno-start: 1
+emphasize-lines: 19-23, 30
+---
 import napari
 import skimage.data
 import skimage.filters
@@ -52,8 +56,8 @@ with napari.gui_qt():
 
     # turn the gaussian blur function into a magicgui
     # - `auto_call` tells magicgui to call the function when a parameter changes
-    # - we use `widget_type` to override the default "float" widget on sigma
-    # - we provide some Qt-specific parameters
+    # - we use `widget_type` to override the default "float" widget on sigma,
+    #   and provide a maximum valid value.
     # - we contstrain the possible choices for `mode`
     @magicgui(
         auto_call=True,
@@ -93,22 +97,17 @@ The reasons we are wrapping it here are:
 
 1. `filters.gaussian` accepts a `numpy` array, but we want to work with `napari` layers
    that store the data in a `layer.data` attribute. So we need an adapter.
-2. We'd like to add some [type annotations](../type_inference.md#type-inference) to the
+2. We'd like to add some [type annotations](type-inference) to the
    signature that were not provided by `filters.gaussian`
-
-*Note: a later tutorial will demonstrate how to use
-[wrapt](https://github.com/GrahamDumpleton/wrapt) to adapt functions like this in more
-automated way*
 
 #### type annotations
 
-As described in the [image arithmetic
-tutorial](../napari_img_math/#connect-event-listeners-for-interactivity), we
-take advantage of napari's built in support for `magicgui` by annotating our
-function parameters and return value as napari `Layer` types.  `napari` will
-then tell `magicgui` what to do with them, creating a dropdown with a list of
-current layers for our `layer` parameter, and automatically adding the result of
-our function to the viewer when called.
+As described in the [image arithmetic tutorial](napari_img_math), we take
+advantage of napari's built in support for `magicgui` by annotating our function
+parameters and return value as napari `Layer` types.  `napari` will then tell
+`magicgui` what to do with them, creating a dropdown with a list of current
+layers for our `layer` parameter, and automatically adding the result of our
+function to the viewer when called.
 
 ### the magic part
 
@@ -127,11 +126,10 @@ def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
 ```
 
 - `auto_call=True` makes it so that the `gaussian_blur` function will be called
-  with the current parameters set in the GUI whenever one of the parameters
-  changes.
-- We then use
-  [parameter-specific](../../configuration/#parameter-specific-options) parameters
-  to modify the look & behavior of `sigma` and `mode`:
+  whenever one of the parameters changes (with the current parameters set in the
+  GUI).
+- We then use {ref}`parameter-specific-options` to modify the look & behavior of
+  `sigma` and `mode`:
 
   - `"widget_type": "FloatSlider"` tells `magicgui` not to use the standard
         (`float`) widget for the `sigma` widget, but rather to use a slider widget.
@@ -143,7 +141,7 @@ def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
 ### connecting events
 
 As described in the [image arithmetic
-tutorial](napari_img_math.md#connect-event-listeners-for-interactivity), we can
+tutorial](napari_img_math.html#connect-event-listeners-for-interactivity), we can
 also connect any callback to the `gaussian_blur.called` signal that will receive
 the result of our decorated function anytime it is called.
 
