@@ -2,10 +2,11 @@
 # Learn more at https://jupyterbook.org/customize/toc.html
 - file: index
 
-- part: Getting Started
+- part: Introduction
   chapters:
-    - file: basics/configuration
-    - file: basics/type_inference
+    - file: intro/installation
+    - file: intro/configuration
+    - file: intro/type_inference
 
 - part: Examples
   chapters:
@@ -21,3 +22,4 @@
     - file: api/protocols
     - file: api/type_map
     - file: api/types
+    - file: api/v0.2.0
