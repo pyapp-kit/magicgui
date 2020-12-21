@@ -8,18 +8,19 @@ Functions
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    create_widget
 
 .. currentmodule:: magicgui.widgets
+
 
 Value Widgets
 =============
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    Label
    LineEdit
@@ -35,7 +36,7 @@ Button Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    PushButton
    CheckBox
@@ -46,7 +47,7 @@ Ranged Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    SpinBox
    FloatSpinBox
@@ -56,7 +57,7 @@ Slider Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    Slider
    FloatSlider
@@ -67,7 +68,7 @@ Categorical Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    ComboBox
 
@@ -76,7 +77,9 @@ Container Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    Container
+
+
 ```

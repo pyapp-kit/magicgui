@@ -1,13 +1,12 @@
 # magicgui.widgets._protocols
 
 ```{eval-rst}
-
 .. automodule:: magicgui.widgets._protocols
 
 .. autosummary::
    :nosignatures:
    :template: autosummary/protocol-class.rst
-   :toctree: ../_build/_autosummary
+   :toctree: ../_autosummary
 
    WidgetProtocol
    ValueWidgetProtocol

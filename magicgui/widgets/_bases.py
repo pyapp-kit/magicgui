@@ -1,10 +1,10 @@
 """Widget base classes.
 
 These will rarely be used directly by end-users, instead see the "concrete" widgets
-exported in ``magicgui.widgets``.
+exported in :mod:`magicgui.widgets`.
 
 All magicgui :class:`Widget` bases comprise a backend widget that implements one of the
-widget protocols defined in ``magicgui.widgets._protocols``.  The basic composition
+widget protocols defined in :mod:`magicgui.widgets._protocols`.  The basic composition
 pattern is as follows:
 
 .. code-block:: python
@@ -34,11 +34,11 @@ pattern is as follows:
 
 These widgets are unlikely to be instantiated directly, (unless you're creating a custom
 widget that implements one of the WidgetProtocols... as the backed widgets do).
-Instead, one will usually instantiate the widgets in `magicgui.widgets._concrete`...
-which are all available direcly in the `magicgui.widgets` namespace.
+Instead, one will usually instantiate the widgets in :mod:`magicgui.widgets._concrete`
+which are all available direcly in the :mod:`magicgui.widgets` namespace.
 
-The ``create_widget`` factory function may be used to create
-a widget subclass appropriate for the arguments passed (such as "default" or
+The :func:`~magicgui.widgets.create_widget` factory function may be used to
+create a widget subclass appropriate for the arguments passed (such as "default" or
 "annotation").
 
 """
@@ -688,37 +688,42 @@ class CategoricalWidget(ValueWidget):
 
 
 class ContainerWidget(Widget, MutableSequence[Widget]):
-    """Widget that can contain other widgets. Wraps ContainerProtocol.
+    """Widget that can contain other widgets.
 
-    A container widget behaves like a python list of Widget objects.
-    Subwidgets can be accessed using integer or slice-based indexing (`container[0]`),
-    as well as by widget name (`container.<widget_name>`). Widgets can be
-    added with `append` or `insert`, and removed with `del` or `pop`, etc...
+    Wraps a widget that implements
+    :class:`~magicgui.widgets._protocols.ContainerProtocol`.
+
+    A ``ContainerWidget`` behaves like a python list of :class:`Widget` objects.
+    Subwidgets can be accessed using integer or slice-based indexing (``container[0]``),
+    as well as by widget name (``container.<widget_name>``). Widgets can be
+    added with ``append`` or ``insert``, and removed with ``del`` or ``pop``, etc...
 
     There is a tight connection between a ``ContainerWidget`` and an
-    ``inspect.Signature`` object, just as there is a tight connection between individual
-    widget objects an an ``inspect.Parameter`` object.  The signature representation of
-    a ``ContainerWidget`` (with the current settings as default values) is accessible
-    with the ``to_signature()`` method.
+    :class:`inspect.Signature` object, just as there is a tight connection between
+    individual :class:`Widget` objects an an :class:`inspect.Parameter` object.
+    The signature representation of a ``ContainerWidget`` (with the current settings
+    as default values) is accessible with the :meth:`~ContainerWidget.to_signature`
+    method (or by using :func:`inspect.signature` from the standard library)
 
     For a ``ContainerWidget`` sublcass that is tightly coupled to a specific function
-    signature (as in the "classic" magicgui decorator), see ``magicgui.FunctionGui``.
+    signature (as in the "classic" magicgui decorator), see
+    :class:`~magicgui.function_gui.FunctionGui`.
 
     Parameters
     ----------
     orientation : str, optional
-        The orientation for the container.  must be one of {'horizontal', 'vertical'}.
-        by default "horizontal"
+        The orientation for the container.  must be one of ``{'horizontal',
+        'vertical'}``. by default "horizontal"
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to intialize the container, by default
         ``None``.
     labels : bool, optional
-        Whethter each widget should be shown with a corresponding Label widget to the
-        left, by default True.  Note: the text for each widget defaults to
+        Whether each widget should be shown with a corresponding Label widget to the
+        left, by default ``True``.  Note: the text for each widget defaults to
         ``widget.name``, but can be overriden by setting ``widget.label``.
-    return_annotation : Type or str, optional
+    return_annotation : type or str, optional
         An optional return annotation to use when representing this container of
-        widgets as an inspect.Signature, by default ``None``
+        widgets as an :class:`inspect.Signature`, by default ``None``
     """
 
     changed: EventEmitter

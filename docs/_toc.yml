@@ -6,7 +6,6 @@
   chapters:
     - file: basics/configuration
     - file: basics/type_inference
-    - file: basics/notebooks
 
 - part: Examples
   chapters:
@@ -20,3 +19,5 @@
     - file: api/function_gui
     - file: api/bases
     - file: api/protocols
+    - file: api/type_map
+    - file: api/types

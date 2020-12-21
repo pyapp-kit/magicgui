@@ -1,12 +1,23 @@
-# types & widgets
+---
+jupytext:
+  cell_metadata_filter: -all
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: 0.12
+    jupytext_version: 1.7.1
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
 
-!!! warning "API in flux!"
-    This documentation is being written while the project is still in heavy development.
-    API is subject to change.
+# Types & Widgets
 
-The central feature of `magicgui` is conversion from an argument type declared in a
-function signature, to an appropriate widget type for the given backend.  This page
-describes the logic used.
+The central feature of `magicgui` is conversion from an argument type declared
+in a function signature, to an appropriate widget type for the given backend.
+This page describes the logic used.
 
 ## type inference
 
@@ -35,96 +46,100 @@ def function(arg):
 
 ## type-to-widget conversion
 
+Using a set of {func}`~magicgui.type_map.type_matcher`s and other logic defined
+in the {mod}`magicgui.type_map` module, magicgui will select an appropriate
+{class}`~magicgui.widgets._bases.Widget` subclass to display the any given type
+or type annotation. To see the default type of widget magicgui will for a given
+value, use the {func}`~magicgui.type_map.get_widget_class` function:
+
+```{code-cell} python
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from magicgui.type_map import get_widget_class
+
+Animal = Enum('Animal', 'ANT BEE CAT DOG')
+values = [
+    True, 1, 3.43, 'text', datetime.now(), Path.home(),
+    Animal.ANT, range(10), slice(1,20), lambda x: x
+]
+for v in values:
+    cls, options = get_widget_class(v)
+    print(f"The widget for {type(v)} is {cls.__name__!r}")
+```
+
+## `register_type`
+
+To provide custom behavior for a specific object type, you may use the
+{func}`magicgui.type_map.register_type` function to:
+
+1. register a special `widget_type`
+2. register a special set of `choices` used when magicgui encounters that type
+3. control what happens when magicgui encounters a function with a return
+   annotation of your custom type.
+
+```{hint}
+This is how [napari](https://napari.org) registers itself to handle napari-specific
+types in magicgui functions, as shown in [the examples](../examples/napari_img_math.md)
+```
+
 ## drop-down menus
 
 to get a [drop-down list](https://en.wikipedia.org/wiki/Drop-down_list):
 
-- use an `Enum` as either the default value or type hint for an argument
+- use an {class}`~enum.Enum` as either the default value or type hint for an argument
 
-```python
+```{code-cell} python
+from magicgui import magicgui
+from enum import Enum
+
 class RefractiveIndex(Enum):
     Oil = 1.515
     Water = 1.33
     Air = 1.0
 
-def function(ri = RefractiveIndex.Water):
+@magicgui
+def function_a(ri = RefractiveIndex.Water):
     ...
+
+function_a.show()
 ```
 
-- use `arg['choices']` when calling `@magicgui` on a function that has a parameter named `arg`.
+- provide a `choices` [parameter-specific
+  option](configuration#parameter-specific-options) when calling `@magicgui`
+  on a function that has a parameter named `arg`.
 
-```python
+```{code-cell} python
 @magicgui(ri={"choices": ["Oil", "Water", "Air"]})
-def function(ri="Water"):
+def function_b(ri="Water"):
+    ...
+
+function_b.show()
+```
+
+````{note}
+In the first example using an {class}`~enum.Enum`, the value of the attribute
+will be an enum instance.  In the second example using a `choices` list, the
+value will be a simple string:
+
+```python
+>>> print(repr(function_a.ri.value))
+<RefractiveIndex.Water: 1.33>
+>>> print(repr(function_b.ri.value))
+'Water'
+```
+
+If you'd like to have a drop-down menu with strings labels, but don't want to
+use an {class}`~enum.Enum`, you can use a list of 2-tuples:
+
+```python
+@magicgui(ri={"choices": [("Oil", 1.515), ("Water", 1.33), ("Air", 1.0)]})
+def function_c(ri=1.33):
     ...
 ```
 
-## `register_type`
-
-The `magicgui.register_type` function takes a required argument (a `type`) and *either*
-the desired corresponding `widget_type` (a widget class in the chosen backend, such as
-`QWidget`, or `QSlider` for Qt), *OR* the `choices` argument, which will not only set
-the `widget_type` to the default categorical widget (e.g. a `QComboBox` for Qt), but will
-also set the available choices as provided.  `choices` must be either an `Enum` subclass,
-a sequence (usually of `str`), or a callable function.  If a callable is provided, it
-must take a single argument: the `type` of the argument in the signature.
-
 ```python
-ChoicesType = Union[EnumMeta, Iterable, Callable[[Type], Iterable]]
-
-def register_type(
-    type_: type,
-    *,
-    widget_type: Optional[Type[api.WidgetType]] = None,
-    choices: Optional[ChoicesType] = None,
-):
-    if widget_type is None and choices is None:
-        raise ValueError("either `widget_type` or `choices` must be provided.")
-    ...
+>>> print(repr(function_c.ri.value))
+1.33
 ```
-
-???+ example
-
-    Take the package [`napari`](https://github.com/napari/napari) for example:
-    it defines a custom `Layer` class that has a bunch of subclasses (`Image`, `Surface`, etc...).  We can tell `magicgui` what do to whenever it sees `napari.Layer` or one of
-    its subclasses in a function signature type annotation:
-
-    ```python
-    from napari.layers import Layer, Image
-
-    def get_current_layers():
-        """some function to get current layers from the viewer"""
-        ...
-
-    def get_layer_choices(arg_type):
-        """callback that returns all layers of a specific type"""
-        return tuple(l for l in get_current_layers() if isinstance(l, arg_type))
-
-    # all sublcasses of layers.Layer will also use this callback
-    # to retrieve the current "layer choices".
-    register_type(layers.Layer, choices=get_layer_choices)
-
-    # ... then later
-    # the `layer` argument here will be rendered as a dropdown populated *only*
-    # by Image layers, (no other subclasses).
-    @magicgui
-    def myfunction(layer: layers.Image):
-        ...
-    ```
-
-### for developers
-
-If you have a Qt-driven GUI program that offers your users some custom classes, you can
-provide support for your types for those who have installed `magicgui` in a `try/catch`:
-
-```python
-from . import MyCustomClass
-from ._qt import MyCustomQtWidget
-
-try:
-    from magicgui import register_type
-
-    register_type(MyCustomClass, widget_type=MyCustomQtWidget)
-except ImportError:
-    pass
-```
+````

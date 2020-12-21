@@ -28,7 +28,12 @@ create interactivity.
 *Code follows, with explanation below... You can also [get this example at
 github](https://github.com/napari/magicgui/blob/master/examples/napari_image_arithmetic.py).*
 
-```python
+```{code-block} python
+---
+lineno-start: 1
+emphasize-lines: 31, 39
+---
+
 from enum import Enum
 
 import numpy
@@ -40,8 +45,9 @@ from magicgui import magicgui
 class Operation(Enum):
     """A set of valid arithmetic operations for image_arithmetic.
 
-    To create nice dropdown menus with magicgui, it's best (but not required) to use
-    Enums.  Here we make an Enum class for all of the image math operations we want to
+    To create nice dropdown menus with magicgui, it's best
+    (but not required) to use Enums.  Here we make an Enum
+    class for all of the image math operations we want to
     allow.
     """
     add = numpy.add
@@ -56,10 +62,13 @@ with napari.gui_qt():
     viewer.add_image(numpy.random.rand(20, 20), name="Layer 1")
     viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
 
-    # here's the magicgui!  We also use the additional `call_button` option
+    # here's the magicgui!  We also use the additional
+    # `call_button` option
     @magicgui(call_button="execute")
-    def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> Image:
-        """Add, subtracts, multiplies, or divides to image layers with equal shape."""
+    def image_arithmetic(
+        layerA: Image, operation: Operation, layerB: Image
+    ) -> Image:
+        """Add, subtracts, multiplies, or divides to image layers."""
         return operation.value(layerA.data, layerB.data)
 
     # add our new magicgui widget to the viewer
@@ -102,7 +111,11 @@ viewer.  So we gain a *lot* by annotating the above function with the
 appropriate `napari` types.
 
 ```python
-def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> Image:
+from napari.layers import Image
+
+def image_arithmetic(
+    layerA: Image, operation: Operation, layerB: Image
+) -> Image:
     return operation.value(layerA.data, layerB.data)
 ```
 
@@ -125,13 +138,14 @@ that we can call to instantiate our GUI.
 gui = image_arithmetic.Gui()
 ```
 
-!!! note
-    While [type hints](https://docs.python.org/3/library/typing.html) aren't
-    always required in `magicgui`, they are recommended (see [type
-    inference](../../type_inference/#type-inference) )... and they *are*
-    required for certain things, like the `Operation(Enum)` [used here for the
-    dropdown](#create-dropdowns-with-enums) and the `napari.layers.Image`
-    annotations that `napari` has registered with `magicgui`.
+```{note}
+While [type hints](https://docs.python.org/3/library/typing.html) aren't
+always required in `magicgui`, they are recommended (see [type
+inference](../../type_inference/#type-inference) )... and they *are*
+required for certain things, like the `Operation(Enum)` [used here for the
+dropdown](#create-dropdowns-with-enums) and the `napari.layers.Image`
+annotations that `napari` has registered with `magicgui`.
+```
 
 ### create dropdowns with Enums
 

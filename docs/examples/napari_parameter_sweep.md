@@ -130,7 +130,7 @@ def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
   with the current parameters set in the GUI whenever one of the parameters
   changes.
 - We then use
-  [argument-specific](../../configuration/#argument-specific-options) parameters
+  [parameter-specific](../../configuration/#parameter-specific-options) parameters
   to modify the look & behavior of `sigma` and `mode`:
 
   - `"widget_type": "FloatSlider"` tells `magicgui` not to use the standard
@@ -143,7 +143,7 @@ def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
 ### connecting events
 
 As described in the [image arithmetic
-tutorial](napari_img_math#connect-event-listeners-for-interactivity), we can
+tutorial](napari_img_math.md#connect-event-listeners-for-interactivity), we can
 also connect any callback to the `gaussian_blur.called` signal that will receive
 the result of our decorated function anytime it is called.
 

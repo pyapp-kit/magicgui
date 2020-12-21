@@ -1,4 +1,4 @@
-"""magicgui Widget class that wraps all backend widgets."""
+"""Functions in this module are responsible for mapping type annotations to widgets."""
 import datetime
 import inspect
 import pathlib
@@ -6,24 +6,22 @@ import sys
 import types
 from collections import abc, defaultdict
 from enum import EnumMeta
-from typing import (
-    Any,
-    Callable,
-    DefaultDict,
-    Dict,
-    ForwardRef,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    cast,
-)
+from typing import Any, DefaultDict, Dict, ForwardRef, List, Optional, Tuple, Type, cast
 
 from typing_extensions import get_args, get_origin
 
 from magicgui import function_gui, widgets
-from magicgui.types import ReturnCallback, WidgetClass, WidgetOptions, WidgetRef
+from magicgui.types import (
+    ReturnCallback,
+    TypeMatcher,
+    WidgetClass,
+    WidgetOptions,
+    WidgetRef,
+    WidgetTuple,
+)
 from magicgui.widgets._protocols import WidgetProtocol
+
+__all__: List[str] = ["register_type", "get_widget_class", "type_matcher"]
 
 
 class MissingWidget(RuntimeError):
@@ -33,15 +31,11 @@ class MissingWidget(RuntimeError):
 
 
 _RETURN_CALLBACKS: DefaultDict[type, List[ReturnCallback]] = defaultdict(list)
-
-WidgetTuple = Tuple[WidgetRef, WidgetOptions]
-TypeMatcher = Callable[[Any, Optional[Type]], Optional[WidgetTuple]]
-
 _TYPE_MATCHERS: List[TypeMatcher] = list()
 _TYPE_DEFS: Dict[type, WidgetTuple] = dict()
 
 
-def is_subclass(obj, superclass):
+def _is_subclass(obj, superclass):
     """Safely check if obj is a subclass of superclass."""
     try:
         return issubclass(obj, superclass)
@@ -70,13 +64,21 @@ def _evaluate_forwardref(type_: ForwardRef) -> Any:
     return cast(Any, type_)._evaluate(globalns, {}, set())
 
 
-def normalize_type(value: Any, annotation: Any) -> Type:
+def _normalize_type(value: Any, annotation: Any) -> Type:
     """Return annotation type origin or dtype of value."""
     return (get_origin(annotation) or annotation) if annotation else type(value)
 
 
 def type_matcher(func: TypeMatcher) -> TypeMatcher:
-    """Add function to the set of type matchers."""
+    """Add function to the set of type matchers.
+
+    Example
+    -------
+    >>> @type_matcher
+    ... def str_to_line_edit(value, annotation):
+    ...     if annotation in (str, 'str') or type(str) is str:
+    ...         return widgets.LineEdit, {}
+    """
     _TYPE_MATCHERS.append(func)
     return func
 
@@ -84,7 +86,7 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 @type_matcher
 def simple_types(value, annotation) -> Optional[WidgetTuple]:
     """Check simple type mappings."""
-    dtype = normalize_type(value, annotation)
+    dtype = _normalize_type(value, annotation)
 
     simple = {
         bool: widgets.CheckBox,
@@ -102,7 +104,7 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         return simple[dtype], {}
     else:
         for key in simple.keys():
-            if is_subclass(dtype, key):
+            if _is_subclass(dtype, key):
                 return simple[key], {}
     return None
 
@@ -110,7 +112,7 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
 @type_matcher
 def callable_type(value, annotation) -> Optional[WidgetTuple]:
     """Determine if value/annotation is a function type."""
-    dtype = normalize_type(value, annotation)
+    dtype = _normalize_type(value, annotation)
 
     if dtype in (types.FunctionType,):
         return function_gui.FunctionGui, {"function": value}  # type: ignore
@@ -125,8 +127,8 @@ def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
         args = get_args(annotation)
         if not (inspect.isclass(orig) and args):
             return None
-        if is_subclass(orig, abc.Sequence) or isinstance(orig, abc.Sequence):
-            if is_subclass(args[0], pathlib.Path):
+        if _is_subclass(orig, abc.Sequence) or isinstance(orig, abc.Sequence):
+            if _is_subclass(args[0], pathlib.Path):
                 return widgets.FileEdit, {"mode": "rm"}
     elif value:
         if isinstance(value, abc.Sequence) and all(
@@ -147,11 +149,11 @@ def pick_widget_type(
     if isinstance(annotation, ForwardRef):
         annotation = _evaluate_forwardref(annotation)
 
-    dtype = normalize_type(value, annotation)
+    dtype = _normalize_type(value, annotation)
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
-        if dtype == registered_type or is_subclass(dtype, registered_type):
+        if dtype == registered_type or _is_subclass(dtype, registered_type):
             return _TYPE_DEFS[registered_type]
 
     choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
@@ -196,7 +198,7 @@ def get_widget_class(
     else:
         widget_class = widget_type
 
-    assert isinstance(widget_class, WidgetProtocol) or is_subclass(
+    assert isinstance(widget_class, WidgetProtocol) or _is_subclass(
         widget_class, widgets._bases.Widget
     )
     return widget_class, _options
@@ -236,7 +238,7 @@ def register_type(
     ----------
     type_ : type
         The type for which a widget class or return callback will be provided.
-    widget_type : Optional[Type[api.WidgetType]], optional
+    widget_type : WidgetRef, optional
         A widget class from the current backend that should be used whenever ``type_``
         is used as the type annotation for an argument in a decorated function,
         by default None
@@ -245,6 +247,8 @@ def register_type(
         function, ``return_callback(widget, value, return_type)`` will be called
         whenever the decorated function is called... where ``widget`` is the Widget
         instance, and ``value`` is the return value of the decorated function.
+    **options
+        key value pairs where the keys are valid `WidgetOptions`
 
     Raises
     ------
@@ -301,6 +305,6 @@ def _type2callback(type_: type) -> List[ReturnCallback]:
         return _RETURN_CALLBACKS[type_]
     # look for subclasses
     for registered_type in _RETURN_CALLBACKS:
-        if is_subclass(type_, registered_type):
+        if _is_subclass(type_, registered_type):
             return _RETURN_CALLBACKS[registered_type]
     return []

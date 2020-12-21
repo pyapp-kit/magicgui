@@ -5,14 +5,12 @@ logo: images/logo.svg # A path to the book logo
 author: Talley Lambert # The author of the book
 email: talley.lambert@gmail.com
 copyright: "2020" # Copyright year to be placed in the footer
-
-# Execution settings
-execute:
-  execute_notebooks: cache  # or 'force'
-  exclude_patterns:
-    - 'README.md'
-
 only_build_toc_files: true
+execute:
+  allow_errors: false
+  execute_notebooks: cache  # or 'force'
+exclude_patterns: ['README.md']
+
 
 # html:
 #   favicon: images/favicon.ico
@@ -35,8 +33,6 @@ repository:
 #   thebe: true
 
 sphinx:
-  local_extensions:
-    - ../magicgui
 
   extra_extensions:
     - sphinx.ext.viewcode
@@ -54,9 +50,6 @@ sphinx:
         special-members: False
         undoc-members: True
         show-inheritance: True
-    # add_module_names: False
-    exclude_patterns:
-      - README.md
     templates_path:
       - "_templates"
     html_show_sourcelink: False

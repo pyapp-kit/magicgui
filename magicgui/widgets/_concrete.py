@@ -26,20 +26,20 @@ from ._bases import (
 from ._transforms import make_float, make_literal_eval
 
 
-def merge_super_sigs(
-    cls, exclude=("self", "widget_type", "kwargs", "args", "kwds", "extra")
-):
+def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "extra")):
     """Merge the signature and kwarg docs from all superclasses, for clearer docs.
 
     Parameters
     ----------
+    cls : Type
+        The class being modified
     exclude : tuple, optional
         A list of parameter names to excluded from the merged docs/signature,
-        by default ("self", "widget_type", "kwargs", "args", "kwds")
+        by default ("widget_type", "kwargs", "args", "kwds")
 
     Returns
     -------
-    Type
+    cls : Type
         The modified class (can be used as a decorator)
     """
     params = {}
@@ -233,14 +233,14 @@ class FileEdit(Container):
     Parameters
     ----------
     mode : FileDialogMode or str
-        The mode used for the file dialog:
-            'r': returns one existing file.
-            'rm': return one or more existing files.
-            'w': return one file name that does not have to exist.
-            'd': returns one existing directory.
+        - ``'r'`` returns one existing file.
+        - ``'rm'`` return one or more existing files.
+        - ``'w'`` return one file name that does not have to exist.
+        - ``'d'`` returns one existing directory.
     filter : str, optional
         The filter is used to specify the kind of files that should be shown.
-        It should be a glob-style string, like '*.png' (this may be backend-specific)
+        It should be a glob-style string, like ``'*.png'`` (this may be
+        backend-specific)
     """
 
     def __init__(

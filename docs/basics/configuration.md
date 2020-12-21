@@ -1,122 +1,210 @@
+---
+jupytext:
+  cell_metadata_filter: -all
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: 0.12
+    jupytext_version: 1.7.1
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
+
 # Configuration
 
-If used without arguments, the `@magicgui` decorator will build you a GUI using the
-default settings.  However, `magicgui` also accepts a number of options to configure your
-GUI:
+If used without arguments, the {func}`~magicgui.magicgui` decorator will build
+you a GUI using the default settings, making some reasonable default guesses
+about [what type of GUI widget to use](type_inference), based on the type or
+type annotation of your argument:
+
+```{code-cell} python
+import enum
+import pathlib
+
+from datetime import datetime
+from magicgui import magicgui
+
+class Choice(enum.Enum):
+    A = 'Choice A'
+    B = 'Choice B'
+    C = 'Choice C'
+
+@magicgui
+def widget_demo(
+    boolean=True,
+    number=1,
+    string="Text goes here",
+    dropdown=Choice.A,
+    filename=pathlib.Path.home(),
+):
+    """Run some computation."""
+    ...
+
+widget_demo.show()
+```
+
+However, {func}`~magicgui.magicgui` also accepts a number of options to
+configure your GUI:
 
 ## `magicgui` options
 
 ### `call_button`
 
-If a `call_button` argument is provided that evaluates to `True`, a button will be added
-to the gui which, when clicked, will call the decorated function with the current values
-from the gui.  If a `str` is provided to `call_button`, it will be used as the text of
-the button.
+If a `call_button` argument is provided that evaluates to `True`, a button will
+be added to the gui which, when clicked, will call the decorated function with
+the current values from the gui.  If a `str` is provided to `call_button`, it
+will be used as the text of the button.
 
-### `layout`
+```{code-cell} python
+@magicgui(call_button='Add')
+def add(a: int, b: int) -> int:
+    return a + b
 
-The `layout` option determines which layout class from the backend will be used.
-Currently, only `horizontal`, `vertical` are supported.
-Grid Layouts are a work in progress...
+add.show()
+```
 
-## argument-specific options
+### `auto_call`
 
-As a reminder, a widget will be created in the GUI for each argument in the signature of
-the function being decorated by `magicgui`.  These individual gui elements can be
-modified by providing an options `dict` to a keyword argument to the `magicgui` function
-with the same name as the argument in the signature that you want to modify:
+Whereas `call_button` provides a button for the user to manually trigger
+execution of the function, using `auto_call=True` will automatically call
+the underlying function with the updated arguments each time the user
+changes a value in the gui (or when the value is changed via the console)
+
+```{code-cell} python
+@magicgui(auto_call=True)
+def add(a: int, b: int = 15) -> int:
+    result = a + b
+    print(f"{a} + {b} = {result}")
+    return result
+
+add.a.value = 4
+add.show()
+```
+
+### `orientation`
+
+The `orientation` option determines the orientation of the layout.
+Currently, only `horizontal`, `vertical` are supported. Grid Layouts are a work
+in progress...
+
+```{code-cell} python
+@magicgui(orientation='vertical', call_button='Add')
+def add(a: int, b: int) -> int:
+    return a + b
+
+add.show()
+```
+
+## parameter-specific options
+
+As a reminder, a widget will be created in the GUI for each parameter in the
+signature of the function being decorated by `magicgui`.  These individual widgets
+can also be modified by providing an `dict` of options to a keyword argument in
+the call to `magicgui` with the same name as the parameter in the signature that
+you want to modify:
+
+```{code-cell} python
+@magicgui(b={'minimum': 10, 'maximum': 20})
+def add(a: int, b: int = 15) -> int:
+    return a + b
+
+add.show()
+```
+
+The keys in the parameter-specific options dict must be valid arguments
+for the corresponding widget type from {mod}`magicgui.widgets`.  In this
+example, the `a_string` paremeter would be turned into a
+{class}`~magicgui.widgets.LineEdit` widget, which does not take an
+argument "`minimum`":
+
+```{code-cell} python
+---
+tags: [raises-exception]
+---
+@magicgui(a_string={'minimum': 10})
+def whoops(a_string: str = 'Hi there'):
+    ...
+```
 
 ### `widget_type`
 
-`magicgui` makes some reasonable default guesses about what type of GUI widget to use,
-based on the type or type annotation of your argument, but you can override this, or
-provide specific instructions for custom types, using the `widget_type` option, which
-expects a widget class that can be instantiated.  For instance, to turn an `int` into
-a Qt Slider with a range (using [qt-specific options](#qt-specific-options)):
+You can override the type of widget used for a given parameter using the
+`widget_type` parameter-specific option.  It can be a string name of any
+widget in [magicgui.widgets](magicgui.widgets).  Or an actual
+{class}`magicgui.widgets.Widget` subclass.  For instance, to turn an
+`int` into a slider:
 
-```python
-from qtpy.QtWidgets import QSlider
+```{code-cell} python
+@magicgui(b={'widget_type': 'Slider', 'minimum': 10, 'maximum': 20})
+def add(a: int, b: int = 15) -> int:
+    return a + b
 
-@magicgui(arg={'widget_type': QSlider, 'minimum': 10, 'maximum': 100})
-def my_func(arg=5):
-    ...
+add.show()
 ```
 
 ### `label`
 
 By default, the label which will be displayed next to the widget will have the
-variable's name. If you wish to modify that, add a `label` entry to the argument's
-options dictionary with the desired label:
+variable's name. If you wish to modify that, add a `label` entry to the
+parameter-specific options dictionary with the desired label:
 
-```python
-@magicgui(user_address={'label': 'Address'})
+```{code-cell} python
+@magicgui(user_address={'label': 'Enter Address:'})
 def get_address(user_address: str):
     ...
+
+get_address.show()
 ```
 
-## Qt-specific options
+## `labels`
 
-If you are using Qt as a backend (currently the only supported backend), you can provide
-***any*** string matching one of the `widget.set<ParameterName>` methods for the corresponding
-QWidget (see, for example, <a href="https://doc.qt.io/qt-5/qwidget-members.html"
-target="_blank">all of the members for QWidget</a>).  If a setter is detected, `magicgui`
-will call it with the value provided in the `magicgui` argument-specific.
+Labels are shown by default, but can be hidden by using the `labels` argument
+to the `@magicgui` decorator.
 
-For example to change the width and font for a specific field:
-
-!!! hint
-    The first letter in the parameter name needn't be capitalized as long as the rest
-    of the string matches a corresponding setter on the widget. In this example, both
-    "`font`" and "`Font`" keywords would properly call `widget.setFont()`
-
-```python
-from qtpy.QtGui import QFont
-
-@magicgui(name={"fixedWidth": 200, "font": QFont('Arial', 20)})
-def my_function(name: str):
-    if name:
-        return f"Hello, {name}!"
-
-gui = my_function.Gui(show=True)
-```
-
-As another example, you can disable interactivity on a widget as follows:
-
-```python
-# the widget for `arg3` will be disabled
-@magicgui(arg3={"disabled": True})
-def my_function(arg2: int, arg2: int, arg3: str):
+```{code-cell} python
+@magicgui(labels=False)
+def hidden_labels(x = 1, y = 'hello'):
     ...
+
+hidden_labels.show()
 ```
 
-??? tip "Tip: creating a `result` field"
-    Disabling one of the arguments can be used to create a "result" widget.
+## `result_widget`
 
-    ```python
-    @magicgui(greeting={"disabled": True}, call_button="Hi!")
-    def my_function(name: str, greeting=""):
-        if name:
-            return f"Hello, {name}!"
+If you'd like to just show the result of calling the function directly
+in the gui, you can use the `result_widget=True` option:
 
-    gui = my_function.Gui(show=True)
-    gui.called.connect(lambda result: gui.set_widget("greeting", result))
-    ```
+```{code-cell} python
 
-    <img src="../images/disabled_field.png" width="400"/>
+@magicgui(result_widget=True, labels=False, auto_call=True)
+def add(a=2, b=3):
+    return a + b
 
-    Note: It's rather unconventional to put the "output" variable in a python function
-    signature... but it works for this example.  If you'd prefer, you can always omit the
-    parameter from the function signature, and
-    `gui.set_widget(name, [value, [position]])` will create a new widget for you at the
-    specified `position`.  Keyword arguments in the `@magicgui` decorator matching the
-    name of the new widget will still be used (such as `"disabled": True` here):
+add()
+add.show()
+```
 
-    ```python
-    @magicgui(greeting={"disabled": True}, call_button="Hi!")
-    def my_function(name: str):
-        if name:
-            return f"Hello, {name}!"
+```{tip}
+The object returned from {func}`magicgui.magicgui` is a
+{class}`~magicgui.function_gui.FunctionGui`, which is in turn just
+a special type of {class}`~magicgui.widgets.Container` widget. A `Container`
+acts just like a basic python list.  So in the example above, we could
+manually add a {class}`~magicgui.widgets.Label` with "`+`" to our widget as
+follows:
+```
 
-    gui = my_function.Gui(show=True)
-    gui.called.connect(lambda result: gui.set_widget("greeting", result, position=-1))
-    ```
+```{code-cell} python
+from magicgui.widgets import Label
+
+@magicgui(result_widget=True, labels=False, auto_call=True)
+def add(a=2, b=3):
+    return a + b
+
+add.insert(1, Label(default="+"))
+add.insert(3, Label(default="="))
+add()
+add.show()
+```
