@@ -41,7 +41,7 @@ jobs:
       - name: Build the book
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: jupyter-book build docs
+          run: -s '-screen 0 1280x800x16' jupyter-book build docs
 
       # # Build the book
       # - name: Build the book
