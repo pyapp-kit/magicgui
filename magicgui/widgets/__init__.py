@@ -1,7 +1,7 @@
 """These are the main Widgets provided by magicgui.
 
-While the primary API is to use the :func:`magicgui.magicgui` decorator, one can
-also instantiate widgets directly using any of these objects.
+While the primary API is to use the :func:`@magicgui <magicgui.magicgui>` decorator,
+one can also instantiate widgets directly using any of these objects.
 
 The :func:`create_widget` function is a helper function that will auto-pick and
 instantiate the appropriate widget subclass given the arguments (type, annotation)

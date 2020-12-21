@@ -8,5 +8,5 @@ be used to quickly generate an interactive graphical component that can control
 and call the decorated function or method.
 
 ```{eval-rst}
-.. autofunction:: magicgui.magicgui
+.. autodecorator:: magicgui.magicgui
 ```
