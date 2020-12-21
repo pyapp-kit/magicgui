@@ -9,7 +9,7 @@ pip install magicgui
 or Conda:
 
 ```shell
-conda install magicgui
+conda install -c conda-forge magicgui
 ```
 
 ````{important}
@@ -26,9 +26,12 @@ example:
 
 ```bash
 pip install magicgui[pyqt5]
-```
-*or*
-```bash
+# or
 pip install magicgui[pyside2]
+```
+
+or with conda:
+```bash
+conda install -c conda-forge magicgui pyqt5
 ```
 ````
