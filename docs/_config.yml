@@ -52,7 +52,7 @@ sphinx:
       napari:
         - "https://napari.org/docs/0.4.0/"
         - null
-
+    html_favicon: "images/favicon.ico"
     html_theme: "sphinx_material"
     html_theme_options:
       base_url: "http://magicgui.readthedocs.io/" # Specify a base_url used to generate sitemap.xml links
