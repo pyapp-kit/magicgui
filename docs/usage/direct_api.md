@@ -27,9 +27,9 @@ from magicgui.widgets import SpinBox, FileEdit, Slider, Label, Container
 from pathlib import Path
 
 # make some widgets
-spin_box = SpinBox(default=10, name='spin', label='Value:', maximum=100)
+spin_box = SpinBox(default=10, name='spin', label='Value:', max=100)
 file_picker = FileEdit(default='some/path')
-slider = Slider(default=30, minimum=20, maximum=40)
+slider = Slider(default=30, min=20, max=40)
 label = Label(default=slider.value)
 
 # set up callbacks

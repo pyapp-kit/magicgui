@@ -188,30 +188,30 @@ class LogSlider(TransformedRangedWidget):
     """
 
     def __init__(
-        self, minimum: float = 1, maximum: float = 100, base: float = math.e, **kwargs
+        self, min: float = 1, max: float = 100, base: float = math.e, **kwargs
     ):
         self._base = base
         app = use_app()
         assert app.native
         super().__init__(
-            minimum=minimum,
-            maximum=maximum,
+            min=min,
+            max=max,
             widget_type=app.get_obj("Slider"),
             **kwargs,
         )
 
     @property
     def _scale(self):
-        minv = math.log(self.minimum, self.base)
-        maxv = math.log(self.maximum, self.base)
+        minv = math.log(self.min, self.base)
+        maxv = math.log(self.max, self.base)
         return (maxv - minv) / (self._max_pos - self._min_pos)
 
     def _value_from_position(self, position):
-        minv = math.log(self.minimum, self.base)
+        minv = math.log(self.min, self.base)
         return math.pow(self.base, minv + self._scale * (position - self._min_pos))
 
     def _position_from_value(self, value):
-        minv = math.log(self.minimum, self.base)
+        minv = math.log(self.min, self.base)
         return (math.log(value, self.base) - minv) / self._scale + self._min_pos
 
     @property

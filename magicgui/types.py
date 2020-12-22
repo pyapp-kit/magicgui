@@ -72,8 +72,8 @@ class WidgetOptions(TypedDict, total=False):
     visible: bool
     enabled: bool
     text: str
-    minimum: float
-    maximum: float
+    min: float
+    max: float
     step: float
     orientation: str
     mode: Union[str, FileDialogMode]

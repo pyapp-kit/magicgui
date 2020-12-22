@@ -149,19 +149,19 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     def __init__(self, qwidg):
         super().__init__(qwidg, "value", "setValue", "valueChanged")
 
-    def _mgui_get_minimum(self) -> float:
+    def _mgui_get_min(self) -> float:
         """Get the minimum possible value."""
         return self._qwidget.minimum()
 
-    def _mgui_set_minimum(self, value: float):
+    def _mgui_set_min(self, value: float):
         """Set the minimum possible value."""
         self._qwidget.setMinimum(value)
 
-    def _mgui_get_maximum(self) -> float:
+    def _mgui_get_max(self) -> float:
         """Set the maximum possible value."""
         return self._qwidget.maximum()
 
-    def _mgui_set_maximum(self, value: float):
+    def _mgui_set_max(self, value: float):
         """Set the maximum possible value."""
         self._qwidget.setMaximum(value)
 
