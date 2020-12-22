@@ -256,7 +256,7 @@ class FileEdit(Container):
     def __init__(
         self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, filter=None, **kwargs
     ):
-        self.line_edit = LineEdit()
+        self.line_edit = LineEdit(value=kwargs.pop("value", None))
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
         self.filter = filter
