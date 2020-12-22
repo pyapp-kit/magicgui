@@ -1,0 +1,77 @@
+#######################################################################################
+# Book settings
+title: "magicgui" # The title of the book. Will be placed in the left navbar.
+logo: images/logo.svg # A path to the book logo
+author: Talley Lambert # The author of the book
+email: talley.lambert@gmail.com
+copyright: "2020" # Copyright year to be placed in the footer
+only_build_toc_files: true
+execute:
+  execute_notebooks: cache  # or 'force'
+
+repository:
+  url: https://github.com/napari/magicgui
+  branch: master
+  path_to_book: docs
+
+# launch_buttons:
+#   notebook_interface: "jupyterlab" # The interface interactive links will activate ["classic", "jupyterlab"]
+#   binderhub_url: "https://mybinder.org"
+#   colab_url: "https://colab.research.google.com"
+#   thebe: true
+
+sphinx:
+
+  extra_extensions:
+    - sphinx.ext.viewcode
+    - sphinx.ext.napoleon
+    - sphinx.ext.autodoc
+    - sphinx_autodoc_typehints
+    - sphinx.ext.autosummary
+
+  config:
+    # set_type_checking_flag: True  # don't yet know how to add to path with jupyter-book
+    autosummary_generate: True
+    autosummary_imported_members: True
+    autodoc_default_options:
+        special-members: False
+        undoc-members: True
+        show-inheritance: True
+    templates_path:
+      - "_templates"
+    html_static_path:
+      - "_static"
+    html_style: styles.css
+    html_show_sourcelink: False
+    pygments_style: "default"
+
+    intersphinx_mapping:
+      python:
+        - "https://docs.python.org/3"
+        - null
+      napari:
+        - "https://napari.org/docs/dev/"
+        - null
+    html_favicon: "images/favicon.ico"
+    html_theme: "sphinx_material"
+    html_theme_options:
+      base_url: "http://magicgui.readthedocs.io/" # Specify a base_url used to generate sitemap.xml links
+      repo_url: "https://github.com/napari/magicgui/"
+      repo_name: "napari/magicgui"
+      # google_analytics_account: "UA-XXXXX"
+      # html_prettify: True
+      html_minify: True
+      css_minify: True
+      repo_type: "github"
+      globaltoc_depth: 2
+      color_primary: dark-blue
+      color_accent: "cyan"
+      theme_color: "#2196f3"
+      master_doc: False
+      # version_dropdown: True,
+    html_sidebars:
+      "**":
+        - globaltoc.html
+        - logo-text.html
+        - localtoc.html
+        - searchbox.html

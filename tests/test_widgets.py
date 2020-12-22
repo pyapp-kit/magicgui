@@ -19,3 +19,17 @@ def test_autocall_no_runtime_error():
         return round(input, 4)
 
     func.input.value = 2
+
+
+def test_delete_widget():
+    """We can delete widgets from containers."""
+    a = widgets.Label(name="a")
+    container = widgets.Container(widgets=[a])
+    # we can delete widgets
+    del container.a
+    with pytest.raises(AttributeError):
+        getattr(container, "a")
+
+    # they disappear from the layout
+    with pytest.raises(ValueError):
+        container.index(a)

@@ -1,0 +1,565 @@
+/* custom styles */
+.md-grid {
+  max-width: 61rem;
+}
+
+@media only screen and (min-width: 76.25em) {
+  .md-sidebar--secondary {
+    margin-left: 61rem;
+  }
+}
+
+.highlight-python .highlight {
+  border-radius: 0.4rem !important;
+}
+
+.highlight pre {
+  padding: 0.6rem 0.9rem;
+}
+
+.cell_output img {
+  border-radius: 4px;
+  box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.2);
+  border: 1px solid #ccc;
+}
+
+/* code-cell background */
+div.cell div.cell_input {
+  background-color: #f8f8f8 !important;
+}
+
+/* autosummary table */
+.longtable tr td:first-child {
+  width: 30%;
+  white-space: nowrap;
+}
+
+/* AUTODOC */
+
+dl.module,
+dl.class,
+dl.exception,
+dl.function,
+dl.decorator,
+dl.data,
+dl.method,
+dl.attribute {
+  margin-bottom: 24px;
+  margin-top: 50px;
+}
+
+dl.module dt,
+dl.class dt,
+dl.exception dt,
+dl.function dt,
+dl.decorator dt,
+dl.data dt,
+dl.method dt,
+dl.attribute dt {
+  font-weight: bold;
+}
+
+dl.module dt .headerlink,
+dl.class dt .headerlink,
+dl.exception dt .headerlink,
+dl.function dt .headerlink,
+dl.decorator dt .headerlink,
+dl.data dt .headerlink,
+dl.method dt .headerlink,
+dl.attribute dt .headerlink {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: inherit;
+  visibility: hidden;
+  font-size: 14px;
+}
+
+dl.module dt .headerlink:before,
+dl.class dt .headerlink:before,
+dl.exception dt .headerlink:before,
+dl.function dt .headerlink:before,
+dl.decorator dt .headerlink:before,
+dl.data dt .headerlink:before,
+dl.method dt .headerlink:before,
+dl.attribute dt .headerlink:before {
+  -webkit-font-smoothing: antialiased;
+  font-family: "FontAwesome";
+  display: inline-block;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  text-decoration: inherit;
+}
+
+dl.module dt .headerlink:after,
+dl.class dt .headerlink:after,
+dl.exception dt .headerlink:after,
+dl.function dt .headerlink:after,
+dl.decorator dt .headerlink:after,
+dl.data dt .headerlink:after,
+dl.method dt .headerlink:after,
+dl.attribute dt .headerlink:after {
+  content: "";
+  font-family: FontAwesome;
+}
+
+dl.module dt .fa-pull-left.headerlink,
+dl.class dt .fa-pull-left.headerlink,
+dl.exception dt .fa-pull-left.headerlink,
+dl.function dt .fa-pull-left.headerlink,
+dl.decorator dt .fa-pull-left.headerlink,
+dl.data dt .fa-pull-left.headerlink,
+dl.method dt .fa-pull-left.headerlink,
+dl.attribute dt .fa-pull-left.headerlink {
+  margin-right: 0.3em;
+}
+
+dl.module dt .fa-pull-right.headerlink,
+dl.class dt .fa-pull-right.headerlink,
+dl.exception dt .fa-pull-right.headerlink,
+dl.function dt .fa-pull-right.headerlink,
+dl.decorator dt .fa-pull-right.headerlink,
+dl.data dt .fa-pull-right.headerlink,
+dl.method dt .fa-pull-right.headerlink,
+dl.attribute dt .fa-pull-right.headerlink {
+  margin-left: 0.3em;
+}
+
+dl.module dt .pull-left.headerlink,
+dl.class dt .pull-left.headerlink,
+dl.exception dt .pull-left.headerlink,
+dl.function dt .pull-left.headerlink,
+dl.decorator dt .pull-left.headerlink,
+dl.data dt .pull-left.headerlink,
+dl.method dt .pull-left.headerlink,
+dl.attribute dt .pull-left.headerlink {
+  margin-right: 0.3em;
+}
+
+dl.module dt .pull-right.headerlink,
+dl.class dt .pull-right.headerlink,
+dl.exception dt .pull-right.headerlink,
+dl.function dt .pull-right.headerlink,
+dl.decorator dt .pull-right.headerlink,
+dl.data dt .pull-right.headerlink,
+dl.method dt .pull-right.headerlink,
+dl.attribute dt .pull-right.headerlink {
+  margin-left: 0.3em;
+}
+
+dl.module dt a .headerlink,
+dl.class dt a .headerlink,
+dl.exception dt a .headerlink,
+dl.function dt a .headerlink,
+dl.decorator dt a .headerlink,
+dl.data dt a .headerlink,
+dl.method dt a .headerlink,
+dl.attribute dt a .headerlink {
+  display: inline-block;
+  text-decoration: inherit;
+}
+
+dl.module dt .btn .headerlink,
+dl.class dt .btn .headerlink,
+dl.exception dt .btn .headerlink,
+dl.function dt .btn .headerlink,
+dl.decorator dt .btn .headerlink,
+dl.data dt .btn .headerlink,
+dl.method dt .btn .headerlink,
+dl.attribute dt .btn .headerlink {
+  display: inline;
+}
+
+dl.module dt .btn .fa-large.headerlink,
+dl.class dt .btn .fa-large.headerlink,
+dl.exception dt .btn .fa-large.headerlink,
+dl.function dt .btn .fa-large.headerlink,
+dl.decorator dt .btn .fa-large.headerlink,
+dl.data dt .btn .fa-large.headerlink,
+dl.method dt .btn .fa-large.headerlink,
+dl.attribute dt .btn .fa-large.headerlink {
+  line-height: 0.9em;
+}
+
+dl.module dt .btn .fa-spin.headerlink,
+dl.class dt .btn .fa-spin.headerlink,
+dl.exception dt .btn .fa-spin.headerlink,
+dl.function dt .btn .fa-spin.headerlink,
+dl.decorator dt .btn .fa-spin.headerlink,
+dl.data dt .btn .fa-spin.headerlink,
+dl.method dt .btn .fa-spin.headerlink,
+dl.attribute dt .btn .fa-spin.headerlink {
+  display: inline-block;
+}
+
+dl.module dt .nav .headerlink,
+dl.class dt .nav .headerlink,
+dl.exception dt .nav .headerlink,
+dl.function dt .nav .headerlink,
+dl.decorator dt .nav .headerlink,
+dl.data dt .nav .headerlink,
+dl.method dt .nav .headerlink,
+dl.attribute dt .nav .headerlink {
+  display: inline;
+}
+
+dl.module dt .nav .fa-large.headerlink,
+dl.class dt .nav .fa-large.headerlink,
+dl.exception dt .nav .fa-large.headerlink,
+dl.function dt .nav .fa-large.headerlink,
+dl.decorator dt .nav .fa-large.headerlink,
+dl.data dt .nav .fa-large.headerlink,
+dl.method dt .nav .fa-large.headerlink,
+dl.attribute dt .nav .fa-large.headerlink {
+  line-height: 0.9em;
+}
+
+dl.module dt .nav .fa-spin.headerlink,
+dl.class dt .nav .fa-spin.headerlink,
+dl.exception dt .nav .fa-spin.headerlink,
+dl.function dt .nav .fa-spin.headerlink,
+dl.decorator dt .nav .fa-spin.headerlink,
+dl.data dt .nav .fa-spin.headerlink,
+dl.method dt .nav .fa-spin.headerlink,
+dl.attribute dt .nav .fa-spin.headerlink {
+  display: inline-block;
+}
+
+dl.module dt .btn.headerlink:before,
+dl.class dt .btn.headerlink:before,
+dl.exception dt .btn.headerlink:before,
+dl.function dt .btn.headerlink:before,
+dl.decorator dt .btn.headerlink:before,
+dl.data dt .btn.headerlink:before,
+dl.method dt .btn.headerlink:before,
+dl.attribute dt .btn.headerlink:before {
+  opacity: 0.5;
+  -webkit-transition: opacity 0.05s ease-in;
+  -moz-transition: opacity 0.05s ease-in;
+  transition: opacity 0.05s ease-in;
+}
+
+dl.module dt .btn.headerlink:hover:before,
+dl.class dt .btn.headerlink:hover:before,
+dl.exception dt .btn.headerlink:hover:before,
+dl.function dt .btn.headerlink:hover:before,
+dl.decorator dt .btn.headerlink:hover:before,
+dl.data dt .btn.headerlink:hover:before,
+dl.method dt .btn.headerlink:hover:before,
+dl.attribute dt .btn.headerlink:hover:before {
+  opacity: 1;
+}
+
+dl.module dt .btn-mini .headerlink:before,
+dl.class dt .btn-mini .headerlink:before,
+dl.exception dt .btn-mini .headerlink:before,
+dl.function dt .btn-mini .headerlink:before,
+dl.decorator dt .btn-mini .headerlink:before,
+dl.data dt .btn-mini .headerlink:before,
+dl.method dt .btn-mini .headerlink:before,
+dl.attribute dt .btn-mini .headerlink:before {
+  font-size: 14px;
+  vertical-align: -15%;
+}
+
+dl.module dt .rst-versions .rst-current-version .headerlink,
+dl.class dt .rst-versions .rst-current-version .headerlink,
+dl.exception dt .rst-versions .rst-current-version .headerlink,
+dl.function dt .rst-versions .rst-current-version .headerlink,
+dl.decorator dt .rst-versions .rst-current-version .headerlink,
+dl.data dt .rst-versions .rst-current-version .headerlink,
+dl.method dt .rst-versions .rst-current-version .headerlink,
+dl.attribute dt .rst-versions .rst-current-version .headerlink {
+  color: #fcfcfc;
+}
+
+dl.module dt:hover .headerlink:after,
+dl.class dt:hover .headerlink:after,
+dl.exception dt:hover .headerlink:after,
+dl.function dt:hover .headerlink:after,
+dl.decorator dt:hover .headerlink:after,
+dl.data dt:hover .headerlink:after,
+dl.method dt:hover .headerlink:after,
+dl.attribute dt:hover .headerlink:after {
+  visibility: visible;
+}
+
+dl.module p,
+dl.class p,
+dl.exception p,
+dl.function p,
+dl.decorator p,
+dl.data p,
+dl.method p,
+dl.attribute p {
+  margin-bottom: 12px !important;
+}
+
+dl.module table,
+dl.class table,
+dl.exception table,
+dl.function table,
+dl.decorator table,
+dl.data table,
+dl.method table,
+dl.attribute table {
+  margin-bottom: 12px !important;
+}
+
+dl.module ul,
+dl.class ul,
+dl.exception ul,
+dl.function ul,
+dl.decorator ul,
+dl.data ul,
+dl.method ul,
+dl.attribute ul {
+  margin-bottom: 12px !important;
+}
+
+dl.module ol,
+dl.class ol,
+dl.exception ol,
+dl.function ol,
+dl.decorator ol,
+dl.data ol,
+dl.method ol,
+dl.attribute ol {
+  margin-bottom: 12px !important;
+}
+
+dl.module dd,
+dl.class dd,
+dl.exception dd,
+dl.function dd,
+dl.decorator dd,
+dl.data dd,
+dl.method dd,
+dl.attribute dd {
+  margin: 0 0 12px 24px;
+}
+
+dl.module:not(.docutils),
+dl.class:not(.docutils),
+dl.exception:not(.docutils),
+dl.function:not(.docutils),
+dl.decorator:not(.docutils),
+dl.data:not(.docutils),
+dl.method:not(.docutils),
+dl.attribute:not(.docutils) {
+  margin-bottom: 24px;
+}
+
+dl.module:not(.docutils) dt,
+dl.class:not(.docutils) dt,
+dl.exception:not(.docutils) dt,
+dl.function:not(.docutils) dt,
+dl.decorator:not(.docutils) dt,
+dl.data:not(.docutils) dt,
+dl.method:not(.docutils) dt,
+dl.attribute:not(.docutils) dt {
+  display: table;
+  margin: 6px 0;
+  font-size: 90%;
+  line-height: normal;
+  background: #e7f2fa;
+  color: #2980b9;
+  border-top: solid 3px #6ab0de;
+  padding: 6px;
+  position: relative;
+}
+
+dl.module:not(.docutils) dt:before,
+dl.class:not(.docutils) dt:before,
+dl.exception:not(.docutils) dt:before,
+dl.function:not(.docutils) dt:before,
+dl.decorator:not(.docutils) dt:before,
+dl.data:not(.docutils) dt:before,
+dl.method:not(.docutils) dt:before,
+dl.attribute:not(.docutils) dt:before {
+  color: #6ab0de;
+}
+
+dl.module:not(.docutils) dt .headerlink,
+dl.class:not(.docutils) dt .headerlink,
+dl.exception:not(.docutils) dt .headerlink,
+dl.function:not(.docutils) dt .headerlink,
+dl.decorator:not(.docutils) dt .headerlink,
+dl.data:not(.docutils) dt .headerlink,
+dl.method:not(.docutils) dt .headerlink,
+dl.attribute:not(.docutils) dt .headerlink {
+  color: #404040;
+  font-size: 100% !important;
+}
+
+dl.module:not(.docutils) dt:first-child,
+dl.class:not(.docutils) dt:first-child,
+dl.exception:not(.docutils) dt:first-child,
+dl.function:not(.docutils) dt:first-child,
+dl.decorator:not(.docutils) dt:first-child,
+dl.data:not(.docutils) dt:first-child,
+dl.method:not(.docutils) dt:first-child,
+dl.attribute:not(.docutils) dt:first-child {
+  margin-top: 0;
+}
+
+dl.module:not(.docutils) dl dt,
+dl.class:not(.docutils) dl dt,
+dl.exception:not(.docutils) dl dt,
+dl.function:not(.docutils) dl dt,
+dl.decorator:not(.docutils) dl dt,
+dl.data:not(.docutils) dl dt,
+dl.method:not(.docutils) dl dt,
+dl.attribute:not(.docutils) dl dt {
+  margin-bottom: 6px;
+  border: none;
+  border-left: solid 3px #ccc;
+  background: #f0f0f0;
+  color: #555;
+}
+
+dl.module:not(.docutils) dl dt .headerlink,
+dl.class:not(.docutils) dl dt .headerlink,
+dl.exception:not(.docutils) dl dt .headerlink,
+dl.function:not(.docutils) dl dt .headerlink,
+dl.decorator:not(.docutils) dl dt .headerlink,
+dl.data:not(.docutils) dl dt .headerlink,
+dl.method:not(.docutils) dl dt .headerlink,
+dl.attribute:not(.docutils) dl dt .headerlink {
+  color: #404040;
+  font-size: 100% !important;
+}
+
+dl.module:not(.docutils) tt,
+dl.class:not(.docutils) tt,
+dl.exception:not(.docutils) tt,
+dl.function:not(.docutils) tt,
+dl.decorator:not(.docutils) tt,
+dl.data:not(.docutils) tt,
+dl.method:not(.docutils) tt,
+dl.attribute:not(.docutils) tt {
+  font-weight: bold;
+  font-weight: bold;
+}
+
+dl.module:not(.docutils) code,
+dl.class:not(.docutils) code,
+dl.exception:not(.docutils) code,
+dl.function:not(.docutils) code,
+dl.decorator:not(.docutils) code,
+dl.data:not(.docutils) code,
+dl.method:not(.docutils) code,
+dl.attribute:not(.docutils) code {
+  font-weight: bold;
+}
+
+dl.module:not(.docutils) tt.descname,
+dl.class:not(.docutils) tt.descname,
+dl.exception:not(.docutils) tt.descname,
+dl.function:not(.docutils) tt.descname,
+dl.decorator:not(.docutils) tt.descname,
+dl.data:not(.docutils) tt.descname,
+dl.method:not(.docutils) tt.descname,
+dl.attribute:not(.docutils) tt.descname {
+  background-color: transparent;
+  background-color: transparent;
+  border: none;
+  border: none;
+  padding: 0;
+  padding: 0;
+  font-size: 100% !important;
+  font-size: 100% !important;
+  font-weight: bold;
+  font-weight: bold;
+}
+
+dl.module:not(.docutils) tt.descclassname,
+dl.class:not(.docutils) tt.descclassname,
+dl.exception:not(.docutils) tt.descclassname,
+dl.function:not(.docutils) tt.descclassname,
+dl.decorator:not(.docutils) tt.descclassname,
+dl.data:not(.docutils) tt.descclassname,
+dl.method:not(.docutils) tt.descclassname,
+dl.attribute:not(.docutils) tt.descclassname {
+  background-color: transparent;
+  background-color: transparent;
+  border: none;
+  border: none;
+  padding: 0;
+  padding: 0;
+  font-size: 100% !important;
+  font-size: 100% !important;
+}
+
+dl.module:not(.docutils) code.descname,
+dl.class:not(.docutils) code.descname,
+dl.exception:not(.docutils) code.descname,
+dl.function:not(.docutils) code.descname,
+dl.decorator:not(.docutils) code.descname,
+dl.data:not(.docutils) code.descname,
+dl.method:not(.docutils) code.descname,
+dl.attribute:not(.docutils) code.descname {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 100% !important;
+  font-weight: bold;
+}
+
+dl.module:not(.docutils) code.descclassname,
+dl.class:not(.docutils) code.descclassname,
+dl.exception:not(.docutils) code.descclassname,
+dl.function:not(.docutils) code.descclassname,
+dl.decorator:not(.docutils) code.descclassname,
+dl.data:not(.docutils) code.descclassname,
+dl.method:not(.docutils) code.descclassname,
+dl.attribute:not(.docutils) code.descclassname {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 100% !important;
+}
+
+dl.module:not(.docutils) .optional,
+dl.class:not(.docutils) .optional,
+dl.exception:not(.docutils) .optional,
+dl.function:not(.docutils) .optional,
+dl.decorator:not(.docutils) .optional,
+dl.data:not(.docutils) .optional,
+dl.method:not(.docutils) .optional,
+dl.attribute:not(.docutils) .optional {
+  display: inline-block;
+  padding: 0 4px;
+  color: #000;
+  font-weight: bold;
+}
+
+dl.module:not(.docutils) .property,
+dl.class:not(.docutils) .property,
+dl.exception:not(.docutils) .property,
+dl.function:not(.docutils) .property,
+dl.decorator:not(.docutils) .property,
+dl.data:not(.docutils) .property,
+dl.method:not(.docutils) .property,
+dl.attribute:not(.docutils) .property {
+  display: inline-block;
+  padding-right: 8px;
+}
+
+dl.module .viewcode-link,
+dl.class .viewcode-link,
+dl.exception .viewcode-link,
+dl.function .viewcode-link,
+dl.decorator .viewcode-link,
+dl.data .viewcode-link,
+dl.method .viewcode-link,
+dl.attribute .viewcode-link {
+  display: inline-block;
+  color: #27ae60;
+  font-size: 80%;
+  padding-left: 24px;
+}

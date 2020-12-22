@@ -158,7 +158,7 @@ def test_changing_widget_attr_fails(magic_func):
     assert isinstance(widget1, widgets.LineEdit)
 
     # changing it to a different type will destroy and create a new widget
-    widget2 = widgets.Widget.create(default=1, name="a")
+    widget2 = widgets.create_widget(default=1, name="a")
     with pytest.raises(AttributeError):
         magic_func.a = widget2
 
@@ -351,7 +351,7 @@ def test_add_at_position(labels):
 
     gui = magicgui(func, labels=labels)
     assert get_layout_items(gui) == ["a", "b", "c"]
-    gui.insert(1, widgets.Widget.create(name="new"))
+    gui.insert(1, widgets.create_widget(name="new"))
     assert get_layout_items(gui) == ["a", "new", "b", "c"]
 
 
@@ -443,3 +443,23 @@ def test_register_return_callback():
 #     """Test that setting MagicGui parent emits a signal."""
 #     with qtbot.waitSignal(magic_func.parent_changed, timeout=1000):
 #         magic_func.native.setParent(None)
+
+
+def test_function_binding():
+    class MyObject:
+        def __init__(self, name):
+            self.name = name
+            self.counter = 0.0
+
+        @magicgui(auto_call=True)
+        def method(self, sigma: float = 1):
+            self.counter = self.counter + sigma
+            return self.name, self.counter
+
+    a = MyObject("a")
+    b = MyObject("b")
+
+    assert a.method() == ("a", 1)
+    assert b.method(sigma=4) == ("b", 4)
+    assert a.method() == ("a", 2)
+    assert b.method() == ("b", 5)
