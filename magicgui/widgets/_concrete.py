@@ -411,20 +411,30 @@ class _LabeledWidget(Container):
         """Return string representation."""
         return f"Labeled{self._inner_widget!r}"
 
-    def __getattr__(self, name):
-        """Pass attribute access to the inner widget."""
-        if name in ("value", "name"):
-            return getattr(self._inner_widget, name)
-        elif name in ("label",):
-            return getattr(self._label_widget, name)
+    @property
+    def value(self):
+        return getattr(self._inner_widget, "value", None)
 
-    def __setattr__(self, name, value):
-        """Pass attribute access to the inner widget."""
-        if name in ("value"):
-            return setattr(self._inner_widget, name, value)
-        elif name in ("label",):
-            return setattr(self._label_widget, name, value)
-        return object.__setattr__(self, name, value)
+    @value.setter
+    def value(self, value):
+        if hasattr(self._inner_widget, "value"):
+            self._inner_widget.value = value  # type: ignore
+
+    @property
+    def label(self):
+        return self._label_widget.label
+
+    @label.setter
+    def label(self, label):
+        self._label_widget.label = label
 
     def _on_label_change(self, event):
         self._label_widget.value = event.value
+
+    @property
+    def label_width(self):
+        return self._label_widget.width
+
+    @label_width.setter
+    def label_width(self, width):
+        self._label_widget.set_min_width(width)

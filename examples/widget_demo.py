@@ -20,14 +20,14 @@ class Medium(Enum):
     call_button="Calculate",
     orientation="vertical",
     result_widget=True,
-    another_float={"widget_type": "Slider"},
+    slider_float={"widget_type": "FloatSlider"},
     filename={"label": "Pick a file:"},
 )
 def widget_demo(
     boolean=True,
     integer=1,
     float=3.14159,
-    another_float=4.5,
+    slider_float=4.5,
     string="Text goes here",
     dropdown=Medium.Glass,
     datetime=datetime.now(),

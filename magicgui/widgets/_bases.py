@@ -309,7 +309,9 @@ class Widget:
     @property
     def label(self):
         """Return a label to use for this widget when present in Containers."""
-        return self.name if self._label is None else self._label
+        if self._label is None:
+            return self.name.replace("_", " ")
+        return self._label
 
     @label.setter
     def label(self, value):
@@ -337,6 +339,22 @@ class Widget:
             imsave(file_obj, self.render(), format="png")
             file_obj.seek(0)
             return file_obj.read()
+
+    @property
+    def width(self) -> int:
+        """Return the current width of the widget.
+
+        The naming of this method may change. The intention is to get the width of the
+        widget after it is shown, for the purpose of unifying widget width in a layout.
+        Backends may do what they need to accomplish this. For example, Qt can use
+        ``sizeHint().width()``, since ``width()`` will return something large if the
+        widget has not yet been painted on screen.
+        """
+        return self._widget._mgui_get_width()
+
+    def set_min_width(self, value) -> None:
+        """Set the minimum allowable width of the widget."""
+        self._widget._mgui_set_min_width(value)
 
 
 class ValueWidget(Widget):
@@ -746,9 +764,9 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
-        for w in widgets:
-            self.append(w)
+        self.extend(widgets)
         self._initialized = True
+        self._unify_label_widths()
 
     def __getattr__(self, name: str):
         """Return attribute ``name``.  Will return a widget if present."""
@@ -847,6 +865,20 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
                 _widget = _LabeledWidget(widget)
 
         self._widget._mgui_insert_widget(key, _widget)
+        self._unify_label_widths()
+
+    def _unify_label_widths(self):
+        if not self._initialized:
+            return
+        if self.orientation == "vertical":
+            widest_label = max(
+                getattr(self._widget._mgui_get_index(i), "label_width", 0)
+                for i in range(len(self))
+            )
+            for i in range(len(self)):
+                w = self._widget._mgui_get_index(i)
+                if hasattr(w, "label_width"):
+                    w.label_width = widest_label  # type: ignore
 
     @property
     def margins(self) -> Tuple[int, int, int, int]:
@@ -859,7 +891,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         self._widget._mgui_set_margins(margins)
 
     @property
-    def orientation(self):
+    def orientation(self) -> str:
         """Return the orientation of the widget."""
         return self._orientation
 

@@ -59,6 +59,14 @@ class QBaseWidget(_protocols.WidgetProtocol):
     def _mgui_get_native_widget(self) -> QtW.QWidget:
         return self._qwidget
 
+    def _mgui_get_width(self) -> int:
+        """Return the current width of the widget."""
+        return self._qwidget.sizeHint().width()
+
+    def _mgui_set_min_width(self, value) -> None:
+        """Set the minimum allowable width of the widget."""
+        return self._qwidget.setMinimumWidth(value)
+
     def _mgui_bind_parent_change_callback(self, callback):
         self._event_filter.parentChanged.connect(callback)
 
