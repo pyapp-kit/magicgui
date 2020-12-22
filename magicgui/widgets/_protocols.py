@@ -78,8 +78,8 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_min_width(self, value) -> None:
-        """Set the minimum allowable width of the widget."""
+    def _mgui_set_min_width(self, value: int) -> None:
+        """Set the width of the widget."""
         raise NotImplementedError()
 
 

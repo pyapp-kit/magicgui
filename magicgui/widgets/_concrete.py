@@ -437,4 +437,4 @@ class _LabeledWidget(Container):
 
     @label_width.setter
     def label_width(self, width):
-        self._label_widget.set_min_width(width)
+        self._label_widget.width = width

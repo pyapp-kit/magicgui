@@ -4,6 +4,7 @@ from typing import Any, Iterable, Optional, Tuple, Union
 import qtpy
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
+from qtpy.QtGui import QFont, QFontMetrics
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -61,11 +62,12 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_get_width(self) -> int:
         """Return the current width of the widget."""
-        return self._qwidget.sizeHint().width()
+        return self._qwidget.width()
 
     def _mgui_set_min_width(self, value) -> None:
         """Set the minimum allowable width of the widget."""
-        return self._qwidget.setMinimumWidth(value)
+        self._qwidget.setMinimumWidth(value)
+        self._qwidget.resize(self._qwidget.sizeHint())
 
     def _mgui_bind_parent_change_callback(self, callback):
         self._event_filter.parentChanged.connect(callback)
@@ -414,3 +416,9 @@ def show_file_dialog(
     else:
         result, _ = show_dialog(*args)
     return result or None
+
+
+def get_text_width(text) -> int:
+    """Return the width required to render ``text``."""
+    fm = QFontMetrics(QFont("", 0))
+    return fm.boundingRect(text).width() + 5

@@ -352,7 +352,8 @@ class Widget:
         """
         return self._widget._mgui_get_width()
 
-    def set_min_width(self, value) -> None:
+    @width.setter
+    def width(self, value: int) -> None:
         """Set the minimum allowable width of the widget."""
         self._widget._mgui_set_min_width(value)
 
@@ -863,18 +864,17 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
             if not isinstance(widget, (_LabeledWidget, ButtonWidget)):
                 _widget = _LabeledWidget(widget)
+                widget.label_changed.connect(self._unify_label_widths)
 
         self._widget._mgui_insert_widget(key, _widget)
         self._unify_label_widths()
 
-    def _unify_label_widths(self):
+    def _unify_label_widths(self, event=None):
         if not self._initialized:
             return
-        if self.orientation == "vertical":
-            widest_label = max(
-                getattr(self._widget._mgui_get_index(i), "label_width", 0)
-                for i in range(len(self))
-            )
+        if self.orientation == "vertical" and self.labels:
+            measure = use_app().get_obj("get_text_width")
+            widest_label = max(measure(w.label) for w in self)
             for i in range(len(self)):
                 w = self._widget._mgui_get_index(i)
                 if hasattr(w, "label_width"):
