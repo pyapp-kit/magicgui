@@ -214,3 +214,9 @@ add.insert(3, Label(default="="))
 add()
 add.show()
 ```
+
+Currently, the result widget is always a {class}`~magicgui.widgets.LineEdit`
+widget, but future development will allow the return annotation of the function
+to dictate what type of widget is used to show the result.  For instance, a
+[`pandas.Dataframe`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
+(or a `List[dict]`) might render a Table Widget.
