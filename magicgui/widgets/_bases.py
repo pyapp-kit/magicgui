@@ -76,10 +76,10 @@ if TYPE_CHECKING:
 
 
 def create_widget(
-    name: str = "",
-    kind: str = "POSITIONAL_OR_KEYWORD",
     value: Any = None,
     annotation: Any = None,
+    name: str = "",
+    param_kind: Union[str, inspect._ParameterKind] = "POSITIONAL_OR_KEYWORD",
     label=None,
     gui_only=False,
     app=None,
@@ -93,16 +93,16 @@ def create_widget(
 
     Parameters
     ----------
-    name : str, optional
-        The name of the parameter represented by this widget. by default ``""``
-    kind : str, optional
-        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
-        signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
     value : Any, optional
         The starting value for the widget, by default ``None``
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
         ``None``
+    name : str, optional
+        The name of the parameter represented by this widget. by default ``""``
+    param_kind : str, optional
+        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
+        signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
     label : str
         A string to use for an associated Label widget (if this widget is being
         shown in a `Container` widget, and labels are on).  By default, `name` will
@@ -133,6 +133,7 @@ def create_widget(
         widget protocols from widgets._protocols.
     """
     kwargs = locals()
+    _kind = kwargs.pop("param_kind", None)
     _app = use_app(kwargs.pop("app"))
     assert _app.native
     if isinstance(widget_type, _protocols.WidgetProtocol):
@@ -148,16 +149,22 @@ def create_widget(
             opts.update(kwargs.pop("options"))
             kwargs.update(opts)
             kwargs.pop("widget_type", None)
-            return wdg_class(**kwargs)
+            widget = wdg_class(**kwargs)
+            if _kind:
+                widget.param_kind = _kind
+            return widget
 
     # pick the appropriate subclass for the given protocol
     # order matters
     for p in ("Categorical", "Ranged", "Button", "Value", ""):
         prot = getattr(_protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
-            return globals()[f"{p}Widget"](
+            widget = globals()[f"{p}Widget"](
                 widget_type=wdg_class, **kwargs, **kwargs.pop("options")
             )
+            if _kind:
+                widget.param_kind = _kind
+            return widget
 
     raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
@@ -171,9 +178,6 @@ class Widget:
         A class implementing a widget protocol.  Will be instantiated during __init__.
     name : str, optional
         The name of the parameter represented by this widget. by default ""
-    kind : str, optional
-        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
-        signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
         ``None``
@@ -195,7 +199,6 @@ class Widget:
         self,
         widget_type: Type[_protocols.WidgetProtocol],
         name: str = "",
-        kind: str = "POSITIONAL_OR_KEYWORD",
         annotation: Any = None,
         label=None,
         visible: bool = True,
@@ -223,7 +226,7 @@ class Widget:
         assert self.__magicgui_app__.native
         self._widget = widget_type(**backend_kwargs)
         self.name: str = name
-        self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
+        self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
         self.annotation: Any = annotation
         self.gui_only = gui_only
@@ -238,6 +241,25 @@ class Widget:
         self._post_init()
         if not visible:
             self.hide()
+
+    @property
+    def param_kind(self) -> inspect._ParameterKind:
+        """Return :attr:`inspect.Parameter.kind` represented by this widget.
+
+        Used in building signatures from multiple widgets, by default
+        :attr:`~inspect.Parameter.POSITIONAL_OR_KEYWORD`
+        """
+        return self._param_kind
+
+    @param_kind.setter
+    def param_kind(self, kind: Union[str, inspect._ParameterKind]):
+        if isinstance(kind, str):
+            kind = inspect._ParameterKind[kind.upper()]
+        if not isinstance(kind, inspect._ParameterKind):
+            raise TypeError(
+                "'param_kind' must be either a string or a inspect._ParameterKind."
+            )
+        self._param_kind: inspect._ParameterKind = kind
 
     def _post_init(self):
         pass
