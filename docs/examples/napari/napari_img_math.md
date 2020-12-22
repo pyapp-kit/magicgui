@@ -102,13 +102,15 @@ def image_arithmetic(layerA, operation, layerB):
 
 `magicgui` works particularly well with [type
 annotations](https://docs.python.org/3/library/typing.html), and allows
-third-party libraries to register widgets for handling their custom types.
-`napari` provides support for `magicgui` by registering a dropdown menu whenever
-a function parameter is annotated as one of the basic napari [`Layer`
-types](https://napari.org/tutorials/). Furthermore, it recognizes when a
-function has a `Layer` return type annotation, and will add the result to the
-viewer.  So we gain a *lot* by annotating the above function with the
-appropriate `napari` types.
+third-party libraries to register widgets and behavior for handling their custom
+types (using {func}`magicgui.type_map.register_type`). `napari` [provides
+support for
+`magicgui`](https://github.com/napari/napari/blob/master/napari/utils/_magicgui.py)
+by registering a dropdown menu whenever a function parameter is annotated as one
+of the basic napari [`Layer` types](https://napari.org/tutorials/). Furthermore,
+it recognizes when a function has a {class}`~napari.layers.base.base.Layer`
+return type annotation, and will add the result to the viewer.  So we gain a
+*lot* by annotating the above function with the appropriate `napari` types.
 
 ```python
 from napari.layers import Image
