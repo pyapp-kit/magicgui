@@ -1,0 +1,7 @@
+jupyter-book
+sphinx_material
+jupytext
+numpy
+imageio
+sphinx-autodoc-typehints
+sphinxcontrib-bibtex<2.0.0

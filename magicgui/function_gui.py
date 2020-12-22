@@ -32,7 +32,7 @@ class FunctionGui(Container):
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     app : magicgui.Application or str, optional
-        A backend to use, by default None (use the default backend.)
+        A backend to use, by default ``None`` (use the default backend.)
     show : bool, optional
         Whether to immediately show the widget, by default False
     auto_call : bool, optional
@@ -43,7 +43,7 @@ class FunctionGui(Container):
         by default False
     gui_options : dict, optional
         A dict of name: widget_options dict for each parameter in the function.
-        Will be passed to `magic_signature` by default None
+        Will be passed to `magic_signature` by default ``None``
     name : str, optional
         A name to assign to the Container widget, by default `function.__name__`
     bind : dict, optional
@@ -160,6 +160,10 @@ class FunctionGui(Container):
             return getattr(self, widget_name).changed
         return super().__getattr__(value)
 
+    # def __delitem__(self, key: Union[int, slice]):
+    #     """Delete a widget by integer or slice index."""
+    #     raise AttributeError("can't delete items from a FunctionGui")
+
     @property
     def __signature__(self):
         """Return an inspect.Signature subclass.
@@ -167,6 +171,8 @@ class FunctionGui(Container):
         The sig represents the original wrapped function, but with defaults and types
         from the widget (if different).
         """
+        # FIXME: if someone has manually deleted widgets from the container, it may go
+        # out of sync with the function signature.  Should prevent that.
         return self.to_signature()
 
     def __call__(self, *args: Any, **kwargs: Any):
@@ -314,29 +320,29 @@ def magicgui(
     bind: Dict[str, Any] = None,
     **param_options: dict,
 ):
-    """Create a FunctionGui class for ``function`` and add it as an attribute ``Gui``.
+    """Return a :class:`FunctionGui` for ``function``.
 
     Parameters
     ----------
     function : Callable, optional
         The function to decorate.  Optional to allow bare decorator with optional
-        arguments. by default None
+        arguments. by default ``None``
     orientation : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     call_button : bool or str, optional
-        If True, create an additional button that calls the original function when
+        If ``True``, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False
     auto_call : bool, optional
-        If True, changing any parameter in either the GUI or the widget attributes
+        If ``True``, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
     result_widget : bool, optional
         Whether to display a LineEdit widget the output of the function when called,
         by default False
     app : magicgui.Application or str, optional
-        A backend to use, by default None (use the default backend.)
+        A backend to use, by default ``None`` (use the default backend.)
     bind : dict, optional
         A mapping of parameter names to values. Values supplied here will be permanently
         bound to the corresponding parameters: their widgets will be hidden from the GUI

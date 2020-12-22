@@ -26,18 +26,20 @@ from ._bases import (
 from ._transforms import make_float, make_literal_eval
 
 
-def merge_super_sigs(cls, exclude=("self", "widget_type", "kwargs", "args", "kwds")):
+def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "extra")):
     """Merge the signature and kwarg docs from all superclasses, for clearer docs.
 
     Parameters
     ----------
+    cls : Type
+        The class being modified
     exclude : tuple, optional
         A list of parameter names to excluded from the merged docs/signature,
-        by default ("self", "widget_type", "kwargs", "args", "kwds")
+        by default ("widget_type", "kwargs", "args", "kwds")
 
     Returns
     -------
-    Type
+    cls : Type
         The modified class (can be used as a decorator)
     """
     params = {}
@@ -51,10 +53,14 @@ def merge_super_sigs(cls, exclude=("self", "widget_type", "kwargs", "args", "kwd
 
         param_docs += docstring_to_param_list(getattr(sup, "__doc__", ""))
 
-    cls.__signature__ = inspect.Signature(sorted(params.values(), key=lambda x: x.kind))
+    cls.__init__.__signature__ = inspect.Signature(
+        sorted(params.values(), key=lambda x: x.kind)
+    )
     param_docs = [p for p in param_docs if p.name not in exclude]
     cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
     cls.__doc__ += "\n".join(param_list_to_str(param_docs))
+    # this makes docs linking work... but requires that all of these be in __init__
+    cls.__module__ = "magicgui.widgets"
     return cls
 
 
@@ -227,14 +233,14 @@ class FileEdit(Container):
     Parameters
     ----------
     mode : FileDialogMode or str
-        The mode used for the file dialog:
-            'r': returns one existing file.
-            'rm': return one or more existing files.
-            'w': return one file name that does not have to exist.
-            'd': returns one existing directory.
+        - ``'r'`` returns one existing file.
+        - ``'rm'`` return one or more existing files.
+        - ``'w'`` return one file name that does not have to exist.
+        - ``'d'`` returns one existing directory.
     filter : str, optional
         The filter is used to specify the kind of files that should be shown.
-        It should be a glob-style string, like '*.png' (this may be backend-specific)
+        It should be a glob-style string, like ``'*.png'`` (this may be
+        backend-specific)
     """
 
     def __init__(

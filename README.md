@@ -14,13 +14,15 @@
 
 ## Installation
 
-`magicgui` uses `pyqt` to support both `pyside2` and `pyqt5` backends.  However, you
+`magicgui` uses `qtpy` to support both `pyside2` and `pyqt5` backends.  However, you
 must have one of those installed for magicgui to work.
 
 install with pip
 
 ```bash
-pip install magicgui pyqt5  # or pyside2 instead of pyqt5
+pip install magicgui[pyqt5]
+# or
+pip install magicgui[pyside2]
 ```
 
 or with conda:
@@ -35,6 +37,9 @@ conda install -c conda-forge magicgui pyqt  # or pyside2 instead of pyqt
 ## Basic usage
 
 ```python
+from magicgui import magicgui
+from enum import Enum
+
 class Medium(Enum):
     Glass = 1.520
     Oil = 1.515
@@ -42,8 +47,10 @@ class Medium(Enum):
     Air = 1.0003
 
 # decorate your function with the @magicgui decorator
-@magicgui(call_button="calculate")
+@magicgui(call_button="calculate", result_widget=True)
 def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
+    import math
+
     aoi = math.radians(aoi) if degrees else aoi
     try:
         result = math.asin(n1.value * math.sin(aoi) / n2.value)
@@ -51,12 +58,13 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
     except ValueError:
         return "Total internal reflection!"
 
-# your function will now have a new attribute "Gui"
-# call it to create (and optionally show) the new GUI!
-snell_gui = snells_law.Gui(show=True)
+# your function is now capable of showing a GUI
+snells_law.show(run=True)
 ```
 
-Please see [Documentation](https://magicgui.readthedocs.io/) for many more details
+![snells](resources/snells.png)
+
+But that's just the beginning!  Please see [Documentation](https://magicgui.readthedocs.io/) for many more details
 and usage examples.
 
 ## Contributing

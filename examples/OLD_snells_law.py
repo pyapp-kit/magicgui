@@ -44,7 +44,7 @@ with event_loop():
     # snells_law is *already* a gui in magicgui >= 0.2.0
     gui = snells_law.Gui(show=True)  # Gui() is deprecated
 
-    # this snytax is deprecated, use snells_law.n1.changed.conect...
+    # this syntax is deprecated, use snells_law.n1.changed.conect...
     gui.n1_changed.connect(print)
 
     # we can connect a callback function to the __call__ event on the function

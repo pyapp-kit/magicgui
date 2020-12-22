@@ -1,0 +1,26 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+- file: index
+
+- part: Usage
+  chapters:
+    - file: usage/installation
+    - file: usage/configuration
+    - file: usage/types_widgets
+    - file: usage/direct_api
+
+- part: Examples
+  chapters:
+    - file: examples/napari/napari_img_math
+    - file: examples/napari/napari_parameter_sweep
+
+- part: API
+  chapters:
+    - file: api/magicgui
+    - file: api/widgets
+    - file: api/function_gui
+    - file: api/bases
+    - file: api/protocols
+    - file: api/type_map
+    - file: api/types
+    - file: api/v0_2_0
