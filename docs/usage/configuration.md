@@ -209,8 +209,8 @@ from magicgui.widgets import Label
 def add(a=2, b=3):
     return a + b
 
-add.insert(1, Label(default="+"))
-add.insert(3, Label(default="="))
+add.insert(1, Label(value="+"))
+add.insert(3, Label(value="="))
 add()
 add.show()
 ```
