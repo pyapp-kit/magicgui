@@ -6,6 +6,7 @@ super().__init__ calls.
 import inspect
 import math
 import os
+import sys
 from pathlib import Path
 from typing import Callable, Sequence, Tuple, Type, Union
 
@@ -24,6 +25,8 @@ from ._bases import (
     Widget,
 )
 from ._transforms import make_float, make_literal_eval
+
+BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
 
 def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "extra")):
@@ -52,6 +55,13 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
             params[name] = param
 
         param_docs += docstring_to_param_list(getattr(sup, "__doc__", ""))
+
+    # sphinx_autodoc_typehints isn't removing the type annotations from the signature
+    # so we do it manually when building documentation.
+    if BUILDING_DOCS:
+        params = {
+            k: v.replace(annotation=inspect.Parameter.empty) for k, v in params.items()
+        }
 
     cls.__init__.__signature__ = inspect.Signature(
         sorted(params.values(), key=lambda x: x.kind)

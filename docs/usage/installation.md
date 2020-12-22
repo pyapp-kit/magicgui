@@ -1,4 +1,4 @@
-## Installation
+# Installation
 
 Install via pip:
 
