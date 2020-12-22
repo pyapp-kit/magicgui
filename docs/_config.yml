@@ -50,7 +50,7 @@ sphinx:
         - "https://docs.python.org/3"
         - null
       napari:
-        - "https://napari.org/docs/0.4.0/"
+        - "https://napari.org/docs/dev/"
         - null
     html_favicon: "images/favicon.ico"
     html_theme: "sphinx_material"
