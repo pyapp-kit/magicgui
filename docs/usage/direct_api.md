@@ -23,7 +23,7 @@ Generally, one will construct a {class}`~magicgui.widgets.Container` object that
 acts as a layout for all of the sub-widgets.
 
 ```{code-cell} python
-from magicgui.widgets import *
+from magicgui.widgets import SpinBox, FileEdit, Slider, Label, Container
 from pathlib import Path
 
 # make some widgets
