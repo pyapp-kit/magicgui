@@ -204,7 +204,6 @@ class Widget:
         **extra,
     ):
         if extra:
-
             warnings.warn(
                 f"\n\n{self.__class__.__name__}.__init__() got unexpected "
                 f"keyword arguments {set(extra)!r}.\n"
