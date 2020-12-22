@@ -23,7 +23,7 @@ pattern is as follows:
             backend_kwargs: dict = dict(),
 
             # additional kwargs will be provided to the magicgui.Widget itself
-            # things like, `name`, `default`, etc...
+            # things like, `name`, `value`, etc...
             **kwargs
         ):
            # instantiation of the backend widget.
@@ -38,7 +38,7 @@ Instead, one will usually instantiate the widgets in :mod:`magicgui.widgets._con
 which are all available direcly in the :mod:`magicgui.widgets` namespace.
 
 The :func:`~magicgui.widgets.create_widget` factory function may be used to
-create a widget subclass appropriate for the arguments passed (such as "default" or
+create a widget subclass appropriate for the arguments passed (such as "value" or
 "annotation").
 
 """
@@ -78,7 +78,7 @@ if TYPE_CHECKING:
 def create_widget(
     name: str = "",
     kind: str = "POSITIONAL_OR_KEYWORD",
-    default: Any = None,
+    value: Any = None,
     annotation: Any = None,
     label=None,
     gui_only=False,
@@ -89,7 +89,7 @@ def create_widget(
     """Create and return appropriate widget subclass.
 
     This factory function can be used to create a widget appropriate for the
-    provided `default` value and/or `annotation` provided.
+    provided `value` and/or `annotation` provided.
 
     Parameters
     ----------
@@ -98,8 +98,8 @@ def create_widget(
     kind : str, optional
         The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
         signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
-    default : Any, optional
-        The default & starting value for the widget, by default ``None``
+    value : Any, optional
+        The starting value for the widget, by default ``None``
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
         ``None``
@@ -117,7 +117,7 @@ def create_widget(
         A class implementing a widget protocol or a string with the name of a
         magicgui widget type (e.g. "Label", "PushButton", etc...).
         If provided, this widget type will be used instead of the type
-        autodetermined from ``default`` and/or ``annotation`` above.
+        autodetermined from ``value`` and/or ``annotation`` above.
     options : WidgetOptions, optional
         Dict of options to pass to the Widget constructor, by default dict()
 
@@ -142,7 +142,7 @@ def create_widget(
 
         if widget_type:
             options["widget_type"] = widget_type
-        wdg_class, opts = get_widget_class(default, annotation, options)
+        wdg_class, opts = get_widget_class(value, annotation, options)
 
         if issubclass(wdg_class, Widget):
             opts.update(kwargs.pop("options"))
@@ -174,8 +174,6 @@ class Widget:
     kind : str, optional
         The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
         signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
-    default : Any, optional
-        The default & starting value for the widget, by default ``None``
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
         ``None``
@@ -198,7 +196,6 @@ class Widget:
         widget_type: Type[_protocols.WidgetProtocol],
         name: str = "",
         kind: str = "POSITIONAL_OR_KEYWORD",
-        default: Any = None,
         annotation: Any = None,
         label=None,
         visible: bool = True,
@@ -226,7 +223,6 @@ class Widget:
         self._widget = widget_type(**backend_kwargs)
         self.name: str = name
         self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
-        self.default = default
         self._label = label
         self.annotation: Any = annotation
         self.gui_only = gui_only
@@ -338,15 +334,21 @@ class Widget:
 
 
 class ValueWidget(Widget):
-    """Widget with a value, Wraps ValueWidgetProtocol."""
+    """Widget with a value, Wraps ValueWidgetProtocol.
+
+    Parameters
+    ----------
+    value : Any, optional
+        The starting value for the widget, by default ``None``
+    """
 
     _widget: _protocols.ValueWidgetProtocol
     changed: EventEmitter
 
-    def __init__(self, **kwargs):
+    def __init__(self, value: Any = None, **kwargs):
         super().__init__(**kwargs)
-        if self.default is not None:
-            self.value = self.default
+        if value is not None:
+            self.value = value
 
     def _post_init(self):
         super()._post_init()
@@ -841,7 +843,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
             # no labels for button widgets (push buttons, checkboxes, have their own)
             if isinstance(widget, ButtonWidget):
                 return
-            label = create_widget(widget_type="Label", default=widget.label)
+            label = create_widget(widget_type="Label", value=widget.label)
             self._widget._mgui_insert_widget(key, label)
 
     @property

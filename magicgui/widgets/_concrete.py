@@ -342,9 +342,9 @@ class RangeEdit(Container):
     """
 
     def __init__(self, start=0, stop=10, step=1, **kwargs):
-        self.start = SpinBox(default=start)
-        self.stop = SpinBox(default=stop)
-        self.step = SpinBox(default=step)
+        self.start = SpinBox(value=start)
+        self.stop = SpinBox(value=stop)
+        self.step = SpinBox(value=step)
         kwargs["widgets"] = [self.start, self.stop, self.step]
         super().__init__(**kwargs)
 

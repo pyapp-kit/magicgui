@@ -85,7 +85,7 @@ class MagicParameter(inspect.Parameter):
         The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
         signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
     default : Any, optional
-        The default & starting value for the widget, by default None
+        The default value for the parameter, by default None
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
         None
@@ -138,7 +138,7 @@ class MagicParameter(inspect.Parameter):
         return create_widget(
             name=self.name,
             kind=self.kind.name,
-            default=value,
+            value=value,
             annotation=annotation,
             app=app,
             options=options,
