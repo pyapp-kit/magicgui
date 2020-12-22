@@ -203,6 +203,8 @@ class Widget:
         backend_kwargs=dict(),
         **extra,
     ):
+        # for ipywidgets API compatibility
+        label = label or extra.pop("description", None)
         if extra:
             warnings.warn(
                 f"\n\n{self.__class__.__name__}.__init__() got unexpected "
