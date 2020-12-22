@@ -89,7 +89,7 @@ def create_widget(
     """Create and return appropriate widget subclass.
 
     This factory function can be used to create a widget appropriate for the
-    provided `value` and/or `annotation` provided.
+    provided ``value`` and/or ``annotation`` provided.
 
     Parameters
     ----------
@@ -105,9 +105,10 @@ def create_widget(
         signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
     label : str
         A string to use for an associated Label widget (if this widget is being
-        shown in a `Container` widget, and labels are on).  By default, `name` will
-        be used. Note: `name` refers the name of the parameter, as might be used in
-        a signature, whereas label is just the label for that widget in the GUI.
+        shown in a :class:`~magicgui.widgets.Container` widget, and labels are on).
+        By default, ``name`` will be used. Note: ``name`` refers the name of the
+        parameter, as might be used in a signature, whereas label is just the label
+        for that widget in the GUI.
     gui_only : bool, optional
         Whether the widget should be considered "only for the gui", or if it should
         be included in any widget container signatures, by default False
@@ -182,11 +183,11 @@ class Widget:
         The type annotation for the parameter represented by the widget, by default
         ``None``
     label : str
-        A string to use for an associated Label widget (if this widget is being shown in
-        a `Container` widget, and labels are on).  By default, `name` will be used.
-        Note: `name` refers the name of the parameter, as might be used in a signature,
-        whereas label is just the label for that widget in the GUI.
-    gui_only : bool, optional
+        A string to use for an associated Label widget (if this widget is being
+        shown in a :class:`~magicgui.widgets.Container` widget, and labels are on).
+        By default, ``name`` will be used. Note: ``name`` refers the name of the
+        parameter, as might be used in a signature, whereas label is just the label
+        for that widget in the GUI.
         Whether the widget should be considered "only for the gui", or if it should be
         included in any widget container signatures, by default False
     backend_kwargs : dict, optional
@@ -403,7 +404,7 @@ class ButtonWidget(ValueWidget):
     Parameters
     ----------
     text : str, optional
-        The text to display on the button. If not provided, will use `name`.
+        The text to display on the button. If not provided, will use ``name``.
     """
 
     _widget: _protocols.ButtonWidgetProtocol
@@ -500,8 +501,8 @@ class TransformedRangedWidget(RangedWidget, ABC):
     """Widget with a contstrained value. Wraps RangedWidgetProtocol.
 
     This can be used to map one domain of numbers onto another, useful for creating
-    things like LogSliders.  Subclasses must reimplement `_value_from_position` and
-    `_position_from_value`.
+    things like LogSliders.  Subclasses must reimplement ``_value_from_position`` and
+    ``_position_from_value``.
 
     Parameters
     ----------
@@ -856,7 +857,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         return d
 
     def insert(self, key: int, widget: Widget):
-        """Insert widget at `key`."""
+        """Insert widget at ``key``."""
         if isinstance(widget, ValueWidget):
             widget.changed.connect(lambda x: self.changed(value=self))
         self._widget._mgui_insert_widget(key, widget)
