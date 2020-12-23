@@ -11,6 +11,7 @@
 
 - part: Examples
   chapters:
+    - file: examples/widget_demo
     - file: examples/napari/napari_img_math
     - file: examples/napari/napari_parameter_sweep
 

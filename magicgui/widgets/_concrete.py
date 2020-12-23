@@ -385,3 +385,56 @@ class SliceEdit(RangeEdit):
         self.start.value = value.start
         self.stop.value = value.stop
         self.step.value = value.step
+
+
+class _LabeledWidget(Container):
+    """Simple container that wraps a widget and provides a label."""
+
+    def __init__(
+        self,
+        widget: Widget,
+        label: str = None,
+        position: str = "left",
+        **kwargs,
+    ):
+        orientation = "horizontal" if position in ("left", "right") else "vertical"
+        kwargs["backend_kwargs"] = {"orientation": orientation}
+        self._inner_widget = widget
+        self._label_widget = Label(default=label or widget.label)
+        super().__init__(**kwargs)
+        self.labels = False  # important to avoid infinite recursion during insert!
+        self._inner_widget.label_changed.connect(self._on_label_change)
+        self.extend([self._label_widget, widget])
+        self.margins = (0, 0, 0, 0)
+
+    def __repr__(self) -> str:
+        """Return string representation."""
+        return f"Labeled{self._inner_widget!r}"
+
+    @property
+    def value(self):
+        return getattr(self._inner_widget, "value", None)
+
+    @value.setter
+    def value(self, value):
+        if hasattr(self._inner_widget, "value"):
+            self._inner_widget.value = value  # type: ignore
+
+    @property
+    def label(self):
+        return self._label_widget.label
+
+    @label.setter
+    def label(self, label):
+        self._label_widget.label = label
+
+    def _on_label_change(self, event):
+        self._label_widget.value = event.value
+
+    @property
+    def label_width(self):
+        return self._label_widget.width
+
+    @label_width.setter
+    def label_width(self, width):
+        self._label_widget.width = width

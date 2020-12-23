@@ -12,6 +12,7 @@ from .widgets import (
     Slider,
     SpinBox,
     TextEdit,
+    get_text_width,
     show_file_dialog,
 )
 
@@ -29,5 +30,6 @@ __all__ = [
     "Slider",
     "SpinBox",
     "TextEdit",
+    "get_text_width",
     "show_file_dialog",
 ]

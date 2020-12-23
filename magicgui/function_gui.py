@@ -81,6 +81,7 @@ class FunctionGui(Container):
         if extra:
             s = "s" if len(extra) > 1 else ""
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
+        self._function = function
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             orientation=orientation,
@@ -93,7 +94,6 @@ class FunctionGui(Container):
         self._param_options = param_options
         self.called = EventEmitter(self, type="called")
         self._result_name = ""
-        self._function = function
         self._bound: Dict[str, Any] = {}
         self.bind(bind)
 
