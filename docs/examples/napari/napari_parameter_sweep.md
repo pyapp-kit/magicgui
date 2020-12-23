@@ -61,7 +61,7 @@ with napari.gui_qt():
     # - we contstrain the possible choices for `mode`
     @magicgui(
         auto_call=True,
-        sigma={"widget_type": "FloatSlider", "maximum": 6},
+        sigma={"widget_type": "FloatSlider", "max": 6},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
     def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
@@ -116,7 +116,7 @@ Finally, we decorate the function with `@magicgui` and provide some options.
 ```python
 @magicgui(
     auto_call=True,
-    sigma={"widget_type": "FloatSlider", "maximum": 6},
+    sigma={"widget_type": "FloatSlider", "max": 6},
     mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
 )
 def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:

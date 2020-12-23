@@ -9,6 +9,8 @@ to the function.
 
 """
 
+from functools import partial
+
 from ._bases import Widget, create_widget
 from ._concrete import (
     CheckBox,
@@ -30,6 +32,24 @@ from ._concrete import (
     SpinBox,
     TextEdit,
 )
+
+#: Aliases for compatibility with ipywidgets.  (WIP)
+IntSlider = Slider
+FloatLogSlider = LogSlider
+IntText = SpinBox
+BoundedIntText = SpinBox
+FloatText = FloatSpinBox
+BoundedFloatText = FloatSpinBox
+ToggleButton = RadioButton
+Checkbox = CheckBox
+Dropdown = ComboBox
+Text = LineEdit
+Textarea = TextEdit
+Combobox = ComboBox
+DatePicker = DateTimeEdit
+Box = Container
+HBox = partial(Container, orientation="horizontal")
+VBox = partial(Container, orientation="vertical")
 
 __all__ = [
     "CheckBox",
@@ -53,3 +73,5 @@ __all__ = [
     "TextEdit",
     "Widget",
 ]
+
+del partial

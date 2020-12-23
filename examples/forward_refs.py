@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     import napari
 
 
-@magicgui(call_button="execute", background={"maximum": 200})
+@magicgui(call_button="execute", background={"max": 200})
 def subtract_background(
     layerA: "napari.layers.Image", background: int = 50
 ) -> "napari.layers.Image":

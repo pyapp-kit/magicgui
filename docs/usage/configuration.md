@@ -111,7 +111,7 @@ the call to `magicgui` with the same name as the parameter in the signature that
 you want to modify:
 
 ```{code-cell} python
-@magicgui(b={'minimum': 10, 'maximum': 20})
+@magicgui(b={'min': 10, 'max': 20})
 def add(a: int, b: int = 15) -> int:
     return a + b
 
@@ -123,14 +123,14 @@ The keys in the parameter-specific options dict must be valid arguments
 for the corresponding widget type from {mod}`magicgui.widgets`.  In this
 example, the `a_string` paremeter would be turned into a
 {class}`~magicgui.widgets.LineEdit` widget, which does not take an
-argument "`minimum`":
+argument "`min`":
 ```
 
 ```{code-cell} python
 ---
 tags: [raises-exception]
 ---
-@magicgui(a_string={'minimum': 10})
+@magicgui(a_string={'min': 10})
 def whoops(a_string: str = 'Hi there'):
     ...
 ```
@@ -144,7 +144,7 @@ widget in [magicgui.widgets](magicgui.widgets).  Or an actual
 `int` into a slider:
 
 ```{code-cell} python
-@magicgui(b={'widget_type': 'Slider', 'minimum': 10, 'maximum': 20})
+@magicgui(b={'widget_type': 'Slider', 'min': 10, 'max': 20})
 def add(a: int, b: int = 15) -> int:
     return a + b
 
@@ -209,8 +209,8 @@ from magicgui.widgets import Label
 def add(a=2, b=3):
     return a + b
 
-add.insert(1, Label(default="+"))
-add.insert(3, Label(default="="))
+add.insert(1, Label(value="+"))
+add.insert(3, Label(value="="))
 add()
 add.show()
 ```

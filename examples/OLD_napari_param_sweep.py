@@ -27,7 +27,7 @@ with napari.gui_qt():
         auto_call=True,
         # "fixedWidth" is qt specific and no longer works
         # this will eventually raise an exception
-        sigma={"widget_type": QDoubleSlider, "maximum": 6, "fixedWidth": 400},
+        sigma={"widget_type": QDoubleSlider, "max": 6, "fixedWidth": 400},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
     def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
