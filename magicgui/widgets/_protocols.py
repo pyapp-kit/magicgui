@@ -93,22 +93,22 @@ class RangedWidgetProtocol(ValueWidgetProtocol, Protocol):
     """Value widget that supports numbers within a provided min/max range."""
 
     @abstractmethod
-    def _mgui_get_minimum(self) -> float:
+    def _mgui_get_min(self) -> float:
         """Get the minimum possible value."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_minimum(self, value: float) -> None:
+    def _mgui_set_min(self, value: float) -> None:
         """Set the minimum possible value."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_get_maximum(self) -> float:
+    def _mgui_get_max(self) -> float:
         """Get the maximum possible value."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_maximum(self, value: float) -> None:
+    def _mgui_set_max(self, value: float) -> None:
         """Set the maximum possible value."""
         raise NotImplementedError()
 

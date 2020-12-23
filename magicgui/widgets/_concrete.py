@@ -188,30 +188,30 @@ class LogSlider(TransformedRangedWidget):
     """
 
     def __init__(
-        self, minimum: float = 1, maximum: float = 100, base: float = math.e, **kwargs
+        self, min: float = 1, max: float = 100, base: float = math.e, **kwargs
     ):
         self._base = base
         app = use_app()
         assert app.native
         super().__init__(
-            minimum=minimum,
-            maximum=maximum,
+            min=min,
+            max=max,
             widget_type=app.get_obj("Slider"),
             **kwargs,
         )
 
     @property
     def _scale(self):
-        minv = math.log(self.minimum, self.base)
-        maxv = math.log(self.maximum, self.base)
+        minv = math.log(self.min, self.base)
+        maxv = math.log(self.max, self.base)
         return (maxv - minv) / (self._max_pos - self._min_pos)
 
     def _value_from_position(self, position):
-        minv = math.log(self.minimum, self.base)
+        minv = math.log(self.min, self.base)
         return math.pow(self.base, minv + self._scale * (position - self._min_pos))
 
     def _position_from_value(self, value):
-        minv = math.log(self.minimum, self.base)
+        minv = math.log(self.min, self.base)
         return (math.log(value, self.base) - minv) / self._scale + self._min_pos
 
     @property
@@ -256,7 +256,7 @@ class FileEdit(Container):
     def __init__(
         self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, filter=None, **kwargs
     ):
-        self.line_edit = LineEdit()
+        self.line_edit = LineEdit(value=kwargs.pop("value", None))
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
         self.filter = filter
@@ -342,9 +342,9 @@ class RangeEdit(Container):
     """
 
     def __init__(self, start=0, stop=10, step=1, **kwargs):
-        self.start = SpinBox(default=start)
-        self.stop = SpinBox(default=stop)
-        self.step = SpinBox(default=step)
+        self.start = SpinBox(value=start)
+        self.stop = SpinBox(value=stop)
+        self.step = SpinBox(value=step)
         kwargs["widgets"] = [self.start, self.stop, self.step]
         super().__init__(**kwargs)
 

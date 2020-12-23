@@ -34,7 +34,7 @@ def transform_get_set(
         )
     suffixes = ["value"]
     if issubclass(cls, RangedWidgetProtocol):
-        suffixes.extend(["maximum", "minimum", "step"])
+        suffixes.extend(["max", "min", "step"])
 
     new_cls = type(f"{prefix}{cls.__name__}", (cls,), {"__module__": __name__})
     for suffix in suffixes:

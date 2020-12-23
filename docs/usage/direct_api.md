@@ -27,10 +27,10 @@ from magicgui.widgets import SpinBox, FileEdit, Slider, Label, Container
 from pathlib import Path
 
 # make some widgets
-spin_box = SpinBox(default=10, name='spin', label='Value:', maximum=100)
-file_picker = FileEdit(default='some/path')
-slider = Slider(default=30, minimum=20, maximum=40)
-label = Label(default=slider.value)
+spin_box = SpinBox(value=10, name='spin', label='Value:', max=100)
+file_picker = FileEdit(value='some/path')
+slider = Slider(value=30, min=20, max=40)
+label = Label(value=slider.value)
 
 # set up callbacks
 def set_label(event):
@@ -51,6 +51,6 @@ list:
 ```python
 container.remove(file_picker)
 container.pop(0)
-container.insert(2, Label(default='a new label'))
+container.insert(2, Label(value='a new label'))
 container.show()
 ```

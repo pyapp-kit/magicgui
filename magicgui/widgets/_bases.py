@@ -23,7 +23,7 @@ pattern is as follows:
             backend_kwargs: dict = dict(),
 
             # additional kwargs will be provided to the magicgui.Widget itself
-            # things like, `name`, `default`, etc...
+            # things like, `name`, `value`, etc...
             **kwargs
         ):
            # instantiation of the backend widget.
@@ -38,7 +38,7 @@ Instead, one will usually instantiate the widgets in :mod:`magicgui.widgets._con
 which are all available direcly in the :mod:`magicgui.widgets` namespace.
 
 The :func:`~magicgui.widgets.create_widget` factory function may be used to
-create a widget subclass appropriate for the arguments passed (such as "default" or
+create a widget subclass appropriate for the arguments passed (such as "value" or
 "annotation").
 
 """
@@ -76,10 +76,10 @@ if TYPE_CHECKING:
 
 
 def create_widget(
-    name: str = "",
-    kind: str = "POSITIONAL_OR_KEYWORD",
-    default: Any = None,
+    value: Any = None,
     annotation: Any = None,
+    name: str = "",
+    param_kind: Union[str, inspect._ParameterKind] = "POSITIONAL_OR_KEYWORD",
     label=None,
     gui_only=False,
     app=None,
@@ -89,25 +89,26 @@ def create_widget(
     """Create and return appropriate widget subclass.
 
     This factory function can be used to create a widget appropriate for the
-    provided `default` value and/or `annotation` provided.
+    provided ``value`` and/or ``annotation`` provided.
 
     Parameters
     ----------
-    name : str, optional
-        The name of the parameter represented by this widget. by default ``""``
-    kind : str, optional
-        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
-        signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
-    default : Any, optional
-        The default & starting value for the widget, by default ``None``
+    value : Any, optional
+        The starting value for the widget, by default ``None``
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
         ``None``
+    name : str, optional
+        The name of the parameter represented by this widget. by default ``""``
+    param_kind : str, optional
+        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
+        signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
     label : str
         A string to use for an associated Label widget (if this widget is being
-        shown in a `Container` widget, and labels are on).  By default, `name` will
-        be used. Note: `name` refers the name of the parameter, as might be used in
-        a signature, whereas label is just the label for that widget in the GUI.
+        shown in a :class:`~magicgui.widgets.Container` widget, and labels are on).
+        By default, ``name`` will be used. Note: ``name`` refers the name of the
+        parameter, as might be used in a signature, whereas label is just the label
+        for that widget in the GUI.
     gui_only : bool, optional
         Whether the widget should be considered "only for the gui", or if it should
         be included in any widget container signatures, by default False
@@ -117,7 +118,7 @@ def create_widget(
         A class implementing a widget protocol or a string with the name of a
         magicgui widget type (e.g. "Label", "PushButton", etc...).
         If provided, this widget type will be used instead of the type
-        autodetermined from ``default`` and/or ``annotation`` above.
+        autodetermined from ``value`` and/or ``annotation`` above.
     options : WidgetOptions, optional
         Dict of options to pass to the Widget constructor, by default dict()
 
@@ -133,6 +134,7 @@ def create_widget(
         widget protocols from widgets._protocols.
     """
     kwargs = locals()
+    _kind = kwargs.pop("param_kind", None)
     _app = use_app(kwargs.pop("app"))
     assert _app.native
     if isinstance(widget_type, _protocols.WidgetProtocol):
@@ -142,22 +144,28 @@ def create_widget(
 
         if widget_type:
             options["widget_type"] = widget_type
-        wdg_class, opts = get_widget_class(default, annotation, options)
+        wdg_class, opts = get_widget_class(value, annotation, options)
 
         if issubclass(wdg_class, Widget):
             opts.update(kwargs.pop("options"))
             kwargs.update(opts)
             kwargs.pop("widget_type", None)
-            return wdg_class(**kwargs)
+            widget = wdg_class(**kwargs)
+            if _kind:
+                widget.param_kind = _kind
+            return widget
 
     # pick the appropriate subclass for the given protocol
     # order matters
     for p in ("Categorical", "Ranged", "Button", "Value", ""):
         prot = getattr(_protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
-            return globals()[f"{p}Widget"](
+            widget = globals()[f"{p}Widget"](
                 widget_type=wdg_class, **kwargs, **kwargs.pop("options")
             )
+            if _kind:
+                widget.param_kind = _kind
+            return widget
 
     raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
@@ -171,20 +179,15 @@ class Widget:
         A class implementing a widget protocol.  Will be instantiated during __init__.
     name : str, optional
         The name of the parameter represented by this widget. by default ""
-    kind : str, optional
-        The :attr:`inspect.Parameter.kind` represented by this widget.  Used in building
-        signatures from multiple widgets, by default "POSITIONAL_OR_KEYWORD"
-    default : Any, optional
-        The default & starting value for the widget, by default ``None``
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
         ``None``
     label : str
-        A string to use for an associated Label widget (if this widget is being shown in
-        a `Container` widget, and labels are on).  By default, `name` will be used.
-        Note: `name` refers the name of the parameter, as might be used in a signature,
-        whereas label is just the label for that widget in the GUI.
-    gui_only : bool, optional
+        A string to use for an associated Label widget (if this widget is being
+        shown in a :class:`~magicgui.widgets.Container` widget, and labels are on).
+        By default, ``name`` will be used. Note: ``name`` refers the name of the
+        parameter, as might be used in a signature, whereas label is just the label
+        for that widget in the GUI.
         Whether the widget should be considered "only for the gui", or if it should be
         included in any widget container signatures, by default False
     backend_kwargs : dict, optional
@@ -197,8 +200,6 @@ class Widget:
         self,
         widget_type: Type[_protocols.WidgetProtocol],
         name: str = "",
-        kind: str = "POSITIONAL_OR_KEYWORD",
-        default: Any = None,
         annotation: Any = None,
         label=None,
         visible: bool = True,
@@ -206,8 +207,9 @@ class Widget:
         backend_kwargs=dict(),
         **extra,
     ):
+        # for ipywidgets API compatibility
+        label = label or extra.pop("description", None)
         if extra:
-
             warnings.warn(
                 f"\n\n{self.__class__.__name__}.__init__() got unexpected "
                 f"keyword arguments {set(extra)!r}.\n"
@@ -225,8 +227,7 @@ class Widget:
         assert self.__magicgui_app__.native
         self._widget = widget_type(**backend_kwargs)
         self.name: str = name
-        self.kind: inspect._ParameterKind = inspect._ParameterKind[kind.upper()]
-        self.default = default
+        self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
         self.annotation: Any = annotation
         self.gui_only = gui_only
@@ -241,6 +242,25 @@ class Widget:
         self._post_init()
         if not visible:
             self.hide()
+
+    @property
+    def param_kind(self) -> inspect._ParameterKind:
+        """Return :attr:`inspect.Parameter.kind` represented by this widget.
+
+        Used in building signatures from multiple widgets, by default
+        :attr:`~inspect.Parameter.POSITIONAL_OR_KEYWORD`
+        """
+        return self._param_kind
+
+    @param_kind.setter
+    def param_kind(self, kind: Union[str, inspect._ParameterKind]):
+        if isinstance(kind, str):
+            kind = inspect._ParameterKind[kind.upper()]
+        if not isinstance(kind, inspect._ParameterKind):
+            raise TypeError(
+                "'param_kind' must be either a string or a inspect._ParameterKind."
+            )
+        self._param_kind: inspect._ParameterKind = kind
 
     def _post_init(self):
         pass
@@ -338,15 +358,21 @@ class Widget:
 
 
 class ValueWidget(Widget):
-    """Widget with a value, Wraps ValueWidgetProtocol."""
+    """Widget with a value, Wraps ValueWidgetProtocol.
+
+    Parameters
+    ----------
+    value : Any, optional
+        The starting value for the widget, by default ``None``
+    """
 
     _widget: _protocols.ValueWidgetProtocol
     changed: EventEmitter
 
-    def __init__(self, **kwargs):
+    def __init__(self, value: Any = None, **kwargs):
         super().__init__(**kwargs)
-        if self.default is not None:
-            self.value = self.default
+        if value is not None:
+            self.value = value
 
     def _post_init(self):
         super()._post_init()
@@ -378,7 +404,7 @@ class ButtonWidget(ValueWidget):
     Parameters
     ----------
     text : str, optional
-        The text to display on the button. If not provided, will use `name`.
+        The text to display on the button. If not provided, will use ``name``.
     """
 
     _widget: _protocols.ButtonWidgetProtocol
@@ -410,9 +436,9 @@ class RangedWidget(ValueWidget):
 
     Parameters
     ----------
-    minimum : float, optional
+    min : float, optional
         The minimum allowable value, by default 0
-    maximum : float, optional
+    max : float, optional
         The maximum allowable value, by default 100
     step : float, optional
         The step size for incrementing the value, by default 1
@@ -420,39 +446,37 @@ class RangedWidget(ValueWidget):
 
     _widget: _protocols.RangedWidgetProtocol
 
-    def __init__(
-        self, minimum: float = 0, maximum: float = 100, step: float = 1, **kwargs
-    ):
+    def __init__(self, min: float = 0, max: float = 100, step: float = 1, **kwargs):
         super().__init__(**kwargs)
 
-        self.minimum = minimum
-        self.maximum = maximum
+        self.min = min
+        self.max = max
         self.step = step
 
     @property
     def options(self) -> dict:
         """Return options currently being used in this widget."""
         d = super().options.copy()
-        d.update({"minimum": self.minimum, "maximum": self.maximum, "step": self.step})
+        d.update({"min": self.min, "max": self.max, "step": self.step})
         return d
 
     @property
-    def minimum(self) -> float:
+    def min(self) -> float:
         """Minimum allowable value for the widget."""
-        return self._widget._mgui_get_minimum()
+        return self._widget._mgui_get_min()
 
-    @minimum.setter
-    def minimum(self, value: float):
-        self._widget._mgui_set_minimum(value)
+    @min.setter
+    def min(self, value: float):
+        self._widget._mgui_set_min(value)
 
     @property
-    def maximum(self) -> float:
+    def max(self) -> float:
         """Maximum allowable value for the widget."""
-        return self._widget._mgui_get_maximum()
+        return self._widget._mgui_get_max()
 
-    @maximum.setter
-    def maximum(self, value: float):
-        self._widget._mgui_set_maximum(value)
+    @max.setter
+    def max(self, value: float):
+        self._widget._mgui_set_max(value)
 
     @property
     def step(self) -> float:
@@ -466,25 +490,25 @@ class RangedWidget(ValueWidget):
     @property
     def range(self) -> Tuple[float, float]:
         """Range of allowable values for the widget."""
-        return self.minimum, self.maximum
+        return self.min, self.max
 
     @range.setter
     def range(self, value: Tuple[float, float]):
-        self.minimum, self.maximum = value
+        self.min, self.max = value
 
 
 class TransformedRangedWidget(RangedWidget, ABC):
     """Widget with a contstrained value. Wraps RangedWidgetProtocol.
 
     This can be used to map one domain of numbers onto another, useful for creating
-    things like LogSliders.  Subclasses must reimplement `_value_from_position` and
-    `_position_from_value`.
+    things like LogSliders.  Subclasses must reimplement ``_value_from_position`` and
+    ``_position_from_value``.
 
     Parameters
     ----------
-    minimum : float, optional
+    min : float, optional
         The minimum allowable value, by default 0
-    maximum : float, optional
+    max : float, optional
         The maximum allowable value, by default 100
     min_pos : float, optional
         The minimum value for the *internal* (widget) position, by default 0.
@@ -498,21 +522,21 @@ class TransformedRangedWidget(RangedWidget, ABC):
 
     def __init__(
         self,
-        minimum: float = 0,
-        maximum: float = 100,
+        min: float = 0,
+        max: float = 100,
         min_pos: int = 0,
         max_pos: int = 100,
         step: int = 1,
         **kwargs,
     ):
-        self._minimum = minimum
-        self._maximum = maximum
+        self._min = min
+        self._max = max
         self._min_pos = min_pos
         self._max_pos = max_pos
         ValueWidget.__init__(self, **kwargs)
 
-        self._widget._mgui_set_minimum(self._min_pos)
-        self._widget._mgui_set_maximum(self._max_pos)
+        self._widget._mgui_set_min(self._min_pos)
+        self._widget._mgui_set_max(self._max_pos)
         self._widget._mgui_set_step(step)
 
     # Just a linear scaling example.
@@ -521,17 +545,17 @@ class TransformedRangedWidget(RangedWidget, ABC):
     @property
     def _scale(self):
         """Slope of a linear map.  Just used as an example."""
-        return (self.maximum - self.minimum) / (self._max_pos - self._min_pos)
+        return (self.max - self.min) / (self._max_pos - self._min_pos)
 
     @abstractmethod
     def _value_from_position(self, position):
         """Return 'real' value given internal widget position."""
-        return self.minimum + self._scale * (position - self._min_pos)
+        return self.min + self._scale * (position - self._min_pos)
 
     @abstractmethod
     def _position_from_value(self, value):
         """Return internal widget position given 'real' value."""
-        return (value - self.minimum) / self._scale + self._min_pos
+        return (value - self.min) / self._scale + self._min_pos
 
     #########
 
@@ -545,25 +569,25 @@ class TransformedRangedWidget(RangedWidget, ABC):
         return self._widget._mgui_set_value(self._position_from_value(value))
 
     @property
-    def minimum(self) -> float:
+    def min(self) -> float:
         """Minimum allowable value for the widget."""
-        return self._minimum
+        return self._min
 
-    @minimum.setter
-    def minimum(self, value: float):
+    @min.setter
+    def min(self, value: float):
         prev = self.value
-        self._minimum = value
+        self._min = value
         self.value = prev
 
     @property
-    def maximum(self) -> float:
+    def max(self) -> float:
         """Maximum allowable value for the widget."""
-        return self._maximum
+        return self._max
 
-    @maximum.setter
-    def maximum(self, value: float):
+    @max.setter
+    def max(self, value: float):
         prev = self.value
-        self._maximum = value
+        self._max = value
         self.value = prev
 
 
@@ -833,7 +857,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         return d
 
     def insert(self, key: int, widget: Widget):
-        """Insert widget at `key`."""
+        """Insert widget at ``key``."""
         if isinstance(widget, ValueWidget):
             widget.changed.connect(lambda x: self.changed(value=self))
         self._widget._mgui_insert_widget(key, widget)
@@ -841,7 +865,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
             # no labels for button widgets (push buttons, checkboxes, have their own)
             if isinstance(widget, ButtonWidget):
                 return
-            label = create_widget(widget_type="Label", default=widget.label)
+            label = create_widget(widget_type="Label", value=widget.label)
             self._widget._mgui_insert_widget(key, label)
 
     @property
