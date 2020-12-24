@@ -899,7 +899,9 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
             return
         if self.orientation == "vertical" and self.labels:
             measure = use_app().get_obj("get_text_width")
-            widest_label = max(measure(w.label) for w in self)
+            widest_label = max(
+                measure(w.label) for w in self if not isinstance(w, ButtonWidget)
+            )
             for i in range(len(self)):
                 w = self._widget._mgui_get_index(i)
                 if hasattr(w, "label_width"):
