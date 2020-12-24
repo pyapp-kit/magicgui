@@ -408,12 +408,12 @@ class Table(QBaseValueWidget):
     _qwidget: QtW.QSlider
 
     def __init__(self):
-        self._vheader_labels = []
-        self._hheader_labels = []
+        self._vheader_labels: tuple = ()
+        self._hheader_labels: tuple = ()
         super().__init__(QtW.QTableWidget, "", "", "")
         self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
 
-    def _mgui_set_value(self, data: Tuple[list, list, list]):
+    def _mgui_set_value(self, data: Tuple[list, tuple, tuple]):
         values, index, columns = data
         self._qwidget.blockSignals(True)
         self._qwidget.setRowCount(len(index))
@@ -423,21 +423,21 @@ class Table(QBaseValueWidget):
                 # TODO: have to show a string, but can set item.data too
                 self._qwidget.setItem(row, col, QtW.QTableWidgetItem(str(datum)))
 
-        self._vheader_labels = list(map(str, index))
-        self._hheader_labels = list(map(str, columns))
+        self._vheader_labels = tuple(map(str, index))
+        self._hheader_labels = tuple(map(str, columns))
         self._qwidget.setVerticalHeaderLabels(self._vheader_labels)
         self._qwidget.setHorizontalHeaderLabels(self._hheader_labels)
         self._qwidget.blockSignals(False)
         self._qwidget.itemChanged.emit(QtW.QTableWidgetItem())
 
-    def _mgui_get_value(self) -> Tuple[list, list, list]:
+    def _mgui_get_value(self) -> Tuple[list, tuple, tuple]:
         _table = []
         for r in range(self._qwidget.rowCount()):
             _table.append(
-                [
+                tuple(
                     _maybefloat(self._qwidget.item(r, c))
                     for c in range(self._qwidget.columnCount())
-                ]
+                )
             )
         return _table, self._vheader_labels, self._hheader_labels
 
