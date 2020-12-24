@@ -131,4 +131,4 @@ class Table(ValueWidget):
 
     def __repr__(self) -> str:
         """Return string repr."""
-        return "Table(name={self.name})\n" + repr(self.value)
+        return f"Table(name={self.name})\n" + repr(self.value)
