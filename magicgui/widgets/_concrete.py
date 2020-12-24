@@ -400,7 +400,7 @@ class _LabeledWidget(Container):
         orientation = "horizontal" if position in ("left", "right") else "vertical"
         kwargs["backend_kwargs"] = {"orientation": orientation}
         self._inner_widget = widget
-        self._label_widget = Label(default=label or widget.label)
+        self._label_widget = Label(value=label or widget.label)
         super().__init__(**kwargs)
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)

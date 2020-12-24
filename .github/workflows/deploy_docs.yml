@@ -33,6 +33,7 @@ jobs:
             -screen 0 1920x1200x24 -ac +extension GLX
       - name: Install dependencies
         run: |
+          pip install --upgrade pip
           pip install .[pyqt5]
           pip install -r docs/requirements.txt
 
