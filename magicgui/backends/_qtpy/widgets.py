@@ -394,6 +394,57 @@ class DateTimeEdit(QBaseValueWidget):
             return self._qwidget.dateTime().toPyDateTime()
 
 
+def _maybefloat(item):
+    if not item:
+        return None
+    num = item.text()
+    try:
+        return int(num) if num.isdigit() else float(num)
+    except ValueError:
+        return num
+
+
+class Table(QBaseValueWidget):
+    _qwidget: QtW.QSlider
+
+    def __init__(self):
+        self._vheader_labels = []
+        self._hheader_labels = []
+        super().__init__(QtW.QTableWidget, "", "", "")
+        self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
+
+    def _mgui_set_value(self, data: Tuple[list, list, list]):
+        values, index, columns = data
+        self._qwidget.blockSignals(True)
+        self._qwidget.setRowCount(len(index))
+        self._qwidget.setColumnCount(len(columns))
+        for row, lst in enumerate(values):
+            for col, datum in enumerate(lst):
+                # TODO: have to show a string, but can set item.data too
+                self._qwidget.setItem(row, col, QtW.QTableWidgetItem(str(datum)))
+
+        self._vheader_labels = list(map(str, index))
+        self._hheader_labels = list(map(str, columns))
+        self._qwidget.setVerticalHeaderLabels(self._vheader_labels)
+        self._qwidget.setHorizontalHeaderLabels(self._hheader_labels)
+        self._qwidget.blockSignals(False)
+        self._qwidget.itemChanged.emit(QtW.QTableWidgetItem())
+
+    def _mgui_get_value(self) -> Tuple[list, list, list]:
+        _table = []
+        for r in range(self._qwidget.rowCount()):
+            _table.append(
+                [
+                    _maybefloat(self._qwidget.item(r, c))
+                    for c in range(self._qwidget.columnCount())
+                ]
+            )
+        return _table, self._vheader_labels, self._hheader_labels
+
+    def _mgui_bind_change_callback(self, callback):
+        self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))
+
+
 QFILE_DIALOG_MODES = {
     FileDialogMode.EXISTING_FILE: QtW.QFileDialog.getOpenFileName,
     FileDialogMode.EXISTING_FILES: QtW.QFileDialog.getOpenFileNames,
