@@ -5,12 +5,11 @@
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/magicgui)](https://anaconda.org/conda-forge/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
 [![Build Status](https://img.shields.io/travis/napari/magicgui.svg)](https://travis-ci.com/napari/magicgui)
-[![Docs](https://readthedocs.org/projects/magicgui/badge/?version=latest)](https://magicgui.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/napari/magicgui/branch/master/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
 
 **magicgui**: build GUIs from functions, using magic.
 
-## 📖 [Docs](https://magicgui.readthedocs.io/)
+## 📖 [Docs](https://napari.org/magicgui)
 
 ## Installation
 
@@ -64,7 +63,7 @@ snells_law.show(run=True)
 
 ![snells](resources/snells.png)
 
-But that's just the beginning!  Please see [Documentation](https://magicgui.readthedocs.io/) for many more details
+But that's just the beginning!  Please see [Documentation](https://napari.org/magicgui) for many more details
 and usage examples.
 
 ## Contributing
