@@ -773,8 +773,8 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     Parameters
     ----------
-    orientation : str, optional
-        The orientation for the container.  must be one of ``{'horizontal',
+    layout : str, optional
+        The layout for the container.  must be one of ``{'horizontal',
         'vertical'}``. by default "horizontal"
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to intialize the container, by default
@@ -794,15 +794,15 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     def __init__(
         self,
-        orientation: str = "horizontal",
+        layout: str = "horizontal",
         widgets: Sequence[Widget] = (),
         labels=True,
         return_annotation: Any = None,
         **kwargs,
     ):
         self._labels = labels
-        self._orientation = orientation
-        kwargs["backend_kwargs"] = {"orientation": orientation}
+        self._layout = layout
+        kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
@@ -914,7 +914,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     def _unify_label_widths(self, event=None):
         if not self._initialized:
             return
-        if self.orientation == "vertical" and self.labels:
+        if self.layout == "vertical" and self.labels:
             measure = use_app().get_obj("get_text_width")
             widest_label = max(
                 measure(w.label) for w in self if not isinstance(w, ButtonWidget)
@@ -935,14 +935,14 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         self._widget._mgui_set_margins(margins)
 
     @property
-    def orientation(self) -> str:
-        """Return the orientation of the widget."""
-        return self._orientation
+    def layout(self) -> str:
+        """Return the layout of the widget."""
+        return self._layout
 
-    @orientation.setter
-    def orientation(self, value):
+    @layout.setter
+    def layout(self, value):
         raise NotImplementedError(
-            "It is not yet possible to change orientation after instantiation"
+            "It is not yet possible to change layout after instantiation"
         )
 
     @property
