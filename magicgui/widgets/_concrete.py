@@ -402,12 +402,9 @@ class _LabeledWidget(Container):
         self._inner_widget = widget
         self._label_widget = Label(value=label or widget.label)
         super().__init__(**kwargs)
-        self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)
-        for w in [self._label_widget, widget]:
-            with w.parent_changed.blocker():
-                self.append(w)
+        self.extend([self._label_widget, widget])
         self.margins = (0, 0, 0, 0)
 
     def __repr__(self) -> str:

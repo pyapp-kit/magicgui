@@ -3,7 +3,7 @@ from typing import Any, Iterable, Optional, Tuple, Union
 
 import qtpy
 from qtpy import QtWidgets as QtW
-from qtpy.QtCore import QEvent, QObject, Qt, Signal
+from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
 from qtpy.QtGui import QFont, QFontMetrics
 
 from magicgui.types import FileDialogMode
@@ -15,9 +15,16 @@ class EventFilter(QObject):
     parentChanged = Signal()
     valueChanged = Signal(object)
 
-    def eventFilter(self, obj: QObject, event: QEvent):
+    def eventFilter(self, obj, event):
         if event.type() == QEvent.ParentChange:
-            self.parentChanged.emit()
+            # FIXME: error prone... but we need this to emit AFTER the event is handled
+            def _try_emit():
+                try:
+                    self.parentChanged.emit()
+                except AttributeError:
+                    pass
+
+            QTimer().singleShot(0, _try_emit)
         return False
 
 
