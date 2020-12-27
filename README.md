@@ -1,4 +1,4 @@
-# ![icon](resources/logo_long.png)
+# ![icon](https://raw.githubusercontent.com/napari/magicgui/master/resources/logo_long.png)
 
 [![License](https://img.shields.io/github/license/napari/magicgui)](LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
