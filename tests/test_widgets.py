@@ -147,7 +147,7 @@ def test_container_widget():
 
     assert all(x in dir(container) for x in ["labela", "labelb"])
 
-    assert container.margins == (20, 20, 20, 20)
+    assert container.margins
     container.margins = (8, 8, 8, 8)
     assert container.margins == (8, 8, 8, 8)
 
