@@ -7,12 +7,14 @@ import pytest
 
 from magicgui import use_app
 
-docs_mds = glob("docs/**/*.md", recursive=True)
-
 
 @pytest.mark.parametrize(
     "fname",
-    [f for f in docs_mds if "_build" not in f and Path(f).read_text().startswith("-")],
+    [
+        f
+        for f in glob("docs/**/*.md", recursive=True)
+        if "_build" not in f and Path(f).read_text(encoding="utf-8").startswith("-")
+    ],
 )
 def test_doc_code_cells(fname, globalns=globals()):
     """Make sure that all code cells in documentation perform as expected."""
