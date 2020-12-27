@@ -53,6 +53,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ForwardRef,
     List,
     MutableSequence,
     Optional,
@@ -138,7 +139,7 @@ def create_widget(
     _app = use_app(kwargs.pop("app"))
     assert _app.native
     if isinstance(widget_type, _protocols.WidgetProtocol):
-        wdg_class = widget_type
+        wdg_class = kwargs.pop("widget_type")
     else:
         from magicgui.type_map import get_widget_class
 
@@ -160,9 +161,8 @@ def create_widget(
     for p in ("Categorical", "Ranged", "Button", "Value", ""):
         prot = getattr(_protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
-            widget = globals()[f"{p}Widget"](
-                widget_type=wdg_class, **kwargs, **kwargs.pop("options")
-            )
+            options = kwargs.pop("options", {})
+            widget = globals()[f"{p}Widget"](widget_type=wdg_class, **kwargs, **options)
             if _kind:
                 widget.param_kind = _kind
             return widget
@@ -243,6 +243,22 @@ class Widget:
         self._post_init()
         if not visible:
             self.hide()
+
+    @property
+    def annotation(self):
+        """Return type annotation for the parameter represented by the widget.
+
+        ForwardRefs will be resolve when setting the annotation.
+        """
+        return self._annotation
+
+    @annotation.setter
+    def annotation(self, value):
+        if isinstance(value, ForwardRef):
+            from magicgui.type_map import _evaluate_forwardref
+
+            value = _evaluate_forwardref(value)
+        self._annotation = value
 
     @property
     def param_kind(self) -> inspect._ParameterKind:
@@ -413,10 +429,13 @@ class ValueWidget(Widget):
 
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
-        return (
-            f"{self.widget_type}(value={self.value!r}, annotation={self.annotation!r}, "
-            f"name={self.name!r})"
-        )
+        if hasattr(self, "_widget"):
+            return (
+                f"{self.widget_type}(value={self.value!r}, "
+                f"annotation={self.annotation!r}, name={self.name!r})"
+            )
+        else:
+            return f"<Uninitialized {self.widget_type}>"
 
 
 class ButtonWidget(ValueWidget):
@@ -897,7 +916,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     def _unify_label_widths(self, event=None):
         if not self._initialized:
             return
-        if self.orientation == "vertical" and self.labels:
+        if self.orientation == "vertical" and self.labels and len(self):
             measure = use_app().get_obj("get_text_width")
             widest_label = max(
                 measure(w.label) for w in self if not isinstance(w, ButtonWidget)
