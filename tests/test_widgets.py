@@ -1,4 +1,5 @@
 import pytest
+from tests import MyInt
 
 from magicgui import magicgui, widgets
 
@@ -33,3 +34,13 @@ def test_delete_widget():
     # they disappear from the layout
     with pytest.raises(ValueError):
         container.index(a)
+
+
+def test_widget_resolves_forward_ref():
+    """The annotation on a widget should always be a resolved type."""
+
+    @magicgui
+    def widget(x: "tests.MyInt"):  # type: ignore  # noqa
+        pass
+
+    assert widget.x.annotation is MyInt
