@@ -5,3 +5,4 @@ exclude_lines =
     \.\.\.
 omit =
     magicgui/events.py
+    tests/*
