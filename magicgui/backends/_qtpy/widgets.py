@@ -55,7 +55,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
         return self._qwidget.parent()
 
     def _mgui_set_parent(self, widget: Widget):
-        self._qwidget.setParent(widget.native)
+        self._qwidget.setParent(widget.native if widget else None)
 
     def _mgui_get_native_widget(self) -> QtW.QWidget:
         return self._qwidget
@@ -240,7 +240,8 @@ class Container(
         self._qwidget.setLayout(self._layout)
 
     def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
-        return self._layout.contentsMargins()
+        m = self._layout.contentsMargins()
+        return m.left(), m.top(), m.right(), m.bottom()
 
     def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
         self._layout.setContentsMargins(*margins)
