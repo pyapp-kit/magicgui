@@ -161,9 +161,8 @@ def create_widget(
     for p in ("Categorical", "Ranged", "Button", "Value", ""):
         prot = getattr(_protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
-            widget = globals()[f"{p}Widget"](
-                widget_type=wdg_class, **kwargs, **kwargs.pop("options")
-            )
+            options = kwargs.pop("options", {})
+            widget = globals()[f"{p}Widget"](widget_type=wdg_class, **kwargs, **options)
             if _kind:
                 widget.param_kind = _kind
             return widget
@@ -431,10 +430,13 @@ class ValueWidget(Widget):
 
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
-        return (
-            f"{self.widget_type}(value={self.value!r}, annotation={self.annotation!r}, "
-            f"name={self.name!r})"
-        )
+        if hasattr(self, "_widget"):
+            return (
+                f"{self.widget_type}(value={self.value!r}, "
+                f"annotation={self.annotation!r}, name={self.name!r})"
+            )
+        else:
+            return f"<Uninitialized {self.widget_type}>"
 
 
 class ButtonWidget(ValueWidget):
