@@ -230,8 +230,7 @@ class Widget:
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
-        self.annotation = annotation
-
+        self.annotation: Any = annotation
         self.gui_only = gui_only
         self.visible: bool = True
         self.parent_changed = EventEmitter(source=self, type="parent_changed")
