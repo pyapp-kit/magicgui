@@ -198,9 +198,13 @@ def get_widget_class(
     else:
         widget_class = widget_type
 
-    assert isinstance(widget_class, WidgetProtocol) or _is_subclass(
-        widget_class, widgets._bases.Widget
-    )
+    if not (
+        isinstance(widget_class, WidgetProtocol)
+        or _is_subclass(widget_class, widgets._bases.Widget)
+    ):
+        raise TypeError(
+            f"{widget_class!r} does not implement any known widget protocols"
+        )
     return widget_class, _options
 
 

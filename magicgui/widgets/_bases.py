@@ -139,7 +139,7 @@ def create_widget(
     _app = use_app(kwargs.pop("app"))
     assert _app.native
     if isinstance(widget_type, _protocols.WidgetProtocol):
-        wdg_class = widget_type
+        wdg_class = kwargs.pop("widget_type")
     else:
         from magicgui.type_map import get_widget_class
 
