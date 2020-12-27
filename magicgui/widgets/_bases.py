@@ -235,15 +235,16 @@ class Widget:
         self.visible: bool = True
         self.parent_changed = EventEmitter(source=self, type="parent_changed")
         self.label_changed = EventEmitter(source=self, type="label_changed")
-        self._widget._mgui_bind_parent_change_callback(
-            lambda *x: self.parent_changed(value=self.parent)
-        )
+        self._widget._mgui_bind_parent_change_callback(self._emit_parent)
 
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
         self._post_init()
         if not visible:
             self.hide()
+
+    def _emit_parent(self, event=None):
+        self.parent_changed(value=self.parent)
 
     @property
     def annotation(self):
@@ -807,6 +808,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
         self.extend(widgets)
+        self.parent_changed.connect(self.reset_choices)
         self._initialized = True
         self._unify_label_widths()
 
