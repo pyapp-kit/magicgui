@@ -3,3 +3,5 @@ exclude_lines =
     pragma: no cover
     if TYPE_CHECKING:
     \.\.\.
+omit =
+    magicgui/events.py
