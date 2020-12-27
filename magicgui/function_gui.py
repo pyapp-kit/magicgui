@@ -83,6 +83,7 @@ class FunctionGui(Container):
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
         self._function = function
         sig = magic_signature(function, gui_options=param_options)
+        self._return_annotation = sig.return_annotation
         super().__init__(
             orientation=orientation,
             labels=labels,
