@@ -30,7 +30,9 @@ def test_doc_code_cells(fname, globalns=globals()):
         exec(cell, globalns)
 
 
-@pytest.mark.parametrize("fname", glob("examples/*.py"))
+@pytest.mark.parametrize(
+    "fname", [f for f in glob("examples/*.py") if "napari" not in f]
+)
 def test_examples(fname):
     """Make sure that all code cells in documentation perform as expected."""
     app = use_app()
