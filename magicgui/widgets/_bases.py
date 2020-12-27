@@ -53,6 +53,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ForwardRef,
     List,
     MutableSequence,
     Optional,
@@ -243,6 +244,22 @@ class Widget:
         self._post_init()
         if not visible:
             self.hide()
+
+    @property
+    def annotation(self):
+        """Return type annotation for the parameter represented by the widget.
+
+        ForwardRefs will be resolve when setting the annotation.
+        """
+        return self._annotation
+
+    @annotation.setter
+    def annotation(self, value):
+        if isinstance(value, ForwardRef):
+            from magicgui.type_map import _evaluate_forwardref
+
+            value = _evaluate_forwardref(value)
+        self._annotation = value
 
     @property
     def param_kind(self) -> inspect._ParameterKind:
