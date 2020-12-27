@@ -2,7 +2,6 @@ import pytest
 from tests import MyInt
 
 from magicgui import magicgui, widgets
-from magicgui.application import use_app
 
 
 @pytest.mark.parametrize(
@@ -45,21 +44,3 @@ def test_widget_resolves_forward_ref():
         pass
 
     assert widget.x.annotation is MyInt
-
-
-def test_empty_widget():
-    """The annotation on a widget should always be a resolved type."""
-    use_app("qt")
-
-    @magicgui
-    def widget():
-        pass
-
-    from qtpy.QtCore import Qt
-    from qtpy.QtWidgets import QDockWidget, QMainWindow
-
-    main = QMainWindow()
-    dw = QDockWidget(main)
-    dw.setWidget(widget.native)
-    main.addDockWidget(Qt.RightDockWidgetArea, dw)
-    assert widget.native.parent() is dw
