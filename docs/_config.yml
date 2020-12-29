@@ -55,7 +55,7 @@ sphinx:
     html_favicon: "images/favicon.ico"
     html_theme: "sphinx_material"
     html_theme_options:
-      base_url: "http://magicgui.readthedocs.io/" # Specify a base_url used to generate sitemap.xml links
+      base_url: "https://napari.org/magicgui"  # Specify a base_url used to generate sitemap.xml links
       repo_url: "https://github.com/napari/magicgui/"
       repo_name: "napari/magicgui"
       # google_analytics_account: "UA-XXXXX"
