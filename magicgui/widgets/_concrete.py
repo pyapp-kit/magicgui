@@ -212,7 +212,8 @@ class LogSlider(TransformedRangedWidget):
 
     def _position_from_value(self, value):
         minv = math.log(self.min, self.base)
-        return (math.log(value, self.base) - minv) / self._scale + self._min_pos
+        pos = (math.log(value, self.base) - minv) / self._scale + self._min_pos
+        return int(pos)
 
     @property
     def base(self):
