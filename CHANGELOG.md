@@ -1,5 +1,32 @@
 # Changelog
 
+## [v0.2.1](https://github.com/napari/magicgui/tree/v0.2.1) (2020-12-29)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.0...v0.2.1)
+
+v0.2.1 fixes some issues with the 0.2.0 release.  `ForwardRef` annotations are now resolved automatically on both parameter and return type annotations.  And the `orientation` parameter on `Container` widgets (such as those returned by the `magicgui` decorator) has been renamed back to `layout` as in <v0.2.0.  Test coverage is also improved.
+
+**Fixed bugs:**
+
+- napari examples in the docs are broken [\#72](https://github.com/napari/magicgui/issues/72)
+- Functions without arguments are not finding napari parent widgets [\#64](https://github.com/napari/magicgui/issues/64)
+- "Layout" parameter doesn't work anymore in recent dev version [\#54](https://github.com/napari/magicgui/issues/54)
+
+**Closed issues:**
+
+- Should we permanently resolve ForwardRef type annotations? [\#65](https://github.com/napari/magicgui/issues/65)
+- Need consensus on "layout" vs "orientation" [\#63](https://github.com/napari/magicgui/issues/63)
+
+**Merged pull requests:**
+
+- Resolve ForwardRefs on return annotations [\#73](https://github.com/napari/magicgui/pull/73) ([tlambert03](https://github.com/tlambert03))
+- \[pre-commit.ci\] pre-commit autoupdate [\#71](https://github.com/napari/magicgui/pull/71) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- Improve test coverage [\#70](https://github.com/napari/magicgui/pull/70) ([tlambert03](https://github.com/tlambert03))
+- Fix parent\_changed signal emission [\#69](https://github.com/napari/magicgui/pull/69) ([tlambert03](https://github.com/tlambert03))
+- Add tests for docs and examples [\#68](https://github.com/napari/magicgui/pull/68) ([tlambert03](https://github.com/tlambert03))
+- Change "orientation" on containers to "layout" [\#67](https://github.com/napari/magicgui/pull/67) ([tlambert03](https://github.com/tlambert03))
+- resolve ForwardRef on widget.annotation [\#66](https://github.com/napari/magicgui/pull/66) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.0](https://github.com/napari/magicgui/tree/v0.2.0) (2020-12-26)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.1.6...v0.2.0)
