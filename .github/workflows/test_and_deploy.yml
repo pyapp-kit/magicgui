@@ -42,6 +42,7 @@ jobs:
         uses: codecov/codecov-action@v1
 
   qa:
+    if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -62,9 +63,9 @@ jobs:
 
 
   deploy:
+    if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     needs: [test, qa]
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
