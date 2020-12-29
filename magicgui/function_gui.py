@@ -26,7 +26,7 @@ class FunctionGui(Container):
     call_button : bool or str, optional
         If True, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False
-    orientation : str, optional
+    layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
     labels : bool, optional
@@ -64,7 +64,7 @@ class FunctionGui(Container):
         self,
         function: Callable,
         call_button: Union[bool, str] = False,
-        orientation: str = "horizontal",
+        layout: str = "horizontal",
         labels=True,
         app: AppRef = None,
         show: bool = False,
@@ -85,7 +85,7 @@ class FunctionGui(Container):
         sig = magic_signature(function, gui_options=param_options)
         self._return_annotation = sig.return_annotation
         super().__init__(
-            orientation=orientation,
+            layout=layout,
             labels=labels,
             widgets=list(sig.widgets(app).values()),
             return_annotation=sig.return_annotation,
@@ -234,7 +234,7 @@ class FunctionGui(Container):
         return FunctionGui(
             function=self._function,
             call_button=bool(self._call_button),
-            orientation=self.orientation,
+            layout=self.layout,
             labels=self.labels,
             param_options=self._param_options,
             auto_call=self._auto_call,
@@ -312,7 +312,7 @@ def magicgui(function=None, **k) -> Callable[[F], FunctionGui]:  # noqa: D103
 def magicgui(
     function: Optional[F] = None,
     *,
-    orientation: str = "horizontal",
+    layout: str = "horizontal",
     labels: bool = True,
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
@@ -328,7 +328,7 @@ def magicgui(
     function : Callable, optional
         The function to decorate.  Optional to allow bare decorator with optional
         arguments. by default ``None``
-    orientation : str, optional
+    layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
     labels : bool, optional
@@ -389,7 +389,7 @@ def magicgui(
         func_gui = FunctionGui(
             function=func,
             call_button=call_button,
-            orientation=orientation,
+            layout=layout,
             labels=labels,
             param_options=param_options,
             auto_call=auto_call,

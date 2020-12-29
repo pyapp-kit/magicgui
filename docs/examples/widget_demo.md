@@ -36,7 +36,7 @@ class Medium(Enum):
 
 @magicgui(
     call_button="Calculate",
-    orientation="vertical",
+    layout="vertical",
     result_widget=True,
     # numbers default to spinbox widgets, but we can make
     # them sliders using the `widget_type` option

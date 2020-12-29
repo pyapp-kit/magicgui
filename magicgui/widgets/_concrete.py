@@ -398,8 +398,8 @@ class _LabeledWidget(Container):
         position: str = "left",
         **kwargs,
     ):
-        orientation = "horizontal" if position in ("left", "right") else "vertical"
-        kwargs["backend_kwargs"] = {"orientation": orientation}
+        layout = "horizontal" if position in ("left", "right") else "vertical"
+        kwargs["backend_kwargs"] = {"layout": layout}
         self._inner_widget = widget
         self._label_widget = Label(value=label or widget.label)
         super().__init__(**kwargs)

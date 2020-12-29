@@ -18,7 +18,7 @@ class Medium(Enum):
 
 @magicgui(
     call_button="Calculate",
-    orientation="vertical",
+    layout="vertical",
     result_widget=True,
     slider_float={"widget_type": "FloatSlider"},
     filename={"label": "Pick a file:"},

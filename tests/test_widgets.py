@@ -141,9 +141,9 @@ def test_container_widget():
     with pytest.raises(NotImplementedError):
         container[0] = "something"
 
-    assert container.orientation == "horizontal"
+    assert container.layout == "horizontal"
     with pytest.raises(NotImplementedError):
-        container.orientation = "vertical"
+        container.layout = "vertical"
 
     assert all(x in dir(container) for x in ["labela", "labelb"])
 
@@ -161,7 +161,7 @@ def test_container_widget():
 
 def test_container_label_widths():
     """Test basic container functionality."""
-    container = widgets.Container(orientation="vertical")
+    container = widgets.Container(layout="vertical")
     labela = widgets.Label(value="hi", name="labela")
     labelb = widgets.Label(value="hi", name="I have a very long label")
 

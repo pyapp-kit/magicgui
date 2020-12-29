@@ -84,14 +84,14 @@ add.a.value = 4
 add.show()
 ```
 
-### `orientation`
+### `layout`
 
-The `orientation` option determines the orientation of the layout.
+The `layout` option determines the layout of the layout.
 Currently, only `horizontal`, `vertical` are supported. Grid Layouts are a work
 in progress...
 
 ```{code-cell} python
-@magicgui(orientation='vertical', call_button='Add')
+@magicgui(layout='vertical', call_button='Add')
 def add(a: int, b: int) -> int:
     return a + b
 

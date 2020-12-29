@@ -48,8 +48,8 @@ Textarea = TextEdit
 Combobox = ComboBox
 DatePicker = DateTimeEdit
 Box = Container
-HBox = partial(Container, orientation="horizontal")
-VBox = partial(Container, orientation="vertical")
+HBox = partial(Container, layout="horizontal")
+VBox = partial(Container, layout="vertical")
 
 __all__ = [
     "CheckBox",
