@@ -4,8 +4,9 @@ on:
   # Trigger the workflow on push to main branch
   push:
     branches:
-      - main
       - master
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 # This job installs dependencies, builds the book, and pushes it to `gh-pages`
 jobs:
