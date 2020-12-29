@@ -35,28 +35,8 @@ jobs:
         if: runner.os == 'Linux'
         uses: codecov/codecov-action@v1
 
-  qa:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        toxenv: ['lint', 'mypy']
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install tox
-        run: pip install tox
-      - name: Test with tox
-        env:
-          TOXENV: ${{ matrix.toxenv }}
-        run: tox
-
-
   deploy:
-    needs: [test, qa]
+    needs: test
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     steps:
