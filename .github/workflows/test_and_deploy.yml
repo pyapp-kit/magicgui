@@ -1,6 +1,12 @@
 name: tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
@@ -36,9 +42,9 @@ jobs:
         uses: codecov/codecov-action@v1
 
   deploy:
+    if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     needs: test
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
