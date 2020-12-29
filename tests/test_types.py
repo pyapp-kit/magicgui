@@ -1,9 +1,12 @@
 import pytest
 
-from magicgui import magicgui, widgets
+from magicgui import magicgui, register_type, widgets
+from magicgui.function_gui import FunctionGui
 
 
 def test_forward_refs():
+    """Test that forward refs parameter annotations get resolved."""
+
     @magicgui
     def testA(x: "tests.MyInt" = "1"):  # type: ignore  # noqa
         pass
@@ -24,3 +27,29 @@ def test_forward_refs():
             pass
 
     assert "Could not resolve the magicgui forward reference" in str(err.value)
+
+
+def test_forward_refs_return_annotation():
+    """Test that forward refs return annotations get resolved."""
+
+    @magicgui
+    def testA() -> int:
+        return 1
+
+    @magicgui
+    def testB() -> "tests.MyInt":  # type: ignore  # noqa
+        return 1
+
+    from tests import MyInt
+
+    results = []
+    register_type(MyInt, return_callback=lambda *x: results.append(x))
+
+    testA()
+    assert not results
+
+    testB()
+    gui, result, return_annotation = results[0]
+    assert isinstance(gui, FunctionGui)
+    assert result == 1
+    assert return_annotation == "tests.MyInt"

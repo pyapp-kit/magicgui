@@ -83,7 +83,6 @@ class FunctionGui(Container):
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
         self._function = function
         sig = magic_signature(function, gui_options=param_options)
-        self._return_annotation = sig.return_annotation
         super().__init__(
             layout=layout,
             labels=labels,
@@ -207,7 +206,7 @@ class FunctionGui(Container):
             with self._result_widget.changed.blocker():
                 self._result_widget.value = value
 
-        return_type = self._return_annotation
+        return_type = self.return_annotation
         if return_type:
             for callback in _type2callback(return_type):
                 callback(self, value, return_type)
