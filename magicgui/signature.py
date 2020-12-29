@@ -12,14 +12,14 @@ calling ``inspect.signature`` on a function decorated with `magicgui` still work
 
 """
 from __future__ import annotations
-from magicgui.application import AppRef
 
+import inspect
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Callable, Dict, Mapping, Sequence, Tuple, cast
 
 from typing_extensions import Annotated, _AnnotatedAlias
-import inspect
 
+from magicgui.application import AppRef
 from magicgui.types import WidgetOptions
 
 if TYPE_CHECKING:
