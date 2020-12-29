@@ -255,7 +255,7 @@ class Widget:
 
     @annotation.setter
     def annotation(self, value):
-        if isinstance(value, ForwardRef):
+        if isinstance(value, (str, ForwardRef)):
             from magicgui.type_map import _evaluate_forwardref
 
             value = _evaluate_forwardref(value)
@@ -803,16 +803,33 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         return_annotation: Any = None,
         **kwargs,
     ):
+        self._return_annotation = None
         self._labels = labels
         self._layout = layout
         kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
-        self._return_annotation = return_annotation
+        self.return_annotation = return_annotation
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)
         self._initialized = True
         self._unify_label_widths()
+
+    @property
+    def return_annotation(self):
+        """Return annotation to use when converting to :class:`inspect.Signature`.
+
+        ForwardRefs will be resolve when setting the annotation.
+        """
+        return self._return_annotation
+
+    @return_annotation.setter
+    def return_annotation(self, value):
+        if isinstance(value, (str, ForwardRef)):
+            from magicgui.type_map import _evaluate_forwardref
+
+            value = _evaluate_forwardref(value)
+        self._return_annotation = value
 
     def __getattr__(self, name: str):
         """Return attribute ``name``.  Will return a widget if present."""
@@ -984,7 +1001,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         params = [
             MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]
-        return MagicSignature(params, return_annotation=self._return_annotation)
+        return MagicSignature(params, return_annotation=self.return_annotation)
 
     @classmethod
     def from_signature(cls, sig: inspect.Signature, **kwargs) -> Container:

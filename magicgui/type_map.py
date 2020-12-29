@@ -43,8 +43,14 @@ def _is_subclass(obj, superclass):
         return False
 
 
-def _evaluate_forwardref(type_: ForwardRef) -> Any:
+def _evaluate_forwardref(type_: Any) -> Any:
     """Convert typing.ForwardRef into an actual object."""
+    if isinstance(type_, str):
+        type_ = ForwardRef(type_)
+
+    if not isinstance(type_, ForwardRef):
+        return type_
+
     from importlib import import_module
 
     try:
@@ -146,8 +152,7 @@ def pick_widget_type(
         widget_type = options.pop("widget_type")
         return widget_type, options
 
-    if isinstance(annotation, ForwardRef):
-        annotation = _evaluate_forwardref(annotation)
+    annotation = _evaluate_forwardref(annotation)
 
     dtype = _normalize_type(value, annotation)
 
@@ -259,6 +264,8 @@ def register_type(
     ValueError
         If both ``widget_type`` and ``choices`` are None
     """
+    type_ = _evaluate_forwardref(type_)
+
     if not (return_callback or options.get("choices") or widget_type):
         raise ValueError(
             "At least one of `widget_type`, `choices`, or "
@@ -305,6 +312,7 @@ def _type2callback(type_: type) -> List[ReturnCallback]:
         Where a return callback accepts two arguments (gui, value) and does something.
     """
     # look for direct hits
+    type_ = _evaluate_forwardref(type_)
     if type_ in _RETURN_CALLBACKS:
         return _RETURN_CALLBACKS[type_]
     # look for subclasses
