@@ -52,4 +52,5 @@ def test_forward_refs_return_annotation():
     gui, result, return_annotation = results[0]
     assert isinstance(gui, FunctionGui)
     assert result == 1
-    assert return_annotation == "tests.MyInt"
+    # the forward ref has been resolved
+    assert return_annotation is MyInt

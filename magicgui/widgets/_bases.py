@@ -255,7 +255,7 @@ class Widget:
 
     @annotation.setter
     def annotation(self, value):
-        if isinstance(value, ForwardRef):
+        if isinstance(value, (str, ForwardRef)):
             from magicgui.type_map import _evaluate_forwardref
 
             value = _evaluate_forwardref(value)
@@ -825,7 +825,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     @return_annotation.setter
     def return_annotation(self, value):
-        if isinstance(value, ForwardRef):
+        if isinstance(value, (str, ForwardRef)):
             from magicgui.type_map import _evaluate_forwardref
 
             value = _evaluate_forwardref(value)
