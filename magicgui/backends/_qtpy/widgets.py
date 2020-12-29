@@ -3,7 +3,7 @@ from typing import Any, Iterable, Optional, Tuple, Union
 
 import qtpy
 from qtpy import QtWidgets as QtW
-from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
+from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import QFont, QFontMetrics
 
 from magicgui.types import FileDialogMode
@@ -15,16 +15,9 @@ class EventFilter(QObject):
     parentChanged = Signal()
     valueChanged = Signal(object)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj: QObject, event: QEvent):
         if event.type() == QEvent.ParentChange:
-            # FIXME: error prone... but we need this to emit AFTER the event is handled
-            def _try_emit():
-                try:
-                    self.parentChanged.emit()
-                except AttributeError:
-                    pass
-
-            QTimer().singleShot(0, _try_emit)
+            self.parentChanged.emit()
         return False
 
 
@@ -231,9 +224,9 @@ class RadioButton(QBaseButtonWidget):
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, orientation="vertical"):
+    def __init__(self, layout="vertical"):
         QBaseWidget.__init__(self, QtW.QWidget)
-        if orientation == "horizontal":
+        if layout == "horizontal":
             self._layout: QtW.QLayout = QtW.QHBoxLayout()
         else:
             self._layout = QtW.QVBoxLayout()
@@ -284,14 +277,14 @@ class Container(
         return None
 
     def _mgui_set_orientation(self, value) -> None:
-        """Set orientation, value will be 'horizontal' or 'vertical'"""
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
         raise NotImplementedError(
             "Sorry, changing orientation after instantiation "
             "is not yet implemented for Qt."
         )
 
     def _mgui_get_orientation(self) -> str:
-        """Set orientation, return either 'horizontal' or 'vertical'"""
+        """Set orientation, return either 'horizontal' or 'vertical'."""
         if isinstance(self, QtW.QHBoxLayout):
             return "horizontal"
         else:

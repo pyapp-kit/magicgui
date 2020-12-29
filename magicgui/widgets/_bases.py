@@ -234,15 +234,16 @@ class Widget:
         self.visible: bool = True
         self.parent_changed = EventEmitter(source=self, type="parent_changed")
         self.label_changed = EventEmitter(source=self, type="label_changed")
-        self._widget._mgui_bind_parent_change_callback(
-            lambda *x: self.parent_changed(value=self.parent)
-        )
+        self._widget._mgui_bind_parent_change_callback(self._emit_parent)
 
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
         self._post_init()
         if not visible:
             self.hide()
+
+    def _emit_parent(self, event=None):
+        self.parent_changed(value=self.parent)
 
     @property
     def annotation(self):
@@ -775,8 +776,8 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     Parameters
     ----------
-    orientation : str, optional
-        The orientation for the container.  must be one of ``{'horizontal',
+    layout : str, optional
+        The layout for the container.  must be one of ``{'horizontal',
         'vertical'}``. by default "horizontal"
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to intialize the container, by default
@@ -796,19 +797,20 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     def __init__(
         self,
-        orientation: str = "horizontal",
+        layout: str = "horizontal",
         widgets: Sequence[Widget] = (),
         labels=True,
         return_annotation: Any = None,
         **kwargs,
     ):
         self._labels = labels
-        self._orientation = orientation
-        kwargs["backend_kwargs"] = {"orientation": orientation}
+        self._layout = layout
+        kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
         self._return_annotation = return_annotation
         self.extend(widgets)
+        self.parent_changed.connect(self.reset_choices)
         self._initialized = True
         self._unify_label_widths()
 
@@ -916,7 +918,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     def _unify_label_widths(self, event=None):
         if not self._initialized:
             return
-        if self.orientation == "vertical" and self.labels and len(self):
+        if self.layout == "vertical" and self.labels and len(self):
             measure = use_app().get_obj("get_text_width")
             widest_label = max(
                 measure(w.label) for w in self if not isinstance(w, ButtonWidget)
@@ -937,14 +939,14 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         self._widget._mgui_set_margins(margins)
 
     @property
-    def orientation(self) -> str:
-        """Return the orientation of the widget."""
-        return self._orientation
+    def layout(self) -> str:
+        """Return the layout of the widget."""
+        return self._layout
 
-    @orientation.setter
-    def orientation(self, value):
+    @layout.setter
+    def layout(self, value):
         raise NotImplementedError(
-            "It is not yet possible to change orientation after instantiation"
+            "It is not yet possible to change layout after instantiation"
         )
 
     @property

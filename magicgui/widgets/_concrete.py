@@ -212,7 +212,8 @@ class LogSlider(TransformedRangedWidget):
 
     def _position_from_value(self, value):
         minv = math.log(self.min, self.base)
-        return (math.log(value, self.base) - minv) / self._scale + self._min_pos
+        pos = (math.log(value, self.base) - minv) / self._scale + self._min_pos
+        return int(pos)
 
     @property
     def base(self):
@@ -397,14 +398,17 @@ class _LabeledWidget(Container):
         position: str = "left",
         **kwargs,
     ):
-        orientation = "horizontal" if position in ("left", "right") else "vertical"
-        kwargs["backend_kwargs"] = {"orientation": orientation}
+        layout = "horizontal" if position in ("left", "right") else "vertical"
+        kwargs["backend_kwargs"] = {"layout": layout}
         self._inner_widget = widget
         self._label_widget = Label(value=label or widget.label)
         super().__init__(**kwargs)
+        self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)
-        self.extend([self._label_widget, widget])
+        for w in [self._label_widget, widget]:
+            with w.parent_changed.blocker():
+                self.append(w)
         self.margins = (0, 0, 0, 0)
 
     def __repr__(self) -> str:
