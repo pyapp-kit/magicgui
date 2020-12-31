@@ -631,7 +631,26 @@ class TransformedRangedWidget(RangedWidget, ABC):
         self.value = prev
 
 
-class SliderWidget(RangedWidget):
+class _OrientationMixin:
+    """Properties for classes wrapping widgets that support orientation."""
+
+    _widget: _protocols.SupportsOrientation
+
+    @property
+    def orientation(self) -> str:
+        """Orientation of the widget."""
+        return self._widget._mgui_get_orientation()
+
+    @orientation.setter
+    def orientation(self, value: str) -> None:
+        if value not in {"horizontal", "vertical"}:
+            raise ValueError(
+                "Only horizontal and vertical orientation are currently supported"
+            )
+        self._widget._mgui_set_orientation(value)
+
+
+class SliderWidget(RangedWidget, _OrientationMixin):
     """Widget with a contstrained value and orientation. Wraps SliderWidgetProtocol.
 
     Parameters
@@ -751,7 +770,7 @@ class CategoricalWidget(ValueWidget):
         return self._widget._mgui_set_choices(_choices)
 
 
-class ContainerWidget(Widget, MutableSequence[Widget]):
+class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
