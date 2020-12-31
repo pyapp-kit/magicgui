@@ -244,6 +244,13 @@ class Widget:
     def _emit_parent(self, event=None):
         self.parent_changed(value=self.parent)
 
+    def __getattr__(self, name):
+        """Get certain attributes from the wrapped widget."""
+        if name in ("_ipython_display_",):
+            if hasattr(self._widget, name):
+                return getattr(self._widget, name)
+        raise AttributeError(f"{type(self)} object has no attribute {name!r}")
+
     @property
     def annotation(self):
         """Return type annotation for the parameter represented by the widget.
@@ -357,9 +364,6 @@ class Widget:
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         return self._widget._mgui_render()
-
-    def _ipython_display_(self, **kwargs):
-        self._widget._ipython_display_(**kwargs)
 
     def _repr_png_(self):
         """Return PNG representation of the widget for QtConsole."""
@@ -669,7 +673,6 @@ class SliderWidget(RangedWidget, _OrientationMixin):
 
     def __init__(self, orientation: str = "horizontal", **kwargs):
         super().__init__(**kwargs)
-
         self.orientation = orientation
 
     @property

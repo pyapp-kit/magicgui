@@ -1,3 +1,5 @@
+from typing import Union
+
 from ipywidgets import widgets as ipywdg
 
 from magicgui.widgets import _protocols
@@ -10,41 +12,41 @@ class Slider(_protocols.RangedWidgetProtocol):
     def __init__(self, qwidg: ipywdg.Widget = ipywdg.IntSlider):
         self._ipywidget = qwidg()
 
+    # `layout.display` will hide and unhide the widget and collapse the space
+    # `layout.visibility` will make the widget (in)visible without changing layout
     def _mgui_hide_widget(self):
-        pass
+        self._ipywidget.layout.display = "none"
 
     def _mgui_show_widget(self):
-        pass
+        self._ipywidget.layout.display = "block"
 
     def _mgui_get_enabled(self):
-        ...  # noqa
+        return not self._ipywidget.disabled
 
     def _mgui_set_enabled(self, enabled):
-        ...  # noqa
-
-    def _mgui_get_parent(self):
-        ...  # noqa
-
-    def _mgui_set_parent(self, widget):
-        ...  # noqa
+        self._ipywidget.disabled = not enabled
 
     def _mgui_get_native_widget(self):
-        return self._ipywidget  # noqa
-
-    def _mgui_bind_parent_change_callback(self, callback):
-        ...  # noqa
-
-    def _mgui_render(self):
-        ...  # noqa
+        return self._ipywidget
 
     def _mgui_get_width(self):
-        ...  # noqa
+        # TODO: ipywidgets deals in CSS ... by default width is `None`
+        # will this always work with our base Widget assumptions?
+        width = self._ipywidget.layout.width
+        if isinstance(width, str) and width.endswith("px"):
+            return int(width[:-2])
+        return None
 
-    def _mgui_set_min_width(self, value: int):
-        ...  # noqa
+    def _mgui_set_min_width(self, value: Union[int, str]):
+        if isinstance(value, int):
+            value = f"{value}px"
+        self._ipywidget.layout.min_width = value
 
     def _mgui_bind_change_callback(self, callback):
-        ...  # noqa
+        def _inner(change_dict):
+            callback(change_dict.get("new"))
+
+        self._ipywidget.observe(_inner, names=["value"])
 
     def _mgui_get_value(self) -> float:
         return self._ipywidget.value
@@ -71,16 +73,24 @@ class Slider(_protocols.RangedWidgetProtocol):
         self._ipywidget.step = value
 
     def _mgui_set_orientation(self, value) -> None:
-        raise NotImplementedError()
+        self._ipywidget.orientation = value
 
     def _mgui_get_orientation(self) -> str:
-        raise NotImplementedError()
-
-    # def orientation(self):
-    #     return "horizontal"
+        return self._ipywidget.orientation
 
     def _ipython_display_(self, **kwargs):
         return self._ipywidget._ipython_display_(**kwargs)
 
+    def _mgui_get_parent(self):
+        # TODO: how does ipywidgets handle this?
+        ...
 
-a: _protocols.RangedWidgetProtocol = Slider()
+    def _mgui_set_parent(self, widget):
+        # TODO: how does ipywidgets handle this?
+        ...
+
+    def _mgui_bind_parent_change_callback(self, callback):
+        ...
+
+    def _mgui_render(self):
+        pass
