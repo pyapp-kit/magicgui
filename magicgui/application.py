@@ -165,5 +165,6 @@ def use_app(app: AppRef = None) -> Application:
     elif isinstance(app, Application):
         return app
     elif isinstance(app, str):
-        return Application(app)
+        Application._instance = Application(app)
+        return Application._instance
     raise TypeError(f"'app' must be string, Application, or None, got: {app!r}.  ")
