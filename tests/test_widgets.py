@@ -69,7 +69,7 @@ def test_custom_widget_fails():
     with pytest.raises(TypeError) as err:
         widgets.create_widget(1, widget_type=MyBadWidget)  # type: ignore
     assert "does not implement 'WidgetProtocol'" in str(err)
-    assert "Missing members: {'_mgui_show_widget'}" in str(err)
+    assert "Missing methods: {'_mgui_show_widget'}" in str(err)
 
 
 def test_extra_kwargs_warn():
