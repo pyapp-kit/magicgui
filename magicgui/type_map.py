@@ -19,7 +19,7 @@ from magicgui.types import (
     WidgetRef,
     WidgetTuple,
 )
-from magicgui.widgets._protocols import WidgetProtocol
+from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
 __all__: List[str] = ["register_type", "get_widget_class", "type_matcher"]
 
@@ -203,13 +203,9 @@ def get_widget_class(
     else:
         widget_class = widget_type
 
-    if not (
-        isinstance(widget_class, WidgetProtocol)
-        or _is_subclass(widget_class, widgets._bases.Widget)
-    ):
-        raise TypeError(
-            f"{widget_class!r} does not implement any known widget protocols"
-        )
+    if not _is_subclass(widget_class, widgets._bases.Widget):
+        assert_protocol(widget_class, WidgetProtocol)
+
     return widget_class, _options
 
 
