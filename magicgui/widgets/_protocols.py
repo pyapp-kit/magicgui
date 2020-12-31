@@ -34,7 +34,7 @@ def _raise_protocol_error(widget_class: Type, protocol: Type):
     }
     message = (
         f"{widget_class!r} does not implement {protocol.__name__!r}.\n"
-        f"Missing members: {missing!r}"
+        f"Missing methods: {missing!r}"
     )
     raise TypeError(message)
 
