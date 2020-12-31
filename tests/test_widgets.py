@@ -68,7 +68,8 @@ def test_custom_widget_fails():
     """Test that create_widget works with arbitrary backend implementations."""
     with pytest.raises(TypeError) as err:
         widgets.create_widget(1, widget_type=MyBadWidget)  # type: ignore
-    assert "does not implement any known widget protocols" in str(err)
+    assert "does not implement 'WidgetProtocol'" in str(err)
+    assert "Missing members: {'_mgui_show_widget'}" in str(err)
 
 
 def test_extra_kwargs_warn():

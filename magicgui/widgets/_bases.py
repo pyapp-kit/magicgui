@@ -221,8 +221,7 @@ class Widget:
         if not isinstance(_prot, str):
             _prot = _prot.__name__
         prot = getattr(_protocols, _prot.replace("_protocols.", ""))
-        if not isinstance(widget_type, prot):
-            raise TypeError(f"{widget_type!r} does not implement the proper protocol")
+        _protocols.assert_protocol(widget_type, prot)
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
         self._widget = widget_type(**backend_kwargs)
