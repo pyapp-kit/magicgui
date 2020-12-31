@@ -82,6 +82,9 @@ class WidgetProtocol(Protocol):
         """Set the width of the widget."""
         raise NotImplementedError()
 
+    def _ipython_display_(self, **kwargs):
+        pass
+
 
 @runtime_checkable
 class ValueWidgetProtocol(WidgetProtocol, Protocol):

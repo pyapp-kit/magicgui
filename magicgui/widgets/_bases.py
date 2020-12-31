@@ -359,6 +359,9 @@ class Widget:
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         return self._widget._mgui_render()
 
+    def _ipython_display_(self, **kwargs):
+        self._widget._ipython_display_(**kwargs)
+
     def _repr_png_(self):
         """Return PNG representation of the widget for QtConsole."""
         from io import BytesIO
@@ -372,10 +375,13 @@ class Widget:
             )
             return None
 
-        with BytesIO() as file_obj:
-            imsave(file_obj, self.render(), format="png")
-            file_obj.seek(0)
-            return file_obj.read()
+        rendered = self.render()
+        if rendered is not None:
+            with BytesIO() as file_obj:
+                imsave(file_obj, self.render(), format="png")
+                file_obj.seek(0)
+                return file_obj.read()
+        return None
 
     @property
     def width(self) -> int:
