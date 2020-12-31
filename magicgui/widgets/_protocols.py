@@ -209,21 +209,8 @@ class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, Protocol):
 class SupportsOrientation(Protocol):
     """Widget that can be reoriented."""
 
-    @property
-    def orientation(self) -> str:
-        """Orientation of the widget."""
-        return self._mgui_get_orientation()
-
-    @orientation.setter
-    def orientation(self, value: str) -> None:
-        if value not in {"horizontal", "vertical"}:
-            raise ValueError(
-                "Only horizontal and vertical orientation are currently supported"
-            )
-        self._mgui_set_orientation(value)
-
     @abstractmethod
-    def _mgui_set_orientation(self, value) -> None:
+    def _mgui_set_orientation(self, value: str) -> None:
         """Set orientation, value will be 'horizontal' or 'vertical'."""
         raise NotImplementedError()
 
