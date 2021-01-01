@@ -117,13 +117,15 @@ class _IPySupportsChoices(_protocols.SupportsChoices):
 class _IPySupportsText(_protocols.SupportsText):
     """Widget that have text (in addition to value)... like buttons."""
 
+    _ipywidget: ipywdg.Widget
+
     def _mgui_set_text(self, value: str) -> None:
         """Set text."""
-        raise NotImplementedError()
+        self._ipywidget.description = value
 
     def _mgui_get_text(self) -> str:
         """Get text."""
-        raise NotImplementedError()
+        return self._ipywidget.description
 
 
 class _IPyCategoricalWidget(_IPyValueWidget, _IPySupportsChoices):

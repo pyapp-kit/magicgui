@@ -8,12 +8,29 @@ from magicgui import magicgui, use_app, widgets
 from magicgui.widgets._bases import ValueWidget
 
 
+@pytest.fixture(scope="module", params=["qt", "ipynb"])
+def backend(request):
+    return request.param
+
+
 @pytest.mark.parametrize(
-    "WidgetClass", [getattr(widgets, n) for n in widgets.__all__ if n != "Widget"]
+    "WidgetClass",
+    [
+        getattr(widgets, n)
+        for n in widgets.__all__
+        if n not in ("Widget", "create_widget")
+    ],
 )
-def test_widgets(WidgetClass):
-    """Test that we can retrieve getters, setters, and signals for most Widgets."""
-    _ = WidgetClass()
+def test_widgets(backend, WidgetClass):
+    """Test that we can at least instantiate widgets from each backend."""
+    use_app(backend)
+    try:
+        _ = WidgetClass()
+    except AttributeError as e:
+        if "Could not import object" in str(e):
+            pytest.skip(f"no {WidgetClass.__name__!r} in backend {backend!r}")
+            return
+        raise e
 
 
 expectations = (
