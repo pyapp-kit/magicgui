@@ -1,12 +1,15 @@
-from typing import Any, Iterable, Tuple, Union
+from typing import Any, Iterable, Optional, Tuple, Union
 
 import ipywidgets
 from ipywidgets import widgets as ipywdg
 
 from magicgui.widgets import _protocols
+from magicgui.widgets._bases import Widget
 
 
 class _IPyWidget(_protocols.WidgetProtocol):
+    _ipywidget: ipywdg.Widget
+
     def __init__(self, qwidg: ipywdg.Widget):
         self._ipywidget = qwidg()
 
@@ -23,20 +26,6 @@ class _IPyWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_enabled(self, enabled):
         self._ipywidget.disabled = not enabled
-
-    def _mgui_get_parent(self):
-        # TODO: how does ipywidgets handle this?
-        pass
-
-    def _mgui_set_parent(self, widget):
-        # TODO: how does ipywidgets handle this?
-        pass
-
-    def _mgui_bind_parent_change_callback(self, callback):
-        pass
-
-    def _mgui_render(self):
-        pass
 
     def _mgui_get_native_widget(self):
         return self._ipywidget
@@ -57,12 +46,26 @@ class _IPyWidget(_protocols.WidgetProtocol):
     def _ipython_display_(self, **kwargs):
         return self._ipywidget._ipython_display_(**kwargs)
 
+    def _mgui_get_parent(self):
+        # TODO: how does ipywidgets handle this?
+        return getattr(self._ipywidget, "parent", None)
+
+    def _mgui_set_parent(self, widget):
+        # TODO: how does ipywidgets handle this?
+        self._ipywidget.parent = widget
+
+    def _mgui_bind_parent_change_callback(self, callback):
+        pass
+
+    def _mgui_render(self):
+        pass
+
 
 class _IPyValueWidget(_IPyWidget, _protocols.ValueWidgetProtocol):
     def _mgui_get_value(self) -> float:
         return self._ipywidget.value
 
-    def _mgui_set_value(self, value: float) -> None:
+    def _mgui_set_value(self, value: Any) -> None:
         self._ipywidget.value = value
 
     def _mgui_bind_change_callback(self, callback):
@@ -70,6 +73,11 @@ class _IPyValueWidget(_IPyWidget, _protocols.ValueWidgetProtocol):
             callback(change_dict.get("new"))
 
         self._ipywidget.observe(_inner, names=["value"])
+
+
+class _IPyStringWidget(_IPyValueWidget):
+    def _mgui_set_value(self, value) -> None:
+        super()._mgui_set_value(str(value))
 
 
 class _IPyRangedWidget(_IPyValueWidget, _protocols.RangedWidgetProtocol):
@@ -107,11 +115,11 @@ class _IPySupportsChoices(_protocols.SupportsChoices):
 
     def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
         """Get available choices."""
-        raise NotImplementedError()
+        return self._ipywidget.options
 
     def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
         """Set available choices."""
-        raise NotImplementedError()
+        self._ipywidget.options = choices
 
 
 class _IPySupportsText(_protocols.SupportsText):
@@ -140,17 +148,17 @@ class _IPySliderWidget(_IPyRangedWidget, _IPySupportsOrientation):
     """Protocol for implementing a slider widget."""
 
 
-class Label(_IPyValueWidget):
+class Label(_IPyStringWidget):
     def __init__(self):
         super().__init__(ipywdg.Label)
 
 
-class LineEdit(_IPyValueWidget):
+class LineEdit(_IPyStringWidget):
     def __init__(self):
         super().__init__(ipywdg.Text)
 
 
-class TextEdit(_IPyValueWidget):
+class TextEdit(_IPyStringWidget):
     def __init__(self):
         super().__init__(ipywdg.Textarea)
 
@@ -163,6 +171,9 @@ class TextEdit(_IPyValueWidget):
 class PushButton(_IPyButtonWidget):
     def __init__(self):
         super().__init__(ipywdg.Button)
+
+    def _mgui_bind_change_callback(self, callback):
+        self._ipywidget.on_click(lambda e: callback())
 
 
 class CheckBox(_IPyButtonWidget):
@@ -202,38 +213,72 @@ class ComboBox(_IPyCategoricalWidget):
 
 # CONTAINER ----------------------------------------------------------------------
 
-# class _IPyContainerWidget(_protocols.ContainerProtocol):
 
-#     def _mgui_add_widget(self, widget: "Widget") -> None:
-#         raise NotImplementedError()
+class Container(
+    _IPyWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
+):
+    def __init__(self, layout="horizontal"):
+        super().__init__(ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox)
 
-#     def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
-#         raise NotImplementedError()
+    def _mgui_add_widget(self, widget: "Widget") -> None:
+        children = list(self._ipywidget.children)
+        children.append(widget.native)
+        self._ipywidget.children = children
+        widget.parent = self._ipywidget
 
-#     def _mgui_remove_widget(self, widget: "Widget") -> None:
-#         raise NotImplementedError()
+    def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
+        children = list(self._ipywidget.children)
+        children.insert(position, widget.native)
+        self._ipywidget.children = children
+        widget.parent = self._ipywidget
 
-#     def _mgui_remove_index(self, position: int) -> None:
-#         raise NotImplementedError()
+    def _mgui_remove_widget(self, widget: "Widget") -> None:
+        children = list(self._ipywidget.children)
+        children.remove(widget.native)
+        self._ipywidget.children = children
 
-#     def _mgui_count(self) -> int:
-#         raise NotImplementedError()
+    def _mgui_remove_index(self, position: int) -> None:
+        children = list(self._ipywidget.children)
+        children.pop(position)
+        self._ipywidget.children = children
 
-#     def _mgui_index(self, widget: "Widget") -> int:
-#         raise NotImplementedError()
+    def _mgui_count(self) -> int:
+        return len(self._ipywidget.children)
 
-#     def _mgui_get_index(self, index: int) -> Optional[Widget]:
-#         """(return None instead of index error)."""
-#         raise NotImplementedError()
+    def _mgui_index(self, widget: "Widget") -> int:
+        return self._ipywidget.children.index(widget.native)
 
-#     def _mgui_get_native_layout(self) -> Any:
-#         raise NotImplementedError()
+    def _mgui_get_index(self, index: int) -> Optional[Widget]:
+        """(return None instead of index error)."""
+        return self._ipywidget.children[index]._magic_widget
 
-#     def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
-#         raise NotImplementedError()
+    def _mgui_get_native_layout(self) -> Any:
+        raise self._ipywidget
 
-#     def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
-#         raise NotImplementedError()
+    def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
+        margin = self._ipywidget.layout.margin
+        if margin:
+            try:
+                top, rgt, bot, lft = (int(x.replace("px", "")) for x in margin.split())
+                return lft, top, rgt, bot
+            except ValueError:
+                return margin
+        return (0, 0, 0, 0)
 
-# class Container(ContainerWidget):
-#     pass
+    def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+        lft, top, rgt, bot = margins
+        self._ipywidget.layout.margin = "{}px {}px {}px {}px".format(top, rgt, bot, lft)
+
+    def _mgui_set_orientation(self, value) -> None:
+        raise NotImplementedError(
+            "Sorry, changing orientation after instantiation "
+            "is not yet implemented for ipywidgets."
+        )
+
+    def _mgui_get_orientation(self) -> str:
+        return "vertical" if isinstance(self._ipywidget, ipywdg.VBox) else "horizontal"
+
+
+def get_text_width(text):
+    # FIXME: how to do this in ipywidgets?
+    return 40

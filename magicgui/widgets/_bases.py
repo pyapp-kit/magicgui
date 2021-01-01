@@ -866,7 +866,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         for widget in self:
             if name == widget.name:
                 return widget
-        return object.__getattribute__(self, name)
+        return super().__getattr__(name)
 
     def __setattr__(self, name: str, value: Any):
         """Set attribute ``name``.  Prevents changing widget if present, (use del)."""
