@@ -105,6 +105,11 @@ class WidgetProtocol(Protocol):
         """Set the width of the widget."""
         raise NotImplementedError()
 
+    # OPTIONAL: backends may implement this method to determine how their widgets
+    # are displayed in an ipython front-end
+    # def _ipython_display_(self, **kwargs):
+    #     raise NotImplementedError()
+
 
 @runtime_checkable
 class ValueWidgetProtocol(WidgetProtocol, Protocol):
