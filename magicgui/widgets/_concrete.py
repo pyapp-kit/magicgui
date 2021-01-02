@@ -48,7 +48,11 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
     params = {}
     param_docs = []
     for sup in reversed(inspect.getmro(cls)):
-        sig = inspect.signature(getattr(sup, "__init__"))
+        try:
+            sig = inspect.signature(getattr(sup, "__init__"))
+        # in some environments `object` or `abc.ABC` will raise ValueError here
+        except ValueError:
+            continue
         for name, param in sig.parameters.items():
             if name in exclude:
                 continue
