@@ -1,0 +1,14 @@
+ignore:
+  - magicgui/_version.py
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0.5%  # coverage can drop by up to 0.5% while still posting success
+    patch:
+      default:
+        target: auto
+        threshold: 4%  # coverage can drop by up to 0.5% while still posting success
+comment:
+  require_changes: true  # if true: only post the PR comment if coverage changes
