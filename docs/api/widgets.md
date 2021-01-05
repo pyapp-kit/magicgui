@@ -30,6 +30,8 @@ Value Widgets
    RangeEdit
    SliceEdit
    DateTimeEdit
+   DateEdit
+   TimeEdit
 
 Button Widgets
 --------------
