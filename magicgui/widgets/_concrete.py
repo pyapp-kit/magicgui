@@ -194,6 +194,19 @@ class LogSlider(TransformedRangedWidget):
     def __init__(
         self, min: float = 1, max: float = 100, base: float = math.e, **kwargs
     ):
+        for key in ("maximum", "minimum"):
+            if key in kwargs:
+                import warnings
+
+                warnings.warn(
+                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
+                    "In the future this will raise an exception\n",
+                    FutureWarning,
+                )
+                if key == "maximum":
+                    max = kwargs.pop(key)
+                else:
+                    min = kwargs.pop(key)
         self._base = base
         app = use_app()
         assert app.native
