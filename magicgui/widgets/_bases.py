@@ -751,12 +751,13 @@ class CategoricalWidget(ValueWidget):
                 n_params = len(inspect.signature(choices).parameters)
                 if n_params > 1:
                     warnings.warn(
-                        "\n\nAs of magicgui 0.2.0, a `choices` callable may accept only"
-                        " a single positional\nargument (an instance of "
-                        "`magicgui.widgets.CategoricalWidget`), and must return\nan "
-                        f"iterable (the choices to show). Function {choices.__name__!r}"
-                        f" accepts {n_params} arguments.\n"
-                        "In the future, this will raise an exception.\n",
+                        "\n\nAs of magicgui 0.2.0, when providing a callable to "
+                        "`choices`, the\ncallable may accept only a single positional "
+                        "argument (which will\nbe an instance of "
+                        "`magicgui.widgets._bases.CategoricalWidget`),\nand must "
+                        "return an iterable (the choices to show).\nFunction "
+                        f"'{choices.__module__}.{choices.__name__}' accepts {n_params} "
+                        "arguments.\nIn the future, this will raise an exception.\n",
                         FutureWarning,
                     )
                     # pre 0.2.0 API
