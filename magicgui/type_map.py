@@ -100,6 +100,8 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         float: widgets.FloatSpinBox,
         str: widgets.LineEdit,
         pathlib.Path: widgets.FileEdit,
+        datetime.time: widgets.TimeEdit,
+        datetime.date: widgets.DateEdit,
         datetime.datetime: widgets.DateTimeEdit,
         type(None): widgets.LiteralEvalLineEdit,
         Any: widgets.LiteralEvalLineEdit,

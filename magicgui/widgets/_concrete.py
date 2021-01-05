@@ -147,6 +147,16 @@ class DateTimeEdit(ValueWidget):
 
 
 @backend_widget
+class DateEdit(ValueWidget):
+    """A widget for editing dates."""
+
+
+@backend_widget
+class TimeEdit(ValueWidget):
+    """A widget for editing times."""
+
+
+@backend_widget
 class PushButton(ButtonWidget):
     """A clickable command button."""
 
