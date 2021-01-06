@@ -487,6 +487,18 @@ class RangedWidget(ValueWidget):
     _widget: _protocols.RangedWidgetProtocol
 
     def __init__(self, min: float = 0, max: float = 100, step: float = 1, **kwargs):
+        for key in ("maximum", "minimum"):
+            if key in kwargs:
+                warnings.warn(
+                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
+                    "In the future this will raise an exception\n",
+                    FutureWarning,
+                )
+                if key == "maximum":
+                    max = kwargs.pop(key)
+                else:
+                    min = kwargs.pop(key)
+
         super().__init__(**kwargs)
 
         self.min = min
