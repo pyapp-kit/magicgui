@@ -25,3 +25,7 @@ repos:
       - id: mypy
         additional_dependencies: [tokenize-rt==3.2.0]
         exclude: examples
+  -   repo: https://github.com/asottile/pyupgrade
+      rev: v2.7.4
+      hooks:
+      -   id: pyupgrade

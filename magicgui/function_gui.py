@@ -77,7 +77,7 @@ class FunctionGui(Container):
     ):
         bind = bind or dict()
         # consume extra Widget keywords
-        extra = set(kwargs) - set(["annotation", "gui_only"])
+        extra = set(kwargs) - {"annotation", "gui_only"}
         if extra:
             s = "s" if len(extra) > 1 else ""
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
