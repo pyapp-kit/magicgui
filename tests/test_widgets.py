@@ -212,3 +212,5 @@ def test_unhashable_choice_data():
     assert combo.choices == ("a", "b", "c")
     combo.choices = (("a", [1, 2, 3]), ("b", [1, 2, 5]))
     assert combo.choices == ([1, 2, 3], [1, 2, 5])
+    combo.choices = ("x", "y", "z")
+    assert combo.choices == ("x", "y", "z")
