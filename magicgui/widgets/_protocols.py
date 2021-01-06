@@ -9,7 +9,7 @@ For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -19,9 +19,32 @@ if TYPE_CHECKING:
     from magicgui.widgets._bases import Widget
 
 
+def assert_protocol(widget_class: Type, protocol: Type):
+    """Ensure that widget_class implements protocol, or raise helpful error."""
+    if not isinstance(widget_class, protocol):
+        _raise_protocol_error(widget_class, protocol)
+
+
+def _raise_protocol_error(widget_class: Type, protocol: Type):
+    """Raise a more helpful error when required protocol members are missing."""
+    missing = {
+        i
+        for i in set(dir(protocol)) - set(dir(widget_class))
+        if not i.startswith(("__", "_is_protocol", "_is_runtime", "_abc_impl"))
+    }
+    message = (
+        f"{widget_class!r} does not implement {protocol.__name__!r}.\n"
+        f"Missing methods: {missing!r}"
+    )
+    raise TypeError(message)
+
+
 @runtime_checkable
 class WidgetProtocol(Protocol):
     """Base Widget Protocol: specifies methods that all widgets must provide."""
+
+    def __init__(self, **kwargs):
+        pass
 
     @abstractmethod
     def _mgui_show_widget(self) -> None:
@@ -186,21 +209,8 @@ class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, Protocol):
 class SupportsOrientation(Protocol):
     """Widget that can be reoriented."""
 
-    @property
-    def orientation(self) -> str:
-        """Orientation of the widget."""
-        return self._mgui_get_orientation()
-
-    @orientation.setter
-    def orientation(self, value: str) -> None:
-        if value not in {"horizontal", "vertical"}:
-            raise ValueError(
-                "Only horizontal and vertical orientation are currently supported"
-            )
-        self._mgui_set_orientation(value)
-
     @abstractmethod
-    def _mgui_set_orientation(self, value) -> None:
+    def _mgui_set_orientation(self, value: str) -> None:
         """Set orientation, value will be 'horizontal' or 'vertical'."""
         raise NotImplementedError()
 

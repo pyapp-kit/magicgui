@@ -3,7 +3,7 @@ from typing import Any, Iterable, Optional, Tuple, Union
 
 import qtpy
 from qtpy import QtWidgets as QtW
-from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal
+from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import QFont, QFontMetrics
 
 from magicgui.types import FileDialogMode
@@ -15,16 +15,9 @@ class EventFilter(QObject):
     parentChanged = Signal()
     valueChanged = Signal(object)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj: QObject, event: QEvent):
         if event.type() == QEvent.ParentChange:
-            # FIXME: error prone... but we need this to emit AFTER the event is handled
-            def _try_emit():
-                try:
-                    self.parentChanged.emit()
-                except AttributeError:
-                    pass
-
-            QTimer().singleShot(0, _try_emit)
+            self.parentChanged.emit()
         return False
 
 
@@ -231,9 +224,9 @@ class RadioButton(QBaseButtonWidget):
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, orientation="vertical"):
+    def __init__(self, layout="vertical"):
         QBaseWidget.__init__(self, QtW.QWidget)
-        if orientation == "horizontal":
+        if layout == "horizontal":
             self._layout: QtW.QLayout = QtW.QHBoxLayout()
         else:
             self._layout = QtW.QVBoxLayout()
@@ -284,14 +277,14 @@ class Container(
         return None
 
     def _mgui_set_orientation(self, value) -> None:
-        """Set orientation, value will be 'horizontal' or 'vertical'"""
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
         raise NotImplementedError(
             "Sorry, changing orientation after instantiation "
             "is not yet implemented for Qt."
         )
 
     def _mgui_get_orientation(self) -> str:
-        """Set orientation, return either 'horizontal' or 'vertical'"""
+        """Set orientation, return either 'horizontal' or 'vertical'."""
         if isinstance(self, QtW.QHBoxLayout):
             return "horizontal"
         else:
@@ -395,6 +388,58 @@ class DateTimeEdit(QBaseValueWidget):
             return self._qwidget.dateTime().toPyDateTime()
 
 
+class DateEdit(QBaseValueWidget):
+    def __init__(self):
+        super().__init__(QtW.QDateEdit, "", "setDate", "dateChanged")
+
+    def _mgui_get_value(self):
+        try:
+            return self._qwidget.date().toPython()
+        except TypeError:
+            return self._qwidget.date().toPyDate()
+
+
+class TimeEdit(QBaseValueWidget):
+    def __init__(self):
+        super().__init__(QtW.QTimeEdit, "", "setTime", "timeChanged")
+
+    def _mgui_get_value(self):
+        try:
+            return self._qwidget.time().toPython()
+        except TypeError:
+            return self._qwidget.time().toPyTime()
+
+
+QFILE_DIALOG_MODES = {
+    FileDialogMode.EXISTING_FILE: QtW.QFileDialog.getOpenFileName,
+    FileDialogMode.EXISTING_FILES: QtW.QFileDialog.getOpenFileNames,
+    FileDialogMode.OPTIONAL_FILE: QtW.QFileDialog.getSaveFileName,
+    FileDialogMode.EXISTING_DIRECTORY: QtW.QFileDialog.getExistingDirectory,
+}
+
+
+def show_file_dialog(
+    mode: Union[str, FileDialogMode] = FileDialogMode.EXISTING_FILE,
+    caption: str = None,
+    start_path: str = None,
+    filter: str = None,
+    parent=None,
+) -> Optional[str]:
+    show_dialog = QFILE_DIALOG_MODES[FileDialogMode(mode)]
+    args = (parent, caption, start_path, filter)
+    if mode is FileDialogMode.EXISTING_DIRECTORY:
+        result = show_dialog(*args)
+    else:
+        result, _ = show_dialog(*args)
+    return result or None
+
+
+def get_text_width(text) -> int:
+    """Return the width required to render ``text``."""
+    fm = QFontMetrics(QFont("", 0))
+    return fm.boundingRect(text).width() + 5
+
+
 def _maybefloat(item):
     if not item:
         return None
@@ -444,33 +489,3 @@ class Table(QBaseValueWidget):
 
     def _mgui_bind_change_callback(self, callback):
         self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))
-
-
-QFILE_DIALOG_MODES = {
-    FileDialogMode.EXISTING_FILE: QtW.QFileDialog.getOpenFileName,
-    FileDialogMode.EXISTING_FILES: QtW.QFileDialog.getOpenFileNames,
-    FileDialogMode.OPTIONAL_FILE: QtW.QFileDialog.getSaveFileName,
-    FileDialogMode.EXISTING_DIRECTORY: QtW.QFileDialog.getExistingDirectory,
-}
-
-
-def show_file_dialog(
-    mode: Union[str, FileDialogMode] = FileDialogMode.EXISTING_FILE,
-    caption: str = None,
-    start_path: str = None,
-    filter: str = None,
-    parent=None,
-) -> Optional[str]:
-    show_dialog = QFILE_DIALOG_MODES[FileDialogMode(mode)]
-    args = (parent, caption, start_path, filter)
-    if mode is FileDialogMode.EXISTING_DIRECTORY:
-        result = show_dialog(*args)
-    else:
-        result, _ = show_dialog(*args)
-    return result or None
-
-
-def get_text_width(text) -> int:
-    """Return the width required to render ``text``."""
-    fm = QFontMetrics(QFont("", 0))
-    return fm.boundingRect(text).width() + 5

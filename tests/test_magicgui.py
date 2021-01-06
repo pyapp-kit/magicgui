@@ -463,3 +463,18 @@ def test_function_binding():
     assert b.method(sigma=4) == ("b", 4)
     assert a.method() == ("a", 2)
     assert b.method() == ("b", 5)
+
+
+def test_call_count():
+    """Test that a function gui remembers how many times it's been called."""
+
+    @magicgui
+    def func():
+        pass
+
+    assert func.call_count == 0
+    func()
+    func()
+    assert func.call_count == 2
+    func.reset_call_count()
+    assert func.call_count == 0

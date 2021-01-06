@@ -221,8 +221,7 @@ class Widget:
         if not isinstance(_prot, str):
             _prot = _prot.__name__
         prot = getattr(_protocols, _prot.replace("_protocols.", ""))
-        if not isinstance(widget_type, prot):
-            raise TypeError(f"{widget_type!r} does not implement the proper protocol")
+        _protocols.assert_protocol(widget_type, prot)
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
         self._widget = widget_type(**backend_kwargs)
@@ -234,15 +233,16 @@ class Widget:
         self.visible: bool = True
         self.parent_changed = EventEmitter(source=self, type="parent_changed")
         self.label_changed = EventEmitter(source=self, type="label_changed")
-        self._widget._mgui_bind_parent_change_callback(
-            lambda *x: self.parent_changed(value=self.parent)
-        )
+        self._widget._mgui_bind_parent_change_callback(self._emit_parent)
 
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
         self._post_init()
         if not visible:
             self.hide()
+
+    def _emit_parent(self, event=None):
+        self.parent_changed(value=self.parent)
 
     @property
     def annotation(self):
@@ -254,7 +254,7 @@ class Widget:
 
     @annotation.setter
     def annotation(self, value):
-        if isinstance(value, ForwardRef):
+        if isinstance(value, (str, ForwardRef)):
             from magicgui.type_map import _evaluate_forwardref
 
             value = _evaluate_forwardref(value)
@@ -487,6 +487,18 @@ class RangedWidget(ValueWidget):
     _widget: _protocols.RangedWidgetProtocol
 
     def __init__(self, min: float = 0, max: float = 100, step: float = 1, **kwargs):
+        for key in ("maximum", "minimum"):
+            if key in kwargs:
+                warnings.warn(
+                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
+                    "In the future this will raise an exception\n",
+                    FutureWarning,
+                )
+                if key == "maximum":
+                    max = kwargs.pop(key)
+                else:
+                    min = kwargs.pop(key)
+
         super().__init__(**kwargs)
 
         self.min = min
@@ -631,7 +643,26 @@ class TransformedRangedWidget(RangedWidget, ABC):
         self.value = prev
 
 
-class SliderWidget(RangedWidget):
+class _OrientationMixin:
+    """Properties for classes wrapping widgets that support orientation."""
+
+    _widget: _protocols.SupportsOrientation
+
+    @property
+    def orientation(self) -> str:
+        """Orientation of the widget."""
+        return self._widget._mgui_get_orientation()
+
+    @orientation.setter
+    def orientation(self, value: str) -> None:
+        if value not in {"horizontal", "vertical"}:
+            raise ValueError(
+                "Only horizontal and vertical orientation are currently supported"
+            )
+        self._widget._mgui_set_orientation(value)
+
+
+class SliderWidget(RangedWidget, _OrientationMixin):
     """Widget with a contstrained value and orientation. Wraps SliderWidgetProtocol.
 
     Parameters
@@ -732,12 +763,13 @@ class CategoricalWidget(ValueWidget):
                 n_params = len(inspect.signature(choices).parameters)
                 if n_params > 1:
                     warnings.warn(
-                        "\n\nAs of magicgui 0.2.0, a `choices` callable may accept only"
-                        " a single positional\nargument (an instance of "
-                        "`magicgui.widgets.CategoricalWidget`), and must return\nan "
-                        f"iterable (the choices to show). Function {choices.__name__!r}"
-                        f" accepts {n_params} arguments.\n"
-                        "In the future, this will raise an exception.\n",
+                        "\n\nAs of magicgui 0.2.0, when providing a callable to "
+                        "`choices`, the\ncallable may accept only a single positional "
+                        "argument (which will\nbe an instance of "
+                        "`magicgui.widgets._bases.CategoricalWidget`),\nand must "
+                        "return an iterable (the choices to show).\nFunction "
+                        f"'{choices.__module__}.{choices.__name__}' accepts {n_params} "
+                        "arguments.\nIn the future, this will raise an exception.\n",
                         FutureWarning,
                     )
                     # pre 0.2.0 API
@@ -751,7 +783,7 @@ class CategoricalWidget(ValueWidget):
         return self._widget._mgui_set_choices(_choices)
 
 
-class ContainerWidget(Widget, MutableSequence[Widget]):
+class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
@@ -775,8 +807,8 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     Parameters
     ----------
-    orientation : str, optional
-        The orientation for the container.  must be one of ``{'horizontal',
+    layout : str, optional
+        The layout for the container.  must be one of ``{'horizontal',
         'vertical'}``. by default "horizontal"
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to intialize the container, by default
@@ -796,21 +828,39 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
 
     def __init__(
         self,
-        orientation: str = "horizontal",
+        layout: str = "horizontal",
         widgets: Sequence[Widget] = (),
         labels=True,
         return_annotation: Any = None,
         **kwargs,
     ):
+        self._return_annotation = None
         self._labels = labels
-        self._orientation = orientation
-        kwargs["backend_kwargs"] = {"orientation": orientation}
+        self._layout = layout
+        kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
-        self._return_annotation = return_annotation
+        self.return_annotation = return_annotation
         self.extend(widgets)
+        self.parent_changed.connect(self.reset_choices)
         self._initialized = True
         self._unify_label_widths()
+
+    @property
+    def return_annotation(self):
+        """Return annotation to use when converting to :class:`inspect.Signature`.
+
+        ForwardRefs will be resolve when setting the annotation.
+        """
+        return self._return_annotation
+
+    @return_annotation.setter
+    def return_annotation(self, value):
+        if isinstance(value, (str, ForwardRef)):
+            from magicgui.type_map import _evaluate_forwardref
+
+            value = _evaluate_forwardref(value)
+        self._return_annotation = value
 
     def __getattr__(self, name: str):
         """Return attribute ``name``.  Will return a widget if present."""
@@ -916,7 +966,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
     def _unify_label_widths(self, event=None):
         if not self._initialized:
             return
-        if self.orientation == "vertical" and self.labels and len(self):
+        if self.layout == "vertical" and self.labels and len(self):
             measure = use_app().get_obj("get_text_width")
             widest_label = max(
                 measure(w.label) for w in self if not isinstance(w, ButtonWidget)
@@ -937,14 +987,14 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         self._widget._mgui_set_margins(margins)
 
     @property
-    def orientation(self) -> str:
-        """Return the orientation of the widget."""
-        return self._orientation
+    def layout(self) -> str:
+        """Return the layout of the widget."""
+        return self._layout
 
-    @orientation.setter
-    def orientation(self, value):
+    @layout.setter
+    def layout(self, value):
         raise NotImplementedError(
-            "It is not yet possible to change orientation after instantiation"
+            "It is not yet possible to change layout after instantiation"
         )
 
     @property
@@ -982,7 +1032,7 @@ class ContainerWidget(Widget, MutableSequence[Widget]):
         params = [
             MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]
-        return MagicSignature(params, return_annotation=self._return_annotation)
+        return MagicSignature(params, return_annotation=self.return_annotation)
 
     @classmethod
     def from_signature(cls, sig: inspect.Signature, **kwargs) -> Container:

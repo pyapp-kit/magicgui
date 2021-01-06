@@ -48,7 +48,11 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
     params = {}
     param_docs = []
     for sup in reversed(inspect.getmro(cls)):
-        sig = inspect.signature(getattr(sup, "__init__"))
+        try:
+            sig = inspect.signature(getattr(sup, "__init__"))
+        # in some environments `object` or `abc.ABC` will raise ValueError here
+        except ValueError:
+            continue
         for name, param in sig.parameters.items():
             if name in exclude:
                 continue
@@ -143,6 +147,16 @@ class DateTimeEdit(ValueWidget):
 
 
 @backend_widget
+class DateEdit(ValueWidget):
+    """A widget for editing dates."""
+
+
+@backend_widget
+class TimeEdit(ValueWidget):
+    """A widget for editing times."""
+
+
+@backend_widget
 class PushButton(ButtonWidget):
     """A clickable command button."""
 
@@ -190,6 +204,19 @@ class LogSlider(TransformedRangedWidget):
     def __init__(
         self, min: float = 1, max: float = 100, base: float = math.e, **kwargs
     ):
+        for key in ("maximum", "minimum"):
+            if key in kwargs:
+                import warnings
+
+                warnings.warn(
+                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
+                    "In the future this will raise an exception\n",
+                    FutureWarning,
+                )
+                if key == "maximum":
+                    max = kwargs.pop(key)
+                else:
+                    min = kwargs.pop(key)
         self._base = base
         app = use_app()
         assert app.native
@@ -212,7 +239,8 @@ class LogSlider(TransformedRangedWidget):
 
     def _position_from_value(self, value):
         minv = math.log(self.min, self.base)
-        return (math.log(value, self.base) - minv) / self._scale + self._min_pos
+        pos = (math.log(value, self.base) - minv) / self._scale + self._min_pos
+        return int(pos)
 
     @property
     def base(self):
@@ -397,14 +425,17 @@ class _LabeledWidget(Container):
         position: str = "left",
         **kwargs,
     ):
-        orientation = "horizontal" if position in ("left", "right") else "vertical"
-        kwargs["backend_kwargs"] = {"orientation": orientation}
+        layout = "horizontal" if position in ("left", "right") else "vertical"
+        kwargs["backend_kwargs"] = {"layout": layout}
         self._inner_widget = widget
         self._label_widget = Label(value=label or widget.label)
         super().__init__(**kwargs)
+        self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)
-        self.extend([self._label_widget, widget])
+        for w in [self._label_widget, widget]:
+            with w.parent_changed.blocker():
+                self.append(w)
         self.margins = (0, 0, 0, 0)
 
     def __repr__(self) -> str:

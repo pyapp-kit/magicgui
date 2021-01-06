@@ -16,6 +16,7 @@ from ._concrete import (
     CheckBox,
     ComboBox,
     Container,
+    DateEdit,
     DateTimeEdit,
     FileEdit,
     FloatSlider,
@@ -31,6 +32,7 @@ from ._concrete import (
     Slider,
     SpinBox,
     TextEdit,
+    TimeEdit,
 )
 from ._table import Table
 
@@ -49,14 +51,15 @@ Textarea = TextEdit
 Combobox = ComboBox
 DatePicker = DateTimeEdit
 Box = Container
-HBox = partial(Container, orientation="horizontal")
-VBox = partial(Container, orientation="vertical")
+HBox = partial(Container, layout="horizontal")
+VBox = partial(Container, layout="vertical")
 
 __all__ = [
     "CheckBox",
     "ComboBox",
     "Container",
     "create_widget",
+    "DateEdit",
     "DateTimeEdit",
     "FileEdit",
     "FloatSlider",
@@ -73,6 +76,7 @@ __all__ = [
     "SpinBox",
     "Table",
     "TextEdit",
+    "TimeEdit",
     "Widget",
 ]
 

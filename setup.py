@@ -19,6 +19,13 @@ setup(
     author_email="talley.lambert@gmail.com",
     description="build GUIs from functions, using magic.",
     url="https://github.com/napari/magicgui",
+    project_urls={
+        "Documentation": "https://napari.org/magicgui",
+        "Say Thanks!": "http://saythanks.io/to/example",
+        "Source": "https://github.com/napari/magicgui",
+        "Tracker": "https://github.com/napari/magicgui/issues",
+        "Changelog": "https://github.com/napari/magicgui/blob/master/CHANGELOG.md",
+    },
     license="MIT license",
     long_description=readme,
     long_description_content_type="text/markdown",

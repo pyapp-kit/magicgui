@@ -75,5 +75,6 @@ class WidgetOptions(TypedDict, total=False):
     min: float
     max: float
     step: float
-    orientation: str
+    layout: str  # for things like containers
+    orientation: str  # for things like sliders
     mode: Union[str, FileDialogMode]

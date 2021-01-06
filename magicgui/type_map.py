@@ -4,6 +4,7 @@ import inspect
 import pathlib
 import sys
 import types
+import warnings
 from collections import abc, defaultdict
 from enum import EnumMeta
 from typing import Any, DefaultDict, Dict, ForwardRef, List, Optional, Tuple, Type, cast
@@ -19,7 +20,7 @@ from magicgui.types import (
     WidgetRef,
     WidgetTuple,
 )
-from magicgui.widgets._protocols import WidgetProtocol
+from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
 __all__: List[str] = ["register_type", "get_widget_class", "type_matcher"]
 
@@ -43,8 +44,14 @@ def _is_subclass(obj, superclass):
         return False
 
 
-def _evaluate_forwardref(type_: ForwardRef) -> Any:
+def _evaluate_forwardref(type_: Any) -> Any:
     """Convert typing.ForwardRef into an actual object."""
+    if isinstance(type_, str):
+        type_ = ForwardRef(type_)
+
+    if not isinstance(type_, ForwardRef):
+        return type_
+
     from importlib import import_module
 
     try:
@@ -94,6 +101,8 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         float: widgets.FloatSpinBox,
         str: widgets.LineEdit,
         pathlib.Path: widgets.FileEdit,
+        datetime.time: widgets.TimeEdit,
+        datetime.date: widgets.DateEdit,
         datetime.datetime: widgets.DateTimeEdit,
         type(None): widgets.LiteralEvalLineEdit,
         Any: widgets.LiteralEvalLineEdit,
@@ -146,8 +155,7 @@ def pick_widget_type(
         widget_type = options.pop("widget_type")
         return widget_type, options
 
-    if isinstance(annotation, ForwardRef):
-        annotation = _evaluate_forwardref(annotation)
+    annotation = _evaluate_forwardref(annotation)
 
     dtype = _normalize_type(value, annotation)
 
@@ -198,13 +206,9 @@ def get_widget_class(
     else:
         widget_class = widget_type
 
-    if not (
-        isinstance(widget_class, WidgetProtocol)
-        or _is_subclass(widget_class, widgets._bases.Widget)
-    ):
-        raise TypeError(
-            f"{widget_class!r} does not implement any known widget protocols"
-        )
+    if not _is_subclass(widget_class, widgets._bases.Widget):
+        assert_protocol(widget_class, WidgetProtocol)
+
     return widget_class, _options
 
 
@@ -259,6 +263,8 @@ def register_type(
     ValueError
         If both ``widget_type`` and ``choices`` are None
     """
+    type_ = _evaluate_forwardref(type_)
+
     if not (return_callback or options.get("choices") or widget_type):
         raise ValueError(
             "At least one of `widget_type`, `choices`, or "
@@ -272,10 +278,12 @@ def register_type(
     _options = cast(WidgetOptions, options)
 
     if "choices" in _options:
+        _choices = _options["choices"]
+
+        if not isinstance(_choices, EnumMeta) and callable(_choices):
+            _options["choices"] = _check_choices(_choices)
         _TYPE_DEFS[type_] = (widgets.ComboBox, _options)
         if widget_type is not None:
-            import warnings
-
             warnings.warn(
                 "Providing `choices` overrides `widget_type`. Categorical widget will "
                 f"be used for type {type_}"
@@ -289,6 +297,28 @@ def register_type(
         _TYPE_DEFS[type_] = (widget_type, _options)
 
     return None
+
+
+def _check_choices(choices):
+    """Catch pre 0.2.0 API from developers using register_type."""
+    n_params = len(inspect.signature(choices).parameters)
+    if n_params > 1:
+        warnings.warn(
+            "\n\nDEVELOPER NOTICE: As of magicgui 0.2.0, when providing a callable to "
+            "`choices`, the\ncallable may accept only a single positional "
+            "argument (which will be an instance of\n"
+            "`magicgui.widgets._bases.CategoricalWidget`), and must "
+            "return an iterable (the choices\nto show).  Function "
+            f"'{choices.__module__}.{choices.__name__}' accepts {n_params} "
+            "arguments.\nIn the future, this will raise an exception.\n",
+            DeprecationWarning,
+        )
+
+        def wrapper(obj):
+            return choices(obj.native, obj.annotation)
+
+        return wrapper
+    return choices
 
 
 def _type2callback(type_: type) -> List[ReturnCallback]:
@@ -305,6 +335,7 @@ def _type2callback(type_: type) -> List[ReturnCallback]:
         Where a return callback accepts two arguments (gui, value) and does something.
     """
     # look for direct hits
+    type_ = _evaluate_forwardref(type_)
     if type_ in _RETURN_CALLBACKS:
         return _RETURN_CALLBACKS[type_]
     # look for subclasses
