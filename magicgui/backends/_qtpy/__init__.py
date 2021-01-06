@@ -3,6 +3,7 @@ from .widgets import (
     CheckBox,
     ComboBox,
     Container,
+    DateEdit,
     DateTimeEdit,
     FloatSpinBox,
     Label,
@@ -12,6 +13,7 @@ from .widgets import (
     Slider,
     SpinBox,
     TextEdit,
+    TimeEdit,
     get_text_width,
     show_file_dialog,
 )
@@ -21,6 +23,7 @@ __all__ = [
     "CheckBox",
     "ComboBox",
     "Container",
+    "DateEdit",
     "DateTimeEdit",
     "FloatSpinBox",
     "Label",
@@ -30,6 +33,7 @@ __all__ = [
     "Slider",
     "SpinBox",
     "TextEdit",
+    "TimeEdit",
     "get_text_width",
     "show_file_dialog",
 ]
