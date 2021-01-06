@@ -202,3 +202,13 @@ def test_widget_resolves_forward_ref():
         pass
 
     assert widget.x.annotation is MyInt
+
+
+def test_unhashable_choice_data():
+    """Test that providing unhashable choice data is ok."""
+    combo = widgets.ComboBox()
+    assert not combo.choices
+    combo.choices = ("a", "b", "c")
+    assert combo.choices == ("a", "b", "c")
+    combo.choices = (("a", [1, 2, 3]), ("b", [1, 2, 5]))
+    assert combo.choices == ([1, 2, 3], [1, 2, 5])
