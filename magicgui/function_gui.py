@@ -96,6 +96,7 @@ class FunctionGui(Container):
         self._result_name = ""
         self._bound: Dict[str, Any] = {}
         self.bind(bind)
+        self._call_count: int = 0
 
         self._call_button: Optional[PushButton] = None
         if call_button:
@@ -117,6 +118,15 @@ class FunctionGui(Container):
 
         if show:
             self.show()
+
+    @property
+    def call_count(self) -> int:
+        """Return the number of times the function has been called."""
+        return self._call_count
+
+    def reset_call_count(self) -> None:
+        """Reset the call count to 0."""
+        self._call_count = 0
 
     def bind(self, kwargs: dict):
         """Bind key/value pairs to the function signature.
@@ -202,6 +212,7 @@ class FunctionGui(Container):
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
+        self._call_count += 1
         if self._result_widget is not None:
             with self._result_widget.changed.blocker():
                 self._result_widget.value = value

@@ -16,6 +16,7 @@ from ._concrete import (
     CheckBox,
     ComboBox,
     Container,
+    DateEdit,
     DateTimeEdit,
     FileEdit,
     FloatSlider,
@@ -31,6 +32,7 @@ from ._concrete import (
     Slider,
     SpinBox,
     TextEdit,
+    TimeEdit,
 )
 
 #: Aliases for compatibility with ipywidgets.  (WIP)
@@ -57,6 +59,7 @@ __all__ = [
     "ComboBox",
     "Container",
     "create_widget",
+    "DateEdit",
     "DateTimeEdit",
     "FileEdit",
     "FloatSlider",
@@ -72,6 +75,7 @@ __all__ = [
     "Slider",
     "SpinBox",
     "TextEdit",
+    "TimeEdit",
     "Widget",
 ]
 

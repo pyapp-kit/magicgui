@@ -388,6 +388,28 @@ class DateTimeEdit(QBaseValueWidget):
             return self._qwidget.dateTime().toPyDateTime()
 
 
+class DateEdit(QBaseValueWidget):
+    def __init__(self):
+        super().__init__(QtW.QDateEdit, "", "setDate", "dateChanged")
+
+    def _mgui_get_value(self):
+        try:
+            return self._qwidget.date().toPython()
+        except TypeError:
+            return self._qwidget.date().toPyDate()
+
+
+class TimeEdit(QBaseValueWidget):
+    def __init__(self):
+        super().__init__(QtW.QTimeEdit, "", "setTime", "timeChanged")
+
+    def _mgui_get_value(self):
+        try:
+            return self._qwidget.time().toPython()
+        except TypeError:
+            return self._qwidget.time().toPyTime()
+
+
 QFILE_DIALOG_MODES = {
     FileDialogMode.EXISTING_FILE: QtW.QFileDialog.getOpenFileName,
     FileDialogMode.EXISTING_FILES: QtW.QFileDialog.getOpenFileNames,

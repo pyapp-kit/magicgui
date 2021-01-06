@@ -500,6 +500,18 @@ class RangedWidget(ValueWidget):
     _widget: _protocols.RangedWidgetProtocol
 
     def __init__(self, min: float = 0, max: float = 100, step: float = 1, **kwargs):
+        for key in ("maximum", "minimum"):
+            if key in kwargs:
+                warnings.warn(
+                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
+                    "In the future this will raise an exception\n",
+                    FutureWarning,
+                )
+                if key == "maximum":
+                    max = kwargs.pop(key)
+                else:
+                    min = kwargs.pop(key)
+
         super().__init__(**kwargs)
 
         self.min = min
@@ -763,12 +775,13 @@ class CategoricalWidget(ValueWidget):
                 n_params = len(inspect.signature(choices).parameters)
                 if n_params > 1:
                     warnings.warn(
-                        "\n\nAs of magicgui 0.2.0, a `choices` callable may accept only"
-                        " a single positional\nargument (an instance of "
-                        "`magicgui.widgets.CategoricalWidget`), and must return\nan "
-                        f"iterable (the choices to show). Function {choices.__name__!r}"
-                        f" accepts {n_params} arguments.\n"
-                        "In the future, this will raise an exception.\n",
+                        "\n\nAs of magicgui 0.2.0, when providing a callable to "
+                        "`choices`, the\ncallable may accept only a single positional "
+                        "argument (which will\nbe an instance of "
+                        "`magicgui.widgets._bases.CategoricalWidget`),\nand must "
+                        "return an iterable (the choices to show).\nFunction "
+                        f"'{choices.__module__}.{choices.__name__}' accepts {n_params} "
+                        "arguments.\nIn the future, this will raise an exception.\n",
                         FutureWarning,
                     )
                     # pre 0.2.0 API

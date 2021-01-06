@@ -57,14 +57,16 @@ or type annotation. To see the default type of widget magicgui will for a given
 value, use the {func}`~magicgui.type_map.get_widget_class` function:
 
 ```{code-cell} python
-from datetime import datetime
+import datetime
 from enum import Enum
 from pathlib import Path
 from magicgui.type_map import get_widget_class
 
 Animal = Enum('Animal', 'ANT BEE CAT DOG')
 values = [
-    True, 1, 3.43, 'text', datetime.now(), Path.home(),
+    True, 1, 3.43, 'text', Path.home(),
+    datetime.datetime.now(), datetime.time(12, 30),
+    datetime.date(2000, 2, 18),
     Animal.ANT, range(10), slice(1,20), lambda x: x
 ]
 for v in values:

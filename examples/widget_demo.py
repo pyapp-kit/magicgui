@@ -1,6 +1,6 @@
 """Widget demonstration of magicgui."""
 
-from datetime import datetime
+import datetime
 from enum import Enum
 from pathlib import Path
 
@@ -30,7 +30,9 @@ def widget_demo(
     slider_float=4.5,
     string="Text goes here",
     dropdown=Medium.Glass,
-    datetime=datetime.now(),
+    date=datetime.date(1999, 12, 31),
+    time=datetime.time(1, 30, 20),
+    datetime=datetime.datetime.now(),
     filename=Path.home(),
 ):
     """Run some computation."""
