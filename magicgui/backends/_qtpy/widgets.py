@@ -351,23 +351,32 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
     def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
-        # FIXME: still not clearing all old choices correctly.
-        if not list(choices):
+        choices_ = list(choices)
+        if not choices_:
             self._qwidget.clear()
             return
 
-        names = {x[0] for x in choices}
+        choice_names = [x[0] for x in choices_]
+        # remove choices that no longer exist
         for i in range(self._qwidget.count()):
-            if self._qwidget.itemText(i) not in names:
+            if self._qwidget.itemText(i) not in choice_names:
                 self._qwidget.removeItem(i)
-        for name, data in choices:
-            if self._qwidget.findText(name) == -1:
+        # update choices
+        for name, data in choices_:
+            item_index = self._qwidget.findText(name)
+            # if it's not in the list, add a new item
+            if item_index == -1:
                 self._qwidget.addItem(name, data)
-        current = self._mgui_get_value()
-        if current not in {x[1] for x in choices}:
-            first = next(iter(choices))[1]
-            self._qwidget.setCurrentIndex(self._qwidget.findData(first))
-            self._qwidget.removeItem(self._qwidget.findData(current))
+            # otherwise update its data
+            else:
+                self._qwidget.setItemData(item_index, data)
+        # if the currently selected item is not in the new set,
+        # remove it and select the first item in the list
+        current = self._qwidget.itemText(self._qwidget.currentIndex())
+        if current not in choice_names:
+            first = choice_names[0]
+            self._qwidget.setCurrentIndex(self._qwidget.findText(first))
+            self._qwidget.removeItem(self._qwidget.findText(current))
 
     def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
         """Show the widget."""
