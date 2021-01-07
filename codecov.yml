@@ -5,10 +5,10 @@ coverage:
     project:
       default:
         target: auto
-        threshold: 0.5%  # coverage can drop by up to 0.5% while still posting success
+        threshold: 0.5% # coverage can drop by up to 0.5% while still posting success
     patch:
       default:
         target: auto
-        threshold: 4%  # coverage can drop by up to 0.5% while still posting success
+        threshold: 15% # coverage can drop by up to 15% while still posting success
 comment:
-  require_changes: true  # if true: only post the PR comment if coverage changes
+  require_changes: true # if true: only post the PR comment if coverage changes
