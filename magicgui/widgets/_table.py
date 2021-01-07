@@ -53,7 +53,7 @@ def _from_nested_column_dict(data):
     new_data = []
     for col, s in data.items():
         new_data.append([s[i] for i in index])
-    return list(zip(*new_data)), index
+    return list(list(x) for x in zip(*new_data)), index
 
 
 TableValue = Union[dict, "pd.DataFrame", list, "np.ndarray"]
@@ -226,7 +226,7 @@ class TableData:
             if isinstance(list(data.values())[0], dict):
                 data, index = _from_nested_column_dict(data)
             else:
-                data = list(zip(*data.values()))
+                data = list(list(x) for x in zip(*data.values()))
 
         else:  # pragma: no cover
             raise ValueError("only recognize index or columns for orient")

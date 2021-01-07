@@ -210,13 +210,13 @@ _TABLE_DATA = [
 
 def _assert_round_trip(data, table_widget):
     td = TableData(data)
-    val = table_widget.value
-    assert tuple(val.index) == tuple(td.index)
-    assert tuple(val.columns) == tuple(td.columns)
+    widget_val = table_widget.value
+    assert tuple(widget_val.index) == tuple(td.index)
+    assert tuple(widget_val.columns) == tuple(td.columns)
     if hasattr(td.values, "tolist"):
-        assert val.values == td.values.tolist()  # type: ignore
+        assert widget_val.values == td.values.tolist()  # type: ignore
     else:
-        assert val.values == td.values
+        assert widget_val.values == td.values
 
 
 @pytest.mark.parametrize("data", _TABLE_DATA)
