@@ -258,6 +258,28 @@ class Table(ValueWidget):
 
     @value.setter
     def value(self, value: Any):
+        """Set table data from dict, dataframe, list, or array.
+
+        Any of the following can be used as an argument to ``value``
+
+        .. code-block:: python
+
+            dict_of_dicts = {
+                "col_1": {"r1": 3, "r2": 2, "r3": 1, "r4": 0},
+                "col_2": {"r2": "b", "r4": "d", "r3": "c", "r1": "a"},
+            }
+            dict_of_lists = {"col_1": [3, 2, 1, 0], "col_2": ["a", "b", "c", "d"]}
+            list_of_lists = [[8, 1, 4], [3, 7, 4]]
+            numpy_array = np.random.rand(8, 5)
+            pandas_dataframe = pd.DataFrame(...)
+            tuple_with_header_info = (list_of_lists, ("r1", "r2"), ("c1", "c2", "c3"))
+
+        Parameters
+        ----------
+        value : Any
+            Complete table data in one of the forms described above. Partial table
+            updates are not yet supported
+        """
         self._widget._mgui_set_value(TableData(value))
 
     def __repr__(self) -> str:
