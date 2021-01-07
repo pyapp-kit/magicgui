@@ -152,14 +152,14 @@ def _handle_exception(
         if this_print == "full":
             log_exception()
             if exp_type == "callback":
-                logger.error("Invoking %s for %s" % (cb, event))
+                logger.error("Invoking {} for {}".format(cb, event))
             else:  # == 'node':
                 logger.error("Drawing node %s" % node)
         elif this_print is not None:
             if exp_type == "callback":
-                logger.error("Invoking %s repeat %s" % (cb, this_print))
+                logger.error("Invoking {} repeat {}".format(cb, this_print))
             else:  # == 'node':
-                logger.error("Drawing node %s repeat %s" % (node, this_print))
+                logger.error("Drawing node {} repeat {}".format(node, this_print))
 
 
 class Event(object):
@@ -275,8 +275,8 @@ class Event(object):
                     continue
                 attr = getattr(self, name)
 
-                attrs.append("%s=%s" % (name, attr))
-            return "<%s %s>" % (self.__class__.__name__, " ".join(attrs))
+                attrs.append("{}={}".format(name, attr))
+            return "<{} {}>".format(self.__class__.__name__, " ".join(attrs))
         finally:
             _event_repr_depth -= 1
 
