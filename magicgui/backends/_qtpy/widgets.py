@@ -9,6 +9,7 @@ from qtpy.QtGui import QFont, QFontMetrics
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases import Widget
+from magicgui.widgets._table import TableData
 
 
 class EventFilter(QObject):
@@ -452,7 +453,7 @@ def get_text_width(text) -> int:
 def _maybefloat(item):
     if not item:
         return None
-    num = item.text()
+    num = item.text() if hasattr(item, "text") else item
     try:
         return int(num) if num.isdigit() else float(num)
     except ValueError:
@@ -460,7 +461,7 @@ def _maybefloat(item):
 
 
 class Table(QBaseValueWidget):
-    _qwidget: QtW.QSlider
+    _qwidget: QtW.QTableWidget
 
     def __init__(self):
         self._vheader_labels: tuple = ()
@@ -468,18 +469,17 @@ class Table(QBaseValueWidget):
         super().__init__(QtW.QTableWidget, "", "", "")
         self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
 
-    def _mgui_set_value(self, data: Tuple[list, tuple, tuple]):
-        values, index, columns = data
+    def _mgui_set_value(self, data: TableData):
         self._qwidget.blockSignals(True)
-        self._qwidget.setRowCount(len(index))
-        self._qwidget.setColumnCount(len(columns))
-        for row, lst in enumerate(values):
+        self._qwidget.setRowCount(len(data.index))
+        self._qwidget.setColumnCount(len(data.columns))
+        for row, lst in enumerate(data.values):
             for col, datum in enumerate(lst):
                 # TODO: have to show a string, but can set item.data too
                 self._qwidget.setItem(row, col, QtW.QTableWidgetItem(str(datum)))
 
-        self._vheader_labels = tuple(map(str, index))
-        self._hheader_labels = tuple(map(str, columns))
+        self._vheader_labels = tuple(map(str, data.index))
+        self._hheader_labels = tuple(map(str, data.columns))
         self._qwidget.setVerticalHeaderLabels(self._vheader_labels)
         self._qwidget.setHorizontalHeaderLabels(self._hheader_labels)
         self._qwidget.blockSignals(False)
@@ -489,12 +489,14 @@ class Table(QBaseValueWidget):
         _table = []
         for r in range(self._qwidget.rowCount()):
             _table.append(
-                tuple(
+                [
                     _maybefloat(self._qwidget.item(r, c))
                     for c in range(self._qwidget.columnCount())
-                )
+                ]
             )
-        return _table, self._vheader_labels, self._hheader_labels
+        index = tuple(_maybefloat(x) for x in self._vheader_labels)
+        columns = tuple(_maybefloat(x) for x in self._hheader_labels)
+        return _table, index, columns
 
     def _mgui_bind_change_callback(self, callback):
         self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))

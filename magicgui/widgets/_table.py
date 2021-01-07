@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Collection, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Collection, Optional, Union
 
 from ._bases import ValueWidget
 from ._concrete import backend_widget
@@ -60,17 +60,55 @@ TableValue = Union[dict, "pd.DataFrame", list, "np.ndarray"]
 
 
 class TableData:
-    """Basic representation of 2D data with column and index headers."""
+    """Basic representation of 2D data with column and index headers.
+
+    Any of the following can be used as an argument to ``data``
+
+    .. code-block:: python
+
+        dict_of_dicts = {
+            "col_1": {"r1": 3, "r2": 2, "r3": 1, "r4": 0},
+            "col_2": {"r2": "b", "r4": "d", "r3": "c", "r1": "a"},
+        }
+        dict_of_lists = {"col_1": [3, 2, 1, 0], "col_2": ["a", "b", "c", "d"]}
+        list_of_lists = [[8, 1, 4], [3, 7, 4]]
+        numpy_array = np.random.rand(8, 5)
+        pandas_dataframe = pd.DataFrame(...)
+        tuple_with_header_info = (list_of_lists, ("r1", "r2"), ("c1", "c2", "c3"))
+
+    Parameters
+    ----------
+    data : [type], optional
+        valid data , by default None
+    index : Optional[Collection], optional
+        row headers, by default None
+    columns : Optional[Collection], optional
+        column headers, by default None
+
+    Notes
+    -----
+    - If pandas is installed, any dict format that works with DataFrame.from_dict will
+      work
+    - If a pandas dataframe is passed to the constructor, it is just used internally and
+      no processing is done.
+    """
 
     def __new__(cls, data=None, *args, **kwargs) -> "TableData":
         """Create TableData from dict, dataframe, list, or array."""
         if isinstance(data, dict):
             return TableData.from_dict(data)
-        elif _is_dataframe(data):
-            return TableData.from_dataframe(data)
-        elif isinstance(data, list) or _is_numpy_array(data) or not data:
+        if isinstance(data, tuple):
+            return TableData.from_tuple(data)
+        elif (
+            _is_dataframe(data)
+            or isinstance(data, list)
+            or _is_numpy_array(data)
+            or not data
+        ):
             return super().__new__(cls)
-        raise TypeError("Table value must be a dict, dataframe, list, or array")
+        raise TypeError(
+            f"Table value must be a dict, dataframe, list, or array, got {type(data)}"
+        )
 
     def __init__(
         self,
@@ -78,9 +116,20 @@ class TableData:
         index: Optional[Collection] = None,
         columns: Optional[Collection] = None,
     ) -> None:
+        if isinstance(data, (dict, tuple)):
+            # This is a 2nd __init__, which has already been initialized
+            return
+
+        self._dataframe = None
+        # if it's already a dataframe, don't bother to convert to internal repr
+        # just pass through the appropriate values
+        if _is_dataframe(data):
+            self._dataframe = data
+            return
+
         ncols = 0
         nrows = 0
-        if data:
+        if data is not None:
             nrows = len(data)
             try:
                 ncols = len(data[0])
@@ -113,14 +162,35 @@ class TableData:
                     f"'index' must be a collection of some kind, {index!r} was passed"
                 )
 
-        self.values = data
-        self.index = index
-        self.columns = columns
+        self._values = data
+        self._index: Collection = index or ()
+        self._columns: Collection = columns or ()
+
+    @property
+    def values(self) -> Collection:
+        """Return 2D values array."""
+        if self._dataframe is not None:
+            return self._dataframe.values
+        return self._values
+
+    @property
+    def index(self) -> Collection:
+        """Return row headers."""
+        if self._dataframe is not None:
+            return self._dataframe.index
+        return self._index
+
+    @property
+    def columns(self) -> Collection:
+        """Return columns headers."""
+        if self._dataframe is not None:
+            return self._dataframe.columns
+        return self._columns
 
     @classmethod
-    def from_dataframe(cls, df: "pd.DataFrame") -> "TableData":
+    def from_tuple(cls, val: tuple) -> "TableData":
         """Convert dataframe value into appropriate table data format."""
-        return cls(df.values, tuple(df.index), tuple(df.columns))
+        return cls(*val)
 
     @classmethod
     def from_dict(cls, data, orient="columns", dtype=None, columns=None) -> "TableData":
@@ -128,14 +198,13 @@ class TableData:
 
         logic from pandas.DataFrame.from_dict
         """
-        print("from dict")
         try:
             import pandas
 
             df = pandas.DataFrame.from_dict(
                 data, orient=orient, dtype=dtype, columns=columns
             )
-            return cls(df.values, tuple(df.index), tuple(df.columns))
+            return cls(df)
         except ImportError:
             pass
 
@@ -165,6 +234,9 @@ class TableData:
 
     def to_dataframe(self):
         """Convert TableData to dataframe."""
+        if self._dataframe is not None:
+            return self._dataframe
+
         try:
             import pandas
 
@@ -180,9 +252,9 @@ class Table(ValueWidget):
     """A table widget for pandas, numpy, or dict-of-list data."""
 
     @property
-    def value(self) -> Tuple[list, tuple, tuple]:
+    def value(self) -> "TableData":
         """Return current value of the widget."""
-        return self._widget._mgui_get_value()
+        return TableData(*self._widget._mgui_get_value())
 
     @value.setter
     def value(self, value: Any):
