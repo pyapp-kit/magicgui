@@ -1,7 +1,8 @@
 """Widget implementations (adaptors) for the Qt backend."""
-from typing import Any, Iterable, Optional, Tuple, Union
+from typing import Any, Collection, Iterable, List, Optional, Tuple, Union
 
 import qtpy
+from PySide2.QtWidgets import QTableWidgetItem
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import QFont, QFontMetrics
@@ -9,7 +10,6 @@ from qtpy.QtGui import QFont, QFontMetrics
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases import Widget
-from magicgui.widgets._table import TableData
 
 
 class EventFilter(QObject):
@@ -460,43 +460,82 @@ def _maybefloat(item):
         return num
 
 
-class Table(QBaseValueWidget):
+class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
     _qwidget: QtW.QTableWidget
+    _DATA_ROLE: int = 255
 
     def __init__(self):
         self._vheader_labels: tuple = ()
         self._hheader_labels: tuple = ()
         super().__init__(QtW.QTableWidget, "", "", "")
         self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
+        self._qwidget.itemChanged.connect(self._update_item_data_with_text)
 
-    def _mgui_set_value(self, data: TableData):
+    def _update_item_data_with_text(self, item: QTableWidgetItem):
         self._qwidget.blockSignals(True)
-        self._qwidget.setRowCount(len(data.index))
-        self._qwidget.setColumnCount(len(data.columns))
-        for row, lst in enumerate(data.values):
-            for col, datum in enumerate(lst):
-                # TODO: have to show a string, but can set item.data too
-                self._qwidget.setItem(row, col, QtW.QTableWidgetItem(str(datum)))
+        item.setData(self._DATA_ROLE, _maybefloat(item.text()))
+        self._qwidget.blockSignals(False)
 
-        self._vheader_labels = tuple(map(str, data.index))
-        self._hheader_labels = tuple(map(str, data.columns))
-        self._qwidget.setVerticalHeaderLabels(self._vheader_labels)
-        self._qwidget.setHorizontalHeaderLabels(self._hheader_labels)
+    def _mgui_get_shape(self) -> Tuple[int, int]:
+        return (self._qwidget.rowCount(), self._qwidget.columnCount())
+
+    def _mgui_get_value(self) -> list:
+        _table = []
+        nrows, ncols = self._mgui_get_shape()
+        for r in range(nrows):
+            _table.append([self._mgui_get_cell(r, c) for c in range(ncols)])
+        return _table
+
+    def _mgui_set_value(self, data: List[list]):
+        self._qwidget.blockSignals(True)
+        self._qwidget.setRowCount(len(data))
+        self._qwidget.setColumnCount(len(data[0]))
+        for row_num, row in enumerate(data):
+            for col_num, value in enumerate(row):
+                self._mgui_set_cell(row_num, col_num, value)
         self._qwidget.blockSignals(False)
         self._qwidget.itemChanged.emit(QtW.QTableWidgetItem())
 
-    def _mgui_get_value(self) -> Tuple[list, tuple, tuple]:
-        _table = []
-        for r in range(self._qwidget.rowCount()):
-            _table.append(
-                [
-                    _maybefloat(self._qwidget.item(r, c))
-                    for c in range(self._qwidget.columnCount())
-                ]
-            )
-        index = tuple(_maybefloat(x) for x in self._vheader_labels)
-        columns = tuple(_maybefloat(x) for x in self._hheader_labels)
-        return _table, index, columns
+    def _mgui_get_cell(self, row: int, col: int) -> Any:
+        """Get current value of the widget."""
+        item = self._qwidget.item(row, col)
+        return item.data(self._DATA_ROLE)
+
+    def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
+        """Set current value of the widget."""
+        item = QtW.QTableWidgetItem(str(value))
+        item.setData(self._DATA_ROLE, value)
+        self._qwidget.setItem(row, col, item)
+
+    def _mgui_get_row_headers(self) -> list:
+        """Get current row headers of the widget."""
+        return [_maybefloat(x) for x in self._vheader_labels]
+
+    def _mgui_set_row_headers(self, headers: Collection) -> None:
+        """Set current row headers of the widget."""
+        self._vheader_labels = tuple(map(str, headers))
+        self._qwidget.setVerticalHeaderLabels(self._vheader_labels)
+
+    def _mgui_get_column_headers(self) -> list:
+        """Get current column headers of the widget."""
+        return [_maybefloat(x) for x in self._hheader_labels]
+
+    def _mgui_set_column_headers(self, headers: Collection) -> None:
+        """Set current column headers of the widget."""
+        self._hheader_labels = tuple(map(str, headers))
+        self._qwidget.setHorizontalHeaderLabels(self._hheader_labels)
+
+    def _mgui_bind_row_headers_change_callback(self, callback) -> None:
+        """Bind callback to row headers change event."""
+        raise NotImplementedError()
+
+    def _mgui_bind_column_headers_change_callback(self, callback) -> None:
+        """Bind callback to column headers change event."""
+        raise NotImplementedError()
+
+    def _mgui_bind_cell_change_callback(self, callback) -> None:
+        """Bind callback to column headers change event."""
+        raise NotImplementedError()
 
     def _mgui_bind_change_callback(self, callback):
         self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))
