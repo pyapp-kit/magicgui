@@ -736,6 +736,30 @@ class CategoricalWidget(ValueWidget):
         self.choices = self._default_choices
 
     @property
+    def current_choice(self) -> str:
+        """Return the text of the currently selected choice."""
+        return self._widget._mgui_get_current_choice()
+
+    def __len__(self) -> int:
+        """Return the number of choices."""
+        return self._widget._mgui_get_count()
+
+    def get_choice(self, choice_name: str):
+        """Get data for the provided ``choice_name``."""
+        self._widget._mgui_get_choice(choice_name)
+
+    def set_choice(self, choice_name: str, data: Any = None):
+        """Set data for the provided ``choice_name``."""
+        data = data if data is not None else choice_name
+        self._widget._mgui_set_choice(choice_name, data)
+        if choice_name == self.current_choice:
+            self.changed(value=self.value)
+
+    def del_choice(self, choice_name: str, data: Any = None):
+        """Delete the provided ``choice_name`` and associated data."""
+        data = data if data is not None else choice_name
+
+    @property
     def choices(self):
         """Available value choices for this widget."""
         return tuple(i[1] for i in self._widget._mgui_get_choices())

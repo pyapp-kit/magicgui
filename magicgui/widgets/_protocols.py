@@ -177,6 +177,31 @@ class SupportsChoices(Protocol):
         """Set available choices."""
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mgui_get_current_choice(self) -> str:
+        """Return the text of the currently selected choice."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_choice(self, choice_name: str) -> Any:
+        """Get data for a single choice."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
+        """Set data for choice_name, or add a new item if choice_name doesn't exist."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_del_choice(self, choice_name: str) -> None:
+        """Delete the provided ``choice_name`` and associated data."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_count(self) -> int:
+        """Return number of choices."""
+        raise NotImplementedError
+
 
 @runtime_checkable
 class CategoricalWidgetProtocol(ValueWidgetProtocol, SupportsChoices, Protocol):

@@ -343,11 +343,48 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)
 
+    def _mgui_get_current_choice(self) -> str:
+        return self._qwidget.itemText(self._qwidget.currentIndex())
+
     def _mgui_get_value(self) -> Any:
         return self._qwidget.itemData(self._qwidget.currentIndex())
 
     def _mgui_set_value(self, value) -> None:
         self._qwidget.setCurrentIndex(self._qwidget.findData(value))
+
+    def _mgui_get_count(self) -> int:
+        """Return the number of items in the dropdown."""
+        return self._qwidget.count()
+
+    def _mgui_get_choice(self, choice_name: str) -> Any:
+        item_index = self._qwidget.findText(choice_name)
+        if item_index == -1:
+            return None
+        else:
+            return self._qwidget.itemData(item_index)
+
+    def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
+        """Set data for ``choice_name``."""
+        item_index = self._qwidget.findText(choice_name)
+        # if it's not in the list, add a new item
+        if item_index == -1:
+            self._qwidget.addItem(choice_name, data)
+        # otherwise update its data
+        else:
+            self._qwidget.setItemData(item_index, data)
+
+    def _mgui_del_choice(self, choice_name: str) -> None:
+        """Delete choice_name."""
+        item_index = self._qwidget.findText(choice_name)
+        if item_index >= 0:
+            self._qwidget.removeItem(item_index)
+
+    def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
+        """Show the widget."""
+        return tuple(  # type: ignore
+            (self._qwidget.itemText(i), self._qwidget.itemData(i))
+            for i in range(self._qwidget.count())
+        )
 
     def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
@@ -363,13 +400,8 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
                 self._qwidget.removeItem(i)
         # update choices
         for name, data in choices_:
-            item_index = self._qwidget.findText(name)
-            # if it's not in the list, add a new item
-            if item_index == -1:
-                self._qwidget.addItem(name, data)
-            # otherwise update its data
-            else:
-                self._qwidget.setItemData(item_index, data)
+            self._mgui_set_choice(name, data)
+
         # if the currently selected item is not in the new set,
         # remove it and select the first item in the list
         current = self._qwidget.itemText(self._qwidget.currentIndex())
@@ -377,13 +409,6 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             first = choice_names[0]
             self._qwidget.setCurrentIndex(self._qwidget.findText(first))
             self._qwidget.removeItem(self._qwidget.findText(current))
-
-    def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
-        """Show the widget."""
-        return tuple(  # type: ignore
-            (self._qwidget.itemText(i), self._qwidget.itemData(i))
-            for i in range(self._qwidget.count())
-        )
 
 
 class DateTimeEdit(QBaseValueWidget):
