@@ -1,8 +1,16 @@
 # Changelog
 
-## [Unreleased](https://github.com/napari/magicgui/tree/HEAD)
+## [v0.2.4](https://github.com/napari/magicgui/tree/v0.2.4) (2021-01-12)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.2...HEAD)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.3...v0.2.4)
+
+**Merged pull requests:**
+
+- Extend combobox api with set\_choice, get\_choice, del\_choice [\#92](https://github.com/napari/magicgui/pull/92) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.2.3](https://github.com/napari/magicgui/tree/v0.2.3) (2021-01-08)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.2...v0.2.3)
 
 v0.2.3 adds two new widgets `DateEdit` and `TimeEdit` (for `datetime.date` and `datetime.time` types respectively), in addition to the existing `DateTimeEdit` widget.  It also continues to improve warnings and deprecation messages from the v0.2.0 release.
 
