@@ -217,17 +217,35 @@ def test_unhashable_choice_data():
 
 
 def test_bound_values():
+    """Test that we can bind a "permanent" value override to a parameter."""
+
     @magicgui(x={"bind": 10})
     def f(x: int = 5):
         return x
 
+    # bound values hide the widget by default
     assert not f.x.visible
     assert f() == 10
     f.x.unbind()
     assert f() == 5
 
 
+def test_bound_values_visible():
+    """Test that we force a bound widget to be visible."""
+
+    @magicgui(x={"bind": 10, "visible": True})
+    def f(x: int = 5):
+        return x
+
+    assert f.x.visible
+    assert f() == 10
+    f.x.unbind()
+    assert f() == 5
+
+
 def test_bound_callables():
+    """Test that we can use a callable as a bound value."""
+
     @magicgui(x={"bind": lambda x: 10})
     def f(x: int = 5):
         return x
@@ -238,6 +256,8 @@ def test_bound_callables():
 
 
 def test_bound_callable_without_calling():
+    """Test that we can use a callable as a bound value, but return it directly."""
+
     def callback():
         return "hi"
 
@@ -252,6 +272,11 @@ def test_bound_callable_without_calling():
 
 
 def test_bound_callable_catches_recursion():
+    """Test that accessing widget.value raises an informative error message.
+
+    (... rather than a recursion error)
+    """
+
     @magicgui(x={"bind": lambda x: x.value * 2})
     def f(x: int = 5):
         return x
