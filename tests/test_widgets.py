@@ -214,3 +214,53 @@ def test_unhashable_choice_data():
     assert combo.choices == ([1, 2, 3], [1, 2, 5])
     combo.choices = ("x", "y", "z")
     assert combo.choices == ("x", "y", "z")
+
+
+def test_bound_values():
+    @magicgui(x={"bind": 10})
+    def f(x: int = 5):
+        return x
+
+    assert not f.x.visible
+    assert f() == 10
+    f.x.unbind()
+    assert f() == 5
+
+
+def test_bound_callables():
+    @magicgui(x={"bind": lambda x: 10})
+    def f(x: int = 5):
+        return x
+
+    assert f() == 10
+    f.x.unbind()
+    assert f() == 5
+
+
+def test_bound_callable_without_calling():
+    def callback():
+        return "hi"
+
+    @magicgui
+    def f(x: int = 5):
+        return x
+
+    assert f() == 5
+    f.x.bind(callback, call=False)
+    assert f() == callback
+    assert f()() == "hi"
+
+
+def test_bound_callable_catches_recursion():
+    @magicgui(x={"bind": lambda x: x.value * 2})
+    def f(x: int = 5):
+        return x
+
+    with pytest.raises(RuntimeError):
+        assert f() == 10
+    f.x.unbind()
+    assert f() == 5
+
+    # use `get_value` within the callback if you need to access widget.value
+    f.x.bind(lambda x: x.get_value() * 4)
+    assert f() == 20
