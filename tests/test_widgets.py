@@ -218,7 +218,6 @@ def test_unhashable_choice_data():
 
 def test_reset_choice_recursion():
     """Test that reset_choices recursion works for multiple types of widgets."""
-
     x = 0
 
     def get_choices(widget):
