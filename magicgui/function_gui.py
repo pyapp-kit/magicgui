@@ -6,8 +6,7 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from functools import lru_cache
-from typing import Any, Callable, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Optional, TypeVar, Union, overload
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -212,7 +211,8 @@ class FunctionGui(Container):
             app=None,
         )
 
-    @lru_cache(maxsize=None)
+    _bound_instances: Dict[int, FunctionGui] = {}
+
     def __get__(self, obj, objtype=None) -> FunctionGui:
         """Provide descriptor protocol.
 
@@ -235,14 +235,16 @@ class FunctionGui(Container):
         {'self': <__main__.MyClass object at 0x7fb610e455e0>, 'x': 34}
         """
         if obj is not None:
-            method = getattr(obj.__class__, self._function.__name__)
-            p0 = list(inspect.signature(method).parameters)[0]
-            prior, self._param_options = self._param_options, {p0: {"bind": obj}}
-            try:
-                bound_copy = self.copy()
-            finally:
-                self._param_options = prior
-            return bound_copy
+            obj_id = id(obj)
+            if obj_id not in self._bound_instances:
+                method = getattr(obj.__class__, self._function.__name__)
+                p0 = list(inspect.signature(method).parameters)[0]
+                prior, self._param_options = self._param_options, {p0: {"bind": obj}}
+                try:
+                    self._bound_instances[obj_id] = self.copy()
+                finally:
+                    self._param_options = prior
+            return self._bound_instances[obj_id]
         return self
 
     def __set__(self, obj, value):
