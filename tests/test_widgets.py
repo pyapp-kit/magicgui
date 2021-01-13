@@ -214,3 +214,25 @@ def test_unhashable_choice_data():
     assert combo.choices == ([1, 2, 3], [1, 2, 5])
     combo.choices = ("x", "y", "z")
     assert combo.choices == ("x", "y", "z")
+
+
+def test_reset_choice_recursion():
+    """Test that reset_choices recursion works for multiple types of widgets."""
+    x = 0
+
+    def get_choices(widget):
+        nonlocal x
+        x += 1
+        return list(range(x))
+
+    @magicgui(c={"choices": get_choices})
+    def f(c):
+        pass
+
+    assert f.c.choices == (0,)
+
+    container = widgets.Container(widgets=[f])
+    container.reset_choices()
+    assert f.c.choices == (0, 1)
+    container.reset_choices()
+    assert f.c.choices == (0, 1, 2)
