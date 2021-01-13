@@ -394,6 +394,9 @@ class Widget:
         self._widget._mgui_set_min_width(value)
 
 
+UNBOUND = object()
+
+
 class ValueWidget(Widget):
     """Widget with a value, Wraps ValueWidgetProtocol.
 
@@ -401,18 +404,24 @@ class ValueWidget(Widget):
     ----------
     value : Any, optional
         The starting value for the widget, by default ``None``
+    bind : Any, optional
+        A value or callback to bind this widget, then whenever `widget.value` is
+        accessed, the value provided here will be returned.  ``value`` can be a
+        callable, in which case ``value(self)`` will be returned (i.e. your callback
+        must accept a single parameter, which is this widget instance.).
+
     """
 
     _widget: _protocols.ValueWidgetProtocol
     changed: EventEmitter
 
-    def __init__(self, value: Any = None, bind=None, **kwargs):
+    def __init__(self, value: Any = None, bind: Any = UNBOUND, **kwargs):
         self._bound_value: Any = bind
         self._call_bound: bool = True
         super().__init__(**kwargs)
         if value is not None:
             self.value = value
-        if self._bound_value is not None and "visible" not in kwargs:
+        if self._bound_value is not UNBOUND and "visible" not in kwargs:
             self.hide()
 
     def _post_init(self):
@@ -434,7 +443,7 @@ class ValueWidget(Widget):
     @property
     def value(self):
         """Return current value of the widget.  This may be interpreted by backends."""
-        if self._bound_value is not None:
+        if self._bound_value is not UNBOUND:
             if callable(self._bound_value) and self._call_bound:
                 try:
                     return self._bound_value(self)
@@ -492,7 +501,7 @@ class ValueWidget(Widget):
 
     def unbind(self) -> None:
         """Unbinds any bound values. (see ``ValueWidget.bind``)."""
-        self._bound_value = None
+        self._bound_value = UNBOUND
 
 
 class ButtonWidget(ValueWidget):
