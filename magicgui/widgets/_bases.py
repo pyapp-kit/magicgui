@@ -1100,8 +1100,8 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         state.
         """
         for widget in self:
-            if isinstance(widget, CategoricalWidget):
-                widget.reset_choices()
+            if hasattr(widget, "reset_choices"):
+                widget.reset_choices()  # type: ignore
 
     def refresh_choices(self, event=None):
         """Alias for reset_choices [DEPRECATED: use reset_choices]."""

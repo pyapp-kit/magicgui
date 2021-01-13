@@ -301,3 +301,25 @@ def test_bound_callable_catches_recursion():
     # use `get_value` within the callback if you need to access widget.value
     f.x.bind(lambda x: x.get_value() * 4)
     assert f() == 20
+
+
+def test_reset_choice_recursion():
+    """Test that reset_choices recursion works for multiple types of widgets."""
+    x = 0
+
+    def get_choices(widget):
+        nonlocal x
+        x += 1
+        return list(range(x))
+
+    @magicgui(c={"choices": get_choices})
+    def f(c):
+        pass
+
+    assert f.c.choices == (0,)
+
+    container = widgets.Container(widgets=[f])
+    container.reset_choices()
+    assert f.c.choices == (0, 1)
+    container.reset_choices()
+    assert f.c.choices == (0, 1, 2)
