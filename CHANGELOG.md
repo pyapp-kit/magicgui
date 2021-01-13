@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.2.5](https://github.com/napari/magicgui/tree/v0.2.5) (2021-01-13)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.4...v0.2.5)
+
+v0.2.5 greatly improves support for binding a value or a callback to a function parameter, and fixes a bug in recursively updating categorical widgets nested deeply inside of a container.
+
+**Merged pull requests:**
+
+- Fix reset\_choices recursion [\#96](https://github.com/napari/magicgui/pull/96) ([tlambert03](https://github.com/tlambert03))
+- better bound values [\#95](https://github.com/napari/magicgui/pull/95) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.4](https://github.com/napari/magicgui/tree/v0.2.4) (2021-01-12)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.2.3...v0.2.4)
