@@ -230,6 +230,18 @@ def test_bound_values():
     assert f() == 5
 
 
+def test_binding_None():
+    """Test that we can bind a "permanent" value override to a parameter."""
+
+    @magicgui(x={"bind": None})
+    def f(x: int = 5):
+        return x
+
+    assert f() is None
+    f.x.unbind()
+    assert f() == 5
+
+
 def test_bound_values_visible():
     """Test that we force a bound widget to be visible."""
 
