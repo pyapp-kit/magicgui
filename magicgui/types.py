@@ -78,3 +78,4 @@ class WidgetOptions(TypedDict, total=False):
     layout: str  # for things like containers
     orientation: str  # for things like sliders
     mode: Union[str, FileDialogMode]
+    tooltip: str

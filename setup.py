@@ -13,7 +13,7 @@ setup(
     use_scm_version={"write_to": "magicgui/_version.py"},
     setup_requires=["setuptools_scm"],
     packages=find_packages(),
-    install_requires=["qtpy>=1.7.0", "typing_extensions"],
+    install_requires=["qtpy>=1.7.0", "typing_extensions", "docstring_parser"],
     python_requires=">=3.7",
     author="Talley Lambert",
     author_email="talley.lambert@gmail.com",

@@ -8,9 +8,10 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, Sequence, Tuple, Type, Union
+from typing import Callable, List, Sequence, Tuple, Type, Union
 
-from magicgui._parse import docstring_to_param_list, param_list_to_str
+from docstring_parser import DocstringParam, parse
+
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
 
@@ -27,6 +28,25 @@ from ._bases import (
 from ._transforms import make_float, make_literal_eval
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
+
+
+def _param_list_to_str(param_list: List[DocstringParam]) -> str:
+    """Format Parameters section for numpy docstring from list of tuples."""
+    out = []
+    out += ["Parameters", len("Parameters") * "-"]
+    for param in param_list:
+        parts = []
+        if param.arg_name:
+            parts.append(param.arg_name)
+        if param.type_name:
+            parts.append(param.type_name)
+        if not parts:
+            continue
+        out += [" : ".join(parts)]
+        if param.description and param.description.strip():
+            out += [" " * 4 + line for line in param.description.split("\n")]
+    out += [""]
+    return "\n".join(out)
 
 
 def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "extra")):
@@ -46,7 +66,7 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
         The modified class (can be used as a decorator)
     """
     params = {}
-    param_docs = []
+    param_docs: List[DocstringParam] = []
     for sup in reversed(inspect.getmro(cls)):
         try:
             sig = inspect.signature(getattr(sup, "__init__"))
@@ -58,7 +78,7 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
                 continue
             params[name] = param
 
-        param_docs += docstring_to_param_list(getattr(sup, "__doc__", ""))
+        param_docs += parse(getattr(sup, "__doc__", "")).params
 
     # sphinx_autodoc_typehints isn't removing the type annotations from the signature
     # so we do it manually when building documentation.
@@ -70,9 +90,9 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
     cls.__init__.__signature__ = inspect.Signature(
         sorted(params.values(), key=lambda x: x.kind)
     )
-    param_docs = [p for p in param_docs if p.name not in exclude]
+    param_docs = [p for p in param_docs if p.arg_name not in exclude]
     cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
-    cls.__doc__ += "\n".join(param_list_to_str(param_docs))
+    cls.__doc__ += _param_list_to_str(param_docs)
     # this makes docs linking work... but requires that all of these be in __init__
     cls.__module__ = "magicgui.widgets"
     return cls
@@ -428,7 +448,7 @@ class _LabeledWidget(Container):
         layout = "horizontal" if position in ("left", "right") else "vertical"
         kwargs["backend_kwargs"] = {"layout": layout}
         self._inner_widget = widget
-        self._label_widget = Label(value=label or widget.label)
+        self._label_widget = Label(value=label or widget.label, tooltip=widget.tooltip)
         super().__init__(**kwargs)
         self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
         self.labels = False  # important to avoid infinite recursion during insert!

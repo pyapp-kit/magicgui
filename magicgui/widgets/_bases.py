@@ -188,8 +188,10 @@ class Widget:
         By default, ``name`` will be used. Note: ``name`` refers the name of the
         parameter, as might be used in a signature, whereas label is just the label
         for that widget in the GUI.
-        Whether the widget should be considered "only for the gui", or if it should be
-        included in any widget container signatures, by default False
+    tooltip : str, optional
+        A tooltip to display when hovering over the widget.
+    visible : bool, optional
+        Whether the widget is visible, by default ``True``.
     backend_kwargs : dict, optional
         keyword argument to pass to the backend widget constructor.
     """
@@ -201,7 +203,8 @@ class Widget:
         widget_type: Type[_protocols.WidgetProtocol],
         name: str = "",
         annotation: Any = None,
-        label=None,
+        label: str = None,
+        tooltip: Optional[str] = None,
         visible: bool = True,
         gui_only=False,
         backend_kwargs=dict(),
@@ -228,6 +231,7 @@ class Widget:
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
+        self.tooltip = tooltip
         self.annotation: Any = annotation
         self.gui_only = gui_only
         self.visible: bool = True
@@ -240,9 +244,6 @@ class Widget:
         self._post_init()
         if not visible:
             self.hide()
-
-    def _emit_parent(self, event=None):
-        self.parent_changed(value=self.parent)
 
     @property
     def annotation(self):
@@ -293,28 +294,6 @@ class Widget:
         """Return native backend widget."""
         return self._widget._mgui_get_native_widget()
 
-    def show(self, run=False):
-        """Show the widget."""
-        self._widget._mgui_show_widget()
-        self.visible = True
-        if run:
-            self.__magicgui_app__.run()
-        return self  # useful for generating repr in sphinx
-
-    @contextmanager
-    def shown(self):
-        """Context manager to show the widget."""
-        try:
-            self.show()
-            yield self.__magicgui_app__.__enter__()
-        finally:
-            self.__magicgui_app__.__exit__()
-
-    def hide(self):
-        """Hide widget."""
-        self._widget._mgui_hide_widget()
-        self.visible = False
-
     @property
     def enabled(self) -> bool:
         """Whether widget is enabled (editable)."""
@@ -338,10 +317,6 @@ class Widget:
         """Return type of widget."""
         return self.__class__.__name__
 
-    def __repr__(self) -> str:
-        """Return representation of widget of instsance."""
-        return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
-
     @property
     def label(self):
         """Return a label to use for this widget when present in Containers."""
@@ -354,9 +329,62 @@ class Widget:
         self._label = value
         self.label_changed(value=value)
 
+    @property
+    def width(self) -> int:
+        """Return the current width of the widget.
+
+        The naming of this method may change. The intention is to get the width of the
+        widget after it is shown, for the purpose of unifying widget width in a layout.
+        Backends may do what they need to accomplish this. For example, Qt can use
+        ``sizeHint().width()``, since ``width()`` will return something large if the
+        widget has not yet been painted on screen.
+        """
+        return self._widget._mgui_get_width()
+
+    @width.setter
+    def width(self, value: int) -> None:
+        """Set the minimum allowable width of the widget."""
+        self._widget._mgui_set_min_width(value)
+
+    @property
+    def tooltip(self) -> Optional[str]:
+        """Get the tooltip for this widget."""
+        return self._widget._mgui_get_tooltip() or None
+
+    @tooltip.setter
+    def tooltip(self, value: Optional[str]) -> None:
+        """Set the tooltip for this widget."""
+        return self._widget._mgui_set_tooltip(value)
+
+    def show(self, run=False):
+        """Show the widget."""
+        self._widget._mgui_show_widget()
+        self.visible = True
+        if run:
+            self.__magicgui_app__.run()
+        return self  # useful for generating repr in sphinx
+
+    @contextmanager
+    def shown(self):
+        """Context manager to show the widget."""
+        try:
+            self.show()
+            yield self.__magicgui_app__.__enter__()
+        finally:
+            self.__magicgui_app__.__exit__()
+
+    def hide(self):
+        """Hide widget."""
+        self._widget._mgui_hide_widget()
+        self.visible = False
+
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         return self._widget._mgui_render()
+
+    def __repr__(self) -> str:
+        """Return representation of widget of instsance."""
+        return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
 
     def _repr_png_(self):
         """Return PNG representation of the widget for QtConsole."""
@@ -376,22 +404,8 @@ class Widget:
             file_obj.seek(0)
             return file_obj.read()
 
-    @property
-    def width(self) -> int:
-        """Return the current width of the widget.
-
-        The naming of this method may change. The intention is to get the width of the
-        widget after it is shown, for the purpose of unifying widget width in a layout.
-        Backends may do what they need to accomplish this. For example, Qt can use
-        ``sizeHint().width()``, since ``width()`` will return something large if the
-        widget has not yet been painted on screen.
-        """
-        return self._widget._mgui_get_width()
-
-    @width.setter
-    def width(self, value: int) -> None:
-        """Set the minimum allowable width of the widget."""
-        self._widget._mgui_set_min_width(value)
+    def _emit_parent(self, event=None):
+        self.parent_changed(value=self.parent)
 
 
 UNBOUND = object()

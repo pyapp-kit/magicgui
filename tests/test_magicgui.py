@@ -478,3 +478,112 @@ def test_call_count():
     assert func.call_count == 2
     func.reset_call_count()
     assert func.call_count == 0
+
+
+def test_tooltips_from_numpydoc():
+    """Test that numpydocs docstrings can be used for tooltips."""
+
+    @magicgui(x={"tooltip": "override tooltip"}, z={"tooltip": None})
+    def func(x: int, y: str = "hi", z=None):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'. Only the first sentence
+            will be used. Even if the docstring is very long indeed,
+            I mean super super long ... then it will still use only
+            the first sentence (everything before the first period in
+            the description).
+        z : Any, optional
+            No tooltip for me please.
+        """
+        pass
+
+    assert func.x.tooltip == "override tooltip"
+    assert func.y.tooltip == "A greeting"  # the "by default" part is stripped
+    assert not func.z.tooltip
+
+
+def test_tooltips_from_google_doc():
+    """Test that google docstrings can be used for tooltips."""
+
+    @magicgui
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Args:
+            x (int): An integer for you to use
+            y (str, optional): A greeting. Only the first
+                sentence will be used. Even if the docstring is very long indeed, I mean
+                super super long ... then it will still use only the first sentence
+                (everything before the first period in the description).
+        """
+        pass
+
+    assert func.x.tooltip == "An integer for you to use"
+    assert func.y.tooltip == "A greeting"  # the "by default" part is stripped
+
+
+def test_tooltips_from_rest_doc():
+    """Test that google docstrings can be used for tooltips."""
+
+    @magicgui
+    def func(x: int, y: str = "hi", z=None):
+        """Do a little thing.
+
+        :param x: An integer for you to use
+        :param y: A greeting, by default 'hi'. Only the first sentence will be used.
+                  Even if the docstring is very long indeed, I mean super super long ...
+                  then it will still use only the first sentence (everything before the
+                  first period in the description).
+        :type x: int
+        :type y: str
+        """
+        pass
+
+    assert func.x.tooltip == "An integer for you to use"
+    assert func.y.tooltip == "A greeting"
+
+
+def test_no_tooltips_from_numpydoc():
+    """Test that ``tooltips=False`` hides all tooltips."""
+
+    @magicgui(tooltips=False)
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'
+        """
+        pass
+
+    assert not func.x.tooltip
+    assert not func.y.tooltip
+
+
+def test_only_some_tooltips_from_numpydoc():
+    """Test that we can still show some tooltips with ``tooltips=False``."""
+    # tooltips=False, means docstrings wont be parsed at all, but tooltips
+    # can still be manually provided.
+    @magicgui(tooltips=False, y={"tooltip": "Still want a tooltip"})
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'
+        """
+        pass
+
+    assert not func.x.tooltip
+    assert func.y.tooltip == "Still want a tooltip"
