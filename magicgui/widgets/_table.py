@@ -374,6 +374,13 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
             raise KeyError(f"{col!r} is not a valid column header")
         return self._widget._mgui_remove_column(col_idx)
 
+    def _del_row(self, row: _KT) -> None:
+        try:
+            row_idx = self.row_headers.index(row)
+        except ValueError:
+            raise KeyError(f"{row!r} is not a valid row header")
+        return self._widget._mgui_remove_row(row_idx)
+
     def _get_row(self, row: int, cols: slice = slice(None, None, None)) -> list:
         self._assert_row(row)
         return [self._get_cell(row, c) for c in self._iter_slice(cols, 1)]
@@ -556,6 +563,27 @@ class DataDescriptor:
         if isinstance(idx, str):
             return obj._set_column(idx, value)
         raise ValueError(f"Not a valid idx for __setitem__ {idx!r}")
+
+    def __delitem__(self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey]]):
+        """Get index."""
+        if isinstance(idx, (int, slice)):
+            return self.__delitem__((idx, slice(None)))
+        obj = self._obj
+        if isinstance(idx, tuple):
+            assert len(idx) == 2, "Table Widget only accepts 2 arguments to __delitem__"
+            r_idx, c_idx = idx
+            if isinstance(r_idx, int):
+                if c_idx == slice(None):
+                    return obj._del_row(r_idx)
+            elif isinstance(r_idx, slice):
+                if c_idx == slice(None):
+                    for r in obj._iter_slice(r_idx, 0):
+                        obj._del_row(r)
+                    return
+            raise ValueError("Can only delete full rows/columns, not {idx!r}")
+        if isinstance(idx, str):
+            return obj._get_column(idx)
+        raise ValueError(f"Not a valid idx for __getitem__ {idx!r}")
 
     def _assert_extended_slice(self, slc: slice, value_len, axis=0):
         slc_len = _range_len(*slc.indices(self._obj.shape[axis]))
