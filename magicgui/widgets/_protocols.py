@@ -13,9 +13,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Collection,
     Iterable,
     Optional,
+    Sequence,
     Tuple,
     Type,
 )
@@ -140,8 +140,8 @@ class TableWidgetProtocol(ValueWidgetProtocol, Protocol):
     """ValueWidget subclass intended for 2D tabular data, with row & column headers."""
 
     @abstractmethod
-    def _mgui_get_shape(self) -> Tuple[int, int]:
-        """Get the shape of the table (rows, cols)."""
+    def _mgui_get_row_count(self) -> int:
+        """Get the number of rows in the table."""
         raise NotImplementedError()
 
     @abstractmethod
@@ -150,8 +150,23 @@ class TableWidgetProtocol(ValueWidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
+    def _mgui_remove_row(self, row: int) -> None:
+        """Remove row at index `row`."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_column_count(self) -> int:
+        """Get the number of columns in the table."""
+        raise NotImplementedError()
+
+    @abstractmethod
     def _mgui_set_column_count(self, ncols: int) -> None:
         """Set the number of columns in the table. (Create/delete as needed)."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_remove_column(self, column: int) -> None:
+        """Remove column at index `column`."""
         raise NotImplementedError()
 
     @abstractmethod
@@ -165,22 +180,22 @@ class TableWidgetProtocol(ValueWidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_get_row_headers(self) -> list:
+    def _mgui_get_row_headers(self) -> tuple:
         """Get current row headers of the widget."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_row_headers(self, headers: Collection) -> None:
+    def _mgui_set_row_headers(self, headers: Sequence) -> None:
         """Set current row headers of the widget."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_get_column_headers(self) -> list:
+    def _mgui_get_column_headers(self) -> tuple:
         """Get current column headers of the widget."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_column_headers(self, headers: Collection) -> None:
+    def _mgui_set_column_headers(self, headers: Sequence) -> None:
         """Set current column headers of the widget."""
         raise NotImplementedError()
 
