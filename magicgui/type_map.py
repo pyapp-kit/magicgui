@@ -91,6 +91,19 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 
 
 @type_matcher
+def pydantic_type(value, annotation) -> Optional[WidgetTuple]:
+    """Determine if value/annotation is a function type."""
+    try:
+        import pydantic.types as pt
+    except ImportError:
+        return None
+    if isinstance(annotation, pt.ConstrainedNumberMeta):
+        if issubclass(annotation, pt.ConstrainedInt):
+            return widgets.SpinBox, {"min": annotation.ge, "max": annotation.le}
+    return None
+
+
+@type_matcher
 def simple_types(value, annotation) -> Optional[WidgetTuple]:
     """Check simple type mappings."""
     dtype = _normalize_type(value, annotation)

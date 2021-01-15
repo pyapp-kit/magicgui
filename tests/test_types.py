@@ -54,3 +54,11 @@ def test_forward_refs_return_annotation():
     assert result == 1
     # the forward ref has been resolved
     assert return_annotation is MyInt
+
+
+def test_pydantic_conint():
+    pydantic = pytest.importorskip("pydantic")
+
+    @magicgui
+    def func(x: pydantic.conint(ge=100, le=200) = 150) -> int:
+        return x
