@@ -361,7 +361,7 @@ class Table(ValueWidget, MutableSequence):
             try:
                 col = self.column_headers.index(col)
             except ValueError:
-                raise ValueError(f"{col!r} is not a valid column header")
+                raise KeyError(f"{col!r} is not a valid column header")
         self._assert_col(col)
         return [self._get_cell(r, col) for r in self._iter_slice(rows, 0)]
 
@@ -376,14 +376,19 @@ class Table(ValueWidget, MutableSequence):
     def _set_column(
         self, col: Union[int, str], value: list, rows: slice = slice(None, None, None)
     ):
+        ncols = self.shape[1]
         if isinstance(col, str):
             try:
-                col = self.column_headers.index(col)
+                _col: int = self.column_headers.index(col)
             except ValueError:
-                raise ValueError(f"{col!r} is not a valid column header")
-        self._assert_col(col)
+                _col = ncols
+        else:
+            _col = col
+        if _col >= ncols:
+            self._widget._mgui_set_column_count(ncols + 1)
+            self.column_headers.append(col)
         for v, row in zip(value, self._iter_slice(rows, 0)):
-            self._set_cell(row, col, v)
+            self._set_cell(row, _col, v)
 
     def _assert_row(self, row):
         nrows = len(self)
@@ -397,6 +402,7 @@ class Table(ValueWidget, MutableSequence):
     def _assert_col(self, col):
         ncols = self.shape[1]
         if col >= ncols:
+            # XXX: in pandas this would be a KeyError
             raise IndexError(
                 f"column {col} is out of bounds for table "
                 f'with {ncols} column{"s" if ncols > 1 else ""}'
@@ -421,6 +427,18 @@ class Table(ValueWidget, MutableSequence):
             raise ImportError(
                 "Cannot convert to dataframe without pandas installed"
             ) from e
+
+    def to_numpy(self):
+        """Return a Numpy representation of the Table.
+
+        Only the values in the Table will be returned, the axes labels will be removed.
+        """
+        try:
+            import numpy
+
+            return numpy.array(self.data)
+        except ImportError as e:
+            raise ImportError("Cannot convert to numpy without numpy installed") from e
 
     def to_dict(self, orient="dict"):
         """Convert the Table to a dictionary.
