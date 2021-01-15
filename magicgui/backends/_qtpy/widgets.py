@@ -2,7 +2,6 @@
 from typing import Any, Collection, Iterable, List, Optional, Tuple, Union
 
 import qtpy
-from PySide2.QtWidgets import QTableWidgetItem
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import QFont, QFontMetrics
@@ -471,7 +470,7 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
         self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
 
-    def _update_item_data_with_text(self, item: QTableWidgetItem):
+    def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
         self._qwidget.blockSignals(True)
         item.setData(self._DATA_ROLE, _maybefloat(item.text()))
         self._qwidget.blockSignals(False)
