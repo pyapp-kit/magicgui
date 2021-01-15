@@ -453,11 +453,9 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
                 "data": self.data,
             }
         if orient == "records":
-            if _contains_duplicates(row_head):
-                warn("Table row headers are not unique, some rows will be omitted.")
             return [
-                {row_head[r]: self._get_cell(r, c) for r in range(nrows)}
-                for c in range(ncols)
+                {col_head[c]: self._get_cell(r, c) for c in range(ncols)}
+                for r in range(nrows)
             ]
         if orient == "index":
             if _contains_duplicates(row_head):
