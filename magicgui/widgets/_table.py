@@ -4,10 +4,16 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
+    Dict,
+    Generic,
+    ItemsView,
     Iterable,
     Iterator,
+    KeysView,
     List,
+    Mapping,
     MutableMapping,
+    Optional,
     Sequence,
     Tuple,
     TypeVar,
@@ -16,6 +22,8 @@ from typing import (
     overload,
 )
 from warnings import warn
+
+from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.widgets._bases import ValueWidget
@@ -26,65 +34,11 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
-def _is_collection(obj):
-    return isinstance(obj, Collection) and not isinstance(obj, str)
-
-
-def _is_dataframe(obj) -> bool:
-    try:
-        import pandas
-
-        return isinstance(obj, pandas.DataFrame)
-    except ImportError:
-        return False
-
-
-def _is_numpy_array(obj) -> bool:
-    try:
-        import numpy
-
-        return isinstance(obj, numpy.ndarray)
-    except ImportError:
-        return False
-
-
-def _from_nested_column_dict(data) -> Tuple[List[list], list]:
-    _index = {frozenset(i) for i in data.values()}
-    if len(_index) > 1:
-        raise ValueError(
-            "All row-dicts must have the same keys. "
-            "Install pandas for better table-from-dict support."
-        )
-    index = list(sorted(list(_index)[0]))
-    new_data = []
-    for col, s in data.items():
-        new_data.append([s[i] for i in index])
-    return list(list(x) for x in zip(*new_data)), index
-
-
-def from_dict(data, dtype=None) -> Tuple[List[list], list, list]:
-    """Construct _MguiTable from dict of array-like or dicts.
-
-    logic from pandas.DataFrame.from_dict
-    """
-    # try:
-    #     import pandas
-
-    #     df = pandas.DataFrame.from_dict(data, orient="columns", dtype=dtype)
-    #     return df.values, df.index, df.columns
-    # except ImportError:
-    #     pass
-
-    columns = list(data)
-    if isinstance(list(data.values())[0], dict):
-        data, index = _from_nested_column_dict(data)
-    else:
-        data = list(list(x) for x in zip(*data.values()))
-        index = []
-    return data, index, columns
-
-
+_KT = TypeVar("_KT")  # Key type
+_KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
+_VT_co = TypeVar("_VT_co", covariant=True)  # Value type covariant containers.
 TableData = Union[dict, "pd.DataFrame", list, "np.ndarray", tuple, None]
+IndexKey = Union[int, slice]
 
 
 def normalize_table_data(data: TableData) -> Tuple[List[list], list, list]:
@@ -117,7 +71,7 @@ def normalize_table_data(data: TableData) -> Tuple[List[list], list, list]:
     if data is None:
         return [[]], [], []
     if isinstance(data, dict):
-        return from_dict(data)
+        return _from_dict(data)
     if isinstance(data, tuple):
         data_len = len(data)
         _data = data[0] if data else []
@@ -127,90 +81,106 @@ def normalize_table_data(data: TableData) -> Tuple[List[list], list, list]:
     if _is_dataframe(data):
         data = cast("pd.DataFrame", data)
         return data.values, data.index, data.columns
-    if isinstance(data, list) or _is_numpy_array(data):
+    if isinstance(data, list):
+        if data and isinstance(data[0], dict):
+            return _from_records(data)
         # TODO: check list dimensions
+        return data, [], []
+    if _is_numpy_array(data):
         return data, [], []
     raise TypeError(
         f"Table value must be a dict, dataframe, list, or array, got {type(data)}"
     )
 
 
-def _normalize_indices(data, index=None, columns=None):
-    ncols = 0
-    nrows = 0
-    if data is not None:
-        nrows = len(data)
-        try:
-            ncols = len(data[0])
-        except TypeError:
-            ncols = 1
-        if not index:
-            index = tuple(range(nrows))
-        if not columns:
-            columns = tuple(range(ncols))
+class HeadersView(KeysView[_KT]):
+    """dictionary view for Table headers."""
 
-    if columns:
-        if not len(columns) == ncols:
-            raise ValueError(
-                f"{len(columns)} columns passed, passed data had {ncols} columns"
-            )
-        elif not _is_collection(columns):
-            raise TypeError(
-                f"'columns' must be a collection, " f"{columns!r} was passed"
-            )
+    def __init__(self, mapping: "Table", axis: str = "column") -> None:
+        super().__init__(mapping)
+        self._mapping = mapping
+        axis = axis.rstrip("s")
+        assert axis in {"row", "column"}, "keys axis must be either 'column' or 'row'"
+        self._axis = axis
 
-    if index:
-        if not len(index) == nrows:
-            raise ValueError(
-                f"Shape of passed values is {(nrows, ncols)!r}, "
-                f"indices imply {(len(index), 1)!r}"
-            )
-        if not _is_collection(index):
-            raise TypeError(f"'index' must be a collection, {index!r} was passed")
-    return index, columns
+    def __iter__(self) -> Iterator[_KT_co]:
+        """Yield headers."""
+        yield from getattr(self._mapping, f"{self._axis}_headers")
+
+    def __repr__(self) -> str:
+        """Return string repr of column headers view."""
+        return f"{self._axis}_headers({list(self)})"
 
 
-IndexKey = Union[int, slice]
+class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
+    """dictionary view for Table items."""
 
+    def __init__(self, mapping: Mapping[_KT_co, _VT_co], axis: str = "column") -> None:
+        super().__init__(mapping)
+        self._mapping: "Table" = mapping  # type: ignore
+        axis = axis.rstrip("s")
+        assert axis in {"row", "column"}, "keys axis must be either 'column' or 'row'"
+        self._axis = axis
 
-_KT = TypeVar("_KT")
+    def __iter__(self) -> Iterator[Tuple[_KT_co, _VT_co]]:
+        """Yield items."""
+        for header in getattr(self._mapping, f"{self._axis}_headers"):
+            val = getattr(self._mapping, f"_get_{self._axis}")(header)
+            yield (header, val)
+
+    def __repr__(self) -> str:
+        """Return string repr of column headers view."""
+        n = self._mapping.shape[0 if self._axis == "row" else 1]
+        return f"table_items({n} {self._axis}s)"
 
 
 class Table(ValueWidget, MutableMapping[_KT, list]):
-    """A table widget for pandas, numpy, or dict-of-list data."""
+    """A table widget for pandas, numpy, or dict-of-list data.
+
+    Any of the following can be used as an argument to ``value``
+
+    .. code-block:: python
+
+        dict_of_dicts = {
+            "col_1": {"r1": 3, "r2": 2, "r3": 1, "r4": 0},
+            "col_2": {"r2": "b", "r4": "d", "r3": "c", "r1": "a"},
+        }
+        dict_of_lists = {"col_1": [3, 2, 1, 0], "col_2": ["a", "b", "c", "d"]}
+        list_of_lists = [[8, 1, 4], [3, 7, 4]]
+        numpy_array = np.random.rand(8, 5)
+        pandas_dataframe = pd.DataFrame(...)
+        tuple_with_header_info = (list_of_lists, ("r1", "r2"), ("c1", "c2", "c3"))
+
+    Parameters
+    ----------
+    value : dict, dataframe, list, array, tuple, optional
+        the value
+
+    Attributes
+    ----------
+    value : Tuple[List[list], tuple, tuple]
+
+
+    """
 
     _widget: TableWidgetProtocol
 
-    def __init__(self, value=None) -> None:
+    def __init__(self, value: Optional[TableData] = None) -> None:
         app = use_app()
         assert app.native
         super().__init__(widget_type=app.get_obj("Table"))
-        self._data = DataDescriptor(self)
+        self._data = DataView(self)
         if value is not None:
-            self.value = value
+            self.value = value  # type: ignore
 
     @property
-    def value(self) -> Tuple[List[list], tuple, tuple]:
+    def value(self) -> Dict[_KT, Union[list, tuple]]:
         """Return current  of the widget."""
-        return self.data.to_list(), self.row_headers, self.column_headers
+        return self.to_dict("split")
 
     @value.setter
-    def value(self, value: Any):
+    def value(self, value: TableData):
         """Set table data from dict, dataframe, list, or array.
-
-        Any of the following can be used as an argument to ``value``
-
-        .. code-block:: python
-
-            dict_of_dicts = {
-                "col_1": {"r1": 3, "r2": 2, "r3": 1, "r4": 0},
-                "col_2": {"r2": "b", "r4": "d", "r3": "c", "r1": "a"},
-            }
-            dict_of_lists = {"col_1": [3, 2, 1, 0], "col_2": ["a", "b", "c", "d"]}
-            list_of_lists = [[8, 1, 4], [3, 7, 4]]
-            numpy_array = np.random.rand(8, 5)
-            pandas_dataframe = pd.DataFrame(...)
-            tuple_with_header_info = (list_of_lists, ("r1", "r2"), ("c1", "c2", "c3"))
 
         Parameters
         ----------
@@ -222,18 +192,52 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
         self.column_headers = columns or range(len(data[0]))  # type:ignore
         self.row_headers = index or range(len(data))  # type: ignore
         for row, data in enumerate(data):
-            self._set_row(row, data)
+            self._set_rowi(row, data)
 
     @property
     def data(self):
-        """Return DataDescriptor object for this table."""
+        """Return DataView object for this table."""
         return self._data
 
     @data.setter
     def data(self, value):
         """Set 2D table data."""
-        # TODO: deal with bad shapes
         self._data.__setitem__(slice(None), value)
+
+    @property
+    def row_headers(self) -> tuple:
+        """Return row headers."""
+        nrows = self._widget._mgui_get_column_count()
+        return self._widget._mgui_get_row_headers() or tuple(range(nrows))
+
+    @row_headers.setter
+    def row_headers(self, headers: Sequence) -> None:
+        """Set row headers."""
+        self._check_new_headers(headers, axis="row")
+        return self._widget._mgui_set_row_headers(headers)
+
+    @property
+    def column_headers(self) -> tuple:
+        """Return column headers."""
+        headers = self._widget._mgui_get_column_headers()
+        if not headers:
+            ncols = self._widget._mgui_get_column_count()
+            headers = tuple(range(ncols))
+        return headers
+
+    @column_headers.setter
+    def column_headers(self, headers: Sequence) -> None:
+        """Set column headers."""
+        self._check_new_headers(headers, axis="column")
+        return self._widget._mgui_set_column_headers(headers)
+
+    def keys(self, axis: str = "column") -> HeadersView[_KT]:
+        """Return a set-like object providing a view on this table's headers."""
+        return HeadersView(self, axis)
+
+    def items(self, axis: str = "column") -> TableItemsView[_KT, list]:
+        """Return a set-like object providing a view on this table's items."""
+        return TableItemsView(self, axis)
 
     def __delitem__(self, key: _KT) -> None:
         """Delete a column from the table."""
@@ -263,33 +267,6 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
         """Return string repr."""
         return f"Table(name={self.name!r}, shape={self.shape})"
 
-    @property
-    def row_headers(self) -> tuple:
-        """Return row headers."""
-        nrows = self._widget._mgui_get_column_count()
-        return self._widget._mgui_get_row_headers() or tuple(range(nrows))
-
-    @row_headers.setter
-    def row_headers(self, headers: Sequence) -> None:
-        """Set row headers."""
-        self._check_new_headers(headers, axis="row")
-        return self._widget._mgui_set_row_headers(headers)
-
-    @property
-    def column_headers(self) -> tuple:
-        """Return column headers."""
-        headers = self._widget._mgui_get_column_headers()
-        if not headers:
-            ncols = self._widget._mgui_get_column_count()
-            headers = tuple(range(ncols))
-        return headers
-
-    @column_headers.setter
-    def column_headers(self, headers: Sequence) -> None:
-        """Set column headers."""
-        self._check_new_headers(headers, axis="column")
-        return self._widget._mgui_set_column_headers(headers)
-
     def _check_new_headers(self, headers, *, axis="column"):
         current_headers = getattr(self._widget, f"_mgui_get_{axis}_headers")()
         if current_headers:
@@ -307,7 +284,8 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
         return self._widget._mgui_get_row_count(), self._widget._mgui_get_column_count()
 
     # # Should we allow this?
-    # def reshape(self, shape: Tuple[int, int]) -> None:
+    # @shape.setter
+    # def shape(self, shape: Tuple[int, int]) -> None:
     #     """Set shape of table widget (rows, cols)."""
     #     try:
     #         r, c = shape[:2]
@@ -379,13 +357,34 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
             row_idx = self.row_headers.index(row)
         except ValueError:
             raise KeyError(f"{row!r} is not a valid row header")
-        return self._widget._mgui_remove_row(row_idx)
+        self._del_rowi(row_idx)
 
-    def _get_row(self, row: int, cols: slice = slice(None, None, None)) -> list:
+    def _del_rowi(self, row: int) -> None:
+        self._widget._mgui_remove_row(row)
+
+    def _get_row(self, row: _KT, cols: slice = slice(None, None, None)) -> list:
+        """Get row by row header."""
+        try:
+            row_idx = self.row_headers.index(row)
+        except ValueError:
+            raise KeyError(f"{row!r} is not a valid row header")
+        return self._get_rowi(row_idx, cols)
+
+    def _get_rowi(self, row: int, cols: slice = slice(None, None, None)) -> list:
+        """Get row by row index."""
         self._assert_row(row)
         return [self._get_cell(row, c) for c in self._iter_slice(cols, 1)]
 
-    def _set_row(self, row: int, value: list, cols: slice = slice(None, None, None)):
+    def _set_row(self, row: _KT, value: list, cols: slice = slice(None, None, None)):
+        """Set row by row header."""
+        try:
+            row_idx = self.row_headers.index(row)
+        except ValueError:
+            raise KeyError(f"{row!r} is not a valid row header")
+        self._set_rowi(row_idx, value, cols)
+
+    def _set_rowi(self, row: int, value: list, cols: slice = slice(None, None, None)):
+        """Set row by row index."""
         self._assert_row(row)
         for v, col in zip(value, self._iter_slice(cols, 1)):
             self._set_cell(row, col, v)
@@ -417,7 +416,22 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
                 "Cannot convert to dataframe without pandas installed"
             ) from e
 
-    def to_dict(self, orient: str = "dict"):
+    # fmt: off
+    @overload
+    def to_dict(self, orient: Literal['dict']) -> Dict[_KT, Dict[_KT, list]]: ...  # noqa
+    @overload
+    def to_dict(self, orient: Literal['list']) -> Dict[_KT, list]: ...  # noqa
+    @overload
+    def to_dict(self, orient: Literal['split']) -> Dict[_KT, Union[list, tuple]]: ...  # noqa
+    @overload
+    def to_dict(self, orient: Literal['records']) -> List[Dict[_KT, Any]]: ...  # noqa
+    @overload
+    def to_dict(self, orient: Literal['index']) -> Dict[_KT, Dict[_KT, list]]: ...  # noqa
+    @overload
+    def to_dict(self, orient: Literal['series']) -> Dict[_KT, 'pd.Series']: ...  # noqa
+    # fmt: on
+
+    def to_dict(self, orient: str = "dict") -> Union[list, dict]:
         """Convert the Table to a dictionary.
 
         The type of the key-value pairs can be customized with the parameters
@@ -430,12 +444,12 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
 
             - 'dict' (default) : dict like {column -> {index -> value}}
             - 'list' : dict like {column -> [values]}
-            - 'series' : dict like {column -> Series(values)}
             - 'split' : dict like
-            {'index' -> [index], 'columns' -> [columns], 'data' -> [values]}
+              {'index' -> [index], 'columns' -> [columns], 'data' -> [values]}
             - 'records' : list like
-            [{column -> value}, ... , {column -> value}]
+              [{column -> value}, ... , {column -> value}]
             - 'index' : dict like {index -> {column -> value}}
+            - 'series' : dict like {column -> Series(values)}
 
         """
         orient = orient.lower()
@@ -452,9 +466,9 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
                 for c in range(ncols)
             }
         if orient == "list":
-            return {header: self[header] for header in col_head}
+            return dict(self)
         if orient == "split":
-            return {"index": row_head, "columns": col_head, "data": self.data.to_list()}
+            return {"data": self.data.to_list(), "index": row_head, "columns": col_head}
         if orient == "records":
             return [
                 {col_head[c]: self._get_cell(r, c) for c in range(ncols)}
@@ -481,7 +495,7 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
         )
 
 
-class DataDescriptor:
+class DataView:
     """Object that provides 2D numpy-like indexing for Table data."""
 
     def __init__(self, obj: "Table") -> None:
@@ -520,12 +534,12 @@ class DataDescriptor:
                 if isinstance(c_idx, int):
                     return obj._get_cell(r_idx, c_idx)
                 if isinstance(c_idx, slice):
-                    return obj._get_row(r_idx, c_idx)
+                    return obj._get_rowi(r_idx, c_idx)
             elif isinstance(r_idx, slice):
                 if isinstance(c_idx, int):
                     return obj._get_column(c_idx, r_idx)
                 if isinstance(c_idx, slice):
-                    return [obj._get_row(r, c_idx) for r in obj._iter_slice(r_idx, 0)]
+                    return [obj._get_rowi(r, c_idx) for r in obj._iter_slice(r_idx, 0)]
         if isinstance(idx, str):
             return obj._get_column(idx)
         raise ValueError(f"Not a valid idx for __getitem__ {idx!r}")
@@ -534,6 +548,7 @@ class DataDescriptor:
         self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey], str], value: Any
     ) -> None:
         """Set index."""
+        # TODO: deal with bad shapes
         if isinstance(idx, (int, slice)):
             return self.__setitem__((idx, slice(None)), value)
         obj = self._obj
@@ -544,7 +559,7 @@ class DataDescriptor:
                 if isinstance(c_idx, int):
                     return obj._set_cell(r_idx, c_idx, value)
                 if isinstance(c_idx, slice):
-                    return obj._set_row(r_idx, value, c_idx)
+                    return obj._set_rowi(r_idx, value, c_idx)
             elif isinstance(r_idx, slice):
                 # handle extended slices
                 if r_idx.step and r_idx.step != 1:
@@ -558,7 +573,7 @@ class DataDescriptor:
                         # TODO: check value is iterable
                         self._assert_extended_slice(c_idx, len(value[0]), axis=1)
                     for v, r in zip(value, obj._iter_slice(r_idx, 0)):
-                        obj._set_row(r, v, c_idx)
+                        obj._set_rowi(r, v, c_idx)
                     return
         if isinstance(idx, str):
             return obj._set_column(idx, value)
@@ -574,11 +589,11 @@ class DataDescriptor:
             r_idx, c_idx = idx
             if isinstance(r_idx, int):
                 if c_idx == slice(None):
-                    return obj._del_row(r_idx)
+                    return obj._del_rowi(r_idx)
             elif isinstance(r_idx, slice):
                 if c_idx == slice(None):
                     for r in obj._iter_slice(r_idx, 0):
-                        obj._del_row(r)
+                        obj._del_rowi(r)
                     return
             raise ValueError("Can only delete full rows/columns, not {idx!r}")
         if isinstance(idx, str):
@@ -621,3 +636,72 @@ def _contains_duplicates(X):
         if x in seen or seen_add(x):
             return True
     return False
+
+
+def _is_dataframe(obj) -> bool:
+    try:
+        import pandas
+
+        return isinstance(obj, pandas.DataFrame)
+    except ImportError:
+        return False
+
+
+def _is_numpy_array(obj) -> bool:
+    try:
+        import numpy
+
+        return isinstance(obj, numpy.ndarray)
+    except ImportError:
+        return False
+
+
+def _from_nested_column_dict(data: dict) -> Tuple[List[list], list]:
+    """Return 2D data and row headers from a dict of nested dicts."""
+    _index = {frozenset(i) for i in data.values()}
+    if len(_index) > 1:
+        raise ValueError(
+            "All row-dicts must have the same keys. "
+            "Install pandas for better table-from-dict support."
+        )
+    # preserve order of keys
+    index = []
+    for v in data.values():
+        index = list(v)
+        break
+
+    new_data = []
+    for col, s in data.items():
+        new_data.append([s[i] for i in index])
+    return list(list(x) for x in zip(*new_data)), index
+
+
+def _from_dict(data: dict, dtype=None) -> Tuple[List[list], list, list]:
+    """Return normalized data from dict of array-like or row-dicts.
+
+    logic from pandas.DataFrame.from_dict
+    """
+    if set(data) == {"data", "index", "columns"}:
+        return data["data"], data["index"], data["columns"]
+    columns = list(data)
+    if isinstance(list(data.values())[0], dict):
+        _data, index = _from_nested_column_dict(data)
+    else:
+        _data = list(list(x) for x in zip(*data.values()))
+        index = []
+    return _data, index, columns
+
+
+def _from_records(data: List[Dict[_KT, Any]]) -> Tuple[List[list], list, list]:
+    """Return normalized data from a list of column dicts."""
+    if not data:
+        return [], [], []
+    _columns = {frozenset(i) for i in data}
+    if len(_columns) > 1:
+        raise ValueError(
+            "All column-dicts must have the same keys. "
+            "Install pandas for better table-from-dict support."
+        )
+    columns = list(data[0])
+    _data = [list(d.values()) for d in data]
+    return _data, [], columns
