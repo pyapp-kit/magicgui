@@ -189,8 +189,8 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
             updates are not yet supported
         """
         data, index, columns = normalize_table_data(value)
-        self.column_headers = columns or range(len(data[0]))  # type:ignore
-        self.row_headers = index or range(len(data))  # type: ignore
+        self.column_headers = tuple(columns) or range(len(data[0]))  # type:ignore
+        self.row_headers = tuple(index) or range(len(data))  # type: ignore
         for row, data in enumerate(data):
             self._set_rowi(row, data)
 
@@ -410,10 +410,12 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
         try:
             import pandas
 
-            return pandas.DataFrame(*self.value)
+            return pandas.DataFrame(
+                self.data.to_list(), self.row_headers, self.column_headers
+            )
         except ImportError as e:
             raise ImportError(
-                "Cannot convert to dataframe without pandas installed"
+                "Must install Pandas to convert to convert Table to DataFrame."
             ) from e
 
     # fmt: off

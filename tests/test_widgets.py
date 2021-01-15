@@ -6,7 +6,6 @@ from tests import MyInt
 
 from magicgui import magicgui, use_app, widgets
 from magicgui.widgets._bases import ValueWidget
-from magicgui.widgets._table import TableData
 
 
 @pytest.mark.parametrize(
@@ -193,54 +192,6 @@ def test_delete_widget():
     # they disappear from the layout
     with pytest.raises(ValueError):
         container.index(a)
-
-
-dict_of_dicts = {
-    "col_1": {"r1": 3, "r2": 2, "r3": 1, "r4": 0},
-    "col_2": {"r2": "b", "r4": "d", "r3": "c", "r1": "a"},
-}
-list_of_lists = [[8, 1, 4], [3, 7, 4]]
-_TABLE_DATA = [
-    {"col_1": [3, 2, 1, 0], "col_2": ["a", "b", "c", "d"]},
-    dict_of_dicts,
-    list_of_lists,
-    (list_of_lists, ("r1", "r2"), ("c1", "c2", "c3")),
-]
-
-
-def _assert_round_trip(data, table_widget):
-    td = TableData(data)
-    widget_val = table_widget.value
-    assert tuple(widget_val.index) == tuple(td.index)
-    assert tuple(widget_val.columns) == tuple(td.columns)
-    if hasattr(td.values, "tolist"):
-        assert widget_val.values == td.values.tolist()  # type: ignore
-    else:
-        assert widget_val.values == td.values
-
-
-@pytest.mark.parametrize("data", _TABLE_DATA)
-def test_table(data):
-    """Test a few ways to input tables."""
-    table_widget = widgets.Table(value=data)
-    _assert_round_trip(data, table_widget)
-
-
-def test_table_from_numpy():
-    """Test inputting tables from numpy array."""
-    np = pytest.importorskip("numpy")
-    data = np.random.randint(0, 10, (4, 3))
-
-    table_widget = widgets.Table(value=data)
-    _assert_round_trip(data, table_widget)
-
-
-def test_table_from_pandas():
-    """Test inputting tables from pandas dataframe."""
-    pd = pytest.importorskip("pandas", reason="Install pandas to test tables")
-    data = pd.DataFrame.from_dict(dict_of_dicts)
-    table_widget = widgets.Table(value=data)
-    _assert_round_trip(data, table_widget)
 
 
 def test_widget_resolves_forward_ref():
