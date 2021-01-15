@@ -431,12 +431,12 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
             - 'index' : dict like {index -> {column -> value}}
 
         """
+        orient = orient.lower()
         col_head = self.column_headers
         row_head = self.row_headers
-        orient = orient.lower()
+        nrows, ncols = self.shape
         if _contains_duplicates(col_head):
             warn("Table column headers are not unique, some columns will be omitted.")
-        nrows, ncols = self.shape
         if orient == "dict":
             if _contains_duplicates(row_head):
                 warn("Table row headers are not unique, some rows will be omitted.")
@@ -445,13 +445,9 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
                 for c in range(ncols)
             }
         if orient == "list":
-            return {header: self[header] for header in self.column_headers}
+            return {header: self[header] for header in col_head}
         if orient == "split":
-            return {
-                "index": row_head,
-                "columns": col_head,
-                "data": self.data,
-            }
+            return {"index": row_head, "columns": col_head, "data": self.data.to_list()}
         if orient == "records":
             return [
                 {col_head[c]: self._get_cell(r, c) for c in range(ncols)}
@@ -468,7 +464,7 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
             try:
                 from pandas import Series
 
-                return {header: Series(self[header]) for header in self.column_headers}
+                return {header: Series(self[header]) for header in col_head}
             except ImportError as e:
                 raise ImportError("Must install pandas to use to_dict('series')") from e
 
