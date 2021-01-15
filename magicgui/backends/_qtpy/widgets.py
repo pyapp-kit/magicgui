@@ -476,6 +476,14 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
         item.setData(self._DATA_ROLE, _maybefloat(item.text()))
         self._qwidget.blockSignals(False)
 
+    def _mgui_set_row_count(self, nrows: int) -> None:
+        """Set the number of rows in the table. (Create/delete as needed)."""
+        self._qwidget.setRowCount(nrows)
+
+    def _mgui_set_column_count(self, ncols: int) -> None:
+        """Set the number of columns in the table. (Create/delete as needed)."""
+        self._qwidget.setColumnCount(ncols)
+
     def _mgui_get_shape(self) -> Tuple[int, int]:
         return (self._qwidget.rowCount(), self._qwidget.columnCount())
 
@@ -498,8 +506,10 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
 
     def _mgui_get_cell(self, row: int, col: int) -> Any:
         """Get current value of the widget."""
+        print("get cell", row, col)
         item = self._qwidget.item(row, col)
-        return item.data(self._DATA_ROLE)
+        if item:
+            return item.data(self._DATA_ROLE)
 
     def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
         """Set current value of the widget."""
@@ -538,4 +548,7 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
         raise NotImplementedError()
 
     def _mgui_bind_change_callback(self, callback):
-        self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))
+        # FIXME: this currently reads out the WHOLE table every time we change ANY cell.
+        # nonsense.
+        # self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))
+        pass

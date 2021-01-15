@@ -145,6 +145,16 @@ class TableWidgetProtocol(ValueWidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
+    def _mgui_set_row_count(self, nrows: int) -> None:
+        """Set the number of rows in the table. (Create/delete as needed)."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_column_count(self, ncols: int) -> None:
+        """Set the number of columns in the table. (Create/delete as needed)."""
+        raise NotImplementedError()
+
+    @abstractmethod
     def _mgui_get_cell(self, row: int, col: int) -> Any:
         """Get current value of the widget."""
         raise NotImplementedError()

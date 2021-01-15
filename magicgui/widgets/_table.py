@@ -108,7 +108,7 @@ def normalize_table_data(data: TableData) -> Tuple[List[list], list, list]:
     - If pandas is installed, any dict format that works with DataFrame.from_dict will
       work
     """
-    if not data:
+    if data is None:
         return [], [], []
     if isinstance(data, dict):
         return from_dict(data)
@@ -213,6 +213,12 @@ class Table(ValueWidget, MutableSequence):
     @data.setter
     def data(self, values: List[list]) -> None:
         """Set 2D table data."""
+        r = len(values)
+        try:
+            c = len(values[0])
+        except TypeError:
+            c = 1
+        self.shape = (r, c)
         self[:] = values
 
     @property
@@ -240,39 +246,48 @@ class Table(ValueWidget, MutableSequence):
         """Return shape of table widget (rows, cols)."""
         return self._widget._mgui_get_shape()
 
+    @shape.setter
+    def shape(self, shape: Tuple[int, int]) -> None:
+        """Set shape of table widget (rows, cols)."""
+        try:
+            r, c = shape[:2]
+        except (ValueError, TypeError):
+            raise ValueError("'shape' argument must be an iterable object of len>=2")
+        self._widget._mgui_set_row_count(r)
+        self._widget._mgui_set_column_count(c)
+        # TODO: need to truncate extend headers as necessary
+
     def __repr__(self) -> str:
         """Return string repr."""
         return f"Table(name={self.name})\n" + repr(self[:])
 
     # fmt: off
     @overload
-    def __getitem__(self, arg: int) -> list: ...  # noqa: E704
+    def __getitem__(self, arg: int) -> list: ...  # noqa
     @overload
-    def __getitem__(self, arg: slice) -> List[list]: ...  # noqa: E704
+    def __getitem__(self, arg: slice) -> List[list]: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[int, int]) -> Any: ...  # noqa: E704
+    def __getitem__(self, arg: Tuple[int, int]) -> Any: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[int, slice]) -> list: ...  # noqa: E704
+    def __getitem__(self, arg: Tuple[int, slice]) -> list: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[slice, int]) -> list: ...  # noqa: E704
+    def __getitem__(self, arg: Tuple[slice, int]) -> list: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[slice, slice]) -> List[list]: ...  # noqa: E704
+    def __getitem__(self, arg: Tuple[slice, slice]) -> List[list]: ...  # noqa
     @overload
-    def __getitem__(self, arg: str) -> list: ...  # noqa: E704
+    def __getitem__(self, arg: str) -> list: ...  # noqa
     # fmt: on
 
-    def __getitem__(self, idx: Union[Index, Tuple[Index, Index], str]):
+    def __getitem__(self, idx: Union[Index, Tuple[Index, Index], str]) -> Any:
         """Get index."""
-        if isinstance(idx, int):
-            return self._get_row(idx)
-        if isinstance(idx, slice):
-            return [self._get_row(r) for r in self._iter_slice(idx, 0)]
+        if isinstance(idx, (int, slice)):
+            return self.__getitem__((idx, slice(None)))  # type: ignore
         if isinstance(idx, tuple):
             assert len(idx) == 2, "Table Widget only accepts 2 arguments to __getitem__"
             r_idx, c_idx = idx
             if isinstance(r_idx, int):
                 if isinstance(c_idx, int):
-                    return self._widget._mgui_get_cell(r_idx, c_idx)
+                    return self._get_cell(r_idx, c_idx)
                 if isinstance(c_idx, slice):
                     return self._get_row(r_idx, c_idx)
             elif isinstance(r_idx, slice):
@@ -288,30 +303,42 @@ class Table(ValueWidget, MutableSequence):
         self, idx: Union[Index, Tuple[Index, Index], str], value: Any
     ) -> None:
         """Set index."""
-        if isinstance(idx, int):
-            return self._set_row(idx, value)
-        if isinstance(idx, slice):
-            for v, r in zip(value, self._iter_slice(idx, 0)):
-                self._set_row(r, v)
-            return
+        if isinstance(idx, (int, slice)):
+            return self.__setitem__((idx, slice(None)), value)
         if isinstance(idx, tuple):
             assert len(idx) == 2, "Table Widget only accepts 2 arguments to __setitem__"
             r_idx, c_idx = idx
             if isinstance(r_idx, int):
                 if isinstance(c_idx, int):
-                    return self._widget._mgui_set_cell(r_idx, c_idx, value)
+                    return self._set_cell(r_idx, c_idx, value)
                 if isinstance(c_idx, slice):
                     return self._set_row(r_idx, value, c_idx)
             elif isinstance(r_idx, slice):
+                # handle extended slices
+                if r_idx.step and r_idx.step != 1:
+                    # TODO: check value is iterable
+                    self._assert_extended_slice(r_idx, len(value))
                 if isinstance(c_idx, int):
                     return self._set_column(c_idx, value, r_idx)
                 if isinstance(c_idx, slice):
+                    # handle extended slices
+                    if c_idx.step and c_idx.step != 1:
+                        # TODO: check value is iterable
+                        self._assert_extended_slice(c_idx, len(value[0]), axis=1)
                     for v, r in zip(value, self._iter_slice(r_idx, 0)):
                         self._set_row(r, v, c_idx)
                     return
         if isinstance(idx, str):
             return self._set_column(idx, value)
         raise ValueError(f"Not a valid idx for __setitem__ {idx!r}")
+
+    def _assert_extended_slice(self, slc: slice, value_len, axis=0):
+        slc_len = _range_len(*slc.indices(self.shape[axis]))
+        if slc_len != value_len:
+            raise ValueError(
+                f"attempt to assign sequence of size {value_len} to "
+                f"extended slice of size {slc_len} along axis {axis}"
+            )
 
     def __delitem__(self, *args):
         """Prevent deletion."""
@@ -320,9 +347,12 @@ class Table(ValueWidget, MutableSequence):
     def _iter_slice(self, slc, axis):
         yield from range(*slc.indices(self.shape[axis]))
 
+    def _get_cell(self, row: int, col: int) -> Any:
+        return self._widget._mgui_get_cell(row, col)
+
     def _get_row(self, row: int, cols: slice = slice(None, None, None)) -> list:
         self._assert_row(row)
-        return [self._widget._mgui_get_cell(row, c) for c in self._iter_slice(cols, 1)]
+        return [self._get_cell(row, c) for c in self._iter_slice(cols, 1)]
 
     def _get_column(
         self, col: Union[int, str], rows: slice = slice(None, None, None)
@@ -333,12 +363,15 @@ class Table(ValueWidget, MutableSequence):
             except ValueError:
                 raise ValueError(f"{col!r} is not a valid column header")
         self._assert_col(col)
-        return [self._widget._mgui_get_cell(r, col) for r in self._iter_slice(rows, 0)]
+        return [self._get_cell(r, col) for r in self._iter_slice(rows, 0)]
+
+    def _set_cell(self, row: int, col: int, value: Any):
+        return self._widget._mgui_set_cell(row, col, value)
 
     def _set_row(self, row: int, value: list, cols: slice = slice(None, None, None)):
         self._assert_row(row)
         for v, col in zip(value, self._iter_slice(cols, 1)):
-            self._widget._mgui_set_cell(row, col, v)
+            self._set_cell(row, col, v)
 
     def _set_column(
         self, col: Union[int, str], value: list, rows: slice = slice(None, None, None)
@@ -350,7 +383,7 @@ class Table(ValueWidget, MutableSequence):
                 raise ValueError(f"{col!r} is not a valid column header")
         self._assert_col(col)
         for v, row in zip(value, self._iter_slice(rows, 0)):
-            self._widget._mgui_set_cell(row, col, v)
+            self._set_cell(row, col, v)
 
     def _assert_row(self, row):
         nrows = len(self)
@@ -374,9 +407,9 @@ class Table(ValueWidget, MutableSequence):
         """Return the number of rows."""
         return self.shape[0]
 
-    def insert(self):
-        """Raise insertion not (yet) implemented."""
-        raise NotImplementedError()
+    def insert(self, index: int, value: Any) -> None:
+        """Insert and append not implemented."""
+        raise NotImplementedError("Cannot insert or append to a Table Widget")
 
     def to_dataframe(self):
         """Convert TableData to dataframe."""
@@ -388,3 +421,61 @@ class Table(ValueWidget, MutableSequence):
             raise ImportError(
                 "Cannot convert to dataframe without pandas installed"
             ) from e
+
+    def to_dict(self, orient="dict"):
+        """Convert the Table to a dictionary.
+
+        The type of the key-value pairs can be customized with the parameters
+        (see below).
+
+        Parameters
+        ----------
+        orient : str {'dict', 'list', 'series', 'split', 'records', 'index'}
+            Determines the type of the values of the dictionary.
+
+            - 'dict' (default) : dict like {column -> {index -> value}}
+            - 'list' : dict like {column -> [values]}
+            - 'series' : dict like {column -> Series(values)}
+            - 'split' : dict like
+            {'index' -> [index], 'columns' -> [columns], 'data' -> [values]}
+            - 'records' : list like
+            [{column -> value}, ... , {column -> value}]
+            - 'index' : dict like {index -> {column -> value}}
+
+        """
+        col_head = self.column_headers
+        row_head = self.row_headers
+        nrows, ncols = self.shape
+        if "dict" == orient.lower():
+            return {
+                col_head[c]: {row_head[r]: self._get_cell(r, c) for r in range(nrows)}
+                for c in range(ncols)
+            }
+        if "list" == orient.lower():
+            return {col_head[c]: self._get_column(c) for c in range(ncols)}
+        if "series" == orient.lower():
+            raise NotImplementedError("to_dict('series') not implemented")
+        if "split" == orient.lower():
+            return {
+                "index": row_head,
+                "columns": col_head,
+                "data": self.data,
+            }
+        if "records" == orient.lower():
+            return [
+                {row_head[r]: self._get_cell(r, c) for r in range(nrows)}
+                for c in range(ncols)
+            ]
+        if "index" == orient.lower():
+            return {
+                row_head[r]: {col_head[c]: self._get_cell(r, c) for c in range(ncols)}
+                for r in range(nrows)
+            }
+        raise ValueError(
+            "'orient' argument to 'to_dict' must be one of "
+            "('dict', list, 'split', 'records', 'index')"
+        )
+
+
+def _range_len(start, stop, step):
+    return (stop - start - 1) // step + 1
