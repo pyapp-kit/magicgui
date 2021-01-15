@@ -12,7 +12,7 @@ def assert_equal(x, y, msg=None):
     """Backport"""
     if x == y:
         return
-    raise AssertionError("%s not equal to %s" % (repr(x), repr(y)))
+    raise AssertionError(f"{x!r} not equal to {y!r}")
 
 
 def assert_raises(exp, func, *args, **kwargs):
@@ -87,7 +87,7 @@ class Record:
 
             else:
                 attr = event_attrs[name]
-                assert attr == val, "Event.%s != %s  (%s)" % (name, str(val), str(attr))
+                assert attr == val, "Event.{name} != {val}  ({attr})"
 
 
 record_event = Record()

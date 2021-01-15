@@ -1,5 +1,60 @@
 # Changelog
 
+## [v0.2.5](https://github.com/napari/magicgui/tree/v0.2.5) (2021-01-13)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.4...v0.2.5)
+
+v0.2.5 greatly improves support for binding a value or a callback to a function parameter, and fixes a bug in recursively updating categorical widgets nested deeply inside of a container.
+
+**Merged pull requests:**
+
+- Fix reset\_choices recursion [\#96](https://github.com/napari/magicgui/pull/96) ([tlambert03](https://github.com/tlambert03))
+- better bound values [\#95](https://github.com/napari/magicgui/pull/95) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.2.4](https://github.com/napari/magicgui/tree/v0.2.4) (2021-01-12)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.3...v0.2.4)
+
+**Merged pull requests:**
+
+- Extend combobox api with set\_choice, get\_choice, del\_choice [\#92](https://github.com/napari/magicgui/pull/92) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.2.3](https://github.com/napari/magicgui/tree/v0.2.3) (2021-01-08)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.2...v0.2.3)
+
+v0.2.3 adds two new widgets `DateEdit` and `TimeEdit` (for `datetime.date` and `datetime.time` types respectively), in addition to the existing `DateTimeEdit` widget.  It also continues to improve warnings and deprecation messages from the v0.2.0 release.
+
+**Fixed bugs:**
+
+- magicgui.widgets.CategoricalWidget not found in magicgui 0.2.1 [\#81](https://github.com/napari/magicgui/issues/81)
+
+**Closed issues:**
+
+- QTimeEdit widgets [\#78](https://github.com/napari/magicgui/issues/78)
+
+**Merged pull requests:**
+
+- Fix ComboBox with unhashable choice data [\#89](https://github.com/napari/magicgui/pull/89) ([tlambert03](https://github.com/tlambert03))
+- add pyupgrade pre-commit hook [\#88](https://github.com/napari/magicgui/pull/88) ([tlambert03](https://github.com/tlambert03))
+- add call count to function gui [\#86](https://github.com/napari/magicgui/pull/86) ([tlambert03](https://github.com/tlambert03))
+- Add more examples \(chaining, self-reference, and choices\) [\#85](https://github.com/napari/magicgui/pull/85) ([tlambert03](https://github.com/tlambert03))
+- Add date and time widgets [\#84](https://github.com/napari/magicgui/pull/84) ([tlambert03](https://github.com/tlambert03))
+- Clarify choices callable deprecation warning [\#83](https://github.com/napari/magicgui/pull/83) ([tlambert03](https://github.com/tlambert03))
+- Convert maximum/minimum kwargs to max/min and warn [\#82](https://github.com/napari/magicgui/pull/82) ([tlambert03](https://github.com/tlambert03))
+- \[pre-commit.ci\] pre-commit autoupdate [\#80](https://github.com/napari/magicgui/pull/80) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
+## [v0.2.2](https://github.com/napari/magicgui/tree/v0.2.2) (2021-01-02)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.1...v0.2.2)
+
+**Merged pull requests:**
+
+- hotfix for signature inspection exception [\#79](https://github.com/napari/magicgui/pull/79) ([tlambert03](https://github.com/tlambert03))
+- remove orientation method from supportsOrientation [\#77](https://github.com/napari/magicgui/pull/77) ([tlambert03](https://github.com/tlambert03))
+- Better error on incorrect protocol [\#76](https://github.com/napari/magicgui/pull/76) ([tlambert03](https://github.com/tlambert03))
+- save application instance [\#75](https://github.com/napari/magicgui/pull/75) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.1](https://github.com/napari/magicgui/tree/v0.2.1) (2020-12-29)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.2.0...v0.2.1)

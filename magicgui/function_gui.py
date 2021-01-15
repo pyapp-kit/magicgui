@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import Any, Callable, Dict, Optional, Sequence, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Optional, TypeVar, Union, overload
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -46,11 +46,6 @@ class FunctionGui(Container):
         Will be passed to `magic_signature` by default ``None``
     name : str, optional
         A name to assign to the Container widget, by default `function.__name__`
-    bind : dict, optional
-        A mapping of parameter names to values. Values supplied here will be permanently
-        bound to the corresponding parameters: their widgets will be hidden from the GUI
-        and the value will be used for the corresponding parameter when calling the
-        function.
 
     Raises
     ------
@@ -72,12 +67,10 @@ class FunctionGui(Container):
         result_widget: bool = False,
         param_options: Optional[dict] = None,
         name: str = None,
-        bind: Dict[str, Any] = None,
         **kwargs,
     ):
-        bind = bind or dict()
         # consume extra Widget keywords
-        extra = set(kwargs) - set(["annotation", "gui_only"])
+        extra = set(kwargs) - {"annotation", "gui_only"}
         if extra:
             s = "s" if len(extra) > 1 else ""
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
@@ -94,8 +87,6 @@ class FunctionGui(Container):
         self._param_options = param_options
         self.called = EventEmitter(self, type="called")
         self._result_name = ""
-        self._bound: Dict[str, Any] = {}
-        self.bind(bind)
         self._call_count: int = 0
 
         self._call_button: Optional[PushButton] = None
@@ -127,36 +118,6 @@ class FunctionGui(Container):
     def reset_call_count(self) -> None:
         """Reset the call count to 0."""
         self._call_count = 0
-
-    def bind(self, kwargs: dict):
-        """Bind key/value pairs to the function signature.
-
-        Values supplied here will be permanently bound to the corresponding parameters:
-        their widgets will be hidden from the GUI and the value will be used for the
-        corresponding parameter when the function is called.
-
-        Parameters
-        ----------
-        kwargs :  dict, optional
-            A mapping of parameter names to values to bind.
-        """
-        self._bound.update(kwargs)
-        for name, value in kwargs.items():
-            getattr(self, name).hide()
-
-    def unbind(self, args: Sequence):
-        """Unbind keys from the function signature.
-
-        Parameters
-        ----------
-        args : sequence
-            A sequence of parameter names.  If any are currently bound to a value, the
-            binding will be cleared and the widget will be shown.
-        """
-        for name in args:
-            if name in self._bound:
-                del self._bound[name]
-                getattr(self, name).show()
 
     def __getattr__(self, value):
         """Catch deprecated _name_changed attribute."""
@@ -206,9 +167,7 @@ class FunctionGui(Container):
         gui()  # calls the original function with the current parameters
         """
         sig = self.to_signature()
-        _kwargs = self._bound.copy()
-        _kwargs.update(kwargs)
-        bound = sig.bind(*args, **_kwargs)
+        bound = sig.bind(*args, **kwargs)
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
@@ -239,8 +198,8 @@ class FunctionGui(Container):
         """Set the result name of this FunctionGui widget."""
         self._result_name = value
 
-    def copy(self, bind=None):
-        """Return a copy of this FunctionGui, with optionally bound arguments."""
+    def copy(self) -> "FunctionGui":
+        """Return a copy of this FunctionGui."""
         return FunctionGui(
             function=self._function,
             call_button=bool(self._call_button),
@@ -250,11 +209,9 @@ class FunctionGui(Container):
             auto_call=self._auto_call,
             result_widget=bool(self._result_widget),
             app=None,
-            bind=bind if bind is not None else self._bound,
         )
 
-    # Cache function guis bound to specific instances
-    _instance_guis: Dict[int, FunctionGui] = {}
+    _bound_instances: Dict[int, FunctionGui] = {}
 
     def __get__(self, obj, objtype=None) -> FunctionGui:
         """Provide descriptor protocol.
@@ -278,11 +235,16 @@ class FunctionGui(Container):
         {'self': <__main__.MyClass object at 0x7fb610e455e0>, 'x': 34}
         """
         if obj is not None:
-            if id(obj) not in self._instance_guis:
+            obj_id = id(obj)
+            if obj_id not in self._bound_instances:
                 method = getattr(obj.__class__, self._function.__name__)
-                params_names = list(inspect.signature(method).parameters)
-                self._instance_guis[id(obj)] = self.copy(bind={params_names[0]: obj})
-            return self._instance_guis[id(obj)]
+                p0 = list(inspect.signature(method).parameters)[0]
+                prior, self._param_options = self._param_options, {p0: {"bind": obj}}
+                try:
+                    self._bound_instances[obj_id] = self.copy()
+                finally:
+                    self._param_options = prior
+            return self._bound_instances[obj_id]
         return self
 
     def __set__(self, obj, value):
@@ -328,7 +290,6 @@ def magicgui(
     auto_call: bool = False,
     result_widget: bool = False,
     app: AppRef = None,
-    bind: Dict[str, Any] = None,
     **param_options: dict,
 ):
     """Return a :class:`FunctionGui` for ``function``.
@@ -354,11 +315,6 @@ def magicgui(
         by default False
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
-    bind : dict, optional
-        A mapping of parameter names to values. Values supplied here will be permanently
-        bound to the corresponding parameters: their widgets will be hidden from the GUI
-        and the value will be used for the corresponding parameter when calling the
-        function.
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
@@ -405,7 +361,6 @@ def magicgui(
             auto_call=auto_call,
             result_widget=result_widget,
             app=app,
-            bind=bind,
         )
         func_gui.__wrapped__ = func
         return func_gui

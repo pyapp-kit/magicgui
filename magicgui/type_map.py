@@ -265,10 +265,12 @@ def register_type(
     """
     type_ = _evaluate_forwardref(type_)
 
-    if not (return_callback or options.get("choices") or widget_type):
+    if not (
+        return_callback or options.get("bind") or options.get("choices") or widget_type
+    ):
         raise ValueError(
-            "At least one of `widget_type`, `choices`, or "
-            "`return_callback` must be provided."
+            "At least one of `widget_type`, `return_callback`, `bind` or `choices` "
+            "must be provided."
         )
 
     if return_callback is not None:
@@ -295,6 +297,11 @@ def register_type(
                 '"widget_type" must be either a string, Widget, or WidgetProtocol'
             )
         _TYPE_DEFS[type_] = (widget_type, _options)
+    elif "bind" in _options:
+        # TODO: make a dedicated hidden widget?
+        # if we're binding a value to this parameter, it doesn't matter what type
+        # of ValueWidget is used... it usually won't be shown
+        _TYPE_DEFS[type_] = (widgets.Label, _options)
 
     return None
 

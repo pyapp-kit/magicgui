@@ -61,7 +61,7 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
 snells_law.show(run=True)
 ```
 
-![snells](resources/snells.png)
+![snells](https://raw.githubusercontent.com/napari/magicgui/master/resources/snells.png)
 
 But that's just the beginning!  Please see [Documentation](https://napari.org/magicgui) for many more details
 and usage examples.
