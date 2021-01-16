@@ -73,7 +73,11 @@ def _evaluate_forwardref(type_: Any) -> Any:
 
 def _normalize_type(value: Any, annotation: Any) -> Type:
     """Return annotation type origin or dtype of value."""
-    return (get_origin(annotation) or annotation) if annotation else type(value)
+    if annotation:
+        if annotation is inspect.Parameter.empty:
+            return type(value)
+        return get_origin(annotation) or annotation
+    return type(value)
 
 
 def type_matcher(func: TypeMatcher) -> TypeMatcher:
@@ -94,7 +98,6 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 def simple_types(value, annotation) -> Optional[WidgetTuple]:
     """Check simple type mappings."""
     dtype = _normalize_type(value, annotation)
-
     simple = {
         bool: widgets.CheckBox,
         int: widgets.SpinBox,
@@ -104,8 +107,6 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         datetime.time: widgets.TimeEdit,
         datetime.date: widgets.DateEdit,
         datetime.datetime: widgets.DateTimeEdit,
-        # type(None): widgets.LiteralEvalLineEdit,
-        # Any: widgets.LiteralEvalLineEdit,
         range: widgets.RangeEdit,
         slice: widgets.SliceEdit,
     }
