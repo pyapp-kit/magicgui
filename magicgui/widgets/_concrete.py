@@ -202,6 +202,11 @@ class FloatSpinBox(RangedWidget):
 
 
 @backend_widget
+class ProgressBar(SliderWidget):
+    """A progress bar widget."""
+
+
+@backend_widget
 class Slider(SliderWidget):
     """A slider widget to adjust an integer value within a range."""
 
