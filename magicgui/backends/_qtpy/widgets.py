@@ -1,5 +1,5 @@
 """Widget implementations (adaptors) for the Qt backend."""
-from typing import Any, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Iterable, Optional, Sequence, Tuple, Union
 
 import qtpy
 from qtpy import QtWidgets as QtW
@@ -484,12 +484,12 @@ def _maybefloat(item):
         return num
 
 
-class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
+class Table(QBaseWidget, _protocols.TableWidgetProtocol):
     _qwidget: QtW.QTableWidget
     _DATA_ROLE: int = 255
 
     def __init__(self):
-        super().__init__(QtW.QTableWidget, "", "", "")
+        super().__init__(QtW.QTableWidget)
         self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
         # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
@@ -518,23 +518,6 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
 
     def _mgui_remove_column(self, column: int) -> None:
         self._qwidget.removeColumn(column)
-
-    def _mgui_get_value(self) -> list:
-        _table = []
-        nrows, ncols = self._qwidget.rowCount(), self._qwidget.columnCount()
-        for r in range(nrows):
-            _table.append([self._mgui_get_cell(r, c) for c in range(ncols)])
-        return _table
-
-    def _mgui_set_value(self, data: List[list]):
-        self._qwidget.blockSignals(True)
-        self._qwidget.setRowCount(len(data))
-        self._qwidget.setColumnCount(len(data[0]))
-        for row_num, row in enumerate(data):
-            for col_num, value in enumerate(row):
-                self._mgui_set_cell(row_num, col_num, value)
-        self._qwidget.blockSignals(False)
-        self._qwidget.itemChanged.emit(QtW.QTableWidgetItem())
 
     def _mgui_get_cell(self, row: int, col: int) -> Any:
         """Get current value of the widget."""

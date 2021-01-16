@@ -56,7 +56,7 @@ def test_constructor():
     assert t.shape == (1, 2)
     assert t.row_headers == ("r",)
     assert tuple(t) == ("a", "b")
-    assert repr(t) == "Table(name='My Table', shape=(1, 2))"
+    assert repr(t).split(" at")[0] == "Table(name='My Table', shape=(1, 2)"
 
     t = Table(index=["a", "b"], columns=["c"])
     assert t.shape == (2, 1)
@@ -229,7 +229,10 @@ def test_dataview_delitem():
 def test_dataview_repr():
     """Test the repr for table.data."""
     table = Table(_TABLE_DATA["dict"], name="My Table")
-    assert repr(table.data) == "<Data for Table(name='My Table', shape=(2, 3))>"
+    assert (
+        repr(table.data).split(" at")[0]
+        == "<Data for Table(name='My Table', shape=(2, 3)"
+    )
 
 
 def test_table_from_pandas():

@@ -136,7 +136,7 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
 
 
 @runtime_checkable
-class TableWidgetProtocol(ValueWidgetProtocol, Protocol):
+class TableWidgetProtocol(WidgetProtocol, Protocol):
     """ValueWidget subclass intended for 2D tabular data, with row & column headers."""
 
     @abstractmethod

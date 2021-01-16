@@ -26,7 +26,7 @@ from warnings import warn
 from typing_extensions import Literal
 
 from magicgui.application import use_app
-from magicgui.widgets._bases import ValueWidget
+from magicgui.widgets._bases import Widget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
@@ -45,29 +45,21 @@ IndexKey = Union[int, slice]
 def normalize_table_data(data: TableData) -> Tuple[List[list], list, list]:
     """Convert data to data, row headers, column headers.
 
-    Any of the following can be used as an argument to ``data``
-
-    .. code-block:: python
-
-        dict_of_dicts = {
-            "col_1": {"r1": 3, "r2": 2, "r3": 1, "r4": 0},
-            "col_2": {"r2": "b", "r4": "d", "r3": "c", "r1": "a"},
-        }
-        dict_of_lists = {"col_1": [3, 2, 1, 0], "col_2": ["a", "b", "c", "d"]}
-        list_of_lists = [[8, 1, 4], [3, 7, 4]]
-        numpy_array = np.random.rand(8, 5)
-        pandas_dataframe = pd.DataFrame(...)
-        tuple_with_header_info = (list_of_lists, ("r1", "r2"), ("c1", "c2", "c3"))
-
     Parameters
     ----------
     data : dict, dataframe, list, array, tuple, optional
-        valid data , by default None
+        Table data (and/or header data), in one of the accepted formats:
 
-    Notes
-    -----
-    - If pandas is installed, any dict format that works with DataFrame.from_dict will
-      work
+        - list or list-of-lists : [column_values] or [[row_vals], ..., [row_vals]]
+        - dict-of-dicts : {column_header -> {row_header -> value}}
+        - dict-of-lists : {column_header -> [column_values]}
+        - list-of-row-records :
+            [{column_headers -> value}, ... , {column_headers -> value}]
+        - split-dict-of-lists :
+            {'data' -> [values], 'index' -> [index], 'columns' -> [columns]}
+        - tuple-of-values : ([values], [row_headers], [column_headers])
+        - dict-of-pandas-series : {column_header -> Series(values)}
+
     """
     if data is None:
         return [], [], []
@@ -138,36 +130,88 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
         return f"table_items({n} {self._axis}s)"
 
 
-class Table(ValueWidget, MutableMapping[TblKey, list]):
-    """A table widget for pandas, numpy, or dict-of-list data.
+class Table(Widget, MutableMapping[TblKey, list]):
+    """A table widget representing columnar or 2D data with headers.
 
-    Any of the following can be used as an argument to ``value``
-
-    .. code-block:: python
-
-        dict_of_dicts = {
-            "col_1": {"r1": 3, "r2": 2, "r3": 1, "r4": 0},
-            "col_2": {"r2": "b", "r4": "d", "r3": "c", "r1": "a"},
-        }
-        dict_of_lists = {"col_1": [3, 2, 1, 0], "col_2": ["a", "b", "c", "d"]}
-        list_of_lists = [[8, 1, 4], [3, 7, 4]]
-        numpy_array = np.random.rand(8, 5)
-        pandas_dataframe = pd.DataFrame(...)
-        tuple_with_header_info = (list_of_lists, ("r1", "r2"), ("c1", "c2", "c3"))
+    Tables behave like plain `dicts`, where the keys are column headers and the
+    (list-like) values are column data.
 
     Parameters
     ----------
     value : dict, dataframe, list, array, tuple, optional
-        the value
+        Table data (and/or header data), in one of the accepted formats:
+
+        - list or list-of-lists : [column_values] or [[row_vals], ..., [row_vals]]
+        - dict-of-dicts : {column_header -> {row_header -> value}}
+        - dict-of-lists : {column_header -> [column_values]}
+        - list-of-row-records :
+            [{column_headers -> value}, ... , {column_headers -> value}]
+        - split-dict-of-lists :
+            {'data' -> [values], 'index' -> [index], 'columns' -> [columns]}
+        - tuple-of-values : ([values], [row_headers], [column_headers])
+        - dict-of-pandas-series : {column_header -> Series(values)}
+
+    index : Collection, optional
+        A sized iterable container of row headers. By default, row headers will be
+        ``tuple(range(len(data)))``.  Values provided here override any implied in
+        ``value``.
+    columns : Collection, optional
+        A sized iterable container of column headers. By default, column headers will be
+        ``tuple(range(len(data[0])))``.  Values provided here override any implied in
+        ``value``.
+    **kwargs
+        Additional kwargs will be passed to the :class:`magicgui.widgets.Widget`
+        constructor.
 
     Attributes
     ----------
-    value : Tuple[List[list], tuple, tuple]
+    value : dict
+        Returns a dict with the keys `data`, `index`, and `columns` ... representing the
+        2D (list of lists) tabular data, row headers, and column headers, respectively.
+        If set, will clear and update the table using the new data.
+    data : :class:`DataView`
+        A :class:`DataView` instance that provides numpy-like indexing (with
+        get/set/delete) onto the 2D data array,  For example `table.data[0,2]` gets the
+        data in the cell of the first row, 3rd column.  Works with numpy slice syntax.
+    column_headers : tuple
+        The current column headers.  Can be set with a new sequence to change
+    row_headers : tuple
+        The current row headers.  Can be set with a new sequence to change
+    shape : tuple of int
+        The shape of the table in ``(rows, columns)``.
+    size : int
+        The number of cells in the table.
 
-
+    Methods
+    -------
+    keys(axis='column')
+        Return a :class:`TableHeadersView`, providing a view on this table's headers.
+        Use ``axis='row'`` for row headers.
+    items(axis='column')
+        Return a :class:`TableItemsView`, providing a view on this table's items, as
+        2-tuples of ``(header, data)``. Use ``axis='row'`` for
+        ``(row_header, row_data)``
+    clear()
+        Clear all table data and headers.
+    to_dataframe()
+        Returns a pandas dataframe representation of this table. (requires pandas)
+    to_dict(orient='dict')
+        Return one of many different dict-like representations of table and header data.
+        See docstring of :meth:`to_dict` for details.
     """
 
     _widget: TableWidgetProtocol
+
+    def __new__(
+        cls,
+        value: Optional[TableData] = None,
+        *,
+        index: Collection = None,
+        columns: Collection = None,
+        **kwargs,
+    ):
+        """Just for the signature."""
+        return super().__new__(cls)
 
     def __init__(
         self,
@@ -191,7 +235,7 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
 
     @property
     def value(self) -> Dict[TblKey, Collection]:
-        """Return current  of the widget."""
+        """Return dict with current `data`, `index`, and `columns` of the widget."""
         return self.to_dict("split")
 
     @value.setter
@@ -217,7 +261,7 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
             self._set_rowi(row, data)
 
     @property
-    def data(self):
+    def data(self) -> "DataView":
         """Return DataView object for this table."""
         return self._data
 
@@ -225,18 +269,6 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
     def data(self, value):
         """Set 2D table data."""
         self._data.__setitem__(slice(None), value)
-
-    @property
-    def row_headers(self) -> tuple:
-        """Return row headers."""
-        nrows = self._widget._mgui_get_row_count()
-        return self._widget._mgui_get_row_headers() or tuple(range(nrows))
-
-    @row_headers.setter
-    def row_headers(self, headers: Sequence) -> None:
-        """Set row headers."""
-        self._check_new_headers(headers, axis="row")
-        return self._widget._mgui_set_row_headers(headers)
 
     @property
     def column_headers(self) -> tuple:
@@ -253,6 +285,42 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
         self._check_new_headers(headers, axis="column")
         return self._widget._mgui_set_column_headers(headers)
 
+    @property
+    def row_headers(self) -> tuple:
+        """Return row headers."""
+        nrows = self._widget._mgui_get_row_count()
+        return self._widget._mgui_get_row_headers() or tuple(range(nrows))
+
+    @row_headers.setter
+    def row_headers(self, headers: Sequence) -> None:
+        """Set row headers."""
+        self._check_new_headers(headers, axis="row")
+        return self._widget._mgui_set_row_headers(headers)
+
+    @property
+    def shape(self) -> Tuple[int, int]:
+        """Return shape of table widget (rows, cols)."""
+        return self._widget._mgui_get_row_count(), self._widget._mgui_get_column_count()
+
+    # # Should we allow this?
+    # @shape.setter
+    # def shape(self, shape: Tuple[int, int]) -> None:
+    #     """Set shape of table widget (rows, cols)."""
+    #     try:
+    #         r, c = shape[:2]
+    #         r = int(r)
+    #         c = int(c)
+    #     except (ValueError, TypeError):
+    #         raise ValueError("'shape' argument must be an iterable of 2 integers")
+    #     self._widget._mgui_set_row_count(r)
+    #     self._widget._mgui_set_column_count(c)
+    #     # TODO: need to truncate extend headers as necessary
+
+    @property
+    def size(self) -> int:
+        """Return shape of table widget (rows, cols)."""
+        return operator.mul(*self.shape)
+
     def keys(self, axis: str = "column") -> HeadersView[TblKey]:
         """Return a set-like object providing a view on this table's headers."""
         return HeadersView(self, axis)
@@ -260,6 +328,11 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
     def items(self, axis: str = "column") -> TableItemsView[TblKey, list]:
         """Return a set-like object providing a view on this table's items."""
         return TableItemsView(self, axis)
+
+    def clear(self):
+        """Clear the table."""
+        self._widget._mgui_set_row_count(0)
+        self._widget._mgui_set_column_count(0)
 
     def __delitem__(self, key: TblKey) -> None:
         """Delete a column from the table."""
@@ -287,7 +360,8 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
 
     def __repr__(self) -> str:
         """Return string repr."""
-        return f"Table(name={self.name!r}, shape={self.shape})"
+        name = f"name={self.name!r}, " if self.name else ""
+        return f"Table({name}shape={self.shape} at {hex(id(self))})"
 
     def _check_new_headers(self, headers, *, axis="column"):
         current_headers = getattr(self._widget, f"_mgui_get_{axis}_headers")()
@@ -299,30 +373,6 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
                 )
         elif len(headers):
             getattr(self._widget, f"_mgui_set_{axis}_count")(len(headers))
-
-    @property
-    def shape(self) -> Tuple[int, int]:
-        """Return shape of table widget (rows, cols)."""
-        return self._widget._mgui_get_row_count(), self._widget._mgui_get_column_count()
-
-    # # Should we allow this?
-    # @shape.setter
-    # def shape(self, shape: Tuple[int, int]) -> None:
-    #     """Set shape of table widget (rows, cols)."""
-    #     try:
-    #         r, c = shape[:2]
-    #         r = int(r)
-    #         c = int(c)
-    #     except (ValueError, TypeError):
-    #         raise ValueError("'shape' argument must be an iterable of 2 integers")
-    #     self._widget._mgui_set_row_count(r)
-    #     self._widget._mgui_set_column_count(c)
-    #     # TODO: need to truncate extend headers as necessary
-
-    @property
-    def size(self) -> int:
-        """Return shape of table widget (rows, cols)."""
-        return operator.mul(*self.shape)
 
     def _iter_slice(self, slc, axis):
         yield from range(*slc.indices(self.shape[axis]))
@@ -424,6 +474,8 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
             )
         return col
 
+    # #### EXPORT METHODS #####
+
     def to_dataframe(self) -> "pd.DataFrame":
         """Convert TableData to dataframe."""
         try:
@@ -436,11 +488,6 @@ class Table(ValueWidget, MutableMapping[TblKey, list]):
             raise ImportError(
                 "Must install Pandas to convert to convert Table to DataFrame."
             ) from e
-
-    def clear(self):
-        """Clear the table."""
-        self._widget._mgui_set_row_count(0)
-        self._widget._mgui_set_column_count(0)
 
     # fmt: off
     @overload
@@ -743,6 +790,7 @@ def _from_records(data: List[Dict[TblKey, Any]]) -> Tuple[List[list], list, list
 
 
 def _validate_table_data(data, index, column):
+    """Make sure data matches shape of index and column."""
     nr = len(data)
     if not nr:
         return
