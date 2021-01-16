@@ -64,6 +64,7 @@ Slider Widgets
    Slider
    FloatSlider
    LogSlider
+   ProgressBar
 
 Categorical Widgets
 -------------------
