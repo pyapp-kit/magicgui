@@ -59,6 +59,24 @@ def test_overriding_widget_type():
     assert func.a.value == "1"
 
 
+def test_unrecognized_types():
+    """Test that arg with an unrecognized type is hidden."""
+
+    class Something:
+        pass
+
+    # don't know how to handle Something type
+    @magicgui
+    def func(arg: Something, b: int = 1):
+        pass
+
+    assert isinstance(func.arg, widgets.EmptyWidget)
+
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+
+
 def test_no_type_provided():
     """Test position args with unknown type."""
 
@@ -66,7 +84,25 @@ def test_no_type_provided():
     def func(a):
         pass
 
-    assert isinstance(func.a, widgets.LiteralEvalLineEdit)
+    assert isinstance(func.a, widgets.EmptyWidget)
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+    assert "@magicgui(a={'bind': value})" in str(e)
+
+
+def test_bind_out_of_order():
+    """Test that binding a value before a non-default argument still gives message."""
+
+    @magicgui(a={"bind": 10})
+    def func(a, x):
+        pass
+
+    assert isinstance(func.a, widgets.EmptyWidget)
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+    assert "@magicgui(x={'bind': value})" in str(e)
 
 
 def test_call_button():
@@ -262,26 +298,6 @@ def test_signature_repr():
         str(inspect.signature(magic_func))
         == "(a: str = 'string', b: int = 0, c: float = 7.1)"
     )
-
-
-def test_unrecognized_types():
-    """Test error handling when an arg with an unrecognized type is encountered."""
-
-    class Something:
-        pass
-
-    with pytest.raises(ValueError):
-        # don't know how to handle Something type
-        @magicgui
-        def func(arg: Something, b: int = 1):
-            pass
-
-    # # now it should not raise an error... but `arg` should not be in the gui
-    # core.SKIP_UNRECOGNIZED_TYPES = True
-    # with pytest.warns(UserWarning):
-    #     gui = func.Gui()
-    # assert not hasattr(gui, "arg")
-    # assert hasattr(gui, "b")
 
 
 def test_set_choices_raises():

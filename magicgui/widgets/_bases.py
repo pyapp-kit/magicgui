@@ -902,7 +902,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     :class:`inspect.Signature` object, just as there is a tight connection between
     individual :class:`Widget` objects an an :class:`inspect.Parameter` object.
     The signature representation of a ``ContainerWidget`` (with the current settings
-    as default values) is accessible with the :meth:`~ContainerWidget.to_signature`
+    as default values) is accessible with the :meth:`~ContainerWidget.__signature__`
     method (or by using :func:`inspect.signature` from the standard library)
 
     For a ``ContainerWidget`` sublcass that is tightly coupled to a specific function
@@ -1127,15 +1127,21 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         return self.reset_choices(event)
 
     @property
-    def __signature__(self) -> inspect.Signature:
-        """Return signature object, for compatibility with inspect.signature()."""
-        return self.to_signature()
-
-    def to_signature(self) -> MagicSignature:
+    def __signature__(self) -> MagicSignature:
         """Return a MagicSignature object representing the current state of the gui."""
         params = [
             MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]
+        # if we have multiple non-default parameters and some but not all of them are
+        # "bound" to fallback values, we may have  non-default arguments
+        # following default arguments
+        seen_default = False
+        for p in params:
+            if p.default is not p.empty:
+                seen_default = True
+            elif seen_default:
+                params.sort(key=lambda x: x.default is not MagicParameter.empty)
+                break
         return MagicSignature(params, return_annotation=self.return_annotation)
 
     @classmethod
@@ -1155,7 +1161,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
     def __repr__(self) -> str:
         """Return a repr."""
-        return f"<Container {self.to_signature()}>"
+        return f"<Container {self.__signature__}>"
 
     @property
     def labels(self) -> bool:

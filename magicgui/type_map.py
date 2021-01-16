@@ -174,7 +174,6 @@ def pick_widget_type(
             return _widget_type
 
     return widgets.EmptyWidget, {"visible": False}
-    raise ValueError(f"Could not pick widget for type: {dtype!r}")
 
 
 def get_widget_class(

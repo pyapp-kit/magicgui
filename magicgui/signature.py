@@ -57,6 +57,7 @@ def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
         hint, anno_options = split_annotated_type(annotation)
         _options.update(anno_options)
         annotation = hint
+    annotation = Any if annotation is inspect.Parameter.empty else annotation
     return Annotated[annotation, _options]
 
 
@@ -103,6 +104,8 @@ class MagicParameter(inspect.Parameter):
         gui_options: dict = None,
     ):
 
+        if annotation is inspect.Parameter.empty:
+            annotation = Any if default is inspect.Parameter.empty else type(default)
         _annotation = make_annotated(annotation, gui_options)
         super().__init__(name, kind, default=default, annotation=_annotation)
 
