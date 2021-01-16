@@ -48,6 +48,8 @@ class MyBadWidget:
     def _mgui_get_value(self): ... # noqa
     def _mgui_set_value(self, value): ... # noqa
     def _mgui_bind_change_callback(self, callback): ... # noqa
+    def _mgui_get_tooltip(self, value): ... # noqa
+    def _mgui_set_tooltip(self, value): ... # noqa
 
 
 class MyValueWidget(MyBadWidget):
@@ -61,7 +63,9 @@ def test_custom_widget():
     """Test that create_widget works with arbitrary backend implementations."""
     # by implementing the ValueWidgetProtocol, magicgui will know to wrap the above
     # widget with a widgets._bases.ValueWidget
-    assert isinstance(widgets.create_widget(1, widget_type=MyValueWidget), ValueWidget)
+    assert isinstance(
+        widgets.create_widget(1, widget_type=MyValueWidget), ValueWidget  # type:ignore
+    )
 
 
 def test_custom_widget_fails():
@@ -124,6 +128,13 @@ def test_basic_widget_attributes():
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {"max": 100, "min": 0, "step": 1, "visible": False}
+
+
+def test_tooltip():
+    label = widgets.Label()
+    assert not label.tooltip
+    label.tooltip = "My Tooltip"
+    assert label.tooltip == "My Tooltip"
 
 
 def test_container_widget():

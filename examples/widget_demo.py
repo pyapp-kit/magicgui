@@ -35,7 +35,36 @@ def widget_demo(
     datetime=datetime.datetime.now(),
     filename=Path.home(),
 ):
-    """Run some computation."""
+    """We can use numpy docstrings to provide tooltips
+
+    Parameters
+    ----------
+    boolean : bool, optional
+        A checkbox for booleans, by default True
+    integer : int, optional
+        Some integer, by default 1
+    spin_float : float, optional
+        This one is a float, by default "pi"
+    slider_float : float, optional
+        Hey look! I'm a slider, by default 4.5
+    string : str, optional
+        We'll use this string carefully, by default "Text goes here"
+    dropdown : Enum, optional
+        Pick a medium, by default Medium.Glass
+    date : datetime.date, optional
+        Your birthday, by default datetime.date(1999, 12, 31)
+    time : datetime.time, optional
+        Some time, by default datetime.time(1, 30, 20)
+    datetime : datetime.datetime, optional
+        A very specific time and date, by default datetime.datetime.now()
+    filename : str, optional
+        Pick a path, by default Path.home()
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     return locals().values()
 
 
