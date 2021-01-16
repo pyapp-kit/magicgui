@@ -84,6 +84,11 @@ def test_adding_deleting_to_empty_table():
     with pytest.raises(KeyError):
         del table["c219"]  # does not exist
 
+    table.clear()
+    assert table.shape == (0, 0)
+    assert not table.column_headers
+    assert not table.row_headers
+
 
 def test_orient_index():
     """Test to_dict with orient = 'index' ."""

@@ -189,6 +189,7 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
             updates are not yet supported
         """
         data, index, columns = normalize_table_data(value)
+        self.clear()
         self.column_headers = tuple(columns) or range(len(data[0]))  # type:ignore
         self.row_headers = tuple(index) or range(len(data))  # type: ignore
         for row, data in enumerate(data):
@@ -417,6 +418,11 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
             raise ImportError(
                 "Must install Pandas to convert to convert Table to DataFrame."
             ) from e
+
+    def clear(self):
+        """Clear the table."""
+        self._widget._mgui_set_row_count(0)
+        self._widget._mgui_set_column_count(0)
 
     # fmt: off
     @overload
