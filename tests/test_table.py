@@ -1,3 +1,6 @@
+"""Tests for the Table widget."""
+import sys
+
 import pytest
 
 from magicgui.widgets import PushButton, Slider, Table
@@ -245,21 +248,41 @@ def test_orient_series():
     assert all(isinstance(s, pd.Series) for s in out.values())
 
 
+ugly_dict = {
+    "col1": {"r1": 8, "r2": 9},
+    "col2": {"r1": 10, "r3": 11},
+    "col3": {"r7": 12, "r9": 12},
+}
+ugly_records = [{"col1": 1, "col2": 2}, {"col1": 3}, {"col3": 4, "col2": 5}]
+
+
 def test_joins_with_pandas():
     """Test that pandas can help with ugly data."""
     pd = pytest.importorskip("pandas", reason="Pandas required for some tables tests")
-    ugly = {
-        "col1": {"r1": 8, "r2": 9},
-        "col2": {"r1": 10, "r3": 11},
-        "col3": {"r7": 12, "r9": 12},
-    }
-    t = Table(value=ugly)
+
+    t = Table(value=ugly_dict)
     assert t.shape == (5, 3)
-    pd.testing.assert_frame_equal(t.to_dataframe(), pd.DataFrame(ugly))
+    pd.testing.assert_frame_equal(t.to_dataframe(), pd.DataFrame(ugly_dict))
+
+    t2 = Table(value=ugly_records)
+    assert t2.shape == (3, 3)
+    pd.testing.assert_frame_equal(t2.to_dataframe(), pd.DataFrame(ugly_records))
+
+
+def test_joins_without_pandas(monkeypatch):
+    """Test that we give a useful error with ugly data if pandas is not available."""
+    monkeypatch.setitem(sys.modules, "pandas", None)
+    with pytest.raises(ValueError) as e:
+        Table(value=ugly_dict)
+        assert "Install pandas" in str(e)
+
+    with pytest.raises(ValueError) as e:
+        Table(value=ugly_records)
+        assert "Install pandas" in str(e)
 
 
 def test_widget_in_table():
-    """Test we can put widgets in the table!"""
+    """Test we can put widgets in the table!."""
     table = Table()
     button = PushButton(text="hi")
     slider = Slider(value=50)
