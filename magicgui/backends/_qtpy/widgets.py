@@ -113,6 +113,14 @@ class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
             signal_instance.connect(callback)
 
 
+# BASE WIDGET
+
+
+class EmptyWidget(QBaseWidget):
+    def __init__(self):
+        super().__init__(QtW.QWidget)
+
+
 # STRING WIDGETS
 
 

@@ -104,8 +104,8 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         datetime.time: widgets.TimeEdit,
         datetime.date: widgets.DateEdit,
         datetime.datetime: widgets.DateTimeEdit,
-        type(None): widgets.LiteralEvalLineEdit,
-        Any: widgets.LiteralEvalLineEdit,
+        # type(None): widgets.LiteralEvalLineEdit,
+        # Any: widgets.LiteralEvalLineEdit,
         range: widgets.RangeEdit,
         slice: widgets.SliceEdit,
     }
@@ -173,7 +173,7 @@ def pick_widget_type(
         if _widget_type:
             return _widget_type
 
-    # return widgets.LiteralEvalLineEdit, {}
+    return widgets.EmptyWidget, {"visible": False}
     raise ValueError(f"Could not pick widget for type: {dtype!r}")
 
 

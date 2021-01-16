@@ -141,6 +141,11 @@ def backend_widget(
     return wrapper(cls) if cls else wrapper
 
 
+@backend_widget()
+class EmptyWidget(Widget):
+    """A base widget with no value."""
+
+
 @backend_widget
 class Label(ValueWidget):
     """A non-editable text or image display."""
