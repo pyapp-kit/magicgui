@@ -560,9 +560,10 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
 
     def _mgui_get_row_headers(self) -> tuple:
         """Get current row headers of the widget."""
-        vert_header = self._qwidget.verticalHeader()
-        # visual index allows for column drag/drop
-        indices = (vert_header.visualIndex(i) for i in range(self._qwidget.rowCount()))
+        # ... 'PySide2.QtWidgets.QTableWidgetItem' object has no attribute 'visualIndex'
+        # on some linux... so removing the visualIndex() for row headers... this means
+        # we can't enable row drag/drop without fixing this
+        indices = range(self._qwidget.rowCount())
         items = (self._qwidget.verticalHeaderItem(i) for i in indices)
         headers = (item.text() for item in items if item)
         return tuple(_maybefloat(x) for x in headers)
@@ -575,7 +576,7 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
         """Get current column headers of the widget."""
         horiz_header = self._qwidget.horizontalHeader()
         ncols = self._qwidget.columnCount()
-        # visual index allows for column drag/drop
+        # visual index allows for column drag/drop, though it's currently not enabled.
         indices = (horiz_header.visualIndex(i) for i in range(ncols))
         items = (self._qwidget.horizontalHeaderItem(i) for i in indices)
         headers = (item.text() for item in items if item)
