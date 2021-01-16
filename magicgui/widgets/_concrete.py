@@ -143,7 +143,11 @@ def backend_widget(
 
 @backend_widget()
 class EmptyWidget(ValueWidget):
-    """A base widget with no value."""
+    """A base widget with no value.
+
+    This widget is primarily here to serve as a "hidden widget" to which a value or
+    callback can be bound.
+    """
 
     _hidden_value = inspect.Parameter.empty
 
