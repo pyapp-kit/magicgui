@@ -541,6 +541,9 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
         item = self._qwidget.item(row, col)
         if item:
             return item.data(self._DATA_ROLE)
+        widget = self._qwidget.cellWidget(row, col)
+        if widget:
+            return widget._magic_widget
 
     def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
         """Set current value of the widget."""
@@ -557,10 +560,11 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
 
     def _mgui_get_row_headers(self) -> tuple:
         """Get current row headers of the widget."""
-        horiz_header = self._qwidget.verticalHeader()
+        vert_header = self._qwidget.verticalHeader()
         # visual index allows for column drag/drop
-        indices = (horiz_header.visualIndex(i) for i in range(self._qwidget.rowCount()))
-        headers = (self._qwidget.verticalHeaderItem(i).text() for i in indices)
+        indices = (vert_header.visualIndex(i) for i in range(self._qwidget.rowCount()))
+        items = (self._qwidget.verticalHeaderItem(i) for i in indices)
+        headers = (item.text() for item in items if item)
         return tuple(_maybefloat(x) for x in headers)
 
     def _mgui_set_row_headers(self, headers: Sequence) -> None:
@@ -573,7 +577,8 @@ class Table(QBaseValueWidget, _protocols.TableWidgetProtocol):
         ncols = self._qwidget.columnCount()
         # visual index allows for column drag/drop
         indices = (horiz_header.visualIndex(i) for i in range(ncols))
-        headers = (self._qwidget.horizontalHeaderItem(i).text() for i in indices)
+        items = (self._qwidget.horizontalHeaderItem(i) for i in indices)
+        headers = (item.text() for item in items if item)
         return tuple(_maybefloat(x) for x in headers)
 
     def _mgui_set_column_headers(self, headers: Sequence) -> None:

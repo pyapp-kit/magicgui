@@ -207,7 +207,7 @@ class Table(ValueWidget, MutableMapping[_KT, list]):
     @property
     def row_headers(self) -> tuple:
         """Return row headers."""
-        nrows = self._widget._mgui_get_column_count()
+        nrows = self._widget._mgui_get_row_count()
         return self._widget._mgui_get_row_headers() or tuple(range(nrows))
 
     @row_headers.setter
@@ -520,11 +520,9 @@ class DataView:
     def __getitem__(self, arg: Tuple[slice, int]) -> list: ...  # noqa
     @overload
     def __getitem__(self, arg: Tuple[slice, slice]) -> List[list]: ...  # noqa
-    @overload
-    def __getitem__(self, arg: str) -> list: ...  # noqa
     # fmt: on
 
-    def __getitem__(self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey], str]) -> Any:
+    def __getitem__(self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey]]) -> Any:
         """Get index."""
         if isinstance(idx, (int, slice)):
             return self.__getitem__((idx, slice(None)))  # type: ignore
@@ -542,12 +540,10 @@ class DataView:
                     return obj._get_column(c_idx, r_idx)
                 if isinstance(c_idx, slice):
                     return [obj._get_rowi(r, c_idx) for r in obj._iter_slice(r_idx, 0)]
-        if isinstance(idx, str):
-            return obj._get_column(idx)
         raise ValueError(f"Not a valid idx for __getitem__ {idx!r}")
 
     def __setitem__(
-        self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey], str], value: Any
+        self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey]], value: Any
     ) -> None:
         """Set index."""
         # TODO: deal with bad shapes
@@ -577,8 +573,6 @@ class DataView:
                     for v, r in zip(value, obj._iter_slice(r_idx, 0)):
                         obj._set_rowi(r, v, c_idx)
                     return
-        if isinstance(idx, str):
-            return obj._set_column(idx, value)
         raise ValueError(f"Not a valid idx for __setitem__ {idx!r}")
 
     def __delitem__(self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey]]):
@@ -589,17 +583,20 @@ class DataView:
         if isinstance(idx, tuple):
             assert len(idx) == 2, "Table Widget only accepts 2 arguments to __delitem__"
             r_idx, c_idx = idx
+            for i in idx:
+                if not (isinstance(i, int) or i == slice(None)):
+                    raise ValueError(f"Can only delete full rows/columns, not {idx!r}")
             if isinstance(r_idx, int):
                 if c_idx == slice(None):
                     return obj._del_rowi(r_idx)
+                raise ValueError("Can only delete full rows/columns, not cells")
             elif isinstance(r_idx, slice):
-                if c_idx == slice(None):
+                if isinstance(c_idx, int):
+                    return obj._del_column(obj.column_headers[c_idx])
+                else:
                     for r in obj._iter_slice(r_idx, 0):
                         obj._del_rowi(r)
                     return
-            raise ValueError("Can only delete full rows/columns, not {idx!r}")
-        if isinstance(idx, str):
-            return obj._get_column(idx)
         raise ValueError(f"Not a valid idx for __getitem__ {idx!r}")
 
     def _assert_extended_slice(self, slc: slice, value_len, axis=0):
