@@ -298,11 +298,9 @@ def register_type(
             )
         _TYPE_DEFS[type_] = (widget_type, _options)
     elif "bind" in _options:
-        # TODO: make a dedicated hidden widget?
         # if we're binding a value to this parameter, it doesn't matter what type
         # of ValueWidget is used... it usually won't be shown
-        _TYPE_DEFS[type_] = (widgets.Label, _options)
-
+        _TYPE_DEFS[type_] = (widgets.EmptyWidget, _options)
     return None
 
 
