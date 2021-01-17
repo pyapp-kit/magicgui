@@ -23,7 +23,6 @@ class tqdm_mgui(tqdm):
         self.progressbar = ProgressBar(name="tqdm_mgui")
         self.progressbar.show()
         if self.total is not None:
-            print("toata", self.total)
             self.progressbar.range = (self.n, self.total)
             self.progressbar.value = self.n
         else:
