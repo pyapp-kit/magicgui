@@ -54,7 +54,7 @@ class tqdm_mgui(tqdm):
         assert self._app.native
 
         self.progressbar = (
-            self._mgui._push_tqdm_pbar(**pbar_kwargs)
+            self._mgui._push_tqdm_pbar(pbar_kwargs)
             if self._mgui
             else ProgressBar(**pbar_kwargs)
         )
@@ -75,8 +75,11 @@ class tqdm_mgui(tqdm):
         # Prevent multiple closures
         self.disable = True
 
-        # remove from internal set
-        self._decr_instances(self)
+        with self._lock:
+            try:
+                self._instances.remove(self)
+            except KeyError:
+                pass
 
         with self._lock:
             if not self.leave:

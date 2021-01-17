@@ -78,10 +78,6 @@ class FunctionGui(Container):
     """
 
     _widget: ContainerProtocol
-    # a dict of Progressbars created by (possibly nested) tqdm_mgui iterators
-    _tqdm_pbars: Dict[int, ProgressBar] = {}
-    # the nesting level of tqdm_mgui iterators in a given __call__
-    _tqdm_depth: int = 0
 
     def __init__(
         self,
@@ -126,6 +122,11 @@ class FunctionGui(Container):
         self.called = EventEmitter(self, type="called")
         self._result_name = ""
         self._call_count: int = 0
+
+        # a dict of Progressbars created by (possibly nested) tqdm_mgui iterators
+        self._tqdm_pbars: Dict[int, ProgressBar] = {}
+        # the nesting level of tqdm_mgui iterators in a given __call__
+        self._tqdm_depth: int = 0
 
         self._call_button: Optional[PushButton] = None
         if call_button:
@@ -222,7 +223,7 @@ class FunctionGui(Container):
         self.called(value=value)
         return value
 
-    def _push_tqdm_pbar(self, **kwargs):
+    def _push_tqdm_pbar(self, kwargs={}):
         """Get or add a stacked tqdm progress bar.
 
         This will typically be called by :meth:`magicgui.tqdm.tqdm_mgui.__init__`, and

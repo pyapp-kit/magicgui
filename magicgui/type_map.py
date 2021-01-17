@@ -95,6 +95,9 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
     """Check simple type mappings."""
     dtype = _normalize_type(value, annotation)
 
+    if dtype is widgets.ProgressBar:
+        return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
+
     simple = {
         bool: widgets.CheckBox,
         int: widgets.SpinBox,

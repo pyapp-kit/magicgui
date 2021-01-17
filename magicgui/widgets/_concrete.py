@@ -206,6 +206,24 @@ class FloatSpinBox(RangedWidget):
 class ProgressBar(SliderWidget):
     """A progress bar widget."""
 
+    def increment(self, val=None):
+        """Increase current value by step size, or provided value."""
+        self.value = self.get_value() + (val if val is not None else self.step)
+
+    def decrement(self, val=None):
+        """Decrease current value by step size, or provided value."""
+        self.value = self.get_value() - (val if val is not None else self.step)
+
+    # overriding because at least some backends don't have a step value for ProgressBar
+    @property
+    def step(self) -> float:
+        """Step size for widget values."""
+        return self._step
+
+    @step.setter
+    def step(self, value: float):
+        self._step = value
+
 
 @backend_widget
 class Slider(SliderWidget):

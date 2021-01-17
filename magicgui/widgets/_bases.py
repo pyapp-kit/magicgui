@@ -490,9 +490,10 @@ class ValueWidget(Widget):
 
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
+        val = self.value if self._bound_value is UNBOUND else self._bound_value
         if hasattr(self, "_widget"):
             return (
-                f"{self.widget_type}(value={self.value!r}, "
+                f"{self.widget_type}(value={val!r}, "
                 f"annotation={self.annotation!r}, name={self.name!r})"
             )
         else:
