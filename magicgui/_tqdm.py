@@ -53,3 +53,8 @@ class tqdm_mgui(tqdm):
         """Update the display."""
         self.progressbar.value = self.n
         self._app.process_events()
+
+
+def tmgrange(*args, **kwargs):
+    """Shortcut for tqdm_mgui(range(*args), **kwargs)."""
+    return tqdm(range(*args), **kwargs)
