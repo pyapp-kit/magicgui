@@ -127,7 +127,13 @@ def test_basic_widget_attributes():
         widget.param_kind = 1
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
-    assert widget.options == {"max": 100, "min": 0, "step": 1, "visible": False}
+    assert widget.options == {
+        "max": 100,
+        "min": 0,
+        "step": 1,
+        "enabled": False,
+        "visible": False,
+    }
 
 
 def test_tooltip():
@@ -189,6 +195,26 @@ def test_container_label_widths():
     before = _label_width()
     container.append(labelb)
     assert _label_width() > before
+
+
+def test_labeled_widget_container():
+    """Test that _LabeledWidgets follow their children."""
+    from magicgui.widgets._concrete import _LabeledWidget
+
+    w1 = widgets.Label(value="hi", name="w1")
+    w2 = widgets.Label(value="hi", name="w2")
+    container = widgets.Container(widgets=[w1, w2], layout="vertical")
+    lw = container._widget._mgui_get_index(0)
+    assert isinstance(lw, _LabeledWidget)
+    assert lw.visible
+    w1.hide()
+    assert not w1.visible
+    assert not lw.visible
+    w1.show()
+    assert w1.visible
+    assert lw.visible
+    w1.label = "another label"
+    assert lw._label_widget.value == "another label"
 
 
 def test_delete_widget():
