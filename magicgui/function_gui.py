@@ -15,7 +15,7 @@ from magicgui.application import AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import magic_signature
 from magicgui.type_map import _type2callback
-from magicgui.widgets import Container, LineEdit, PushButton
+from magicgui.widgets import Container, LineEdit, ProgressBar, PushButton
 from magicgui.widgets._protocols import ContainerProtocol
 
 
@@ -78,6 +78,10 @@ class FunctionGui(Container):
     """
 
     _widget: ContainerProtocol
+    # a dict of Progressbars created by (possibly nested) tqdm_mgui iterators
+    _tqdm_pbars: Dict[int, ProgressBar] = {}
+    # the nesting level of tqdm_mgui iterators in a given __call__
+    _tqdm_depth: int = 0
 
     def __init__(
         self,
@@ -204,6 +208,7 @@ class FunctionGui(Container):
         bound = sig.bind(*args, **kwargs)
         bound.apply_defaults()
 
+        self._tqdm_depth = 0  # reset the tqdm stack count
         value = self._function(*bound.args, **bound.kwargs)
         self._call_count += 1
         if self._result_widget is not None:
@@ -216,6 +221,24 @@ class FunctionGui(Container):
                 callback(self, value, return_type)
         self.called(value=value)
         return value
+
+    def _push_tqdm_pbar(self, **kwargs):
+        """Get or add a stacked tqdm progress bar.
+
+        This will typically be called by :meth:`magicgui.tqdm.tqdm_mgui.__init__`, and
+        allows for nested tqdm_mgui iterators to show progressbars.
+        """
+        pbar = self._tqdm_pbars.setdefault(self._tqdm_depth, ProgressBar(**kwargs))
+        if pbar not in self:
+            self.append(pbar)
+        self._tqdm_depth += 1
+        return pbar
+
+    def _pop_tqdm_pbar(self):
+        """Should be called during :meth:`magicgui.tqdm.tqdm_mgui.close`."""
+        self._tqdm_depth -= 1
+        # we don't actually delete the progress bar in case it gets used again.
+        # deletion is left up to the `tqdm(leave=False)` option
 
     def __repr__(self) -> str:
         """Return string representation of instance."""
