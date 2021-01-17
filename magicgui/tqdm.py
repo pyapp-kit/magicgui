@@ -80,8 +80,8 @@ class tqdm_mgui(tqdm):
         if self.leave:
             self.display()
         else:
-            self.progressbar.hide()
             self._app.process_events()
+            self.progressbar.hide()
         if self._mgui:
             self._mgui._pop_tqdm_pbar()
 
