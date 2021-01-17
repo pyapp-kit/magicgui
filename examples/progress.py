@@ -9,7 +9,7 @@ from magicgui.widgets import ProgressBar
 # `tmgrange(*args, **kwargs)` is a shortcut for tqdm_mgui(range(*args), **kwargs)
 # (..., leave=False) will make the progressbar hide when done
 for i in tmgrange(10, leave=False):
-    sleep(0.1)
+    sleep(0.05)
 
 
 # can also be used inside of a magicgui decorator
@@ -24,7 +24,7 @@ def long_running(steps=10, delay=0.1):
 long_running.show(run=True)
 
 
-# nested progress bars is possible
+# nesting progress bars is possible
 
 
 @magicgui(call_button=True, layout="vertical")
