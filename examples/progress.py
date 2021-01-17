@@ -8,8 +8,8 @@ from magicgui.widgets import ProgressBar
 # can be used alone (outside of a magicgui)
 # `tmgrange(*args, **kwargs)` is a shortcut for tqdm_mgui(range(*args), **kwargs)
 # (..., leave=False) will make the progressbar hide when done
-for i in tmgrange(5, leave=False):
-    sleep(0.5)
+for i in tmgrange(10, leave=False):
+    sleep(0.1)
 
 
 # can also be used inside of a magicgui decorator
