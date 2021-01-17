@@ -9,7 +9,7 @@ try:
     from tqdm import tqdm
 except ImportError as e:
     msg = (
-        f"{e}. To use tqdm with magicgui please `pip install tqdm`, "
+        f"{e}. To use magicgui with tqdm please `pip install tqdm`, "
         "or use the tqdm extra: `pip install magicgui[tqdm]`"
     )
     raise type(e)(msg)
@@ -72,23 +72,18 @@ class tqdm_mgui(tqdm):
         if self.disable:
             return
 
+        # Prevent multiple closures
         self.disable = True
 
-        with self.get_lock():
-            self._instances.remove(self)
+        # remove from internal set
+        self._decr_instances(self)
 
-        if self.leave:
-            self.display()
-        else:
-            self._app.process_events()
-            self.progressbar.hide()
-        if self._mgui:
-            self._mgui._pop_tqdm_pbar()
-
-    def clear(self, *_) -> None:
-        """Clear current bar display."""
-        # need to override to prevent calling self.sp()
-        pass
+        with self._lock:
+            if not self.leave:
+                self._app.process_events()
+                self.progressbar.hide()
+            if self._mgui:
+                self._mgui._pop_tqdm_pbar()
 
     def display(self, msg: str = None, pos: int = None) -> None:
         """Update the display."""

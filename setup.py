@@ -49,5 +49,6 @@ setup(
             "PySide2>=5.15 ; python_version=='3.9'",
         ],
         "PyQt5": "PyQt5>=5.12.0",
+        "tqdm": "tqdm",
     },
 )
