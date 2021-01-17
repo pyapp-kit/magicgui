@@ -1,3 +1,4 @@
+"""A wrapper around the tqdm.tqdm iterator. That adds a ProgressBar to a magicgui."""
 import inspect
 from typing import Optional
 
@@ -42,8 +43,6 @@ class tqdm_mgui(tqdm):
         pbar_kwargs = {k: kwargs.pop(k) for k in set(kwargs) - _tqdm_kwargs}
         kwargs["gui"] = True
         kwargs.setdefault("mininterval", 0.025)
-        # check if we're being instantiated inside of a magicgui container
-        self._mgui = _find_parent_container()
         super().__init__(*args, **kwargs)
 
         self.sp = lambda x: None  # no-op status printer, required for older tqdm compat
@@ -53,11 +52,9 @@ class tqdm_mgui(tqdm):
         self._app = use_app()
         assert self._app.native
 
-        self.progressbar = (
-            self._mgui._push_tqdm_pbar(pbar_kwargs)
-            if self._mgui
-            else ProgressBar(**pbar_kwargs)
-        )
+        # check if we're being instantiated inside of a magicgui container
+        self._mgui = _find_parent_container()
+        self.progressbar = self._get_progressbar(**pbar_kwargs)
         if self.total is not None:
             # initialize progress bar range
             self.progressbar.range = (self.n, self.total)
@@ -67,6 +64,33 @@ class tqdm_mgui(tqdm):
             self.progressbar.range = (0, 0)
         self.progressbar.show()
 
+    def _get_progressbar(self, **kwargs) -> ProgressBar:
+        """Create ProgressBar or get from the parent gui `_tqdm_pbars` deque.
+
+        The deque allows us to create nested iterables inside of a magigui, while
+        resetting and reusing progress bars across ``FunctionGui`` calls. The nesting
+        depth (into the deque) is reset by :meth:`FunctionGui.__call__`, right before
+        the function is called.  Then, as the function encounters `tqdm_mgui` instances,
+        this method gets or creates a progress bar and increment the
+        :attr:`FunctionGui._tqdm_depth` counter on the ``FunctionGui``.
+        """
+        if not self._mgui:
+            return ProgressBar(**kwargs)
+
+        if len(self._mgui._tqdm_pbars) > self._mgui._tqdm_depth:
+            pbar = self._mgui._tqdm_pbars[self._mgui._tqdm_depth]
+        else:
+            pbar = ProgressBar(**kwargs)
+            self._mgui._tqdm_pbars.append(pbar)
+            self._mgui.append(pbar)
+        self._mgui._tqdm_depth += 1
+        return pbar
+
+    def display(self, msg: str = None, pos: int = None) -> None:
+        """Update the display."""
+        self.progressbar.value = self.n
+        self._app.process_events()
+
     def close(self) -> None:
         """Cleanup and (if leave=False) close the progressbar."""
         if self.disable:
@@ -75,23 +99,19 @@ class tqdm_mgui(tqdm):
         # Prevent multiple closures
         self.disable = True
 
+        # remove from tqdm instance set
         with self._lock:
             try:
                 self._instances.remove(self)
             except KeyError:
                 pass
 
-        with self._lock:
             if not self.leave:
                 self._app.process_events()
                 self.progressbar.hide()
-            if self._mgui:
-                self._mgui._pop_tqdm_pbar()
 
-    def display(self, msg: str = None, pos: int = None) -> None:
-        """Update the display."""
-        self.progressbar.value = self.n
-        self._app.process_events()
+        if self._mgui:
+            self._mgui._tqdm_depth -= 1
 
 
 def tmgrange(*args, **kwargs) -> tqdm_mgui:

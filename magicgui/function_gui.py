@@ -7,7 +7,8 @@ from __future__ import annotations
 import inspect
 import re
 import warnings
-from typing import Any, Callable, Dict, Optional, TypeVar, Union, overload
+from collections import deque
+from typing import Any, Callable, Deque, Dict, Optional, TypeVar, Union, overload
 
 from docstring_parser import parse
 
@@ -123,8 +124,8 @@ class FunctionGui(Container):
         self._result_name = ""
         self._call_count: int = 0
 
-        # a dict of Progressbars created by (possibly nested) tqdm_mgui iterators
-        self._tqdm_pbars: Dict[int, ProgressBar] = {}
+        # a deque of Progressbars to be created by (possibly nested) tqdm_mgui iterators
+        self._tqdm_pbars: Deque[ProgressBar] = deque()
         # the nesting level of tqdm_mgui iterators in a given __call__
         self._tqdm_depth: int = 0
 
@@ -222,24 +223,6 @@ class FunctionGui(Container):
                 callback(self, value, return_type)
         self.called(value=value)
         return value
-
-    def _push_tqdm_pbar(self, kwargs={}):
-        """Get or add a stacked tqdm progress bar.
-
-        This will typically be called by :meth:`magicgui.tqdm.tqdm_mgui.__init__`, and
-        allows for nested tqdm_mgui iterators to show progressbars.
-        """
-        pbar = self._tqdm_pbars.setdefault(self._tqdm_depth, ProgressBar(**kwargs))
-        if pbar not in self:
-            self.append(pbar)
-        self._tqdm_depth += 1
-        return pbar
-
-    def _pop_tqdm_pbar(self):
-        """Should be called during :meth:`magicgui.tqdm.tqdm_mgui.close`."""
-        self._tqdm_depth -= 1
-        # we don't actually delete the progress bar in case it gets used again.
-        # deletion is left up to the `tqdm(leave=False)` option
 
     def __repr__(self) -> str:
         """Return string representation of instance."""
