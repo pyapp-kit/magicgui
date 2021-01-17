@@ -71,9 +71,11 @@ from magicgui.types import ChoicesType, WidgetOptions
 from magicgui.widgets import _protocols
 
 if TYPE_CHECKING:
+    from weakref import ReferenceType
+
     import numpy as np
 
-    from ._concrete import Container
+    from ._concrete import Container, _LabeledWidget
 
 
 def create_widget(
@@ -197,6 +199,8 @@ class Widget:
     """
 
     _widget: _protocols.WidgetProtocol
+    # if this widget becomes owned by a labeled widget
+    _labeled_widget: Optional["ReferenceType[_LabeledWidget]"] = None
 
     def __init__(
         self,
@@ -206,6 +210,7 @@ class Widget:
         label: str = None,
         tooltip: Optional[str] = None,
         visible: bool = True,
+        enabled: bool = True,
         gui_only=False,
         backend_kwargs=dict(),
         **extra,
@@ -232,6 +237,7 @@ class Widget:
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
         self.tooltip = tooltip
+        self.enabled = enabled
         self.annotation: Any = annotation
         self.gui_only = gui_only
         self.visible: bool = True
@@ -286,8 +292,7 @@ class Widget:
     @property
     def options(self) -> dict:
         """Return options currently being used in this widget."""
-        # return {"enabled": self.enabled, "visible": self.visible}
-        return {"visible": self.visible}
+        return {"enabled": self.enabled, "visible": self.visible}
 
     @property
     def native(self):
@@ -360,6 +365,10 @@ class Widget:
         """Show the widget."""
         self._widget._mgui_show_widget()
         self.visible = True
+        if self._labeled_widget is not None:
+            w = self._labeled_widget()
+            if w:
+                w.show()
         if run:
             self.__magicgui_app__.run()
         return self  # useful for generating repr in sphinx
@@ -377,6 +386,10 @@ class Widget:
         """Hide widget."""
         self._widget._mgui_hide_widget()
         self.visible = False
+        if self._labeled_widget is not None:
+            w = self._labeled_widget()
+            if w:
+                w.hide()
 
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""

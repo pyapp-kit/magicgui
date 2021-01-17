@@ -9,6 +9,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Callable, List, Sequence, Tuple, Type, Union
+from weakref import ref
 
 from docstring_parser import DocstringParam, parse
 
@@ -453,6 +454,7 @@ class _LabeledWidget(Container):
         layout = "horizontal" if position in ("left", "right") else "vertical"
         kwargs["backend_kwargs"] = {"layout": layout}
         self._inner_widget = widget
+        widget._labeled_widget = ref(self)
         self._label_widget = Label(value=label or widget.label, tooltip=widget.tooltip)
         super().__init__(**kwargs)
         self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
