@@ -319,8 +319,8 @@ class FloatSpinBox(QBaseRangedWidget):
 class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
-    def __init__(self):
-        super().__init__(QtW.QSlider)
+    def __init__(self, qwidg=QtW.QSlider):
+        super().__init__(qwidg)
         self._mgui_set_orientation("horizontal")
 
     def _mgui_set_orientation(self, value) -> Any:
@@ -332,6 +332,22 @@ class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
         """Get current value of the widget."""
         orientation = self._qwidget.orientation()
         return "vertical" if orientation == Qt.Vertical else "horizontal"
+
+
+class ProgressBar(Slider):
+    _qwidget: QtW.QProgressBar
+
+    def __init__(self):
+        super().__init__(QtW.QProgressBar)
+        self._mgui_set_orientation("horizontal")
+
+    def _mgui_get_step(self) -> float:
+        """Get the step size."""
+        return 1
+
+    def _mgui_set_step(self, value: float):
+        """Set the step size."""
+        pass
 
 
 class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
