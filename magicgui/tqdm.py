@@ -1,4 +1,4 @@
-"""A wrapper around the tqdm.tqdm iterator. That adds a ProgressBar to a magicgui."""
+"""A wrapper around the tqdm.tqdm iterator that adds a ProgressBar to a magicgui."""
 import inspect
 from typing import Iterable, Optional
 
