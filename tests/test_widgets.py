@@ -360,3 +360,17 @@ def test_reset_choice_recursion():
     assert f.c.choices == (0, 1)
     container.reset_choices()
     assert f.c.choices == (0, 1, 2)
+
+
+def test_progressbar():
+    """Test manually controlling a progressbar."""
+
+    @magicgui(pbar={"min": 20, "max": 40, "step": 2, "value": 30})
+    def t(pbar: widgets.ProgressBar):
+        assert pbar.get_value() == 32
+        pbar.decrement()
+        assert pbar.get_value() == 30
+        pbar.step = 5
+        assert pbar.get_value() == 35
+        pbar.decrement(10)
+        assert pbar.get_value() == 25
