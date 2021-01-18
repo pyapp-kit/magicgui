@@ -5,7 +5,6 @@ The core `magicgui` decorator returns an instance of a FunctionGui widget.
 from __future__ import annotations
 
 import inspect
-import re
 import warnings
 from typing import Any, Callable, Dict, Optional, TypeVar, Union, overload
 
@@ -26,16 +25,13 @@ def _inject_tooltips_from_docstrings(
     if not docstring:
         return
     for param in parse(docstring).params:
-        # make the tooltip from the first sentence in the param doc description
-        tooltip = param.description.split(".", maxsplit=1)[0]
-        tooltip = re.split(r",?\s?([bB]y )?[dD]efault", tooltip)[0]
         # this is to catch potentially bad arg_name parsing in docstring_parser
         # if using napoleon style google docstringss
         argname = param.arg_name.split(" ", maxsplit=1)[0]
         if argname not in param_options:
             param_options[argname] = {}
         # use setdefault so as not to override an explicitly provided tooltip
-        param_options[argname].setdefault("tooltip", tooltip)
+        param_options[argname].setdefault("tooltip", param.description)
 
 
 class FunctionGui(Container):
