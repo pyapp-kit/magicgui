@@ -5,7 +5,6 @@ The core `magicgui` decorator returns an instance of a FunctionGui widget.
 from __future__ import annotations
 
 import inspect
-import re
 import warnings
 from typing import Any, Callable, Dict, Optional, TypeVar, Union, overload
 
