@@ -483,7 +483,11 @@ def test_call_count():
 def test_tooltips_from_numpydoc():
     """Test that numpydocs docstrings can be used for tooltips."""
 
-    @magicgui(x={"tooltip": "override tooltip"}, z={"tooltip": None})
+    x_tooltip = "override tooltip"
+    y_docstring = """A greeting, by default 'hi'. Notice how we miraculously pull
+the entirety of the docstring just like that"""
+
+    @magicgui(x={"tooltip": x_tooltip}, z={"tooltip": None})
     def func(x: int, y: str = "hi", z=None):
         """Do a little thing.
 
@@ -492,23 +496,24 @@ def test_tooltips_from_numpydoc():
         x : int
             An integer for you to use
         y : str, optional
-            A greeting, by default 'hi'. Only the first sentence
-            will be used. Even if the docstring is very long indeed,
-            I mean super super long ... then it will still use only
-            the first sentence (everything before the first period in
-            the description).
+            A greeting, by default 'hi'. Notice how we miraculously pull
+            the entirety of the docstring just like that
         z : Any, optional
             No tooltip for me please.
         """
         pass
 
-    assert func.x.tooltip == "override tooltip"
-    assert func.y.tooltip == "A greeting"  # the "by default" part is stripped
+    assert func.x.tooltip == x_tooltip
+    assert func.y.tooltip == y_docstring
     assert not func.z.tooltip
 
 
 def test_tooltips_from_google_doc():
     """Test that google docstrings can be used for tooltips."""
+
+    x_docstring = "An integer for you to use"
+    y_docstring = """A greeting. Notice how we miraculously pull
+the entirety of the docstring just like that"""
 
     @magicgui
     def func(x: int, y: str = "hi"):
@@ -516,36 +521,36 @@ def test_tooltips_from_google_doc():
 
         Args:
             x (int): An integer for you to use
-            y (str, optional): A greeting. Only the first
-                sentence will be used. Even if the docstring is very long indeed, I mean
-                super super long ... then it will still use only the first sentence
-                (everything before the first period in the description).
+            y (str, optional): A greeting. Notice how we miraculously pull
+                               the entirety of the docstring just like that
         """
         pass
 
-    assert func.x.tooltip == "An integer for you to use"
-    assert func.y.tooltip == "A greeting"  # the "by default" part is stripped
+    assert func.x.tooltip == x_docstring
+    assert func.y.tooltip == y_docstring
 
 
 def test_tooltips_from_rest_doc():
     """Test that google docstrings can be used for tooltips."""
+
+    x_docstring = "An integer for you to use"
+    y_docstring = """A greeting, by default 'hi'. Notice how we miraculously pull
+the entirety of the docstring just like that"""
 
     @magicgui
     def func(x: int, y: str = "hi", z=None):
         """Do a little thing.
 
         :param x: An integer for you to use
-        :param y: A greeting, by default 'hi'. Only the first sentence will be used.
-                  Even if the docstring is very long indeed, I mean super super long ...
-                  then it will still use only the first sentence (everything before the
-                  first period in the description).
+        :param y: A greeting, by default 'hi'. Notice how we miraculously pull
+                  the entirety of the docstring just like that
         :type x: int
         :type y: str
         """
         pass
 
-    assert func.x.tooltip == "An integer for you to use"
-    assert func.y.tooltip == "A greeting"
+    assert func.x.tooltip == x_docstring
+    assert func.y.tooltip == y_docstring
 
 
 def test_no_tooltips_from_numpydoc():
