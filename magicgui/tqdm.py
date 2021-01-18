@@ -42,7 +42,32 @@ _tqdm_kwargs = {
 
 
 class tqdm_mgui(tqdm):
-    """magicgui version of tqdm."""
+    """magicgui version of tqdm.
+
+    See tqdm.tqdm API for valid args and kwargs: https://tqdm.github.io/docs/tqdm/
+
+    Also, any keyword arguments to the :class:`magicgui.widgets.ProgressBar` widget
+    are also accepted and will be passed to the ``ProgressBar``.
+
+    Examples
+    --------
+    When used inside of a magicgui-decorated function, ``tqdm_mgui`` (and the
+    ``tmgrange`` shortcut function) will append a visible progress bar to the gui
+    container.
+
+    >>> @magicgui(call_button=True)
+    ... def long_running(steps=10, delay=0.1):
+    ...     for i in tqdm_mgui(range(steps)):
+    ...         sleep(delay)
+
+    nesting is also possible:
+
+    >>> @magicgui(call_button=True)
+    ... def long_running(steps=10, repeats=4, delay=0.1):
+    ...     for r in tmgrange(repeats):
+    ...         for s in tmgrange(steps):
+    ...             sleep(delay)
+    """
 
     disable: bool
 
