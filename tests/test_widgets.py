@@ -48,6 +48,8 @@ class MyBadWidget:
     def _mgui_get_value(self): ... # noqa
     def _mgui_set_value(self, value): ... # noqa
     def _mgui_bind_change_callback(self, callback): ... # noqa
+    def _mgui_get_tooltip(self, value): ... # noqa
+    def _mgui_set_tooltip(self, value): ... # noqa
 
 
 class MyValueWidget(MyBadWidget):
@@ -61,7 +63,9 @@ def test_custom_widget():
     """Test that create_widget works with arbitrary backend implementations."""
     # by implementing the ValueWidgetProtocol, magicgui will know to wrap the above
     # widget with a widgets._bases.ValueWidget
-    assert isinstance(widgets.create_widget(1, widget_type=MyValueWidget), ValueWidget)
+    assert isinstance(
+        widgets.create_widget(1, widget_type=MyValueWidget), ValueWidget  # type:ignore
+    )
 
 
 def test_custom_widget_fails():
@@ -123,7 +127,20 @@ def test_basic_widget_attributes():
         widget.param_kind = 1
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
-    assert widget.options == {"max": 100, "min": 0, "step": 1, "visible": False}
+    assert widget.options == {
+        "max": 100,
+        "min": 0,
+        "step": 1,
+        "enabled": False,
+        "visible": False,
+    }
+
+
+def test_tooltip():
+    label = widgets.Label()
+    assert not label.tooltip
+    label.tooltip = "My Tooltip"
+    assert label.tooltip == "My Tooltip"
 
 
 def test_container_widget():
@@ -178,6 +195,26 @@ def test_container_label_widths():
     before = _label_width()
     container.append(labelb)
     assert _label_width() > before
+
+
+def test_labeled_widget_container():
+    """Test that _LabeledWidgets follow their children."""
+    from magicgui.widgets._concrete import _LabeledWidget
+
+    w1 = widgets.Label(value="hi", name="w1")
+    w2 = widgets.Label(value="hi", name="w2")
+    container = widgets.Container(widgets=[w1, w2], layout="vertical")
+    lw = container._widget._mgui_get_index(0)
+    assert isinstance(lw, _LabeledWidget)
+    assert lw.visible
+    w1.hide()
+    assert not w1.visible
+    assert not lw.visible
+    w1.show()
+    assert w1.visible
+    assert lw.visible
+    w1.label = "another label"
+    assert lw._label_widget.value == "another label"
 
 
 def test_delete_widget():

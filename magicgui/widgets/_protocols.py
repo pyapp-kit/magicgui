@@ -114,6 +114,16 @@ class WidgetProtocol(Protocol):
         """Set the width of the widget."""
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mgui_get_tooltip(self) -> str:
+        """Get the tooltip for this widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
+        """Set a tooltip for this widget."""
+        raise NotImplementedError()
+
 
 @runtime_checkable
 class ValueWidgetProtocol(WidgetProtocol, Protocol):

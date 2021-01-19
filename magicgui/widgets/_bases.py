@@ -71,9 +71,11 @@ from magicgui.types import ChoicesType, WidgetOptions
 from magicgui.widgets import _protocols
 
 if TYPE_CHECKING:
+    from weakref import ReferenceType
+
     import numpy as np
 
-    from ._concrete import Container
+    from ._concrete import Container, _LabeledWidget
 
 
 def create_widget(
@@ -188,21 +190,27 @@ class Widget:
         By default, ``name`` will be used. Note: ``name`` refers the name of the
         parameter, as might be used in a signature, whereas label is just the label
         for that widget in the GUI.
-        Whether the widget should be considered "only for the gui", or if it should be
-        included in any widget container signatures, by default False
+    tooltip : str, optional
+        A tooltip to display when hovering over the widget.
+    visible : bool, optional
+        Whether the widget is visible, by default ``True``.
     backend_kwargs : dict, optional
         keyword argument to pass to the backend widget constructor.
     """
 
     _widget: _protocols.WidgetProtocol
+    # if this widget becomes owned by a labeled widget
+    _labeled_widget: Optional["ReferenceType[_LabeledWidget]"] = None
 
     def __init__(
         self,
         widget_type: Type[_protocols.WidgetProtocol],
         name: str = "",
         annotation: Any = None,
-        label=None,
+        label: str = None,
+        tooltip: Optional[str] = None,
         visible: bool = True,
+        enabled: bool = True,
         gui_only=False,
         backend_kwargs=dict(),
         **extra,
@@ -228,6 +236,8 @@ class Widget:
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
+        self.tooltip = tooltip
+        self.enabled = enabled
         self.annotation: Any = annotation
         self.gui_only = gui_only
         self.visible: bool = True
@@ -240,9 +250,6 @@ class Widget:
         self._post_init()
         if not visible:
             self.hide()
-
-    def _emit_parent(self, event=None):
-        self.parent_changed(value=self.parent)
 
     @property
     def annotation(self):
@@ -285,35 +292,12 @@ class Widget:
     @property
     def options(self) -> dict:
         """Return options currently being used in this widget."""
-        # return {"enabled": self.enabled, "visible": self.visible}
-        return {"visible": self.visible}
+        return {"enabled": self.enabled, "visible": self.visible}
 
     @property
     def native(self):
         """Return native backend widget."""
         return self._widget._mgui_get_native_widget()
-
-    def show(self, run=False):
-        """Show the widget."""
-        self._widget._mgui_show_widget()
-        self.visible = True
-        if run:
-            self.__magicgui_app__.run()
-        return self  # useful for generating repr in sphinx
-
-    @contextmanager
-    def shown(self):
-        """Context manager to show the widget."""
-        try:
-            self.show()
-            yield self.__magicgui_app__.__enter__()
-        finally:
-            self.__magicgui_app__.__exit__()
-
-    def hide(self):
-        """Hide widget."""
-        self._widget._mgui_hide_widget()
-        self.visible = False
 
     @property
     def enabled(self) -> bool:
@@ -338,10 +322,6 @@ class Widget:
         """Return type of widget."""
         return self.__class__.__name__
 
-    def __repr__(self) -> str:
-        """Return representation of widget of instsance."""
-        return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
-
     @property
     def label(self):
         """Return a label to use for this widget when present in Containers."""
@@ -354,9 +334,70 @@ class Widget:
         self._label = value
         self.label_changed(value=value)
 
+    @property
+    def width(self) -> int:
+        """Return the current width of the widget.
+
+        The naming of this method may change. The intention is to get the width of the
+        widget after it is shown, for the purpose of unifying widget width in a layout.
+        Backends may do what they need to accomplish this. For example, Qt can use
+        ``sizeHint().width()``, since ``width()`` will return something large if the
+        widget has not yet been painted on screen.
+        """
+        return self._widget._mgui_get_width()
+
+    @width.setter
+    def width(self, value: int) -> None:
+        """Set the minimum allowable width of the widget."""
+        self._widget._mgui_set_min_width(value)
+
+    @property
+    def tooltip(self) -> Optional[str]:
+        """Get the tooltip for this widget."""
+        return self._widget._mgui_get_tooltip() or None
+
+    @tooltip.setter
+    def tooltip(self, value: Optional[str]) -> None:
+        """Set the tooltip for this widget."""
+        return self._widget._mgui_set_tooltip(value)
+
+    def show(self, run=False):
+        """Show the widget."""
+        self._widget._mgui_show_widget()
+        self.visible = True
+        if self._labeled_widget is not None:
+            w = self._labeled_widget()
+            if w:
+                w.show()
+        if run:
+            self.__magicgui_app__.run()
+        return self  # useful for generating repr in sphinx
+
+    @contextmanager
+    def shown(self):
+        """Context manager to show the widget."""
+        try:
+            self.show()
+            yield self.__magicgui_app__.__enter__()
+        finally:
+            self.__magicgui_app__.__exit__()
+
+    def hide(self):
+        """Hide widget."""
+        self._widget._mgui_hide_widget()
+        self.visible = False
+        if self._labeled_widget is not None:
+            w = self._labeled_widget()
+            if w:
+                w.hide()
+
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         return self._widget._mgui_render()
+
+    def __repr__(self) -> str:
+        """Return representation of widget of instsance."""
+        return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
 
     def _repr_png_(self):
         """Return PNG representation of the widget for QtConsole."""
@@ -376,22 +417,8 @@ class Widget:
             file_obj.seek(0)
             return file_obj.read()
 
-    @property
-    def width(self) -> int:
-        """Return the current width of the widget.
-
-        The naming of this method may change. The intention is to get the width of the
-        widget after it is shown, for the purpose of unifying widget width in a layout.
-        Backends may do what they need to accomplish this. For example, Qt can use
-        ``sizeHint().width()``, since ``width()`` will return something large if the
-        widget has not yet been painted on screen.
-        """
-        return self._widget._mgui_get_width()
-
-    @width.setter
-    def width(self, value: int) -> None:
-        """Set the minimum allowable width of the widget."""
-        self._widget._mgui_set_min_width(value)
+    def _emit_parent(self, event=None):
+        self.parent_changed(value=self.parent)
 
 
 UNBOUND = object()
@@ -888,7 +915,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     :class:`inspect.Signature` object, just as there is a tight connection between
     individual :class:`Widget` objects an an :class:`inspect.Parameter` object.
     The signature representation of a ``ContainerWidget`` (with the current settings
-    as default values) is accessible with the :meth:`~ContainerWidget.to_signature`
+    as default values) is accessible with the :meth:`~ContainerWidget.__signature__`
     method (or by using :func:`inspect.signature` from the standard library)
 
     For a ``ContainerWidget`` sublcass that is tightly coupled to a specific function
@@ -1113,15 +1140,21 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         return self.reset_choices(event)
 
     @property
-    def __signature__(self) -> inspect.Signature:
-        """Return signature object, for compatibility with inspect.signature()."""
-        return self.to_signature()
-
-    def to_signature(self) -> MagicSignature:
+    def __signature__(self) -> MagicSignature:
         """Return a MagicSignature object representing the current state of the gui."""
         params = [
             MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
         ]
+        # if we have multiple non-default parameters and some but not all of them are
+        # "bound" to fallback values, we may have  non-default arguments
+        # following default arguments
+        seen_default = False
+        for p in params:
+            if p.default is not p.empty:
+                seen_default = True
+            elif seen_default:
+                params.sort(key=lambda x: x.default is not MagicParameter.empty)
+                break
         return MagicSignature(params, return_annotation=self.return_annotation)
 
     @classmethod
@@ -1141,7 +1174,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
     def __repr__(self) -> str:
         """Return a repr."""
-        return f"<Container {self.to_signature()}>"
+        return f"<Container {self.__signature__}>"
 
     @property
     def labels(self) -> bool:

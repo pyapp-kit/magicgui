@@ -5,15 +5,34 @@ The core `magicgui` decorator returns an instance of a FunctionGui widget.
 from __future__ import annotations
 
 import inspect
+import re
 import warnings
 from typing import Any, Callable, Dict, Optional, TypeVar, Union, overload
 
+from docstring_parser import parse
+
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
-from magicgui.signature import magic_signature
+from magicgui.signature import MagicSignature, magic_signature
 from magicgui.type_map import _type2callback
 from magicgui.widgets import Container, LineEdit, PushButton
 from magicgui.widgets._protocols import ContainerProtocol
+
+
+def _inject_tooltips_from_docstrings(
+    docstring: Optional[str], param_options: Dict[str, dict]
+):
+    """Update ``param_options`` dict with tooltips extracted from ``docstring``."""
+    if not docstring:
+        return
+    for param in parse(docstring).params:
+        # this is to catch potentially bad arg_name parsing in docstring_parser
+        # if using napoleon style google docstringss
+        argname = param.arg_name.split(" ", maxsplit=1)[0]
+        if argname not in param_options:
+            param_options[argname] = {}
+        # use setdefault so as not to override an explicitly provided tooltip
+        param_options[argname].setdefault("tooltip", param.description)
 
 
 class FunctionGui(Container):
@@ -31,6 +50,8 @@ class FunctionGui(Container):
         by default "horizontal".
     labels : bool, optional
         Whether labels are shown in the widget. by default True
+    tooltips : bool, optional
+        Whether tooltips are shown when hovering over widgets. by default True
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
     show : bool, optional
@@ -54,18 +75,20 @@ class FunctionGui(Container):
     """
 
     _widget: ContainerProtocol
+    __signature__: MagicSignature
 
     def __init__(
         self,
         function: Callable,
         call_button: Union[bool, str] = False,
         layout: str = "horizontal",
-        labels=True,
+        labels: bool = True,
+        tooltips: bool = True,
         app: AppRef = None,
         show: bool = False,
         auto_call: bool = False,
         result_widget: bool = False,
-        param_options: Optional[dict] = None,
+        param_options: Optional[Dict[str, dict]] = None,
         name: str = None,
         **kwargs,
     ):
@@ -74,6 +97,15 @@ class FunctionGui(Container):
         if extra:
             s = "s" if len(extra) > 1 else ""
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
+        if param_options is None:
+            param_options = {}
+        elif not isinstance(param_options, dict) or not all(
+            isinstance(x, dict) for x in param_options.values()
+        ):
+            raise TypeError("'param_options' must be a dict of dicts")
+        if tooltips:
+            _inject_tooltips_from_docstrings(function.__doc__, param_options)
+
         self._function = function
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
@@ -135,17 +167,6 @@ class FunctionGui(Container):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
-    @property
-    def __signature__(self):
-        """Return an inspect.Signature subclass.
-
-        The sig represents the original wrapped function, but with defaults and types
-        from the widget (if different).
-        """
-        # FIXME: if someone has manually deleted widgets from the container, it may go
-        # out of sync with the function signature.  Should prevent that.
-        return self.to_signature()
-
     def __call__(self, *args: Any, **kwargs: Any):
         """Call the original function with the current parameter values from the Gui.
 
@@ -166,8 +187,25 @@ class FunctionGui(Container):
 
         gui()  # calls the original function with the current parameters
         """
-        sig = self.to_signature()
-        bound = sig.bind(*args, **kwargs)
+        sig = self.__signature__
+        try:
+            bound = sig.bind(*args, **kwargs)
+        except TypeError as e:
+            if "missing a required argument" in str(e):
+                match = re.search("argument: '(.+)'", str(e))
+                missing = match.groups()[0] if match else "<param>"
+                msg = (
+                    f"{e} in call to '{self._function.__name__}{sig}'.\n"
+                    "To avoid this error, you can bind a value or callback to the "
+                    f"parameter:\n\n    {self._function.__name__}.{missing}.bind(value)"
+                    "\n\nOr use the 'bind' option in the magicgui decorator:\n\n"
+                    f"    @magicgui({missing}={{'bind': value}})\n"
+                    f"    def {self._function.__name__}{sig}: ..."
+                )
+                raise TypeError(msg) from None
+            else:
+                raise
+
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
@@ -186,7 +224,7 @@ class FunctionGui(Container):
     def __repr__(self) -> str:
         """Return string representation of instance."""
         fname = f"{self._function.__module__}.{self._function.__name__}"
-        return f"<FunctionGui {fname}{self.to_signature()}>"
+        return f"<FunctionGui {fname}{self.__signature__}>"
 
     @property
     def result_name(self) -> str:
@@ -286,6 +324,7 @@ def magicgui(
     *,
     layout: str = "horizontal",
     labels: bool = True,
+    tooltips: bool = True,
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
@@ -304,6 +343,8 @@ def magicgui(
         by default "horizontal".
     labels : bool, optional
         Whether labels are shown in the widget. by default True
+    tooltips : bool, optional
+        Whether tooltips are shown when hovering over widgets. by default True
     call_button : bool or str, optional
         If ``True``, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False
@@ -357,6 +398,7 @@ def magicgui(
             call_button=call_button,
             layout=layout,
             labels=labels,
+            tooltips=tooltips,
             param_options=param_options,
             auto_call=auto_call,
             result_widget=result_widget,

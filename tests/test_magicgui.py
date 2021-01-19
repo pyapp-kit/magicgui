@@ -59,6 +59,24 @@ def test_overriding_widget_type():
     assert func.a.value == "1"
 
 
+def test_unrecognized_types():
+    """Test that arg with an unrecognized type is hidden."""
+
+    class Something:
+        pass
+
+    # don't know how to handle Something type
+    @magicgui
+    def func(arg: Something, b: int = 1):
+        pass
+
+    assert isinstance(func.arg, widgets.EmptyWidget)
+
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+
+
 def test_no_type_provided():
     """Test position args with unknown type."""
 
@@ -66,7 +84,25 @@ def test_no_type_provided():
     def func(a):
         pass
 
-    assert isinstance(func.a, widgets.LiteralEvalLineEdit)
+    assert isinstance(func.a, widgets.EmptyWidget)
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+    assert "@magicgui(a={'bind': value})" in str(e)
+
+
+def test_bind_out_of_order():
+    """Test that binding a value before a non-default argument still gives message."""
+
+    @magicgui(a={"bind": 10})
+    def func(a, x):
+        pass
+
+    assert isinstance(func.a, widgets.EmptyWidget)
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+    assert "@magicgui(x={'bind': value})" in str(e)
 
 
 def test_call_button():
@@ -264,26 +300,6 @@ def test_signature_repr():
     )
 
 
-def test_unrecognized_types():
-    """Test error handling when an arg with an unrecognized type is encountered."""
-
-    class Something:
-        pass
-
-    with pytest.raises(ValueError):
-        # don't know how to handle Something type
-        @magicgui
-        def func(arg: Something, b: int = 1):
-            pass
-
-    # # now it should not raise an error... but `arg` should not be in the gui
-    # core.SKIP_UNRECOGNIZED_TYPES = True
-    # with pytest.warns(UserWarning):
-    #     gui = func.Gui()
-    # assert not hasattr(gui, "arg")
-    # assert hasattr(gui, "b")
-
-
 def test_set_choices_raises():
     """Test failures on setting choices."""
 
@@ -478,3 +494,117 @@ def test_call_count():
     assert func.call_count == 2
     func.reset_call_count()
     assert func.call_count == 0
+
+
+def test_tooltips_from_numpydoc():
+    """Test that numpydocs docstrings can be used for tooltips."""
+
+    x_tooltip = "override tooltip"
+    y_docstring = """A greeting, by default 'hi'. Notice how we miraculously pull
+the entirety of the docstring just like that"""
+
+    @magicgui(x={"tooltip": x_tooltip}, z={"tooltip": None})
+    def func(x: int, y: str = "hi", z=None):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'. Notice how we miraculously pull
+            the entirety of the docstring just like that
+        z : Any, optional
+            No tooltip for me please.
+        """
+        pass
+
+    assert func.x.tooltip == x_tooltip
+    assert func.y.tooltip == y_docstring
+    assert not func.z.tooltip
+
+
+def test_tooltips_from_google_doc():
+    """Test that google docstrings can be used for tooltips."""
+
+    x_docstring = "An integer for you to use"
+    y_docstring = """A greeting. Notice how we miraculously pull
+the entirety of the docstring just like that"""
+
+    @magicgui
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Args:
+            x (int): An integer for you to use
+            y (str, optional): A greeting. Notice how we miraculously pull
+                               the entirety of the docstring just like that
+        """
+        pass
+
+    assert func.x.tooltip == x_docstring
+    assert func.y.tooltip == y_docstring
+
+
+def test_tooltips_from_rest_doc():
+    """Test that google docstrings can be used for tooltips."""
+
+    x_docstring = "An integer for you to use"
+    y_docstring = """A greeting, by default 'hi'. Notice how we miraculously pull
+the entirety of the docstring just like that"""
+
+    @magicgui
+    def func(x: int, y: str = "hi", z=None):
+        """Do a little thing.
+
+        :param x: An integer for you to use
+        :param y: A greeting, by default 'hi'. Notice how we miraculously pull
+                  the entirety of the docstring just like that
+        :type x: int
+        :type y: str
+        """
+        pass
+
+    assert func.x.tooltip == x_docstring
+    assert func.y.tooltip == y_docstring
+
+
+def test_no_tooltips_from_numpydoc():
+    """Test that ``tooltips=False`` hides all tooltips."""
+
+    @magicgui(tooltips=False)
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'
+        """
+        pass
+
+    assert not func.x.tooltip
+    assert not func.y.tooltip
+
+
+def test_only_some_tooltips_from_numpydoc():
+    """Test that we can still show some tooltips with ``tooltips=False``."""
+    # tooltips=False, means docstrings wont be parsed at all, but tooltips
+    # can still be manually provided.
+    @magicgui(tooltips=False, y={"tooltip": "Still want a tooltip"})
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'
+        """
+        pass
+
+    assert not func.x.tooltip
+    assert func.y.tooltip == "Still want a tooltip"

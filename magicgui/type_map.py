@@ -73,7 +73,11 @@ def _evaluate_forwardref(type_: Any) -> Any:
 
 def _normalize_type(value: Any, annotation: Any) -> Type:
     """Return annotation type origin or dtype of value."""
-    return (get_origin(annotation) or annotation) if annotation else type(value)
+    if annotation:
+        if annotation is inspect.Parameter.empty:
+            return type(value)
+        return get_origin(annotation) or annotation
+    return type(value)
 
 
 def type_matcher(func: TypeMatcher) -> TypeMatcher:
@@ -94,7 +98,6 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 def simple_types(value, annotation) -> Optional[WidgetTuple]:
     """Check simple type mappings."""
     dtype = _normalize_type(value, annotation)
-
     simple = {
         bool: widgets.CheckBox,
         int: widgets.SpinBox,
@@ -104,8 +107,6 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
         datetime.time: widgets.TimeEdit,
         datetime.date: widgets.DateEdit,
         datetime.datetime: widgets.DateTimeEdit,
-        type(None): widgets.LiteralEvalLineEdit,
-        Any: widgets.LiteralEvalLineEdit,
         range: widgets.RangeEdit,
         slice: widgets.SliceEdit,
     }
@@ -173,8 +174,7 @@ def pick_widget_type(
         if _widget_type:
             return _widget_type
 
-    # return widgets.LiteralEvalLineEdit, {}
-    raise ValueError(f"Could not pick widget for type: {dtype!r}")
+    return widgets.EmptyWidget, {"visible": False}
 
 
 def get_widget_class(
@@ -298,11 +298,9 @@ def register_type(
             )
         _TYPE_DEFS[type_] = (widget_type, _options)
     elif "bind" in _options:
-        # TODO: make a dedicated hidden widget?
         # if we're binding a value to this parameter, it doesn't matter what type
         # of ValueWidget is used... it usually won't be shown
-        _TYPE_DEFS[type_] = (widgets.Label, _options)
-
+        _TYPE_DEFS[type_] = (widgets.EmptyWidget, _options)
     return None
 
 

@@ -62,6 +62,12 @@ class QBaseWidget(_protocols.WidgetProtocol):
         self._qwidget.setMinimumWidth(value)
         self._qwidget.resize(self._qwidget.sizeHint())
 
+    def _mgui_get_tooltip(self) -> str:
+        return self._qwidget.toolTip()
+
+    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
+        self._qwidget.setToolTip(str(value) if value else None)
+
     def _mgui_bind_parent_change_callback(self, callback):
         self._event_filter.parentChanged.connect(callback)
 
@@ -105,6 +111,23 @@ class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
         signal_instance = getattr(self._qwidget, self._onchange_name, None)
         if signal_instance:
             signal_instance.connect(callback)
+
+
+# BASE WIDGET
+
+
+class EmptyWidget(QBaseWidget):
+    def __init__(self):
+        super().__init__(QtW.QWidget)
+
+    def _mgui_get_value(self) -> Any:
+        raise NotImplementedError()
+
+    def _mgui_set_value(self, value) -> None:
+        raise NotImplementedError()
+
+    def _mgui_bind_change_callback(self, callback):
+        pass
 
 
 # STRING WIDGETS
@@ -313,8 +336,8 @@ class FloatSpinBox(QBaseRangedWidget):
 class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
-    def __init__(self):
-        super().__init__(QtW.QSlider)
+    def __init__(self, qwidg=QtW.QSlider):
+        super().__init__(qwidg)
         self._mgui_set_orientation("horizontal")
 
     def _mgui_set_orientation(self, value) -> Any:
@@ -326,6 +349,22 @@ class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
         """Get current value of the widget."""
         orientation = self._qwidget.orientation()
         return "vertical" if orientation == Qt.Vertical else "horizontal"
+
+
+class ProgressBar(Slider):
+    _qwidget: QtW.QProgressBar
+
+    def __init__(self):
+        super().__init__(QtW.QProgressBar)
+        self._mgui_set_orientation("horizontal")
+
+    def _mgui_get_step(self) -> float:
+        """Get the step size."""
+        return 1
+
+    def _mgui_set_step(self, value: float):
+        """Set the step size."""
+        pass
 
 
 class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
