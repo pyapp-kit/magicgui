@@ -12,7 +12,7 @@ from docstring_parser import parse
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
-from magicgui.signature import magic_signature
+from magicgui.signature import MagicSignature, magic_signature
 from magicgui.type_map import _type2callback
 from magicgui.widgets import Container, LineEdit, PushButton
 from magicgui.widgets._protocols import ContainerProtocol
@@ -74,6 +74,7 @@ class FunctionGui(Container):
     """
 
     _widget: ContainerProtocol
+    __signature__: MagicSignature
 
     def __init__(
         self,
@@ -165,17 +166,6 @@ class FunctionGui(Container):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
-    @property
-    def __signature__(self):
-        """Return an inspect.Signature subclass.
-
-        The sig represents the original wrapped function, but with defaults and types
-        from the widget (if different).
-        """
-        # FIXME: if someone has manually deleted widgets from the container, it may go
-        # out of sync with the function signature.  Should prevent that.
-        return self.to_signature()
-
     def __call__(self, *args: Any, **kwargs: Any):
         """Call the original function with the current parameter values from the Gui.
 
@@ -196,8 +186,25 @@ class FunctionGui(Container):
 
         gui()  # calls the original function with the current parameters
         """
-        sig = self.to_signature()
-        bound = sig.bind(*args, **kwargs)
+        sig = self.__signature__
+        try:
+            bound = sig.bind(*args, **kwargs)
+        except TypeError as e:
+            if "missing a required argument" in str(e):
+                match = re.search("argument: '(.+)'", str(e))
+                missing = match.groups()[0] if match else "<param>"
+                msg = (
+                    f"{e} in call to '{self._function.__name__}{sig}'.\n"
+                    "To avoid this error, you can bind a value or callback to the "
+                    f"parameter:\n\n    {self._function.__name__}.{missing}.bind(value)"
+                    "\n\nOr use the 'bind' option in the magicgui decorator:\n\n"
+                    f"    @magicgui({missing}={{'bind': value}})\n"
+                    f"    def {self._function.__name__}{sig}: ..."
+                )
+                raise TypeError(msg) from None
+            else:
+                raise
+
         bound.apply_defaults()
 
         value = self._function(*bound.args, **bound.kwargs)
@@ -216,7 +223,7 @@ class FunctionGui(Container):
     def __repr__(self) -> str:
         """Return string representation of instance."""
         fname = f"{self._function.__module__}.{self._function.__name__}"
-        return f"<FunctionGui {fname}{self.to_signature()}>"
+        return f"<FunctionGui {fname}{self.__signature__}>"
 
     @property
     def result_name(self) -> str:
