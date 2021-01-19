@@ -113,6 +113,23 @@ class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
             signal_instance.connect(callback)
 
 
+# BASE WIDGET
+
+
+class EmptyWidget(QBaseWidget):
+    def __init__(self):
+        super().__init__(QtW.QWidget)
+
+    def _mgui_get_value(self) -> Any:
+        raise NotImplementedError()
+
+    def _mgui_set_value(self, value) -> None:
+        raise NotImplementedError()
+
+    def _mgui_bind_change_callback(self, callback):
+        pass
+
+
 # STRING WIDGETS
 
 

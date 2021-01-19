@@ -142,6 +142,34 @@ def backend_widget(
     return wrapper(cls) if cls else wrapper
 
 
+@backend_widget()
+class EmptyWidget(ValueWidget):
+    """A base widget with no value.
+
+    This widget is primarily here to serve as a "hidden widget" to which a value or
+    callback can be bound.
+    """
+
+    _hidden_value = inspect.Parameter.empty
+
+    def get_value(self):
+        """Return value if one has been manually set... otherwise return Param.empty."""
+        return self._hidden_value
+
+    @property
+    def value(self):
+        """Look for a bound value, otherwise fallback to `get_value`."""
+        return super().value
+
+    @value.setter
+    def value(self, value):
+        self._hidden_value = value
+
+    def __repr__(self):
+        """Return string repr (avoid looking for value)."""
+        return f"{self.widget_type}" + f"(name={self.name!r})" if self.name else ""
+
+
 @backend_widget
 class Label(ValueWidget):
     """A non-editable text or image display."""
