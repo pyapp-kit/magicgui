@@ -1,5 +1,5 @@
 """Widget implementations (adaptors) for the Qt backend."""
-from typing import Any, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Optional, Sequence, Tuple, Union
 
 import qtpy
 from qtpy import QtWidgets as QtW
@@ -542,3 +542,117 @@ def get_text_width(text) -> int:
     """Return the width required to render ``text``."""
     fm = QFontMetrics(QFont("", 0))
     return fm.boundingRect(text).width() + 5
+
+
+def _maybefloat(item):
+    if not item:
+        return None
+    num = item.text() if hasattr(item, "text") else item
+    try:
+        return int(num) if num.isdigit() else float(num)
+    except ValueError:
+        return num
+
+
+class Table(QBaseWidget, _protocols.TableWidgetProtocol):
+    _qwidget: QtW.QTableWidget
+    _DATA_ROLE: int = 255
+
+    def __init__(self):
+        super().__init__(QtW.QTableWidget)
+        self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
+        # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
+        self._qwidget.itemChanged.connect(self._update_item_data_with_text)
+
+    def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
+        self._qwidget.blockSignals(True)
+        item.setData(self._DATA_ROLE, _maybefloat(item.text()))
+        self._qwidget.blockSignals(False)
+
+    def _mgui_set_row_count(self, nrows: int) -> None:
+        """Set the number of rows in the table. (Create/delete as needed)."""
+        self._qwidget.setRowCount(nrows)
+
+    def _mgui_set_column_count(self, ncols: int) -> None:
+        """Set the number of columns in the table. (Create/delete as needed)."""
+        self._qwidget.setColumnCount(ncols)
+
+    def _mgui_get_column_count(self) -> int:
+        return self._qwidget.columnCount()
+
+    def _mgui_get_row_count(self) -> int:
+        return self._qwidget.rowCount()
+
+    def _mgui_remove_row(self, row: int) -> None:
+        self._qwidget.removeRow(row)
+
+    def _mgui_remove_column(self, column: int) -> None:
+        self._qwidget.removeColumn(column)
+
+    def _mgui_get_cell(self, row: int, col: int) -> Any:
+        """Get current value of the widget."""
+        item = self._qwidget.item(row, col)
+        if item:
+            return item.data(self._DATA_ROLE)
+        widget = self._qwidget.cellWidget(row, col)
+        if widget:
+            return widget._magic_widget
+
+    def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
+        """Set current value of the widget."""
+        if value is None:
+            self._qwidget.setItem(row, col, None)
+            self._qwidget.removeCellWidget(row, col)
+            return
+        if isinstance(value, Widget):
+            self._qwidget.setCellWidget(row, col, value.native)
+            return
+        item = QtW.QTableWidgetItem(str(value))
+        item.setData(self._DATA_ROLE, value)
+        self._qwidget.setItem(row, col, item)
+
+    def _mgui_get_row_headers(self) -> tuple:
+        """Get current row headers of the widget."""
+        # ... 'PySide2.QtWidgets.QTableWidgetItem' object has no attribute 'visualIndex'
+        # on some linux... so removing the visualIndex() for row headers... this means
+        # we can't enable row drag/drop without fixing this
+        indices = range(self._qwidget.rowCount())
+        items = (self._qwidget.verticalHeaderItem(i) for i in indices)
+        headers = (item.text() for item in items if item)
+        return tuple(_maybefloat(x) for x in headers)
+
+    def _mgui_set_row_headers(self, headers: Sequence) -> None:
+        """Set current row headers of the widget."""
+        self._qwidget.setVerticalHeaderLabels(tuple(map(str, headers)))
+
+    def _mgui_get_column_headers(self) -> tuple:
+        """Get current column headers of the widget."""
+        horiz_header = self._qwidget.horizontalHeader()
+        ncols = self._qwidget.columnCount()
+        # visual index allows for column drag/drop, though it's currently not enabled.
+        indices = (horiz_header.visualIndex(i) for i in range(ncols))
+        items = (self._qwidget.horizontalHeaderItem(i) for i in indices)
+        headers = (item.text() for item in items if item)
+        return tuple(_maybefloat(x) for x in headers)
+
+    def _mgui_set_column_headers(self, headers: Sequence) -> None:
+        """Set current column headers of the widget."""
+        self._qwidget.setHorizontalHeaderLabels(tuple(map(str, headers)))
+
+    def _mgui_bind_row_headers_change_callback(self, callback) -> None:
+        """Bind callback to row headers change event."""
+        raise NotImplementedError()
+
+    def _mgui_bind_column_headers_change_callback(self, callback) -> None:
+        """Bind callback to column headers change event."""
+        raise NotImplementedError()
+
+    def _mgui_bind_cell_change_callback(self, callback) -> None:
+        """Bind callback to column headers change event."""
+        raise NotImplementedError()
+
+    def _mgui_bind_change_callback(self, callback):
+        # FIXME: this currently reads out the WHOLE table every time we change ANY cell.
+        # nonsense.
+        # self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))
+        pass

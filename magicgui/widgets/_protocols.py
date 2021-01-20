@@ -9,7 +9,16 @@ For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+)
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -133,6 +142,90 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
     @abstractmethod
     def _mgui_bind_change_callback(self, callback: Callable[[Any], None]) -> None:
         """Bind callback to value change event."""
+        raise NotImplementedError()
+
+
+@runtime_checkable
+class TableWidgetProtocol(WidgetProtocol, Protocol):
+    """ValueWidget subclass intended for 2D tabular data, with row & column headers."""
+
+    @abstractmethod
+    def _mgui_get_row_count(self) -> int:
+        """Get the number of rows in the table."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_row_count(self, nrows: int) -> None:
+        """Set the number of rows in the table. (Create/delete as needed)."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_remove_row(self, row: int) -> None:
+        """Remove row at index `row`."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_column_count(self) -> int:
+        """Get the number of columns in the table."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_column_count(self, ncols: int) -> None:
+        """Set the number of columns in the table. (Create/delete as needed)."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_remove_column(self, column: int) -> None:
+        """Remove column at index `column`."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_cell(self, row: int, col: int) -> Any:
+        """Get current value of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
+        """Set current value of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_row_headers(self) -> tuple:
+        """Get current row headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_row_headers(self, headers: Sequence) -> None:
+        """Set current row headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_column_headers(self) -> tuple:
+        """Get current column headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_column_headers(self, headers: Sequence) -> None:
+        """Set current column headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_bind_row_headers_change_callback(
+        self, callback: Callable[[Any], None]
+    ) -> None:
+        """Bind callback to row headers change event."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_bind_column_headers_change_callback(
+        self, callback: Callable[[Any], None]
+    ) -> None:
+        """Bind callback to column headers change event."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_bind_cell_change_callback(self, callback: Callable[[Any], None]) -> None:
+        """Bind callback to column headers change event."""
         raise NotImplementedError()
 
 
