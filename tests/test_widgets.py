@@ -49,7 +49,17 @@ class MyBadWidget:
     def _mgui_bind_parent_change_callback(self, callback): ... # noqa
     def _mgui_render(self): ... # noqa
     def _mgui_get_width(self): ... # noqa
+    def _mgui_set_width(self, value: int): ... # noqa
+    def _mgui_get_min_width(self): ... # noqa
     def _mgui_set_min_width(self, value: int): ... # noqa
+    def _mgui_get_max_width(self): ... # noqa
+    def _mgui_set_max_width(self, value: int): ... # noqa
+    def _mgui_get_height(self): ... # noqa
+    def _mgui_set_height(self, value: int): ... # noqa
+    def _mgui_get_min_height(self): ... # noqa
+    def _mgui_set_min_height(self, value: int): ... # noqa
+    def _mgui_get_max_height(self): ... # noqa
+    def _mgui_set_max_height(self, value: int): ... # noqa
     def _mgui_get_value(self): ... # noqa
     def _mgui_set_value(self, value): ... # noqa
     def _mgui_bind_change_callback(self, callback): ... # noqa
