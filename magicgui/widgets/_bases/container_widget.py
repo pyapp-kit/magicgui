@@ -50,7 +50,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
     For a ``ContainerWidget`` sublcass that is tightly coupled to a specific function
     signature (as in the "classic" magicgui decorator), see
-    :class:`~magicgui.function_gui.FunctionGui`.
+    :class:`~magicgui.widgets.FunctionGui`.
 
     Parameters
     ----------

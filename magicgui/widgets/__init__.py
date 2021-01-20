@@ -37,6 +37,7 @@ from ._concrete import (
     TextEdit,
     TimeEdit,
 )
+from ._function_gui import FunctionGui
 from ._table import Table
 
 #: Aliases for compatibility with ipywidgets.  (WIP)
@@ -68,6 +69,7 @@ __all__ = [
     "FileEdit",
     "FloatSlider",
     "FloatSpinBox",
+    "FunctionGui",
     "Label",
     "LineEdit",
     "LiteralEvalLineEdit",

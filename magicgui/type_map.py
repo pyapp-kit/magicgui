@@ -11,7 +11,7 @@ from typing import Any, DefaultDict, Dict, ForwardRef, List, Optional, Tuple, Ty
 
 from typing_extensions import get_args, get_origin
 
-from magicgui import function_gui, widgets
+from magicgui import widgets
 from magicgui.types import (
     ReturnCallback,
     TypeMatcher,
@@ -125,7 +125,7 @@ def callable_type(value, annotation) -> Optional[WidgetTuple]:
     dtype = _normalize_type(value, annotation)
 
     if dtype in (types.FunctionType,):
-        return function_gui.FunctionGui, {"function": value}  # type: ignore
+        return widgets.FunctionGui, {"function": value}  # type: ignore
     return None
 
 

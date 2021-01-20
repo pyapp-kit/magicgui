@@ -19,7 +19,6 @@
   chapters:
     - file: api/magicgui
     - file: api/widgets
-    - file: api/function_gui
     - file: api/bases
     - file: api/protocols
     - file: api/type_map

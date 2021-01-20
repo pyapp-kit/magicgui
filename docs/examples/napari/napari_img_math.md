@@ -133,7 +133,7 @@ def image_arithmetic(layerA: Image, operation: Operation, layerB: Image):
 ```
 
 That's it!  The `image_arithmetic` function is now a
-{class}`~magicgui.function_gui.FunctionGui` that can be shown, or incorporated
+{class}`~magicgui.widgets.FunctionGui` that can be shown, or incorporated
 into other GUIs (such as the napari GUI shown in this example)
 
 ```{note}
@@ -164,7 +164,7 @@ class Operation(enum.Enum):
 ### add it to napari
 
 When we decorated the `image_arithmetic` function above, it became a
-{class}`~magicgui.function_gui.FunctionGui`.  Napari recognizes this type,
+{class}`~magicgui.widgets.FunctionGui`.  Napari recognizes this type,
 so we can simply add it to the napari viewer as follows:
 
 ```python

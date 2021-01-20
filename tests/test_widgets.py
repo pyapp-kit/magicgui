@@ -9,7 +9,12 @@ from magicgui.widgets._bases import ValueWidget
 
 
 @pytest.mark.parametrize(
-    "WidgetClass", [getattr(widgets, n) for n in widgets.__all__ if n != "Widget"]
+    "WidgetClass",
+    [
+        getattr(widgets, n)
+        for n in widgets.__all__
+        if n not in ("Widget", "FunctionGui")
+    ],
 )
 def test_widgets(WidgetClass):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
