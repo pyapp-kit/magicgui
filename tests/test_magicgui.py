@@ -272,7 +272,7 @@ def test_bad_options():
     """Test that invalid parameter options raise TypeError."""
     with pytest.raises(TypeError):
 
-        @magicgui(b=7)
+        @magicgui(b=7)  # type: ignore
         def func(a="string", b=3, c=7.1):
             return "works"
 

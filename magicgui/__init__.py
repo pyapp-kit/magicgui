@@ -8,16 +8,13 @@ __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"
 
 
-from . import widgets
+from ._magicgui import magicgui
 from .application import event_loop, use_app
-from .function_gui import FunctionGui, magicgui
 from .type_map import register_type
 
 __all__ = [
     "event_loop",
-    "FunctionGui",
     "magicgui",
     "register_type",
     "use_app",
-    "widgets",
 ]
