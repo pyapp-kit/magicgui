@@ -15,8 +15,8 @@ from magicgui.application import AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.type_map import _type2callback
-from magicgui.widgets import Container, LineEdit, PushButton
-from magicgui.widgets._protocols import ContainerProtocol
+from magicgui.widgets import Container, LineEdit, MainWindow, PushButton
+from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
 
 
 def _inject_tooltips_from_docstrings(
@@ -304,6 +304,23 @@ class FunctionGui(Container):
         return self
 
 
+class MainFunctionGui(FunctionGui, MainWindow):
+    """Container of widgets as a Main Application Window."""
+
+    _widget: MainWindowProtocol
+
+    def __init__(self, function: Callable, *args, **kwargs):
+        super().__init__(function, *args, **kwargs)
+        self.create_menu_item("Help", "Documentation", callback=self._show_docs)
+
+    def _show_docs(self):
+        from magicgui.widgets import TextEdit
+
+        # TODO: format the docstring as html
+        docs = TextEdit(value=self._function.__doc__)
+        docs.show()
+
+
 # ==================   magicgui decorator   ===================================
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -328,6 +345,7 @@ def magicgui(
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
+    main_window: bool = False,
     app: AppRef = None,
     **param_options: dict,
 ):
@@ -354,6 +372,8 @@ def magicgui(
     result_widget : bool, optional
         Whether to display a LineEdit widget the output of the function when called,
         by default False
+    main_window : bool,
+        Whether this widget should be treated as the main app window, with menu bar.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
 
@@ -393,7 +413,9 @@ def magicgui(
         result_widget = True
 
     def inner_func(func: Callable) -> FunctionGui:
-        func_gui = FunctionGui(
+
+        cls = MainFunctionGui if main_window else FunctionGui
+        func_gui = cls(
             function=func,
             call_button=call_button,
             layout=layout,
@@ -404,6 +426,7 @@ def magicgui(
             result_widget=result_widget,
             app=app,
         )
+
         func_gui.__wrapped__ = func
         return func_gui
 

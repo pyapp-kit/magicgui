@@ -308,6 +308,16 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
         raise NotImplementedError()
 
 
+class MainWindowProtocol(ContainerProtocol, Protocol):
+    """Application main widget."""
+
+    @abstractmethod
+    def _mgui_create_menu_item(
+        self, menu_name: str, action_name: str, callback=None, shortcut=None
+    ):
+        raise NotImplementedError()
+
+
 # APPLICATION --------------------------------------------------------------------
 
 

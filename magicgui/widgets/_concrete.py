@@ -8,10 +8,11 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, List, Sequence, Tuple, Type, Union
+from typing import Callable, List, Sequence, Tuple, Type, TypeVar, Union, overload
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
+from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
@@ -20,6 +21,7 @@ from ._bases import (
     ButtonWidget,
     CategoricalWidget,
     ContainerWidget,
+    MainWindowWidget,
     RangedWidget,
     SliderWidget,
     TransformedRangedWidget,
@@ -99,9 +101,32 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
     return cls
 
 
+C = TypeVar("C")
+
+
+@overload
+def backend_widget(  # noqa
+    cls: Type[C],
+    widget_name: str = None,
+    transform: Callable[[Type], Type] = None,
+) -> Type[C]:
+    ...
+
+
+@overload
+def backend_widget(  # noqa
+    cls: Literal[None] = None,
+    widget_name: str = None,
+    transform: Callable[[Type], Type] = None,
+) -> Callable[..., Type[C]]:
+    ...
+
+
 def backend_widget(
-    cls: Type = None, widget_name: str = None, transform: Callable[[Type], Type] = None
-):
+    cls: Type[C] = None,
+    widget_name: str = None,
+    transform: Callable[[Type], Type] = None,
+) -> Union[Callable, Type[C]]:
     """Decorate cls to inject the backend widget of the same name.
 
     The purpose of this decorator is to "inject" the appropriate backend
@@ -142,7 +167,7 @@ def backend_widget(
     return wrapper(cls) if cls else wrapper
 
 
-@backend_widget()
+@backend_widget
 class EmptyWidget(ValueWidget):
     """A base widget with no value.
 
@@ -315,6 +340,11 @@ class ComboBox(CategoricalWidget):
 
 @backend_widget
 class Container(ContainerWidget):
+    """A Widget to contain other widgets."""
+
+
+@backend_widget
+class MainWindow(MainWindowWidget):
     """A Widget to contain other widgets."""
 
 
