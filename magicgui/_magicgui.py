@@ -3,9 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, Optional, Union, overload
 from warnings import warn
 
+from typing_extensions import Literal
+
 if TYPE_CHECKING:
     from magicgui.application import AppRef
-    from magicgui.widgets import FunctionGui
+    from magicgui.widgets import FunctionGui, MainFunctionGui
 
 
 @overload
@@ -18,6 +20,7 @@ def magicgui(  # noqa
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
+    main_window: Literal[False] = False,
     app: AppRef = None,
     **param_options: dict,
 ) -> FunctionGui:
@@ -34,9 +37,44 @@ def magicgui(  # noqa
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
+    main_window: Literal[False] = False,
     app: AppRef = None,
     **param_options: dict,
 ) -> Callable[[Callable], FunctionGui]:
+    ...
+
+
+@overload
+def magicgui(  # noqa
+    function: Callable,
+    *,
+    layout: str = "horizontal",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef = None,
+    **param_options: dict,
+) -> MainFunctionGui:
+    ...
+
+
+@overload
+def magicgui(  # noqa
+    function=None,
+    *,
+    layout: str = "horizontal",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef = None,
+    **param_options: dict,
+) -> Callable[[Callable], MainFunctionGui]:
     ...
 
 
@@ -49,6 +87,7 @@ def magicgui(
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
+    main_window: bool = False,
     app: AppRef = None,
     **param_options: dict,
 ):
@@ -75,6 +114,8 @@ def magicgui(
     result_widget : bool, optional
         Whether to display a LineEdit widget the output of the function when called,
         by default False
+    main_window : bool
+        Whether this widget should be treated as the main app window, with menu bar.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
 
@@ -114,9 +155,11 @@ def magicgui(
         result_widget = True
 
     def inner_func(func: Callable) -> FunctionGui:
-        from magicgui.widgets import FunctionGui
+        from magicgui.widgets import FunctionGui, MainFunctionGui
 
-        func_gui = FunctionGui(
+        cls = MainFunctionGui if main_window else FunctionGui
+
+        func_gui = cls(
             function=func,
             call_button=call_button,
             layout=layout,
