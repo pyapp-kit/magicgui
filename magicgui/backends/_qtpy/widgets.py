@@ -160,9 +160,15 @@ class LineEdit(QBaseStringWidget):
         super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
 
 
-class TextEdit(QBaseStringWidget):
+class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
     def __init__(self):
         super().__init__(QtW.QTextEdit, "toPlainText", "setText", "textChanged")
+
+    def _mgui_set_read_only(self, value: bool) -> None:
+        self._qwidget.setReadOnly(value)
+
+    def _mgui_get_read_only(self) -> bool:
+        return self._qwidget.isReadOnly()
 
 
 # NUMBERS

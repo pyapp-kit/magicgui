@@ -7,13 +7,16 @@ from __future__ import annotations
 import inspect
 import re
 import warnings
-from typing import Any, Callable, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, LineEdit, MainWindow, PushButton
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
+
+if TYPE_CHECKING:
+    from magicgui.widgets import TextEdit
 
 
 def _inject_tooltips_from_docstrings(
@@ -313,10 +316,30 @@ class MainFunctionGui(FunctionGui, MainWindow):
     def __init__(self, function: Callable, *args, **kwargs):
         super().__init__(function, *args, **kwargs)
         self.create_menu_item("Help", "Documentation", callback=self._show_docs)
+        self._help_text_edit: Optional[TextEdit] = None
 
     def _show_docs(self):
-        from magicgui.widgets import TextEdit
+        if not self._help_text_edit:
+            from magicgui.widgets import TextEdit
 
-        # TODO: format the docstring as html
-        docs = TextEdit(value=self._function.__doc__)
-        docs.show()
+            docs = self._function.__doc__
+            html = _docstring_to_html(docs) if docs else "None"
+            self._help_text_edit = TextEdit(value=html)
+            self._help_text_edit.read_only = True
+            self._help_text_edit.width = 650
+            # self._help_text_edit.height = 650
+        self._help_text_edit.show()
+
+
+def _docstring_to_html(docs: str) -> str:
+    """Convert docstring into rich text html."""
+    from docstring_parser import parse
+
+    ds = parse(docs)
+
+    ptemp = "<li><p><strong>{}</strong> (<em>{}</em>) - {}</p></li>"
+    plist = [ptemp.format(p.arg_name, p.type_name, p.description) for p in ds.params]
+    params = "<h3>Parameters</h3><ul>{}</<ul>".format("".join(plist))
+    short = f"<p><em>{ds.short_description}<em></p>" if ds.short_description else ""
+    long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
+    return re.sub(r"``?([^`]+)``?", r"<code>\1</code>", f"{short}{long}{params}")

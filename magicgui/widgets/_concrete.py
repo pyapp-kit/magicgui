@@ -16,6 +16,7 @@ from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
+from magicgui.widgets._bases.mixins import _ReadOnlyMixin
 
 from ._bases import (
     ButtonWidget,
@@ -211,7 +212,7 @@ class LiteralEvalLineEdit(ValueWidget):
 
 
 @backend_widget
-class TextEdit(ValueWidget):
+class TextEdit(ValueWidget, _ReadOnlyMixin):  # type: ignore
     """A widget to edit and display both plain and rich text."""
 
 
