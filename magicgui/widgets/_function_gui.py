@@ -327,7 +327,7 @@ class MainFunctionGui(FunctionGui, MainWindow):
             self._help_text_edit = TextEdit(value=html)
             self._help_text_edit.read_only = True
             self._help_text_edit.width = 650
-            # self._help_text_edit.height = 650
+            self._help_text_edit.height = 400
         self._help_text_edit.show()
 
 

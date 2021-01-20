@@ -57,7 +57,7 @@ def widget_demo(
     time : datetime.time, optional
         Some time, by default datetime.time(1, 30, 20)
     datetime : datetime.datetime, optional
-        A very specific time and date, by default datetime.datetime.now()
+        A very specific time and date, by default ``datetime.datetime.now()``
     filename : str, optional
         Pick a path, by default Path.home()
     """
