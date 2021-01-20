@@ -181,14 +181,7 @@ class Widget:
 
     @property
     def width(self) -> int:
-        """Return the current width of the widget.
-
-        The intention is to get the width of the widget after it is shown, for the
-        purpose of unifying widget width in a layout. Backends may do what they need to
-        accomplish this. For example, Qt can use ``sizeHint().width()``, since
-        ``width()`` will return something large if the widget has not yet been painted
-        on screen.
-        """
+        """Return the current width of the widget."""
         return self._widget._mgui_get_width()
 
     @width.setter
@@ -215,6 +208,36 @@ class Widget:
     def max_width(self, value: int) -> None:
         """Set the maximum width of the widget."""
         self._widget._mgui_set_max_width(value)
+
+    @property
+    def height(self) -> int:
+        """Return the current height of the widget."""
+        return self._widget._mgui_get_height()
+
+    @height.setter
+    def height(self, value: int) -> None:
+        """Set the minimum allowable height of the widget."""
+        self._widget._mgui_set_height(value)
+
+    @property
+    def min_height(self) -> int:
+        """Get the minimum height of the widget."""
+        return self._widget._mgui_get_min_height()
+
+    @min_height.setter
+    def min_height(self, value: int) -> None:
+        """Set the minimum height of the widget."""
+        self._widget._mgui_set_min_height(value)
+
+    @property
+    def max_height(self) -> int:
+        """Get the maximum height of the widget."""
+        return self._widget._mgui_get_max_height()
+
+    @max_height.setter
+    def max_height(self, value: int) -> None:
+        """Set the maximum height of the widget."""
+        self._widget._mgui_set_max_height(value)
 
     @property
     def tooltip(self) -> Optional[str]:

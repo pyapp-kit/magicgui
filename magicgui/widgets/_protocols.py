@@ -99,7 +99,14 @@ class WidgetProtocol(Protocol):
 
     @abstractmethod
     def _mgui_get_width(self) -> int:
-        """Get the width of the widget."""
+        """Get the width of the widget.
+
+        The intention is to get the width of the widget after it is shown, for the
+        purpose of unifying widget width in a layout. Backends may do what they need to
+        accomplish this. For example, Qt can use ``sizeHint().width()``, since
+        ``width()`` may return something large if the widget has not yet been painted
+        on screen.
+        """
         raise NotImplementedError()
 
     @abstractmethod
@@ -125,6 +132,43 @@ class WidgetProtocol(Protocol):
     @abstractmethod
     def _mgui_set_max_width(self, value: int) -> None:
         """Set the maximum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_height(self) -> int:
+        """Get the height of the widget.
+
+        The intention is to get the height of the widget after it is shown, for the
+        purpose of unifying widget height in a layout. Backends may do what they need to
+        accomplish this. For example, Qt can use ``sizeHint().height()``, since
+        ``height()`` may return something large if the widget has not yet been painted
+        on screen.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_height(self, value: int) -> None:
+        """Set the height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_min_height(self) -> int:
+        """Get the minimum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_min_height(self, value: int) -> None:
+        """Set the minimum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_max_height(self) -> int:
+        """Get the maximum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_max_height(self, value: int) -> None:
+        """Set the maximum height of the widget."""
         raise NotImplementedError()
 
     @abstractmethod

@@ -79,6 +79,32 @@ class QBaseWidget(_protocols.WidgetProtocol):
         self._qwidget.setMaximumWidth(value)
         self._qwidget.resize(self._qwidget.sizeHint())
 
+    def _mgui_get_height(self) -> int:
+        """Return the current height of the widget."""
+        return self._qwidget.height()
+
+    def _mgui_set_height(self, value: int) -> None:
+        """Set the current height of the widget."""
+        self._qwidget.resize(self._qwidget.width(), value)
+
+    def _mgui_get_min_height(self) -> int:
+        """Get the minimum allowable height of the widget."""
+        return self._qwidget.minimumHeight()
+
+    def _mgui_set_min_height(self, value: int) -> None:
+        """Set the minimum allowable height of the widget."""
+        self._qwidget.setMinimumHeight(value)
+        self._qwidget.resize(self._qwidget.sizeHint())
+
+    def _mgui_get_max_height(self) -> int:
+        """Get the maximum allowable height of the widget."""
+        return self._qwidget.maximumHeight()
+
+    def _mgui_set_max_height(self, value: int) -> None:
+        """Set the maximum allowable height of the widget."""
+        self._qwidget.setMaximumHeight(value)
+        self._qwidget.resize(self._qwidget.sizeHint())
+
     def _mgui_get_tooltip(self) -> str:
         return self._qwidget.toolTip()
 
