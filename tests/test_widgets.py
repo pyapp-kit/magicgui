@@ -358,3 +358,25 @@ def test_reset_choice_recursion():
     assert f.c.choices == (0, 1)
     container.reset_choices()
     assert f.c.choices == (0, 1, 2)
+
+
+def test_container_indexing_with_native_mucking():
+    """Mostly make sure that the inner model isn't messed up.
+
+    keeping indexes with a manipulated native model *may* be something to do in future.
+    """
+    l1 = widgets.Label(name="l1")
+    l2 = widgets.Label(name="l2")
+    l3 = widgets.Label(name="l3")
+    c = widgets.Container(widgets=[l1, l2, l3])
+    assert c[-1] == l3
+    # so far they should be in sync
+    native = c.native.layout()
+    assert native.count() == len(c)
+    # much with native layout
+    native.addStretch()
+    # haven't changed the magicgui container
+    assert len(c) == 3
+    assert c[-1] == l3
+    # though it has changed the native model
+    assert native.count() == 4
