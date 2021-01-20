@@ -529,7 +529,7 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
             return item.data(self._DATA_ROLE)
         widget = self._qwidget.cellWidget(row, col)
         if widget:
-            return getattr(widget, "_magic_widget", None)
+            return getattr(widget, "_magic_widget", widget)
 
     def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
         """Set current value of the widget."""
