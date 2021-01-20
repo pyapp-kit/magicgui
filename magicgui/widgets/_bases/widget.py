@@ -204,7 +204,7 @@ class Widget:
     @min_width.setter
     def min_width(self, value: int) -> None:
         """Set the minimum width of the widget."""
-        self._widget._mgui_set_max_width(value)
+        self._widget._mgui_set_min_width(value)
 
     @property
     def max_width(self) -> int:
