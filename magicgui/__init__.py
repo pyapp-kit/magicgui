@@ -18,3 +18,19 @@ __all__ = [
     "register_type",
     "use_app",
 ]
+
+
+def __getattr__(name: str):
+    if name == "FunctionGui":
+        from warnings import warn
+
+        from .widgets import FunctionGui
+
+        warn(
+            "magicgui.FunctionGui is deprecated. "
+            "Please import at magicgui.widgets.FunctionGui",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+        return FunctionGui
