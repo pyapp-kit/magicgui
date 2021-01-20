@@ -99,14 +99,7 @@ class WidgetProtocol(Protocol):
 
     @abstractmethod
     def _mgui_get_width(self) -> int:
-        """Get the width of the widget.
-
-        The naming of this method may change. The intention is to get the width of the
-        widget after it is shown, for the purpose of unifying widget width in a layout.
-        Backends may do what they need to accomplish this. For example, Qt can use
-        ``sizeHint().width()``, since ``width()`` will return something large if the
-        widget has not yet been painted on screen.
-        """
+        """Get the width of the widget."""
         raise NotImplementedError()
 
     @abstractmethod
