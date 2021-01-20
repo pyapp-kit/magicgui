@@ -360,36 +360,11 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     """Widget that can contain other widgets."""
 
     @abstractmethod
-    def _mgui_add_widget(self, widget: "Widget") -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
     def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_remove_widget(self, widget: "Widget") -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_remove_index(self, position: int) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_count(self) -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_index(self, widget: "Widget") -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_index(self, index: int) -> Optional[Widget]:
-        """(return None instead of index error)."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_native_layout(self) -> Any:
         raise NotImplementedError()
 
     @abstractmethod

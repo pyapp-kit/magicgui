@@ -173,9 +173,6 @@ def test_container_widget():
     del container[-1]
     assert not container
 
-    if use_app().backend_name == "qt":
-        assert container.native_layout.__class__.__name__ == "QHBoxLayout"
-
 
 def test_container_label_widths():
     """Test basic container functionality."""
@@ -203,8 +200,9 @@ def test_labeled_widget_container():
 
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
-    container = widgets.Container(widgets=[w1, w2], layout="vertical")
-    lw = container._widget._mgui_get_index(0)
+    _ = widgets.Container(widgets=[w1, w2], layout="vertical")
+    assert w1._labeled_widget
+    lw = w1._labeled_widget()
     assert isinstance(lw, _LabeledWidget)
     assert lw.visible
     w1.hide()

@@ -951,6 +951,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         return_annotation: Any = None,
         **kwargs,
     ):
+        self._list: List[Widget] = []
         self._return_annotation = None
         self._labels = labels
         self._layout = layout
@@ -1011,19 +1012,11 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         if isinstance(key, str):
             return self.__getattr__(key)
         if isinstance(key, slice):
-            out = []
-            for idx in range(*key.indices(len(self))):
-                item = self._widget._mgui_get_index(idx)
-                if item:
-                    out.append(item)
-            return out
+            return [getattr(item, "_inner_widget", item) for item in self._list[key]]
         elif isinstance(key, int):
-            if key < 0:
-                key += len(self)
-        item = self._widget._mgui_get_index(key)
-        if item is None:
-            raise IndexError("Container index out of range")
-        return getattr(item, "_inner_widget", item)
+            item = self._list[key]
+            return getattr(item, "_inner_widget", item)
+        raise TypeError(f"list indices must be integers or slices, not {type(key)}")
 
     def index(self, value: Any, start=0, stop=9223372036854775807) -> int:
         """Return index of a specific widget instance (or widget name)."""
@@ -1042,16 +1035,17 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     def __delitem__(self, key: Union[int, slice]):
         """Delete a widget by integer or slice index."""
         if isinstance(key, slice):
-            for idx in range(*key.indices(len(self))):
-                self._widget._mgui_remove_index(idx)
+            for item in self._list[key]:
+                self._widget._mgui_remove_widget(item)
+        elif isinstance(key, int):
+            self._widget._mgui_remove_widget(self._list[key])
         else:
-            if key < 0:
-                key += len(self)
-            self._widget._mgui_remove_index(key)
+            raise TypeError(f"list indices must be integers or slices, not {type(key)}")
+        del self._list[key]
 
     def __len__(self) -> int:
         """Return the count of widgets."""
-        return self._widget._mgui_count()
+        return len(self._list)
 
     def __setitem__(self, key, value):
         """Prevent assignment by index."""
@@ -1077,6 +1071,11 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
                 _widget = _LabeledWidget(widget)
                 widget.label_changed.connect(self._unify_label_widths)
 
+        self._list.insert(key, widget)
+        if key < 0:
+            key += len(self)
+        # NOTE: if someone has manually mucked around with self.native.layout()
+        # it's possible that indices will be off.
         self._widget._mgui_insert_widget(key, _widget)
         self._unify_label_widths()
 
@@ -1088,8 +1087,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             widest_label = max(
                 measure(w.label) for w in self if not isinstance(w, ButtonWidget)
             )
-            for i in range(len(self)):
-                w = self._widget._mgui_get_index(i)
+            for w in self:
                 if hasattr(w, "label_width"):
                     w.label_width = widest_label  # type: ignore
 
@@ -1113,11 +1111,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         raise NotImplementedError(
             "It is not yet possible to change layout after instantiation"
         )
-
-    @property
-    def native_layout(self):
-        """Return the layout widget used by the backend."""
-        return self._widget._mgui_get_native_layout()
 
     def reset_choices(self, event=None):
         """Reset choices for all Categorical subWidgets to the default state.
