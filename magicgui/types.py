@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from magicgui.function_gui import FunctionGui
+    from magicgui.widgets import FunctionGui
     from magicgui.widgets._bases import CategoricalWidget, Widget
     from magicgui.widgets._protocols import WidgetProtocol
 
