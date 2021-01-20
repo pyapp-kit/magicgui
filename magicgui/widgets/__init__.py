@@ -36,6 +36,7 @@ from ._concrete import (
     TextEdit,
     TimeEdit,
 )
+from ._table import Table
 
 #: Aliases for compatibility with ipywidgets.  (WIP)
 IntSlider = Slider
@@ -77,6 +78,7 @@ __all__ = [
     "SliceEdit",
     "Slider",
     "SpinBox",
+    "Table",
     "TextEdit",
     "TimeEdit",
     "Widget",
