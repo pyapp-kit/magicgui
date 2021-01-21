@@ -60,10 +60,6 @@ def widget_demo(
     filename : str, optional
         Pick a path, by default Path.home()
 
-    Returns
-    -------
-    [type]
-        [description]
     """
     return locals().values()
 
