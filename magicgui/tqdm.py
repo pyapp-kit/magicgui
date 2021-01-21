@@ -3,8 +3,7 @@ import inspect
 from typing import Iterable, Optional
 
 from magicgui.application import use_app
-from magicgui.function_gui import FunctionGui
-from magicgui.widgets import ProgressBar
+from magicgui.widgets import FunctionGui, ProgressBar
 
 try:
     from tqdm import tqdm
