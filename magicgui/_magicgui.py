@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import TYPE_CHECKING, Callable, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, overload
 from warnings import warn
 
 from typing_extensions import Literal
@@ -24,9 +24,13 @@ class MagicFactory(partial):
         args.extend(f"{k}={v!r}" for (k, v) in self.keywords.items())
         return f"MagicFactory({', '.join(args)})"
 
-    def __call__(self, /, *args, **keywords) -> FunctionGui:
+    def __call__(self, *args, **keywords) -> FunctionGui:
         """Call the wrapped _magicgui and return a FunctionGui."""
         return super().__call__(*args, **keywords)
+
+    def __getattr__(self, name) -> Any:
+        """Allow accessing FunctionGui attributes in magicgui without mypy error."""
+        pass
 
 
 def _magicgui(factory=False, **kwargs):

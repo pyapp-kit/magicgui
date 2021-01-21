@@ -7,7 +7,8 @@ from __future__ import annotations
 import inspect
 import re
 import warnings
-from typing import Any, Callable, Dict, Optional, Union
+from types import FunctionType
+from typing import Any, Callable, Dict, Optional, Union, cast
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -91,6 +92,9 @@ class FunctionGui(Container):
         name: str = None,
         **kwargs,
     ):
+        if not callable(function):
+            raise TypeError("'function' argument to FunctionGui must be callable.")
+
         # consume extra Widget keywords
         extra = set(kwargs) - {"annotation", "gui_only"}
         if extra:
@@ -105,14 +109,25 @@ class FunctionGui(Container):
         if tooltips:
             _inject_tooltips_from_docstrings(function.__doc__, param_options)
 
+        self._function = function
         self.__wrapped__ = function
+        # it's conceivable that function is not actually an instance of FunctionType
+        # we can still support any generic callable, but we need to be careful not to
+        # access attributes (like `__name__` that only function objects have).
+        # Mypy doesn't seem catch this at this point:
+        # https://github.com/python/mypy/issues/9934
+        self._callable_name = (
+            getattr(function, "__name__", None)
+            or f"{function.__module__}.{function.__class__}"
+        )
+
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             layout=layout,
             labels=labels,
             widgets=list(sig.widgets(app).values()),
             return_annotation=sig.return_annotation,
-            name=name or function.__name__,
+            name=name or self._callable_name,
         )
 
         self._param_options = param_options
@@ -166,6 +181,8 @@ class FunctionGui(Container):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
+    _UNSET = object()  # sentinel used when temporarily overriding function.__globals__
+
     def __call__(self, *args: Any, **kwargs: Any):
         """Call the original function with the current parameter values from the Gui.
 
@@ -186,7 +203,6 @@ class FunctionGui(Container):
 
         gui()  # calls the original function with the current parameters
         """
-        function = self.__wrapped__
         sig = self.__signature__
         try:
             bound = sig.bind(*args, **kwargs)
@@ -195,12 +211,12 @@ class FunctionGui(Container):
                 match = re.search("argument: '(.+)'", str(e))
                 missing = match.groups()[0] if match else "<param>"
                 msg = (
-                    f"{e} in call to '{function.__name__}{sig}'.\n"
+                    f"{e} in call to '{self._callable_name}{sig}'.\n"
                     "To avoid this error, you can bind a value or callback to the "
-                    f"parameter:\n\n    {function.__name__}.{missing}.bind(value)"
+                    f"parameter:\n\n    {self._callable_name}.{missing}.bind(value)"
                     "\n\nOr use the 'bind' option in the magicgui decorator:\n\n"
                     f"    @magicgui({missing}={{'bind': value}})\n"
-                    f"    def {function.__name__}{sig}: ..."
+                    f"    def {self._callable_name}{sig}: ..."
                 )
                 raise TypeError(msg) from None
             else:
@@ -208,7 +224,32 @@ class FunctionGui(Container):
 
         bound.apply_defaults()
 
-        value = function(*bound.args, **bound.kwargs)
+        # When calling the function provided to FunctionGui, we make sure that the name
+        # of the function points to the FunctionGui object itself (this object).
+        # In standard ``@magicgui`` usage, this will have been the case anyway.
+        # Doing this here allows @magic_factories to *also* be self-referential.
+        if isinstance(self._function, FunctionType):
+            func_name = self._function.__name__
+            _pointer = self._function.__globals__.get(func_name, self._UNSET)
+            self._function.__globals__[func_name] = self
+        else:
+            # if self._function was simply a generic object with a __call__ method, it
+            # will likely not have the __globals__ object.  We don't yet support
+            # self-reference in this (probably very rare) use case.
+            _pointer = "__generic_callable__"
+        try:
+            # call the wrapped function with the current parameters
+            value = self._function(*bound.args, **bound.kwargs)
+        finally:
+            # just in case the function name didn't already point to this
+            # FunctionGui object, we set it back to what it used to be.
+            if _pointer != "__generic_callable__":
+                self._function = cast(FunctionType, self._function)
+                if _pointer is self._UNSET:
+                    del self._function.__globals__[self._function.__name__]
+                else:
+                    self._function.__globals__[self._function.__name__] = _pointer
+
         self._call_count += 1
         if self._result_widget is not None:
             with self._result_widget.changed.blocker():
@@ -225,13 +266,12 @@ class FunctionGui(Container):
 
     def __repr__(self) -> str:
         """Return string representation of instance."""
-        fname = f"{self.__wrapped__.__module__}.{self.__wrapped__.__name__}"
-        return f"<FunctionGui {fname}{self.__signature__}>"
+        return f"<FunctionGui {self._callable_name}{self.__signature__}>"
 
     @property
     def result_name(self) -> str:
         """Return a name that can be used for the result of this magicfunction."""
-        return self._result_name or (self.__wrapped__.__name__ + " result")
+        return self._result_name or (self._callable_name + " result")
 
     @result_name.setter
     def result_name(self, value: str):
@@ -241,7 +281,7 @@ class FunctionGui(Container):
     def copy(self) -> "FunctionGui":
         """Return a copy of this FunctionGui."""
         return FunctionGui(
-            function=self.__wrapped__,
+            function=self._function,
             call_button=bool(self._call_button),
             layout=self.layout,
             labels=self.labels,
@@ -277,7 +317,7 @@ class FunctionGui(Container):
         if obj is not None:
             obj_id = id(obj)
             if obj_id not in self._bound_instances:
-                method = getattr(obj.__class__, self.__wrapped__.__name__)
+                method = getattr(obj.__class__, self._function.__name__)
                 p0 = list(inspect.signature(method).parameters)[0]
                 prior, self._param_options = self._param_options, {p0: {"bind": obj}}
                 try:
