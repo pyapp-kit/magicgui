@@ -1,7 +1,6 @@
 import pytest
 
 from magicgui import magicgui, register_type, widgets
-from magicgui.function_gui import FunctionGui
 
 
 def test_forward_refs():
@@ -50,7 +49,7 @@ def test_forward_refs_return_annotation():
 
     testB()
     gui, result, return_annotation = results[0]
-    assert isinstance(gui, FunctionGui)
+    assert isinstance(gui, widgets.FunctionGui)
     assert result == 1
     # the forward ref has been resolved
     assert return_annotation is MyInt

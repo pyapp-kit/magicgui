@@ -57,9 +57,52 @@ class QBaseWidget(_protocols.WidgetProtocol):
         """Return the current width of the widget."""
         return self._qwidget.width()
 
-    def _mgui_set_min_width(self, value) -> None:
+    def _mgui_set_width(self, value: int) -> None:
+        """Set the current width of the widget."""
+        self._qwidget.resize(value, self._qwidget.height())
+
+    def _mgui_get_min_width(self) -> int:
+        """Get the minimum allowable width of the widget."""
+        return self._qwidget.minimumWidth()
+
+    def _mgui_set_min_width(self, value: int) -> None:
         """Set the minimum allowable width of the widget."""
         self._qwidget.setMinimumWidth(value)
+        self._qwidget.resize(self._qwidget.sizeHint())
+
+    def _mgui_get_max_width(self) -> int:
+        """Get the maximum allowable width of the widget."""
+        return self._qwidget.maximumWidth()
+
+    def _mgui_set_max_width(self, value: int) -> None:
+        """Set the maximum allowable width of the widget."""
+        self._qwidget.setMaximumWidth(value)
+        self._qwidget.resize(self._qwidget.sizeHint())
+
+    def _mgui_get_height(self) -> int:
+        """Return the current height of the widget."""
+        return self._qwidget.height()
+
+    def _mgui_set_height(self, value: int) -> None:
+        """Set the current height of the widget."""
+        self._qwidget.resize(self._qwidget.width(), value)
+
+    def _mgui_get_min_height(self) -> int:
+        """Get the minimum allowable height of the widget."""
+        return self._qwidget.minimumHeight()
+
+    def _mgui_set_min_height(self, value: int) -> None:
+        """Set the minimum allowable height of the widget."""
+        self._qwidget.setMinimumHeight(value)
+        self._qwidget.resize(self._qwidget.sizeHint())
+
+    def _mgui_get_max_height(self) -> int:
+        """Get the maximum allowable height of the widget."""
+        return self._qwidget.maximumHeight()
+
+    def _mgui_set_max_height(self, value: int) -> None:
+        """Set the maximum allowable height of the widget."""
+        self._qwidget.setMaximumHeight(value)
         self._qwidget.resize(self._qwidget.sizeHint())
 
     def _mgui_get_tooltip(self) -> str:
@@ -241,9 +284,6 @@ class RadioButton(QBaseButtonWidget):
 #         super().__init__(QtW.QToolButton)
 
 
-# CATEGORICAL
-
-
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
@@ -255,49 +295,19 @@ class Container(
             self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
 
+    def _mgui_insert_widget(self, position: int, widget: Widget):
+        self._layout.insertWidget(position, widget.native)
+
+    def _mgui_remove_widget(self, widget: Widget):
+        self._layout.removeWidget(widget.native)
+        widget.native.setParent(None)
+
     def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
         m = self._layout.contentsMargins()
         return m.left(), m.top(), m.right(), m.bottom()
 
     def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
         self._layout.setContentsMargins(*margins)
-
-    def _mgui_add_widget(self, widget: Widget):
-        _widget = widget.native
-        self._layout.addWidget(_widget)
-
-    def _mgui_insert_widget(self, position: int, widget: Widget):
-        _widget = widget.native
-        if position < 0:
-            position = self._mgui_count() + position + 1
-
-        self._layout.insertWidget(position, _widget)
-
-    def _mgui_remove_widget(self, widget: Widget):
-        self._layout.removeWidget(widget.native)
-        widget.native.setParent(None)
-
-    def _mgui_remove_index(self, position: int):
-        # TODO: normalize position in superclass
-        if position < 0:
-            position = self._mgui_count() + position + 1
-        item = self._layout.takeAt(position)
-        item.widget().setParent(None)
-
-    def _mgui_count(self) -> int:
-        return self._layout.count()
-
-    def _mgui_index(self, widget: Widget) -> int:
-        return self._layout.indexOf(widget.native)
-
-    def _mgui_get_index(self, index: int) -> Optional[Widget]:
-        # We need to return a magicgui.Widget object, so this currently
-        # requires storing the original object as a hidden attribute.
-        # better way?
-        item = self._layout.itemAt(index)
-        if item:
-            return item.widget()._magic_widget
-        return None
 
     def _mgui_set_orientation(self, value) -> None:
         """Set orientation, value will be 'horizontal' or 'vertical'."""
@@ -312,9 +322,6 @@ class Container(
             return "horizontal"
         else:
             return "vertical"
-
-    def _mgui_get_native_layout(self) -> QtW.QLayout:
-        return self._layout
 
 
 class SpinBox(QBaseRangedWidget):
@@ -565,7 +572,7 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
             return item.data(self._DATA_ROLE)
         widget = self._qwidget.cellWidget(row, col)
         if widget:
-            return widget._magic_widget
+            return getattr(widget, "_magic_widget", widget)
 
     def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
         """Set current value of the widget."""

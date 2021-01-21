@@ -83,6 +83,7 @@ Container Widgets
    :toctree: ../_autosummary
 
    Container
+   FunctionGui
 
 
 ```

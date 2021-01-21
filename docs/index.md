@@ -59,7 +59,7 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
 
 ### et voilà
 
-The object returned by the `magicgui` decorator is an instance of {py:class}`~magicgui.function_gui.FunctionGui`.  It can still be called like the original function, but it also knows how to present itself as a GUI:
+The object returned by the `magicgui` decorator is an instance of {py:class}`~magicgui.widgets.FunctionGui`.  It can still be called like the original function, but it also knows how to present itself as a GUI:
 
 ```{code-cell} python
 snells_law.show()

@@ -99,19 +99,76 @@ class WidgetProtocol(Protocol):
 
     @abstractmethod
     def _mgui_get_width(self) -> int:
-        """Return the current width of the widget.
+        """Get the width of the widget.
 
-        The naming of this method may change. The intention is to get the width of the
-        widget after it is shown, for the purpose of unifying widget width in a layout.
-        Backends may do what they need to accomplish this. For example, Qt can use
-        ``sizeHint().width()``, since ``width()`` will return something large if the
-        widget has not yet been painted on screen.
+        The intention is to get the width of the widget after it is shown, for the
+        purpose of unifying widget width in a layout. Backends may do what they need to
+        accomplish this. For example, Qt can use ``sizeHint().width()``, since
+        ``width()`` may return something large if the widget has not yet been painted
+        on screen.
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_min_width(self, value: int) -> None:
+    def _mgui_set_width(self, value: int) -> None:
         """Set the width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_min_width(self) -> int:
+        """Get the minimum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_min_width(self, value: int) -> None:
+        """Set the minimum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_max_width(self) -> int:
+        """Get the maximum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_max_width(self, value: int) -> None:
+        """Set the maximum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_height(self) -> int:
+        """Get the height of the widget.
+
+        The intention is to get the height of the widget after it is shown, for the
+        purpose of unifying widget height in a layout. Backends may do what they need to
+        accomplish this. For example, Qt can use ``sizeHint().height()``, since
+        ``height()`` may return something large if the widget has not yet been painted
+        on screen.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_height(self, value: int) -> None:
+        """Set the height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_min_height(self) -> int:
+        """Get the minimum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_min_height(self, value: int) -> None:
+        """Set the minimum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_max_height(self) -> int:
+        """Get the maximum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_max_height(self, value: int) -> None:
+        """Set the maximum height of the widget."""
         raise NotImplementedError()
 
     @abstractmethod
@@ -360,36 +417,11 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     """Widget that can contain other widgets."""
 
     @abstractmethod
-    def _mgui_add_widget(self, widget: "Widget") -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
     def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_remove_widget(self, widget: "Widget") -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_remove_index(self, position: int) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_count(self) -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_index(self, widget: "Widget") -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_index(self, index: int) -> Optional[Widget]:
-        """(return None instead of index error)."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_native_layout(self) -> Any:
         raise NotImplementedError()
 
     @abstractmethod
