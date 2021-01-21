@@ -1,36 +1,16 @@
 from __future__ import annotations
 
+import inspect
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, overload
 from warnings import warn
 
 from typing_extensions import Literal
 
+from magicgui.widgets import FunctionGui
+
 if TYPE_CHECKING:
     from magicgui.application import AppRef
-    from magicgui.widgets import FunctionGui
-
-
-class MagicFactory(partial):
-    """partial subclass dedicated that returns a FunctionGui instance.
-
-    This is mostly for type checking and IDE type annotations (isinstance(MagicFactory))
-    """
-
-    # TODO, only repr things that are not defaults
-    def __repr__(self):
-        """Return string repr."""
-        args = [repr(x) for x in self.args]
-        args.extend(f"{k}={v!r}" for (k, v) in self.keywords.items())
-        return f"MagicFactory({', '.join(args)})"
-
-    def __call__(self, *args, **keywords) -> FunctionGui:
-        """Call the wrapped _magicgui and return a FunctionGui."""
-        return super().__call__(*args, **keywords)
-
-    def __getattr__(self, name) -> Any:
-        """Allow accessing FunctionGui attributes in magicgui without mypy error."""
-        pass
 
 
 def _magicgui(factory=False, **kwargs):
@@ -51,10 +31,11 @@ def _magicgui(factory=False, **kwargs):
         kwargs["result_widget"] = True
 
     def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
-        from magicgui.widgets import FunctionGui
+        if not callable(func):
+            raise TypeError("the first argument must be callable")
 
         if factory:
-            return MagicFactory(FunctionGui, function=func, **kwargs)
+            return MagicFactory(function=func, **kwargs)
         return FunctionGui(function=func, **kwargs)
 
     if function is None:
@@ -159,6 +140,49 @@ def magicgui(
     >>> my_function.b.value = 'world'
     """
     return _magicgui(**locals())
+
+
+class MagicFactory(partial):
+    """Factory function that returns a FunctionGui instance.
+
+    Examples
+    --------
+    >>> def func(x: int, y: str):
+    ...     pass
+    ...
+    >>> factory = MagicFactory(function=func, labels=False)
+    >>> # factory accepts all the same arguments as magicgui()
+    >>> widget1 = factory(call_button=True)
+    >>> # can also override magic_kwargs that were provided when creating the factory
+    >>> widget2 = factory(auto_call=True, labels=True)
+    """
+
+    def __new__(cls, *args, **keywords):
+        """Create new MagicFactory."""
+        return super().__new__(cls, FunctionGui, *args, **keywords)  # type: ignore
+
+    def __repr__(self):
+        """Return string repr."""
+        params = inspect.signature(magicgui).parameters
+        args = [
+            f"{k}={v!r}"
+            for (k, v) in self.keywords.items()
+            if v not in (params[k].default, {})
+        ]
+        return f"MagicFactory({', '.join(args)})"
+
+    def __call__(self, *args, **kwargs) -> FunctionGui:
+        """Call the wrapped _magicgui and return a FunctionGui."""
+        if args:
+            raise ValueError("MagicFactory instance only accept keyword arguments")
+        params = inspect.signature(magicgui).parameters
+        prm_options = self.keywords.pop("param_options", {})
+        prm_options.update({k: kwargs.pop(k) for k in list(kwargs) if k not in params})
+        return FunctionGui(param_options=prm_options, **{**self.keywords, **kwargs})
+
+    def __getattr__(self, name) -> Any:
+        """Allow accessing FunctionGui attributes without mypy error."""
+        pass
 
 
 @overload
