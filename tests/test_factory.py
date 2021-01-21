@@ -74,17 +74,15 @@ def test_magic_factory_self_reference():
     assert isinstance(widget(), FunctionGui)
 
 
-@pytest.mark.xfail(
-    reason="Local self-referential factories do not work",
-    strict=True,
-    raises=AssertionError,
-)
 def test_magic_local_factory_self_reference():
-    """Test that self-referential factories work in local scopes (not yet)."""
+    """Test that self-referential factories DON'T work in local scopes, but warn."""
 
-    @magic_factory
-    def local_self_referencing_factory(x: int = 1):
-        return local_self_referencing_factory
+    with pytest.warns(UserWarning) as wrn:
 
+        @magic_factory
+        def local_self_referencing_factory(x: int = 1):
+            return local_self_referencing_factory
+
+    assert "Self-reference detected" in str(wrn[0])
     widget = local_self_referencing_factory()
-    assert isinstance(widget(), FunctionGui)
+    assert isinstance(widget(), MagicFactory)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 from functools import partial
+from types import FunctionType
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, overload
 from warnings import warn
 
@@ -162,6 +163,18 @@ class MagicFactory(partial):
 
     def __new__(cls, *args, **keywords):
         """Create new MagicFactory."""
+        function = keywords.get("function")
+        if not function:
+            raise TypeError("MagicFactory missing required keyword argument 'function'")
+        if isinstance(function, FunctionType):
+            if "<locals>" in function.__qualname__:
+                freevars = function.__code__.co_freevars
+                if function.__name__ in freevars:
+                    warn(
+                        "Self-reference detected in MagicFactory function created "
+                        "in a local scope. FunctionGui references will not work."
+                    )
+
         return super().__new__(cls, FunctionGui, *args, **keywords)  # type: ignore
 
     def __repr__(self):
