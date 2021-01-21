@@ -326,22 +326,6 @@ def test_get_choices_raises():
     assert func.mood.choices == (1, 2, 3)
 
 
-@pytest.mark.skip(reason="does not yet work")
-def test_positions():
-    """Test that providing position options puts widget in the right place."""
-
-    def func(a=1, b=2, c=3):
-        pass
-
-    def get_layout_items(layout):
-        return [layout.itemAt(i).widget().objectName() for i in range(layout.count())]
-
-    gui = magicgui(func)
-    assert get_layout_items(gui.layout()) == ["a", "b", "c"]
-    gui = magicgui(func, a={"position": 2}, b={"position": 1}).Gui()
-    assert get_layout_items(gui.layout()) == ["c", "b", "a"]
-
-
 @pytest.mark.parametrize(
     "labels",
     [
