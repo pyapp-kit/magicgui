@@ -592,3 +592,18 @@ def test_only_some_tooltips_from_numpydoc():
 
     assert not func.x.tooltip
     assert func.y.tooltip == "Still want a tooltip"
+
+
+def test_magicgui_type_error():
+
+    with pytest.raises(TypeError):
+        magicgui("not a function")  # type: ignore
+
+
+def test_magicgui_self_reference():
+    @magicgui
+    def self_referencing_function(x: int = 1):
+        """Function that refers to itself, and wants the FunctionGui instance."""
+        return self_referencing_function
+
+    assert isinstance(self_referencing_function(), widgets.FunctionGui)

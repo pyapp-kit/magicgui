@@ -7,8 +7,9 @@ from __future__ import annotations
 import inspect
 import re
 import warnings
+from contextlib import contextmanager
 from types import FunctionType
-from typing import Any, Callable, Dict, Optional, Union, cast
+from typing import Any, Callable, Dict, Optional, Union
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -224,31 +225,8 @@ class FunctionGui(Container):
 
         bound.apply_defaults()
 
-        # When calling the function provided to FunctionGui, we make sure that the name
-        # of the function points to the FunctionGui object itself (this object).
-        # In standard ``@magicgui`` usage, this will have been the case anyway.
-        # Doing this here allows @magic_factories to *also* be self-referential.
-        if isinstance(self._function, FunctionType):
-            func_name = self._function.__name__
-            _pointer = self._function.__globals__.get(func_name, self._UNSET)
-            self._function.__globals__[func_name] = self
-        else:
-            # if self._function was simply a generic object with a __call__ method, it
-            # will likely not have the __globals__ object.  We don't yet support
-            # self-reference in this (probably very rare) use case.
-            _pointer = "__generic_callable__"
-        try:
-            # call the wrapped function with the current parameters
+        with function_name_pointing_to_widget(self):
             value = self._function(*bound.args, **bound.kwargs)
-        finally:
-            # just in case the function name didn't already point to this
-            # FunctionGui object, we set it back to what it used to be.
-            if _pointer != "__generic_callable__":
-                self._function = cast(FunctionType, self._function)
-                if _pointer is self._UNSET:
-                    del self._function.__globals__[self._function.__name__]
-                else:
-                    self._function.__globals__[self._function.__name__] = _pointer
 
         self._call_count += 1
         if self._result_widget is not None:
@@ -344,3 +322,32 @@ class FunctionGui(Container):
         if show:
             self.show()
         return self
+
+
+_UNSET = object()
+
+
+@contextmanager
+def function_name_pointing_to_widget(function_gui: FunctionGui):
+    """Context in which the name of the function points to the function_gui instance.
+
+    When calling the function provided to FunctionGui, we make sure that the name
+    of the function points to the FunctionGui object itself (this object).
+    In standard ``@magicgui`` usage, this will have been the case anyway.
+    Doing this here allows @magic_factories to *also* be self-referential.
+    """
+    function = function_gui._function
+    if not isinstance(function, FunctionType):
+        yield
+        return
+
+    func_name = function.__name__
+    _pointer = function.__globals__.get(func_name, _UNSET)
+    function.__globals__[func_name] = function_gui
+    try:
+        yield
+    finally:
+        if _pointer is _UNSET:
+            del function.__globals__[func_name]
+        else:
+            function.__globals__[func_name] = _pointer

@@ -145,6 +145,9 @@ def magicgui(
 class MagicFactory(partial):
     """Factory function that returns a FunctionGui instance.
 
+    While this can be used directly, (see example below) the preferred usage is
+    via the :func:`magic_factory` decorator.
+
     Examples
     --------
     >>> def func(x: int, y: str):
@@ -182,7 +185,7 @@ class MagicFactory(partial):
 
     def __getattr__(self, name) -> Any:
         """Allow accessing FunctionGui attributes without mypy error."""
-        pass
+        pass  # pragma: no cover
 
 
 @overload
