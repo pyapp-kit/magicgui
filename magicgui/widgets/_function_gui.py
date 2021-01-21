@@ -225,7 +225,7 @@ class FunctionGui(Container):
 
         bound.apply_defaults()
 
-        with function_name_pointing_to_widget(self):
+        with _function_name_pointing_to_widget(self):
             value = self._function(*bound.args, **bound.kwargs)
 
         self._call_count += 1
@@ -328,7 +328,7 @@ _UNSET = object()
 
 
 @contextmanager
-def function_name_pointing_to_widget(function_gui: FunctionGui):
+def _function_name_pointing_to_widget(function_gui: FunctionGui):
     """Context in which the name of the function points to the function_gui instance.
 
     When calling the function provided to FunctionGui, we make sure that the name
@@ -342,12 +342,15 @@ def function_name_pointing_to_widget(function_gui: FunctionGui):
         return
 
     func_name = function.__name__
-    _pointer = function.__globals__.get(func_name, _UNSET)
+    # function.__globals__ here points to the module-level globals in which the function
+    # was defined.  This means that this will NOT work for factories defined inside
+    # other functions.
+    original_value = function.__globals__.get(func_name, _UNSET)
     function.__globals__[func_name] = function_gui
     try:
         yield
     finally:
-        if _pointer is _UNSET:
+        if original_value is _UNSET:
             del function.__globals__[func_name]
         else:
-            function.__globals__[func_name] = _pointer
+            function.__globals__[func_name] = original_value
