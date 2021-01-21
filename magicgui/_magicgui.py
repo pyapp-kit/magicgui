@@ -4,6 +4,8 @@ from functools import partial
 from typing import TYPE_CHECKING, Callable, Optional, Union, overload
 from warnings import warn
 
+from typing_extensions import Literal
+
 if TYPE_CHECKING:
     from magicgui.application import AppRef
     from magicgui.widgets import FunctionGui
@@ -75,7 +77,7 @@ def magicgui(  # noqa
 
 @overload
 def magicgui(  # noqa
-    function=None,
+    function: Literal[None] = None,
     *,
     layout: str = "horizontal",
     labels: bool = True,
@@ -173,7 +175,7 @@ def magic_factory(  # noqa
 
 @overload
 def magic_factory(  # noqa
-    function=None,
+    function: Literal[None] = None,
     *,
     layout: str = "horizontal",
     labels: bool = True,
