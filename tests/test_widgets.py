@@ -13,7 +13,7 @@ from magicgui.widgets._bases import ValueWidget
     [
         getattr(widgets, n)
         for n in widgets.__all__
-        if n not in ("Widget", "FunctionGui")
+        if n not in ("Widget", "FunctionGui", "MainFunctionGui")
     ],
 )
 def test_widgets(WidgetClass):
