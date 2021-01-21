@@ -105,7 +105,7 @@ class FunctionGui(Container):
         if tooltips:
             _inject_tooltips_from_docstrings(function.__doc__, param_options)
 
-        self._function = function
+        self.__wrapped__ = function
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             layout=layout,
@@ -186,6 +186,7 @@ class FunctionGui(Container):
 
         gui()  # calls the original function with the current parameters
         """
+        function = self.__wrapped__
         sig = self.__signature__
         try:
             bound = sig.bind(*args, **kwargs)
@@ -194,12 +195,12 @@ class FunctionGui(Container):
                 match = re.search("argument: '(.+)'", str(e))
                 missing = match.groups()[0] if match else "<param>"
                 msg = (
-                    f"{e} in call to '{self._function.__name__}{sig}'.\n"
+                    f"{e} in call to '{function.__name__}{sig}'.\n"
                     "To avoid this error, you can bind a value or callback to the "
-                    f"parameter:\n\n    {self._function.__name__}.{missing}.bind(value)"
+                    f"parameter:\n\n    {function.__name__}.{missing}.bind(value)"
                     "\n\nOr use the 'bind' option in the magicgui decorator:\n\n"
                     f"    @magicgui({missing}={{'bind': value}})\n"
-                    f"    def {self._function.__name__}{sig}: ..."
+                    f"    def {function.__name__}{sig}: ..."
                 )
                 raise TypeError(msg) from None
             else:
@@ -207,7 +208,7 @@ class FunctionGui(Container):
 
         bound.apply_defaults()
 
-        value = self._function(*bound.args, **bound.kwargs)
+        value = function(*bound.args, **bound.kwargs)
         self._call_count += 1
         if self._result_widget is not None:
             with self._result_widget.changed.blocker():
@@ -224,13 +225,13 @@ class FunctionGui(Container):
 
     def __repr__(self) -> str:
         """Return string representation of instance."""
-        fname = f"{self._function.__module__}.{self._function.__name__}"
+        fname = f"{self.__wrapped__.__module__}.{self.__wrapped__.__name__}"
         return f"<FunctionGui {fname}{self.__signature__}>"
 
     @property
     def result_name(self) -> str:
         """Return a name that can be used for the result of this magicfunction."""
-        return self._result_name or (self._function.__name__ + " result")
+        return self._result_name or (self.__wrapped__.__name__ + " result")
 
     @result_name.setter
     def result_name(self, value: str):
@@ -240,7 +241,7 @@ class FunctionGui(Container):
     def copy(self) -> "FunctionGui":
         """Return a copy of this FunctionGui."""
         return FunctionGui(
-            function=self._function,
+            function=self.__wrapped__,
             call_button=bool(self._call_button),
             layout=self.layout,
             labels=self.labels,
@@ -276,7 +277,7 @@ class FunctionGui(Container):
         if obj is not None:
             obj_id = id(obj)
             if obj_id not in self._bound_instances:
-                method = getattr(obj.__class__, self._function.__name__)
+                method = getattr(obj.__class__, self.__wrapped__.__name__)
                 p0 = list(inspect.signature(method).parameters)[0]
                 prior, self._param_options = self._param_options, {p0: {"bind": obj}}
                 try:

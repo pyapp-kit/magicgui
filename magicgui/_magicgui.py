@@ -1,11 +1,60 @@
 from __future__ import annotations
 
+from functools import partial
 from typing import TYPE_CHECKING, Callable, Optional, Union, overload
 from warnings import warn
 
 if TYPE_CHECKING:
     from magicgui.application import AppRef
     from magicgui.widgets import FunctionGui
+
+
+class MagicFactory(partial):
+    """partial subclass dedicated that returns a FunctionGui instance.
+
+    This is mostly for type checking and IDE type annotations (isinstance(MagicFactory))
+    """
+
+    # TODO, only repr things that are not defaults
+    def __repr__(self):
+        """Return string repr."""
+        args = [repr(x) for x in self.args]
+        args.extend(f"{k}={v!r}" for (k, v) in self.keywords.items())
+        return f"MagicFactory({', '.join(args)})"
+
+    def __call__(self, /, *args, **keywords) -> FunctionGui:
+        """Call the wrapped _magicgui and return a FunctionGui."""
+        return super().__call__(*args, **keywords)
+
+
+def _magicgui(factory=False, **kwargs):
+    """Actual private magicui decorator.
+
+    if factory is `True` will return a MagicFactory instance, that can be called
+    to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters
+    """
+    function = kwargs.pop("function", None)
+    if "result" in kwargs["param_options"]:
+        warn(
+            "\n\nThe 'result' option is deprecated and will be removed in the future."
+            "Please use `result_widget=True` instead.\n",
+            FutureWarning,
+        )
+
+        kwargs["param_options"].pop("result")
+        kwargs["result_widget"] = True
+
+    def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
+        from magicgui.widgets import FunctionGui
+
+        if factory:
+            return MagicFactory(FunctionGui, function=func, **kwargs)
+        return FunctionGui(function=func, **kwargs)
+
+    if function is None:
+        return inner_func
+    else:
+        return inner_func(function)
 
 
 @overload
@@ -103,34 +152,79 @@ def magicgui(
     >>> my_function.a.value == 1  # True
     >>> my_function.b.value = 'world'
     """
-    if "result" in param_options:
-        warn(
-            "\n\nThe 'result' option is deprecated and will be removed in the future."
-            "Please use `result_widget=True` instead.\n",
-            FutureWarning,
-        )
+    return _magicgui(**locals())
 
-        param_options.pop("result")
-        result_widget = True
 
-    def inner_func(func: Callable) -> FunctionGui:
-        from magicgui.widgets import FunctionGui
+@overload
+def magic_factory(  # noqa
+    function: Callable,
+    *,
+    layout: str = "horizontal",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    app: AppRef = None,
+    **param_options: dict,
+) -> MagicFactory:
+    ...
 
-        func_gui = FunctionGui(
-            function=func,
-            call_button=call_button,
-            layout=layout,
-            labels=labels,
-            tooltips=tooltips,
-            param_options=param_options,
-            auto_call=auto_call,
-            result_widget=result_widget,
-            app=app,
-        )
-        func_gui.__wrapped__ = func
-        return func_gui
 
-    if function is None:
-        return inner_func
-    else:
-        return inner_func(function)
+@overload
+def magic_factory(  # noqa
+    function=None,
+    *,
+    layout: str = "horizontal",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    app: AppRef = None,
+    **param_options: dict,
+) -> Callable[[Callable], MagicFactory]:
+    ...
+
+
+def magic_factory(
+    function: Optional[Callable] = None,
+    *,
+    layout: str = "horizontal",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    app: AppRef = None,
+    **param_options: dict,
+):
+    """Return a :class:`MagicFactory` for ``function``."""
+    return _magicgui(factory=True, **locals())
+
+
+_factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
+    """
+    Returns
+    -------
+    result : MagicFactory or Callable[[F], MagicFactory]
+        If ``function`` is not ``None`` (such as when this is used as a bare decorator),
+        returns a MagicFactory instance.
+        If ``function`` is ``None`` such as when arguments are provided like
+        ``magic_factory(auto_call=True)``, then returns a function that can be used as a
+        decorator.
+
+    Examples
+    --------
+    >>> @magic_factory
+    ... def my_function(a: int = 1, b: str = 'hello'):
+    ...     pass
+    ...
+    >>> my_widget = my_function()
+    >>> my_widget.show()
+    >>> my_widget.a.value == 1  # Trueq
+    >>> my_widget.b.value = 'world'
+    """
+)
+
+magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
