@@ -9,7 +9,7 @@ import re
 import warnings
 from contextlib import contextmanager
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, TypeVar, Union
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -39,7 +39,10 @@ def _inject_tooltips_from_docstrings(
         param_options[argname].setdefault("tooltip", param.description)
 
 
-class FunctionGui(Container):
+_R = TypeVar("_R")
+
+
+class FunctionGui(Container, Generic[_R]):
     """Wrapper for a container of widgets representing a callable object.
 
     Parameters
@@ -83,7 +86,7 @@ class FunctionGui(Container):
 
     def __init__(
         self,
-        function: Callable,
+        function: Callable[..., _R],
         call_button: Union[bool, str] = False,
         layout: str = "horizontal",
         labels: bool = True,
@@ -187,7 +190,7 @@ class FunctionGui(Container):
 
     _UNSET = object()  # sentinel used when temporarily overriding function.__globals__
 
-    def __call__(self, *args: Any, **kwargs: Any):
+    def __call__(self, *args: Any, **kwargs: Any) -> _R:
         """Call the original function with the current parameter values from the Gui.
 
         It is also possible to override the current parameter values from the GUI by
@@ -259,7 +262,7 @@ class FunctionGui(Container):
         """Set the result name of this FunctionGui widget."""
         self._result_name = value
 
-    def copy(self) -> "FunctionGui":
+    def copy(self) -> FunctionGui:
         """Return a copy of this FunctionGui."""
         return FunctionGui(
             function=self._function,
@@ -327,7 +330,7 @@ class FunctionGui(Container):
         return self
 
 
-class MainFunctionGui(FunctionGui, MainWindow):
+class MainFunctionGui(FunctionGui[_R], MainWindow):
     """Container of widgets as a Main Application Window."""
 
     _widget: MainWindowProtocol
