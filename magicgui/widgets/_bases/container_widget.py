@@ -313,3 +313,18 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         for index, _ in enumerate(self):
             widget = self.pop(index)
             self.insert(index, widget)
+
+
+class MainWindowWidget(ContainerWidget):
+    """Top level Application widget that can contain other widgets."""
+
+    _widget: _protocols.MainWindowProtocol
+
+    def create_menu_item(
+        self, menu_name: str, item_name: str, callback=None, shortcut=None
+    ):
+        """Create a menu item ``item_name`` under menu ``menu_name``.
+
+        ``menu_name`` will be created if it does not already exist.
+        """
+        self._widget._mgui_create_menu_item(menu_name, item_name, callback, shortcut)
