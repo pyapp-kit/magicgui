@@ -3,7 +3,16 @@ from __future__ import annotations
 import inspect
 from functools import partial
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Optional,
+    TypeVar,
+    Union,
+    overload,
+)
 from warnings import warn
 
 from typing_extensions import Literal
@@ -185,7 +194,10 @@ def magicgui(
     return _magicgui(**locals())
 
 
-class MagicFactory(partial):
+_T = TypeVar("_T")
+
+
+class MagicFactory(partial, Generic[_T]):
     """Factory function that returns a FunctionGui instance.
 
     While this can be used directly, (see example below) the preferred usage is
@@ -231,7 +243,7 @@ class MagicFactory(partial):
         ]
         return f"MagicFactory({', '.join(args)})"
 
-    def __call__(self, *args, **kwargs) -> FunctionGui:
+    def __call__(self, *args, **kwargs) -> _T:
         """Call the wrapped _magicgui and return a FunctionGui."""
         if args:
             raise ValueError("MagicFactory instance only accept keyword arguments")
@@ -260,9 +272,10 @@ def magic_factory(  # noqa
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
+    main_window: Literal[False] = False,
     app: AppRef = None,
     **param_options: dict,
-) -> MagicFactory:
+) -> MagicFactory[FunctionGui]:
     ...
 
 
@@ -276,9 +289,44 @@ def magic_factory(  # noqa
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
+    main_window: Literal[False] = False,
     app: AppRef = None,
     **param_options: dict,
-) -> Callable[[Callable], MagicFactory]:
+) -> Callable[[Callable], MagicFactory[FunctionGui]]:
+    ...
+
+
+@overload
+def magic_factory(  # noqa
+    function: Callable,
+    *,
+    layout: str = "horizontal",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef = None,
+    **param_options: dict,
+) -> MagicFactory[MainFunctionGui]:
+    ...
+
+
+@overload
+def magic_factory(  # noqa
+    function: Literal[None] = None,
+    *,
+    layout: str = "horizontal",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef = None,
+    **param_options: dict,
+) -> Callable[[Callable], MagicFactory[MainFunctionGui]]:
     ...
 
 
@@ -291,6 +339,7 @@ def magic_factory(
     call_button: Union[bool, str] = False,
     auto_call: bool = False,
     result_widget: bool = False,
+    main_window: bool = False,
     app: AppRef = None,
     **param_options: dict,
 ):
