@@ -1,4 +1,5 @@
 - case: magicgui_return_types
+  skip: os.name == 'nt'
   main: |
     from magicgui import magicgui
 
@@ -20,6 +21,7 @@
     main:10:13: note: Revealed type is 'builtins.str*'
 
 - case: magic_factory_return_types
+  skip: os.name == 'nt'
   main: |
     from magicgui import magic_factory
 
