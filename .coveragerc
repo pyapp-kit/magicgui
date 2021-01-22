@@ -4,6 +4,7 @@ exclude_lines =
     if TYPE_CHECKING:
     \.\.\.
     except ImportError*
+    raise NotImplementedError()
 omit =
     magicgui/events.py
     tests/*
