@@ -203,7 +203,7 @@ class MagicFactory(partial):
     @property
     def __name__(self) -> str:
         """Pass function name."""
-        return self.func.__name__
+        return getattr(self.keywords.get("function"), "__name__", "FunctionGui")
 
 
 @overload
