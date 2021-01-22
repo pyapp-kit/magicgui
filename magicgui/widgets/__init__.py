@@ -26,6 +26,7 @@ from ._concrete import (
     LineEdit,
     LiteralEvalLineEdit,
     LogSlider,
+    MainWindow,
     ProgressBar,
     PushButton,
     RadioButton,
@@ -36,7 +37,7 @@ from ._concrete import (
     TextEdit,
     TimeEdit,
 )
-from ._function_gui import FunctionGui
+from ._function_gui import FunctionGui, MainFunctionGui
 from ._table import Table
 
 #: Aliases for compatibility with ipywidgets.  (WIP)
@@ -73,6 +74,8 @@ __all__ = [
     "LineEdit",
     "LiteralEvalLineEdit",
     "LogSlider",
+    "MainFunctionGui",
+    "MainWindow",
     "PushButton",
     "ProgressBar",
     "RadioButton",

@@ -44,7 +44,7 @@ create a widget subclass appropriate for the arguments passed (such as "value" o
 """
 from .button_widget import ButtonWidget
 from .categorical_widget import CategoricalWidget
-from .container_widget import ContainerWidget
+from .container_widget import ContainerWidget, MainWindowWidget
 from .create_widget import create_widget
 from .ranged_widget import RangedWidget, TransformedRangedWidget
 from .slider_widget import SliderWidget
@@ -55,6 +55,7 @@ __all__ = [
     "ButtonWidget",
     "CategoricalWidget",
     "ContainerWidget",
+    "MainWindowWidget",
     "RangedWidget",
     "SliderWidget",
     "TransformedRangedWidget",

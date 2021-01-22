@@ -8,13 +8,16 @@ import inspect
 import re
 import warnings
 from collections import deque
-from typing import Any, Callable, Deque, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Deque, Dict, Optional, Union
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicSignature, magic_signature
-from magicgui.widgets import Container, LineEdit, ProgressBar, PushButton
-from magicgui.widgets._protocols import ContainerProtocol
+from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
+from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
+
+if TYPE_CHECKING:
+    from magicgui.widgets import TextEdit
 
 
 def _inject_tooltips_from_docstrings(
@@ -31,8 +34,9 @@ def _inject_tooltips_from_docstrings(
         argname = param.arg_name.split(" ", maxsplit=1)[0]
         if argname not in param_options:
             param_options[argname] = {}
+        description = param.description.replace("`", "")
         # use setdefault so as not to override an explicitly provided tooltip
-        param_options[argname].setdefault("tooltip", param.description)
+        param_options[argname].setdefault("tooltip", description)
 
 
 class FunctionGui(Container):
@@ -310,3 +314,41 @@ class FunctionGui(Container):
         if show:
             self.show()
         return self
+
+
+class MainFunctionGui(FunctionGui, MainWindow):
+    """Container of widgets as a Main Application Window."""
+
+    _widget: MainWindowProtocol
+
+    def __init__(self, function: Callable, *args, **kwargs):
+        super().__init__(function, *args, **kwargs)
+        self.create_menu_item("Help", "Documentation", callback=self._show_docs)
+        self._help_text_edit: Optional[TextEdit] = None
+
+    def _show_docs(self):
+        if not self._help_text_edit:
+            from magicgui.widgets import TextEdit
+
+            docs = self._function.__doc__
+            html = _docstring_to_html(docs) if docs else "None"
+            self._help_text_edit = TextEdit(value=html)
+            self._help_text_edit.read_only = True
+            self._help_text_edit.width = 600
+            self._help_text_edit.height = 400
+
+        self._help_text_edit.show()
+
+
+def _docstring_to_html(docs: str) -> str:
+    """Convert docstring into rich text html."""
+    from docstring_parser import parse
+
+    ds = parse(docs)
+
+    ptemp = "<li><p><strong>{}</strong> (<em>{}</em>) - {}</p></li>"
+    plist = [ptemp.format(p.arg_name, p.type_name, p.description) for p in ds.params]
+    params = "<h3>Parameters</h3><ul>{}</ul>".format("".join(plist))
+    short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
+    long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
+    return re.sub(r"``?([^`]+)``?", r"<code>\1</code>", f"{short}{long}{params}")

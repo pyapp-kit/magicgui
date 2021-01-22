@@ -386,6 +386,21 @@ class SupportsText(Protocol):
 
 
 @runtime_checkable
+class SupportsReadOnly(Protocol):
+    """Widget that can be read_only."""
+
+    @abstractmethod
+    def _mgui_set_read_only(self, value: bool) -> None:
+        """Set read_only."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_read_only(self) -> bool:
+        """Get read_only status."""
+        raise NotImplementedError()
+
+
+@runtime_checkable
 class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, Protocol):
     """The "value" in a ButtonWidget is the current (checked) state."""
 
@@ -430,6 +445,16 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
 
     @abstractmethod
     def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+        raise NotImplementedError()
+
+
+class MainWindowProtocol(ContainerProtocol, Protocol):
+    """Application main widget."""
+
+    @abstractmethod
+    def _mgui_create_menu_item(
+        self, menu_name: str, action_name: str, callback=None, shortcut=None
+    ):
         raise NotImplementedError()
 
 
