@@ -33,9 +33,9 @@ def _inject_tooltips_from_docstrings(
         argname = param.arg_name.split(" ", maxsplit=1)[0]
         if argname not in param_options:
             param_options[argname] = {}
-        description = param.description.replace("`", "")
+        desc = param.description.replace("`", "") if param.description else ""
         # use setdefault so as not to override an explicitly provided tooltip
-        param_options[argname].setdefault("tooltip", description)
+        param_options[argname].setdefault("tooltip", desc)
 
 
 class FunctionGui(Container):
