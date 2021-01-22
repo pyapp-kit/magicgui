@@ -1,5 +1,5 @@
 """Widget implementations (adaptors) for the Qt backend."""
-from typing import Any, Iterable, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, Optional, Sequence, Tuple, Union
 
 import qtpy
 from qtpy import QtWidgets as QtW
@@ -203,9 +203,15 @@ class LineEdit(QBaseStringWidget):
         super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
 
 
-class TextEdit(QBaseStringWidget):
+class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
     def __init__(self):
         super().__init__(QtW.QTextEdit, "toPlainText", "setText", "textChanged")
+
+    def _mgui_set_read_only(self, value: bool) -> None:
+        self._qwidget.setReadOnly(value)
+
+    def _mgui_get_read_only(self) -> bool:
+        return self._qwidget.isReadOnly()
 
 
 # NUMBERS
@@ -322,6 +328,37 @@ class Container(
             return "horizontal"
         else:
             return "vertical"
+
+
+class MainWindow(Container):
+    def __init__(self, layout="vertical"):
+        super().__init__(layout=layout)
+        self._main_window = QtW.QMainWindow()
+        self._main_window.setCentralWidget(self._qwidget)
+        self._main_menu = self._main_window.menuBar()
+        self._menus: Dict[str, QtW.QMenu] = {}
+
+    def _mgui_show_widget(self):
+        self._main_window.show()
+
+    def _mgui_hide_widget(self):
+        self._main_window.hide()
+
+    def _mgui_get_native_widget(self) -> QtW.QMainWindow:
+        return self._main_window
+
+    def _mgui_create_menu_item(
+        self, menu_name: str, action_name: str, callback=None, shortcut=None
+    ):
+        menu = self._menus.setdefault(
+            menu_name, self._main_menu.addMenu(f"&{menu_name}")
+        )
+        action = QtW.QAction(action_name, self._main_window)
+        if shortcut is not None:
+            action.setShortcut(shortcut)
+        if callback is not None:
+            action.triggered.connect(callback)
+        menu.addAction(action)
 
 
 class SpinBox(QBaseRangedWidget):

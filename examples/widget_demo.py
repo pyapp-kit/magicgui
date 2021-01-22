@@ -17,6 +17,7 @@ class Medium(Enum):
 
 
 @magicgui(
+    main_window=True,
     call_button="Calculate",
     layout="vertical",
     result_widget=True,
@@ -35,7 +36,7 @@ def widget_demo(
     datetime=datetime.datetime.now(),
     filename=Path.home(),
 ):
-    """We can use numpy docstrings to provide tooltips
+    """We can use numpy docstrings to provide tooltips.
 
     Parameters
     ----------
@@ -56,14 +57,9 @@ def widget_demo(
     time : datetime.time, optional
         Some time, by default datetime.time(1, 30, 20)
     datetime : datetime.datetime, optional
-        A very specific time and date, by default datetime.datetime.now()
+        A very specific time and date, by default ``datetime.datetime.now()``
     filename : str, optional
         Pick a path, by default Path.home()
-
-    Returns
-    -------
-    [type]
-        [description]
     """
     return locals().values()
 
