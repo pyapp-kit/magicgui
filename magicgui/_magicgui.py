@@ -200,6 +200,11 @@ class MagicFactory(partial):
         """Allow accessing FunctionGui attributes without mypy error."""
         pass  # pragma: no cover
 
+    @property
+    def __name__(self) -> str:
+        """Pass function name."""
+        return self.func.__name__
+
 
 @overload
 def magic_factory(  # noqa
