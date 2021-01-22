@@ -422,3 +422,4 @@ def test_main_function_gui():
     add._show_docs()
     assert isinstance(add._help_text_edit, widgets.TextEdit)
     assert add._help_text_edit.value.startswith("Adds the given two numbers")
+    assert add._help_text_edit.read_only
