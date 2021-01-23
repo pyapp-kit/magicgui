@@ -42,6 +42,8 @@ def _magicgui(function=None, factory=False, main_window=False, **kwargs):
 
         if factory:
             return MagicFactory(func, magic_class=magic_class, **kwargs)
+        # MagicFactory is more magical than necessary if we immediately instantiating,
+        # so we shortcut that and just return the FunctionGui here.
         return magic_class(func, **kwargs)
 
     if function is None:
