@@ -100,7 +100,7 @@ class FunctionGui(Container, Generic[_R]):
         self,
         function: Callable[..., _R],
         call_button: Union[bool, str] = False,
-        layout: str = "horizontal",
+        layout: str = "vertical",
         labels: bool = True,
         tooltips: bool = True,
         app: AppRef = None,

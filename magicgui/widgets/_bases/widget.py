@@ -45,7 +45,7 @@ class Widget:
 
     _widget: _protocols.WidgetProtocol
     # if this widget becomes owned by a labeled widget
-    _labeled_widget: Optional["ReferenceType[_LabeledWidget]"] = None
+    _labeled_widget_ref: Optional["ReferenceType[_LabeledWidget]"] = None
 
     def __init__(
         self,
@@ -249,14 +249,18 @@ class Widget:
         """Set the tooltip for this widget."""
         return self._widget._mgui_set_tooltip(value)
 
+    def _labeled_widget(self) -> Optional[_LabeledWidget]:
+        """Return _LabeledWidget container, if applicable."""
+        return self._labeled_widget_ref() if self._labeled_widget_ref else None
+
     def show(self, run=False):
         """Show the widget."""
         self._widget._mgui_show_widget()
         self.visible = True
-        if self._labeled_widget is not None:
-            w = self._labeled_widget()
-            if w:
-                w.show()
+
+        labeled_widget = self._labeled_widget()
+        if labeled_widget is not None:
+            labeled_widget.show()
         if run:
             self.__magicgui_app__.run()
         return self  # useful for generating repr in sphinx
@@ -274,10 +278,10 @@ class Widget:
         """Hide widget."""
         self._widget._mgui_hide_widget()
         self.visible = False
-        if self._labeled_widget is not None:
-            w = self._labeled_widget()
-            if w:
-                w.hide()
+
+        labeled_widget = self._labeled_widget()
+        if labeled_widget is not None:
+            labeled_widget.hide()
 
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
