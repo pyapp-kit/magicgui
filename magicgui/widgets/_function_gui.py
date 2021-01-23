@@ -406,7 +406,8 @@ def _function_name_pointing_to_widget(function_gui: FunctionGui):
     func_name = function.__name__
     # function.__globals__ here points to the module-level globals in which the function
     # was defined.  This means that this will NOT work for factories defined inside
-    # other functions.
+    # other functions.  we use `_UNSET` just in case the function name has somehow been
+    # deleted or does not exist in the function module's globals()
     original_value = function.__globals__.get(func_name, _UNSET)
     function.__globals__[func_name] = function_gui
     try:
