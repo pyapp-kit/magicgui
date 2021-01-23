@@ -27,13 +27,24 @@ def _inject_tooltips_from_docstrings(
 
     if not docstring:
         return
-    for param in parse(docstring).params:
+
+    doc_params = {p.arg_name: p.description for p in parse(docstring).params}
+
+    # deal with the (numpydocs) case when there are multiple parameters separated
+    # by a comma
+    for k, v in list(doc_params.items()):
+        if "," in k:
+            for split_key in k.split(","):
+                doc_params[split_key.strip()] = v
+            del doc_params[k]
+
+    for name, description in doc_params.items():
         # this is to catch potentially bad arg_name parsing in docstring_parser
         # if using napoleon style google docstringss
-        argname = param.arg_name.split(" ", maxsplit=1)[0]
+        argname = name.split(" ", maxsplit=1)[0]
         if argname not in param_options:
             param_options[argname] = {}
-        desc = param.description.replace("`", "") if param.description else ""
+        desc = description.replace("`", "") if description else ""
         # use setdefault so as not to override an explicitly provided tooltip
         param_options[argname].setdefault("tooltip", desc)
 
