@@ -3,27 +3,15 @@ from __future__ import annotations
 import inspect
 from functools import partial
 from types import FunctionType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Generic,
-    Optional,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 from warnings import warn
-
-from typing_extensions import Literal
 
 from magicgui.widgets import FunctionGui, MainFunctionGui
 
 if TYPE_CHECKING:
     from magicgui.application import AppRef
 
-_T = TypeVar("_T")
-_R = TypeVar("_R")
+__all__ = ["magicgui", "magic_factory", "MagicFactory"]
 
 
 def _magicgui(function=None, factory=False, main_window=False, **kwargs):
@@ -50,69 +38,6 @@ def _magicgui(function=None, factory=False, main_window=False, **kwargs):
         return inner_func
     else:
         return inner_func(function)
-
-
-# Overloads for magicgui decorator.  See implementation below
-# TODO: figure out how to get these in a stub file.
-# My first attempts to put them in ``_magicgui.pyi`` broke my type hints in VSCode
-# fmt: off
-@overload
-def magicgui(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> FunctionGui[_R]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
-    function: Literal[None] = None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], FunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> MainFunctionGui[_R]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
-    function=None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], MainFunctionGui[_R]]: ...
-# fmt: on
 
 
 def magicgui(
@@ -184,7 +109,7 @@ def magicgui(
     return _magicgui(**locals())
 
 
-class MagicFactory(partial, Generic[_T]):
+class MagicFactory(partial):
     """Factory function that returns a FunctionGui instance.
 
     While this can be used directly, (see example below) the preferred usage is
@@ -240,7 +165,7 @@ class MagicFactory(partial, Generic[_T]):
         ]
         return f"MagicFactory({', '.join(args)})"
 
-    def __call__(self, *args, **kwargs) -> _T:
+    def __call__(self, *args, **kwargs):
         """Call the wrapped _magicgui and return a FunctionGui."""
         if args:
             raise ValueError("MagicFactory instance only accept keyword arguments")
@@ -257,69 +182,6 @@ class MagicFactory(partial, Generic[_T]):
     def __name__(self) -> str:
         """Pass function name."""
         return getattr(self.keywords.get("function"), "__name__", "FunctionGui")
-
-
-# Overloads for magic_factory decorator.  See implementation below
-# TODO: figure out how to get these in a stub file.
-# My first attempts to put them in ``_magicgui.pyi`` broke my type hints in VSCode
-# fmt: off
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> MagicFactory[FunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Literal[None] = None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], MagicFactory[FunctionGui[_R]]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> MagicFactory[MainFunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Literal[None] = None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], MagicFactory[MainFunctionGui[_R]]]: ...
-# fmt: on
 
 
 def magic_factory(
