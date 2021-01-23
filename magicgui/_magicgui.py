@@ -30,7 +30,8 @@ def _magicgui(function=None, factory=False, main_window=False, **kwargs):
     """Actual private magicui decorator.
 
     if factory is `True` will return a MagicFactory instance, that can be called
-    to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters
+    to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters.
+    Otherwise, this will return a FunctionGui instance directly.
     """
     if "result" in kwargs["param_options"]:
         warn(
