@@ -524,6 +524,25 @@ the entirety of the docstring just like that"""
     assert not func.z.tooltip
 
 
+def test_duplicated_and_missing_params_from_numpydoc():
+    """Test that numpydocs docstrings can be used for tooltips."""
+
+    @magicgui
+    def func(x, y, z=None):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x, y : int
+            Integers for you to use
+        """
+        pass
+
+    assert func.x.tooltip == "Integers for you to use"
+    assert func.y.tooltip == "Integers for you to use"
+    assert not func.z.tooltip
+
+
 def test_tooltips_from_google_doc():
     """Test that google docstrings can be used for tooltips."""
 
