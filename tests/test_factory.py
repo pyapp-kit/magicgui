@@ -75,14 +75,11 @@ def test_magic_factory_self_reference():
 
 
 def test_magic_local_factory_self_reference():
-    """Test that self-referential factories DON'T work in local scopes, but warn."""
+    """Test that self-referential factories work in local scopes."""
 
-    with pytest.warns(UserWarning) as wrn:
+    @magic_factory
+    def local_self_referencing_factory(x: int = 1):
+        return local_self_referencing_factory
 
-        @magic_factory
-        def local_self_referencing_factory(x: int = 1):
-            return local_self_referencing_factory
-
-    assert "Self-reference detected" in str(wrn[0])
     widget = local_self_referencing_factory()
-    assert isinstance(widget(), MagicFactory)
+    assert isinstance(widget(), FunctionGui)
