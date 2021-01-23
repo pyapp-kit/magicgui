@@ -8,6 +8,7 @@
     - file: usage/configuration
     - file: usage/types_widgets
     - file: usage/direct_api
+    - file: usage/main_window
 
 - part: Examples
   chapters:

@@ -33,15 +33,6 @@ def _magicgui(function=None, factory=False, main_window=False, **kwargs):
     to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters.
     Otherwise, this will return a FunctionGui instance directly.
     """
-    if "result" in kwargs["param_options"]:
-        warn(
-            "\n\nThe 'result' option is deprecated and will be removed in the future."
-            "Please use `result_widget=True` instead.\n",
-            FutureWarning,
-        )
-
-        kwargs["param_options"].pop("result")
-        kwargs["result_widget"] = True
 
     def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
         if not callable(func):

@@ -24,8 +24,7 @@ class Medium(Enum):
     Air = 1.0003
 
 
-# result is deprecated ... use result_widget=True
-@magicgui(call_button="calculate", result={"disabled": True, "fixedWidth": 100})
+@magicgui(call_button="calculate", result_widget=True)
 def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
     """Calculate the angle of refraction given two media and an AOI."""
     if degrees:
