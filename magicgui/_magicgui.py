@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import inspect
 from functools import partial
-from types import FunctionType
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union
-from warnings import warn
 
 from magicgui.widgets import FunctionGui, MainFunctionGui
 
@@ -101,6 +99,33 @@ def magic_factory(
     return _magicgui(factory=True, **locals())
 
 
+_factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
+    """
+    Returns
+    -------
+    result : MagicFactory or Callable[[F], MagicFactory]
+        If ``function`` is not ``None`` (such as when this is used as a bare decorator),
+        returns a MagicFactory instance.
+        If ``function`` is ``None`` such as when arguments are provided like
+        ``magic_factory(auto_call=True)``, then returns a function that can be used as a
+        decorator.
+
+    Examples
+    --------
+    >>> @magic_factory
+    ... def my_function(a: int = 1, b: str = 'hello'):
+    ...     pass
+    ...
+    >>> my_widget = my_function()
+    >>> my_widget.show()
+    >>> my_widget.a.value == 1  # Trueq
+    >>> my_widget.b.value = 'world'
+    """
+)
+
+magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
+
+
 class MagicFactory(partial):
     """Factory function that returns a FunctionGui instance.
 
@@ -125,23 +150,6 @@ class MagicFactory(partial):
             raise TypeError(
                 "MagicFactory missing required positional argument 'function'"
             )
-
-        # if someone uses `@magic_factory` *inside* of another function (i.e., not in
-        # the module-level scope), *and* they try to use the "self-reference trick",
-        # (wherein they use the function name in the body of the function in order to
-        # access the resulting FunctionGui instance)... it will not work.
-        # here we detect that type of usage and give a warning.
-        if isinstance(function, FunctionType):
-            # this tells us the function has not been defined at the module level
-            if "<locals>" in function.__qualname__:
-                # this tells us they are accessing an undefined variable *inside* of the
-                # function that has the same name as the function.
-                # https://docs.python.org/3/library/inspect.html?highlight=co_freevars
-                if function.__name__ in function.__code__.co_freevars:
-                    warn(
-                        "Self-reference detected in MagicFactory function created "
-                        "in a local scope. FunctionGui references will not work."
-                    )
 
         # we want function first for the repr
         keywords = {"function": function, **keywords}
@@ -174,33 +182,6 @@ class MagicFactory(partial):
     def __name__(self) -> str:
         """Pass function name."""
         return getattr(self.keywords.get("function"), "__name__", "FunctionGui")
-
-
-_factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
-    """
-    Returns
-    -------
-    result : MagicFactory or Callable[[F], MagicFactory]
-        If ``function`` is not ``None`` (such as when this is used as a bare decorator),
-        returns a MagicFactory instance.
-        If ``function`` is ``None`` such as when arguments are provided like
-        ``magic_factory(auto_call=True)``, then returns a function that can be used as a
-        decorator.
-
-    Examples
-    --------
-    >>> @magic_factory
-    ... def my_function(a: int = 1, b: str = 'hello'):
-    ...     pass
-    ...
-    >>> my_widget = my_function()
-    >>> my_widget.show()
-    >>> my_widget.a.value == 1  # Trueq
-    >>> my_widget.b.value = 'world'
-    """
-)
-
-magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
 
 
 def _magicgui(function=None, factory=False, main_window=False, **kwargs):
