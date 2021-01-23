@@ -174,9 +174,9 @@ def test_container_widget():
     with pytest.raises(NotImplementedError):
         container[0] = "something"
 
-    assert container.layout == "horizontal"
+    assert container.layout == "vertical"
     with pytest.raises(NotImplementedError):
-        container.layout = "vertical"
+        container.layout = "horizontal"
 
     assert all(x in dir(container) for x in ["labela", "labelb"])
 
