@@ -14,43 +14,17 @@ if TYPE_CHECKING:
 __all__ = ["magicgui", "magic_factory", "MagicFactory"]
 
 
-def _magicgui(function=None, factory=False, main_window=False, **kwargs):
-    """Actual private magicui decorator.
-
-    if factory is `True` will return a MagicFactory instance, that can be called
-    to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters.
-    Otherwise, this will return a FunctionGui instance directly.
-    """
-
-    def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
-        if not callable(func):
-            raise TypeError("the first argument must be callable")
-
-        magic_class = MainFunctionGui if main_window else FunctionGui
-
-        if factory:
-            return MagicFactory(func, magic_class=magic_class, **kwargs)
-        # MagicFactory is more magical than necessary if we immediately instantiating,
-        # so we shortcut that and just return the FunctionGui here.
-        return magic_class(func, **kwargs)
-
-    if function is None:
-        return inner_func
-    else:
-        return inner_func(function)
-
-
 def magicgui(
-    function=None,
+    function: Optional[Callable] = None,
     *,
-    layout="horizontal",
-    labels=True,
-    tooltips=True,
-    call_button=False,
-    auto_call=False,
-    result_widget=False,
-    main_window=False,
-    app=None,
+    layout: str = "vertical",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: bool = False,
+    app: AppRef = None,
     **param_options: dict,
 ):
     """Return a :class:`FunctionGui` for ``function``.
@@ -62,7 +36,7 @@ def magicgui(
         arguments. by default ``None``
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
-        by default "horizontal".
+        by default "vertical".
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     tooltips : bool, optional
@@ -77,7 +51,8 @@ def magicgui(
         Whether to display a LineEdit widget the output of the function when called,
         by default False
     main_window : bool
-        Whether this widget should be treated as the main app window, with menu bar.
+        Whether this widget should be treated as the main app window, with menu bar,
+        by default True.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
 
@@ -107,6 +82,23 @@ def magicgui(
     >>> my_function.b.value = 'world'
     """
     return _magicgui(**locals())
+
+
+def magic_factory(
+    function: Optional[Callable] = None,
+    *,
+    layout: str = "vertical",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: bool = False,
+    app: AppRef = None,
+    **param_options: dict,
+):
+    """Return a :class:`MagicFactory` for ``function``."""
+    return _magicgui(factory=True, **locals())
 
 
 class MagicFactory(partial):
@@ -184,23 +176,6 @@ class MagicFactory(partial):
         return getattr(self.keywords.get("function"), "__name__", "FunctionGui")
 
 
-def magic_factory(
-    function: Optional[Callable] = None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: bool = False,
-    app: AppRef = None,
-    **param_options: dict,
-):
-    """Return a :class:`MagicFactory` for ``function``."""
-    return _magicgui(factory=True, **locals())
-
-
 _factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
     """
     Returns
@@ -226,3 +201,29 @@ _factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
 )
 
 magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
+
+
+def _magicgui(function=None, factory=False, main_window=False, **kwargs):
+    """Actual private magicui decorator.
+
+    if factory is `True` will return a MagicFactory instance, that can be called
+    to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters.
+    Otherwise, this will return a FunctionGui instance directly.
+    """
+
+    def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
+        if not callable(func):
+            raise TypeError("the first argument must be callable")
+
+        magic_class = MainFunctionGui if main_window else FunctionGui
+
+        if factory:
+            return MagicFactory(func, magic_class=magic_class, **kwargs)
+        # MagicFactory is unnecessary if we are immediately instantiating the widget,
+        # so we shortcut that and just return the FunctionGui here.
+        return magic_class(func, **kwargs)
+
+    if function is None:
+        return inner_func
+    else:
+        return inner_func(function)
