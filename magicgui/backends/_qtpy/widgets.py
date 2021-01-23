@@ -501,7 +501,7 @@ class DateTimeEdit(QBaseValueWidget):
     def _mgui_get_value(self):
         try:
             return self._qwidget.dateTime().toPython()
-        except TypeError:
+        except (TypeError, AttributeError):
             return self._qwidget.dateTime().toPyDateTime()
 
 
@@ -512,7 +512,7 @@ class DateEdit(QBaseValueWidget):
     def _mgui_get_value(self):
         try:
             return self._qwidget.date().toPython()
-        except TypeError:
+        except (TypeError, AttributeError):
             return self._qwidget.date().toPyDate()
 
 
@@ -523,7 +523,7 @@ class TimeEdit(QBaseValueWidget):
     def _mgui_get_value(self):
         try:
             return self._qwidget.time().toPython()
-        except TypeError:
+        except (TypeError, AttributeError):
             return self._qwidget.time().toPyTime()
 
 
