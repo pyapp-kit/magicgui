@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, Optional, Union, overload
-from warnings import warn
 
 from typing_extensions import Literal
 
@@ -144,15 +143,6 @@ def magicgui(
     >>> my_function.a.value == 1  # True
     >>> my_function.b.value = 'world'
     """
-    if "result" in param_options:
-        warn(
-            "\n\nThe 'result' option is deprecated and will be removed in the future."
-            "Please use `result_widget=True` instead.\n",
-            FutureWarning,
-        )
-
-        param_options.pop("result")
-        result_widget = True
 
     def inner_func(func: Callable) -> FunctionGui:
         from magicgui.widgets import FunctionGui, MainFunctionGui
