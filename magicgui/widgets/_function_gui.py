@@ -374,9 +374,28 @@ def _function_name_pointing_to_widget(function_gui: FunctionGui):
     """Context in which the name of the function points to the function_gui instance.
 
     When calling the function provided to FunctionGui, we make sure that the name
-    of the function points to the FunctionGui object itself (this object).
+    of the function points to the FunctionGui object itself.
     In standard ``@magicgui`` usage, this will have been the case anyway.
-    Doing this here allows @magic_factories to *also* be self-referential.
+    Doing this here allows the function name in a ``@magic_factory``-decorated function
+    to *also* refer to the function gui instance created by the factory, (rather than
+    to the :class:`~magicgui._magicgui.MagicFactory` object).
+
+    Examples
+    --------
+    >>> @magicgui
+    >>> def func():
+    ...     # using "func" in the body here will refer to the widget.
+    ...     print(type(func))
+    >>>
+    >>> func()  # prints 'magicgui.widgets._function_gui.FunctionGui'
+
+    >>> @magic_factory
+    >>> def func():
+    ...     # using "func" in the body here will refer to the *widget* not the factory.
+    ...     print(type(func))
+    >>>
+    >>> widget = func()
+    >>> widget()  # *also* prints 'magicgui.widgets._function_gui.FunctionGui'
     """
     function = function_gui._function
     if not isinstance(function, FunctionType):
