@@ -188,8 +188,6 @@ class FunctionGui(Container, Generic[_R]):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
-    _UNSET = object()  # sentinel used when temporarily overriding function.__globals__
-
     def __call__(self, *args: Any, **kwargs: Any) -> _R:
         """Call the original function with the current parameter values from the Gui.
 
