@@ -326,22 +326,6 @@ def test_get_choices_raises():
     assert func.mood.choices == (1, 2, 3)
 
 
-@pytest.mark.skip(reason="does not yet work")
-def test_positions():
-    """Test that providing position options puts widget in the right place."""
-
-    def func(a=1, b=2, c=3):
-        pass
-
-    def get_layout_items(layout):
-        return [layout.itemAt(i).widget().objectName() for i in range(layout.count())]
-
-    gui = magicgui(func)
-    assert get_layout_items(gui.layout()) == ["a", "b", "c"]
-    gui = magicgui(func, a={"position": 2}, b={"position": 1}).Gui()
-    assert get_layout_items(gui.layout()) == ["c", "b", "a"]
-
-
 @pytest.mark.parametrize(
     "labels",
     [
@@ -627,3 +611,32 @@ def test_only_some_tooltips_from_numpydoc():
 
     assert not func.x.tooltip
     assert func.y.tooltip == "Still want a tooltip"
+
+
+def test_magicgui_type_error():
+
+    with pytest.raises(TypeError):
+        magicgui("not a function")  # type: ignore
+
+
+@magicgui
+def self_referencing_function(x: int = 1):
+    """Function that refers to itself, and wants the FunctionGui instance."""
+    return self_referencing_function
+
+
+def test_magicgui_self_reference():
+    """Test that self-referential magicguis work in global scopes."""
+
+    assert isinstance(self_referencing_function(), widgets.FunctionGui)
+
+
+def test_local_magicgui_self_reference():
+    """Test that self-referential magicguis work in local scopes."""
+
+    @magicgui
+    def local_self_referencing_function(x: int = 1):
+        """Function that refers to itself, and wants the FunctionGui instance."""
+        return local_self_referencing_function
+
+    assert isinstance(local_self_referencing_function(), widgets.FunctionGui)

@@ -1,0 +1,47 @@
+- case: magicgui_return_types
+  skip: os.name == 'nt'
+  main: |
+    from magicgui import magicgui
+
+    def f(a) -> str:...
+
+    reveal_type(magicgui())
+    reveal_type(magicgui(f))
+    reveal_type(magicgui(f)())
+    reveal_type(magicgui(main_window=True))
+    reveal_type(magicgui(main_window=True)(f))
+    reveal_type(magicgui(main_window=True)(f)())
+
+  out: |
+    main:5:13: note: Revealed type is 'def [_R] (def (*Any, **Any) -> _R`-1) -> magicgui.widgets._function_gui.FunctionGui[_R`-1]'
+    main:6:13: note: Revealed type is 'magicgui.widgets._function_gui.FunctionGui[builtins.str*]'
+    main:7:13: note: Revealed type is 'builtins.str*'
+    main:8:13: note: Revealed type is 'def [_R] (def (*Any, **Any) -> _R`-1) -> magicgui.widgets._function_gui.MainFunctionGui[_R`-1]'
+    main:9:13: note: Revealed type is 'magicgui.widgets._function_gui.MainFunctionGui[builtins.str*]'
+    main:10:13: note: Revealed type is 'builtins.str*'
+
+- case: magic_factory_return_types
+  skip: os.name == 'nt'
+  main: |
+    from magicgui import magic_factory
+
+    def f(a) -> str:...
+
+    reveal_type(magic_factory())
+    reveal_type(magic_factory(f))
+    reveal_type(magic_factory(f)())
+    reveal_type(magic_factory(f)()())
+    reveal_type(magic_factory(main_window=True))
+    reveal_type(magic_factory(main_window=True)(f))
+    reveal_type(magic_factory(main_window=True)(f)())
+    reveal_type(magic_factory(main_window=True)(f)()())
+
+  out: |
+    main:5:13: note: Revealed type is 'def [_R] (def (*Any, **Any) -> _R`-1) -> magicgui._magicgui.MagicFactory[magicgui.widgets._function_gui.FunctionGui[_R`-1]]'
+    main:6:13: note: Revealed type is 'magicgui._magicgui.MagicFactory[magicgui.widgets._function_gui.FunctionGui[builtins.str*]]'
+    main:7:13: note: Revealed type is 'magicgui.widgets._function_gui.FunctionGui*[builtins.str*]'
+    main:8:13: note: Revealed type is 'builtins.str*'
+    main:9:13: note: Revealed type is 'def [_R] (def (*Any, **Any) -> _R`-1) -> magicgui._magicgui.MagicFactory[magicgui.widgets._function_gui.MainFunctionGui[_R`-1]]'
+    main:10:13: note: Revealed type is 'magicgui._magicgui.MagicFactory[magicgui.widgets._function_gui.MainFunctionGui[builtins.str*]]'
+    main:11:13: note: Revealed type is 'magicgui.widgets._function_gui.MainFunctionGui*[builtins.str*]'
+    main:12:13: note: Revealed type is 'builtins.str*'

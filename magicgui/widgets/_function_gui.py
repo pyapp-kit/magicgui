@@ -7,7 +7,9 @@ from __future__ import annotations
 import inspect
 import re
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union
+from contextlib import contextmanager
+from types import FunctionType
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, TypeVar, Union
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -49,7 +51,10 @@ def _inject_tooltips_from_docstrings(
         param_options[argname].setdefault("tooltip", desc)
 
 
-class FunctionGui(Container):
+_R = TypeVar("_R")
+
+
+class FunctionGui(Container, Generic[_R]):
     """Wrapper for a container of widgets representing a callable object.
 
     Parameters
@@ -93,7 +98,7 @@ class FunctionGui(Container):
 
     def __init__(
         self,
-        function: Callable,
+        function: Callable[..., _R],
         call_button: Union[bool, str] = False,
         layout: str = "horizontal",
         labels: bool = True,
@@ -106,6 +111,9 @@ class FunctionGui(Container):
         name: str = None,
         **kwargs,
     ):
+        if not callable(function):
+            raise TypeError("'function' argument to FunctionGui must be callable.")
+
         # consume extra Widget keywords
         extra = set(kwargs) - {"annotation", "gui_only"}
         if extra:
@@ -121,13 +129,24 @@ class FunctionGui(Container):
             _inject_tooltips_from_docstrings(function.__doc__, param_options)
 
         self._function = function
+        self.__wrapped__ = function
+        # it's conceivable that function is not actually an instance of FunctionType
+        # we can still support any generic callable, but we need to be careful not to
+        # access attributes (like `__name__` that only function objects have).
+        # Mypy doesn't seem catch this at this point:
+        # https://github.com/python/mypy/issues/9934
+        self._callable_name = (
+            getattr(function, "__name__", None)
+            or f"{function.__module__}.{function.__class__}"
+        )
+
         sig = magic_signature(function, gui_options=param_options)
         super().__init__(
             layout=layout,
             labels=labels,
             widgets=list(sig.widgets(app).values()),
             return_annotation=sig.return_annotation,
-            name=name or function.__name__,
+            name=name or self._callable_name,
         )
 
         self._param_options = param_options
@@ -181,7 +200,7 @@ class FunctionGui(Container):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
-    def __call__(self, *args: Any, **kwargs: Any):
+    def __call__(self, *args: Any, **kwargs: Any) -> _R:
         """Call the original function with the current parameter values from the Gui.
 
         It is also possible to override the current parameter values from the GUI by
@@ -209,12 +228,12 @@ class FunctionGui(Container):
                 match = re.search("argument: '(.+)'", str(e))
                 missing = match.groups()[0] if match else "<param>"
                 msg = (
-                    f"{e} in call to '{self._function.__name__}{sig}'.\n"
+                    f"{e} in call to '{self._callable_name}{sig}'.\n"
                     "To avoid this error, you can bind a value or callback to the "
-                    f"parameter:\n\n    {self._function.__name__}.{missing}.bind(value)"
+                    f"parameter:\n\n    {self._callable_name}.{missing}.bind(value)"
                     "\n\nOr use the 'bind' option in the magicgui decorator:\n\n"
                     f"    @magicgui({missing}={{'bind': value}})\n"
-                    f"    def {self._function.__name__}{sig}: ..."
+                    f"    def {self._callable_name}{sig}: ..."
                 )
                 raise TypeError(msg) from None
             else:
@@ -222,7 +241,9 @@ class FunctionGui(Container):
 
         bound.apply_defaults()
 
-        value = self._function(*bound.args, **bound.kwargs)
+        with _function_name_pointing_to_widget(self):
+            value = self._function(*bound.args, **bound.kwargs)
+
         self._call_count += 1
         if self._result_widget is not None:
             with self._result_widget.changed.blocker():
@@ -239,20 +260,19 @@ class FunctionGui(Container):
 
     def __repr__(self) -> str:
         """Return string representation of instance."""
-        fname = f"{self._function.__module__}.{self._function.__name__}"
-        return f"<FunctionGui {fname}{self.__signature__}>"
+        return f"<FunctionGui {self._callable_name}{self.__signature__}>"
 
     @property
     def result_name(self) -> str:
         """Return a name that can be used for the result of this magicfunction."""
-        return self._result_name or (self._function.__name__ + " result")
+        return self._result_name or (self._callable_name + " result")
 
     @result_name.setter
     def result_name(self, value: str):
         """Set the result name of this FunctionGui widget."""
         self._result_name = value
 
-    def copy(self) -> "FunctionGui":
+    def copy(self) -> FunctionGui:
         """Return a copy of this FunctionGui."""
         return FunctionGui(
             function=self._function,
@@ -320,7 +340,7 @@ class FunctionGui(Container):
         return self
 
 
-class MainFunctionGui(FunctionGui, MainWindow):
+class MainFunctionGui(FunctionGui[_R], MainWindow):
     """Container of widgets as a Main Application Window."""
 
     _widget: MainWindowProtocol
@@ -356,3 +376,55 @@ def _docstring_to_html(docs: str) -> str:
     short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
     long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
     return re.sub(r"``?([^`]+)``?", r"<code>\1</code>", f"{short}{long}{params}")
+
+
+_UNSET = object()
+
+
+@contextmanager
+def _function_name_pointing_to_widget(function_gui: FunctionGui):
+    """Context in which the name of the function points to the function_gui instance.
+
+    When calling the function provided to FunctionGui, we make sure that the name
+    of the function points to the FunctionGui object itself.
+    In standard ``@magicgui`` usage, this will have been the case anyway.
+    Doing this here allows the function name in a ``@magic_factory``-decorated function
+    to *also* refer to the function gui instance created by the factory, (rather than
+    to the :class:`~magicgui._magicgui.MagicFactory` object).
+
+    Examples
+    --------
+    >>> @magicgui
+    >>> def func():
+    ...     # using "func" in the body here will refer to the widget.
+    ...     print(type(func))
+    >>>
+    >>> func()  # prints 'magicgui.widgets._function_gui.FunctionGui'
+
+    >>> @magic_factory
+    >>> def func():
+    ...     # using "func" in the body here will refer to the *widget* not the factory.
+    ...     print(type(func))
+    >>>
+    >>> widget = func()
+    >>> widget()  # *also* prints 'magicgui.widgets._function_gui.FunctionGui'
+    """
+    function = function_gui._function
+    if not isinstance(function, FunctionType):
+        yield
+        return
+
+    func_name = function.__name__
+    # function.__globals__ here points to the module-level globals in which the function
+    # was defined.  This means that this will NOT work for factories defined inside
+    # other functions.  we use `_UNSET` just in case the function name has somehow been
+    # deleted or does not exist in the function module's globals()
+    original_value = function.__globals__.get(func_name, _UNSET)
+    function.__globals__[func_name] = function_gui
+    try:
+        yield
+    finally:
+        if original_value is _UNSET:
+            del function.__globals__[func_name]
+        else:
+            function.__globals__[func_name] = original_value
