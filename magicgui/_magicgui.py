@@ -214,14 +214,24 @@ class MagicFactory(partial, Generic[_T]):
             raise TypeError(
                 "MagicFactory missing required positional argument 'function'"
             )
+
+        # if someone uses `@magic_factory` *inside* of another function (i.e., not in
+        # the module-level scope), *and* they try to use the "self-reference trick",
+        # (wherein they use the function name in the body of the function in order to
+        # access the resulting FunctionGui instance)... it will not work.
+        # here we detect that type of usage and give a warning.
         if isinstance(function, FunctionType):
+            # this tells us the function has not been defined at the module level
             if "<locals>" in function.__qualname__:
-                freevars = function.__code__.co_freevars
-                if function.__name__ in freevars:
+                # this tells us they are accessing an undefined variable *inside* of the
+                # function that has the same name as the function.
+                # https://docs.python.org/3/library/inspect.html?highlight=co_freevars
+                if function.__name__ in function.__code__.co_freevars:
                     warn(
                         "Self-reference detected in MagicFactory function created "
                         "in a local scope. FunctionGui references will not work."
                     )
+
         # we want function first for the repr
         keywords = {"function": function, **keywords}
         return super().__new__(cls, magic_class, *args, **keywords)  # type: ignore
