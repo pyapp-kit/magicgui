@@ -7,14 +7,25 @@ from __future__ import annotations
 import inspect
 import re
 import warnings
+from collections import deque
 from contextlib import contextmanager
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Deque,
+    Dict,
+    Generic,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicSignature, magic_signature
-from magicgui.widgets import Container, LineEdit, MainWindow, PushButton
+from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
@@ -154,6 +165,11 @@ class FunctionGui(Container, Generic[_R]):
         self._result_name = ""
         self._call_count: int = 0
 
+        # a deque of Progressbars to be created by (possibly nested) tqdm_mgui iterators
+        self._tqdm_pbars: Deque[ProgressBar] = deque()
+        # the nesting level of tqdm_mgui iterators in a given __call__
+        self._tqdm_depth: int = 0
+
         self._call_button: Optional[PushButton] = None
         if call_button:
             text = call_button if isinstance(call_button, str) else "Run"
@@ -241,6 +257,7 @@ class FunctionGui(Container, Generic[_R]):
 
         bound.apply_defaults()
 
+        self._tqdm_depth = 0  # reset the tqdm stack count
         with _function_name_pointing_to_widget(self):
             value = self._function(*bound.args, **bound.kwargs)
 
