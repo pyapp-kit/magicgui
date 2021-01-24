@@ -35,3 +35,4 @@ def __getattr__(name: str):
         )
 
         return FunctionGui
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
