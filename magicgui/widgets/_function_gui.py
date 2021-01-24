@@ -111,7 +111,7 @@ class FunctionGui(Container, Generic[_R]):
         self,
         function: Callable[..., _R],
         call_button: Union[bool, str] = False,
-        layout: str = "horizontal",
+        layout: str = "vertical",
         labels: bool = True,
         tooltips: bool = True,
         app: AppRef = None,
@@ -428,20 +428,38 @@ def _function_name_pointing_to_widget(function_gui: FunctionGui):
     """
     function = function_gui._function
     if not isinstance(function, FunctionType):
+        # it's not a function object, so we don't know how to patch it...
         yield
         return
 
     func_name = function.__name__
-    # function.__globals__ here points to the module-level globals in which the function
-    # was defined.  This means that this will NOT work for factories defined inside
-    # other functions.  we use `_UNSET` just in case the function name has somehow been
-    # deleted or does not exist in the function module's globals()
-    original_value = function.__globals__.get(func_name, _UNSET)
-    function.__globals__[func_name] = function_gui
-    try:
-        yield
-    finally:
-        if original_value is _UNSET:
-            del function.__globals__[func_name]
-        else:
+    # see https://docs.python.org/3/library/inspect.html for details on code objects
+    code = function.__code__
+
+    if func_name in code.co_names:
+        # This indicates that the function name was used inside the body of the
+        # function, and points to some object in the module's global namespace.
+        # function.__globals__ here points to the module-level globals in which the
+        # function was defined.
+        original_value = function.__globals__.get(func_name)
+        function.__globals__[func_name] = function_gui
+        try:
+            yield
+        finally:
             function.__globals__[func_name] = original_value
+
+    elif function.__closure__ and func_name in code.co_freevars:
+        # This indicates that the function name was used inside the body of the
+        # function, and points to some object defined in a local scope (closure), rather
+        # than the module's global namespace.
+        # the position of the function name in code.co_freevars tells us where to look
+        # for the value in the function.__closure__ tuple.
+        idx = code.co_freevars.index(func_name)
+        original_value = function.__closure__[idx].cell_contents
+        function.__closure__[idx].cell_contents = function_gui
+        try:
+            yield
+        finally:
+            function.__closure__[idx].cell_contents = original_value
+    else:
+        yield

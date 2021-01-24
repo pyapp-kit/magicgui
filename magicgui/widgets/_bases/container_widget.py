@@ -75,7 +75,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
     def __init__(
         self,
-        layout: str = "horizontal",
+        layout: str = "vertical",
         widgets: Sequence[Widget] = (),
         labels=True,
         return_annotation: Any = None,
@@ -218,8 +218,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
                 measure(w.label) for w in self if not isinstance(w, ButtonWidget)
             )
             for w in self:
-                if hasattr(w, "label_width"):
-                    w.label_width = widest_label  # type: ignore
+                labeled_widget = w._labeled_widget()
+                if labeled_widget:
+                    labeled_widget.label_width = widest_label
 
     @property
     def margins(self) -> Tuple[int, int, int, int]:

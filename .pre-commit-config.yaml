@@ -28,4 +28,10 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [tokenize-rt==3.2.0]
+        args:
+          [
+            "--ignore-missing-imports",
+            "--scripts-are-modules",
+            "--no-warn-unused-ignores",
+          ]
         exclude: examples

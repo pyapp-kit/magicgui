@@ -528,10 +528,9 @@ class _LabeledWidget(Container):
         position: str = "left",
         **kwargs,
     ):
-        layout = "horizontal" if position in ("left", "right") else "vertical"
-        kwargs["backend_kwargs"] = {"layout": layout}
+        kwargs["layout"] = "horizontal" if position in ("left", "right") else "vertical"
         self._inner_widget = widget
-        widget._labeled_widget = ref(self)
+        widget._labeled_widget_ref = ref(self)
         self._label_widget = Label(value=label or widget.label, tooltip=widget.tooltip)
         super().__init__(**kwargs)
         self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
