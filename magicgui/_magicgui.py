@@ -2,128 +2,27 @@ from __future__ import annotations
 
 import inspect
 from functools import partial
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Generic,
-    Optional,
-    TypeVar,
-    Union,
-    overload,
-)
-
-from typing_extensions import Literal
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 from magicgui.widgets import FunctionGui, MainFunctionGui
 
 if TYPE_CHECKING:
     from magicgui.application import AppRef
 
-_T = TypeVar("_T")
-_R = TypeVar("_R")
-
-
-def _magicgui(function=None, factory=False, main_window=False, **kwargs):
-    """Actual private magicui decorator.
-
-    if factory is `True` will return a MagicFactory instance, that can be called
-    to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters.
-    Otherwise, this will return a FunctionGui instance directly.
-    """
-
-    def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
-        if not callable(func):
-            raise TypeError("the first argument must be callable")
-
-        magic_class = MainFunctionGui if main_window else FunctionGui
-
-        if factory:
-            return MagicFactory(func, magic_class=magic_class, **kwargs)
-        # MagicFactory is more magical than necessary if we immediately instantiating,
-        # so we shortcut that and just return the FunctionGui here.
-        return magic_class(func, **kwargs)
-
-    if function is None:
-        return inner_func
-    else:
-        return inner_func(function)
-
-
-# Overloads for magicgui decorator.  See implementation below
-# TODO: figure out how to get these in a stub file.
-# My first attempts to put them in ``_magicgui.pyi`` broke my type hints in VSCode
-# fmt: off
-@overload
-def magicgui(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> FunctionGui[_R]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
-    function: Literal[None] = None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], FunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> MainFunctionGui[_R]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
-    function=None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], MainFunctionGui[_R]]: ...
-# fmt: on
+__all__ = ["magicgui", "magic_factory", "MagicFactory"]
 
 
 def magicgui(
-    function=None,
+    function: Optional[Callable] = None,
     *,
-    layout="horizontal",
-    labels=True,
-    tooltips=True,
-    call_button=False,
-    auto_call=False,
-    result_widget=False,
-    main_window=False,
-    app=None,
+    layout: str = "vertical",
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: Union[bool, str] = False,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: bool = False,
+    app: AppRef = None,
     **param_options: dict,
 ):
     """Return a :class:`FunctionGui` for ``function``.
@@ -135,7 +34,7 @@ def magicgui(
         arguments. by default ``None``
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
-        by default "horizontal".
+        by default "vertical".
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     tooltips : bool, optional
@@ -150,7 +49,8 @@ def magicgui(
         Whether to display a LineEdit widget the output of the function when called,
         by default False
     main_window : bool
-        Whether this widget should be treated as the main app window, with menu bar.
+        Whether this widget should be treated as the main app window, with menu bar,
+        by default True.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
 
@@ -182,131 +82,10 @@ def magicgui(
     return _magicgui(**locals())
 
 
-class MagicFactory(partial, Generic[_T]):
-    """Factory function that returns a FunctionGui instance.
-
-    While this can be used directly, (see example below) the preferred usage is
-    via the :func:`magic_factory` decorator.
-
-    Examples
-    --------
-    >>> def func(x: int, y: str):
-    ...     pass
-    ...
-    >>> factory = MagicFactory(function=func, labels=False)
-    >>> # factory accepts all the same arguments as magicgui()
-    >>> widget1 = factory(call_button=True)
-    >>> # can also override magic_kwargs that were provided when creating the factory
-    >>> widget2 = factory(auto_call=True, labels=True)
-    """
-
-    def __new__(cls, function, *args, magic_class=FunctionGui, **keywords):
-        """Create new MagicFactory."""
-        if not function:
-            raise TypeError(
-                "MagicFactory missing required positional argument 'function'"
-            )
-
-        # we want function first for the repr
-        keywords = {"function": function, **keywords}
-        return super().__new__(cls, magic_class, *args, **keywords)  # type: ignore
-
-    def __repr__(self) -> str:
-        """Return string repr."""
-        params = inspect.signature(magicgui).parameters
-        args = [
-            f"{k}={v!r}"
-            for (k, v) in self.keywords.items()
-            if v not in (params[k].default, {})
-        ]
-        return f"MagicFactory({', '.join(args)})"
-
-    def __call__(self, *args, **kwargs) -> _T:
-        """Call the wrapped _magicgui and return a FunctionGui."""
-        if args:
-            raise ValueError("MagicFactory instance only accept keyword arguments")
-        params = inspect.signature(magicgui).parameters
-        prm_options = self.keywords.pop("param_options", {})
-        prm_options.update({k: kwargs.pop(k) for k in list(kwargs) if k not in params})
-        return self.func(param_options=prm_options, **{**self.keywords, **kwargs})
-
-    def __getattr__(self, name) -> Any:
-        """Allow accessing FunctionGui attributes without mypy error."""
-        pass  # pragma: no cover
-
-    @property
-    def __name__(self) -> str:
-        """Pass function name."""
-        return getattr(self.keywords.get("function"), "__name__", "FunctionGui")
-
-
-# Overloads for magic_factory decorator.  See implementation below
-# TODO: figure out how to get these in a stub file.
-# My first attempts to put them in ``_magicgui.pyi`` broke my type hints in VSCode
-# fmt: off
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> MagicFactory[FunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Literal[None] = None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[False] = False,
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], MagicFactory[FunctionGui[_R]]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Callable[..., _R],
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> MagicFactory[MainFunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
-    function: Literal[None] = None,
-    *,
-    layout: str = "horizontal",
-    labels: bool = True,
-    tooltips: bool = True,
-    call_button: Union[bool, str] = False,
-    auto_call: bool = False,
-    result_widget: bool = False,
-    main_window: Literal[True],
-    app: AppRef = None,
-    **param_options: dict,
-) -> Callable[[Callable[..., _R]], MagicFactory[MainFunctionGui[_R]]]: ...
-# fmt: on
-
-
 def magic_factory(
     function: Optional[Callable] = None,
     *,
-    layout: str = "horizontal",
+    layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
     call_button: Union[bool, str] = False,
@@ -345,3 +124,87 @@ _factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
 )
 
 magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
+
+
+class MagicFactory(partial):
+    """Factory function that returns a FunctionGui instance.
+
+    While this can be used directly, (see example below) the preferred usage is
+    via the :func:`magic_factory` decorator.
+
+    Examples
+    --------
+    >>> def func(x: int, y: str):
+    ...     pass
+    ...
+    >>> factory = MagicFactory(function=func, labels=False)
+    >>> # factory accepts all the same arguments as magicgui()
+    >>> widget1 = factory(call_button=True)
+    >>> # can also override magic_kwargs that were provided when creating the factory
+    >>> widget2 = factory(auto_call=True, labels=True)
+    """
+
+    def __new__(cls, function, *args, magic_class=FunctionGui, **keywords):
+        """Create new MagicFactory."""
+        if not function:
+            raise TypeError(
+                "MagicFactory missing required positional argument 'function'"
+            )
+
+        # we want function first for the repr
+        keywords = {"function": function, **keywords}
+        return super().__new__(cls, magic_class, *args, **keywords)  # type: ignore
+
+    def __repr__(self) -> str:
+        """Return string repr."""
+        params = inspect.signature(magicgui).parameters
+        args = [
+            f"{k}={v!r}"
+            for (k, v) in self.keywords.items()
+            if v not in (params[k].default, {})
+        ]
+        return f"MagicFactory({', '.join(args)})"
+
+    def __call__(self, *args, **kwargs):
+        """Call the wrapped _magicgui and return a FunctionGui."""
+        if args:
+            raise ValueError("MagicFactory instance only accept keyword arguments")
+        params = inspect.signature(magicgui).parameters
+        prm_options = self.keywords.pop("param_options", {})
+        prm_options.update({k: kwargs.pop(k) for k in list(kwargs) if k not in params})
+        return self.func(param_options=prm_options, **{**self.keywords, **kwargs})
+
+    def __getattr__(self, name) -> Any:
+        """Allow accessing FunctionGui attributes without mypy error."""
+        pass  # pragma: no cover
+
+    @property
+    def __name__(self) -> str:
+        """Pass function name."""
+        return getattr(self.keywords.get("function"), "__name__", "FunctionGui")
+
+
+def _magicgui(function=None, factory=False, main_window=False, **kwargs):
+    """Actual private magicui decorator.
+
+    if factory is `True` will return a MagicFactory instance, that can be called
+    to return a `FunctionGui` instance.  See docstring of ``magicgui`` for parameters.
+    Otherwise, this will return a FunctionGui instance directly.
+    """
+
+    def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
+        if not callable(func):
+            raise TypeError("the first argument must be callable")
+
+        magic_class = MainFunctionGui if main_window else FunctionGui
+
+        if factory:
+            return MagicFactory(func, magic_class=magic_class, **kwargs)
+        # MagicFactory is unnecessary if we are immediately instantiating the widget,
+        # so we shortcut that and just return the FunctionGui here.
+        return magic_class(func, **kwargs)
+
+    if function is None:
+        return inner_func
+    else:
+        return inner_func(function)
