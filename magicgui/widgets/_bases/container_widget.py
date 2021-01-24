@@ -193,7 +193,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             widget.changed.connect(lambda x: self.changed(value=self))
         _widget = widget
 
-        if self.labels and _widget.visible:
+        if self.labels:
             from magicgui.widgets._concrete import _LabeledWidget
 
             # no labels for button widgets (push buttons, checkboxes, have their own)

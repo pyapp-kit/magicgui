@@ -393,6 +393,7 @@ class FileEdit(Container):
         self.filter = filter
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
         kwargs["labels"] = False
+        kwargs["layout"] = "horizontal"
         super().__init__(**kwargs)
         self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
@@ -531,8 +532,9 @@ class _LabeledWidget(Container):
         kwargs["layout"] = "horizontal" if position in ("left", "right") else "vertical"
         self._inner_widget = widget
         widget._labeled_widget_ref = ref(self)
+        _visible = False if widget._explicitly_hidden else None
         self._label_widget = Label(value=label or widget.label, tooltip=widget.tooltip)
-        super().__init__(**kwargs)
+        super().__init__(**kwargs, visible=_visible)
         self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)

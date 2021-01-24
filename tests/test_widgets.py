@@ -40,7 +40,8 @@ def test_create_widget(kwargs, expect_type):
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
 
-    def _mgui_hide_widget(self): ... # noqa
+    def _mgui_get_visible(self): ... # noqa
+    def _mgui_set_visible(self): ... # noqa
     def _mgui_get_enabled(self): ... # noqa
     def _mgui_set_enabled(self, enabled): ... # noqa
     def _mgui_get_parent(self): ... # noqa
@@ -64,13 +65,13 @@ class MyBadWidget:
     def _mgui_set_value(self, value): ... # noqa
     def _mgui_bind_change_callback(self, callback): ... # noqa
     def _mgui_get_tooltip(self, value): ... # noqa
-    def _mgui_set_tooltip(self, value): ... # noqa
+    # def _mgui_set_tooltip(self, value): ... # noqa
 
 
 class MyValueWidget(MyBadWidget):
     """Complete protocol implementation... should work."""
 
-    def _mgui_show_widget(self): ... # noqa
+    def _mgui_set_tooltip(self, value): ... # noqa
 # fmt: on
 
 
@@ -88,7 +89,7 @@ def test_custom_widget_fails():
     with pytest.raises(TypeError) as err:
         widgets.create_widget(1, widget_type=MyBadWidget)  # type: ignore
     assert "does not implement 'WidgetProtocol'" in str(err)
-    assert "Missing methods: {'_mgui_show_widget'}" in str(err)
+    assert "Missing methods: {'_mgui_set_tooltip'}" in str(err)
 
 
 def test_extra_kwargs_warn():
@@ -116,9 +117,9 @@ def test_basic_widget_attributes():
     widget.enabled = False
     assert not widget.enabled
 
-    assert widget.visible
-    widget.visible = False
     assert not widget.visible
+    widget.show()
+    assert widget.visible
 
     assert widget.parent is None
     container.append(widget)
@@ -128,7 +129,7 @@ def test_basic_widget_attributes():
     assert widget.label == "my name"
     widget.label = "A different label"
     assert widget.label == "A different label"
-    assert widget.width > 200
+    assert widget.width < 100
     widget.width = 150
     assert widget.width == 150
 
@@ -215,19 +216,37 @@ def test_labeled_widget_container():
 
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
-    _ = widgets.Container(widgets=[w1, w2], layout="vertical")
+    container = widgets.Container(widgets=[w1, w2], layout="vertical")
     assert w1._labeled_widget
     lw = w1._labeled_widget()
     assert isinstance(lw, _LabeledWidget)
+    assert not lw.visible
+    container.show()
+    assert w1.visible
     assert lw.visible
     w1.hide()
     assert not w1.visible
     assert not lw.visible
-    w1.show()
-    assert w1.visible
-    assert lw.visible
     w1.label = "another label"
     assert lw._label_widget.value == "another label"
+
+
+def test_visible_in_container():
+    """Test that visibility depends on containers."""
+    w1 = widgets.Label(value="hi", name="w1")
+    w2 = widgets.Label(value="hi", name="w2")
+    w3 = widgets.Label(value="hi", name="w2", visible=False)
+    container = widgets.Container(widgets=[w2, w3])
+    assert not w1.visible
+    assert not w2.visible
+    assert not w3.visible
+    assert not container.visible
+    container.show()
+    assert container.visible
+    assert w2.visible
+    assert not w3.visible
+    w1.show()
+    assert w1.visible
 
 
 def test_delete_widget():
@@ -299,6 +318,7 @@ def test_bound_values_visible():
     def f(x: int = 5):
         return x
 
+    f.show()
     assert f.x.visible
     assert f() == 10
     f.x.unbind()
@@ -431,6 +451,10 @@ def test_main_function_gui():
         int
             Resulting integer
         """
+
+    assert not add.visible
+    add.show()
+    assert add.visible
 
     assert isinstance(add, widgets.MainFunctionGui)
     add._show_docs()

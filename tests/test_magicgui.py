@@ -262,6 +262,7 @@ def test_invisible_param():
         return "works"
 
     assert hasattr(func, "a")
+    func.show()
     assert not func.a.visible
     assert func.b.visible
     assert func.c.visible

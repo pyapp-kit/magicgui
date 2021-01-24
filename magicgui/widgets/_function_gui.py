@@ -84,7 +84,7 @@ class FunctionGui(Container, Generic[_R]):
         Whether tooltips are shown when hovering over widgets. by default True
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
-    show : bool, optional
+    visible : bool, optional
         Whether to immediately show the widget, by default False
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
@@ -115,13 +115,14 @@ class FunctionGui(Container, Generic[_R]):
         labels: bool = True,
         tooltips: bool = True,
         app: AppRef = None,
-        show: bool = False,
+        visible: bool = False,
         auto_call: bool = False,
         result_widget: bool = False,
         param_options: Optional[Dict[str, dict]] = None,
         name: str = None,
         **kwargs,
     ):
+        print("FG, visible", visible)
         if not callable(function):
             raise TypeError("'function' argument to FunctionGui must be callable.")
 
@@ -155,6 +156,7 @@ class FunctionGui(Container, Generic[_R]):
         super().__init__(
             layout=layout,
             labels=labels,
+            visible=visible,
             widgets=list(sig.widgets(app).values()),
             return_annotation=sig.return_annotation,
             name=name or self._callable_name,
@@ -187,9 +189,6 @@ class FunctionGui(Container, Generic[_R]):
         self._auto_call = auto_call
         if auto_call:
             self.changed.connect(lambda e: self.__call__())
-
-        if show:
-            self.show()
 
     @property
     def call_count(self) -> int:
@@ -277,7 +276,7 @@ class FunctionGui(Container, Generic[_R]):
 
     def __repr__(self) -> str:
         """Return string representation of instance."""
-        return f"<FunctionGui {self._callable_name}{self.__signature__}>"
+        return f"<{type(self).__name__} {self._callable_name}{self.__signature__}>"
 
     @property
     def result_name(self) -> str:
@@ -363,6 +362,7 @@ class MainFunctionGui(FunctionGui[_R], MainWindow):
     _widget: MainWindowProtocol
 
     def __init__(self, function: Callable, *args, **kwargs):
+        print(kwargs)
         super().__init__(function, *args, **kwargs)
         self.create_menu_item("Help", "Documentation", callback=self._show_docs)
         self._help_text_edit: Optional[TextEdit] = None

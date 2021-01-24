@@ -31,11 +31,11 @@ class QBaseWidget(_protocols.WidgetProtocol):
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
-    def _mgui_show_widget(self):
-        self._qwidget.show()
+    def _mgui_get_visible(self):
+        return self._qwidget.isVisible()
 
-    def _mgui_hide_widget(self):
-        self._qwidget.hide()
+    def _mgui_set_visible(self, value: bool):
+        self._qwidget.setVisible(value)
 
     def _mgui_get_enabled(self) -> bool:
         return self._qwidget.isEnabled()
@@ -338,11 +338,11 @@ class MainWindow(Container):
         self._main_menu = self._main_window.menuBar()
         self._menus: Dict[str, QtW.QMenu] = {}
 
-    def _mgui_show_widget(self):
-        self._main_window.show()
+    def _mgui_get_visible(self):
+        return self._main_window.isVisible()
 
-    def _mgui_hide_widget(self):
-        self._main_window.hide()
+    def _mgui_set_visible(self, value: bool):
+        self._main_window.setVisible(value)
 
     def _mgui_get_native_widget(self) -> QtW.QMainWindow:
         return self._main_window
