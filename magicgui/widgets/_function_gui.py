@@ -122,7 +122,6 @@ class FunctionGui(Container, Generic[_R]):
         name: str = None,
         **kwargs,
     ):
-        print("FG, visible", visible)
         if not callable(function):
             raise TypeError("'function' argument to FunctionGui must be callable.")
 
@@ -362,7 +361,6 @@ class MainFunctionGui(FunctionGui[_R], MainWindow):
     _widget: MainWindowProtocol
 
     def __init__(self, function: Callable, *args, **kwargs):
-        print(kwargs)
         super().__init__(function, *args, **kwargs)
         self.create_menu_item("Help", "Documentation", callback=self._show_docs)
         self._help_text_edit: Optional[TextEdit] = None
