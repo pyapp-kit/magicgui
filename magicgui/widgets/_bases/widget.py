@@ -54,7 +54,7 @@ class Widget:
         annotation: Any = None,
         label: str = None,
         tooltip: Optional[str] = None,
-        visible: bool = True,
+        visible: Optional[bool] = None,
         enabled: bool = True,
         gui_only=False,
         backend_kwargs=dict(),
@@ -85,7 +85,6 @@ class Widget:
         self.enabled = enabled
         self.annotation: Any = annotation
         self.gui_only = gui_only
-        self.visible: bool = True
         self.parent_changed = EventEmitter(source=self, type="parent_changed")
         self.label_changed = EventEmitter(source=self, type="label_changed")
         self._widget._mgui_bind_parent_change_callback(self._emit_parent)
@@ -93,8 +92,9 @@ class Widget:
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
         self._post_init()
-        if not visible:
-            self.hide()
+        self._visible: bool = False
+        self._explicitly_hidden: bool = False
+        self.visible = visible
 
     @property
     def annotation(self):
@@ -137,7 +137,7 @@ class Widget:
     @property
     def options(self) -> dict:
         """Return options currently being used in this widget."""
-        return {"enabled": self.enabled, "visible": self.visible}
+        return {"enabled": self.enabled, "visible": self._visible}
 
     @property
     def native(self):
@@ -253,14 +253,25 @@ class Widget:
         """Return _LabeledWidget container, if applicable."""
         return self._labeled_widget_ref() if self._labeled_widget_ref else None
 
-    def show(self, run=False):
-        """Show the widget."""
-        self._widget._mgui_show_widget()
-        self.visible = True
+    @property
+    def visible(self) -> bool:
+        return self._widget._mgui_get_visible()
+
+    @visible.setter
+    def visible(self, value: bool):
+        if value is None:
+            return
+
+        self._widget._mgui_set_visible(value)
+        self._explicitly_hidden = not value
 
         labeled_widget = self._labeled_widget()
         if labeled_widget is not None:
-            labeled_widget.show()
+            labeled_widget.visible = value
+
+    def show(self, run=False):
+        """Show the widget."""
+        self.visible = True
         if run:
             self.__magicgui_app__.run()
         return self  # useful for generating repr in sphinx
@@ -276,12 +287,7 @@ class Widget:
 
     def hide(self):
         """Hide widget."""
-        self._widget._mgui_hide_widget()
         self.visible = False
-
-        labeled_widget = self._labeled_widget()
-        if labeled_widget is not None:
-            labeled_widget.hide()
 
     def render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""

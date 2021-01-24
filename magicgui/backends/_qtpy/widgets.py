@@ -31,11 +31,11 @@ class QBaseWidget(_protocols.WidgetProtocol):
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
-    def _mgui_show_widget(self):
-        self._qwidget.show()
+    def _mgui_get_visible(self):
+        return self._qwidget.isVisible()
 
-    def _mgui_hide_widget(self):
-        self._qwidget.hide()
+    def _mgui_set_visible(self, value: bool):
+        self._qwidget.setVisible(value)
 
     def _mgui_get_enabled(self) -> bool:
         return self._qwidget.isEnabled()

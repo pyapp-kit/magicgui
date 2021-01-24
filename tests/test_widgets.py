@@ -116,9 +116,9 @@ def test_basic_widget_attributes():
     widget.enabled = False
     assert not widget.enabled
 
-    assert widget.visible
-    widget.visible = False
     assert not widget.visible
+    widget.show()
+    assert widget.visible
 
     assert widget.parent is None
     container.append(widget)
@@ -219,13 +219,13 @@ def test_labeled_widget_container():
     assert w1._labeled_widget
     lw = w1._labeled_widget()
     assert isinstance(lw, _LabeledWidget)
-    assert lw.visible
-    w1.hide()
-    assert not w1.visible
     assert not lw.visible
     w1.show()
     assert w1.visible
     assert lw.visible
+    w1.hide()
+    assert not w1.visible
+    assert not lw.visible
     w1.label = "another label"
     assert lw._label_widget.value == "another label"
 

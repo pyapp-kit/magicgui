@@ -56,13 +56,13 @@ class WidgetProtocol(Protocol):
         pass
 
     @abstractmethod
-    def _mgui_show_widget(self) -> None:
-        """Show the widget."""
+    def _mgui_get_visible(self):
+        """Get widget visibility."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_hide_widget(self) -> None:
-        """Hide the widget."""
+    def _mgui_set_visible(self, value: bool):
+        """Set widget visibility."""
         raise NotImplementedError()
 
     @abstractmethod
