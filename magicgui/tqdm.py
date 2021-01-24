@@ -6,7 +6,7 @@ from magicgui.application import use_app
 from magicgui.widgets import FunctionGui, ProgressBar
 
 try:
-    from tqdm import tqdm
+    from tqdm import tqdm as tqdm_std
 except ImportError as e:  # pragma: no cover
     msg = (
         f"{e}. To use magicgui with tqdm please `pip install tqdm`, "
@@ -35,12 +35,12 @@ def _find_calling_function_gui(max_depth=6) -> Optional[FunctionGui]:
 
 _tqdm_kwargs = {
     p.name
-    for p in inspect.signature(tqdm.__init__).parameters.values()
+    for p in inspect.signature(tqdm_std.__init__).parameters.values()
     if p.kind is not inspect.Parameter.VAR_KEYWORD and p.name != "self"
 }
 
 
-class tqdm_mgui(tqdm):
+class tqdm(tqdm_std):
     """magicgui version of tqdm.
 
     See tqdm.tqdm API for valid args and kwargs: https://tqdm.github.io/docs/tqdm/
@@ -50,21 +50,21 @@ class tqdm_mgui(tqdm):
 
     Examples
     --------
-    When used inside of a magicgui-decorated function, ``tqdm_mgui`` (and the
-    ``tmgrange`` shortcut function) will append a visible progress bar to the gui
+    When used inside of a magicgui-decorated function, ``tqdm`` (and the
+    ``trange`` shortcut function) will append a visible progress bar to the gui
     container.
 
     >>> @magicgui(call_button=True)
     ... def long_running(steps=10, delay=0.1):
-    ...     for i in tqdm_mgui(range(steps)):
+    ...     for i in tqdm(range(steps)):
     ...         sleep(delay)
 
     nesting is also possible:
 
     >>> @magicgui(call_button=True)
     ... def long_running(steps=10, repeats=4, delay=0.1):
-    ...     for r in tmgrange(repeats):
-    ...         for s in tmgrange(steps):
+    ...     for r in trange(repeats):
+    ...         for s in trange(steps):
     ...             sleep(delay)
     """
 
@@ -73,18 +73,20 @@ class tqdm_mgui(tqdm):
     def __init__(self, iterable: Iterable = None, *args, **kwargs) -> None:
         kwargs = kwargs.copy()
         pbar_kwargs = {k: kwargs.pop(k) for k in set(kwargs) - _tqdm_kwargs}
-        kwargs["gui"] = True
-        kwargs.setdefault("mininterval", 0.025)
+        self._mgui = _find_calling_function_gui()
+        if self._mgui is not None:
+            kwargs["gui"] = True
+            kwargs.setdefault("mininterval", 0.025)
         super().__init__(iterable, *args, **kwargs)
+        if self._mgui is None:
+            return
 
         self.sp = lambda x: None  # no-op status printer, required for older tqdm compat
         if self.disable:
             return
 
         # check if we're being instantiated inside of a magicgui container
-        self._mgui = _find_calling_function_gui()
         self.progressbar = self._get_progressbar(**pbar_kwargs)
-
         self._app = use_app()
 
         if self.total is not None:
@@ -102,7 +104,7 @@ class tqdm_mgui(tqdm):
         The deque allows us to create nested iterables inside of a magigui, while
         resetting and reusing progress bars across ``FunctionGui`` calls. The nesting
         depth (into the deque) is reset by :meth:`FunctionGui.__call__`, right before
-        the function is called.  Then, as the function encounters `tqdm_mgui` instances,
+        the function is called.  Then, as the function encounters `tqdm` instances,
         this method gets or creates a progress bar and increment the
         :attr:`FunctionGui._tqdm_depth` counter on the ``FunctionGui``.
         """
@@ -120,11 +122,16 @@ class tqdm_mgui(tqdm):
 
     def display(self, msg: str = None, pos: int = None) -> None:
         """Update the display."""
+        if self._mgui is None:
+            return super().display(msg=msg, pos=pos)
+
         self.progressbar.value = self.n
         self._app.process_events()
 
     def close(self) -> None:
         """Cleanup and (if leave=False) close the progressbar."""
+        if self._mgui is None:
+            return super().close()
         if self.disable:
             return
 
@@ -142,10 +149,9 @@ class tqdm_mgui(tqdm):
                 self._app.process_events()
                 self.progressbar.hide()
 
-        if self._mgui:
-            self._mgui._tqdm_depth -= 1
+        self._mgui._tqdm_depth -= 1
 
 
-def tmgrange(*args, **kwargs) -> tqdm_mgui:
-    """Shortcut for tqdm_mgui(range(*args), **kwargs)."""
-    return tqdm_mgui(range(*args), **kwargs)
+def trange(*args, **kwargs) -> tqdm:
+    """Shortcut for tqdm(range(*args), **kwargs)."""
+    return tqdm(range(*args), **kwargs)
