@@ -1,12 +1,12 @@
 """A wrapper around the tqdm.tqdm iterator that adds a ProgressBar to a magicgui."""
 import inspect
-from typing import Iterable, Optional
+from typing import Iterable, Optional, cast
 
 from magicgui.application import use_app
 from magicgui.widgets import FunctionGui, ProgressBar
 
 try:
-    from tqdm import tqdm as tqdm_std
+    from tqdm import tqdm as _tqdm_std
 except ImportError as e:  # pragma: no cover
     msg = (
         f"{e}. To use magicgui with tqdm please `pip install tqdm`, "
@@ -35,12 +35,12 @@ def _find_calling_function_gui(max_depth=6) -> Optional[FunctionGui]:
 
 _tqdm_kwargs = {
     p.name
-    for p in inspect.signature(tqdm_std.__init__).parameters.values()
+    for p in inspect.signature(_tqdm_std.__init__).parameters.values()
     if p.kind is not inspect.Parameter.VAR_KEYWORD and p.name != "self"
 }
 
 
-class tqdm(tqdm_std):
+class tqdm(_tqdm_std):
     """magicgui version of tqdm.
 
     See tqdm.tqdm API for valid args and kwargs: https://tqdm.github.io/docs/tqdm/
@@ -74,11 +74,11 @@ class tqdm(tqdm_std):
         kwargs = kwargs.copy()
         pbar_kwargs = {k: kwargs.pop(k) for k in set(kwargs) - _tqdm_kwargs}
         self._mgui = _find_calling_function_gui()
-        if self._mgui is not None:
+        if self._in_visible_gui:
             kwargs["gui"] = True
             kwargs.setdefault("mininterval", 0.025)
         super().__init__(iterable, *args, **kwargs)
-        if self._mgui is None:
+        if not self._in_visible_gui:
             return
 
         self.sp = lambda x: None  # no-op status printer, required for older tqdm compat
@@ -97,6 +97,13 @@ class tqdm(tqdm_std):
             # show a busy indicator instead of a percentage of steps
             self.progressbar.range = (0, 0)
         self.progressbar.show()
+
+    @property
+    def _in_visible_gui(self) -> bool:
+        try:
+            return self._mgui is not None and self._mgui.visible
+        except RuntimeError:
+            return False
 
     def _get_progressbar(self, **kwargs) -> ProgressBar:
         """Create ProgressBar or get from the parent gui `_tqdm_pbars` deque.
@@ -122,7 +129,7 @@ class tqdm(tqdm_std):
 
     def display(self, msg: str = None, pos: int = None) -> None:
         """Update the display."""
-        if self._mgui is None:
+        if not self._in_visible_gui:
             return super().display(msg=msg, pos=pos)
 
         self.progressbar.value = self.n
@@ -130,8 +137,10 @@ class tqdm(tqdm_std):
 
     def close(self) -> None:
         """Cleanup and (if leave=False) close the progressbar."""
-        if self._mgui is None:
+        if not self._in_visible_gui:
             return super().close()
+        self._mgui = cast(FunctionGui, self._mgui)
+
         if self.disable:
             return
 

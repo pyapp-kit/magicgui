@@ -8,7 +8,7 @@ from magicgui.tqdm import trange
 
 # If use inside of a magicgui-decorated function
 # a progress bar widget will be added to the magicgui container
-@magicgui(call_button=True)
+@magicgui(call_button=True, layout="horizontal")
 def long_running(steps=10, delay=0.1):
     """Long running computation with range iterator."""
     # trange(steps) is a shortcut for `tqdm(range(steps))`
