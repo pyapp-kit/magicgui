@@ -393,6 +393,7 @@ class FileEdit(Container):
         self.filter = filter
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
         kwargs["labels"] = False
+        kwargs["layout"] = "horizontal"
         super().__init__(**kwargs)
         self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")

@@ -94,7 +94,8 @@ class Widget:
         self._post_init()
         self._visible: bool = False
         self._explicitly_hidden: bool = False
-        self.visible = visible
+        if visible is not None:
+            self.visible = visible
 
     @property
     def annotation(self):
@@ -255,10 +256,16 @@ class Widget:
 
     @property
     def visible(self) -> bool:
+        """Return whether widget is visible."""
         return self._widget._mgui_get_visible()
 
     @visible.setter
     def visible(self, value: bool):
+        """Set widget visibility.
+
+        ``widget.show()`` is an alias for ``widget.visible = True``
+        ``widget.hide()`` is an alias for ``widget.visible = False``
+        """
         if value is None:
             return
 
@@ -270,7 +277,15 @@ class Widget:
             labeled_widget.visible = value
 
     def show(self, run=False):
-        """Show the widget."""
+        """Show widget.
+
+        alias for ``widget.visible = True``
+
+        Parameters
+        ----------
+        run : bool, optional
+            Whether to start the application event loop, by default False
+        """
         self.visible = True
         if run:
             self.__magicgui_app__.run()
@@ -286,7 +301,10 @@ class Widget:
             self.__magicgui_app__.__exit__()
 
     def hide(self):
-        """Hide widget."""
+        """Hide widget.
+
+        alias for ``widget.visible = False``
+        """
         self.visible = False
 
     def render(self) -> "np.ndarray":

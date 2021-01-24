@@ -38,6 +38,7 @@ def test_no_leave_tqdm():
             pass
         assert pbar1.progressbar.visible is True
 
+    f.show()
     f()
 
     @magicgui
