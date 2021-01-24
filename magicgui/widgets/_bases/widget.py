@@ -138,7 +138,7 @@ class Widget:
     @property
     def options(self) -> dict:
         """Return options currently being used in this widget."""
-        return {"enabled": self.enabled, "visible": self._visible}
+        return {"enabled": self.enabled, "visible": self.visible}
 
     @property
     def native(self):
