@@ -137,31 +137,15 @@ def test_trange_inside_of_magicgui():
     assert len(long_func._tqdm_pbars) == 1
 
 
-@magicgui
-def directly_decorated(steps=2):
-    for i in trange(4):
-        pass
-
-
-def test_trange_inside_of_global_magicgui():
-    """Test that trange can find the magicgui within which it is called."""
-    directly_decorated.show()
-    assert not directly_decorated._tqdm_pbars
-    directly_decorated()
-    assert len(directly_decorated._tqdm_pbars) == 1
-
-
 def _indirectly_decorated(steps=2):
     for i in trange(4):
         pass
 
 
-indirectly_decorated = magicgui(_indirectly_decorated)
-indirectly_decorated.show()
-
-
 def test_trange_inside_of_indirectly_decorated_magicgui():
     """Test that trange can find the magicgui within which it is called."""
+    indirectly_decorated = magicgui(_indirectly_decorated)
+    indirectly_decorated.show()
     assert not indirectly_decorated._tqdm_pbars
     indirectly_decorated()
     assert len(indirectly_decorated._tqdm_pbars) == 1
