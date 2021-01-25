@@ -28,6 +28,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def __init__(self, qwidg: QtW.QWidget):
         self._qwidget = qwidg()
+        self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
