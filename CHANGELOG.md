@@ -1,5 +1,73 @@
 # Changelog
 
+## [v0.2.6](https://github.com/napari/magicgui/tree/v0.2.6) (2021-01-25)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6)
+
+v0.2.6 is a significant feature release, introducing a number of new widgets and APIs:
+
+- New `Table` Widget allowing easy creation and modification of Table UIs using a variety of pure python types as input ([\#61](https://github.com/napari/magicgui/pull/61))
+- Tooltips for each widget in a `@magicgui` are now automatically taken from docstrings (numpy, google, and sphinx-rst format accepted)([\#100](https://github.com/napari/magicgui/pull/100))
+- New `ProgressBar` widget ([\#104](https://github.com/napari/magicgui/pull/104)) and `magicgui.tqdm` wrapper ([\#105](https://github.com/napari/magicgui/pull/105)) allow both manual and automatically-added progress bars to long-running iterator-based functions.  `magicgui.tqdm.tqdm` acts as a drop-in replacement for `tqdm.tqdm` that will fall back to the standard (console output) behavior if used outside of a magicgui function, or _inside_ of a magicgui widget that is not yet visible.
+- New `MainWindow/MainFunctionGui` subclasses allow creating top level "application" windows, with a basic API for adding items to the application menubar ([\#110](https://github.com/napari/magicgui/pull/110)).
+- The new `@magic_factory` decorator creates a *callable* that, when called, returns a `FunctionGui` instance (as opposed to `@magicgui` which immediately creates the `FunctionGui` instance.  Think of this as returning a "class" as opposed to returning an "instance":
+   ```python
+   @magic_factory(call_button=True)
+   def my_factory(x: int, y = 'hi'):
+       ...
+
+   # can add to or override original factory arguments
+   widget = my_factory(main_window=True)
+   widget.show()
+   ```
+- "vertical" is now the default layout for `Containers` and magicgui widgets.
+
+**Implemented enhancements:**
+
+- Best way to add general docs and help menu? [\#107](https://github.com/napari/magicgui/issues/107)
+- Tooltips [\#94](https://github.com/napari/magicgui/issues/94)
+- Progress bar widget for long-running computations [\#25](https://github.com/napari/magicgui/issues/25)
+
+**Fixed bugs:**
+
+- Adding stretch to a widget's native layout causes a crash [\#111](https://github.com/napari/magicgui/issues/111)
+
+**Closed issues:**
+
+- Adding a stretch to the bottom of widgets [\#127](https://github.com/napari/magicgui/issues/127)
+- make vertical layout default [\#121](https://github.com/napari/magicgui/issues/121)
+- Proposal: don't instantiate widgets when no widget is defined for specific type [\#101](https://github.com/napari/magicgui/issues/101)
+
+**Merged pull requests:**
+
+- Add `magicgui.\*` objectName to qt widgets [\#134](https://github.com/napari/magicgui/pull/134) ([tlambert03](https://github.com/tlambert03))
+- remove \_qt module [\#133](https://github.com/napari/magicgui/pull/133) ([tlambert03](https://github.com/tlambert03))
+- Improve fallback behavior of tqdm iterator inside of \*hidden\* magicgui widget [\#131](https://github.com/napari/magicgui/pull/131) ([tlambert03](https://github.com/tlambert03))
+- Improve issues with widget visibility [\#130](https://github.com/napari/magicgui/pull/130) ([tlambert03](https://github.com/tlambert03))
+- add attribute error to `magicgui.\_\_getattr\_\_` [\#129](https://github.com/napari/magicgui/pull/129) ([tlambert03](https://github.com/tlambert03))
+- Make `\_magicgui.pyi` stubs [\#126](https://github.com/napari/magicgui/pull/126) ([tlambert03](https://github.com/tlambert03))
+- Fix `@magic\_factory` usage in local scopes [\#125](https://github.com/napari/magicgui/pull/125) ([tlambert03](https://github.com/tlambert03))
+- Make vertical layout the default [\#124](https://github.com/napari/magicgui/pull/124) ([tlambert03](https://github.com/tlambert03))
+- fix date topython [\#123](https://github.com/napari/magicgui/pull/123) ([tlambert03](https://github.com/tlambert03))
+- Remove deprecated "result" param to `magicgui` [\#122](https://github.com/napari/magicgui/pull/122) ([tlambert03](https://github.com/tlambert03))
+- Fix tooltips for multiple params names on one line [\#120](https://github.com/napari/magicgui/pull/120) ([tlambert03](https://github.com/tlambert03))
+- Fix bug in tooltip parsing [\#119](https://github.com/napari/magicgui/pull/119) ([tlambert03](https://github.com/tlambert03))
+- More docs for main\_window flag [\#118](https://github.com/napari/magicgui/pull/118) ([HagaiHargil](https://github.com/HagaiHargil))
+- Magic factory [\#117](https://github.com/napari/magicgui/pull/117) ([tlambert03](https://github.com/tlambert03))
+- Add more sizing options \(min/max width/height\) [\#116](https://github.com/napari/magicgui/pull/116) ([tlambert03](https://github.com/tlambert03))
+- Move `FunctionGui` into widgets [\#115](https://github.com/napari/magicgui/pull/115) ([tlambert03](https://github.com/tlambert03))
+- Split widget bases into files [\#114](https://github.com/napari/magicgui/pull/114) ([tlambert03](https://github.com/tlambert03))
+- User internal model for `Container`, simplify `ContainerWidgetProtocol` [\#113](https://github.com/napari/magicgui/pull/113) ([tlambert03](https://github.com/tlambert03))
+- setup.cfg updates [\#112](https://github.com/napari/magicgui/pull/112) ([tlambert03](https://github.com/tlambert03))
+- Add `MainWindow` variant on `Container`, and `MainFunctionGui` [\#110](https://github.com/napari/magicgui/pull/110) ([tlambert03](https://github.com/tlambert03))
+- Parse the entire docstring for the tooltip [\#108](https://github.com/napari/magicgui/pull/108) ([HagaiHargil](https://github.com/HagaiHargil))
+- improved labeled widgets [\#106](https://github.com/napari/magicgui/pull/106) ([tlambert03](https://github.com/tlambert03))
+- Progress bar tqdm wrapper, and manual control [\#105](https://github.com/napari/magicgui/pull/105) ([tlambert03](https://github.com/tlambert03))
+- Add ProgressBar widget [\#104](https://github.com/napari/magicgui/pull/104) ([tlambert03](https://github.com/tlambert03))
+- Use \(hidden\) EmptyWidget for unrecognized types [\#103](https://github.com/napari/magicgui/pull/103) ([tlambert03](https://github.com/tlambert03))
+- Add manual and docstring-parsed tooltips [\#100](https://github.com/napari/magicgui/pull/100) ([tlambert03](https://github.com/tlambert03))
+- Add Table Widget [\#61](https://github.com/napari/magicgui/pull/61) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.2.5](https://github.com/napari/magicgui/tree/v0.2.5) (2021-01-13)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.2.4...v0.2.5)
@@ -10,6 +78,7 @@ v0.2.5 greatly improves support for binding a value or a callback to a function 
 
 - Fix reset\_choices recursion [\#96](https://github.com/napari/magicgui/pull/96) ([tlambert03](https://github.com/tlambert03))
 - better bound values [\#95](https://github.com/napari/magicgui/pull/95) ([tlambert03](https://github.com/tlambert03))
+- Add more examples \(chaining, self-reference, and choices\) [\#85](https://github.com/napari/magicgui/pull/85) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.2.4](https://github.com/napari/magicgui/tree/v0.2.4) (2021-01-12)
 
@@ -38,7 +107,6 @@ v0.2.3 adds two new widgets `DateEdit` and `TimeEdit` (for `datetime.date` and `
 - Fix ComboBox with unhashable choice data [\#89](https://github.com/napari/magicgui/pull/89) ([tlambert03](https://github.com/tlambert03))
 - add pyupgrade pre-commit hook [\#88](https://github.com/napari/magicgui/pull/88) ([tlambert03](https://github.com/tlambert03))
 - add call count to function gui [\#86](https://github.com/napari/magicgui/pull/86) ([tlambert03](https://github.com/tlambert03))
-- Add more examples \(chaining, self-reference, and choices\) [\#85](https://github.com/napari/magicgui/pull/85) ([tlambert03](https://github.com/tlambert03))
 - Add date and time widgets [\#84](https://github.com/napari/magicgui/pull/84) ([tlambert03](https://github.com/tlambert03))
 - Clarify choices callable deprecation warning [\#83](https://github.com/napari/magicgui/pull/83) ([tlambert03](https://github.com/tlambert03))
 - Convert maximum/minimum kwargs to max/min and warn [\#82](https://github.com/napari/magicgui/pull/82) ([tlambert03](https://github.com/tlambert03))
@@ -164,6 +232,7 @@ Lastly, we have new documentation, using the amazing [jupyter-book](https://jupy
 - Filedialog widget for magicgui [\#23](https://github.com/napari/magicgui/pull/23) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 - Add datetime to type2widget function [\#22](https://github.com/napari/magicgui/pull/22) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 - Must import scikit-image modules specifically [\#18](https://github.com/napari/magicgui/pull/18) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
+- Add the ability to hide a widget [\#17](https://github.com/napari/magicgui/pull/17) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.1.5](https://github.com/napari/magicgui/tree/v0.1.5) (2020-05-24)
 
@@ -176,10 +245,6 @@ Lastly, we have new documentation, using the amazing [jupyter-book](https://jupy
 **Closed issues:**
 
 - Automagically add labels per field [\#13](https://github.com/napari/magicgui/issues/13)
-
-**Merged pull requests:**
-
-- Add the ability to hide a widget [\#17](https://github.com/napari/magicgui/pull/17) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.1.4](https://github.com/napari/magicgui/tree/v0.1.4) (2020-05-19)
 
