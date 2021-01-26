@@ -44,6 +44,6 @@ def test_examples(fname):
     app.start_timer(0, app.quit)
     if "OLD" in fname:
         with pytest.warns(FutureWarning):
-            assert runpy.run_path(fname)
+            runpy.run_path(fname)
     else:
-        assert runpy.run_path(fname)
+        runpy.run_path(fname)
