@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -253,15 +252,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         for widget in self:
             if hasattr(widget, "reset_choices"):
                 widget.reset_choices()  # type: ignore
-
-    def refresh_choices(self, event=None):
-        """Alias for reset_choices [DEPRECATED: use reset_choices]."""
-        warnings.warn(
-            "\n`ContainerWidget.refresh_choices` is deprecated and will be removed in a"
-            " future version, please use `ContainerWidget.reset_choices` instead.",
-            FutureWarning,
-        )
-        return self.reset_choices(event)
 
     @property
     def __signature__(self) -> MagicSignature:
