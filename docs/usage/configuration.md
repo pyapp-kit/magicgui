@@ -128,7 +128,7 @@ argument "`min`":
 
 ```{code-cell} python
 ---
-tags: [warns]
+:tags: [raises-exception]
 ---
 @magicgui(a_string={'min': 10})
 def whoops(a_string: str = 'Hi there'):
