@@ -63,7 +63,8 @@ class Widget:
         label = label or extra.pop("description", None)
         if extra:
             raise TypeError(
-                f"{type(self).__name__} got an unexpected keyword argument: {extra}"
+                f"{type(self).__name__} got an unexpected "
+                f"keyword argument: {', '.join(extra)}"
             )
 
         _prot = self.__class__.__annotations__["_widget"]
