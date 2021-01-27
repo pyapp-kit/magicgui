@@ -88,8 +88,9 @@ def imread(fname, format=None):
         - (M, N, 4) for RGBA images. (RGB will be padded to RGBA)
     """
     # hide imports to speed initial import on systems with slow linkers
-    from urllib import parse
     from pathlib import Path
+    from urllib import parse
+
     import PIL.Image
     import PIL.PngImagePlugin
 
@@ -156,6 +157,7 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
     Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
     """
     import sys
+
     import numpy as np
 
     if sys.byteorder == "little":

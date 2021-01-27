@@ -213,6 +213,7 @@ class Image(ValueWidget):
     @value.setter
     def value(self, value):
         import numpy as np
+
         from magicgui import _image
 
         if isinstance(value, str):
@@ -233,9 +234,9 @@ class Image(ValueWidget):
         self.width = array.shape[0]
         self.height = array.shape[1]
         self._widget._mgui_set_value(array)
-    
+
     def set_data(self, img, cmap=None, vmin=None, vmax=None, width=None, height=None):
-        
+
 
 
 

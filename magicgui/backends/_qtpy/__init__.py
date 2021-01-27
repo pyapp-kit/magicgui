@@ -32,8 +32,7 @@ __all__ = [
     "DateTimeEdit",
     "EmptyWidget",
     "FloatSpinBox",
-    "Image"
-    "Label",
+    "Image" "Label",
     "LineEdit",
     "MainWindow",
     "ProgressBar",
