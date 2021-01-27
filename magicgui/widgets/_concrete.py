@@ -198,7 +198,45 @@ class EmptyWidget(ValueWidget):
 
 @backend_widget
 class Label(ValueWidget):
-    """A non-editable text or image display."""
+    """A non-editable text display."""
+
+
+@backend_widget
+class Image(ValueWidget):
+    """A non-editable image display."""
+
+    @property
+    def value(self):
+        """Look for a bound value, otherwise fallback to `get_value`."""
+        return super().value
+
+    @value.setter
+    def value(self, value):
+        import numpy as np
+        from magicgui import _image
+
+        if isinstance(value, str):
+
+            array = _image.imread(value)
+        else:
+            array = value
+        print(array.shape, array.dtype, array.min(), array.max())
+        if not isinstance(array, np.ndarray):
+            raise TypeError("value must be a string or a numpy array.")
+
+        if np.ndim(array) not in (2, 3):
+            raise ValueError(
+                f"Can only convert 2D or 3D arrays (got {np.ndim(array)} dimensions)"
+            )
+
+        array = _image._array_to_rgba8888(array)
+        self.width = array.shape[0]
+        self.height = array.shape[1]
+        self._widget._mgui_set_value(array)
+    
+    def set_data(self, img, cmap=None, vmin=None, vmax=None, width=None, height=None):
+        
+
 
 
 @backend_widget

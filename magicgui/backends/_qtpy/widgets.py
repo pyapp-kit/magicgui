@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterable, Optional, Sequence, Tuple, Union
 import qtpy
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
-from qtpy.QtGui import QFont, QFontMetrics
+from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -178,14 +178,15 @@ class EmptyWidget(QBaseWidget):
 
 
 class QBaseStringWidget(QBaseValueWidget):
-    _qwidget: Union[QtW.QLineEdit, QtW.QTextEdit]
+    _qwidget: Union[QtW.QLineEdit, QtW.QTextEdit, QtW.QLabel]
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(str(value))
 
 
 class Label(QBaseStringWidget):
-    # (can be both string or pixmap)
+    _qwidget: QtW.QLabel
+
     def __init__(self):
         super().__init__(QtW.QLabel, "text", "setText", "")
         self._qwidget.setSizePolicy(QtW.QSizePolicy.Fixed, QtW.QSizePolicy.Fixed)
@@ -195,11 +196,77 @@ class Label(QBaseStringWidget):
         pass
 
     def _mgui_set_value(self, value) -> None:
-        # TODO: provide support for images as np.arrays
         super()._mgui_set_value(str(value))
 
 
+class Image(Label):
+    def _mgui_set_value(self, value: "np.array") -> None:
+
+        image = QImage(
+            value,
+            value.shape[1],
+            value.shape[0],
+            QImage.Format_ARGB32_Premultiplied,
+        )
+        self._qwidget.setPixmap(QPixmap.fromImage(image))
+
+
+from qtpy import QtWidgets as QtW
+from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap
+
+
+class Test(QtW.QLabel):
+    def __init__(self):
+        super().__init__()
+        self.show()
+
+    def set_data(self, data, vmin=None, vmax=None):
+        import numpy as np
+
+        if data.ndim == 3:
+            if data.shape[-1] == 3:
+                shp = data.shape[:2] + (1,)
+                _dt = data.dtype
+                pad = np.ones(shp, dtype=_dt) * (2 ** (_dt.itemsize * 8) - 1)
+                data = np.concatenate((data, pad), axis=-1)
+            if data.dtype.itemsize == 1:
+                fmt = QImage.Format_RGBA8888_Premultiplied
+            else:
+                raise NotImplementedError
+
+        elif data.ndim == 2:
+            if not np.issubdtype(data.dtype, np.integer):
+                vmin = vmin or data.min()
+                vmax = vmax or data.max()
+                vmin = vmin or data.min()
+                data = (np.clip(data, vmin, vmax) - vmin) / (vmax - vmin)
+                data = (data * 255).astype("uint8")
+                fmt = QImage.Format_Grayscale8
+
+            elif data.dtype.itemsize == 1:
+                fmt = QImage.Format_Grayscale8
+            elif data.dtype.itemsize == 2:
+                fmt = QImage.Format_Grayscale16
+            else:
+                raise NotImplementedError
+        else:
+            raise NotImplementedError
+
+        try:
+            image = QImage(
+                data,
+                data.shape[1],
+                data.shape[0],
+                fmt,
+            )
+            self.setPixmap(QPixmap.fromImage(image))
+        except RuntimeError:
+            print("nope")
+
+
 class LineEdit(QBaseStringWidget):
+    _qwidget: QtW.QLineEdit
+
     def __init__(self):
         super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
 
