@@ -110,7 +110,7 @@ def test_mpl_cmap():
     rendered = image.image_rgba
     assert isinstance(rendered, np.ndarray)
     # without a colormap, the output data should be nearly identical
-    assert data.size - np.count_nonzero(rendered[..., 0] == data) < 20
+    assert data.size - np.count_nonzero(rendered[..., 0] == data) < data.size * 0.01
     assert isinstance(rendered, np.ndarray)
     assert rendered.shape == (60, 60, 4)
 
