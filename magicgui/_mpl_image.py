@@ -53,7 +53,7 @@ Agreement.
 
 import logging
 from functools import lru_cache
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Collection, Union
 
 import numpy as np
 
@@ -83,6 +83,15 @@ def _is_mpl_cmap(cmap):
         return isinstance(cmap, colors.Colormap)
 
 
+def _is_pil_image(image):
+    try:
+        from PIL.Image import Image
+    except ImportError:
+        return False
+    else:
+        return isinstance(image, Image)
+
+
 # NOT from mpl
 class Colormap:
     """Colormap that relates intensity values to colors.
@@ -106,8 +115,8 @@ class Colormap:
 
     def __init__(
         self,
-        colors: np.ndarray = [[0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
-        controls: np.ndarray = np.zeros((0, 4)),
+        colors: Collection = [[0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
+        controls: Collection = np.zeros((0, 4)),
         interpolation: str = "linear",
     ) -> None:
         self.interpolation = interpolation
@@ -504,13 +513,11 @@ class Image(ScalarMappable):
         """
         from pathlib import Path
 
-        import PIL.Image
-
         if isinstance(A, Path):
             A = str(A)
         if isinstance(A, str):
             A = imread(A, format=format)
-        elif isinstance(A, PIL.Image.Image):
+        elif _is_pil_image(A):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
 
         if not isinstance(A, np.ndarray):
@@ -534,7 +541,10 @@ class Image(ScalarMappable):
             self._A = self._A[:, :, 0]
 
         if not (self._A.ndim == 2 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
-            raise TypeError("Invalid shape {} for image data".format(self._A.shape))
+            raise TypeError(
+                f"Invalid shape {self._A.shape} for image data. Data must be 2D "
+                "(monochromatic), or 3D: MxNx3 (RGB) or MxNx4 (RGBA)"
+            )
 
         if self._A.ndim == 3:
             # If the input data has values outside the valid range (after
@@ -660,8 +670,15 @@ def imread(fname, format=None):
     from pathlib import Path
     from urllib import parse
 
-    import PIL.Image
-    import PIL.PngImagePlugin
+    try:
+        import PIL.Image
+        import PIL.PngImagePlugin
+    except ImportError as e:  # pragma: no cover
+        msg = (
+            f"{e}. To load images from files or urls `pip install pillow`, "
+            "or use the image extra: `pip install magicgui[image]`"
+        )
+        raise type(e)(msg)
 
     if format is None:
         if isinstance(fname, str):

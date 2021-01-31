@@ -7,6 +7,8 @@ from numpy.core.numeric import allclose
 from magicgui import _mpl_image
 from magicgui.widgets import Image
 
+pilImage = pytest.importorskip("PIL.Image")
+
 
 def test_image_widget():
     # png works
@@ -72,31 +74,13 @@ def test_empty_image():
 
 
 def test_pilImage():
-    pilImage = pytest.importorskip("PIL.Image")
+
     with pilImage.open(Path(__file__).parent / "_test.jpg") as img:
         image = Image(value=img)
     assert isinstance(image._image, _mpl_image.Image)
     assert isinstance(image.image_data, np.ndarray)
     assert image.image_data.shape == (200, 232, 3)
     assert image._image.make_image().shape == (200, 232, 4)
-
-
-def test_mpl_norm():
-    mplcolor = pytest.importorskip("matplotlib.colors")
-
-    # 2D uint8
-    image = Image()
-    data = np.random.randint(0, 255, (60, 60)).astype("uint8")
-    image.set_data(data)
-    rendered = image.image_rgba
-    assert isinstance(rendered, np.ndarray)
-    assert rendered.shape == (60, 60, 4)
-
-    image.set_norm(mplcolor.PowerNorm(0.5))
-    rendered2 = image.image_rgba
-    assert isinstance(rendered2, np.ndarray)
-    assert rendered2.shape == (60, 60, 4)
-    assert not np.allclose(rendered, rendered2)
 
 
 def test_internal_cmap():
@@ -139,5 +123,24 @@ def test_mpl_cmap():
     # can also use an mpl colormap instance
     image.set_cmap(cm.get_cmap("viridis"))
     rendered3 = image.image_rgba
+    assert isinstance(rendered3, np.ndarray)
     # the colormap has been applied
     assert not np.allclose(rendered2, rendered3)
+
+
+def test_mpl_norm():
+    mplcolor = pytest.importorskip("matplotlib.colors")
+
+    # 2D uint8
+    image = Image()
+    data = np.random.randint(0, 255, (60, 60)).astype("uint8")
+    image.set_data(data)
+    rendered = image.image_rgba
+    assert isinstance(rendered, np.ndarray)
+    assert rendered.shape == (60, 60, 4)
+
+    image.set_norm(mplcolor.PowerNorm(0.5))
+    rendered2 = image.image_rgba
+    assert isinstance(rendered2, np.ndarray)
+    assert rendered2.shape == (60, 60, 4)
+    assert not np.allclose(rendered, rendered2)
