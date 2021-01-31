@@ -7,7 +7,6 @@ from typing import (
     Dict,
     Generic,
     ItemsView,
-    Iterable,
     Iterator,
     KeysView,
     List,
@@ -42,7 +41,7 @@ TableData = Union[dict, "pd.DataFrame", list, "np.ndarray", tuple, None]
 IndexKey = Union[int, slice]
 
 
-def normalize_table_data(data: TableData) -> Tuple[List[list], list, list]:
+def normalize_table_data(data: TableData) -> Tuple[Collection[Collection], list, list]:
     """Convert data to data, row headers, column headers.
 
     Parameters
@@ -252,7 +251,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
         _validate_table_data(data, index, columns)
         self.clear()
         try:
-            nc = len(data[0])
+            nc = len(data[0])  # type: ignore
         except (TypeError, IndexError):
             nc = 0
         self.column_headers = tuple(columns) or range(nc)  # type:ignore
@@ -342,7 +341,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
         """Get a column from the table."""
         return self._get_column(key)
 
-    def __setitem__(self, key: TblKey, v: list) -> None:
+    def __setitem__(self, key: TblKey, v: Collection) -> None:
         """Set a column in the table. If `k` doesn't exist, make a new column."""
         self._set_column(key, v)
 
@@ -390,10 +389,10 @@ class Table(Widget, MutableMapping[TblKey, list]):
             raise KeyError(f"{col!r} is not a valid column header")
         return [self._get_cell(r, col_idx) for r in self._iter_slice(rows, 0)]
 
-    def _set_column(self, col: TblKey, value: Iterable, rows: slice = slice(None)):
+    def _set_column(self, col: TblKey, value: Collection, rows: slice = slice(None)):
         if not isinstance(value, Collection):
             raise TypeError(
-                f"value to set column data must be iterable. got {type(value)}"
+                f"value to set column data must be collection. got {type(value)}"
             )
         nrows, ncols = self.shape
         try:
@@ -444,7 +443,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
         self._assert_row(row)
         return [self._get_cell(row, c) for c in self._iter_slice(cols, 1)]
 
-    def _set_row(self, row: TblKey, value: list, cols: slice = slice(None)):
+    def _set_row(self, row: TblKey, value: Collection, cols: slice = slice(None)):
         """Set row by row header."""
         try:
             row_idx = self.row_headers.index(row)
@@ -452,7 +451,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
             raise KeyError(f"{row!r} is not a valid row header")
         self._set_rowi(row_idx, value, cols)
 
-    def _set_rowi(self, row: int, value: list, cols: slice = slice(None)):
+    def _set_rowi(self, row: int, value: Collection, cols: slice = slice(None)):
         """Set row by row index."""
         self._assert_row(row)
         for v, col in zip(value, self._iter_slice(cols, 1)):
