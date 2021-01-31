@@ -203,7 +203,7 @@ class Label(QBaseStringWidget):
 
 
 class Image(Label):
-    def _mgui_set_value(self, val: "np.array") -> None:
+    def _mgui_set_value(self, val: "np.ndarray") -> None:
         image = QImage(val, val.shape[1], val.shape[0], QImage.Format_RGBA8888)
         self._qwidget.setPixmap(QPixmap.fromImage(image))
 
