@@ -20,6 +20,7 @@ from typing import (
     Optional,
     TypeVar,
     Union,
+    cast,
 )
 
 from magicgui.application import AppRef
@@ -176,7 +177,19 @@ class FunctionGui(Container, Generic[_R]):
             text = call_button if isinstance(call_button, str) else "Run"
             self._call_button = PushButton(gui_only=True, text=text, name="call_button")
             if not auto_call:  # (otherwise it already gets called)
-                self._call_button.changed.connect(lambda e: self.__call__())
+
+                def _disable_button_and_call(val):
+                    # disable the call button until the function has finished
+                    self._call_button = cast(PushButton, self._call_button)
+                    self._call_button.enabled = False
+                    t, self._call_button.text = self._call_button.text, "Running..."
+                    try:
+                        self.__call__()
+                    finally:
+                        self._call_button.text = t
+                        self._call_button.enabled = True
+
+                self._call_button.changed.connect(_disable_button_and_call)
             self.append(self._call_button)
 
         self._result_widget: Optional[LineEdit] = None
