@@ -22,7 +22,6 @@ from ._concrete import (
     FileEdit,
     FloatSlider,
     FloatSpinBox,
-    Image,
     Label,
     LineEdit,
     LiteralEvalLineEdit,
@@ -39,6 +38,7 @@ from ._concrete import (
     TimeEdit,
 )
 from ._function_gui import FunctionGui, MainFunctionGui
+from ._image import Image
 from ._table import Table
 
 #: Aliases for compatibility with ipywidgets.  (WIP)
