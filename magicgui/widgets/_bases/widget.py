@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, ForwardRef, Optional, Type, Union
 
@@ -63,11 +62,9 @@ class Widget:
         # for ipywidgets API compatibility
         label = label or extra.pop("description", None)
         if extra:
-            warnings.warn(
-                f"\n\n{self.__class__.__name__}.__init__() got unexpected "
-                f"keyword arguments {set(extra)!r}.\n"
-                "In the future this will raise an exception\n",
-                FutureWarning,
+            raise TypeError(
+                f"{type(self).__name__} got an unexpected "
+                f"keyword argument: {', '.join(extra)}"
             )
 
         _prot = self.__class__.__annotations__["_widget"]

@@ -1,5 +1,3 @@
-import inspect
-import warnings
 from enum import EnumMeta
 from typing import Any, Callable
 
@@ -103,26 +101,8 @@ class CategoricalWidget(ValueWidget):
             _choices = choices["choices"]
             str_func = choices["key"]
         elif not isinstance(choices, EnumMeta) and callable(choices):
-            try:
-                _choices = choices(self)
-            except TypeError:
+            _choices = choices(self)
 
-                n_params = len(inspect.signature(choices).parameters)
-                if n_params > 1:
-                    warnings.warn(
-                        "\n\nAs of magicgui 0.2.0, when providing a callable to "
-                        "`choices`, the\ncallable may accept only a single positional "
-                        "argument (which will\nbe an instance of "
-                        "`magicgui.widgets._bases.CategoricalWidget`),\nand must "
-                        "return an iterable (the choices to show).\nFunction "
-                        f"'{choices.__module__}.{choices.__name__}' accepts {n_params} "
-                        "arguments.\nIn the future, this will raise an exception.\n",
-                        FutureWarning,
-                    )
-                    # pre 0.2.0 API
-                    _choices = choices(self.native, self.annotation)  # type: ignore
-                else:
-                    raise
         else:
             _choices = choices
         if not all(isinstance(i, tuple) and len(i) == 2 for i in _choices):

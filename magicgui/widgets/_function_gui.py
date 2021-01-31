@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import inspect
 import re
-import warnings
 from collections import deque
 from contextlib import contextmanager
 from types import FunctionType
@@ -211,18 +210,6 @@ class FunctionGui(Container, Generic[_R]):
         """Reset the call count to 0."""
         self._call_count = 0
 
-    def __getattr__(self, value):
-        """Catch deprecated _name_changed attribute."""
-        if value.endswith("_changed"):
-            widget_name = value.replace("_changed", "")
-            warnings.warn(
-                "\nThe `<name>_changed` signal has been removed in magicgui 0.2.0.\n"
-                f"Use 'widget.{widget_name}.changed' instead of 'widget.{value}'",
-                FutureWarning,
-            )
-            return getattr(self, widget_name).changed
-        return super().__getattr__(value)
-
     # def __delitem__(self, key: Union[int, slice]):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
@@ -352,20 +339,6 @@ class FunctionGui(Container, Generic[_R]):
     def __set__(self, obj, value):
         """Prevent setting a magicgui attribute."""
         raise AttributeError("Can't set magicgui attribute")
-
-    def Gui(self, show=False):
-        """Create a widget instance [DEPRECATED]."""
-        warnings.warn(
-            "\n\nCreating a widget instance with `my_function.Gui()` is deprecated,\n"
-            "the magicgui decorator now returns a widget instance directly, so you\n"
-            "should simply use the function itself as a magicgui widget, or call\n"
-            "`my_function.show(run=True)` to run the application.\n"
-            "In a future version, the `Gui` attribute will be removed.\n",
-            FutureWarning,
-        )
-        if show:
-            self.show()
-        return self
 
 
 class MainFunctionGui(FunctionGui[_R], MainWindow):
