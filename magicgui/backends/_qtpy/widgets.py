@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Sequence, Tuple
 import qtpy
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
-from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap
+from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap, QResizeEvent
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -202,10 +202,34 @@ class Label(QBaseStringWidget):
         super()._mgui_set_value(str(value))
 
 
-class Image(Label):
+class _ResizeableLabel(QtW.QLabel):
+    resized = Signal()
+
+    def resizeEvent(self, a0: QResizeEvent) -> None:
+        self.resized.emit()
+        return super().resizeEvent(a0)
+
+
+class Image(QBaseValueWidget):
+    _qwidget: _ResizeableLabel
+
+    def __init__(self):
+        super().__init__(_ResizeableLabel, "text", "setText", "")
+        self._qwidget.setSizePolicy(QtW.QSizePolicy.Ignored, QtW.QSizePolicy.Ignored)
+        self._qwidget.resized.connect(self._rescale)
+        self._pixmap: QPixmap = None
+
+    def _rescale(self):
+        if self._pixmap:
+            sz = self._qwidget.size()
+            self._qwidget.setPixmap(
+                self._pixmap.scaled(sz, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            )
+
     def _mgui_set_value(self, val: "np.ndarray") -> None:
         image = QImage(val, val.shape[1], val.shape[0], QImage.Format_RGBA8888)
-        self._qwidget.setPixmap(QPixmap.fromImage(image))
+        self._pixmap = QPixmap.fromImage(image)
+        self._rescale()
 
 
 class LineEdit(QBaseStringWidget):

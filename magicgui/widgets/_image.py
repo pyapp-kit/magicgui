@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Tuple, Union
 
+from typing_extensions import Literal
+
 from ._bases import ValueWidget
 from ._concrete import backend_widget
 
@@ -42,6 +44,8 @@ class Image(ValueWidget):
         norm: Union[_mpl_image.Normalize, matplotlib.colors.Normalize] = None,
         vmin: float = None,
         vmax: float = None,
+        width: Union[int, Literal["auto"]] = None,
+        height: Union[int, Literal["auto"]] = None,
         format: str = None,
     ):
         """Set image data with various optional display parameters.
@@ -61,6 +65,12 @@ class Image(ValueWidget):
             The min contrast limit to use when scaling monochromatic images
         vmax : float, optional
             The max contrast limit to use when scaling monochromatic images
+        width : int or "auto", optional
+            Set the width of the widget. If "auto", sets the widget size to the image
+            size (1:1). If width is provided, height is auto-set based on aspect ratio.
+        height : int or "auto", optional
+            Set the height of the widget. If "auto", sets the widget size to the image
+            size (1:1).  If width is provided, height is auto-set based on aspect ratio.
         format : str, optional
             Force image format type for ``imread`` when ``val`` is provided as a string,
             by default None
@@ -86,9 +96,23 @@ class Image(ValueWidget):
         self._image.set_norm(norm)
 
         im = self._image.make_image()
-        self.width = im.shape[1]
-        self.height = im.shape[0]
+        im_height, im_width, *_ = im.shape
+        if "auto" in (height, width):
+            self.scale_widget_to_image_size()
+        elif width:
+            self.width = width  # type: ignore
+            self.height = width * im_height / im_width
+        elif height:
+            self.height = height  # type: ignore
+            self.width = height * im_width / im_height
         self._widget._mgui_set_value(im)
+
+    def scale_widget_to_image_size(self):
+        """Set the size of the widget to the size of the image."""
+        if self._image is not None:
+            im = self._image.make_image()
+            self.width = im.shape[1]
+            self.height = im.shape[0]
 
     @property
     def image_rgba(self) -> Optional[np.ndarray]:
@@ -146,3 +170,9 @@ class Image(ValueWidget):
             raise RuntimeError("You add data with `set_data` before setting norm")
         self._image.set_norm(norm)
         self._widget._mgui_set_value(self._image.make_image())
+
+    def __repr__(self) -> str:
+        """Return representation of widget of instsance."""
+        d = self.image_data
+        shape = "x".join(map(str, d.shape)) if d is not None else "<no data>"
+        return f"{self.widget_type}({shape}, name={self.name!r})"
