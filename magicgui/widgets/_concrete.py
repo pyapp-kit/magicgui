@@ -8,7 +8,18 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, List, Sequence, Tuple, Type, TypeVar, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
@@ -32,6 +43,12 @@ from ._bases import (
 from ._transforms import make_float, make_literal_eval
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
+
+if TYPE_CHECKING:
+    import numpy as np
+
+    from .. import _mpl_image
+    from . import _protocols
 
 
 def _param_list_to_str(param_list: List[DocstringParam]) -> str:
@@ -205,39 +222,95 @@ class Label(ValueWidget):
 class Image(ValueWidget):
     """A non-editable image display."""
 
+    _widget: "_protocols.ValueWidgetProtocol"
+    _image: Optional["_mpl_image.Image"] = None
+
     @property
     def value(self):
-        """Look for a bound value, otherwise fallback to `get_value`."""
-        return super().value
+        """Return current image array."""
+        return self._image._A if self._image else None
 
     @value.setter
     def value(self, value):
+        self.set_data(value)
+
+    def set_data(
+        self,
+        val: Union[str, "np.array"],
+        cmap: "_mpl_image.Colormap" = None,
+        norm: "_mpl_image.Normalize" = None,
+        vmin=None,
+        vmax=None,
+        format=None,
+    ):
+        """Set image data with various optional display parameters.
+
+        Parameters
+        ----------
+        val : [type]
+            [description]
+        cmap : [type], optional
+            [description], by default None
+        norm : [type], optional
+            [description], by default None
+        vmin : [type], optional
+            [description], by default None
+        vmax : [type], optional
+            [description], by default None
+        format : [type], optional
+            [description], by default None
+
+        Raises
+        ------
+        TypeError
+            [description]
+        """
         import numpy as np
 
-        from magicgui import _image
+        from magicgui import _mpl_image
 
-        if isinstance(value, str):
+        if self._image is None:
+            self._image = _mpl_image.Image()
 
-            array = _image.imread(value)
+        if isinstance(val, str):
+            array = _mpl_image.imread(val)
         else:
-            array = value
-        print(array.shape, array.dtype, array.min(), array.max())
+            array = val
         if not isinstance(array, np.ndarray):
             raise TypeError("value must be a string or a numpy array.")
 
-        if np.ndim(array) not in (2, 3):
-            raise ValueError(
-                f"Can only convert 2D or 3D arrays (got {np.ndim(array)} dimensions)"
-            )
+        self._image.set_data(array)
+        self._image.set_clim(vmin, vmax)
+        self._image.set_cmap(cmap)
+        self._image.set_norm(norm)
+        self.width = array.shape[1]
+        self.height = array.shape[0]
+        self._widget._mgui_set_value(self._image.make_image())
 
-        array = _image._array_to_rgba8888(array)
-        self.width = array.shape[0]
-        self.height = array.shape[1]
-        self._widget._mgui_set_value(array)
+    def get_clim(self) -> Tuple[Optional[float], Optional[float]]:
+        """Get contrast limits (for monochromatic images)."""
+        return self._image.get_clim() if self._image else (None, None)
 
-    def set_data(self, img, cmap=None, vmin=None, vmax=None, width=None, height=None):
+    def set_clim(self, vmin: float = None, vmax: float = None):
+        """Set contrast limits (for monochromatic images)."""
+        if self._image is None:
+            raise RuntimeError("You add data with `set_data` before setting clims")
+        self._image.set_clim(vmin, vmax)
+        self._widget._mgui_set_value(self._image.make_image())
 
+    def set_cmap(self, cmap: "_mpl_image.Colormap"):
+        """Set colormap (for monochromatic images)."""
+        if self._image is None:
+            raise RuntimeError("You add data with `set_data` before setting cmaps")
+        self._image.set_cmap(cmap)
+        self._widget._mgui_set_value(self._image.make_image())
 
+    def set_norm(self, norm: "_mpl_image.Normalize"):
+        """Set normalization method."""
+        if self._image is None:
+            raise RuntimeError("You add data with `set_data` before setting norm")
+        self._image.set_norm(norm)
+        self._widget._mgui_set_value(self._image.make_image())
 
 
 @backend_widget
