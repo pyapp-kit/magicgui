@@ -1,4 +1,7 @@
-"""Example of creating an Image Widget from a file."""
+"""Example of creating an Image Widget from a file.
+
+(This requires pillow, or that magicgui was installed as ``magicgui[image]``)
+"""
 from pathlib import Path
 
 from magicgui.widgets import Image
