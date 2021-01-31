@@ -7,4 +7,5 @@ exclude_lines =
     raise NotImplementedError()
 omit =
     magicgui/events.py
+    magicgui/_mpl_image.py
     tests/*
