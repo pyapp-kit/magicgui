@@ -53,10 +53,16 @@ Agreement.
 
 import logging
 from functools import lru_cache
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
 _log = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import PIL.Image
 
 
 def _is_mpl_norm(norm):
@@ -77,6 +83,7 @@ def _is_mpl_cmap(cmap):
         return isinstance(cmap, colors.Colormap)
 
 
+# NOT from mpl
 class Colormap:
     """Colormap that relates intensity values to colors.
 
@@ -103,33 +110,39 @@ class Colormap:
         controls: np.ndarray = np.zeros((0, 4)),
         interpolation: str = "linear",
     ) -> None:
-        self.colors = np.atleast_2d(colors)
-        self.controls = controls
         self.interpolation = interpolation
+        self._colors = np.atleast_2d(colors)
+        self._controls = controls
 
         if len(self.controls) == 0:
-            n_controls = len(self.colors) + int(self.interpolation == "nearest")
-            self.controls = np.linspace(0, 1, n_controls)
+            n_controls = len(self._colors) + int(self.interpolation == "nearest")
+            self._controls = np.linspace(0, 1, n_controls)
+
+    @property
+    def colors(self):
+        return self._colors
+
+    @property
+    def controls(self):
+        return self._controls
 
     def __call__(self, values, bytes=False):
         values = np.atleast_1d(values)
-        if bytes:
-            lut = (self.colors * 255).astype(np.uint8)
-        else:
-            lut = self.colors.copy()  # Don't let alpha modify original _lut.
 
+        lut = self.colors
         if self.interpolation == "linear":
             # One color per control point
             cols = [np.interp(values, self.controls, lut[:, i]) for i in range(4)]
             cols = np.stack(cols, axis=-1)
-            if bytes:
-                cols = cols.astype("uint8")
         elif self.interpolation == "nearest":
-            # One color per binƒ
+            # One color per bin
             indices = np.clip(np.searchsorted(self.controls, values) - 1, 0, len(lut))
             cols = lut[indices.astype(np.int32)]
         else:
             raise ValueError("Unrecognized Colormap Interpolation Mode")
+
+        if bytes:
+            cols = (cols * 255).astype(np.uint8)
 
         return cols
 
@@ -478,7 +491,9 @@ class Image(ScalarMappable):
         super().__init__(norm, cmap)
         self._imcache = None
 
-    def set_data(self, A):
+    def set_data(
+        self, A: Union[str, "Path", "np.ndarray", "PIL.Image.Image"], format: str = None
+    ):
         """Set the image array.
 
         Note that this function does *not* update the normalization used.
@@ -487,10 +502,22 @@ class Image(ScalarMappable):
         ----------
         A : array-like or `PIL.Image.Image`
         """
+        from pathlib import Path
+
         import PIL.Image
 
-        if isinstance(A, PIL.Image.Image):
+        if isinstance(A, Path):
+            A = str(A)
+        if isinstance(A, str):
+            A = imread(A, format=format)
+        elif isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
+
+        if not isinstance(A, np.ndarray):
+            raise TypeError(
+                "Image data must be a string, Path, numpy array, or PIL.Image"
+            )
+
         # self._A = cbook.safe_masked_invalid(A, copy=True)
         self._A = A.copy()
 

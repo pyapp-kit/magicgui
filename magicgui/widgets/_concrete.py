@@ -45,7 +45,9 @@ from ._transforms import make_float, make_literal_eval
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
 if TYPE_CHECKING:
+    import matplotlib.colors
     import numpy as np
+    import PIL.Image
 
     from .. import _mpl_image
     from . import _protocols
@@ -236,12 +238,12 @@ class Image(ValueWidget):
 
     def set_data(
         self,
-        val: Union[str, "np.array"],
-        cmap: "_mpl_image.Colormap" = None,
-        norm: "_mpl_image.Normalize" = None,
-        vmin=None,
-        vmax=None,
-        format=None,
+        val: Union[str, Path, "np.ndarray", "PIL.Image.Image"],
+        cmap: Union[str, "_mpl_image.Colormap", "matplotlib.colors.Colormap"] = None,
+        norm: Union["_mpl_image.Normalize", "matplotlib.colors.Normalize"] = None,
+        vmin: float = None,
+        vmax: float = None,
+        format: str = None,
     ):
         """Set image data with various optional display parameters.
 
@@ -265,27 +267,34 @@ class Image(ValueWidget):
         TypeError
             [description]
         """
-        import numpy as np
-
         from magicgui import _mpl_image
 
         if self._image is None:
             self._image = _mpl_image.Image()
 
-        if isinstance(val, str):
-            array = _mpl_image.imread(val)
-        else:
-            array = val
-        if not isinstance(array, np.ndarray):
-            raise TypeError("value must be a string or a numpy array.")
-
-        self._image.set_data(array)
+        self._image.set_data(val, format=format)
         self._image.set_clim(vmin, vmax)
         self._image.set_cmap(cmap)
         self._image.set_norm(norm)
-        self.width = array.shape[1]
-        self.height = array.shape[0]
-        self._widget._mgui_set_value(self._image.make_image())
+
+        im = self._image.make_image()
+        self.width = im.shape[1]
+        self.height = im.shape[0]
+        self._widget._mgui_set_value(im)
+
+    @property
+    def image_rgba(self) -> Optional["np.ndarray"]:
+        """Return rendered numpy array."""
+        if self._image is None:
+            return None
+        return self._image.make_image()
+
+    @property
+    def image_data(self) -> Optional["np.ndarray"]:
+        """Return image data."""
+        if self._image is None:
+            return None
+        return self._image._A
 
     def get_clim(self) -> Tuple[Optional[float], Optional[float]]:
         """Get contrast limits (for monochromatic images)."""
@@ -298,14 +307,18 @@ class Image(ValueWidget):
         self._image.set_clim(vmin, vmax)
         self._widget._mgui_set_value(self._image.make_image())
 
-    def set_cmap(self, cmap: "_mpl_image.Colormap"):
+    def set_cmap(
+        self, cmap: Union[str, "_mpl_image.Colormap", "matplotlib.colors.Colormap"]
+    ):
         """Set colormap (for monochromatic images)."""
         if self._image is None:
             raise RuntimeError("You add data with `set_data` before setting cmaps")
         self._image.set_cmap(cmap)
         self._widget._mgui_set_value(self._image.make_image())
 
-    def set_norm(self, norm: "_mpl_image.Normalize"):
+    def set_norm(
+        self, norm: Union["_mpl_image.Normalize", "matplotlib.colors.Normalize"]
+    ):
         """Set normalization method."""
         if self._image is None:
             raise RuntimeError("You add data with `set_data` before setting norm")
