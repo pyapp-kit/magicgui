@@ -52,11 +52,9 @@ Agreement.
 """
 
 import logging
-import sys
 from functools import lru_cache
 
 import numpy as np
-import PIL.Image
 
 _log = logging.getLogger(__name__)
 
@@ -81,6 +79,10 @@ def _is_mpl_cmap(cmap):
 
 class Colormap:
     """Colormap that relates intensity values to colors.
+
+    This colormap class is borrowed from napari, not mpl, but
+    the ``__call__`` function has a similar API (without alpha).
+    magicgui is also compatible with mpl colormap instances.
 
     Attributes
     ----------
@@ -307,8 +309,7 @@ class ScalarMappable:
         self.colorbar = None
 
     def to_rgba(self, x, bytes=False, norm=True):
-        """
-        Return a normalized rgba array corresponding to *x*.
+        """Return a normalized rgba array corresponding to *x*.
 
         In the normal case, *x* is a 1-D or 2-D sequence of scalars, and
         the corresponding ndarray of rgba values will be returned,
@@ -384,14 +385,11 @@ class ScalarMappable:
         return self.cmap
 
     def get_clim(self):
-        """
-        Return the values (min, max) that are mapped to the colormap limits.
-        """
+        """Return the values (min, max) that are mapped to the colormap limits."""
         return self.norm.vmin, self.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
-        """
-        Set the norm limits for image scaling.
+        """Set the norm limits for image scaling.
 
         Parameters
         ----------
@@ -415,8 +413,7 @@ class ScalarMappable:
         self.changed()
 
     def set_cmap(self, cmap):
-        """
-        Set the colormap for luminance data.
+        """Set the colormap for luminance data.
 
         Parameters
         ----------
@@ -429,8 +426,7 @@ class ScalarMappable:
             self.changed()  # Things are not set up properly yet.
 
     def set_norm(self, norm):
-        """
-        Set the normalization instance.
+        """Set the normalization instance.
 
         Parameters
         ----------
@@ -483,8 +479,7 @@ class Image(ScalarMappable):
         self._imcache = None
 
     def set_data(self, A):
-        """
-        Set the image array.
+        """Set the image array.
 
         Note that this function does *not* update the normalization used.
 
@@ -492,6 +487,8 @@ class Image(ScalarMappable):
         ----------
         A : array-like or `PIL.Image.Image`
         """
+        import PIL.Image
+
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
         # self._A = cbook.safe_masked_invalid(A, copy=True)
@@ -537,8 +534,8 @@ class Image(ScalarMappable):
         return self._make_image(self._A)
 
     def _make_image(self, A):
-        """
-        Normalize, rescale, and colormap the image *A*
+        """Normalize, rescale, and colormap the image *A*
+
         Returns
         -------
         image : (M, N, 4) uint8 array
@@ -567,8 +564,7 @@ class Image(ScalarMappable):
 
 
 def pil_to_array(pilImage):
-    """
-    Load a `PIL image`_ and return it as a numpy int array.
+    """Load a `PIL image`_ and return it as a numpy int array.
 
     .. _PIL image: https://pillow.readthedocs.io/en/latest/reference/Image.html
 
@@ -601,26 +597,6 @@ def pil_to_array(pilImage):
         return np.asarray(pilImage)  # return MxNx4 RGBA array
 
 
-def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
-    """
-    Convert an unmultiplied RGBA8888 buffer to a premultiplied ARGB32 buffer.
-    """
-    if sys.byteorder == "little":
-        argb32 = np.take(rgba8888, [2, 1, 0, 3], axis=2)
-        rgb24 = argb32[..., :-1]
-        alpha8 = argb32[..., -1:]
-    else:
-        argb32 = np.take(rgba8888, [3, 0, 1, 2], axis=2)
-        alpha8 = argb32[..., :1]
-        rgb24 = argb32[..., 1:]
-    # Only bother premultiplying when the alpha channel is not fully opaque,
-    # as the cost is not negligible.  The unsafe cast is needed to do the
-    # multiplication in-place in an integer buffer.
-    if alpha8.min() != 0xFF:
-        np.multiply(rgb24, alpha8 / 0xFF, out=rgb24, casting="unsafe")
-    return argb32
-
-
 @lru_cache()
 def _get_ssl_context():
     try:
@@ -633,8 +609,7 @@ def _get_ssl_context():
 
 
 def imread(fname, format=None):
-    """
-    Read an image from a file into an array.
+    """Read an image from a file into an array.
 
     Parameters
     ----------
