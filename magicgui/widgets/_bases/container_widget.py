@@ -80,7 +80,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         return_annotation: Any = None,
         **kwargs,
     ):
-        self._list: List[Widget] = []
+        self._list: list[Widget] = []
         self._return_annotation = None
         self._labels = labels
         self._layout = layout
@@ -129,7 +129,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         object.__setattr__(self, name, value)
 
     @overload
-    def __getitem__(self, key: Union[int, str]) -> Widget:  # noqa: D105
+    def __getitem__(self, key: int | str) -> Widget:  # noqa: D105
         ...
 
     @overload
@@ -153,7 +153,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             value = getattr(self, value)
         return super().index(value, start, stop)
 
-    def remove(self, value: Union[Widget, str]):
+    def remove(self, value: Widget | str):
         """Remove a widget instance (may also be string name of widget)."""
         super().remove(value)  # type: ignore
 
@@ -161,7 +161,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         """Delete a widget by name."""
         self.remove(name)
 
-    def __delitem__(self, key: Union[int, slice]):
+    def __delitem__(self, key: int | slice):
         """Delete a widget by integer or slice index."""
         if isinstance(key, slice):
             for item in self._list[key]:
@@ -180,7 +180,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         """Prevent assignment by index."""
         raise NotImplementedError("magicgui.Container does not support item setting.")
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> list[str]:
         """Add subwidget names to the dir() call for this widget."""
         d = list(super().__dir__())
         d.extend([w.name for w in self if not w.gui_only])
@@ -222,12 +222,12 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
                     labeled_widget.label_width = widest_label
 
     @property
-    def margins(self) -> Tuple[int, int, int, int]:
+    def margins(self) -> tuple[int, int, int, int]:
         """Return margin between the content and edges of the container."""
         return self._widget._mgui_get_margins()
 
     @margins.setter
-    def margins(self, margins: Tuple[int, int, int, int]) -> None:
+    def margins(self, margins: tuple[int, int, int, int]) -> None:
         # left, top, right, bottom
         self._widget._mgui_set_margins(margins)
 
@@ -278,7 +278,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
     @classmethod
     def from_callable(
-        cls, obj: Callable, gui_options: Optional[dict] = None, **kwargs
+        cls, obj: Callable, gui_options: dict | None = None, **kwargs
     ) -> Container:
         """Create a Container widget from a callable object.
 

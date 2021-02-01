@@ -13,12 +13,12 @@ __all__ = ["magicgui", "magic_factory", "MagicFactory"]
 
 
 def magicgui(
-    function: Optional[Callable] = None,
+    function: Callable | None = None,
     *,
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
@@ -83,12 +83,12 @@ def magicgui(
 
 
 def magic_factory(
-    function: Optional[Callable] = None,
+    function: Callable | None = None,
     *,
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
@@ -192,7 +192,7 @@ def _magicgui(function=None, factory=False, main_window=False, **kwargs):
     Otherwise, this will return a FunctionGui instance directly.
     """
 
-    def inner_func(func: Callable) -> Union[FunctionGui, MagicFactory]:
+    def inner_func(func: Callable) -> FunctionGui | MagicFactory:
         if not callable(func):
             raise TypeError("the first argument must be callable")
 

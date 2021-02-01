@@ -16,11 +16,11 @@ def create_widget(
     value: Any = None,
     annotation: Any = None,
     name: str = "",
-    param_kind: Union[str, inspect._ParameterKind] = "POSITIONAL_OR_KEYWORD",
+    param_kind: str | inspect._ParameterKind = "POSITIONAL_OR_KEYWORD",
     label=None,
     gui_only=False,
     app=None,
-    widget_type: Union[str, Type[_protocols.WidgetProtocol], None] = None,
+    widget_type: str | type[_protocols.WidgetProtocol] | None = None,
     options: WidgetOptions = dict(),
 ):
     """Create and return appropriate widget subclass.
