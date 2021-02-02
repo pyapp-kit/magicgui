@@ -6,12 +6,8 @@ from typing import (
     Any,
     Callable,
     ForwardRef,
-    List,
     MutableSequence,
-    Optional,
     Sequence,
-    Tuple,
-    Union,
     overload,
 )
 

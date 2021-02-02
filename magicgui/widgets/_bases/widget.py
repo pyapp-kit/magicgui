@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, ForwardRef, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, ForwardRef
 
 from magicgui.application import use_app
 from magicgui.events import EventEmitter

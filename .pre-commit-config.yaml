@@ -4,6 +4,11 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        args: ["--in-place", "--remove-all-unused-imports"]
   - repo: https://github.com/PyCQA/isort
     rev: 5.7.0
     hooks:

@@ -1,5 +1,3 @@
-from enum import auto
-
 from magicgui import magicgui
 
 

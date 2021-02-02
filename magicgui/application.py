@@ -5,7 +5,7 @@ import signal
 from contextlib import contextmanager
 from importlib import import_module
 from types import ModuleType
-from typing import TYPE_CHECKING, Callable, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Callable, Iterator, Union
 
 from magicgui.backends import BACKENDS
 

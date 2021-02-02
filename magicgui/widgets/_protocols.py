@@ -9,16 +9,7 @@ For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -366,8 +357,6 @@ class SupportsChoices(Protocol):
 @runtime_checkable
 class CategoricalWidgetProtocol(ValueWidgetProtocol, SupportsChoices, Protocol):
     """Categorical widget, that has a set of valid choices, and a current value."""
-
-    pass
 
 
 @runtime_checkable

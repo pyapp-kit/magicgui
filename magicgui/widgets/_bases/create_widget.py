@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import TYPE_CHECKING, Any, Type, Union
+from typing import TYPE_CHECKING, Any
 
 from magicgui.application import use_app
 from magicgui.widgets import _bases, _protocols

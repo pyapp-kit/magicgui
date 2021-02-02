@@ -9,18 +9,7 @@ import re
 from collections import deque
 from contextlib import contextmanager
 from types import FunctionType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Deque,
-    Dict,
-    Generic,
-    Optional,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Deque, Generic, TypeVar, cast
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -210,7 +199,7 @@ class FunctionGui(Container, Generic[_R]):
         """Reset the call count to 0."""
         self._call_count = 0
 
-    # def __delitem__(self, key: Union[int, slice]):
+    # def __delitem__(self, key: int | slice):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
