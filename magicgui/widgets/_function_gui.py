@@ -15,6 +15,7 @@ from typing import (
     Callable,
     Deque,
     Dict,
+    ForwardRef,
     Generic,
     Optional,
     TypeVar,
@@ -105,7 +106,6 @@ class FunctionGui(Container, Generic[_R]):
     """
 
     _widget: ContainerProtocol
-    __signature__: MagicSignature
 
     def __init__(
         self,
@@ -152,15 +152,14 @@ class FunctionGui(Container, Generic[_R]):
         )
 
         sig = magic_signature(function, gui_options=param_options)
+        self.return_annotation = sig.return_annotation
         super().__init__(
             layout=layout,
             labels=labels,
             visible=visible,
             widgets=list(sig.widgets(app).values()),
-            return_annotation=sig.return_annotation,
             name=name or self._callable_name,
         )
-
         self._param_options = param_options
         self.called = EventEmitter(self, type="called")
         self._result_name = ""
@@ -214,6 +213,27 @@ class FunctionGui(Container, Generic[_R]):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
+    @property
+    def return_annotation(self):
+        """Return annotation to use when converting to :class:`inspect.Signature`.
+
+        ForwardRefs will be resolve when setting the annotation.
+        """
+        return self._return_annotation
+
+    @return_annotation.setter
+    def return_annotation(self, value):
+        if isinstance(value, (str, ForwardRef)):
+            from magicgui.type_map import _evaluate_forwardref
+
+            value = _evaluate_forwardref(value)
+        self._return_annotation = value
+
+    @property
+    def __signature__(self) -> MagicSignature:
+        """Return a MagicSignature object representing the current state of the gui."""
+        return super().__signature__.replace(return_annotation=self.return_annotation)
+
     def __call__(self, *args: Any, **kwargs: Any) -> _R:
         """Call the original function with the current parameter values from the Gui.
 
@@ -264,7 +284,7 @@ class FunctionGui(Container, Generic[_R]):
             with self._result_widget.changed.blocker():
                 self._result_widget.value = value
 
-        return_type = self.return_annotation
+        return_type = sig.return_annotation
         if return_type:
             from magicgui.type_map import _type2callback
 

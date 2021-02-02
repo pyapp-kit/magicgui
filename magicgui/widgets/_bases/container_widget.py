@@ -5,7 +5,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    ForwardRef,
     List,
     MutableSequence,
     Optional,
@@ -63,9 +62,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         Whether each widget should be shown with a corresponding Label widget to the
         left, by default ``True``.  Note: the text for each widget defaults to
         ``widget.name``, but can be overriden by setting ``widget.label``.
-    return_annotation : type or str, optional
-        An optional return annotation to use when representing this container of
-        widgets as an :class:`inspect.Signature`, by default ``None``
     """
 
     changed: EventEmitter
@@ -77,37 +73,18 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         layout: str = "vertical",
         widgets: Sequence[Widget] = (),
         labels=True,
-        return_annotation: Any = None,
         **kwargs,
     ):
         self._list: List[Widget] = []
-        self._return_annotation = None
         self._labels = labels
         self._layout = layout
         kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
         self.changed = EventEmitter(source=self, type="changed")
-        self.return_annotation = return_annotation
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)
         self._initialized = True
         self._unify_label_widths()
-
-    @property
-    def return_annotation(self):
-        """Return annotation to use when converting to :class:`inspect.Signature`.
-
-        ForwardRefs will be resolve when setting the annotation.
-        """
-        return self._return_annotation
-
-    @return_annotation.setter
-    def return_annotation(self, value):
-        if isinstance(value, (str, ForwardRef)):
-            from magicgui.type_map import _evaluate_forwardref
-
-            value = _evaluate_forwardref(value)
-        self._return_annotation = value
 
     def __getattr__(self, name: str):
         """Return attribute ``name``.  Will return a widget if present."""
@@ -269,7 +246,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             elif seen_default:
                 params.sort(key=lambda x: x.default is not MagicParameter.empty)
                 break
-        return MagicSignature(params, return_annotation=self.return_annotation)
+        return MagicSignature(params)
 
     @classmethod
     def from_signature(cls, sig: inspect.Signature, **kwargs) -> Container:
