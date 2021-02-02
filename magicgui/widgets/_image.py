@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple, Union
+from typing import TYPE_CHECKING
 
 from typing_extensions import Literal
 
@@ -25,7 +25,7 @@ class Image(ValueWidget):
     """A non-editable image display."""
 
     _widget: ValueWidgetProtocol
-    _image: Optional[_mpl_image.Image] = None
+    _image: _mpl_image.Image | None = None
 
     @property
     def value(self):
@@ -39,13 +39,13 @@ class Image(ValueWidget):
 
     def set_data(
         self,
-        val: Union[str, Path, np.ndarray, PIL.Image.Image],
-        cmap: Union[str, Colormap, matplotlib.colors.Colormap] = None,
-        norm: Union[_mpl_image.Normalize, matplotlib.colors.Normalize] = None,
+        val: str | Path | np.ndarray | PIL.Image.Image,
+        cmap: str | Colormap | matplotlib.colors.Colormap = None,
+        norm: _mpl_image.Normalize | matplotlib.colors.Normalize = None,
         vmin: float = None,
         vmax: float = None,
-        width: Union[int, Literal["auto"]] = None,
-        height: Union[int, Literal["auto"]] = None,
+        width: int | Literal["auto"] | None = None,
+        height: int | Literal["auto"] | None = None,
         format: str = None,
     ):
         """Set image data with various optional display parameters.
@@ -115,16 +115,16 @@ class Image(ValueWidget):
             self.height = im.shape[0]
 
     @property
-    def image_rgba(self) -> Optional[np.ndarray]:
+    def image_rgba(self) -> np.ndarray | None:
         """Return rendered numpy array."""
         return self._image.make_image() if self._image is not None else None
 
     @property
-    def image_data(self) -> Optional[np.ndarray]:
+    def image_data(self) -> np.ndarray | None:
         """Return image data."""
         return self._image._A if self._image is not None else None
 
-    def get_clim(self) -> Tuple[Optional[float], Optional[float]]:
+    def get_clim(self) -> tuple[float | None, float | None]:
         """Get contrast limits (for monochromatic images)."""
         return self._image.get_clim() if self._image is not None else (None, None)
 
@@ -143,7 +143,7 @@ class Image(ValueWidget):
         self._image.set_clim(vmin, vmax)
         self._widget._mgui_set_value(self._image.make_image())
 
-    def set_cmap(self, cmap: Union[str, Colormap, matplotlib.colors.Colormap]):
+    def set_cmap(self, cmap: str | Colormap | matplotlib.colors.Colormap):
         """Set colormap (for monochromatic images).
 
         Parameters
@@ -157,7 +157,7 @@ class Image(ValueWidget):
         self._image.set_cmap(cmap)
         self._widget._mgui_set_value(self._image.make_image())
 
-    def set_norm(self, norm: Union[Normalize, matplotlib.colors.Normalize]):
+    def set_norm(self, norm: Normalize | matplotlib.colors.Normalize):
         """Set normalization method.
 
         Parameters
