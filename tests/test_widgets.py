@@ -92,11 +92,11 @@ def test_custom_widget_fails():
     assert "Missing methods: {'_mgui_set_tooltip'}" in str(err)
 
 
-def test_extra_kwargs_warn():
+def test_extra_kwargs_error():
     """Test that unrecognized kwargs gives a FutureWarning."""
-    with pytest.warns(FutureWarning) as wrn:
+    with pytest.raises(TypeError) as wrn:
         widgets.Label(unknown_kwarg="hi")
-    assert "unexpected keyword arguments" in str(wrn[0].message)
+    assert "unexpected keyword argument" in str(wrn)
 
 
 def test_autocall_no_runtime_error():

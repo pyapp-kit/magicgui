@@ -6,21 +6,10 @@ from __future__ import annotations
 
 import inspect
 import re
-import warnings
 from collections import deque
 from contextlib import contextmanager
 from types import FunctionType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Deque,
-    Dict,
-    Generic,
-    Optional,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Deque, Generic, TypeVar, cast
 
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
@@ -33,7 +22,7 @@ if TYPE_CHECKING:
 
 
 def _inject_tooltips_from_docstrings(
-    docstring: Optional[str], param_options: Dict[str, dict]
+    docstring: str | None, param_options: dict[str, dict]
 ):
     """Update ``param_options`` dict with tooltips extracted from ``docstring``."""
     from docstring_parser import parse
@@ -110,7 +99,7 @@ class FunctionGui(Container, Generic[_R]):
     def __init__(
         self,
         function: Callable[..., _R],
-        call_button: Union[bool, str] = False,
+        call_button: bool | str = False,
         layout: str = "vertical",
         labels: bool = True,
         tooltips: bool = True,
@@ -118,7 +107,7 @@ class FunctionGui(Container, Generic[_R]):
         visible: bool = False,
         auto_call: bool = False,
         result_widget: bool = False,
-        param_options: Optional[Dict[str, dict]] = None,
+        param_options: dict[str, dict] | None = None,
         name: str = None,
         **kwargs,
     ):
@@ -171,15 +160,27 @@ class FunctionGui(Container, Generic[_R]):
         # the nesting level of tqdm_mgui iterators in a given __call__
         self._tqdm_depth: int = 0
 
-        self._call_button: Optional[PushButton] = None
+        self._call_button: PushButton | None = None
         if call_button:
             text = call_button if isinstance(call_button, str) else "Run"
             self._call_button = PushButton(gui_only=True, text=text, name="call_button")
             if not auto_call:  # (otherwise it already gets called)
-                self._call_button.changed.connect(lambda e: self.__call__())
+
+                def _disable_button_and_call(val):
+                    # disable the call button until the function has finished
+                    self._call_button = cast(PushButton, self._call_button)
+                    self._call_button.enabled = False
+                    t, self._call_button.text = self._call_button.text, "Running..."
+                    try:
+                        self.__call__()
+                    finally:
+                        self._call_button.text = t
+                        self._call_button.enabled = True
+
+                self._call_button.changed.connect(_disable_button_and_call)
             self.append(self._call_button)
 
-        self._result_widget: Optional[LineEdit] = None
+        self._result_widget: LineEdit | None = None
         if result_widget:
             self._result_widget = LineEdit(gui_only=True, name="result")
             self._result_widget.enabled = False
@@ -198,19 +199,7 @@ class FunctionGui(Container, Generic[_R]):
         """Reset the call count to 0."""
         self._call_count = 0
 
-    def __getattr__(self, value):
-        """Catch deprecated _name_changed attribute."""
-        if value.endswith("_changed"):
-            widget_name = value.replace("_changed", "")
-            warnings.warn(
-                "\nThe `<name>_changed` signal has been removed in magicgui 0.2.0.\n"
-                f"Use 'widget.{widget_name}.changed' instead of 'widget.{value}'",
-                FutureWarning,
-            )
-            return getattr(self, widget_name).changed
-        return super().__getattr__(value)
-
-    # def __delitem__(self, key: Union[int, slice]):
+    # def __delitem__(self, key: int | slice):
     #     """Delete a widget by integer or slice index."""
     #     raise AttributeError("can't delete items from a FunctionGui")
 
@@ -300,7 +289,7 @@ class FunctionGui(Container, Generic[_R]):
             app=None,
         )
 
-    _bound_instances: Dict[int, FunctionGui] = {}
+    _bound_instances: dict[int, FunctionGui] = {}
 
     def __get__(self, obj, objtype=None) -> FunctionGui:
         """Provide descriptor protocol.
@@ -340,20 +329,6 @@ class FunctionGui(Container, Generic[_R]):
         """Prevent setting a magicgui attribute."""
         raise AttributeError("Can't set magicgui attribute")
 
-    def Gui(self, show=False):
-        """Create a widget instance [DEPRECATED]."""
-        warnings.warn(
-            "\n\nCreating a widget instance with `my_function.Gui()` is deprecated,\n"
-            "the magicgui decorator now returns a widget instance directly, so you\n"
-            "should simply use the function itself as a magicgui widget, or call\n"
-            "`my_function.show(run=True)` to run the application.\n"
-            "In a future version, the `Gui` attribute will be removed.\n",
-            FutureWarning,
-        )
-        if show:
-            self.show()
-        return self
-
 
 class MainFunctionGui(FunctionGui[_R], MainWindow):
     """Container of widgets as a Main Application Window."""
@@ -363,7 +338,7 @@ class MainFunctionGui(FunctionGui[_R], MainWindow):
     def __init__(self, function: Callable, *args, **kwargs):
         super().__init__(function, *args, **kwargs)
         self.create_menu_item("Help", "Documentation", callback=self._show_docs)
-        self._help_text_edit: Optional[TextEdit] = None
+        self._help_text_edit: TextEdit | None = None
 
     def _show_docs(self):
         if not self._help_text_edit:

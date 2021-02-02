@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import inspect
-import warnings
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, ForwardRef, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, ForwardRef
 
 from magicgui.application import use_app
 from magicgui.events import EventEmitter
@@ -45,16 +44,16 @@ class Widget:
 
     _widget: _protocols.WidgetProtocol
     # if this widget becomes owned by a labeled widget
-    _labeled_widget_ref: Optional["ReferenceType[_LabeledWidget]"] = None
+    _labeled_widget_ref: "ReferenceType[_LabeledWidget]" | None = None
 
     def __init__(
         self,
-        widget_type: Type[_protocols.WidgetProtocol],
+        widget_type: type[_protocols.WidgetProtocol],
         name: str = "",
         annotation: Any = None,
         label: str = None,
-        tooltip: Optional[str] = None,
-        visible: Optional[bool] = None,
+        tooltip: str | None = None,
+        visible: bool | None = None,
         enabled: bool = True,
         gui_only=False,
         backend_kwargs=dict(),
@@ -63,11 +62,9 @@ class Widget:
         # for ipywidgets API compatibility
         label = label or extra.pop("description", None)
         if extra:
-            warnings.warn(
-                f"\n\n{self.__class__.__name__}.__init__() got unexpected "
-                f"keyword arguments {set(extra)!r}.\n"
-                "In the future this will raise an exception\n",
-                FutureWarning,
+            raise TypeError(
+                f"{type(self).__name__} got an unexpected "
+                f"keyword argument: {', '.join(extra)}"
             )
 
         _prot = self.__class__.__annotations__["_widget"]
@@ -123,7 +120,7 @@ class Widget:
         return self._param_kind
 
     @param_kind.setter
-    def param_kind(self, kind: Union[str, inspect._ParameterKind]):
+    def param_kind(self, kind: str | inspect._ParameterKind):
         if isinstance(kind, str):
             kind = inspect._ParameterKind[kind.upper()]
         if not isinstance(kind, inspect._ParameterKind):
@@ -241,16 +238,16 @@ class Widget:
         self._widget._mgui_set_max_height(value)
 
     @property
-    def tooltip(self) -> Optional[str]:
+    def tooltip(self) -> str | None:
         """Get the tooltip for this widget."""
         return self._widget._mgui_get_tooltip() or None
 
     @tooltip.setter
-    def tooltip(self, value: Optional[str]) -> None:
+    def tooltip(self, value: str | None) -> None:
         """Set the tooltip for this widget."""
         return self._widget._mgui_set_tooltip(value)
 
-    def _labeled_widget(self) -> Optional[_LabeledWidget]:
+    def _labeled_widget(self) -> _LabeledWidget | None:
         """Return _LabeledWidget container, if applicable."""
         return self._labeled_widget_ref() if self._labeled_widget_ref else None
 

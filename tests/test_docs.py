@@ -27,11 +27,11 @@ def test_doc_code_cells(fname, globalns=globals()):
             if "warns" in header.group():
                 with pytest.warns(None):
                     exec(cell, globalns)
-                    continue
+                continue
             if "raises-exception" in header.group():
                 with pytest.raises(Exception):
                     exec(cell, globalns)
-                    continue
+                continue
         exec(cell, globalns)
 
 
