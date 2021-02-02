@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, overload
 
 from typing_extensions import Literal
 
@@ -28,7 +28,7 @@ def magicgui(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[False] = False,
@@ -42,7 +42,7 @@ def magicgui(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[False] = False,
@@ -56,7 +56,7 @@ def magicgui(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[True],
@@ -70,7 +70,7 @@ def magicgui(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[True],
@@ -84,7 +84,7 @@ def magic_factory(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[False] = False,
@@ -98,7 +98,7 @@ def magic_factory(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[False] = False,
@@ -112,7 +112,7 @@ def magic_factory(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[True],
@@ -126,7 +126,7 @@ def magic_factory(  # noqa
     layout: str = "horizontal",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: Union[bool, str] = False,
+    call_button: bool | str = False,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: Literal[True],

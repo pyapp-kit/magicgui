@@ -3,12 +3,14 @@
 All of these widgets should provide the `widget_type` argument to their
 super().__init__ calls.
 """
+from __future__ import annotations
+
 import inspect
 import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, List, Sequence, Tuple, Type, TypeVar, Union, overload
+from typing import Callable, Sequence, TypeVar, overload
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
@@ -34,7 +36,7 @@ from ._transforms import make_float, make_literal_eval
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
 
-def _param_list_to_str(param_list: List[DocstringParam]) -> str:
+def _param_list_to_str(param_list: list[DocstringParam]) -> str:
     """Format Parameters section for numpy docstring from list of tuples."""
     out = []
     out += ["Parameters", len("Parameters") * "-"]
@@ -70,7 +72,7 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
         The modified class (can be used as a decorator)
     """
     params = {}
-    param_docs: List[DocstringParam] = []
+    param_docs: list[DocstringParam] = []
     for sup in reversed(inspect.getmro(cls)):
         try:
             sig = inspect.signature(getattr(sup, "__init__"))
@@ -107,10 +109,10 @@ C = TypeVar("C")
 
 @overload
 def backend_widget(  # noqa
-    cls: Type[C],
+    cls: type[C],
     widget_name: str = None,
-    transform: Callable[[Type], Type] = None,
-) -> Type[C]:
+    transform: Callable[[type], type] = None,
+) -> type[C]:
     ...
 
 
@@ -118,16 +120,16 @@ def backend_widget(  # noqa
 def backend_widget(  # noqa
     cls: Literal[None] = None,
     widget_name: str = None,
-    transform: Callable[[Type], Type] = None,
-) -> Callable[..., Type[C]]:
+    transform: Callable[[type], type] = None,
+) -> Callable[..., type[C]]:
     ...
 
 
 def backend_widget(
-    cls: Type[C] = None,
+    cls: type[C] = None,
     widget_name: str = None,
-    transform: Callable[[Type], Type] = None,
-) -> Union[Callable, Type[C]]:
+    transform: Callable[[type], type] = None,
+) -> Callable | type[C]:
     """Decorate cls to inject the backend widget of the same name.
 
     The purpose of this decorator is to "inject" the appropriate backend
@@ -151,7 +153,7 @@ def backend_widget(
         The final concrete class backed by a backend widget.
     """
 
-    def wrapper(cls) -> Type[Widget]:
+    def wrapper(cls) -> type[Widget]:
         def __init__(self, **kwargs):
             app = use_app()
             assert app.native
@@ -405,7 +407,7 @@ class FileEdit(Container):
         return self._mode
 
     @mode.setter
-    def mode(self, value: Union[FileDialogMode, str]):
+    def mode(self, value: FileDialogMode | str):
         self._mode = FileDialogMode(value)
         self.choose_btn.text = self._btn_text
 
@@ -430,7 +432,7 @@ class FileEdit(Container):
             self.value = result
 
     @property
-    def value(self) -> Union[Tuple[Path, ...], Path]:
+    def value(self) -> tuple[Path, ...] | Path:
         """Return current value of the widget.  This may be interpreted by backends."""
         text = self.line_edit.value
         if self.mode is FileDialogMode.EXISTING_FILES:
@@ -438,7 +440,7 @@ class FileEdit(Container):
         return Path(text)
 
     @value.setter
-    def value(self, value: Union[Sequence[PathLike], PathLike]):
+    def value(self, value: Sequence[PathLike] | PathLike):
         """Set current file path."""
         if isinstance(value, (list, tuple)):
             value = ", ".join([os.fspath(p) for p in value])

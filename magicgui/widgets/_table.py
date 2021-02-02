@@ -1,20 +1,18 @@
+from __future__ import annotations
+
 import operator
 from itertools import zip_longest
 from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Dict,
     Generic,
     ItemsView,
     Iterator,
     KeysView,
-    List,
     Mapping,
     MutableMapping,
-    Optional,
     Sequence,
-    Tuple,
     TypeVar,
     Union,
     cast,
@@ -41,7 +39,7 @@ TableData = Union[dict, "pd.DataFrame", list, "np.ndarray", tuple, None]
 IndexKey = Union[int, slice]
 
 
-def normalize_table_data(data: TableData) -> Tuple[Collection[Collection], list, list]:
+def normalize_table_data(data: TableData) -> tuple[Collection[Collection], list, list]:
     """Convert data to data, row headers, column headers.
 
     Parameters
@@ -117,7 +115,7 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
         assert axis in {"row", "column"}, "keys axis must be either 'column' or 'row'"
         self._axis = axis
 
-    def __iter__(self) -> Iterator[Tuple[_KT_co, _VT_co]]:
+    def __iter__(self) -> Iterator[tuple[_KT_co, _VT_co]]:
         """Yield items."""
         for header in getattr(self._mapping, f"{self._axis}_headers"):
             val = getattr(self._mapping, f"_get_{self._axis}")(header)
@@ -203,7 +201,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
 
     def __new__(
         cls,
-        value: Optional[TableData] = None,
+        value: TableData | None = None,
         *,
         index: Collection = None,
         columns: Collection = None,
@@ -214,7 +212,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
 
     def __init__(
         self,
-        value: Optional[TableData] = None,
+        value: TableData | None = None,
         *,
         index: Collection = None,
         columns: Collection = None,
@@ -233,7 +231,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
         }
 
     @property
-    def value(self) -> Dict[TblKey, Collection]:
+    def value(self) -> dict[TblKey, Collection]:
         """Return dict with current `data`, `index`, and `columns` of the widget."""
         return self.to_dict("split")
 
@@ -297,7 +295,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
         return self._widget._mgui_set_row_headers(headers)
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def shape(self) -> tuple[int, int]:
         """Return shape of table widget (rows, cols)."""
         return self._widget._mgui_get_row_count(), self._widget._mgui_get_column_count()
 
@@ -490,20 +488,20 @@ class Table(Widget, MutableMapping[TblKey, list]):
 
     # fmt: off
     @overload
-    def to_dict(self, orient: Literal['dict']) -> Dict[TblKey, Dict[TblKey, list]]: ...  # noqa
+    def to_dict(self, orient: Literal['dict']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['list']) -> Dict[TblKey, list]: ...  # noqa
+    def to_dict(self, orient: Literal['list']) -> dict[TblKey, list]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['split']) -> Dict[TblKey, Collection]: ...  # noqa
+    def to_dict(self, orient: Literal['split']) -> dict[TblKey, Collection]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['records']) -> List[Dict[TblKey, Any]]: ...  # noqa
+    def to_dict(self, orient: Literal['records']) -> list[dict[TblKey, Any]]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['index']) -> Dict[TblKey, Dict[TblKey, list]]: ...  # noqa
+    def to_dict(self, orient: Literal['index']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['series']) -> Dict[TblKey, 'pd.Series']: ...  # noqa
+    def to_dict(self, orient: Literal['series']) -> dict[TblKey, 'pd.Series']: ...  # noqa
     # fmt: on
 
-    def to_dict(self, orient: str = "dict") -> Union[list, dict]:
+    def to_dict(self, orient: str = "dict") -> list | dict:
         """Convert the Table to a dictionary.
 
         The type of the key-value pairs can be customized with the parameters
@@ -581,18 +579,18 @@ class DataView:
     @overload
     def __getitem__(self, arg: int) -> list: ...  # noqa
     @overload
-    def __getitem__(self, arg: slice) -> List[list]: ...  # noqa
+    def __getitem__(self, arg: slice) -> list[list]: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[int, int]) -> Any: ...  # noqa
+    def __getitem__(self, arg: tuple[int, int]) -> Any: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[int, slice]) -> list: ...  # noqa
+    def __getitem__(self, arg: tuple[int, slice]) -> list: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[slice, int]) -> list: ...  # noqa
+    def __getitem__(self, arg: tuple[slice, int]) -> list: ...  # noqa
     @overload
-    def __getitem__(self, arg: Tuple[slice, slice]) -> List[list]: ...  # noqa
+    def __getitem__(self, arg: tuple[slice, slice]) -> list[list]: ...  # noqa
     # fmt: on
 
-    def __getitem__(self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey]]) -> Any:
+    def __getitem__(self, idx: IndexKey | tuple[IndexKey, IndexKey]) -> Any:
         """Get index."""
         if isinstance(idx, (int, slice)):
             return self.__getitem__((idx, slice(None)))  # type: ignore
@@ -613,7 +611,7 @@ class DataView:
         raise ValueError(f"Not a valid idx for __getitem__ {idx!r}")
 
     def __setitem__(
-        self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey]], value: Any
+        self, idx: IndexKey | tuple[IndexKey, IndexKey], value: Any
     ) -> None:
         """Set index."""
         # TODO: deal with bad shapes
@@ -645,7 +643,7 @@ class DataView:
                     return
         raise ValueError(f"Not a valid idx for __setitem__ {idx!r}")
 
-    def __delitem__(self, idx: Union[IndexKey, Tuple[IndexKey, IndexKey]]):
+    def __delitem__(self, idx: IndexKey | tuple[IndexKey, IndexKey]):
         """Get index."""
         if isinstance(idx, (int, slice)):
             return self.__delitem__((idx, slice(None)))
@@ -725,7 +723,7 @@ def _is_numpy_array(obj) -> bool:
         return False
 
 
-def _from_nested_column_dict(data: dict) -> Tuple[List[list], list]:
+def _from_nested_column_dict(data: dict) -> tuple[list[list], list]:
     """Return 2D data and row headers from a dict of nested dicts."""
     _index = {frozenset(i) for i in data.values()}
     if len(_index) > 1:
@@ -751,7 +749,7 @@ def _from_nested_column_dict(data: dict) -> Tuple[List[list], list]:
     return list(list(x) for x in zip(*new_data)), index
 
 
-def _from_dict(data: dict, dtype=None) -> Tuple[List[list], list, list]:
+def _from_dict(data: dict, dtype=None) -> tuple[list[list], list, list]:
     """Return normalized data from dict of array-like or row-dicts.
 
     logic from pandas.DataFrame.from_dict
@@ -767,7 +765,7 @@ def _from_dict(data: dict, dtype=None) -> Tuple[List[list], list, list]:
     return _data, index, columns
 
 
-def _from_records(data: List[Dict[TblKey, Any]]) -> Tuple[List[list], list, list]:
+def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list]:
     """Return normalized data from a list of column dicts."""
     if not data:
         return [], [], []

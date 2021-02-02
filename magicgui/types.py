@@ -1,4 +1,6 @@
 """Types used internally in magicgui."""
+from __future__ import annotations
+
 from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type, Union
@@ -77,6 +79,6 @@ class WidgetOptions(TypedDict, total=False):
     step: float
     layout: str  # for things like containers
     orientation: str  # for things like sliders
-    mode: Union[str, FileDialogMode]
+    mode: str | FileDialogMode
     tooltip: str
     bind: Any

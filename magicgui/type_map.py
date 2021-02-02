@@ -1,4 +1,6 @@
 """Functions in this module are responsible for mapping type annotations to widgets."""
+from __future__ import annotations
+
 import datetime
 import inspect
 import pathlib
@@ -7,7 +9,7 @@ import types
 import warnings
 from collections import abc, defaultdict
 from enum import EnumMeta
-from typing import Any, DefaultDict, Dict, ForwardRef, List, Optional, Tuple, Type, cast
+from typing import Any, DefaultDict, ForwardRef, cast
 
 from typing_extensions import get_args, get_origin
 
@@ -22,18 +24,16 @@ from magicgui.types import (
 )
 from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
-__all__: List[str] = ["register_type", "get_widget_class", "type_matcher"]
+__all__: list[str] = ["register_type", "get_widget_class", "type_matcher"]
 
 
 class MissingWidget(RuntimeError):
     """Raised when a backend widget cannot be found."""
 
-    pass
 
-
-_RETURN_CALLBACKS: DefaultDict[type, List[ReturnCallback]] = defaultdict(list)
-_TYPE_MATCHERS: List[TypeMatcher] = list()
-_TYPE_DEFS: Dict[type, WidgetTuple] = dict()
+_RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
+_TYPE_MATCHERS: list[TypeMatcher] = list()
+_TYPE_DEFS: dict[type, WidgetTuple] = dict()
 
 
 def _is_subclass(obj, superclass):
@@ -71,7 +71,7 @@ def _evaluate_forwardref(type_: Any) -> Any:
     return cast(Any, type_)._evaluate(globalns, {}, set())
 
 
-def _normalize_type(value: Any, annotation: Any) -> Type:
+def _normalize_type(value: Any, annotation: Any) -> type:
     """Return annotation type origin or dtype of value."""
     if annotation:
         if annotation is inspect.Parameter.empty:
@@ -95,7 +95,7 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
 
 
 @type_matcher
-def simple_types(value, annotation) -> Optional[WidgetTuple]:
+def simple_types(value, annotation) -> WidgetTuple | None:
     """Check simple type mappings."""
     dtype = _normalize_type(value, annotation)
 
@@ -124,7 +124,7 @@ def simple_types(value, annotation) -> Optional[WidgetTuple]:
 
 
 @type_matcher
-def callable_type(value, annotation) -> Optional[WidgetTuple]:
+def callable_type(value, annotation) -> WidgetTuple | None:
     """Determine if value/annotation is a function type."""
     dtype = _normalize_type(value, annotation)
 
@@ -134,7 +134,7 @@ def callable_type(value, annotation) -> Optional[WidgetTuple]:
 
 
 @type_matcher
-def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
+def sequence_of_paths(value, annotation) -> WidgetTuple | None:
     """Determine if value/annotation is a Sequence[pathlib.Path]."""
     if annotation:
         orig = get_origin(annotation)
@@ -153,7 +153,7 @@ def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
 
 
 def pick_widget_type(
-    value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {}
+    value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
     if "widget_type" in options:
@@ -182,8 +182,8 @@ def pick_widget_type(
 
 
 def get_widget_class(
-    value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {}
-) -> Tuple[WidgetClass, WidgetOptions]:
+    value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
+) -> tuple[WidgetClass, WidgetOptions]:
     """Return a WidgetClass appropriate for the given parameters.
 
     Parameters
@@ -241,7 +241,7 @@ def register_type(
     type_: type,
     *,
     widget_type: WidgetRef = None,
-    return_callback: Optional[ReturnCallback] = None,
+    return_callback: ReturnCallback | None = None,
     **options,
 ):
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
@@ -330,7 +330,7 @@ def _check_choices(choices):
     return choices
 
 
-def _type2callback(type_: type) -> List[ReturnCallback]:
+def _type2callback(type_: type) -> list[ReturnCallback]:
     """Check if return callbacks have been registered for ``type_`` and return if so.
 
     Parameters

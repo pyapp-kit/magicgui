@@ -1,5 +1,7 @@
 """Widget implementations (adaptors) for the Qt backend."""
-from typing import Any, Dict, Iterable, Optional, Sequence, Tuple, Union
+from __future__ import annotations
+
+from typing import Any, Iterable, Sequence
 
 import qtpy
 from qtpy import QtWidgets as QtW
@@ -109,7 +111,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
     def _mgui_get_tooltip(self) -> str:
         return self._qwidget.toolTip()
 
-    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
+    def _mgui_set_tooltip(self, value: str | None) -> None:
         self._qwidget.setToolTip(str(value) if value else None)
 
     def _mgui_bind_parent_change_callback(self, callback):
@@ -178,7 +180,7 @@ class EmptyWidget(QBaseWidget):
 
 
 class QBaseStringWidget(QBaseValueWidget):
-    _qwidget: Union[QtW.QLineEdit, QtW.QTextEdit]
+    _qwidget: QtW.QLineEdit | QtW.QTextEdit
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(str(value))
@@ -221,7 +223,7 @@ class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
 class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
-    _qwidget: Union[QtW.QDoubleSpinBox, QtW.QSpinBox, QtW.QSlider]
+    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider
 
     def __init__(self, qwidg):
         super().__init__(qwidg, "value", "setValue", "valueChanged")
@@ -255,7 +257,7 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
 
 
 class QBaseButtonWidget(QBaseValueWidget, _protocols.SupportsText):
-    _qwidget: Union[QtW.QCheckBox, QtW.QPushButton, QtW.QRadioButton, QtW.QToolButton]
+    _qwidget: QtW.QCheckBox | QtW.QPushButton | QtW.QRadioButton | QtW.QToolButton
 
     def __init__(self, qwidg):
         super().__init__(qwidg, "isChecked", "setChecked", "toggled")
@@ -309,11 +311,11 @@ class Container(
         self._layout.removeWidget(widget.native)
         widget.native.setParent(None)
 
-    def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
         m = self._layout.contentsMargins()
         return m.left(), m.top(), m.right(), m.bottom()
 
-    def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
         self._layout.setContentsMargins(*margins)
 
     def _mgui_set_orientation(self, value) -> None:
@@ -337,7 +339,7 @@ class MainWindow(Container):
         self._main_window = QtW.QMainWindow()
         self._main_window.setCentralWidget(self._qwidget)
         self._main_menu = self._main_window.menuBar()
-        self._menus: Dict[str, QtW.QMenu] = {}
+        self._menus: dict[str, QtW.QMenu] = {}
 
     def _mgui_get_visible(self):
         return self._main_window.isVisible()
@@ -409,7 +411,6 @@ class ProgressBar(Slider):
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
-        pass
 
 
 class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
@@ -463,14 +464,14 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         if item_index >= 0:
             self._qwidget.removeItem(item_index)
 
-    def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any]]:
         """Show the widget."""
         return tuple(  # type: ignore
             (self._qwidget.itemText(i), self._qwidget.itemData(i))
             for i in range(self._qwidget.count())
         )
 
-    def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
+    def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
         choices_ = list(choices)
         if not choices_:
@@ -537,12 +538,12 @@ QFILE_DIALOG_MODES = {
 
 
 def show_file_dialog(
-    mode: Union[str, FileDialogMode] = FileDialogMode.EXISTING_FILE,
+    mode: str | FileDialogMode = FileDialogMode.EXISTING_FILE,
     caption: str = None,
     start_path: str = None,
     filter: str = None,
     parent=None,
-) -> Optional[str]:
+) -> str | None:
     show_dialog = QFILE_DIALOG_MODES[FileDialogMode(mode)]
     args = (parent, caption, start_path, filter)
     if mode is FileDialogMode.EXISTING_DIRECTORY:
