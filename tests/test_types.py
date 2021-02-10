@@ -1,6 +1,6 @@
 import pytest
 
-from magicgui import magicgui, register_type, widgets
+from magicgui import magicgui, register_type, types, widgets
 
 
 def test_forward_refs():
@@ -58,8 +58,6 @@ def test_forward_refs_return_annotation():
 def test_pathlike_annotation():
     import pathlib
     from typing import Union
-
-    from magicgui import magicgui, types
 
     @magicgui(fn={"mode": "r"})
     def widget(fn: types.PathLike):
