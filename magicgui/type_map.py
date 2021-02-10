@@ -95,32 +95,41 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
     return func
 
 
+_SIMPLE_ANNOTATIONS = {
+    PathLike: widgets.FileEdit,
+}
+
+_SIMPLE_TYPES = {
+    bool: widgets.CheckBox,
+    int: widgets.SpinBox,
+    float: widgets.FloatSpinBox,
+    str: widgets.LineEdit,
+    pathlib.Path: widgets.FileEdit,
+    datetime.time: widgets.TimeEdit,
+    datetime.date: widgets.DateEdit,
+    datetime.datetime: widgets.DateTimeEdit,
+    range: widgets.RangeEdit,
+    slice: widgets.SliceEdit,
+}
+
+
 @type_matcher
 def simple_types(value, annotation) -> WidgetTuple | None:
     """Check simple type mappings."""
+    if annotation in _SIMPLE_ANNOTATIONS:
+        return _SIMPLE_ANNOTATIONS[annotation], {}
+
     dtype = _normalize_type(value, annotation)
 
     if dtype is widgets.ProgressBar:
         return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
 
-    simple = {
-        bool: widgets.CheckBox,
-        int: widgets.SpinBox,
-        float: widgets.FloatSpinBox,
-        str: widgets.LineEdit,
-        pathlib.Path: widgets.FileEdit,
-        datetime.time: widgets.TimeEdit,
-        datetime.date: widgets.DateEdit,
-        datetime.datetime: widgets.DateTimeEdit,
-        range: widgets.RangeEdit,
-        slice: widgets.SliceEdit,
-    }
-    if dtype in simple:
-        return simple[dtype], {}
+    if dtype in _SIMPLE_TYPES:
+        return _SIMPLE_TYPES[dtype], {}
     else:
-        for key in simple.keys():
+        for key in _SIMPLE_TYPES.keys():
             if _is_subclass(dtype, key):
-                return simple[key], {}
+                return _SIMPLE_TYPES[key], {}
     return None
 
 
@@ -153,14 +162,6 @@ def sequence_of_paths(value, annotation) -> WidgetTuple | None:
     return None
 
 
-@type_matcher
-def pathlike(value, annotation) -> WidgetTuple | None:
-    """Determine if annotation is magicgui.types.PathLike."""
-    if annotation is PathLike:
-        return widgets.FileEdit, {}
-    return None
-
-
 def pick_widget_type(
     value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
 ) -> WidgetTuple:
@@ -187,13 +188,6 @@ def pick_widget_type(
         if _widget_type:
             return _widget_type
 
-    if options:
-        raise ValueError(
-            "magicgui received parameter-specific options for an unrecognized type:\n"
-            f"value: {value}\n"
-            f"type: {annotation}\n"
-            f"options: {options}"
-        )
     return widgets.EmptyWidget, {"visible": False}
 
 

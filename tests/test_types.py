@@ -56,6 +56,9 @@ def test_forward_refs_return_annotation():
 
 
 def test_pathlike_annotation():
+    import pathlib
+    from typing import Union
+
     from magicgui import magicgui, types
 
     @magicgui(fn={"mode": "r"})
@@ -65,8 +68,9 @@ def test_pathlike_annotation():
     assert isinstance(widget.fn, widgets.FileEdit)
     assert widget.fn.mode is types.FileDialogMode.EXISTING_FILE
 
+    # an equivalent union also works
     @magicgui(fn={"mode": "rm"})
-    def widget2(fn: types.PathLike):
+    def widget2(fn: Union[bytes, pathlib.Path, str]):
         print(fn)
 
     assert isinstance(widget2.fn, widgets.FileEdit)
