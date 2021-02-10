@@ -207,11 +207,11 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     def _unify_label_widths(self, event=None):
         if not self._initialized:
             return
-        if self.layout == "vertical" and self.labels and len(self):
+
+        need_labels = [w for w in self if not isinstance(w, ButtonWidget)]
+        if self.layout == "vertical" and self.labels and need_labels:
             measure = use_app().get_obj("get_text_width")
-            widest_label = max(
-                measure(w.label) for w in self if not isinstance(w, ButtonWidget)
-            )
+            widest_label = max(measure(w.label) for w in need_labels)
             for w in self:
                 labeled_widget = w._labeled_widget()
                 if labeled_widget:
