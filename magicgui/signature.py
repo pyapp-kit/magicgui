@@ -73,6 +73,10 @@ def split_annotated_type(annotation: _AnnotatedAlias) -> tuple[Any, WidgetOption
     return annotation.__args__[0], meta
 
 
+class _void:
+    """private sentinel."""
+
+
 class MagicParameter(inspect.Parameter):
     """A Parameter subclass that is closely linked to a magicgui.Widget object.
 
@@ -223,9 +227,27 @@ class MagicSignature(inspect.Signature):
 
         return Container(
             widgets=list(self.widgets(kwargs.get("app")).values()),
-            return_annotation=self.return_annotation,
             **kwargs,
         )
+
+    def replace(
+        self,
+        *,
+        parameters=_void,
+        return_annotation: Any = _void,
+    ) -> MagicSignature:
+        """Create a customized copy of the Signature.
+
+        Pass ``parameters`` and/or ``return_annotation`` arguments
+        to override them in the new copy.
+        """
+        if parameters is _void:
+            parameters = self.parameters.values()
+
+        if return_annotation is _void:
+            return_annotation = self.return_annotation
+
+        return type(self)(parameters, return_annotation=return_annotation)
 
 
 def magic_signature(

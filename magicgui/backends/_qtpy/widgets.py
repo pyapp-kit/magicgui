@@ -575,7 +575,8 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 
     def __init__(self):
         super().__init__(QtW.QTableWidget)
-        self._qwidget.horizontalHeader().setSectionResizeMode(QtW.QHeaderView.Stretch)
+        header = self._qwidget.horizontalHeader()
+        header.setSectionResizeMode(QtW.QHeaderView.Stretch)
         # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
 
