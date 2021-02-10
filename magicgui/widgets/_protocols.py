@@ -9,16 +9,7 @@ For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -28,13 +19,13 @@ if TYPE_CHECKING:
     from magicgui.widgets._bases import Widget
 
 
-def assert_protocol(widget_class: Type, protocol: Type):
+def assert_protocol(widget_class: type, protocol: type):
     """Ensure that widget_class implements protocol, or raise helpful error."""
     if not isinstance(widget_class, protocol):
         _raise_protocol_error(widget_class, protocol)
 
 
-def _raise_protocol_error(widget_class: Type, protocol: Type):
+def _raise_protocol_error(widget_class: type, protocol: type):
     """Raise a more helpful error when required protocol members are missing."""
     missing = {
         i
@@ -177,7 +168,7 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
+    def _mgui_set_tooltip(self, value: str | None) -> None:
         """Set a tooltip for this widget."""
         raise NotImplementedError()
 
@@ -328,12 +319,12 @@ class SupportsChoices(Protocol):
     """Widget that has a set of valid choices."""
 
     @abstractmethod
-    def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any]]:
         """Get available choices."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
+    def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set available choices."""
         raise NotImplementedError()
 
@@ -366,8 +357,6 @@ class SupportsChoices(Protocol):
 @runtime_checkable
 class CategoricalWidgetProtocol(ValueWidgetProtocol, SupportsChoices, Protocol):
     """Categorical widget, that has a set of valid choices, and a current value."""
-
-    pass
 
 
 @runtime_checkable
@@ -440,11 +429,11 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
         raise NotImplementedError()
 
 
@@ -493,7 +482,7 @@ class BaseApplicationBackend(ABC):
     def _mgui_start_timer(
         self,
         interval: int = 0,
-        on_timeout: Optional[Callable[[], None]] = None,
+        on_timeout: Callable[[], None] | None = None,
         single: bool = False,
     ) -> None:
         """Create and start a timer.

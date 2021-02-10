@@ -502,7 +502,6 @@ the entirety of the docstring just like that"""
         z : Any, optional
             No tooltip for me please.
         """
-        pass
 
     assert func.x.tooltip == x_tooltip
     assert func.y.tooltip == y_docstring
@@ -521,7 +520,6 @@ def test_duplicated_and_missing_params_from_numpydoc():
         x, y : int
             Integers for you to use
         """
-        pass
 
     assert func.x.tooltip == "Integers for you to use"
     assert func.y.tooltip == "Integers for you to use"
@@ -544,7 +542,6 @@ the entirety of the docstring just like that"""
             y (str, optional): A greeting. Notice how we miraculously pull
                                the entirety of the docstring just like that
         """
-        pass
 
     assert func.x.tooltip == x_docstring
     assert func.y.tooltip == y_docstring
@@ -567,7 +564,6 @@ the entirety of the docstring just like that"""
         :type x: int
         :type y: str
         """
-        pass
 
     assert func.x.tooltip == x_docstring
     assert func.y.tooltip == y_docstring
@@ -587,7 +583,6 @@ def test_no_tooltips_from_numpydoc():
         y : str, optional
             A greeting, by default 'hi'
         """
-        pass
 
     assert not func.x.tooltip
     assert not func.y.tooltip
@@ -608,7 +603,6 @@ def test_only_some_tooltips_from_numpydoc():
         y : str, optional
             A greeting, by default 'hi'
         """
-        pass
 
     assert not func.x.tooltip
     assert func.y.tooltip == "Still want a tooltip"
@@ -641,3 +635,13 @@ def test_local_magicgui_self_reference():
         return local_self_referencing_function
 
     assert isinstance(local_self_referencing_function(), widgets.FunctionGui)
+
+
+def test_empty_function():
+    """Test that a function with no params works."""
+
+    @magicgui(call_button=True)
+    def f():
+        ...
+
+    f.show()

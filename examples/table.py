@@ -1,7 +1,7 @@
 """Demonstrating a few ways to input tables."""
 import numpy as np
 
-from magicgui.widgets import PushButton, Slider, Table
+from magicgui.widgets import Table
 
 # all of these are valid data types
 dict_of_lists = {"col_1": [1, 4], "col_2": [2, 5], "col_3": [3, 6]}

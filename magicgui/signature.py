@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import inspect
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Mapping, Sequence, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Sequence, cast
 
 from typing_extensions import Annotated, _AnnotatedAlias
 
@@ -60,7 +60,7 @@ def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
     return Annotated[annotation, _options]
 
 
-def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, WidgetOptions]:
+def split_annotated_type(annotation: _AnnotatedAlias) -> tuple[Any, WidgetOptions]:
     """Split an Annotated type into its base type and options dict."""
     if not isinstance(annotation, _AnnotatedAlias):
         raise TypeError("Type hint must be an 'Annotated' type.")
@@ -194,7 +194,7 @@ class MagicSignature(inspect.Signature):
         parameters: Sequence[inspect.Parameter] = None,
         *,
         return_annotation=inspect.Signature.empty,
-        gui_options: Dict[str, dict] = None,
+        gui_options: dict[str, dict] = None,
     ):
         params = [
             MagicParameter.from_parameter(p, (gui_options or {}).get(p.name))
@@ -251,7 +251,7 @@ class MagicSignature(inspect.Signature):
 
 
 def magic_signature(
-    obj: Callable, *, gui_options: Dict[str, dict] = None, follow_wrapped: bool = True
+    obj: Callable, *, gui_options: dict[str, dict] = None, follow_wrapped: bool = True
 ) -> MagicSignature:
     """Create a MagicSignature from a callable object.
 
