@@ -637,6 +637,16 @@ def test_local_magicgui_self_reference():
     assert isinstance(local_self_referencing_function(), widgets.FunctionGui)
 
 
+def test_empty_function():
+    """Test that a function with no params works."""
+
+    @magicgui(call_button=True)
+    def f():
+        ...
+
+    f.show()
+
+
 def test_boolean_label():
     """Test that label can be used to set the text of a button widget."""
 
