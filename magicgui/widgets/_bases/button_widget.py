@@ -19,6 +19,14 @@ class ButtonWidget(ValueWidget):
     changed: EventEmitter
 
     def __init__(self, text: Optional[str] = None, **kwargs):
+        if text and kwargs.get("label"):
+            from warnings import warn
+
+            warn(
+                "'text' and 'label' are synonymous for button widgets. To suppress this"
+                " warning, only provide one of the two kwargs."
+            )
+        text = text or kwargs.get("label")
         super().__init__(**kwargs)
         self.text = text or self.name
 
