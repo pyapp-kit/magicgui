@@ -645,3 +645,21 @@ def test_empty_function():
         ...
 
     f.show()
+
+
+def test_boolean_label():
+    """Test that label can be used to set the text of a button widget."""
+
+    @magicgui(check={"label": "ABC"})
+    def test(check: bool, x=1):
+        pass
+
+    assert test.check.text == "ABC"
+
+    with pytest.warns(UserWarning) as record:
+
+        @magicgui(check={"text": "ABC", "label": "BCD"})
+        def test2(check: bool, x=1):
+            pass
+
+    assert "'text' and 'label' are synonymous for button widgets" in str(record[0])
