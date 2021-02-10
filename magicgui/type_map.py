@@ -15,6 +15,7 @@ from typing_extensions import get_args, get_origin
 
 from magicgui import widgets
 from magicgui.types import (
+    PathLike,
     ReturnCallback,
     TypeMatcher,
     WidgetClass,
@@ -152,6 +153,14 @@ def sequence_of_paths(value, annotation) -> WidgetTuple | None:
     return None
 
 
+@type_matcher
+def pathlike(value, annotation) -> WidgetTuple | None:
+    """Determine if annotation is magicgui.types.PathLike."""
+    if annotation is PathLike:
+        return widgets.FileEdit, {}
+    return None
+
+
 def pick_widget_type(
     value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
 ) -> WidgetTuple:
@@ -178,6 +187,13 @@ def pick_widget_type(
         if _widget_type:
             return _widget_type
 
+    if options:
+        raise ValueError(
+            "magicgui received parameter-specific options for an unrecognized type:\n"
+            f"value: {value}\n"
+            f"type: {annotation}\n"
+            f"options: {options}"
+        )
     return widgets.EmptyWidget, {"visible": False}
 
 

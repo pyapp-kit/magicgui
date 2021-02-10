@@ -53,3 +53,21 @@ def test_forward_refs_return_annotation():
     assert result == 1
     # the forward ref has been resolved
     assert return_annotation is MyInt
+
+
+def test_pathlike_annotation():
+    from magicgui import magicgui, types
+
+    @magicgui(fn={"mode": "r"})
+    def widget(fn: types.PathLike):
+        print(fn)
+
+    assert isinstance(widget.fn, widgets.FileEdit)
+    assert widget.fn.mode is types.FileDialogMode.EXISTING_FILE
+
+    @magicgui(fn={"mode": "rm"})
+    def widget2(fn: types.PathLike):
+        print(fn)
+
+    assert isinstance(widget2.fn, widgets.FileEdit)
+    assert widget2.fn.mode is types.FileDialogMode.EXISTING_FILES
