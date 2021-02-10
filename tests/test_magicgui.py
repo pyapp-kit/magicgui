@@ -635,3 +635,31 @@ def test_local_magicgui_self_reference():
         return local_self_referencing_function
 
     assert isinstance(local_self_referencing_function(), widgets.FunctionGui)
+
+
+def test_empty_function():
+    """Test that a function with no params works."""
+
+    @magicgui(call_button=True)
+    def f():
+        ...
+
+    f.show()
+
+
+def test_boolean_label():
+    """Test that label can be used to set the text of a button widget."""
+
+    @magicgui(check={"label": "ABC"})
+    def test(check: bool, x=1):
+        pass
+
+    assert test.check.text == "ABC"
+
+    with pytest.warns(UserWarning) as record:
+
+        @magicgui(check={"text": "ABC", "label": "BCD"})
+        def test2(check: bool, x=1):
+            pass
+
+    assert "'text' and 'label' are synonymous for button widgets" in str(record[0])
