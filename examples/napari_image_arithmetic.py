@@ -33,7 +33,9 @@ with gui_qt():
     # using the function signature. Note that we aren't returning a napari Image layer,
     # but instead a numpy array which we want napari to interperate as Image data.
     @magicgui(call_button="execute")
-    def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> ImageData:
+    def image_arithmetic(
+        layerA: Image, operation: Operation, layerB: Image
+    ) -> ImageData:
         """Add, subtracts, multiplies, or divides to image layers with equal shape."""
         return operation.value(layerA.data, layerB.data)
 
