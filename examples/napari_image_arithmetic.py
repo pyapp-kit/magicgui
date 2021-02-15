@@ -4,6 +4,7 @@ from enum import Enum
 import numpy
 from napari import Viewer, gui_qt
 from napari.layers import Image
+from napari.types import ImageData
 
 from magicgui import magicgui
 
@@ -29,9 +30,10 @@ with gui_qt():
     viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
 
     # use the magic decorator!  This takes a function, and generates a widget instance
-    # using the function signature.
+    # using the function signature. Note that we aren't returning a napari Image layer,
+    # but instead a numpy array which we want napari to interperate as Image data.
     @magicgui(call_button="execute")
-    def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> Image:
+    def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> ImageData:
         """Add, subtracts, multiplies, or divides to image layers with equal shape."""
         return operation.value(layerA.data, layerB.data)
 
