@@ -9,6 +9,7 @@ import napari
 import skimage.data
 import skimage.filters
 from napari.layers import Image
+from napari.types import ImageData
 
 from magicgui import magicgui
 
@@ -23,12 +24,14 @@ with napari.gui_qt():
     # - we use `widget_type` to override the default "float" widget on sigma
     # - we provide some Qt-specific parameters
     # - we contstrain the possible choices for `mode`
+    # Note that we aren't returning a napari Image layer, but instead a numpy array
+    # which we want napari to interperate as Image data.
     @magicgui(
         auto_call=True,
         sigma={"widget_type": "FloatSlider", "max": 6},
         mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
     )
-    def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
+    def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> ImageData:
         """Apply a gaussian blur to ``layer``."""
         if layer:
             return skimage.filters.gaussian(layer.data, sigma=sigma, mode=mode)
