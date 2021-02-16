@@ -1,6 +1,6 @@
 import pytest
 
-from magicgui import magicgui, register_type, widgets
+from magicgui import magicgui, register_type, types, widgets
 
 
 def test_forward_refs():
@@ -53,3 +53,23 @@ def test_forward_refs_return_annotation():
     assert result == 1
     # the forward ref has been resolved
     assert return_annotation is MyInt
+
+
+def test_pathlike_annotation():
+    import pathlib
+    from typing import Union
+
+    @magicgui(fn={"mode": "r"})
+    def widget(fn: types.PathLike):
+        print(fn)
+
+    assert isinstance(widget.fn, widgets.FileEdit)
+    assert widget.fn.mode is types.FileDialogMode.EXISTING_FILE
+
+    # an equivalent union also works
+    @magicgui(fn={"mode": "rm"})
+    def widget2(fn: Union[bytes, pathlib.Path, str]):
+        print(fn)
+
+    assert isinstance(widget2.fn, widgets.FileEdit)
+    assert widget2.fn.mode is types.FileDialogMode.EXISTING_FILES
