@@ -89,6 +89,7 @@ def magic_factory(  # noqa
     result_widget: bool = False,
     main_window: Literal[False] = False,
     app: AppRef = None,
+    widget_init: Callable[[FunctionGui], None] | None = None,
     **param_options: dict,
 ) -> MagicFactory[FunctionGui[_R]]: ...
 @overload  # noqa: E302
@@ -103,6 +104,7 @@ def magic_factory(  # noqa
     result_widget: bool = False,
     main_window: Literal[False] = False,
     app: AppRef = None,
+    widget_init: Callable[[FunctionGui], None] | None = None,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MagicFactory[FunctionGui[_R]]]: ...
 @overload  # noqa: E302
@@ -117,6 +119,7 @@ def magic_factory(  # noqa
     result_widget: bool = False,
     main_window: Literal[True],
     app: AppRef = None,
+    widget_init: Callable[[FunctionGui], None] | None = None,
     **param_options: dict,
 ) -> MagicFactory[MainFunctionGui[_R]]: ...
 @overload  # noqa: E302
@@ -131,5 +134,6 @@ def magic_factory(  # noqa
     result_widget: bool = False,
     main_window: Literal[True],
     app: AppRef = None,
+    widget_init: Callable[[FunctionGui], None] | None = None,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MagicFactory[MainFunctionGui[_R]]]: ...
