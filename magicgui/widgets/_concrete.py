@@ -200,7 +200,7 @@ class EmptyWidget(ValueWidget):
 
 @backend_widget
 class Label(ValueWidget):
-    """A non-editable text or image display."""
+    """A non-editable text display."""
 
 
 @backend_widget
