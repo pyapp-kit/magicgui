@@ -6,6 +6,10 @@ import pytest
 
 from magicgui.widgets import PushButton, Slider, Table
 
+attr_xfail = pytest.mark.xfail(
+    bool(os.getenv("CI")), reason="periodic AttributeError", raises=AttributeError
+)
+
 _TABLE_DATA = {
     # column-dict-of-lists
     "list": {"col_1": [1, 4], "col_2": [2, 5], "col_3": [3, 6]},
@@ -135,9 +139,7 @@ def test_adding_deleting_to_empty_table():
     assert not table.row_headers
 
 
-@pytest.mark.xfail(
-    bool(os.getenv("CI")), reason="periodic AttributeError", raises=AttributeError
-)
+@attr_xfail
 def test_orient_index():
     """Test to_dict with orient = 'index' ."""
     table = Table(value=_TABLE_DATA["dict"])
@@ -230,6 +232,7 @@ def test_dataview_delitem():
         del table.data[0, 0]  # cannot delete cells
 
 
+@attr_xfail
 def test_dataview_repr():
     """Test the repr for table.data."""
     table = Table(_TABLE_DATA["dict"], name="My Table")
@@ -247,6 +250,7 @@ def test_table_from_pandas():
     table.to_dataframe() == df
 
 
+@attr_xfail
 def test_orient_series():
     """Test to_dict with orient = 'index' ."""
     pd = pytest.importorskip("pandas", reason="Pandas required for some tables tests")
