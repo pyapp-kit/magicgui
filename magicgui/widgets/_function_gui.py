@@ -8,6 +8,7 @@ import inspect
 import re
 from collections import deque
 from contextlib import contextmanager
+from pathlib import Path
 from types import FunctionType
 from typing import (
     TYPE_CHECKING,
@@ -20,6 +21,7 @@ from typing import (
     cast,
 )
 
+from magicgui._util import rate_limited
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicSignature, magic_signature
@@ -95,6 +97,10 @@ class FunctionGui(Container, Generic[_R]):
         Will be passed to `magic_signature` by default ``None``
     name : str, optional
         A name to assign to the Container widget, by default `function.__name__`
+    persist : bool, optional
+        If `True`, when parameter values change in the widget, they will be stored to
+        disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
+        again with ``persist = True``.  By default, `False`.
 
     Raises
     ------
@@ -117,6 +123,7 @@ class FunctionGui(Container, Generic[_R]):
         result_widget: bool = False,
         param_options: dict[str, dict] | None = None,
         name: str = None,
+        persist: bool = False,
         **kwargs,
     ):
         if not callable(function):
@@ -136,6 +143,7 @@ class FunctionGui(Container, Generic[_R]):
         if tooltips:
             _inject_tooltips_from_docstrings(function.__doc__, param_options)
 
+        self.persist = persist
         self._function = function
         self.__wrapped__ = function
         # it's conceivable that function is not actually an instance of FunctionType
@@ -193,9 +201,17 @@ class FunctionGui(Container, Generic[_R]):
             self._result_widget.enabled = False
             self.append(self._result_widget)
 
+        if persist:
+            self._load(quiet=True)
+
         self._auto_call = auto_call
-        if auto_call:
-            self.changed.connect(lambda e: self.__call__())
+        self.changed.connect(self._on_change)
+
+    def _on_change(self, e):
+        if self.persist:
+            self._dump()
+        if self._auto_call:
+            self()
 
     @property
     def call_count(self) -> int:
@@ -205,10 +221,6 @@ class FunctionGui(Container, Generic[_R]):
     def reset_call_count(self) -> None:
         """Reset the call count to 0."""
         self._call_count = 0
-
-    # def __delitem__(self, key: int | slice):
-    #     """Delete a widget by integer or slice index."""
-    #     raise AttributeError("can't delete items from a FunctionGui")
 
     @property
     def return_annotation(self):
@@ -356,6 +368,19 @@ class FunctionGui(Container, Generic[_R]):
     def __set__(self, obj, value):
         """Prevent setting a magicgui attribute."""
         raise AttributeError("Can't set magicgui attribute")
+
+    @property
+    def _dump_path(self) -> Path:
+        cache_dir = Path.home() / ".config" / "magicgui" / "cache"
+        name = getattr(self._function, "__qualname__", self._callable_name)
+        return cache_dir / f"{self._function.__module__}.{name}"
+
+    @rate_limited(0.5)
+    def _dump(self, path=None):
+        super()._dump(path or self._dump_path)
+
+    def _load(self, path=None, quiet=False):
+        super()._load(path or self._dump_path, quiet=quiet)
 
 
 class MainFunctionGui(FunctionGui[_R], MainWindow):

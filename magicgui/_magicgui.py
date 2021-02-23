@@ -23,6 +23,7 @@ def magicgui(
     result_widget: bool = False,
     main_window: bool = False,
     app: AppRef = None,
+    persist: bool = False,
     **param_options: dict,
 ):
     """Return a :class:`FunctionGui` for ``function``.
@@ -53,6 +54,10 @@ def magicgui(
         by default True.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
+    persist : bool, optional
+        If `True`, when parameter values change in the widget, they will be stored to
+        disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
+        again with ``persist = True``.  By default, `False`.
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
@@ -93,6 +98,7 @@ def magic_factory(
     result_widget: bool = False,
     main_window: bool = False,
     app: AppRef = None,
+    persist: bool = False,
     **param_options: dict,
 ):
     """Return a :class:`MagicFactory` for ``function``."""

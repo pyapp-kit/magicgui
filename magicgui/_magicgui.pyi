@@ -33,6 +33,7 @@ def magicgui(  # noqa
     result_widget: bool = False,
     main_window: Literal[False] = False,
     app: AppRef = None,
+    persist: bool = False,
     **param_options: dict,
 ) -> FunctionGui[_R]: ...
 @overload  # noqa: E302
@@ -47,6 +48,7 @@ def magicgui(  # noqa
     result_widget: bool = False,
     main_window: Literal[False] = False,
     app: AppRef = None,
+    persist: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], FunctionGui[_R]]: ...
 @overload  # noqa: E302
@@ -61,6 +63,7 @@ def magicgui(  # noqa
     result_widget: bool = False,
     main_window: Literal[True],
     app: AppRef = None,
+    persist: bool = False,
     **param_options: dict,
 ) -> MainFunctionGui[_R]: ...
 @overload  # noqa: E302
@@ -75,6 +78,7 @@ def magicgui(  # noqa
     result_widget: bool = False,
     main_window: Literal[True],
     app: AppRef = None,
+    persist: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MainFunctionGui[_R]]: ...
 @overload  # noqa: E302

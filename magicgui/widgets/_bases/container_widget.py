@@ -271,6 +271,34 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             widget = self.pop(index)
             self.insert(index, widget)
 
+    NO_VALUE = "NO_VALUE"
+
+    def dict(self) -> dict:
+        """Return dict of {name: value} for each widget in the container."""
+        return {w.name: getattr(w, "value", self.NO_VALUE) for w in self}
+
+    def _dump(self, path):
+        """Dump the state of the widget to `path`."""
+        import pickle
+        from pathlib import Path
+
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(pickle.dumps(self.dict()))
+
+    def _load(self, path, quiet=False):
+        """Restore the state of the widget from previously saved file at `path`."""
+        import pickle
+        from pathlib import Path
+
+        path = Path(path)
+        if not path.exists() and quiet:
+            return
+        for key, val in pickle.loads(path.read_bytes()).items():
+            if val == self.NO_VALUE:
+                continue
+            getattr(self, key).value = val
+
 
 class MainWindowWidget(ContainerWidget):
     """Top level Application widget that can contain other widgets."""
