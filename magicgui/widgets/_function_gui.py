@@ -371,11 +371,12 @@ class FunctionGui(Container, Generic[_R]):
 
     @property
     def _dump_path(self) -> Path:
-        cache_dir = Path.home() / ".config" / "magicgui" / "cache"
-        name = getattr(self._function, "__qualname__", self._callable_name)
-        return cache_dir / f"{self._function.__module__}.{name}"
+        from .._util import user_cache_dir
 
-    @rate_limited(0.5)
+        name = getattr(self._function, "__qualname__", self._callable_name)
+        return user_cache_dir() / f"{self._function.__module__}.{name}"
+
+    @rate_limited(0.25)
     def _dump(self, path=None):
         super()._dump(path or self._dump_path)
 
