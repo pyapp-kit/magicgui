@@ -374,6 +374,7 @@ class FunctionGui(Container, Generic[_R]):
         from .._util import user_cache_dir
 
         name = getattr(self._function, "__qualname__", self._callable_name)
+        name = name.replace("<", "-").replace(">", "-")  # e.g. <locals>
         return user_cache_dir() / f"{self._function.__module__}.{name}"
 
     @rate_limited(0.25)
