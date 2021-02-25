@@ -1,7 +1,22 @@
 import time
 from unittest.mock import patch
 
+from magicgui._util import user_cache_dir
 from magicgui.widgets import FunctionGui
+
+
+def test_user_cache_dir():
+    ucd = user_cache_dir()
+    import sys
+    from pathlib import Path
+
+    home = Path.home().resolve()
+    if sys.platform == "win32":
+        assert str(ucd) == str(home / "AppData" / "Local" / "magicgui" / "Cache")
+    elif sys.platform == "darwin":
+        assert str(ucd) == str(home / "Library" / "Caches" / "magicgui")
+    else:
+        assert str(ucd) == str(home / ".cache" / "magicgui")
 
 
 def test_persistence(tmp_path):
