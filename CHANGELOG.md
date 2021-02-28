@@ -1,5 +1,63 @@
 # Changelog
 
+## [v0.2.7](https://github.com/napari/magicgui/tree/v0.2.7) (2021-02-28)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6...v0.2.7)
+
+v0.2.7 is a minor feature & bugfix release including:
+
+- parameter value persistence: use `@magicgui(persist=True)` to store the values in the GUI to disk when they are changed, and restore them when the GUI is recreated in a future session (#160).
+- a preliminary Image widget `magicgui.widgets.Image`.  Requires `pip install magicgui[image]` to work (#140)
+- adds a `widget_init` parameter to `magic_factory`... useful for connecting events and such after a factory creates a new widget instance (#159).
+- fixes a bug when a parameter-less function is used with `call_button=True` (#149)
+- fixes `FileEdit` used with directory mode
+- fixes a bug in Range/SliceEdits
+
+
+**Implemented enhancements:**
+
+- Add a cache keyword to read parameter values from disk [\#152](https://github.com/napari/magicgui/issues/152)
+
+**Fixed bugs:**
+
+- Better error message on bad keyword argument to `magicgui` [\#165](https://github.com/napari/magicgui/issues/165)
+- RangeEdit and SliceEdit behave unexpectedly [\#162](https://github.com/napari/magicgui/issues/162)
+- "No module named numpy" [\#161](https://github.com/napari/magicgui/issues/161)
+- FileEdit widget error with mode='d' [\#156](https://github.com/napari/magicgui/issues/156)
+- Cannot connect event callbacks to MagicFactory [\#155](https://github.com/napari/magicgui/issues/155)
+- Core dump error when running example napari parameter sweep [\#153](https://github.com/napari/magicgui/issues/153)
+- decorating a function that uses `napari.viewer.add\_points` with magicgui generates a Shader compilation error [\#147](https://github.com/napari/magicgui/issues/147)
+- vertical layout with no widgets error in `\_unify\_label\_widths` [\#146](https://github.com/napari/magicgui/issues/146)
+- annotating an argument as magicgui.types.PathLike does not create a files widget [\#144](https://github.com/napari/magicgui/issues/144)
+- Label option for boolean parameters has no effect [\#109](https://github.com/napari/magicgui/issues/109)
+
+**Closed issues:**
+
+- Contrib module [\#40](https://github.com/napari/magicgui/issues/40)
+
+**Merged pull requests:**
+
+- improve error message for bad kwargs [\#167](https://github.com/napari/magicgui/pull/167) ([tlambert03](https://github.com/tlambert03))
+- fix range/slice edits [\#166](https://github.com/napari/magicgui/pull/166) ([tlambert03](https://github.com/tlambert03))
+- Work without numpy [\#164](https://github.com/napari/magicgui/pull/164) ([tlambert03](https://github.com/tlambert03))
+- Persist parameter values across sessions [\#160](https://github.com/napari/magicgui/pull/160) ([tlambert03](https://github.com/tlambert03))
+- Add `widget\_init` parameter to `magic\_factory` [\#159](https://github.com/napari/magicgui/pull/159) ([tlambert03](https://github.com/tlambert03))
+- Fix FileEdit with directory mode [\#158](https://github.com/napari/magicgui/pull/158) ([tlambert03](https://github.com/tlambert03))
+- \[pre-commit.ci\] pre-commit autoupdate [\#157](https://github.com/napari/magicgui/pull/157) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- Fix napari return annotations [\#154](https://github.com/napari/magicgui/pull/154) ([sofroniewn](https://github.com/sofroniewn))
+- Allow `magicgui.types.PathLike` annotation [\#151](https://github.com/napari/magicgui/pull/151) ([tlambert03](https://github.com/tlambert03))
+- allow label to be alias for text in button widgets [\#150](https://github.com/napari/magicgui/pull/150) ([tlambert03](https://github.com/tlambert03))
+- fix function with no params and callbutton [\#149](https://github.com/napari/magicgui/pull/149) ([tlambert03](https://github.com/tlambert03))
+- \[pre-commit.ci\] pre-commit autoupdate [\#148](https://github.com/napari/magicgui/pull/148) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- Move return\_annotation from container to FunctionGui [\#143](https://github.com/napari/magicgui/pull/143) ([tlambert03](https://github.com/tlambert03))
+- \[pre-commit.ci\] pre-commit autoupdate [\#142](https://github.com/napari/magicgui/pull/142) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- Fix typesafety checks with numpy 1.20 [\#141](https://github.com/napari/magicgui/pull/141) ([tlambert03](https://github.com/tlambert03))
+- Image widget [\#140](https://github.com/napari/magicgui/pull/140) ([tlambert03](https://github.com/tlambert03))
+- Disable call button while function is running [\#139](https://github.com/napari/magicgui/pull/139) ([tlambert03](https://github.com/tlambert03))
+- Remove pre 0.2.0 deprecation warnings [\#138](https://github.com/napari/magicgui/pull/138) ([tlambert03](https://github.com/tlambert03))
+- update changelog [\#137](https://github.com/napari/magicgui/pull/137) ([tlambert03](https://github.com/tlambert03))
+- \[pre-commit.ci\] pre-commit autoupdate [\#136](https://github.com/napari/magicgui/pull/136) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
 ## [v0.2.6](https://github.com/napari/magicgui/tree/v0.2.6) (2021-01-25)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6)
@@ -78,7 +136,6 @@ v0.2.5 greatly improves support for binding a value or a callback to a function 
 
 - Fix reset\_choices recursion [\#96](https://github.com/napari/magicgui/pull/96) ([tlambert03](https://github.com/tlambert03))
 - better bound values [\#95](https://github.com/napari/magicgui/pull/95) ([tlambert03](https://github.com/tlambert03))
-- Add more examples \(chaining, self-reference, and choices\) [\#85](https://github.com/napari/magicgui/pull/85) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.2.4](https://github.com/napari/magicgui/tree/v0.2.4) (2021-01-12)
 
@@ -107,6 +164,7 @@ v0.2.3 adds two new widgets `DateEdit` and `TimeEdit` (for `datetime.date` and `
 - Fix ComboBox with unhashable choice data [\#89](https://github.com/napari/magicgui/pull/89) ([tlambert03](https://github.com/tlambert03))
 - add pyupgrade pre-commit hook [\#88](https://github.com/napari/magicgui/pull/88) ([tlambert03](https://github.com/tlambert03))
 - add call count to function gui [\#86](https://github.com/napari/magicgui/pull/86) ([tlambert03](https://github.com/tlambert03))
+- Add more examples \(chaining, self-reference, and choices\) [\#85](https://github.com/napari/magicgui/pull/85) ([tlambert03](https://github.com/tlambert03))
 - Add date and time widgets [\#84](https://github.com/napari/magicgui/pull/84) ([tlambert03](https://github.com/tlambert03))
 - Clarify choices callable deprecation warning [\#83](https://github.com/napari/magicgui/pull/83) ([tlambert03](https://github.com/tlambert03))
 - Convert maximum/minimum kwargs to max/min and warn [\#82](https://github.com/napari/magicgui/pull/82) ([tlambert03](https://github.com/tlambert03))
@@ -232,7 +290,6 @@ Lastly, we have new documentation, using the amazing [jupyter-book](https://jupy
 - Filedialog widget for magicgui [\#23](https://github.com/napari/magicgui/pull/23) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 - Add datetime to type2widget function [\#22](https://github.com/napari/magicgui/pull/22) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 - Must import scikit-image modules specifically [\#18](https://github.com/napari/magicgui/pull/18) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
-- Add the ability to hide a widget [\#17](https://github.com/napari/magicgui/pull/17) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.1.5](https://github.com/napari/magicgui/tree/v0.1.5) (2020-05-24)
 
@@ -245,6 +302,10 @@ Lastly, we have new documentation, using the amazing [jupyter-book](https://jupy
 **Closed issues:**
 
 - Automagically add labels per field [\#13](https://github.com/napari/magicgui/issues/13)
+
+**Merged pull requests:**
+
+- Add the ability to hide a widget [\#17](https://github.com/napari/magicgui/pull/17) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.1.4](https://github.com/napari/magicgui/tree/v0.1.4) (2020-05-19)
 
