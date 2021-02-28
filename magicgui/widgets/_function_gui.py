@@ -32,10 +32,8 @@ if TYPE_CHECKING:
     from magicgui.widgets import TextEdit
 
 
-def _inject_tooltips_from_docstrings(
-    docstring: str | None, param_options: dict[str, dict]
-):
-    """Update ``param_options`` dict with tooltips extracted from ``docstring``."""
+def _inject_tooltips_from_docstrings(docstring: str | None, sig: MagicSignature):
+    """Update ``sig`` gui options with tooltips extracted from ``docstring``."""
     from docstring_parser import parse
 
     if not docstring:
@@ -55,11 +53,9 @@ def _inject_tooltips_from_docstrings(
         # this is to catch potentially bad arg_name parsing in docstring_parser
         # if using napoleon style google docstringss
         argname = name.split(" ", maxsplit=1)[0]
-        if argname not in param_options:
-            param_options[argname] = {}
         desc = description.replace("`", "") if description else ""
         # use setdefault so as not to override an explicitly provided tooltip
-        param_options[argname].setdefault("tooltip", desc)
+        sig.parameters[argname].options.setdefault("tooltip", desc)
 
 
 _R = TypeVar("_R")
@@ -136,12 +132,13 @@ class FunctionGui(Container, Generic[_R]):
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
         if param_options is None:
             param_options = {}
-        elif not isinstance(param_options, dict) or not all(
-            isinstance(x, dict) for x in param_options.values()
-        ):
+        elif not isinstance(param_options, dict):
             raise TypeError("'param_options' must be a dict of dicts")
+
+        sig = magic_signature(function, gui_options=param_options)
+        self.return_annotation = sig.return_annotation
         if tooltips:
-            _inject_tooltips_from_docstrings(function.__doc__, param_options)
+            _inject_tooltips_from_docstrings(function.__doc__, sig)
 
         self.persist = persist
         self._function = function
@@ -155,9 +152,6 @@ class FunctionGui(Container, Generic[_R]):
             getattr(function, "__name__", None)
             or f"{function.__module__}.{function.__class__}"
         )
-
-        sig = magic_signature(function, gui_options=param_options)
-        self.return_annotation = sig.return_annotation
         super().__init__(
             layout=layout,
             labels=labels,
