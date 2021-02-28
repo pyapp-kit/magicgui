@@ -7,15 +7,10 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type
 
 from typing_extensions import TypedDict
 
-from magicgui._mpl_image import Colormap, Normalize
-
 if TYPE_CHECKING:
     from magicgui.widgets import FunctionGui
     from magicgui.widgets._bases import CategoricalWidget, Widget
     from magicgui.widgets._protocols import WidgetProtocol
-
-
-__all__ = ["Colormap", "Normalize"]
 
 
 #: A :class:`~magicgui.widgets._bases.Widget` class or a

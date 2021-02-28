@@ -46,4 +46,8 @@ def test_examples(fname):
         with pytest.warns(FutureWarning):
             runpy.run_path(fname)
     else:
-        runpy.run_path(fname)
+        try:
+            runpy.run_path(fname)
+        except ImportError as e:
+            if "Numpy required to use images" in str(e):
+                pytest.skip("numpy unavailable: skipping image example")
