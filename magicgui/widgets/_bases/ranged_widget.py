@@ -40,6 +40,9 @@ class RangedWidget(ValueWidget):
         self.min = min
         self.max = max
         self.step = step
+        if kwargs.get("value") is not None:
+            # value may need to be reset *after* min max is set
+            self.value = kwargs["value"]
 
     @property
     def options(self) -> dict:

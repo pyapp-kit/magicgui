@@ -475,12 +475,43 @@ class RangeEdit(Container):
         The range step value, by default 1
     """
 
-    def __init__(self, start=0, stop=10, step=1, **kwargs):
-        self.start = SpinBox(value=start)
-        self.stop = SpinBox(value=stop)
-        self.step = SpinBox(value=step)
+    def __init__(
+        self,
+        start: int = 0,
+        stop: int = 10,
+        step: int = 1,
+        min: int | tuple[int, int, int] | None = None,
+        max: int | tuple[int, int, int] | None = None,
+        **kwargs,
+    ):
+        value = kwargs.pop("value", None)
+        if value is not None:
+            if not all(hasattr(value, x) for x in ("start", "stop", "step")):
+                raise TypeError(f"Invalid value type for {type(self)}: {type(value)}")
+            start, stop, step = value.start, value.stop, value.step
+        minstart, minstop, minstep = self._validate_min_max(min, "min", -9999999)
+        maxstart, maxstop, maxstep = self._validate_min_max(max, "max", 9999999)
+        self.start = SpinBox(value=start, min=minstart, max=maxstart, name="start")
+        self.stop = SpinBox(value=stop, min=minstop, max=maxstop, name="stop")
+        self.step = SpinBox(value=step, min=minstep, max=maxstep, name="step")
         kwargs["widgets"] = [self.start, self.stop, self.step]
+        kwargs.setdefault("layout", "horizontal")
+        kwargs.setdefault("labels", True)
         super().__init__(**kwargs)
+
+    @classmethod
+    def _validate_min_max(cls, arg, name, default):
+        """Validate input to the min/max arguments."""
+        if isinstance(arg, (int, float)):
+            return (int(arg),) * 3
+        elif isinstance(arg, (list, tuple)):
+            if not len(arg) == 3:
+                raise ValueError(f"{name} sequence must be length 3")
+            return tuple(cls._validate_min_max(int(x), name, default) for x in arg)
+        elif arg is not None:
+            raise TypeError("min must be an integer or a 3-tuple of integers")
+        else:
+            return (default,) * 3
 
     @property
     def value(self) -> range:
