@@ -22,7 +22,7 @@ class RangedWidget(ValueWidget):
 
     _widget: _protocols.RangedWidgetProtocol
 
-    def __init__(self, min: float = 0, max: float = 100, step: float = 1, **kwargs):
+    def __init__(self, min: float = 0, max: float = 1000, step: float = 1, **kwargs):
         for key in ("maximum", "minimum"):
             if key in kwargs:
                 warn(
@@ -40,6 +40,9 @@ class RangedWidget(ValueWidget):
         self.min = min
         self.max = max
         self.step = step
+        if kwargs.get("value") is not None:
+            # value may need to be reset *after* min max is set
+            self.value = kwargs["value"]
 
     @property
     def options(self) -> dict:
