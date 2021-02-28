@@ -507,11 +507,11 @@ class RangeEdit(Container):
         elif isinstance(arg, (list, tuple)):
             if not len(arg) == 3:
                 raise ValueError(f"{name} sequence must be length 3")
-            return tuple(cls._validate_min_max(int(x), name, default) for x in arg)
+            return tuple(int(x) for x in arg)
         elif arg is not None:
             raise TypeError("min must be an integer or a 3-tuple of integers")
         else:
-            return (default,) * 3
+            return (int(default),) * 3
 
     @property
     def value(self) -> range:

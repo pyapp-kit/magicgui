@@ -461,3 +461,27 @@ def test_main_function_gui():
     assert isinstance(add._help_text_edit, widgets.TextEdit)
     assert add._help_text_edit.value.startswith("Adds the given two numbers")
     assert add._help_text_edit.read_only
+
+
+def test_range_widget():
+    args = (-100, 1000, 2)
+    rw = widgets.RangeEdit(*args)
+    v = rw.value
+    assert isinstance(v, range)
+    assert (v.start, v.stop, v.step) == args
+
+
+def test_range_widget_max():
+    # max will override and restrict the possible values
+    rw = widgets.RangeEdit(-100, 1000, 2, max=(0, 500, 1))
+    v = rw.value
+    assert isinstance(v, range)
+    assert (v.start, v.stop, v.step) == (-100, 500, 1)
+
+
+def test_range_widget_min():
+    # max will override and restrict the possible values
+    rw = widgets.RangeEdit(-100, 1000, 2, min=(0, 500, 5))
+    v = rw.value
+    assert isinstance(v, range)
+    assert (v.start, v.stop, v.step) == (0, 1000, 5)
