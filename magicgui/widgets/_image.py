@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     import PIL.Image
 
     from magicgui import _mpl_image
-    from magicgui.types import Colormap, Normalize
+    from magicgui._mpl_image import Colormap, Normalize
 
     from ._protocols import ValueWidgetProtocol
 
