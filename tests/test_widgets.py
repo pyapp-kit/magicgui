@@ -144,7 +144,7 @@ def test_basic_widget_attributes():
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {
-        "max": 100,
+        "max": 1000,
         "min": 0,
         "step": 1,
         "enabled": False,
