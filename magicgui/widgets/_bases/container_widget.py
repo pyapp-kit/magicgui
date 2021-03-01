@@ -288,9 +288,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
                 # not all values will be pickleable and restorable...
                 # for now, don't even try
                 _v = pickle.dumps(getattr(widget, "value", self.NO_VALUE))
+                _dict[widget.name] = _v
             except Exception:
-                _v = pickle.dumps(self.NO_VALUE)
-            _dict[widget.name] = _v
+                continue
 
         path.write_bytes(pickle.dumps(_dict))
 
