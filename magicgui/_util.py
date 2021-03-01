@@ -1,12 +1,46 @@
 import os
 import sys
+import time
 from functools import wraps
 from pathlib import Path
-from time import time
 from typing import Optional
 
 
-def rate_limited(t):
+def debounce(function=None, wait: float = 0.2):
+    """Postpone function call until `wait` seconds since last invokation."""
+
+    def decorator(fn):
+        from threading import Timer
+
+        _store: dict = {"timer": None, "last_call": 0.0, "args": (), "kwargs": {}}
+
+        @wraps(fn)
+        def debounced(*args, **kwargs):
+            _store["args"] = args
+            _store["kwargs"] = kwargs
+
+            def call_it():
+                _store["timer"] = None
+                _store["last_call"] = time.time()
+                return fn(*_store["args"], **_store["kwargs"])
+
+            time_since_last_call = time.time() - _store["last_call"]
+            if time_since_last_call >= wait:
+                return call_it()
+
+            if _store["timer"] is None:
+                _store["timer"] = Timer(wait - time_since_last_call, call_it)
+                _store["timer"].start()  # type: ignore
+
+        return debounced
+
+    if function is None:
+        return decorator
+    else:
+        return decorator(function)
+
+
+def throttle(t):
     """Prevent a function from being called more than once in `t` seconds."""
 
     def decorator(f):
@@ -14,9 +48,9 @@ def rate_limited(t):
 
         @wraps(f)
         def wrapper(*args, **kwargs):
-            if last[0] and (time() - last[0] < t):
+            if last[0] and (time.time() - last[0] < t):
                 return
-            last[0] = time()
+            last[0] = time.time()
             return f(*args, **kwargs)
 
         return wrapper

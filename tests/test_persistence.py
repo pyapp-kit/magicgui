@@ -1,7 +1,7 @@
 import time
 from unittest.mock import patch
 
-from magicgui._util import user_cache_dir
+from magicgui._util import debounce, user_cache_dir
 from magicgui.widgets import FunctionGui
 
 
@@ -39,3 +39,17 @@ def test_persistence(tmp_path):
         assert fg2.y.value == "world"
         assert fg2.__signature__ == fg.__signature__
         assert fg2 is not fg
+
+
+def test_debounce():
+    store = []
+
+    @debounce(wait=0.1)
+    def func(x):
+        store.append(x)
+
+    for i in range(10):
+        func(i)
+        time.sleep(0.04)
+
+    assert store == [0, 2, 4, 7, 9]
