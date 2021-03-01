@@ -41,7 +41,7 @@ def test_persistence(tmp_path):
         assert fg2 is not fg
 
 
-def test_debounce(execution_number):
+def test_debounce():
     store = []
 
     @debounce(wait=0.1)
