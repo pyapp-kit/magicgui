@@ -41,7 +41,7 @@ def test_persistence(tmp_path):
         assert fg2 is not fg
 
 
-def test_debounce():
+def test_debounce(execution_number):
     store = []
 
     @debounce(wait=0.1)
@@ -50,6 +50,8 @@ def test_debounce():
 
     for i in range(10):
         func(i)
-        time.sleep(0.04)
+        time.sleep(0.034)
+    time.sleep(0.15)
 
-    assert store == [0, 2, 4, 7, 9]
+    assert len(store) == 5
+    assert store[-1] == 9

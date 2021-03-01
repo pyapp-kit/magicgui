@@ -24,11 +24,11 @@ def debounce(function=None, wait: float = 0.2):
                 _store["last_call"] = time.time()
                 return fn(*_store["args"], **_store["kwargs"])
 
-            time_since_last_call = time.time() - _store["last_call"]
-            if time_since_last_call >= wait:
+            if not _store["last_call"]:
                 return call_it()
 
             if _store["timer"] is None:
+                time_since_last_call = time.time() - _store["last_call"]
                 _store["timer"] = Timer(wait - time_since_last_call, call_it)
                 _store["timer"].start()  # type: ignore
 
