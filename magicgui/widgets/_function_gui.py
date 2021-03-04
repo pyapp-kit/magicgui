@@ -21,7 +21,6 @@ from typing import (
     cast,
 )
 
-from magicgui._util import rate_limited
 from magicgui.application import AppRef
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicSignature, magic_signature
@@ -371,7 +370,6 @@ class FunctionGui(Container, Generic[_R]):
         name = name.replace("<", "-").replace(">", "-")  # e.g. <locals>
         return user_cache_dir() / f"{self._function.__module__}.{name}"
 
-    @rate_limited(0.25)
     def _dump(self, path=None):
         super()._dump(path or self._dump_path)
 
