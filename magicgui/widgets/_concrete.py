@@ -352,6 +352,14 @@ class FloatSlider(SliderWidget):
         kwargs["widget_type"] = _int_widget_to_float("Slider")
         super().__init__(**kwargs)
 
+    def _post_init(self):
+        from magicgui.events import EventEmitter
+
+        self.changed = EventEmitter(source=self, type="changed")
+        self._widget._mgui_bind_change_callback(
+            lambda *x: self.changed(value=self.value)
+        )
+
 
 @merge_super_sigs
 class LogSlider(TransformedRangedWidget):
