@@ -54,7 +54,7 @@ class RangedWidget(ValueWidget):
     @ValueWidget.value.setter  # type: ignore
     def value(self, value):
         """Set widget value, will raise Value error if not within min/max."""
-        if not (self.min <= value <= self.max):
+        if not (self.min <= float(value) <= self.max):
             raise ValueError(
                 f"value {value} is outside of the allowed range: "
                 f"({self.min}, {self.max})"
