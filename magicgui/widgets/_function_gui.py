@@ -80,7 +80,9 @@ class FunctionGui(Container, Generic[_R]):
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
     visible : bool, optional
-        Whether to immediately show the widget, by default False
+        Whether to immediately show the widget.  If ``False``, widget is explicitly
+        hidden.  If ``None``, widget is not shown, but will be shown if a parent
+        container is shown, by default None.
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
@@ -113,7 +115,7 @@ class FunctionGui(Container, Generic[_R]):
         labels: bool = True,
         tooltips: bool = True,
         app: AppRef = None,
-        visible: bool = False,
+        visible: bool = None,
         auto_call: bool = False,
         result_widget: bool = False,
         param_options: dict[str, dict] | None = None,
