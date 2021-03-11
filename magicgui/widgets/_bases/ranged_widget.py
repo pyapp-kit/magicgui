@@ -34,15 +34,15 @@ class RangedWidget(ValueWidget):
                     max = kwargs.pop(key)
                 else:
                     min = kwargs.pop(key)
-
+        # value should be set *after* min max is set
+        val = kwargs.pop("value", None)
         super().__init__(**kwargs)
 
         self.min = min
         self.max = max
         self.step = step
-        if kwargs.get("value") is not None:
-            # value may need to be reset *after* min max is set
-            self.value = kwargs["value"]
+        if val is not None:
+            self.value = val
 
     @property
     def options(self) -> dict:
@@ -50,6 +50,14 @@ class RangedWidget(ValueWidget):
         d = super().options.copy()
         d.update({"min": self.min, "max": self.max, "step": self.step})
         return d
+
+    @ValueWidget.value.setter
+    def value(self, value):
+        if not (self.min <= value <= self.max):
+            raise ValueError(
+                f"value {value} is outside of the allowed range: ({self.min}, {self.max})"
+            )
+        ValueWidget.value.fset(self, value)
 
     @property
     def min(self) -> float:

@@ -31,7 +31,7 @@ from ._bases import (
     ValueWidget,
     Widget,
 )
-from ._transforms import make_float, make_literal_eval
+from ._transforms import make_literal_eval
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
@@ -286,9 +286,67 @@ class Slider(SliderWidget):
     """A slider widget to adjust an integer value within a range."""
 
 
-@backend_widget(widget_name="Slider", transform=make_float)
+def int_widget_to_float(name):
+    app = use_app()
+    assert app.native
+    cls = app.get_obj(name)
+
+    cls._precision = 1e6
+
+    def update_precision(self, val):
+        # make sure val * precision is within int32 overflow limit for Qt
+        orig = self._precision
+        while abs(self._precision * val) >= 2 ** 32 // 2:
+            self._precision *= 0.1
+        return self._precision / orig
+
+    cls._update_precision = update_precision
+
+    # patch the backend widget to convert between float/int
+    for attr in ["value", "max", "min", "step"]:
+        get_meth_name = f"_mgui_get_{attr}"
+        set_meth_name = f"_mgui_set_{attr}"
+
+        def new_getter(self, o_getter=getattr(cls, get_meth_name)):
+            return o_getter(self) / self._precision
+
+        def new_setter(self, val, o_setter=getattr(cls, set_meth_name), attr=attr):
+            if attr in ("max", "min"):
+                ratio = self._update_precision(val)
+                if ratio != 1:
+                    self._mgui_set_value(self._mgui_get_value() * ratio)
+            o_setter(self, int(val * self._precision))
+
+        setattr(cls, get_meth_name, new_getter)
+        setattr(cls, set_meth_name, new_setter)
+
+    return cls
+
+
+@merge_super_sigs
 class FloatSlider(SliderWidget):
     """A slider widget to adjust a float value within a range."""
+
+    def __init__(self, **kwargs):
+        kwargs["widget_type"] = int_widget_to_float("Slider")
+        self._precision = 1e9
+        super().__init__(**kwargs)
+
+    # @SliderWidget.min.setter
+    # def min(self, value: float):
+    #     self._update_precision(value)
+    #     self._widget._mgui_set_min(value)
+
+    # @SliderWidget.max.setter
+    # def max(self, value: float):
+    #     self._update_precision(value)
+    #     self._widget._mgui_set_max(value)
+
+    # def _update_precision(self, value):
+    #     orig = self._precision
+    #     while abs(self._precision * value) > 2147483647:
+    #         self._precision *= 0.1
+    #     change = self._precision / orig
 
 
 @merge_super_sigs
