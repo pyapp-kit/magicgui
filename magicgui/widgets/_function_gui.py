@@ -180,11 +180,9 @@ class FunctionGui(Container, Generic[_R]):
                     # disable the call button until the function has finished
                     self._call_button = cast(PushButton, self._call_button)
                     self._call_button.enabled = False
-                    t, self._call_button.text = self._call_button.text, "Running..."
                     try:
                         self.__call__()
                     finally:
-                        self._call_button.text = t
                         self._call_button.enabled = True
 
                 self._call_button.changed.connect(_disable_button_and_call)
@@ -258,6 +256,7 @@ class FunctionGui(Container, Generic[_R]):
 
         gui()  # calls the original function with the current parameters
         """
+        print("CALL")
         sig = self.__signature__
         try:
             bound = sig.bind(*args, **kwargs)
