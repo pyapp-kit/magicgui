@@ -487,6 +487,20 @@ def test_range_widget_min():
     assert (v.start, v.stop, v.step) == (0, 1000, 5)
 
 
+def test_containers_show_nested_containers():
+    """make sure showing a container shows a nested FunctionGui."""
+
+    @magicgui
+    def func(x: int, y: str):
+        pass
+
+    assert not func.visible
+    c2 = widgets.Container(widgets=[func])
+    assert not c2.visible
+    c2.show()
+    assert c2.visible and func.visible
+
+
 def test_file_dialog_events():
     """Test that file dialog events emit the value of the line_edit."""
     from pathlib import Path
