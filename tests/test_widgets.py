@@ -485,3 +485,13 @@ def test_range_widget_min():
     v = rw.value
     assert isinstance(v, range)
     assert (v.start, v.stop, v.step) == (0, 1000, 5)
+
+
+def test_file_dialog_events():
+    """Test that file dialog events emit the value of the line_edit."""
+    from pathlib import Path
+
+    fe = widgets.FileEdit(value="hi")
+    fe.changed = MagicMock(wraps=fe.changed)
+    fe.line_edit.value = "world"
+    fe.changed.assert_called_once_with(value=Path("world"))
