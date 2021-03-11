@@ -400,6 +400,8 @@ class FileEdit(Container):
         self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
         self.choose_btn.changed.connect(self._on_choose_clicked)
+        self.line_edit.changed.disconnect()
+        self.line_edit.changed.connect(lambda x: self.changed(value=self.value))
 
     @property
     def mode(self) -> FileDialogMode:
@@ -452,7 +454,7 @@ class FileEdit(Container):
 
     def __repr__(self) -> str:
         """Return string representation."""
-        return f"<FileEdit mode={self.mode.value!r}, value={self.value!r}>"
+        return f"FileEdit(mode={self.mode.value!r}, value={self.value!r})"
 
 
 @merge_super_sigs

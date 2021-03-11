@@ -499,3 +499,13 @@ def test_containers_show_nested_containers():
     assert not c2.visible
     c2.show()
     assert c2.visible and func.visible
+
+
+def test_file_dialog_events():
+    """Test that file dialog events emit the value of the line_edit."""
+    from pathlib import Path
+
+    fe = widgets.FileEdit(value="hi")
+    fe.changed = MagicMock(wraps=fe.changed)
+    fe.line_edit.value = "world"
+    fe.changed.assert_called_once_with(value=Path("world"))
