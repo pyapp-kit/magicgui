@@ -38,9 +38,9 @@ class RangedWidget(ValueWidget):
         val = kwargs.pop("value", None)
         super().__init__(**kwargs)
 
+        self.step = step
         self.min = min
         self.max = max
-        self.step = step
         if val is not None:
             self.value = val
 
@@ -51,13 +51,15 @@ class RangedWidget(ValueWidget):
         d.update({"min": self.min, "max": self.max, "step": self.step})
         return d
 
-    @ValueWidget.value.setter
+    @ValueWidget.value.setter  # type: ignore
     def value(self, value):
+        """Set widget value, will raise Value error if not within min/max."""
         if not (self.min <= value <= self.max):
             raise ValueError(
-                f"value {value} is outside of the allowed range: ({self.min}, {self.max})"
+                f"value {value} is outside of the allowed range: "
+                f"({self.min}, {self.max})"
             )
-        ValueWidget.value.fset(self, value)
+        ValueWidget.value.fset(self, value)  # type: ignore
 
     @property
     def min(self) -> float:
