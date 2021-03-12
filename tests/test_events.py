@@ -5,8 +5,6 @@ import copy
 import functools
 from typing import Any
 
-import pytest
-
 from magicgui.events import Event, EventEmitter
 
 
@@ -283,15 +281,13 @@ def test_decorator_connection():
     """Connection by decorator"""
     em = EventEmitter(type="test_event")
 
-    with pytest.raises(FutureWarning):
+    @em.connect
+    def cb(ev):
+        record_event.result = 1
 
-        @em.connect
-        def cb(ev):
-            record_event.result = 1
-
-        record_event.result = None
-        em()
-        assert record_event.result == 1
+    record_event.result = None
+    em()
+    assert record_event.result == 1
 
 
 def test_chained_emitters():
@@ -511,12 +507,9 @@ def test_event_connect_order():
         return
 
     em = EventEmitter(type="test_event")
-    with pytest.raises(FutureWarning):
-        assert_raises(ValueError, em.connect, c, before=["c", "foo"])
-    with pytest.raises(FutureWarning):
-        assert_raises(ValueError, em.connect, c, position="foo")
-    with pytest.raises(FutureWarning):
-        assert_raises(TypeError, em.connect, c, ref=dict())
+    assert_raises(ValueError, em.connect, c, before=["c", "foo"])
+    assert_raises(ValueError, em.connect, c, position="foo")
+    assert_raises(TypeError, em.connect, c, ref=dict())
     em.connect(c, ref=True, callback_wants_event=True)
     assert_equal((c,), tuple(em.callbacks))
     em.connect(c, callback_wants_event=True)
@@ -525,8 +518,8 @@ def test_event_connect_order():
     assert_equal((c, d), tuple(em.callbacks))
     em.connect(b, ref=True, callback_wants_event=True)  # position='first'
     assert_equal((b, c, d), tuple(em.callbacks))
-    with pytest.raises(FutureWarning):
-        assert_raises(RuntimeError, em.connect, a, before="c", after="d")  # can't
+
+    assert_raises(RuntimeError, em.connect, a, before="c", after="d")  # can't
     em.connect(
         a, ref=True, before=["c", "d"], callback_wants_event=True
     )  # first possible pos == 0
@@ -551,8 +544,8 @@ def test_event_connect_order():
     )  # no name
     assert_equal(("a", "b", "c", "d", None, "f"), tuple(em.callback_refs))
     em.disconnect(e)
-    with pytest.raises(FutureWarning):
-        assert_raises(ValueError, em.connect, e, ref="d")  # duplicate name
+
+    assert_raises(ValueError, em.connect, e, ref="d")  # duplicate name
     em.connect(
         e, ref=True, after=[], before="f", position="last", callback_wants_event=True
     )
@@ -564,8 +557,7 @@ def test_event_connect_order():
     def e():  # type: ignore
         return
 
-    with pytest.raises(FutureWarning):
-        assert_raises(ValueError, em.connect, e, ref=True)  # duplicate name
+    assert_raises(ValueError, em.connect, e, ref=True)  # duplicate name
     em.connect(e, callback_wants_event=True)
     assert_equal((None, "a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     assert_equal((e, a, b, c, d, old_e, f), tuple(em.callbacks))
