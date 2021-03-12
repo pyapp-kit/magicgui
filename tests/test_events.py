@@ -682,7 +682,7 @@ def test_alternate_callback_signature():
     callback_b = Mock()
     em = EventEmitter(type="test")
     em.connect(callback_a)
-    em.connect(callback_b, callback_wants_event=False)
+    em.connect(callback_b, callback_wants_value=True)
 
     event = em(value=1)
 
