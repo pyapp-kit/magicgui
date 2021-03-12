@@ -256,7 +256,6 @@ class FunctionGui(Container, Generic[_R]):
 
         gui()  # calls the original function with the current parameters
         """
-        print("CALL")
         sig = self.__signature__
         try:
             bound = sig.bind(*args, **kwargs)
