@@ -527,8 +527,8 @@ def test_extreme_floats(WdgClass, value):
     wdg.changed = MagicMock(wraps=wdg.changed)
     wdg.value = value * 2
     wdg.changed.assert_called_once()
-    emitted_val = wdg.changed.call_args.kwargs["value"]
-    assert round(emitted_val / value, 4) == 2
+    a, k = wdg.changed.call_args
+    assert round(k["value"] / value, 4) == 2
 
     _value = 1 / value
     wdg2 = WdgClass(value=_value, step=_value / 10, max=_value * 100)
