@@ -33,8 +33,9 @@ def test_persistence(tmp_path):
         assert str(tmp_path) in str(fg._dump_path)
         assert fg.x.value == 0
         fg.x.value = 10
-        time.sleep(0.26)  # required by rate limit
+        time.sleep(0.3)  # wait for debounce
         fg.y.value = "world"
+        time.sleep(0.3)  # wait for debounce
 
         # second instance should match values of first
         fg2 = FunctionGui(_my_func, persist=True)
