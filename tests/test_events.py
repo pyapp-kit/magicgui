@@ -5,6 +5,8 @@ import copy
 import functools
 from typing import Any
 
+import pytest
+
 from magicgui.events import Event, EventEmitter
 
 
@@ -93,8 +95,8 @@ class Record:
 record_event = Record()
 
 
-def try_emitter(em, **kwargs):
-    em.connect(record_event)
+def try_emitter(em: EventEmitter, **kwargs):
+    em.connect(record_event, callback_wants_event=True)
     return em(**kwargs)
 
 
@@ -182,7 +184,7 @@ def test_event_kwargs():
     """Extra Event kwargs"""
     em = EventEmitter(type="test_event")
     em.default_args["key1"] = "test1"
-    em.connect(record_event)
+    em.connect(record_event, callback_wants_event=True)
     record_event.result = None
     em(key2="test2")
     record_event.assert_result(key1="test1", key2="test2")
@@ -192,7 +194,7 @@ def test_prebuilt_event():
     """Emit pre-built event"""
     em = EventEmitter(type="test_event")
     em.default_args["key1"] = "test1"
-    em.connect(record_event)
+    em.connect(record_event, callback_wants_event=True)
 
     record_event.result = None
     ev = Event(type="my_type")
@@ -211,7 +213,7 @@ def test_emitter_subclass():
             return ev
 
     em = MyEmitter(type="test_event")
-    em.connect(record_event)
+    em.connect(record_event, callback_wants_event=True)
     record_event.result = None
     em()
     record_event.assert_result(test_tag=1)
@@ -240,9 +242,9 @@ def test_disconnect():
     def cb2(ev):
         record_event.result = 2
 
-    em.connect((record_event, "__call__"))  # type: ignore
-    em.connect(cb1)
-    em.connect(cb2)
+    em.connect((record_event, "__call__"), callback_wants_event=True)  # type: ignore
+    em.connect(cb1, callback_wants_event=True)
+    em.connect(cb2, callback_wants_event=True)
     record_event.result = None
     em.disconnect(cb2)
     em.disconnect(cb2)  # should pass silently
@@ -255,9 +257,9 @@ def test_disconnect():
     assert record_event.result == 1
 
     record_event.result = None
-    em.connect(cb1)
-    em.connect(cb2)
-    em.connect((record_event, "__call__"))  # type: ignore
+    em.connect(cb1, callback_wants_event=True)
+    em.connect(cb2, callback_wants_event=True)
+    em.connect((record_event, "__call__"), callback_wants_event=True)  # type: ignore
     em.disconnect()
     em()
     assert record_event.result is None
@@ -270,8 +272,8 @@ def test_reconnect():
     def cb(ev):
         record_event.result += 1
 
-    em.connect(cb)
-    em.connect(cb)  # second connection should do nothing.
+    em.connect(cb, callback_wants_event=True)
+    em.connect(cb, callback_wants_event=True)  # second connection should do nothing.
     record_event.result = 0
     em()
     assert record_event.result == 1
@@ -281,13 +283,15 @@ def test_decorator_connection():
     """Connection by decorator"""
     em = EventEmitter(type="test_event")
 
-    @em.connect
-    def cb(ev):
-        record_event.result = 1
+    with pytest.raises(FutureWarning):
 
-    record_event.result = None
-    em()
-    assert record_event.result == 1
+        @em.connect
+        def cb(ev):
+            record_event.result = 1
+
+        record_event.result = None
+        em()
+        assert record_event.result == 1
 
 
 def test_chained_emitters():
@@ -297,8 +301,8 @@ def test_chained_emitters():
 
     em1 = EventEmitter(source=None, type="test_event1")
     em2 = EventEmitter(source=source, type="test_event2")
-    em1.connect(em2)
-    em1.connect(record_event)
+    em1.connect(em2, callback_wants_event=True)
+    em1.connect(record_event, callback_wants_event=True)
     record_event.result = None
     ev = em1()
     record_event.assert_result(
@@ -307,7 +311,7 @@ def test_chained_emitters():
 
     # sources look different from second emitter, but type is the same.
     em1.disconnect(record_event)
-    em2.connect(record_event)
+    em2.connect(record_event, callback_wants_event=True)
     record_event.result = None
     ev = em1()
     record_event.assert_result(
@@ -329,8 +333,8 @@ def test_emitter_error_handling():
 
     em.ignore_callback_errors = True
     # first callback fails; second callback still runs.
-    em.connect(record_event)
-    em.connect(cb)
+    em.connect(record_event, callback_wants_event=True)
+    em.connect(cb, callback_wants_event=True)
     record_event.result = None
     ev = em()
     record_event.assert_result(event=ev)
@@ -356,15 +360,15 @@ def test_emission_order():
     def cb2(ev):
         record_event.result = 2
 
-    em.connect(cb1)
-    em.connect(cb2)
+    em.connect(cb1, callback_wants_event=True)
+    em.connect(cb2, callback_wants_event=True)
     record_event.result = None
     em()
     assert record_event.result == 1, "Events emitted in wrong order"
 
     em.disconnect()
-    em.connect(cb2)
-    em.connect(cb1)
+    em.connect(cb2, callback_wants_event=True)
+    em.connect(cb1, callback_wants_event=True)
     record_event.result = None
     em()
     assert record_event.result == 2, "Events emitted in wrong order"
@@ -373,9 +377,9 @@ def test_emission_order():
 def test_multiple_callbacks():
     """Multiple emitter callbacks"""
     em = EventEmitter(type="test_event")
-    em.connect(functools.partial(record_event, key=1))
-    em.connect(functools.partial(record_event, key=2))
-    em.connect(functools.partial(record_event, key=3))
+    em.connect(functools.partial(record_event, key=1), callback_wants_event=True)
+    em.connect(functools.partial(record_event, key=2), callback_wants_event=True)
+    em.connect(functools.partial(record_event, key=3), callback_wants_event=True)
     record_event.result = None
     ev = em()
     record_event.assert_result(key=1, event=ev, sources=[None])
@@ -390,7 +394,7 @@ def test_source_stack_integrity():
     def cb(ev):
         ev._sources.append("x")
 
-    em.connect(cb)
+    em.connect(cb, callback_wants_event=True)
 
     try:
         em()
@@ -403,7 +407,7 @@ def test_source_stack_integrity():
     def cb2(ev):
         ev._sources = []
 
-    em.connect(cb2)
+    em.connect(cb2, callback_wants_event=True)
 
     try:
         em()
@@ -420,8 +424,8 @@ def test_emitter_loop():
 
     # cross-connect emitters; when we emit, an exception should be raised
     # indicating an event loop.
-    em1.connect(em2)
-    em2.connect(em1)
+    em1.connect(em2, callback_wants_event=True)
+    em2.connect(em1, callback_wants_event=True)
     try:
         em1()
     except RuntimeError as err:
@@ -432,7 +436,7 @@ def test_emitter_loop():
 def test_emitter_block1():
     """EventEmitter.blocker"""
     em = EventEmitter(type="test_event")
-    em.connect(record_event)
+    em.connect(record_event, callback_wants_event=True)
     record_event.result = None
 
     with em.blocker():
@@ -454,8 +458,8 @@ def test_event_handling():
         assert ev.handled
         record_event.result = 1
 
-    em.connect(cb2)
-    em.connect(cb1)
+    em.connect(cb2, callback_wants_event=True)
+    em.connect(cb1, callback_wants_event=True)
     record_event.result = None
     em()
     assert record_event.result == 1
@@ -473,13 +477,13 @@ def test_event_block():
         ev.blocked = True
         record_event.result = 2
 
-    em.connect(record_event)
-    em.connect(cb1)
+    em.connect(record_event, callback_wants_event=True)
+    em.connect(cb1, callback_wants_event=True)
     record_event.result = None
     em()
     record_event.assert_result()
 
-    em.connect(cb2)
+    em.connect(cb2, callback_wants_event=True)
     record_event.result = None
     em()
     assert record_event.result == 2
@@ -507,36 +511,51 @@ def test_event_connect_order():
         return
 
     em = EventEmitter(type="test_event")
-    assert_raises(ValueError, em.connect, c, before=["c", "foo"])
-    assert_raises(ValueError, em.connect, c, position="foo")
-    assert_raises(TypeError, em.connect, c, ref=dict())
-    em.connect(c, ref=True)
+    with pytest.raises(FutureWarning):
+        assert_raises(ValueError, em.connect, c, before=["c", "foo"])
+    with pytest.raises(FutureWarning):
+        assert_raises(ValueError, em.connect, c, position="foo")
+    with pytest.raises(FutureWarning):
+        assert_raises(TypeError, em.connect, c, ref=dict())
+    em.connect(c, ref=True, callback_wants_event=True)
     assert_equal((c,), tuple(em.callbacks))
-    em.connect(c)
+    em.connect(c, callback_wants_event=True)
     assert_equal((c,), tuple(em.callbacks))
-    em.connect(d, ref=True, position="last")
+    em.connect(d, ref=True, position="last", callback_wants_event=True)
     assert_equal((c, d), tuple(em.callbacks))
-    em.connect(b, ref=True)  # position='first'
+    em.connect(b, ref=True, callback_wants_event=True)  # position='first'
     assert_equal((b, c, d), tuple(em.callbacks))
-    assert_raises(RuntimeError, em.connect, a, before="c", after="d")  # can't
-    em.connect(a, ref=True, before=["c", "d"])  # first possible pos == 0
+    with pytest.raises(FutureWarning):
+        assert_raises(RuntimeError, em.connect, a, before="c", after="d")  # can't
+    em.connect(
+        a, ref=True, before=["c", "d"], callback_wants_event=True
+    )  # first possible pos == 0
     assert_equal((a, b, c, d), tuple(em.callbacks))
-    em.connect(f, ref=True, after=["c", "d"])
+    em.connect(f, ref=True, after=["c", "d"], callback_wants_event=True)
     assert_equal((a, b, c, d, f), tuple(em.callbacks))
-    em.connect(e, ref=True, after="d", before="f")
+    em.connect(e, ref=True, after="d", before="f", callback_wants_event=True)
     assert_equal(("a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     em.disconnect(e)
-    em.connect(e, ref=True, after="a", before="f", position="last")
+    em.connect(
+        e, ref=True, after="a", before="f", position="last", callback_wants_event=True
+    )
     assert_equal(("a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     em.disconnect(e)
-    em.connect(e, ref="e", after="d", before="f", position="last")
+    em.connect(
+        e, ref="e", after="d", before="f", position="last", callback_wants_event=True
+    )
     assert_equal(("a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     em.disconnect(e)
-    em.connect(e, after="d", before="f", position="first")  # no name
+    em.connect(
+        e, after="d", before="f", position="first", callback_wants_event=True
+    )  # no name
     assert_equal(("a", "b", "c", "d", None, "f"), tuple(em.callback_refs))
     em.disconnect(e)
-    assert_raises(ValueError, em.connect, e, ref="d")  # duplicate name
-    em.connect(e, ref=True, after=[], before="f", position="last")
+    with pytest.raises(FutureWarning):
+        assert_raises(ValueError, em.connect, e, ref="d")  # duplicate name
+    em.connect(
+        e, ref=True, after=[], before="f", position="last", callback_wants_event=True
+    )
     assert_equal(("a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     assert_equal((a, b, c, d, e, f), tuple(em.callbacks))
 
@@ -545,8 +564,9 @@ def test_event_connect_order():
     def e():  # type: ignore
         return
 
-    assert_raises(ValueError, em.connect, e, ref=True)  # duplicate name
-    em.connect(e)
+    with pytest.raises(FutureWarning):
+        assert_raises(ValueError, em.connect, e, ref=True)  # duplicate name
+    em.connect(e, callback_wants_event=True)
     assert_equal((None, "a", "b", "c", "d", "e", "f"), tuple(em.callback_refs))
     assert_equal((e, a, b, c, d, old_e, f), tuple(em.callbacks))
 
@@ -561,8 +581,8 @@ def test_emitter_block2():
         state[1] = True
 
     e = EventEmitter(source=None, type="event")
-    e.connect(a)
-    e.connect(b)
+    e.connect(a, callback_wants_event=True)
+    e.connect(b, callback_wants_event=True)
 
     def assert_state(a, b):
         assert state == [a, b]
@@ -681,7 +701,7 @@ def test_alternate_callback_signature():
     callback_a = Mock()
     callback_b = Mock()
     em = EventEmitter(type="test")
-    em.connect(callback_a)
+    em.connect(callback_a, callback_wants_event=True)
     em.connect(callback_b, callback_wants_event=False)
 
     event = em(value=1)

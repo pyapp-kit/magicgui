@@ -58,6 +58,7 @@ import inspect
 import logging
 import sys
 import traceback
+import warnings
 import weakref
 from typing import (
     Any,
@@ -451,7 +452,7 @@ class EventEmitter:
         position: Union[Literal["first"], Literal["last"]] = "first",
         before: Union[str, Callback, List[Union[str, Callback]], None] = None,
         after: Union[str, Callback, List[Union[str, Callback]], None] = None,
-        callback_wants_event: bool = True,
+        callback_wants_event: bool = None,
     ):
         """Connect this emitter to a new callback.
 
@@ -511,6 +512,19 @@ class EventEmitter:
 
         if callback in callbacks:
             return
+
+        if callback_wants_event is None:
+            warnings.warn(
+                "magicgui 0.3.0 will change the way that callbacks are called."
+                "Currently, they receive a single `Event` object, that has a 'value' "
+                "attribute containing any value associated with the event. In v0.3.0, "
+                "callbacks will receive the event.value directly, unless they are "
+                "explicitly connected with `event_emitter.connect(mycallback, "
+                "callback_wants_event=True).  To silence this warning, provide the "
+                "`callback_wants_event` argument when connecting callbacks.",
+                FutureWarning,
+            )
+            callback_wants_event = True
 
         # deal with the ref
         _ref: Union[str, None]
@@ -683,8 +697,6 @@ class EventEmitter:
                 if hasattr(event, "value"):
                     cb(event.value)
                 else:
-                    import warnings
-
                     warnings.warn(
                         f"callback {cb} requested an event.value, "
                         f"but Event {event} doesn't have a 'value'"
@@ -960,7 +972,7 @@ class EmitterGroup(EventEmitter):
         position: Union[Literal["first"], Literal["last"]] = "first",
         before: Union[str, Callback, List[Union[str, Callback]], None] = None,
         after: Union[str, Callback, List[Union[str, Callback]], None] = None,
-        callback_wants_event: bool = True,
+        callback_wants_event: bool = None,
     ):
         """Connect the callback to the event group. The callback will receive
         events from *all* of the emitters in the group.
