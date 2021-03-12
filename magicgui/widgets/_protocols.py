@@ -188,7 +188,7 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_bind_change_callback(self, callback: Callable[[Any], None]) -> None:
+    def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
         """Bind callback to value change event."""
         raise NotImplementedError()
 
