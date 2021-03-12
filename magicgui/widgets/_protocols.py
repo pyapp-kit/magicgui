@@ -319,7 +319,7 @@ class SupportsChoices(Protocol):
     """Widget that has a set of valid choices."""
 
     @abstractmethod
-    def _mgui_get_choices(self) -> tuple[tuple[str, Any]]:
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
         """Get available choices."""
         raise NotImplementedError()
 

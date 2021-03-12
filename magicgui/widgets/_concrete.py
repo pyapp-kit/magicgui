@@ -430,6 +430,11 @@ class ComboBox(CategoricalWidget):
 
 
 @backend_widget
+class RadioButtons(CategoricalWidget):
+    """A group of radio buttons, allowing selection between multiple choices."""
+
+
+@backend_widget
 class Container(ContainerWidget):
     """A Widget to contain other widgets."""
 

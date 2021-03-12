@@ -506,9 +506,9 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         if item_index >= 0:
             self._qwidget.removeItem(item_index)
 
-    def _mgui_get_choices(self) -> tuple[tuple[str, Any]]:
-        """Show the widget."""
-        return tuple(  # type: ignore
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
+        """Get available choices."""
+        return tuple(
             (self._qwidget.itemText(i), self._qwidget.itemData(i))
             for i in range(self._qwidget.count())
         )
@@ -536,6 +536,106 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             first = choice_names[0]
             self._qwidget.setCurrentIndex(self._qwidget.findText(first))
             self._qwidget.removeItem(self._qwidget.findText(current))
+
+
+class RadioButtons(
+    QBaseValueWidget,
+    _protocols.CategoricalWidgetProtocol,
+    _protocols.SupportsOrientation,
+):
+    _qwidget: QtW.QGroupBox
+
+    def __init__(self):
+        super().__init__(QtW.QGroupBox, "", "", "")
+        self._qwidget.setLayout(QtW.QVBoxLayout())
+        self._btn_group = QtW.QButtonGroup(self._qwidget)
+        # self._qwidget.currentIndexChanged.connect(self._emit_data)
+
+    # def _emit_data(self, index: int):
+    #     data = self._qwidget.itemData(index)
+    #     if data is not None:
+    #         self._event_filter.valueChanged.emit(data)
+
+    def _mgui_set_orientation(self, value: str) -> None:
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
+        new_layout = QtW.QHBoxLayout() if value == "horizontal" else QtW.QVBoxLayout()
+        for btn in self._btn_group.buttons():
+            new_layout.addWidget(btn)
+        old_layout = self._qwidget.layout()
+        QtW.QWidget().setLayout(old_layout)
+        self._qwidget.setLayout(new_layout)
+
+    def _mgui_get_orientation(self) -> str:
+        """Get orientation, return either 'horizontal' or 'vertical'."""
+        if isinstance(self._qwidget.layout(), QtW.QVBoxLayout):
+            return "vertical"
+        else:
+            return "horizontal"
+
+    def _mgui_get_current_choice(self) -> str:
+        btn = self._btn_group.checkedButton()
+        return btn.text() if btn else None
+
+    def _mgui_get_value(self) -> Any:
+        btn = self._btn_group.checkedButton()
+        return btn._data if btn else None
+
+    def _mgui_set_value(self, value) -> None:
+        for btn in self._btn_group.buttons():
+            if btn._data == value:
+                btn.setChecked(True)
+                break  # exclusive
+
+    def _mgui_get_count(self) -> int:
+        """Return the number of items in the dropdown."""
+        return len(self._btn_group.buttons())
+
+    def _mgui_get_choice(self, choice_name: str) -> Any:
+        for btn in self._btn_group.buttons():
+            if btn.text() == choice_name:
+                return btn._data
+        return None
+
+    def _add_button(self, label: str, data: Any = None):
+        btn = QtW.QRadioButton(label, self._qwidget)
+        btn._data = data
+        self._btn_group.addButton(btn)
+        self._qwidget.layout().addWidget(btn)
+
+    def _remove_button(self, btn):
+        self._btn_group.removeButton(btn)
+        self._qwidget.layout().removeWidget(btn)
+
+    def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
+        """Set data for ``choice_name``."""
+        for btn in self._btn_group.buttons():
+            if btn.text() == choice_name:
+                # otherwise update its data
+                btn._data = data
+        else:
+            # if it's not in the list, add a new item
+            self._add_button(choice_name, data)
+
+    def _mgui_del_choice(self, choice_name: str) -> None:
+        """Delete choice_name."""
+        for btn in self._btn_group.buttons():
+            if btn.text() == choice_name:
+                self._remove_button(btn)
+                break
+
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
+        """Get available choices."""
+        return tuple((str(btn.text()), btn._data) for btn in self._btn_group.buttons())
+
+    def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
+        """Set current items in categorical type ``widget`` to ``choices``."""
+        current = self._mgui_get_value()
+        for btn in self._btn_group.buttons():
+            self._remove_button(btn)
+
+        for c in choices:
+            self._add_button(*c)
+        self._mgui_set_value(current)
 
 
 class DateTimeEdit(QBaseValueWidget):
