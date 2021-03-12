@@ -533,3 +533,21 @@ def test_extreme_floats(WdgClass, value):
     _value = 1 / value
     wdg2 = WdgClass(value=_value, step=_value / 10, max=_value * 100)
     assert round(wdg2.value / _value, 4) == 1.0
+
+
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_widgets(Cls):
+    wdg = Cls(
+        value=1,
+        choices=[("first option", 1), ("second option", 2), ("third option", 3)],
+    )
+    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert wdg.value == 1
+    assert wdg.current_choice == "first option"
+    wdg.value = 2
+    assert wdg.value == 2
+    assert wdg.current_choice == "second option"
+    assert wdg.choices == (1, 2, 3)
+
+    wdg.del_choice("third option")
+    assert wdg.choices == (1, 2)

@@ -547,14 +547,17 @@ class RadioButtons(
 
     def __init__(self):
         super().__init__(QtW.QGroupBox, "", "", "")
-        self._qwidget.setLayout(QtW.QVBoxLayout())
         self._btn_group = QtW.QButtonGroup(self._qwidget)
-        # self._qwidget.currentIndexChanged.connect(self._emit_data)
+        self._mgui_set_orientation("vertical")
+        self._btn_group.buttonToggled.connect(self._emit_data)
 
-    # def _emit_data(self, index: int):
-    #     data = self._qwidget.itemData(index)
-    #     if data is not None:
-    #         self._event_filter.valueChanged.emit(data)
+    def _emit_data(self, btn):
+        data = self._mgui_get_value()
+        if data is not None:
+            self._event_filter.valueChanged.emit(data)
+
+    def _mgui_bind_change_callback(self, callback):
+        self._event_filter.valueChanged.connect(callback)
 
     def _mgui_set_orientation(self, value: str) -> None:
         """Set orientation, value will be 'horizontal' or 'vertical'."""
@@ -562,8 +565,10 @@ class RadioButtons(
         for btn in self._btn_group.buttons():
             new_layout.addWidget(btn)
         old_layout = self._qwidget.layout()
-        QtW.QWidget().setLayout(old_layout)
+        if old_layout is not None:
+            QtW.QWidget().setLayout(old_layout)
         self._qwidget.setLayout(new_layout)
+        self._qwidget.layout().setContentsMargins(4, 4, 4, 4)
 
     def _mgui_get_orientation(self) -> str:
         """Get orientation, return either 'horizontal' or 'vertical'."""

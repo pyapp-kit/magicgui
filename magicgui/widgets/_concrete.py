@@ -18,7 +18,7 @@ from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
-from magicgui.widgets._bases.mixins import _ReadOnlyMixin
+from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
 from ._bases import (
     ButtonWidget,
@@ -429,9 +429,16 @@ class ComboBox(CategoricalWidget):
     """A dropdown menu, allowing selection between multiple choices."""
 
 
-@backend_widget
-class RadioButtons(CategoricalWidget):
-    """A group of radio buttons, allowing selection between multiple choices."""
+@merge_super_sigs
+class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
+    """An exclusive group of radio buttons, providing a choice from multiple choices."""
+
+    def __init__(self, choices=(), orientation="vertical", **kwargs):
+        app = use_app()
+        assert app.native
+        kwargs["widget_type"] = app.get_obj("RadioButtons")
+        super().__init__(choices=choices, **kwargs)
+        self.orientation = orientation
 
 
 @backend_widget
