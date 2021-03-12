@@ -1,5 +1,8 @@
+import os
 import time
 from unittest.mock import patch
+
+import pytest
 
 from magicgui._util import debounce, user_cache_dir
 from magicgui.widgets import FunctionGui
@@ -41,6 +44,7 @@ def test_persistence(tmp_path):
         assert fg2 is not fg
 
 
+@pytest.mark.skipif(bool(os.getenv("CI")), reason="debounce test too brittle on CI")
 def test_debounce():
     store = []
 
@@ -53,5 +57,5 @@ def test_debounce():
         time.sleep(0.034)
     time.sleep(0.15)
 
-    # assert len(store) <= 7  # exact timing will vary on CI ... fails too much
+    assert len(store) <= 7  # exact timing will vary on CI ... fails too much
     assert store[-1] == 9
