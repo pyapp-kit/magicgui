@@ -355,7 +355,7 @@ class EventEmitter:
     ):
         # connected callbacks
         self._callbacks: List[Union[Callback, CallbackRef]] = []
-        self._callback_wants_event: Dict[Union[Callback, CallbackRef], bool] = {}
+        self._callback_wants_value: Dict[Union[Callback, CallbackRef], bool] = {}
         # used when connecting new callbacks at specific positions
         self._callback_refs: List[Optional[str]] = []
 
@@ -451,7 +451,7 @@ class EventEmitter:
         position: Union[Literal["first"], Literal["last"]] = "first",
         before: Union[str, Callback, List[Union[str, Callback]], None] = None,
         after: Union[str, Callback, List[Union[str, Callback]], None] = None,
-        callback_wants_event: bool = True,
+        callback_wants_value: bool = False,
     ):
         """Connect this emitter to a new callback.
 
@@ -478,10 +478,10 @@ class EventEmitter:
         after : str | callback | list of str or callback | None
             List of callbacks that the current callback should follow.
             Can be None if no after-criteria should be used.
-        callback_wants_event : bool
-            If `True`, callback will receive a single `Event` argument.  If False
+        callback_wants_value : bool
+            If `False`, callback will receive a single `Event` argument.  If `True`
             callback will receive a single argument (the value at `event.value`).  By
-            default, `True`.
+            default, `False`.
 
         Notes
         -----
@@ -571,7 +571,7 @@ class EventEmitter:
 
         # actually add the callback
         self._callbacks.insert(idx, callback)
-        self._callback_wants_event[callback] = callback_wants_event
+        self._callback_wants_value[callback] = callback_wants_value
         self._callback_refs.insert(idx, _ref)
         return callback  # allows connect to be used as a decorator
 
@@ -645,7 +645,7 @@ class EventEmitter:
 
             rem: List[CallbackRef] = []
             for cb in self._callbacks[:]:
-                wants_event = self._callback_wants_event[cb]
+                wants_value = self._callback_wants_value[cb]
                 if isinstance(cb, tuple):
                     obj = cb[0]()
                     if obj is None:
@@ -660,7 +660,7 @@ class EventEmitter:
                     self._block_counter.update([cb])
                     continue
 
-                self._invoke_callback(cb, event, wants_event)
+                self._invoke_callback(cb, event, wants_value)
                 if event.blocked:
                     break
 
@@ -674,11 +674,9 @@ class EventEmitter:
 
         return event
 
-    def _invoke_callback(self, cb: Callback, event: Event, wants_event=True):
+    def _invoke_callback(self, cb: Callback, event: Event, wants_value=True):
         try:
-            if wants_event:
-                cb(event)
-            else:
+            if wants_value:
                 # TODO: big assumption that it has attr 'value'!
                 if hasattr(event, "value"):
                     cb(event.value)
@@ -689,6 +687,8 @@ class EventEmitter:
                         f"callback {cb} requested an event.value, "
                         f"but Event {event} doesn't have a 'value'"
                     )
+            else:
+                cb(event)
         except Exception:
             _handle_exception(
                 self.ignore_callback_errors,
@@ -960,7 +960,7 @@ class EmitterGroup(EventEmitter):
         position: Union[Literal["first"], Literal["last"]] = "first",
         before: Union[str, Callback, List[Union[str, Callback]], None] = None,
         after: Union[str, Callback, List[Union[str, Callback]], None] = None,
-        callback_wants_event: bool = True,
+        callback_wants_value: bool = False,
     ):
         """Connect the callback to the event group. The callback will receive
         events from *all* of the emitters in the group.
@@ -970,7 +970,7 @@ class EmitterGroup(EventEmitter):
         """
         self._connect_emitters(True)
         return EventEmitter.connect(
-            self, callback, ref, position, before, after, callback_wants_event
+            self, callback, ref, position, before, after, callback_wants_value
         )
 
     def disconnect(
