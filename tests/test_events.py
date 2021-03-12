@@ -676,6 +676,8 @@ def test_emitter_block2():
 def test_alternate_callback_signature():
     from unittest.mock import Mock
 
+    import pytest
+
     callback_a = Mock()
     callback_b = Mock()
     em = EventEmitter(type="test")
@@ -686,3 +688,6 @@ def test_alternate_callback_signature():
 
     callback_a.assert_called_once_with(event)
     callback_b.assert_called_once_with(1)
+
+    with pytest.warns(UserWarning):
+        em()

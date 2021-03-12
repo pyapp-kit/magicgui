@@ -679,7 +679,16 @@ class EventEmitter:
             if wants_event:
                 cb(event)
             else:
-                cb(event.value)  # TODO: big assumption that it has attr 'value'!
+                # TODO: big assumption that it has attr 'value'!
+                if hasattr(event, "value"):
+                    cb(event.value)
+                else:
+                    import warnings
+
+                    warnings.warn(
+                        f"callback {cb} requested an event.value, "
+                        f"but Event {event} doesn't have a 'value'"
+                    )
         except Exception:
             _handle_exception(
                 self.ignore_callback_errors,
