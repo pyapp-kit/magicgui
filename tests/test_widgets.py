@@ -473,18 +473,24 @@ def test_range_widget():
 
 def test_range_widget_max():
     # max will override and restrict the possible values
-    rw = widgets.RangeEdit(-100, 1000, 2, max=(0, 500, 1))
+    rw = widgets.RangeEdit(-100, 250, 1, max=(0, 500, 1))
     v = rw.value
     assert isinstance(v, range)
-    assert (v.start, v.stop, v.step) == (-100, 500, 1)
+    assert (rw.start.max, rw.stop.max, rw.step.max) == (0, 500, 1)
+
+    with pytest.raises(ValueError):
+        rw = widgets.RangeEdit(100, 300, 5, max=(0, 500, 5))
 
 
 def test_range_widget_min():
     # max will override and restrict the possible values
-    rw = widgets.RangeEdit(-100, 1000, 2, min=(0, 500, 5))
+    rw = widgets.RangeEdit(2, 1000, 5, min=(0, 500, 5))
     v = rw.value
     assert isinstance(v, range)
-    assert (v.start, v.stop, v.step) == (0, 1000, 5)
+    assert (rw.start.min, rw.stop.min, rw.step.min) == (0, 500, 5)
+
+    with pytest.raises(ValueError):
+        rw = widgets.RangeEdit(-100, 1000, 5, min=(0, 500, 5))
 
 
 def test_containers_show_nested_containers():
@@ -509,3 +515,21 @@ def test_file_dialog_events():
     fe.changed = MagicMock(wraps=fe.changed)
     fe.line_edit.value = "world"
     fe.changed.assert_called_once_with(value=Path("world"))
+
+
+@pytest.mark.parametrize("WdgClass", [widgets.FloatSlider, widgets.FloatSpinBox])
+@pytest.mark.parametrize("value", [1, 1e6, 1e12, 1e16, 1e22])
+def test_extreme_floats(WdgClass, value):
+    wdg = WdgClass(value=value, max=value * 10)
+    assert round(wdg.value / value, 4) == 1
+    assert round(wdg.max / value, 4) == 10
+
+    wdg.changed = MagicMock(wraps=wdg.changed)
+    wdg.value = value * 2
+    wdg.changed.assert_called_once()
+    a, k = wdg.changed.call_args
+    assert round(k["value"] / value, 4) == 2
+
+    _value = 1 / value
+    wdg2 = WdgClass(value=_value, step=_value / 10, max=_value * 100)
+    assert round(wdg2.value / _value, 4) == 1.0

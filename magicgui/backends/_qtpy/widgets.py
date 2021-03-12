@@ -1,6 +1,7 @@
 """Widget implementations (adaptors) for the Qt backend."""
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import qtpy
@@ -413,6 +414,12 @@ class FloatSpinBox(QBaseRangedWidget):
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(float(value))
+
+    def _mgui_set_step(self, value: float):
+        """Set the step size."""
+        if value and value < 1 * 10 ** -self._qwidget.decimals():
+            self._qwidget.setDecimals(math.ceil(abs(math.log10(value))))
+        self._qwidget.setSingleStep(value)
 
 
 class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
