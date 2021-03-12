@@ -671,3 +671,18 @@ def test_emitter_block2():
 
     e()
     assert_state(True, True)
+
+
+def test_alternate_callback_signature():
+    from unittest.mock import Mock
+
+    callback_a = Mock()
+    callback_b = Mock()
+    em = EventEmitter(type="test")
+    em.connect(callback_a)
+    em.connect(callback_b, callback_wants_event=False)
+
+    event = em(value=1)
+
+    callback_a.assert_called_once_with(event)
+    callback_b.assert_called_once_with(1)
