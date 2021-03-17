@@ -76,9 +76,9 @@ class CategoricalWidget(ValueWidget):
         if choice_name == self.current_choice:
             self.changed(value=self.value)
 
-    def del_choice(self, choice_name: str, data: Any = None):
+    def del_choice(self, choice_name: str):
         """Delete the provided ``choice_name`` and associated data."""
-        data = data if data is not None else choice_name
+        self._widget._mgui_del_choice(choice_name)
 
     @property
     def choices(self):

@@ -21,6 +21,11 @@ class Medium(Enum):
     call_button="Calculate",
     layout="vertical",
     result_widget=True,
+    option={
+        "widget_type": "RadioButtons",
+        "orientation": "horizontal",
+        "choices": [("first option", 1), ("second option", 2)],
+    },
     slider_float={"widget_type": "FloatSlider"},
     filename={"label": "Pick a file:"},
 )
@@ -31,6 +36,7 @@ def widget_demo(
     slider_float=4.5,
     string="Text goes here",
     dropdown=Medium.Glass,
+    option=2,
     date=datetime.date(1999, 12, 31),
     time=datetime.time(1, 30, 20),
     datetime=datetime.datetime.now(),
