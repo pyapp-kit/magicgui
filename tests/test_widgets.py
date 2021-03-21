@@ -541,10 +541,15 @@ def test_categorical_widgets(Cls):
         value=1,
         choices=[("first option", 1), ("second option", 2), ("third option", 3)],
     )
+
+    wdg.changed = MagicMock(wraps=wdg.changed)
     assert isinstance(wdg, widgets._bases.CategoricalWidget)
     assert wdg.value == 1
     assert wdg.current_choice == "first option"
+    wdg.changed.assert_not_called()
     wdg.value = 2
+    wdg.changed.assert_called_once()
+    assert wdg.changed.call_args[1].get("value") == 2
     assert wdg.value == 2
     assert wdg.current_choice == "second option"
     assert wdg.choices == (1, 2, 3)

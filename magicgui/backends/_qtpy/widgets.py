@@ -551,10 +551,9 @@ class RadioButtons(
         self._mgui_set_orientation("vertical")
         self._btn_group.buttonToggled.connect(self._emit_data)
 
-    def _emit_data(self, btn):
-        data = self._mgui_get_value()
-        if data is not None:
-            self._event_filter.valueChanged.emit(data)
+    def _emit_data(self, btn, checked):
+        if checked:
+            self._event_filter.valueChanged.emit(self._mgui_get_value())
 
     def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)
