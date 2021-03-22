@@ -30,7 +30,7 @@ class Application:
     """Magicgui Application, wrapping a native BaseApplicationBackend implementation."""
 
     _backend_module: ModuleType
-    _backend: "BaseApplicationBackend"
+    _backend: BaseApplicationBackend
     _instance: Application | None = None
 
     def __init__(self, backend_name: str | None = None):

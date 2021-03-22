@@ -146,7 +146,7 @@ class MagicParameter(inspect.Parameter):
         return widget
 
     @classmethod
-    def from_widget(cls, widget: "Widget") -> MagicParameter:
+    def from_widget(cls, widget: Widget) -> MagicParameter:
         """Create a MagicParameter object representing a widget."""
         return cls(
             name=str(widget.name),
