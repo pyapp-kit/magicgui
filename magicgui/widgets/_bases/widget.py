@@ -44,7 +44,7 @@ class Widget:
 
     _widget: _protocols.WidgetProtocol
     # if this widget becomes owned by a labeled widget
-    _labeled_widget_ref: "ReferenceType[_LabeledWidget]" | None = None
+    _labeled_widget_ref: ReferenceType[_LabeledWidget] | None = None
 
     def __init__(
         self,
@@ -304,7 +304,7 @@ class Widget:
         """
         self.visible = False
 
-    def render(self) -> "np.ndarray":
+    def render(self) -> np.ndarray:
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         return self._widget._mgui_render()
 

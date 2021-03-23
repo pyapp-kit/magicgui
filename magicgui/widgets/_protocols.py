@@ -84,7 +84,7 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_render(self) -> "np.ndarray":
+    def _mgui_render(self) -> np.ndarray:
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         raise NotImplementedError()
 
@@ -421,11 +421,11 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     """Widget that can contain other widgets."""
 
     @abstractmethod
-    def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_remove_widget(self, widget: "Widget") -> None:
+    def _mgui_remove_widget(self, widget: Widget) -> None:
         raise NotImplementedError()
 
     @abstractmethod
