@@ -58,8 +58,9 @@ def magicgui(
         A backend to use, by default ``None`` (use the default backend.)
     persist : bool, optional
         If `True`, when parameter values change in the widget, they will be stored to
-        disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
-        again with ``persist = True``.  By default False.
+        disk and restored when the widget is loaded again with ``persist = True``.
+        Call ``magicgui._util.user_cache_dir()`` to get the default cache location.
+        By default False.
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
