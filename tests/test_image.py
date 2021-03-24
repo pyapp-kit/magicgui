@@ -113,7 +113,7 @@ def test_mpl_cmap():
     assert isinstance(rendered, np.ndarray)
     assert rendered.shape == (60, 60, 4)
 
-    image.set_cmap("turbo")
+    image.set_cmap("magma")
     rendered2 = image.image_rgba
     assert isinstance(rendered2, np.ndarray)
     # the colormap has been applied
