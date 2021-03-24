@@ -18,7 +18,7 @@ def magicgui(
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: bool | str = False,
+    call_button: bool | str | None = None,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
@@ -41,8 +41,10 @@ def magicgui(
     tooltips : bool, optional
         Whether tooltips are shown when hovering over widgets. by default True
     call_button : bool or str, optional
-        If ``True``, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False
+        If ``True``, create an additional button that calls the original
+        function when clicked.  If a ``str``, set the button text. If None (the
+        default), it defaults to True when ``auto_call`` is False, and False
+        otherwise.
     auto_call : bool, optional
         If ``True``, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
@@ -51,13 +53,13 @@ def magicgui(
         by default False
     main_window : bool
         Whether this widget should be treated as the main app window, with menu bar,
-        by default True.
+        by default False.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
     persist : bool, optional
         If `True`, when parameter values change in the widget, they will be stored to
         disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
-        again with ``persist = True``.  By default, `False`.
+        again with ``persist = True``.  By default False.
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
@@ -93,7 +95,7 @@ def magic_factory(
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: bool | str = False,
+    call_button: bool | str | None = None,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,

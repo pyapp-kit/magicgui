@@ -12,15 +12,27 @@ from magicgui import magicgui, register_type, type_map, widgets
 from magicgui.signature import MagicSignature
 
 
+def func(a: str = "works", b: int = 3, c=7.1) -> str:
+    return a + str(b)
+
+
 @pytest.fixture
 def magic_func():
     """Test function decorated by magicgui."""
+    decorated = magicgui(func, call_button="my_button", auto_call=True, labels=False)
+    return decorated
 
-    @magicgui(call_button="my_button", auto_call=True, labels=False)
-    def func(a: str = "works", b: int = 3, c=7.1) -> str:
-        return a + str(b)
 
-    return func
+@pytest.fixture
+def magic_func_defaults():
+    decorated = magicgui(func)
+    return decorated
+
+
+@pytest.fixture
+def magic_func_autocall():
+    decorated = magicgui(func, auto_call=True)
+    return decorated
 
 
 def test_magicgui(magic_func):
@@ -46,6 +58,16 @@ def test_magicgui(magic_func):
     # they disappear from the layout
     with pytest.raises(ValueError):
         magic_func.index(a)
+
+
+def test_default_call_button_behavior(magic_func_defaults, magic_func_autocall):
+    assert magic_func_defaults._call_button is not None
+
+    assert magic_func_autocall._call_button is None
+    prior_autocall_count = magic_func_autocall.call_count
+    magic_func_autocall.a.value = "hello"
+    magic_func_autocall.b.value = 7
+    assert magic_func_autocall.call_count == prior_autocall_count + 2
 
 
 def test_overriding_widget_type():
@@ -351,9 +373,9 @@ def test_add_at_position(labels):
         return items
 
     gui = magicgui(func, labels=labels)
-    assert get_layout_items(gui) == ["a", "b", "c"]
+    assert get_layout_items(gui) == ["a", "b", "c", "call_button"]
     gui.insert(1, widgets.create_widget(name="new"))
-    assert get_layout_items(gui) == ["a", "new", "b", "c"]
+    assert get_layout_items(gui) == ["a", "new", "b", "c", "call_button"]
 
 
 def test_original_function_works(magic_func):

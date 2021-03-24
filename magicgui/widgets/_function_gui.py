@@ -67,9 +67,10 @@ class FunctionGui(Container, Generic[_R]):
     ----------
     function : Callable
         A callable to turn into a GUI
-    call_button : bool or str, optional
+    call_button : bool, str, or None, optional
         If True, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False
+        clicked.  If a ``str``, set the button text. by default False when
+        auto_call is True, and True otherwise.
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
@@ -110,7 +111,7 @@ class FunctionGui(Container, Generic[_R]):
     def __init__(
         self,
         function: Callable[..., _R],
-        call_button: bool | str = False,
+        call_button: bool | str | None = None,
         layout: str = "vertical",
         labels: bool = True,
         tooltips: bool = True,
@@ -170,6 +171,8 @@ class FunctionGui(Container, Generic[_R]):
         # the nesting level of tqdm_mgui iterators in a given __call__
         self._tqdm_depth: int = 0
 
+        if call_button is None:
+            call_button = not auto_call
         self._call_button: PushButton | None = None
         if call_button:
             text = call_button if isinstance(call_button, str) else "Run"
