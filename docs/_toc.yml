@@ -1,10 +1,16 @@
 # Table of contents
 # Learn more at https://jupyterbook.org/customize/toc.html
+
 - file: index
+
+- part: How it Works
+  chapters:
+    - file: how_works/
 
 - part: Usage
   chapters:
     - file: usage/installation
+    - file: usage/quickstart
     - file: usage/configuration
     - file: usage/types_widgets
     - file: usage/direct_api
