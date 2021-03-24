@@ -53,13 +53,13 @@ def magicgui(
         by default False
     main_window : bool
         Whether this widget should be treated as the main app window, with menu bar,
-        by default True.
+        by default False.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
     persist : bool, optional
         If `True`, when parameter values change in the widget, they will be stored to
         disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
-        again with ``persist = True``.  By default, `False`.
+        again with ``persist = True``.  By default False.
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
