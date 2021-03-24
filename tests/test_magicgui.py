@@ -373,9 +373,9 @@ def test_add_at_position(labels):
         return items
 
     gui = magicgui(func, labels=labels)
-    assert get_layout_items(gui) == ["a", "b", "c"]
+    assert get_layout_items(gui) == ["a", "b", "c", "call_button"]
     gui.insert(1, widgets.create_widget(name="new"))
-    assert get_layout_items(gui) == ["a", "new", "b", "c"]
+    assert get_layout_items(gui) == ["a", "new", "b", "c", "call_button"]
 
 
 def test_original_function_works(magic_func):
