@@ -95,7 +95,7 @@ def magic_factory(
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: bool | str = False,
+    call_button: bool | str | None = None,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
