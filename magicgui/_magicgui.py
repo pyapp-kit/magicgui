@@ -18,7 +18,7 @@ def magicgui(
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: bool | str = False,
+    call_button: bool | str | None = None,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
@@ -41,8 +41,10 @@ def magicgui(
     tooltips : bool, optional
         Whether tooltips are shown when hovering over widgets. by default True
     call_button : bool or str, optional
-        If ``True``, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False
+        If ``True``, create an additional button that calls the original
+        function when clicked.  If a ``str``, set the button text. If None (the
+        default), it defaults to True when ``auto_call`` is False, and False
+        otherwise.
     auto_call : bool, optional
         If ``True``, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
