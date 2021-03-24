@@ -65,7 +65,7 @@ def test_default_call_button_behavior(magic_func_defaults, magic_func_autocall):
 
     assert magic_func_autocall._call_button is None
     prior_autocall_count = magic_func_autocall.call_count
-    magic_func_autocall.a.value = 'hello'
+    magic_func_autocall.a.value = "hello"
     magic_func_autocall.b.value = 7
     assert magic_func_autocall.call_count == prior_autocall_count + 2
 
