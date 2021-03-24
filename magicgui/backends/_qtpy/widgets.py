@@ -699,8 +699,7 @@ def show_file_dialog(
 
 
 def get_text_width(text) -> int:
-    """Return the width required to render ``text`` (including rich text elements).
-    """
+    """Return the width required to render ``text`` (including rich text elements)."""
     if Qt.mightBeRichText(text):
         doc = QTextDocument()
         doc.setHtml(text)
