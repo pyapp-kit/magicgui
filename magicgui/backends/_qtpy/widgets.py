@@ -699,8 +699,7 @@ def show_file_dialog(
 
 
 def get_text_width(text) -> int:
-    """Return the width required to render ``text`` (including rich text elements).
-    """
+    """Return the width required to render ``text`` (including rich text elements)."""
     if qtpy.PYSIDE2:
         from qtpy.QtGui import Qt as _Qt
     else:
