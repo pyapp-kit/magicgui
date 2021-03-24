@@ -556,3 +556,14 @@ def test_categorical_widgets(Cls):
 
     wdg.del_choice("third option")
     assert wdg.choices == (1, 2)
+
+
+@pytest.mark.skipif(not use_app().backend_name == "qt", reason="only on qt")
+def test_radiobutton_reset_choices():
+    """Test that reset_choices doesn't change the number of buttons."""
+    from qtpy.QtWidgets import QRadioButton
+
+    wdg = widgets.RadioButtons(choices=["a", "b", "c"])
+    assert len(wdg.native.findChildren(QRadioButton)) == 3
+    wdg.reset_choices()
+    assert len(wdg.native.findChildren(QRadioButton)) == 3

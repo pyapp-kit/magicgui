@@ -609,6 +609,7 @@ class RadioButtons(
     def _remove_button(self, btn):
         self._btn_group.removeButton(btn)
         self._qwidget.layout().removeWidget(btn)
+        btn.deleteLater()
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
