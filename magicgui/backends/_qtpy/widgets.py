@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Sequence
 import qtpy
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
-from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap, QResizeEvent
+from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap, QResizeEvent, QTextDocument
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -700,9 +700,19 @@ def show_file_dialog(
 
 
 def get_text_width(text) -> int:
-    """Return the width required to render ``text``."""
-    fm = QFontMetrics(QFont("", 0))
-    return fm.boundingRect(text).width() + 5
+    """Return the width required to render ``text`` (including rich text elements)."""
+    if qtpy.PYSIDE2:
+        from qtpy.QtGui import Qt as _Qt
+    else:
+        from qtpy.QtCore import Qt as _Qt
+
+    if _Qt.mightBeRichText(text):
+        doc = QTextDocument()
+        doc.setHtml(text)
+        return doc.size().width()
+    else:
+        fm = QFontMetrics(QFont("", 0))
+        return fm.boundingRect(text).width() + 5
 
 
 def _maybefloat(item):
