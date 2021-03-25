@@ -1,4 +1,5 @@
 import inspect
+from enum import Enum
 from unittest.mock import MagicMock
 
 import pytest
@@ -556,6 +557,28 @@ def test_categorical_widgets(Cls):
 
     wdg.del_choice("third option")
     assert wdg.choices == (1, 2)
+
+
+class MyEnum(Enum):
+    A = "a"
+    B = "b"
+
+
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_widgets_with_enums(Cls):
+    wdg = Cls(value=MyEnum.A, choices=MyEnum)
+
+    wdg.changed = MagicMock(wraps=wdg.changed)
+    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert wdg.value == MyEnum.A
+    assert wdg.current_choice == "A"
+    wdg.changed.assert_not_called()
+    wdg.value = MyEnum.B
+    wdg.changed.assert_called_once()
+    assert wdg.changed.call_args[1].get("value") == MyEnum.B
+    assert wdg.value == MyEnum.B
+    assert wdg.current_choice == "B"
+    assert wdg.choices == tuple(MyEnum.__members__.values())
 
 
 @pytest.mark.skipif(not use_app().backend_name == "qt", reason="only on qt")
