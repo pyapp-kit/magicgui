@@ -581,7 +581,7 @@ def test_categorical_widgets_with_enums(Cls):
     assert wdg.choices == tuple(MyEnum.__members__.values())
 
 
-@pytest.mark.skipif(not use_app().backend_name == "qt", reason="only on qt")
+@pytest.mark.skipif(use_app().backend_name != "qt", reason="only on qt")
 def test_radiobutton_reset_choices():
     """Test that reset_choices doesn't change the number of buttons."""
     from qtpy.QtWidgets import QRadioButton
