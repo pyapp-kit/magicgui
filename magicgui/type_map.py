@@ -173,6 +173,12 @@ def pick_widget_type(
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
         if choices:
+            if widget_type == "RadioButton":
+                widget_type = "RadioButtons"
+                warnings.warn(
+                    f"widget_type of 'RadioButton' (with dtype {dtype}) is being "
+                    "coerced to 'RadioButtons' due to choices or Enum type."
+                )
             options.setdefault("choices", choices)
         return widget_type, options
 
