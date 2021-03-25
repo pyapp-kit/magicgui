@@ -166,20 +166,21 @@ def pick_widget_type(
     value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
+    annotation = _evaluate_forwardref(annotation)
+    dtype = _normalize_type(value, annotation)
+    choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
+
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
+        if choices:
+            options.setdefault("choices", choices)
         return widget_type, options
-
-    annotation = _evaluate_forwardref(annotation)
-
-    dtype = _normalize_type(value, annotation)
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
         if dtype == registered_type or _is_subclass(dtype, registered_type):
             return _TYPE_DEFS[registered_type]
 
-    choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
     if choices:
         return widgets.ComboBox, {"choices": choices}
 
