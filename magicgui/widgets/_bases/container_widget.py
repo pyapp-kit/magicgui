@@ -308,7 +308,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
                 continue
             try:
                 getattr(self, key).value = val
-            except ValueError:
+            except (ValueError, AttributeError):
                 pass
 
 
