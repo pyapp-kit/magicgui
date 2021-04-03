@@ -58,4 +58,7 @@ table.data[2, ::2] = [99, 99]
 # table.data.to_numpy()
 # table.to_dataframe()
 
+# the table.changed event emits a dict of information on any cell change
+# e.g. {'data': 'sdfg', 'row': 1, 'column': 0, 'column_header': '1', 'row_header': '1'}
+table.changed.connect(lambda e: print(e.value))
 table.show(run=True)

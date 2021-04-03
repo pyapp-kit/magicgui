@@ -272,8 +272,8 @@ class TableWidgetProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_bind_cell_change_callback(self, callback: Callable[[Any], None]) -> None:
-        """Bind callback to column headers change event."""
+    def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
+        """Bind callback to value change event."""
         raise NotImplementedError()
 
 
