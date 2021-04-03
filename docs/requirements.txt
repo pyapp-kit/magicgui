@@ -1,7 +1,8 @@
 jupyter-book
+docutils!=0.17
 sphinx_material
 jupytext
 numpy
 imageio
 sphinx-autodoc-typehints
-sphinxcontrib-bibtex<2.0.0
+sphinxcontrib-bibtex>=2.2.0
