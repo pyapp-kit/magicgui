@@ -825,8 +825,10 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         """Bind callback to event of changing any cell."""
 
         def _item_callback(item, callback=callback):
-            col_head = item.tableWidget().horizontalHeaderItem(item.column()).text()
-            row_head = item.tableWidget().verticalHeaderItem(item.row()).text()
+            col_head = item.tableWidget().horizontalHeaderItem(item.column())
+            col_head = col_head.text() if col_head is not None else ""
+            row_head = item.tableWidget().verticalHeaderItem(item.row())
+            row_head = row_head.text() if row_head is not None else ""
             data = {
                 "data": item.data(self._DATA_ROLE),
                 "row": item.row(),
