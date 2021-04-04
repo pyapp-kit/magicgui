@@ -821,12 +821,21 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         """Bind callback to column headers change event."""
         raise NotImplementedError()
 
-    def _mgui_bind_cell_change_callback(self, callback) -> None:
-        """Bind callback to column headers change event."""
-        raise NotImplementedError()
-
     def _mgui_bind_change_callback(self, callback):
-        # FIXME: this currently reads out the WHOLE table every time we change ANY cell.
-        # nonsense.
-        # self._qwidget.itemChanged.connect(lambda i: callback(self._mgui_get_value()))
-        pass
+        """Bind callback to event of changing any cell."""
+
+        def _item_callback(item, callback=callback):
+            col_head = item.tableWidget().horizontalHeaderItem(item.column())
+            col_head = col_head.text() if col_head is not None else ""
+            row_head = item.tableWidget().verticalHeaderItem(item.row())
+            row_head = row_head.text() if row_head is not None else ""
+            data = {
+                "data": item.data(self._DATA_ROLE),
+                "row": item.row(),
+                "column": item.column(),
+                "column_header": col_head,
+                "row_header": row_head,
+            }
+            callback(data)
+
+        self._qwidget.itemChanged.connect(_item_callback)

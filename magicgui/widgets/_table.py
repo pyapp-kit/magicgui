@@ -23,6 +23,7 @@ from warnings import warn
 from typing_extensions import Literal
 
 from magicgui.application import use_app
+from magicgui.events import EventEmitter
 from magicgui.widgets._bases import Widget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
@@ -195,6 +196,14 @@ class Table(Widget, MutableMapping[TblKey, list]):
     to_dict(orient='dict')
         Return one of many different dict-like representations of table and header data.
         See docstring of :meth:`to_dict` for details.
+
+    Events
+    ------
+    changed
+        Emitted whenever a cell in the table changes.  the `event.value` will have a
+        dict of information regarding the cell that changed:
+        {'data': x, 'row': int, 'column': int, 'column_header': str, 'row_header': str}
+        CURRENTLY: only emitted on changes in the GUI. not programattic changes.
     """
 
     _widget: TableWidgetProtocol
@@ -229,6 +238,13 @@ class Table(Widget, MutableMapping[TblKey, list]):
             "index": index if index is not None else _index,
             "columns": columns if columns is not None else _columns,
         }
+
+    def _post_init(self):
+        super()._post_init()
+        self.changed = EventEmitter(source=self, type="changed")
+        self._widget._mgui_bind_change_callback(
+            lambda *x: self.changed(value=x[0] if x else None)
+        )
 
     @property
     def value(self) -> dict[TblKey, Collection]:
