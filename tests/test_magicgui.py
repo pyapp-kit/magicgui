@@ -19,20 +19,17 @@ def func(a: str = "works", b: int = 3, c=7.1) -> str:
 @pytest.fixture
 def magic_func():
     """Test function decorated by magicgui."""
-    decorated = magicgui(func, call_button="my_button", auto_call=True, labels=False)
-    return decorated
+    return magicgui(func, call_button="my_button", auto_call=True, labels=False)
 
 
 @pytest.fixture
 def magic_func_defaults():
-    decorated = magicgui(func)
-    return decorated
+    return magicgui(func)
 
 
 @pytest.fixture
 def magic_func_autocall():
-    decorated = magicgui(func, auto_call=True)
-    return decorated
+    return magicgui(func, auto_call=True)
 
 
 def test_magicgui(magic_func):
@@ -141,17 +138,17 @@ def test_call_button():
 
 def test_auto_call(qtbot, magic_func):
     """Test that changing a parameter calls the function."""
+    from qtpy.QtTest import QTest
 
     # TODO: remove qtbot requirement so we can test other backends eventually.
-
     # changing the widget parameter calls the function
     with qtbot.waitSignal(magic_func.called, timeout=1000):
         magic_func.b.value = 6
 
     # changing the gui calls the function
     with qtbot.waitSignal(magic_func.called, timeout=1000):
-        qtbot.keyClick(magic_func.a.native, Qt.Key_A, Qt.ControlModifier)
-        qtbot.keyClick(magic_func.a.native, Qt.Key_Delete)
+        QTest.keyClick(magic_func.a.native, Qt.Key_A, Qt.ControlModifier)
+        QTest.keyClick(magic_func.a.native, Qt.Key_Delete)
 
 
 def test_dropdown_list_from_enum():
