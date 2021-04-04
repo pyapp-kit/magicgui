@@ -1,6 +1,7 @@
 import inspect
 from enum import Enum
-from unittest.mock import MagicMock
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 from tests import MyInt
@@ -510,12 +511,20 @@ def test_containers_show_nested_containers():
 
 def test_file_dialog_events():
     """Test that file dialog events emit the value of the line_edit."""
-    from pathlib import Path
-
     fe = widgets.FileEdit(value="hi")
     fe.changed = MagicMock(wraps=fe.changed)
     fe.line_edit.value = "world"
     fe.changed.assert_called_once_with(value=Path("world"))
+
+
+def test_file_dialog_button_events():
+    """Test that clicking the file dialog button doesn't emit an event."""
+    fe = widgets.FileEdit(value="hi")
+    fe.changed = MagicMock(wraps=fe.changed)
+    with patch.object(fe, "_show_file_dialog", return_value=""):
+        fe.choose_btn.changed()
+    fe.changed.assert_not_called()
+    assert fe.value == Path("hi")
 
 
 @pytest.mark.parametrize("WdgClass", [widgets.FloatSlider, widgets.FloatSpinBox])

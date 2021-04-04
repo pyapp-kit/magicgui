@@ -481,8 +481,9 @@ class FileEdit(Container):
         super().__init__(**kwargs)
         self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
-        self.choose_btn.changed.connect(self._on_choose_clicked)
+        self.choose_btn.changed.disconnect()
         self.line_edit.changed.disconnect()
+        self.choose_btn.changed.connect(self._on_choose_clicked)
         self.line_edit.changed.connect(lambda x: self.changed(value=self.value))
 
     @property
@@ -527,7 +528,7 @@ class FileEdit(Container):
     def value(self, value: Sequence[PathLike] | PathLike):
         """Set current file path."""
         if isinstance(value, (list, tuple)):
-            value = ", ".join([os.fspath(p) for p in value])
+            value = ", ".join(os.fspath(p) for p in value)
         if not isinstance(value, (str, Path)):
             raise TypeError(
                 f"value must be a string, or list/tuple of strings, got {type(value)}"
