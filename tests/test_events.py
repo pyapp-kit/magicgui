@@ -395,7 +395,7 @@ def test_source_stack_integrity():
     try:
         em()
     except RuntimeError as err:
-        if str(err) != "Event source-stack mismatch.":
+        if "Event source-stack mismatch." not in str(err):
             raise
 
     em.disconnect()
