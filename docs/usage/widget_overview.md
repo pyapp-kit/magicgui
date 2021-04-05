@@ -155,7 +155,8 @@ following `ValueWidgets` track some `value`:
     accessed, the value provided here will be returned.  The bound value can be a
     callable, in which case `bound_value(self)` will be returned (i.e. your callback
     must accept a single parameter, which is this widget instance.). see
-    {meth}`ValueWidget.bind <magicgui.widgets._bases.value_widget.ValueWidget.bind>` for details.
+    {meth}`ValueWidget.bind <magicgui.widgets._bases.value_widget.ValueWidget.bind>`
+    for details.
 ```
 
 ```{code-cell} python
@@ -176,6 +177,7 @@ wdg_list = [
     widgets.TimeEdit(value=datetime.time(12, 20), label="TimeEdit:"),
 ]
 container = widgets.Container(widgets=wdg_list)
+container.max_height = 300
 container.show()
 ```
 
@@ -220,16 +222,16 @@ values, and a step size.  `RangedWidgets` include
 ```
 
 ```{code-cell} python
-w1 = widgets.SpinBox(value=10, label='SpinBox:')
-w2 = widgets.FloatSpinBox(value=10.5, label='FloatSpinBox:')
+w1 = widgets.SpinBox(value=10, max=20, label='SpinBox:')
+w2 = widgets.FloatSpinBox(value=10.5, step=0.5, label='FloatSpinBox:')
 container = widgets.Container(widgets=[w1, w2])
 container.show()
 ```
 
 ##### `SliderWidget(RangedWidget)`
 
-`SliderWidgets` are special [`RangedWidgets`](#rangedwidget-valuewidget) that additionally have
-an `orientation`, and a `readout`.
+`SliderWidgets` are special [`RangedWidgets`](#rangedwidget-valuewidget)
+that additionally have an `orientation`, and a `readout`.
 
 ```{eval-rst}
 
@@ -373,7 +375,8 @@ notable example of a `Container` is {class}`magicgui.widgets.FunctionGui`)
    :toctree: ../_autosummary
 
    Container
-   Functiongui
+   MainWindow
+   FunctionGui
 ```
 
 ```{list-table}
