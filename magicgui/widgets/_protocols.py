@@ -413,6 +413,9 @@ class SupportsOrientation(Protocol):
 class SliderWidgetProtocol(RangedWidgetProtocol, SupportsOrientation, Protocol):
     """Protocol for implementing a slider widget."""
 
+    def _mgui_set_readout_visibility(self, visible: bool) -> None:
+        """Set visibility of readout widget."""
+
 
 # CONTAINER ----------------------------------------------------------------------
 
