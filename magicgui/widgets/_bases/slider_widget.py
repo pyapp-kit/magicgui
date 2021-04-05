@@ -15,10 +15,10 @@ class SliderWidget(RangedWidget, _OrientationMixin):
 
     _widget: _protocols.SliderWidgetProtocol
 
-    def __init__(self, orientation: str = "horizontal", **kwargs):
+    def __init__(self, orientation: str = "horizontal", readout=True, **kwargs):
+        kwargs["backend_kwargs"] = {"readout": readout, "orientation": orientation}
         super().__init__(**kwargs)
-
-        self.orientation = orientation
+        # self.orientation = orientation
 
     @property
     def options(self) -> dict:

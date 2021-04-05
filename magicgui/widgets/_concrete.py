@@ -286,79 +286,9 @@ class Slider(SliderWidget):
     """A slider widget to adjust an integer value within a range."""
 
 
-def _int_widget_to_float(name):
-    app = use_app()
-    assert app.native
-    cls = app.get_obj(name)
-    import builtins
-
-    def update_precision(self, min=None, max=None, step=None):
-        orig = self._precision
-
-        if min is not None or max is not None:
-            min = min or self._mgui_get_min()
-            max = max or self._mgui_get_max()
-
-            # make sure val * precision is within int32 overflow limit for Qt
-            val = builtins.max([abs(min), abs(max)])
-            while abs(self._precision * val) >= 2 ** 32 // 2:
-                self._precision *= 0.1
-        elif step:
-            while step < (1 / self._precision):
-                self._precision *= 10
-
-        ratio = self._precision / orig
-        if ratio != 1:
-            self._mgui_set_value(self._mgui_get_value() * ratio)
-            if not step:
-                self._mgui_set_max(self._mgui_get_max() * ratio)
-                self._mgui_set_min(self._mgui_get_min() * ratio)
-            # self._mgui_set_step(self._mgui_get_step() * ratio)
-
-    new_cls = type(
-        f"Float{cls.__name__}",
-        (cls,),
-        {
-            "__module__": __name__,
-            "_precision": 1e6,
-            "_update_precision": update_precision,
-        },
-    )
-
-    # patch the backend widget to convert between float/int
-    for attr in ["value", "max", "min", "step"]:
-        get_meth_name = f"_mgui_get_{attr}"
-        set_meth_name = f"_mgui_set_{attr}"
-
-        def new_getter(self, o_getter=getattr(new_cls, get_meth_name)):
-            return o_getter(self) / self._precision
-
-        def new_setter(self, val, o_setter=getattr(new_cls, set_meth_name), attr=attr):
-            if attr in ("step", "max", "min"):
-                self._update_precision(**{attr: val})
-            o_setter(self, int(val * self._precision))
-
-        setattr(new_cls, get_meth_name, new_getter)
-        setattr(new_cls, set_meth_name, new_setter)
-
-    return new_cls
-
-
-@merge_super_sigs
+@backend_widget
 class FloatSlider(SliderWidget):
-    """A slider widget to adjust a float value within a range."""
-
-    def __init__(self, **kwargs):
-        kwargs["widget_type"] = _int_widget_to_float("Slider")
-        super().__init__(**kwargs)
-
-    def _post_init(self):
-        from magicgui.events import EventEmitter
-
-        self.changed = EventEmitter(source=self, type="changed")
-        self._widget._mgui_bind_change_callback(
-            lambda *x: self.changed(value=self.value)
-        )
+    """A slider widget to adjust an integer value within a range."""
 
 
 @merge_super_sigs

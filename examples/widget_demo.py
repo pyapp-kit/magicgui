@@ -27,6 +27,7 @@ class Medium(Enum):
         "choices": [("first option", 1), ("second option", 2)],
     },
     slider_float={"widget_type": "FloatSlider"},
+    slider_int={"widget_type": "Slider", "max": 100, "readout": False},
     filename={"label": "Pick a file:"},
 )
 def widget_demo(
@@ -34,6 +35,7 @@ def widget_demo(
     integer=1,
     spin_float=3.14159,
     slider_float=4.5,
+    slider_int=50,
     string="Text goes here",
     dropdown=Medium.Glass,
     option=2,
@@ -54,6 +56,8 @@ def widget_demo(
         This one is a float, by default "pi"
     slider_float : float, optional
         Hey look! I'm a slider, by default 4.5
+    slider_int : float, optional
+        I only take integers, and I've hidden my readout, by default 50
     string : str, optional
         We'll use this string carefully, by default "Text goes here"
     dropdown : Enum, optional
