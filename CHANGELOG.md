@@ -1,5 +1,44 @@
 # Changelog
 
+## [v0.2.9](https://github.com/napari/magicgui/tree/v0.2.9) (2021-04-05)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.9)
+
+v0.2.9 is a minor feature & bugfix release.
+
+The most noticeable new feature is that `Slider` widgets now show their current value with an (editable) spinbox (#211).  To hide the readout widget on a Slider, use `readout=False`.  The `Table` widget has also been given a `.changed` event emitter that will emit a dict of information about the cell being edited (#209)
+
+This release also fixes a couple event issues with FileDialogs, and some layout issues with RadioButtons.
+
+**Implemented enhancements:**
+
+- Display slider current value and range min/max in the magicgui widget [\#19](https://github.com/napari/magicgui/issues/19)
+- Display current slider value \(editable\) [\#211](https://github.com/napari/magicgui/pull/211) ([tlambert03](https://github.com/tlambert03))
+- Add table.changed event emitter [\#209](https://github.com/napari/magicgui/pull/209) ([tlambert03](https://github.com/tlambert03))
+- Coerce RadioButton with Enum/choices to RadioButtons [\#202](https://github.com/napari/magicgui/pull/202) ([tlambert03](https://github.com/tlambert03))
+- Compute correct widget width for rich text labels [\#199](https://github.com/napari/magicgui/pull/199) ([maweigert](https://github.com/maweigert))
+
+**Fixed bugs:**
+
+- FileEdit changed event value wrong [\#204](https://github.com/napari/magicgui/issues/204)
+- Radiobuttons are duplicated during `reset\_choices` in Qt \<5.15.2 [\#197](https://github.com/napari/magicgui/issues/197)
+- Tests fail when both PySide2 and PyQt5 are installed in the test env [\#196](https://github.com/napari/magicgui/issues/196)
+- Fix tests when both pyside2 and pyqt5 are installed [\#210](https://github.com/napari/magicgui/pull/210) ([tlambert03](https://github.com/tlambert03))
+- Disconnect filedialog button from value.changed events [\#208](https://github.com/napari/magicgui/pull/208) ([tlambert03](https://github.com/tlambert03))
+- Fix persist issue with cached parameter that has been removed [\#203](https://github.com/napari/magicgui/pull/203) ([uschmidt83](https://github.com/uschmidt83))
+- Delete button when removing from qt RadioGroup [\#198](https://github.com/napari/magicgui/pull/198) ([tlambert03](https://github.com/tlambert03))
+
+**Closed issues:**
+
+- Add table-cell change callbacks [\#205](https://github.com/napari/magicgui/issues/205)
+- Update widget interactively [\#190](https://github.com/napari/magicgui/issues/190)
+
+**Merged pull requests:**
+
+- \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/napari/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- skip docutils 0.17 [\#207](https://github.com/napari/magicgui/pull/207) ([tlambert03](https://github.com/tlambert03))
+- Add cache location hint to persist option documentation [\#200](https://github.com/napari/magicgui/pull/200) ([maweigert](https://github.com/maweigert))
+
 ## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8)
@@ -23,6 +62,7 @@ v0.2.8 is a minor feature & bugfix release including:
 - FunctionGuis added to containers not showing when container is shown [\#174](https://github.com/napari/magicgui/issues/174)
 - Parameter value persistance causes error with napari layers as parameter types [\#169](https://github.com/napari/magicgui/issues/169)
 - Better error message on bad keyword argument to `magicgui` [\#165](https://github.com/napari/magicgui/issues/165)
+- fix enum choices in radiobuttons [\#201](https://github.com/napari/magicgui/pull/201) ([tlambert03](https://github.com/tlambert03))
 - Fix RadioButtons double event emissions [\#189](https://github.com/napari/magicgui/pull/189) ([tlambert03](https://github.com/tlambert03))
 - don't ever change the call\_button text silly [\#180](https://github.com/napari/magicgui/pull/180) ([tlambert03](https://github.com/tlambert03))
 - Fix extreme float values for slider and spinbox [\#178](https://github.com/napari/magicgui/pull/178) ([tlambert03](https://github.com/tlambert03))
@@ -150,7 +190,7 @@ v0.2.6 is a significant feature release, introducing a number of new widgets and
 - Add ProgressBar widget [\#104](https://github.com/napari/magicgui/pull/104) ([tlambert03](https://github.com/tlambert03))
 - Use \(hidden\) EmptyWidget for unrecognized types [\#103](https://github.com/napari/magicgui/pull/103) ([tlambert03](https://github.com/tlambert03))
 - Add manual and docstring-parsed tooltips [\#100](https://github.com/napari/magicgui/pull/100) ([tlambert03](https://github.com/tlambert03))
-- Add Table Widget [\#61](https://github.com/napari/magicgui/pull/61) ([tlambert03](https://github.com/tlambert03))
+- add pyupgrade pre-commit hook [\#88](https://github.com/napari/magicgui/pull/88) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.2.5](https://github.com/napari/magicgui/tree/v0.2.5) (2021-01-13)
 
@@ -160,6 +200,7 @@ v0.2.5 greatly improves support for binding a value or a callback to a function 
 
 **Merged pull requests:**
 
+- Fix reset\_choices recursion [\#96](https://github.com/napari/magicgui/pull/96) ([tlambert03](https://github.com/tlambert03))
 - better bound values [\#95](https://github.com/napari/magicgui/pull/95) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.2.4](https://github.com/napari/magicgui/tree/v0.2.4) (2021-01-12)
@@ -186,9 +227,7 @@ v0.2.3 adds two new widgets `DateEdit` and `TimeEdit` (for `datetime.date` and `
 
 **Merged pull requests:**
 
-- Fix reset\_choices recursion [\#96](https://github.com/napari/magicgui/pull/96) ([tlambert03](https://github.com/tlambert03))
 - Fix ComboBox with unhashable choice data [\#89](https://github.com/napari/magicgui/pull/89) ([tlambert03](https://github.com/tlambert03))
-- add pyupgrade pre-commit hook [\#88](https://github.com/napari/magicgui/pull/88) ([tlambert03](https://github.com/tlambert03))
 - add call count to function gui [\#86](https://github.com/napari/magicgui/pull/86) ([tlambert03](https://github.com/tlambert03))
 - Add more examples \(chaining, self-reference, and choices\) [\#85](https://github.com/napari/magicgui/pull/85) ([tlambert03](https://github.com/tlambert03))
 - Add date and time widgets [\#84](https://github.com/napari/magicgui/pull/84) ([tlambert03](https://github.com/tlambert03))
@@ -233,6 +272,7 @@ v0.2.1 fixes some issues with the 0.2.0 release.  `ForwardRef` annotations are n
 - Add tests for docs and examples [\#68](https://github.com/napari/magicgui/pull/68) ([tlambert03](https://github.com/tlambert03))
 - Change "orientation" on containers to "layout" [\#67](https://github.com/napari/magicgui/pull/67) ([tlambert03](https://github.com/tlambert03))
 - resolve ForwardRef on widget.annotation [\#66](https://github.com/napari/magicgui/pull/66) ([tlambert03](https://github.com/tlambert03))
+- Add Table Widget [\#61](https://github.com/napari/magicgui/pull/61) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.2.0](https://github.com/napari/magicgui/tree/v0.2.0) (2020-12-26)
 
@@ -283,7 +323,6 @@ Lastly, we have new documentation, using the amazing [jupyter-book](https://jupy
 - rewrite: proper widget protocols & signature objects [\#43](https://github.com/napari/magicgui/pull/43) ([tlambert03](https://github.com/tlambert03))
 - Drop support for python 3.6 [\#42](https://github.com/napari/magicgui/pull/42) ([tlambert03](https://github.com/tlambert03))
 - Add \(slightly\) strict mypy checking [\#41](https://github.com/napari/magicgui/pull/41) ([tlambert03](https://github.com/tlambert03))
-- Add flake8-docstrings to dev requirements [\#39](https://github.com/napari/magicgui/pull/39) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 
 ## [v0.1.6](https://github.com/napari/magicgui/tree/v0.1.6) (2020-07-23)
 
@@ -301,6 +340,7 @@ Lastly, we have new documentation, using the amazing [jupyter-book](https://jupy
 
 **Merged pull requests:**
 
+- Add flake8-docstrings to dev requirements [\#39](https://github.com/napari/magicgui/pull/39) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 - Add a logarithmic scale slider class [\#38](https://github.com/napari/magicgui/pull/38) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 - Fix napari\_param\_sweep.py example by updating QDoubleSlider import [\#37](https://github.com/napari/magicgui/pull/37) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
 - Widget demo example script [\#36](https://github.com/napari/magicgui/pull/36) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
