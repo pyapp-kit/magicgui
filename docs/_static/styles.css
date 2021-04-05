@@ -1,4 +1,17 @@
 /* custom styles */
+.md-typeset h5 {
+  font-size: 0.95rem;
+}
+
+.md-typeset h5 {
+  text-transform: none;
+  font-size: 0.8rem;
+}
+
+.md-typeset .md-typeset__table {
+  width: 100%;
+}
+
 .md-grid {
   max-width: 61rem;
 }

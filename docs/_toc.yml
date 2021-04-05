@@ -11,6 +11,7 @@
   chapters:
     - file: usage/installation
     - file: usage/quickstart
+    - file: usage/widget_overview
     - file: usage/configuration
     - file: usage/types_widgets
     - file: usage/direct_api
