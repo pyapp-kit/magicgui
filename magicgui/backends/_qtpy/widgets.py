@@ -458,9 +458,11 @@ class FloatSpinBox(QBaseRangedWidget):
 class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
-    def __init__(self, qwidg=QtW.QSlider):
+    def __init__(self, qwidg=QtW.QSlider, **kwargs):
         super().__init__(qwidg)
         self._mgui_set_orientation("horizontal")
+        self._mgui_set_readout_visibility(kwargs.get("readout", True))
+        self._mgui_set_orientation(kwargs.get("orientation", "horizontal"))
 
     def _mgui_set_orientation(self, value) -> Any:
         """Get current value of the widget."""
@@ -472,6 +474,9 @@ class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
         orientation = self._qwidget.orientation()
         return "vertical" if orientation == Qt.Vertical else "horizontal"
 
+    def _mgui_set_readout_visibility(self, value: bool):
+        raise NotImplementedError()
+
 
 class Slider(_Slider):
     _qwidget: QtW.QSlider
@@ -479,18 +484,11 @@ class Slider(_Slider):
 
     def __init__(self, qwidg=QtW.QSlider, **kwargs):
         self._container = QtW.QWidget()
-        self._readout_widget = type(self)._readout()
+        self._readout_widget = self._readout()
         super().__init__(qwidg)
-        show_readout = kwargs.get("readout", True)
-        orientation = kwargs.get("orientation", "horizontal")
 
         self._readout_widget.setButtonSymbols(self._readout_widget.NoButtons)
         self._readout_widget.setStyleSheet("background:transparent; border: 0;")
-
-        if not show_readout:
-            self._readout_widget.hide()
-
-        self._mgui_set_orientation(orientation)
 
         self._qwidget.valueChanged.connect(self._on_slider_change)
         self._readout_widget.editingFinished.connect(self._on_readout_change)
@@ -513,7 +511,7 @@ class Slider(_Slider):
             self._readout_widget.setAlignment(Qt.AlignRight)
             right_margin = 0 if self._readout_widget.isVisible() else 4
             layout.setContentsMargins(0, 0, right_margin, 0)
-            layout.setSpacing(3)
+            layout.setSpacing(4)
         old_layout = self._container.layout()
         if old_layout is not None:
             QtW.QWidget().setLayout(old_layout)
@@ -542,6 +540,9 @@ class Slider(_Slider):
         """Set the step size."""
         super()._mgui_set_step(value)
         self._readout_widget.setSingleStep(value)
+
+    def _mgui_set_readout_visibility(self, value: bool):
+        self._readout_widget.show() if value else self._readout_widget.hide()
 
 
 class FloatSlider(Slider):
@@ -594,7 +595,6 @@ class ProgressBar(_Slider):
 
     def __init__(self, **kwargs):
         super().__init__(QtW.QProgressBar)
-        self._mgui_set_orientation("horizontal")
 
     def _mgui_get_step(self) -> float:
         """Get the step size."""
@@ -602,6 +602,9 @@ class ProgressBar(_Slider):
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
+
+    def _mgui_set_readout_visibility(self, value: bool):
+        self._qwidget.setTextVisible(value)
 
 
 class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
