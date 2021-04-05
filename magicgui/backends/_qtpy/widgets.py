@@ -152,15 +152,23 @@ class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
         self._onchange_name = onchange
 
     def _mgui_get_value(self) -> Any:
-        return getattr(self._qwidget, self._getter_name)()
+        val = getattr(self._qwidget, self._getter_name)()
+        return self._post_get_hook(val)
 
     def _mgui_set_value(self, value) -> None:
-        getattr(self._qwidget, self._setter_name)(value)
+        val = self._pre_set_hook(value)
+        getattr(self._qwidget, self._setter_name)(val)
 
     def _mgui_bind_change_callback(self, callback):
         signal_instance = getattr(self._qwidget, self._onchange_name, None)
         if signal_instance:
             signal_instance.connect(callback)
+
+    def _post_get_hook(self, value):
+        return value
+
+    def _pre_set_hook(self, value):
+        return value
 
 
 # BASE WIDGET
@@ -242,6 +250,18 @@ class LineEdit(QBaseStringWidget):
         super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
 
 
+class LiteralEvalLineEdit(QBaseStringWidget):
+    _qwidget: QtW.QLineEdit
+
+    def __init__(self):
+        super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
+
+    def _post_get_hook(self, value):
+        from ast import literal_eval
+
+        return literal_eval(value)
+
+
 class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
     def __init__(self):
         super().__init__(QtW.QTextEdit, "toPlainText", "setText", "textChanged")
@@ -260,33 +280,46 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
     _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider
+    _precision: float = 1
 
     def __init__(self, qwidg):
         super().__init__(qwidg, "value", "setValue", "valueChanged")
 
     def _mgui_get_min(self) -> float:
         """Get the minimum possible value."""
-        return self._qwidget.minimum()
+        val = self._qwidget.minimum()
+        return self._post_get_hook(val)
 
     def _mgui_set_min(self, value: float):
         """Set the minimum possible value."""
-        self._qwidget.setMinimum(value)
+        self._update_precision(minimum=value)
+        val = self._pre_set_hook(value)
+        self._qwidget.setMinimum(val)
 
     def _mgui_get_max(self) -> float:
         """Set the maximum possible value."""
-        return self._qwidget.maximum()
+        val = self._qwidget.maximum()
+        return self._post_get_hook(val)
 
     def _mgui_set_max(self, value: float):
         """Set the maximum possible value."""
-        self._qwidget.setMaximum(value)
+        self._update_precision(maximum=value)
+        val = self._pre_set_hook(value)
+        self._qwidget.setMaximum(val)
 
     def _mgui_get_step(self) -> float:
         """Get the step size."""
-        return self._qwidget.singleStep()
+        val = self._qwidget.singleStep()
+        return self._post_get_hook(val)
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
-        self._qwidget.setSingleStep(value)
+        self._update_precision(step=value)
+        val = self._pre_set_hook(value)
+        self._qwidget.setSingleStep(val)
+
+    def _update_precision(self, **kwargs):
+        pass
 
 
 # BUTTONS
@@ -422,12 +455,14 @@ class FloatSpinBox(QBaseRangedWidget):
         self._qwidget.setSingleStep(value)
 
 
-class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
+class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
-    def __init__(self, qwidg=QtW.QSlider):
+    def __init__(self, qwidg=QtW.QSlider, **kwargs):
         super().__init__(qwidg)
         self._mgui_set_orientation("horizontal")
+        self._mgui_set_readout_visibility(kwargs.get("readout", True))
+        self._mgui_set_orientation(kwargs.get("orientation", "horizontal"))
 
     def _mgui_set_orientation(self, value) -> Any:
         """Get current value of the widget."""
@@ -439,13 +474,127 @@ class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
         orientation = self._qwidget.orientation()
         return "vertical" if orientation == Qt.Vertical else "horizontal"
 
+    def _mgui_set_readout_visibility(self, value: bool):
+        raise NotImplementedError()
 
-class ProgressBar(Slider):
+
+class Slider(_Slider):
+    _qwidget: QtW.QSlider
+    _readout = QtW.QSpinBox
+
+    def __init__(self, qwidg=QtW.QSlider, **kwargs):
+        self._container = QtW.QWidget()
+        self._readout_widget = self._readout()
+        super().__init__(qwidg)
+
+        self._readout_widget.setButtonSymbols(self._readout_widget.NoButtons)
+        self._readout_widget.setStyleSheet("background:transparent; border: 0;")
+
+        self._qwidget.valueChanged.connect(self._on_slider_change)
+        self._readout_widget.editingFinished.connect(self._on_readout_change)
+
+    def _mgui_set_orientation(self, value: str) -> None:
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
+        if value == "vertical":
+            layout = QtW.QVBoxLayout()
+            self._qwidget.setOrientation(Qt.Vertical)
+            layout.addWidget(self._qwidget, alignment=Qt.AlignHCenter)
+            layout.addWidget(self._readout_widget, alignment=Qt.AlignHCenter)
+            self._readout_widget.setAlignment(Qt.AlignCenter)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(1)
+        else:
+            layout = QtW.QHBoxLayout()
+            self._qwidget.setOrientation(Qt.Horizontal)
+            layout.addWidget(self._qwidget)
+            layout.addWidget(self._readout_widget)
+            self._readout_widget.setAlignment(Qt.AlignRight)
+            right_margin = 0 if self._readout_widget.isVisible() else 4
+            layout.setContentsMargins(0, 0, right_margin, 0)
+            layout.setSpacing(4)
+        old_layout = self._container.layout()
+        if old_layout is not None:
+            QtW.QWidget().setLayout(old_layout)
+        self._container.setLayout(layout)
+
+    def _on_slider_change(self, value):
+        self._readout_widget.setValue(self._post_get_hook(value))
+
+    def _on_readout_change(self):
+        self._qwidget.setValue(self._pre_set_hook(self._readout_widget.value()))
+
+    def _mgui_get_native_widget(self) -> QtW.QWidget:
+        return self._container
+
+    def _mgui_set_min(self, value: float):
+        """Set the minimum possible value."""
+        super()._mgui_set_min(value)
+        self._readout_widget.setMinimum(value)
+
+    def _mgui_set_max(self, value: float):
+        """Set the maximum possible value."""
+        super()._mgui_set_max(value)
+        self._readout_widget.setMaximum(value)
+
+    def _mgui_set_step(self, value: float):
+        """Set the step size."""
+        super()._mgui_set_step(value)
+        self._readout_widget.setSingleStep(value)
+
+    def _mgui_set_readout_visibility(self, value: bool):
+        self._readout_widget.show() if value else self._readout_widget.hide()
+
+
+class FloatSlider(Slider):
+    _readout = QtW.QDoubleSpinBox
+    _precision = 1e6
+
+    def _update_precision(self, minimum=None, maximum=None, step=None):
+        """Called when min/max/step is changed.
+
+        _precision is the factor that converts from integer representation in the slider
+        widget, to the actual float representation needed.
+        """
+        orig = self._precision
+
+        if minimum is not None or maximum is not None:
+            _min = minimum or self._mgui_get_min()
+            _max = maximum or self._mgui_get_max()
+
+            # make sure val * precision is within int32 overflow limit for Qt
+            val = max([abs(_min), abs(_max)])
+            while abs(self._precision * val) >= 2 ** 32 // 2:
+                self._precision *= 0.1
+        elif step:
+            while step < (1 / self._precision):
+                self._precision *= 10
+
+        ratio = self._precision / orig
+        if ratio != 1:
+            self._mgui_set_value(self._mgui_get_value() * ratio)
+            if not step:
+                self._mgui_set_max(self._mgui_get_max() * ratio)
+                self._mgui_set_min(self._mgui_get_min() * ratio)
+            # self._mgui_set_step(self._mgui_get_step() * ratio)
+
+    def _post_get_hook(self, value):
+        return value / self._precision
+
+    def _pre_set_hook(self, value):
+        return int(value * self._precision)
+
+    def _mgui_bind_change_callback(self, callback):
+        def _converted_value(value):
+            callback(self._post_get_hook(value))
+
+        self._qwidget.valueChanged.connect(_converted_value)
+
+
+class ProgressBar(_Slider):
     _qwidget: QtW.QProgressBar
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(QtW.QProgressBar)
-        self._mgui_set_orientation("horizontal")
 
     def _mgui_get_step(self) -> float:
         """Get the step size."""
@@ -453,6 +602,9 @@ class ProgressBar(Slider):
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
+
+    def _mgui_set_readout_visibility(self, value: bool):
+        self._qwidget.setTextVisible(value)
 
 
 class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
