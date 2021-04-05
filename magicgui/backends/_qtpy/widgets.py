@@ -250,6 +250,18 @@ class LineEdit(QBaseStringWidget):
         super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
 
 
+class LiteralEvalLineEdit(QBaseStringWidget):
+    _qwidget: QtW.QLineEdit
+
+    def __init__(self):
+        super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
+
+    def _post_get_hook(self, value):
+        from ast import literal_eval
+
+        return literal_eval(value)
+
+
 class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
     def __init__(self):
         super().__init__(QtW.QTextEdit, "toPlainText", "setText", "textChanged")

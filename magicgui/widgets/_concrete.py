@@ -31,7 +31,6 @@ from ._bases import (
     ValueWidget,
     Widget,
 )
-from ._transforms import make_literal_eval
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
@@ -208,7 +207,7 @@ class LineEdit(ValueWidget):
     """A one-line text editor."""
 
 
-@backend_widget(widget_name="LineEdit", transform=make_literal_eval)
+@backend_widget
 class LiteralEvalLineEdit(ValueWidget):
     """A one-line text editor that evaluates strings as python literals."""
 
