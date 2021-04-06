@@ -40,9 +40,11 @@ class ValueWidget(Widget):
     def _post_init(self):
         super()._post_init()
         self.changed = EventEmitter(source=self, type="changed")
-        self._widget._mgui_bind_change_callback(
-            lambda *x: self.changed(value=x[0] if x else None)
-        )
+        self._widget._mgui_bind_change_callback(self._on_value_change)
+
+    def _on_value_change(self, *args):
+        """Called when the widget value changes.  args come from the widget itself."""
+        self.changed(value=args[0] if args else None)
 
     def get_value(self):
         """Callable version of `self.value`.

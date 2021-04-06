@@ -599,7 +599,7 @@ class EventEmitter:
 
         return callback
 
-    def __call__(self, *args, **kwargs) -> Event:
+    def __call__(self, *args, **kwargs) -> Optional[Event]:
         """__call__(**kwargs)
         Invoke all callbacks for this emitter.
 
@@ -621,7 +621,10 @@ class EventEmitter:
         """
         # This is a VERY highly used method; must be fast!
         blocked = self._blocked
-        if self._emitting:
+        if blocked.get(None, 0) > 0:  # this is the same as self.blocked(), without cb
+            self._block_counter.update([None])
+            return None
+        elif self._emitting:
             raise RuntimeError("EventEmitter loop detected!")
 
         # create / massage event as needed
@@ -632,10 +635,6 @@ class EventEmitter:
         event._push_source(self.source)
         self._emitting = True
         try:
-            if blocked.get(None, 0) > 0:  # this is the same as self.blocked()
-                self._block_counter.update([None])
-                return event
-
             rem: List[CallbackRef] = []
             for cb in self._callbacks[:]:
                 if isinstance(cb, tuple):
