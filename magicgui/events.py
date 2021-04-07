@@ -58,6 +58,7 @@ import inspect
 import logging
 import sys
 import traceback
+import warnings
 import weakref
 from typing import (
     Any,
@@ -625,7 +626,8 @@ class EventEmitter:
             self._block_counter.update([None])
             return None
         elif self._emitting:
-            raise RuntimeError("EventEmitter loop detected!")
+            warnings.warn("EventEmitter loop detected!")
+            return None
 
         # create / massage event as needed
         event = self._prepare_event(*args, **kwargs)
@@ -773,7 +775,7 @@ class WarningEmitter(EventEmitter):
             return
 
         traceback.print_stack()
-        logger.warning(self._message)
+        warnings.warn(self._message)
         self._warned = True
 
 
