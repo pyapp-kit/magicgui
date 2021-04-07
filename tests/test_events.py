@@ -5,6 +5,8 @@ import copy
 import functools
 from typing import Any
 
+import pytest
+
 from magicgui.events import Event, EventEmitter
 
 
@@ -422,11 +424,9 @@ def test_emitter_loop():
     # indicating an event loop.
     em1.connect(em2)
     em2.connect(em1)
-    try:
+    with pytest.warns(UserWarning) as record:
         em1()
-    except RuntimeError as err:
-        if str(err) != "EventEmitter loop detected!":
-            raise err
+    assert "EventEmitter loop detected!" in str(record[0].message)
 
 
 def test_emitter_block1():
