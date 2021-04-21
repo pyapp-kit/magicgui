@@ -1,12 +1,11 @@
 from pathlib import Path
 
-import numpy as np
 import pytest
-from numpy.core.numeric import allclose
 
-from magicgui import _mpl_image
 from magicgui.widgets import Image
 
+_mpl_image = pytest.importorskip("magicgui._mpl_image")
+np = pytest.importorskip("numpy")
 pilImage = pytest.importorskip("PIL.Image")
 
 
@@ -97,7 +96,7 @@ def test_internal_cmap():
     )
     rendered2 = image.image_rgba
     assert isinstance(rendered2, np.ndarray)
-    assert not allclose(rendered, rendered2)
+    assert not np.allclose(rendered, rendered2)
 
 
 def test_mpl_cmap():
@@ -114,7 +113,7 @@ def test_mpl_cmap():
     assert isinstance(rendered, np.ndarray)
     assert rendered.shape == (60, 60, 4)
 
-    image.set_cmap("turbo")
+    image.set_cmap("magma")
     rendered2 = image.image_rgba
     assert isinstance(rendered2, np.ndarray)
     # the colormap has been applied

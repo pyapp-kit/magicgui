@@ -1,4 +1,5 @@
 jupyter-book
+docutils!=0.17
 sphinx_material
 jupytext
 numpy

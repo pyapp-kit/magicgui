@@ -84,7 +84,7 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_render(self) -> "np.ndarray":
+    def _mgui_render(self) -> np.ndarray:
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         raise NotImplementedError()
 
@@ -188,7 +188,7 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_bind_change_callback(self, callback: Callable[[Any], None]) -> None:
+    def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
         """Bind callback to value change event."""
         raise NotImplementedError()
 
@@ -272,8 +272,8 @@ class TableWidgetProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_bind_cell_change_callback(self, callback: Callable[[Any], None]) -> None:
-        """Bind callback to column headers change event."""
+    def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
+        """Bind callback to value change event."""
         raise NotImplementedError()
 
 
@@ -319,7 +319,7 @@ class SupportsChoices(Protocol):
     """Widget that has a set of valid choices."""
 
     @abstractmethod
-    def _mgui_get_choices(self) -> tuple[tuple[str, Any]]:
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
         """Get available choices."""
         raise NotImplementedError()
 
@@ -413,6 +413,9 @@ class SupportsOrientation(Protocol):
 class SliderWidgetProtocol(RangedWidgetProtocol, SupportsOrientation, Protocol):
     """Protocol for implementing a slider widget."""
 
+    def _mgui_set_readout_visibility(self, visible: bool) -> None:
+        """Set visibility of readout widget."""
+
 
 # CONTAINER ----------------------------------------------------------------------
 
@@ -421,11 +424,11 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     """Widget that can contain other widgets."""
 
     @abstractmethod
-    def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_remove_widget(self, widget: "Widget") -> None:
+    def _mgui_remove_widget(self, widget: Widget) -> None:
         raise NotImplementedError()
 
     @abstractmethod

@@ -5,6 +5,8 @@ import copy
 import functools
 from typing import Any
 
+import pytest
+
 from magicgui.events import Event, EventEmitter
 
 
@@ -170,7 +172,7 @@ def test_emitter_type_event_class():
             pass
 
     try:
-        em = EventEmitter(event_class=X)
+        em = EventEmitter(event_class=X)  # type: ignore
         ev = try_emitter(em, type="test_event")
         record_event.assert_result()  # checks event type
         assert False, "Should not be able to construct emitter with non-Event class"
@@ -207,7 +209,7 @@ def test_emitter_subclass():
     class MyEmitter(EventEmitter):
         def _prepare_event(self, *args, **kwargs):
             ev = super(MyEmitter, self)._prepare_event(*args, **kwargs)
-            ev.test_tag = 1
+            ev.test_tag = 1  # type: ignore
             return ev
 
     em = MyEmitter(type="test_event")
@@ -240,7 +242,7 @@ def test_disconnect():
     def cb2(ev):
         record_event.result = 2
 
-    em.connect((record_event, "__call__"))
+    em.connect((record_event, "__call__"))  # type: ignore
     em.connect(cb1)
     em.connect(cb2)
     record_event.result = None
@@ -250,14 +252,14 @@ def test_disconnect():
     record_event.assert_result(event=ev)
 
     record_event.result = None
-    em.disconnect((record_event, "__call__"))
+    em.disconnect((record_event, "__call__"))  # type: ignore
     ev = em()
     assert record_event.result == 1
 
     record_event.result = None
     em.connect(cb1)
     em.connect(cb2)
-    em.connect((record_event, "__call__"))
+    em.connect((record_event, "__call__"))  # type: ignore
     em.disconnect()
     em()
     assert record_event.result is None
@@ -395,7 +397,7 @@ def test_source_stack_integrity():
     try:
         em()
     except RuntimeError as err:
-        if str(err) != "Event source-stack mismatch.":
+        if "Event source-stack mismatch." not in str(err):
             raise
 
     em.disconnect()
@@ -422,11 +424,9 @@ def test_emitter_loop():
     # indicating an event loop.
     em1.connect(em2)
     em2.connect(em1)
-    try:
+    with pytest.warns(UserWarning) as record:
         em1()
-    except RuntimeError as err:
-        if str(err) != "EventEmitter loop detected!":
-            raise err
+    assert "EventEmitter loop detected!" in str(record[0].message)
 
 
 def test_emitter_block1():
@@ -488,22 +488,22 @@ def test_event_block():
 def test_event_connect_order():
     """Test event connection order"""
 
-    def a():
+    def a(e):
         return
 
-    def b():
+    def b(e):
         return
 
-    def c():
+    def c(e):
         return
 
-    def d():
+    def d(e):
         return
 
-    def e():
+    def e(e):
         return
 
-    def f():
+    def f(e):
         return
 
     em = EventEmitter(type="test_event")

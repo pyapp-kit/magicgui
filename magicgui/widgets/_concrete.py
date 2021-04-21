@@ -18,7 +18,7 @@ from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
-from magicgui.widgets._bases.mixins import _ReadOnlyMixin
+from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
 from ._bases import (
     ButtonWidget,
@@ -31,7 +31,6 @@ from ._bases import (
     ValueWidget,
     Widget,
 )
-from ._transforms import make_float, make_literal_eval
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
@@ -208,7 +207,7 @@ class LineEdit(ValueWidget):
     """A one-line text editor."""
 
 
-@backend_widget(widget_name="LineEdit", transform=make_literal_eval)
+@backend_widget
 class LiteralEvalLineEdit(ValueWidget):
     """A one-line text editor that evaluates strings as python literals."""
 
@@ -286,9 +285,9 @@ class Slider(SliderWidget):
     """A slider widget to adjust an integer value within a range."""
 
 
-@backend_widget(widget_name="Slider", transform=make_float)
+@backend_widget
 class FloatSlider(SliderWidget):
-    """A slider widget to adjust a float value within a range."""
+    """A slider widget to adjust an integer value within a range."""
 
 
 @merge_super_sigs
@@ -359,6 +358,18 @@ class ComboBox(CategoricalWidget):
     """A dropdown menu, allowing selection between multiple choices."""
 
 
+@merge_super_sigs
+class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
+    """An exclusive group of radio buttons, providing a choice from multiple choices."""
+
+    def __init__(self, choices=(), orientation="vertical", **kwargs):
+        app = use_app()
+        assert app.native
+        kwargs["widget_type"] = app.get_obj("RadioButtons")
+        super().__init__(choices=choices, **kwargs)
+        self.orientation = orientation
+
+
 @backend_widget
 class Container(ContainerWidget):
     """A Widget to contain other widgets."""
@@ -399,7 +410,10 @@ class FileEdit(Container):
         super().__init__(**kwargs)
         self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
+        self.choose_btn.changed.disconnect()
+        self.line_edit.changed.disconnect()
         self.choose_btn.changed.connect(self._on_choose_clicked)
+        self.line_edit.changed.connect(lambda x: self.changed(value=self.value))
 
     @property
     def mode(self) -> FileDialogMode:
@@ -443,7 +457,7 @@ class FileEdit(Container):
     def value(self, value: Sequence[PathLike] | PathLike):
         """Set current file path."""
         if isinstance(value, (list, tuple)):
-            value = ", ".join([os.fspath(p) for p in value])
+            value = ", ".join(os.fspath(p) for p in value)
         if not isinstance(value, (str, Path)):
             raise TypeError(
                 f"value must be a string, or list/tuple of strings, got {type(value)}"
@@ -452,7 +466,7 @@ class FileEdit(Container):
 
     def __repr__(self) -> str:
         """Return string representation."""
-        return f"<FileEdit mode={self.mode.value!r}, value={self.value!r}>"
+        return f"FileEdit(mode={self.mode.value!r}, value={self.value!r})"
 
 
 @merge_super_sigs
@@ -475,12 +489,43 @@ class RangeEdit(Container):
         The range step value, by default 1
     """
 
-    def __init__(self, start=0, stop=10, step=1, **kwargs):
-        self.start = SpinBox(value=start)
-        self.stop = SpinBox(value=stop)
-        self.step = SpinBox(value=step)
+    def __init__(
+        self,
+        start: int = 0,
+        stop: int = 10,
+        step: int = 1,
+        min: int | tuple[int, int, int] | None = None,
+        max: int | tuple[int, int, int] | None = None,
+        **kwargs,
+    ):
+        value = kwargs.pop("value", None)
+        if value is not None:
+            if not all(hasattr(value, x) for x in ("start", "stop", "step")):
+                raise TypeError(f"Invalid value type for {type(self)}: {type(value)}")
+            start, stop, step = value.start, value.stop, value.step
+        minstart, minstop, minstep = self._validate_min_max(min, "min", -9999999)
+        maxstart, maxstop, maxstep = self._validate_min_max(max, "max", 9999999)
+        self.start = SpinBox(value=start, min=minstart, max=maxstart, name="start")
+        self.stop = SpinBox(value=stop, min=minstop, max=maxstop, name="stop")
+        self.step = SpinBox(value=step, min=minstep, max=maxstep, name="step")
         kwargs["widgets"] = [self.start, self.stop, self.step]
+        kwargs.setdefault("layout", "horizontal")
+        kwargs.setdefault("labels", True)
         super().__init__(**kwargs)
+
+    @classmethod
+    def _validate_min_max(cls, arg, name, default):
+        """Validate input to the min/max arguments."""
+        if isinstance(arg, (int, float)):
+            return (int(arg),) * 3
+        elif isinstance(arg, (list, tuple)):
+            if not len(arg) == 3:
+                raise ValueError(f"{name} sequence must be length 3")
+            return tuple(int(x) for x in arg)
+        elif arg is not None:
+            raise TypeError("min must be an integer or a 3-tuple of integers")
+        else:
+            return (int(default),) * 3
 
     @property
     def value(self) -> range:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
 
+from magicgui._util import debounce
 from magicgui.application import use_app
 from magicgui.events import EventEmitter
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
@@ -270,6 +271,45 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         for index, _ in enumerate(self):
             widget = self.pop(index)
             self.insert(index, widget)
+
+    NO_VALUE = "NO_VALUE"
+
+    @debounce
+    def _dump(self, path):
+        """Dump the state of the widget to `path`."""
+        import pickle
+        from pathlib import Path
+
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _dict = {}
+        for widget in self:
+            try:
+                # not all values will be pickleable and restorable...
+                # for now, don't even try
+                _v = pickle.dumps(getattr(widget, "value", self.NO_VALUE))
+                _dict[widget.name] = _v
+            except Exception:
+                continue
+
+        path.write_bytes(pickle.dumps(_dict))
+
+    def _load(self, path, quiet=False):
+        """Restore the state of the widget from previously saved file at `path`."""
+        import pickle
+        from pathlib import Path
+
+        path = Path(path)
+        if not path.exists() and quiet:
+            return
+        for key, val in pickle.loads(path.read_bytes()).items():
+            val = pickle.loads(val)
+            if val == self.NO_VALUE:
+                continue
+            try:
+                getattr(self, key).value = val
+            except (ValueError, AttributeError):
+                pass
 
 
 class MainWindowWidget(ContainerWidget):

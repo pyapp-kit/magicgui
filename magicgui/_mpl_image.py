@@ -55,7 +55,11 @@ import logging
 from functools import lru_cache
 from typing import TYPE_CHECKING, Collection, Union
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError as e:  # pragma: no cover
+    msg = "Numpy required to use images in magicgui: use `pip install magicgui[image]`"
+    raise type(e)(msg) from e
 
 _log = logging.getLogger(__name__)
 

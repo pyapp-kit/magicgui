@@ -133,3 +133,4 @@ dmypy.json
 .DS_Store
 magicgui/_version.py
 examples/_wip
+.github_changelog_generator

@@ -1,5 +1,7 @@
 import inspect
-from unittest.mock import MagicMock
+from enum import Enum
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 from tests import MyInt
@@ -144,7 +146,7 @@ def test_basic_widget_attributes():
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {
-        "max": 100,
+        "max": 1000,
         "min": 0,
         "step": 1,
         "enabled": False,
@@ -461,3 +463,139 @@ def test_main_function_gui():
     assert isinstance(add._help_text_edit, widgets.TextEdit)
     assert add._help_text_edit.value.startswith("Adds the given two numbers")
     assert add._help_text_edit.read_only
+
+
+def test_range_widget():
+    args = (-100, 1000, 2)
+    rw = widgets.RangeEdit(*args)
+    v = rw.value
+    assert isinstance(v, range)
+    assert (v.start, v.stop, v.step) == args
+
+
+def test_range_widget_max():
+    # max will override and restrict the possible values
+    rw = widgets.RangeEdit(-100, 250, 1, max=(0, 500, 1))
+    v = rw.value
+    assert isinstance(v, range)
+    assert (rw.start.max, rw.stop.max, rw.step.max) == (0, 500, 1)
+
+    with pytest.raises(ValueError):
+        rw = widgets.RangeEdit(100, 300, 5, max=(0, 500, 5))
+
+
+def test_range_widget_min():
+    # max will override and restrict the possible values
+    rw = widgets.RangeEdit(2, 1000, 5, min=(0, 500, 5))
+    v = rw.value
+    assert isinstance(v, range)
+    assert (rw.start.min, rw.stop.min, rw.step.min) == (0, 500, 5)
+
+    with pytest.raises(ValueError):
+        rw = widgets.RangeEdit(-100, 1000, 5, min=(0, 500, 5))
+
+
+def test_containers_show_nested_containers():
+    """make sure showing a container shows a nested FunctionGui."""
+
+    @magicgui
+    def func(x: int, y: str):
+        pass
+
+    assert not func.visible
+    c2 = widgets.Container(widgets=[func])
+    assert not c2.visible
+    c2.show()
+    assert c2.visible and func.visible
+
+
+def test_file_dialog_events():
+    """Test that file dialog events emit the value of the line_edit."""
+    fe = widgets.FileEdit(value="hi")
+    fe.changed = MagicMock(wraps=fe.changed)
+    fe.line_edit.value = "world"
+    fe.changed.assert_called_once_with(value=Path("world"))
+
+
+def test_file_dialog_button_events():
+    """Test that clicking the file dialog button doesn't emit an event."""
+    fe = widgets.FileEdit(value="hi")
+    fe.changed = MagicMock(wraps=fe.changed)
+    with patch.object(fe, "_show_file_dialog", return_value=""):
+        fe.choose_btn.changed()
+    fe.changed.assert_not_called()
+    assert fe.value == Path("hi")
+
+
+@pytest.mark.parametrize("WdgClass", [widgets.FloatSlider, widgets.FloatSpinBox])
+@pytest.mark.parametrize("value", [1, 1e6, 1e12, 1e16, 1e22])
+def test_extreme_floats(WdgClass, value):
+    wdg = WdgClass(value=value, max=value * 10)
+    assert round(wdg.value / value, 4) == 1
+    assert round(wdg.max / value, 4) == 10
+
+    wdg.changed = MagicMock(wraps=wdg.changed)
+    wdg.value = value * 2
+    wdg.changed.assert_called_once()
+    a, k = wdg.changed.call_args
+    assert round(k["value"] / value, 4) == 2
+
+    _value = 1 / value
+    wdg2 = WdgClass(value=_value, step=_value / 10, max=_value * 100)
+    assert round(wdg2.value / _value, 4) == 1.0
+
+
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_widgets(Cls):
+    wdg = Cls(
+        value=1,
+        choices=[("first option", 1), ("second option", 2), ("third option", 3)],
+    )
+
+    wdg.changed = MagicMock(wraps=wdg.changed)
+    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert wdg.value == 1
+    assert wdg.current_choice == "first option"
+    wdg.changed.assert_not_called()
+    wdg.value = 2
+    wdg.changed.assert_called_once()
+    assert wdg.changed.call_args[1].get("value") == 2
+    assert wdg.value == 2
+    assert wdg.current_choice == "second option"
+    assert wdg.choices == (1, 2, 3)
+
+    wdg.del_choice("third option")
+    assert wdg.choices == (1, 2)
+
+
+class MyEnum(Enum):
+    A = "a"
+    B = "b"
+
+
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_widgets_with_enums(Cls):
+    wdg = Cls(value=MyEnum.A, choices=MyEnum)
+
+    wdg.changed = MagicMock(wraps=wdg.changed)
+    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert wdg.value == MyEnum.A
+    assert wdg.current_choice == "A"
+    wdg.changed.assert_not_called()
+    wdg.value = MyEnum.B
+    wdg.changed.assert_called_once()
+    assert wdg.changed.call_args[1].get("value") == MyEnum.B
+    assert wdg.value == MyEnum.B
+    assert wdg.current_choice == "B"
+    assert wdg.choices == tuple(MyEnum.__members__.values())
+
+
+@pytest.mark.skipif(use_app().backend_name != "qt", reason="only on qt")
+def test_radiobutton_reset_choices():
+    """Test that reset_choices doesn't change the number of buttons."""
+    from qtpy.QtWidgets import QRadioButton
+
+    wdg = widgets.RadioButtons(choices=["a", "b", "c"])
+    assert len(wdg.native.findChildren(QRadioButton)) == 3
+    wdg.reset_choices()
+    assert len(wdg.native.findChildren(QRadioButton)) == 3

@@ -18,11 +18,12 @@ def magicgui(
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: bool | str = False,
+    call_button: bool | str | None = None,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
     app: AppRef = None,
+    persist: bool = False,
     **param_options: dict,
 ):
     """Return a :class:`FunctionGui` for ``function``.
@@ -40,8 +41,10 @@ def magicgui(
     tooltips : bool, optional
         Whether tooltips are shown when hovering over widgets. by default True
     call_button : bool or str, optional
-        If ``True``, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False
+        If ``True``, create an additional button that calls the original
+        function when clicked.  If a ``str``, set the button text. If None (the
+        default), it defaults to True when ``auto_call`` is False, and False
+        otherwise.
     auto_call : bool, optional
         If ``True``, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
@@ -50,9 +53,14 @@ def magicgui(
         by default False
     main_window : bool
         Whether this widget should be treated as the main app window, with menu bar,
-        by default True.
+        by default False.
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
+    persist : bool, optional
+        If `True`, when parameter values change in the widget, they will be stored to
+        disk and restored when the widget is loaded again with ``persist = True``.
+        Call ``magicgui._util.user_cache_dir()`` to get the default cache location.
+        By default False.
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
@@ -88,11 +96,13 @@ def magic_factory(
     layout: str = "vertical",
     labels: bool = True,
     tooltips: bool = True,
-    call_button: bool | str = False,
+    call_button: bool | str | None = None,
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
     app: AppRef = None,
+    persist: bool = False,
+    widget_init: Callable[[FunctionGui], None] | None = None,
     **param_options: dict,
 ):
     """Return a :class:`MagicFactory` for ``function``."""
@@ -144,7 +154,14 @@ class MagicFactory(partial):
     >>> widget2 = factory(auto_call=True, labels=True)
     """
 
-    def __new__(cls, function, *args, magic_class=FunctionGui, **keywords):
+    def __new__(
+        cls,
+        function,
+        *args,
+        magic_class=FunctionGui,
+        widget_init: Callable[[FunctionGui], None] | None = None,
+        **keywords,
+    ):
         """Create new MagicFactory."""
         if not function:
             raise TypeError(
@@ -153,7 +170,18 @@ class MagicFactory(partial):
 
         # we want function first for the repr
         keywords = {"function": function, **keywords}
-        return super().__new__(cls, magic_class, *args, **keywords)  # type: ignore
+        if widget_init is not None:
+            if not callable(widget_init):
+                raise TypeError(
+                    f"'widget_init' must be a callable, not {type(widget_init)}"
+                )
+            if not len(inspect.signature(widget_init).parameters) == 1:
+                raise TypeError(
+                    "'widget_init' must be a callable that accepts a single argument"
+                )
+        obj = super().__new__(cls, magic_class, *args, **keywords)  # type: ignore
+        obj._widget_init = widget_init
+        return obj
 
     def __repr__(self) -> str:
         """Return string repr."""
@@ -172,7 +200,10 @@ class MagicFactory(partial):
         params = inspect.signature(magicgui).parameters
         prm_options = self.keywords.pop("param_options", {})
         prm_options.update({k: kwargs.pop(k) for k in list(kwargs) if k not in params})
-        return self.func(param_options=prm_options, **{**self.keywords, **kwargs})
+        widget = self.func(param_options=prm_options, **{**self.keywords, **kwargs})
+        if self._widget_init is not None:
+            self._widget_init(widget)
+        return widget
 
     def __getattr__(self, name) -> Any:
         """Allow accessing FunctionGui attributes without mypy error."""
@@ -184,7 +215,9 @@ class MagicFactory(partial):
         return getattr(self.keywords.get("function"), "__name__", "FunctionGui")
 
 
-def _magicgui(function=None, factory=False, main_window=False, **kwargs):
+def _magicgui(
+    function=None, factory=False, widget_init=None, main_window=False, **kwargs
+):
     """Actual private magicui decorator.
 
     if factory is `True` will return a MagicFactory instance, that can be called
@@ -199,7 +232,9 @@ def _magicgui(function=None, factory=False, main_window=False, **kwargs):
         magic_class = MainFunctionGui if main_window else FunctionGui
 
         if factory:
-            return MagicFactory(func, magic_class=magic_class, **kwargs)
+            return MagicFactory(
+                func, magic_class=magic_class, widget_init=widget_init, **kwargs
+            )
         # MagicFactory is unnecessary if we are immediately instantiating the widget,
         # so we shortcut that and just return the FunctionGui here.
         return magic_class(func, **kwargs)

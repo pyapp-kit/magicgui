@@ -83,3 +83,40 @@ def test_magic_local_factory_self_reference():
 
     widget = local_self_referencing_factory()
     assert isinstance(widget(), FunctionGui)
+
+
+def test_factory_init():
+    def bomb(e):
+        raise RuntimeError("boom")
+
+    def widget_init(widget):
+        widget.called.connect(bomb)
+
+    @magic_factory(widget_init=widget_init)
+    def factory(x: int = 1):
+        pass
+
+    widget = factory()
+
+    with pytest.raises(RuntimeError):
+        widget()
+
+
+def test_bad_value_factory_init():
+    def widget_init():
+        pass
+
+    with pytest.raises(TypeError):
+
+        @magic_factory(widget_init=widget_init)  # type: ignore
+        def factory(x: int = 1):
+            pass
+
+
+def test_bad_type_factory_init():
+
+    with pytest.raises(TypeError):
+
+        @magic_factory(widget_init=1)  # type: ignore
+        def factory(x: int = 1):
+            pass

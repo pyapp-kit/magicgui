@@ -171,8 +171,20 @@ def pick_widget_type(
     value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
+    annotation = _evaluate_forwardref(annotation)
+    dtype = _normalize_type(value, annotation)
+    choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
+
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
+        if choices:
+            if widget_type == "RadioButton":
+                widget_type = "RadioButtons"
+                warnings.warn(
+                    f"widget_type of 'RadioButton' (with dtype {dtype}) is being "
+                    "coerced to 'RadioButtons' due to choices or Enum type."
+                )
+            options.setdefault("choices", choices)
         return widget_type, options
 
     annotation = _evaluate_forwardref(annotation)
@@ -184,7 +196,6 @@ def pick_widget_type(
         if dtype == registered_type or _is_subclass(dtype, registered_type):
             return _TYPE_DEFS[registered_type]
 
-    choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
     if choices:
         return widgets.ComboBox, {"choices": choices}
 

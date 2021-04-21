@@ -8,6 +8,7 @@ import inspect
 import re
 from collections import deque
 from contextlib import contextmanager
+from pathlib import Path
 from types import FunctionType
 from typing import (
     TYPE_CHECKING,
@@ -30,10 +31,8 @@ if TYPE_CHECKING:
     from magicgui.widgets import TextEdit
 
 
-def _inject_tooltips_from_docstrings(
-    docstring: str | None, param_options: dict[str, dict]
-):
-    """Update ``param_options`` dict with tooltips extracted from ``docstring``."""
+def _inject_tooltips_from_docstrings(docstring: str | None, sig: MagicSignature):
+    """Update ``sig`` gui options with tooltips extracted from ``docstring``."""
     from docstring_parser import parse
 
     if not docstring:
@@ -53,11 +52,9 @@ def _inject_tooltips_from_docstrings(
         # this is to catch potentially bad arg_name parsing in docstring_parser
         # if using napoleon style google docstringss
         argname = name.split(" ", maxsplit=1)[0]
-        if argname not in param_options:
-            param_options[argname] = {}
         desc = description.replace("`", "") if description else ""
         # use setdefault so as not to override an explicitly provided tooltip
-        param_options[argname].setdefault("tooltip", desc)
+        sig.parameters[argname].options.setdefault("tooltip", desc)
 
 
 _R = TypeVar("_R")
@@ -70,9 +67,10 @@ class FunctionGui(Container, Generic[_R]):
     ----------
     function : Callable
         A callable to turn into a GUI
-    call_button : bool or str, optional
+    call_button : bool, str, or None, optional
         If True, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False
+        clicked.  If a ``str``, set the button text. by default False when
+        auto_call is True, and True otherwise.
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
@@ -83,7 +81,9 @@ class FunctionGui(Container, Generic[_R]):
     app : magicgui.Application or str, optional
         A backend to use, by default ``None`` (use the default backend.)
     visible : bool, optional
-        Whether to immediately show the widget, by default False
+        Whether to immediately show the widget.  If ``False``, widget is explicitly
+        hidden.  If ``None``, widget is not shown, but will be shown if a parent
+        container is shown, by default None.
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
         will call the original function with the current settings. by default False
@@ -95,6 +95,10 @@ class FunctionGui(Container, Generic[_R]):
         Will be passed to `magic_signature` by default ``None``
     name : str, optional
         A name to assign to the Container widget, by default `function.__name__`
+    persist : bool, optional
+        If `True`, when parameter values change in the widget, they will be stored to
+        disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
+        again with ``persist = True``.  By default, `False`.
 
     Raises
     ------
@@ -107,16 +111,17 @@ class FunctionGui(Container, Generic[_R]):
     def __init__(
         self,
         function: Callable[..., _R],
-        call_button: bool | str = False,
+        call_button: bool | str | None = None,
         layout: str = "vertical",
         labels: bool = True,
         tooltips: bool = True,
         app: AppRef = None,
-        visible: bool = False,
+        visible: bool = None,
         auto_call: bool = False,
         result_widget: bool = False,
         param_options: dict[str, dict] | None = None,
         name: str = None,
+        persist: bool = False,
         **kwargs,
     ):
         if not callable(function):
@@ -129,13 +134,15 @@ class FunctionGui(Container, Generic[_R]):
             raise TypeError(f"FunctionGui got unexpected keyword argument{s}: {extra}")
         if param_options is None:
             param_options = {}
-        elif not isinstance(param_options, dict) or not all(
-            isinstance(x, dict) for x in param_options.values()
-        ):
+        elif not isinstance(param_options, dict):
             raise TypeError("'param_options' must be a dict of dicts")
-        if tooltips:
-            _inject_tooltips_from_docstrings(function.__doc__, param_options)
 
+        sig = magic_signature(function, gui_options=param_options)
+        self.return_annotation = sig.return_annotation
+        if tooltips:
+            _inject_tooltips_from_docstrings(function.__doc__, sig)
+
+        self.persist = persist
         self._function = function
         self.__wrapped__ = function
         # it's conceivable that function is not actually an instance of FunctionType
@@ -147,9 +154,6 @@ class FunctionGui(Container, Generic[_R]):
             getattr(function, "__name__", None)
             or f"{function.__module__}.{function.__class__}"
         )
-
-        sig = magic_signature(function, gui_options=param_options)
-        self.return_annotation = sig.return_annotation
         super().__init__(
             layout=layout,
             labels=labels,
@@ -167,6 +171,8 @@ class FunctionGui(Container, Generic[_R]):
         # the nesting level of tqdm_mgui iterators in a given __call__
         self._tqdm_depth: int = 0
 
+        if call_button is None:
+            call_button = not auto_call
         self._call_button: PushButton | None = None
         if call_button:
             text = call_button if isinstance(call_button, str) else "Run"
@@ -177,11 +183,9 @@ class FunctionGui(Container, Generic[_R]):
                     # disable the call button until the function has finished
                     self._call_button = cast(PushButton, self._call_button)
                     self._call_button.enabled = False
-                    t, self._call_button.text = self._call_button.text, "Running..."
                     try:
                         self.__call__()
                     finally:
-                        self._call_button.text = t
                         self._call_button.enabled = True
 
                 self._call_button.changed.connect(_disable_button_and_call)
@@ -193,9 +197,17 @@ class FunctionGui(Container, Generic[_R]):
             self._result_widget.enabled = False
             self.append(self._result_widget)
 
+        if persist:
+            self._load(quiet=True)
+
         self._auto_call = auto_call
-        if auto_call:
-            self.changed.connect(lambda e: self.__call__())
+        self.changed.connect(self._on_change)
+
+    def _on_change(self, e):
+        if self.persist:
+            self._dump()
+        if self._auto_call:
+            self()
 
     @property
     def call_count(self) -> int:
@@ -205,10 +217,6 @@ class FunctionGui(Container, Generic[_R]):
     def reset_call_count(self) -> None:
         """Reset the call count to 0."""
         self._call_count = 0
-
-    # def __delitem__(self, key: int | slice):
-    #     """Delete a widget by integer or slice index."""
-    #     raise AttributeError("can't delete items from a FunctionGui")
 
     @property
     def return_annotation(self):
@@ -356,6 +364,20 @@ class FunctionGui(Container, Generic[_R]):
     def __set__(self, obj, value):
         """Prevent setting a magicgui attribute."""
         raise AttributeError("Can't set magicgui attribute")
+
+    @property
+    def _dump_path(self) -> Path:
+        from .._util import user_cache_dir
+
+        name = getattr(self._function, "__qualname__", self._callable_name)
+        name = name.replace("<", "-").replace(">", "-")  # e.g. <locals>
+        return user_cache_dir() / f"{self._function.__module__}.{name}"
+
+    def _dump(self, path=None):
+        super()._dump(path or self._dump_path)
+
+    def _load(self, path=None, quiet=False):
+        super()._load(path or self._dump_path, quiet=quiet)
 
 
 class MainFunctionGui(FunctionGui[_R], MainWindow):

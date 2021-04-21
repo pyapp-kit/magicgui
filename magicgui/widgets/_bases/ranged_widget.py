@@ -22,7 +22,7 @@ class RangedWidget(ValueWidget):
 
     _widget: _protocols.RangedWidgetProtocol
 
-    def __init__(self, min: float = 0, max: float = 100, step: float = 1, **kwargs):
+    def __init__(self, min: float = 0, max: float = 1000, step: float = 1, **kwargs):
         for key in ("maximum", "minimum"):
             if key in kwargs:
                 warn(
@@ -34,12 +34,15 @@ class RangedWidget(ValueWidget):
                     max = kwargs.pop(key)
                 else:
                     min = kwargs.pop(key)
-
+        # value should be set *after* min max is set
+        val = kwargs.pop("value", None)
         super().__init__(**kwargs)
 
+        self.step = step
         self.min = min
         self.max = max
-        self.step = step
+        if val is not None:
+            self.value = val
 
     @property
     def options(self) -> dict:
@@ -47,6 +50,16 @@ class RangedWidget(ValueWidget):
         d = super().options.copy()
         d.update({"min": self.min, "max": self.max, "step": self.step})
         return d
+
+    @ValueWidget.value.setter  # type: ignore
+    def value(self, value):
+        """Set widget value, will raise Value error if not within min/max."""
+        if not (self.min <= float(value) <= self.max):
+            raise ValueError(
+                f"value {value} is outside of the allowed range: "
+                f"({self.min}, {self.max})"
+            )
+        ValueWidget.value.fset(self, value)  # type: ignore
 
     @property
     def min(self) -> float:

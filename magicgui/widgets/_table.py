@@ -23,6 +23,7 @@ from warnings import warn
 from typing_extensions import Literal
 
 from magicgui.application import use_app
+from magicgui.events import EventEmitter
 from magicgui.widgets._bases import Widget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
@@ -89,7 +90,7 @@ def normalize_table_data(data: TableData) -> tuple[Collection[Collection], list,
 class HeadersView(KeysView[_KT]):
     """dictionary view for Table headers."""
 
-    def __init__(self, mapping: "Table", axis: str = "column") -> None:
+    def __init__(self, mapping: Table, axis: str = "column") -> None:
         super().__init__(mapping)
         self._mapping = mapping
         axis = axis.rstrip("s")
@@ -110,7 +111,7 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
 
     def __init__(self, mapping: Mapping[_KT_co, _VT_co], axis: str = "column") -> None:
         super().__init__(mapping)
-        self._mapping: "Table" = mapping  # type: ignore
+        self._mapping: Table = mapping  # type: ignore
         axis = axis.rstrip("s")
         assert axis in {"row", "column"}, "keys axis must be either 'column' or 'row'"
         self._axis = axis
@@ -195,6 +196,14 @@ class Table(Widget, MutableMapping[TblKey, list]):
     to_dict(orient='dict')
         Return one of many different dict-like representations of table and header data.
         See docstring of :meth:`to_dict` for details.
+
+    Events
+    ------
+    changed
+        Emitted whenever a cell in the table changes.  the `event.value` will have a
+        dict of information regarding the cell that changed:
+        {'data': x, 'row': int, 'column': int, 'column_header': str, 'row_header': str}
+        CURRENTLY: only emitted on changes in the GUI. not programattic changes.
     """
 
     _widget: TableWidgetProtocol
@@ -230,6 +239,13 @@ class Table(Widget, MutableMapping[TblKey, list]):
             "columns": columns if columns is not None else _columns,
         }
 
+    def _post_init(self):
+        super()._post_init()
+        self.changed = EventEmitter(source=self, type="changed")
+        self._widget._mgui_bind_change_callback(
+            lambda *x: self.changed(value=x[0] if x else None)
+        )
+
     @property
     def value(self) -> dict[TblKey, Collection]:
         """Return dict with current `data`, `index`, and `columns` of the widget."""
@@ -258,7 +274,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
             self._set_rowi(row, data)
 
     @property
-    def data(self) -> "DataView":
+    def data(self) -> DataView:
         """Return DataView object for this table."""
         return self._data
 
@@ -473,7 +489,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
 
     # #### EXPORT METHODS #####
 
-    def to_dataframe(self) -> "pd.DataFrame":
+    def to_dataframe(self) -> pd.DataFrame:
         """Convert TableData to dataframe."""
         try:
             import pandas
@@ -498,7 +514,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
     @overload
     def to_dict(self, orient: Literal['index']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['series']) -> dict[TblKey, 'pd.Series']: ...  # noqa
+    def to_dict(self, orient: Literal['series']) -> dict[TblKey, pd.Series]: ...  # noqa
     # fmt: on
 
     def to_dict(self, orient: str = "dict") -> list | dict:
@@ -568,7 +584,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
 class DataView:
     """Object that provides 2D numpy-like indexing for Table data."""
 
-    def __init__(self, obj: "Table") -> None:
+    def __init__(self, obj: Table) -> None:
         self._obj = obj
 
     def __repr__(self) -> str:
