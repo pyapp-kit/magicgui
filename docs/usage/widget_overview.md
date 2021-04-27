@@ -186,7 +186,7 @@ container.show()
 #### `RangedWidget(ValueWidget)`
 
 `RangedWidgets` are numerical [`ValueWidgets`](#valuewidget) that have a restricted range of valid
-values, and a step size.  `RangedWidgets` include
+values, and a step size.  `RangedWidgets` include:
 
 ```{eval-rst}
 
