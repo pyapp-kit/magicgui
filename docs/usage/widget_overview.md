@@ -75,7 +75,7 @@ respectively.
 
 As mentioned above, all magicgui widgets derive from {class}`magicgui.widgets.Widget` and have the
 following attributes (this list is not comprehensive, see
-{class}`magicgui.widgets.Widget` API)
+the {class}`magicgui.widgets.Widget` API):
 
 ```{list-table}
 :header-rows: 1
