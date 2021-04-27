@@ -200,6 +200,8 @@ values, and a step size.  `RangedWidgets` include:
    FloatSpinBox
 ```
 
+Ranged widgets attributes include:
+
 ```{list-table}
 :header-rows: 1
 :name: ranged-widget-table
