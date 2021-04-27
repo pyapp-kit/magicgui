@@ -73,7 +73,7 @@ respectively.
 
 ### `Widget`
 
-***All*** magicgui widgets derive from {class}`magicgui.widgets.Widget` and have the
+As mentioned above, all magicgui widgets derive from {class}`magicgui.widgets.Widget` and have the
 following attributes (this list is not comprehensive, see
 {class}`magicgui.widgets.Widget` API)
 
