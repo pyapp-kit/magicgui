@@ -27,7 +27,7 @@ line_edit.show()
 ```
 
 Some widgets (such as {class}`magicgui.widgets.Container`) are composite
-widgets that comprise other widgets
+widgets that comprise other widgets:
 
 ```{code-cell} python
 from magicgui.widgets import LineEdit, SpinBox, Container
