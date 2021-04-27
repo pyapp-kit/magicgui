@@ -198,9 +198,10 @@ class MagicFactory(partial):
         if args:
             raise ValueError("MagicFactory instance only accept keyword arguments")
         params = inspect.signature(magicgui).parameters
-        prm_options = self.keywords.pop("param_options", {})
+        factory_kwargs = self.keywords.copy()
+        prm_options = factory_kwargs.pop("param_options", {})
         prm_options.update({k: kwargs.pop(k) for k in list(kwargs) if k not in params})
-        widget = self.func(param_options=prm_options, **{**self.keywords, **kwargs})
+        widget = self.func(param_options=prm_options, **{**factory_kwargs, **kwargs})
         if self._widget_init is not None:
             self._widget_init(widget)
         return widget
