@@ -2,7 +2,7 @@ import pytest
 
 from magicgui import magic_factory
 from magicgui._magicgui import MagicFactory
-from magicgui.widgets import FunctionGui, Slider
+from magicgui.widgets import ComboBox, FunctionGui, Slider
 
 
 def test_magic_factory():
@@ -30,6 +30,21 @@ def test_magic_factory():
     # the widget, (like all FunctionGuis) is still callable and accepts args
     assert widget1() == 1
     assert widget1(3) == 3
+
+
+def test_magic_factory_reuse():
+    """Test magic_factory can be reused."""
+
+    @magic_factory(x={"choices": ["a", "b"]})
+    def factory(x="a"):
+        return x
+
+    # there was an earlier bug that overrode widget parameters.  this tests for that
+    widget_a = factory()
+    assert isinstance(widget_a.x, ComboBox)
+
+    widget_b = factory()
+    assert isinstance(widget_b.x, ComboBox)
 
 
 def test_magic_factory_repr():
