@@ -159,6 +159,8 @@ following `ValueWidgets` track some `value`:
     for details.
 ```
 
+Here is a demonstration of all these:
+
 ```{code-cell} python
 from magicgui import widgets
 import datetime
