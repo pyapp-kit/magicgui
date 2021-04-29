@@ -44,7 +44,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     ----------
     layout : str, optional
         The layout for the container.  must be one of ``{'horizontal',
-        'vertical'}``. by default "horizontal"
+        'vertical'}``. by default "vertical"
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to intialize the container, by default
         ``None``.

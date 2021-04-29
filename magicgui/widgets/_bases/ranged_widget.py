@@ -15,7 +15,7 @@ class RangedWidget(ValueWidget):
     min : float, optional
         The minimum allowable value, by default 0
     max : float, optional
-        The maximum allowable value, by default 100
+        The maximum allowable value, by default 1000
     step : float, optional
         The step size for incrementing the value, by default 1
     """

@@ -74,6 +74,7 @@ Categorical Widgets
    :toctree: ../_autosummary
 
    ComboBox
+   RadioButtons
 
 Container Widgets
 =================
