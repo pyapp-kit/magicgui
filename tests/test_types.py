@@ -77,11 +77,10 @@ def test_pathlike_annotation():
 
 
 def test_optional_type():
-    import pathlib
-
-    @magicgui(fn={"mode": "r"}, call_button="Run")
-    def widget(fn: Optional[pathlib.Path] = None):
+    @magicgui(x=dict(choices=["a", "b"]))
+    def widget(x: Optional[str] = None):
         ...
 
-    assert isinstance(widget.fn, widgets.FileEdit)
-    assert widget.fn.mode is types.FileDialogMode.EXISTING_FILE
+    assert isinstance(widget.x, widgets.ComboBox)
+    assert widget.x.value is None
+    assert None in widget.x.choices
