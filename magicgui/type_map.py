@@ -74,16 +74,18 @@ def _evaluate_forwardref(type_: Any) -> Any:
 
 def _normalize_type(value: Any, annotation: Any) -> tuple[type, bool]:
     """Return annotation type origin or dtype of value."""
-    if annotation:
-        if annotation is inspect.Parameter.empty:
-            return type(value), False
-        origin = get_origin(annotation)
-        args = get_args(annotation)
-        if origin is Union and len(args) == 2 and type(None) in args:
-            type_ = next(i for i in args if not issubclass(i, type(None)))
-            return type_, True
-        return (origin or annotation), False
-    return type(value), False
+    if not annotation:
+        return type(value), False
+    if annotation is inspect.Parameter.empty:
+        return type(value), False
+
+    # look for Optional[Type], which manifests as Union[Type, None]
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    if origin is Union and len(args) == 2 and type(None) in args:
+        type_ = next(i for i in args if not issubclass(i, type(None)))
+        return type_, True
+    return (origin or annotation), False
 
 
 def type_matcher(func: TypeMatcher) -> TypeMatcher:
