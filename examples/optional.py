@@ -1,11 +1,12 @@
+from pathlib import Path
 from typing import Optional
 
 from magicgui import magicgui
 
 
 # Using optional will add a '----' to the combobox, which returns "None"
-@magicgui(path=dict(choices=["a", "b"]))
-def f(path: Optional[str] = None):
+@magicgui
+def f(path: Optional[Path] = None):
     print(path, type(path))
 
 

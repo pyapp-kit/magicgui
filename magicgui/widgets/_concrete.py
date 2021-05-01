@@ -398,12 +398,17 @@ class FileEdit(Container):
     """
 
     def __init__(
-        self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, filter=None, **kwargs
+        self,
+        mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
+        filter=None,
+        nullable=False,
+        **kwargs,
     ):
         self.line_edit = LineEdit(value=kwargs.pop("value", None))
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
         self.filter = filter
+        self._nullable = nullable
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
         kwargs["labels"] = False
         kwargs["layout"] = "horizontal"
@@ -434,8 +439,11 @@ class FileEdit(Container):
 
     def _on_choose_clicked(self, event=None):
         _p = self.value
-        start_path: Path = _p[0] if isinstance(_p, tuple) else _p
-        _start_path = os.fspath(start_path.expanduser().absolute())
+        if _p:
+            start_path: Path = _p[0] if isinstance(_p, tuple) else _p
+            _start_path: str | None = os.fspath(start_path.expanduser().absolute())
+        else:
+            _start_path = None
         result = self._show_file_dialog(
             self.mode,
             caption=self._btn_text,
@@ -446,9 +454,11 @@ class FileEdit(Container):
             self.value = result
 
     @property
-    def value(self) -> tuple[Path, ...] | Path:
+    def value(self) -> tuple[Path, ...] | Path | None:
         """Return current value of the widget.  This may be interpreted by backends."""
         text = self.line_edit.value
+        if self._nullable and not text:
+            return None
         if self.mode is FileDialogMode.EXISTING_FILES:
             return tuple(Path(p) for p in text.split(", "))
         return Path(text)
@@ -519,7 +529,7 @@ class RangeEdit(Container):
         if isinstance(arg, (int, float)):
             return (int(arg),) * 3
         elif isinstance(arg, (list, tuple)):
-            if not len(arg) == 3:
+            if len(arg) != 3:
                 raise ValueError(f"{name} sequence must be length 3")
             return tuple(int(x) for x in arg)
         elif arg is not None:
