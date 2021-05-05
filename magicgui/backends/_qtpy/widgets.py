@@ -607,18 +607,7 @@ class ProgressBar(_Slider):
         self._qwidget.setTextVisible(value)
 
 
-class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
-    _qwidget: QtW.QComboBox
-
-    def __init__(self):
-        super().__init__(QtW.QComboBox, "isChecked", "setCurrentIndex", "")
-        self._qwidget.currentIndexChanged.connect(self._emit_data)
-
-    def _emit_data(self, index: int):
-        data = self._qwidget.itemData(index)
-        if data is not None:
-            self._event_filter.valueChanged.emit(data)
-
+class _SelectWidget(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)
 
@@ -688,6 +677,31 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             first = choice_names[0]
             self._qwidget.setCurrentIndex(self._qwidget.findText(first))
             self._qwidget.removeItem(self._qwidget.findText(current))
+
+
+class ComboBox(_SelectWidget):
+    _qwidget: QtW.QComboBox
+
+    def __init__(self):
+        super().__init__(QtW.QComboBox, "isChecked", "setCurrentIndex", "")
+        self._qwidget.currentIndexChanged.connect(self._emit_data)
+
+    def _emit_data(self, index: int):
+        data = self._qwidget.itemData(index)
+        if data is not None:
+            self._event_filter.valueChanged.emit(data)
+
+
+class Select(_SelectWidget):
+    _qwidget: QtW.QListWidget
+
+    def __init__(self):
+        super().__init__(QtW.QComboBox, "isChecked", "setCurrentIndex", "")
+        self._qwidget.itemSelectionChanged.connect(self._emit_data)
+
+    def _emit_data(self):
+        data = self._qwidget.selectedItems()
+        self._event_filter.valueChanged.emit([d.itemData(Qt.UserRole) for d in data])
 
 
 class RadioButtons(

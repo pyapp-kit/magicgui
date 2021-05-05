@@ -188,6 +188,8 @@ def pick_widget_type(
             return _TYPE_DEFS[registered_type]
 
     if choices:
+        if options.get("allow_multiple"):
+            return widgets.Select, {"choices": choices, "allow_multiple": True}
         return widgets.ComboBox, {"choices": choices}
 
     for matcher in _TYPE_MATCHERS:

@@ -358,6 +358,11 @@ class ComboBox(CategoricalWidget):
     """A dropdown menu, allowing selection between multiple choices."""
 
 
+@backend_widget
+class Select(CategoricalWidget):
+    """A dropdown menu, allowing selection between multiple choices."""
+
+
 @merge_super_sigs
 class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
     """An exclusive group of radio buttons, providing a choice from multiple choices."""
