@@ -6,6 +6,9 @@ to extend napari with small, composable widgets created with `magicgui`.  Here
 we're going to build this simple image arithmetic widget with a few additional
 lines of code.
 
+For napari-specific magicgui documentation, see the
+[napari docs](https://napari.org/guides/stable/magicgui.html)
+
 ```{image} ../../images/imagemath.gif
 :width: 80%
 :align: center
@@ -31,14 +34,13 @@ github](https://github.com/napari/magicgui/blob/master/examples/napari_image_ari
 ```{code-block} python
 ---
 lineno-start: 1
-emphasize-lines: 31, 39
+emphasize-lines: 25, 38
 ---
-
 from enum import Enum
 
 import numpy
 import napari
-from napari.layers import Image
+from napari.types import ImageData
 
 from magicgui import magicgui
 
@@ -56,27 +58,28 @@ class Operation(Enum):
     divide = numpy.divide
 
 
-with napari.gui_qt():
-    # create a viewer and add a couple image layers
-    viewer = napari.Viewer()
-    viewer.add_image(numpy.random.rand(20, 20), name="Layer 1")
-    viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
+# here's the magicgui!  We also use the additional
+# `call_button` option
+@magicgui(call_button="execute")
+def image_arithmetic(
+    layerA: ImageData, operation: Operation, layerB: ImageData
+) -> ImageData:
+    """Add, subtracts, multiplies, or divides to image layers."""
+    return operation.value(layerA, layerB)
 
-    # here's the magicgui!  We also use the additional
-    # `call_button` option
-    @magicgui(call_button="execute")
-    def image_arithmetic(
-        layerA: Image, operation: Operation, layerB: Image
-    ) -> Image:
-        """Add, subtracts, multiplies, or divides to image layers."""
-        return operation.value(layerA.data, layerB.data)
+# create a viewer and add a couple image layers
+viewer = napari.Viewer()
+viewer.add_image(numpy.random.rand(20, 20), name="Layer 1")
+viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
 
-    # add our new magicgui widget to the viewer
-    viewer.window.add_dock_widget(image_arithmetic)
+# add our new magicgui widget to the viewer
+viewer.window.add_dock_widget(image_arithmetic)
 
-    # keep the dropdown menus in the gui in sync with the layer model
-    viewer.layers.events.inserted.connect(image_arithmetic.reset_choices)
-    viewer.layers.events.removed.connect(image_arithmetic.reset_choices)
+# keep the dropdown menus in the gui in sync with the layer model
+viewer.layers.events.inserted.connect(image_arithmetic.reset_choices)
+viewer.layers.events.removed.connect(image_arithmetic.reset_choices)
+
+napari.run()
 ```
 
 ## walkthrough
@@ -87,15 +90,14 @@ arithmetic.
 
 ### the function
 
-Our function takes two `napari` [Image
-layers](https://napari.org/tutorials/fundamentals/image), and some mathematical
-operation (we'll restrict the options using an {class}`~enum.Enum`).  When called, our
-function calls the selected operation on the two layers (which each have a
-`data` attribute that stores the array info).
+Our function takes two `numpy` arrays (in this case, from [Image
+layers](https://napari.org/tutorials/fundamentals/image)), and some mathematical
+operation (we'll restrict the options using an {class}`~enum.Enum`).  When
+called, our function calls the selected operation on the data.
 
 ```python
-def image_arithmetic(layerA, operation, layerB):
-    return operation.value(layerA.data, layerB.data)
+def image_arithmetic(array1, operation, array2):
+    return operation.value(array1, array2)
 ```
 
 #### type annotations
@@ -107,18 +109,20 @@ types (using {func}`magicgui.type_map.register_type`). `napari` [provides
 support for
 `magicgui`](https://github.com/napari/napari/blob/master/napari/utils/_magicgui.py)
 by registering a dropdown menu whenever a function parameter is annotated as one
-of the basic napari [`Layer` types](https://napari.org/tutorials/). Furthermore,
-it recognizes when a function has a {class}`~napari.layers.base.base.Layer`
-return type annotation, and will add the result to the viewer.  So we gain a
-*lot* by annotating the above function with the appropriate `napari` types.
+of the basic napari [`Layer` types](https://napari.org/tutorials/), or, in this
+case, `ImageData` indicates we just the `data` attribute of the layer.
+Furthermore, it recognizes when a function has a
+{class}`~napari.layers.base.base.Layer` or `LayerData` return type annotation,
+and will add the result to the viewer.  So we gain a *lot* by annotating the
+above function with the appropriate `napari` types.
 
 ```python
-from napari.layers import Image
+from napari.types import ImageData
 
 def image_arithmetic(
-    layerA: Image, operation: Operation, layerB: Image
-) -> Image:
-    return operation.value(layerA.data, layerB.data)
+    layerA: ImageData, operation: Operation, layerB: ImageData
+) -> ImageData:
+    return operation.value(layerA, layerB)
 ```
 
 ### the magic part
@@ -128,8 +132,8 @@ a `call_button` that we can click to execute the function.
 
 ```python hl_lines="1"
 @magicgui(call_button="execute")
-def image_arithmetic(layerA: Image, operation: Operation, layerB: Image):
-    return operation.value(layerA.data, layerB.data)
+def image_arithmetic(layerA: ImageData, operation: Operation, layerB: ImageData):
+    return operation.value(layerA, layerB)
 ```
 
 That's it!  The `image_arithmetic` function is now a
@@ -141,7 +145,7 @@ While [type hints](https://docs.python.org/3/library/typing.html) aren't
 always required in `magicgui`, they are recommended (see {ref}`type-inference` )...
 and they *are* required for certain things, like the `Operation(Enum)` [used here
 for the dropdown](#create-dropdowns-with-enums) and the
-{class}`napari.layers.Image <napari.layers.image.image.Image>`
+{attr}`napari.types.ImageData`
 annotations that `napari` has registered with `magicgui`.
 ```
 

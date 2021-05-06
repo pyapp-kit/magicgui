@@ -6,6 +6,9 @@ to extend napari with small, composable widgets created with `magicgui`.  Here,
 we demonstrate how to build a interactive widget that lets you immediately see
 the effect of changing one of the parameters of your function.
 
+For napari-specific magicgui documentation, see the
+[napari docs](https://napari.org/guides/stable/magicgui.html)
+
 ```{image} ../../images/param_sweep.gif
 :width: 80%
 :align: center
@@ -39,40 +42,42 @@ github](https://github.com/napari/magicgui/blob/master/examples/napari_param_swe
 ```{code-block} python
 ---
 lineno-start: 1
-emphasize-lines: 19-23, 30
 ---
 import napari
 import skimage.data
 import skimage.filters
-from napari.layers import Image
+from napari.types import ImageData
 
 from magicgui import magicgui
 
-with napari.gui_qt():
-    # create a viewer and add some images
-    viewer = napari.Viewer()
-    viewer.add_image(skimage.data.astronaut().mean(-1), name="astronaut")
-    viewer.add_image(skimage.data.grass().astype("float"), name="grass")
 
-    # turn the gaussian blur function into a magicgui
-    # - `auto_call` tells magicgui to call the function when a parameter changes
-    # - we use `widget_type` to override the default "float" widget on sigma,
-    #   and provide a maximum valid value.
-    # - we contstrain the possible choices for `mode`
-    @magicgui(
-        auto_call=True,
-        sigma={"widget_type": "FloatSlider", "max": 6},
-        mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
-    )
-    def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
-        """Apply a gaussian blur to ``layer``."""
-        if layer:
-            return skimage.filters.gaussian(layer.data, sigma=sigma, mode=mode)
+# turn the gaussian blur function into a magicgui
+# - `auto_call` tells magicgui to call the function when a parameter changes
+# - we use `widget_type` to override the default "float" widget on sigma,
+#   and provide a maximum valid value.
+# - we contstrain the possible choices for `mode`
+@magicgui(
+    auto_call=True,
+    sigma={"widget_type": "FloatSlider", "max": 6},
+    mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
+    layout='horizontal'
+)
+def gaussian_blur(layer: ImageData, sigma: float = 1.0, mode="nearest") -> ImageData:
+    """Apply a gaussian blur to ``layer``."""
+    if layer is not None:
+        return skimage.filters.gaussian(layer, sigma=sigma, mode=mode)
 
-    # Add it to the napari viewer
-    viewer.window.add_dock_widget(gaussian_blur)
-    # update the layer dropdown menu when the layer list changes
-    viewer.layers.events.changed.connect(gaussian_blur.reset_choices)
+# create a viewer and add some images
+viewer = napari.Viewer()
+viewer.add_image(skimage.data.astronaut().mean(-1), name="astronaut")
+viewer.add_image(skimage.data.grass().astype("float"), name="grass")
+
+# Add it to the napari viewer
+viewer.window.add_dock_widget(gaussian_blur)
+# update the layer dropdown menu when the layer list changes
+viewer.layers.events.changed.connect(gaussian_blur.reset_choices)
+
+napari.run()
 ```
 
 ## walkthrough
@@ -109,6 +114,9 @@ parameters and return value as napari `Layer` types.  `napari` will then tell
 layers for our `layer` parameter, and automatically adding the result of our
 function to the viewer when called.
 
+For documentation on napari types with magicgui, see the
+[napari docs](https://napari.org/guides/stable/magicgui.html)
+
 ### the magic part
 
 Finally, we decorate the function with `@magicgui` and provide some options.
@@ -119,10 +127,10 @@ Finally, we decorate the function with `@magicgui` and provide some options.
     sigma={"widget_type": "FloatSlider", "max": 6},
     mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
 )
-def gaussian_blur(layer: Image, sigma: float = 1.0, mode="nearest") -> Image:
+def gaussian_blur(layer: ImageData, sigma: float = 1.0, mode="nearest") -> ImageData:
     """Apply a gaussian blur to ``layer``."""
-    if layer:
-        return skimage.filters.gaussian(layer.data, sigma=sigma, mode=mode)
+    if layer is not None:
+        return skimage.filters.gaussian(layer, sigma=sigma, mode=mode)
 ```
 
 - `auto_call=True` makes it so that the `gaussian_blur` function will be called
