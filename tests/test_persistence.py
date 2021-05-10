@@ -24,7 +24,7 @@ def test_user_cache_dir():
 
 
 @pytest.mark.skipif(
-    bool(sys.platform == "win32" and sys.version_info >= (3, 9)),
+    bool(os.getenv("CI") and sys.platform == "win32"),
     reason="persistence test failing on CI",
 )
 def test_persistence(tmp_path):
