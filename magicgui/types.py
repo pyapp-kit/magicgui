@@ -83,3 +83,4 @@ class WidgetOptions(TypedDict, total=False):
     mode: str | FileDialogMode
     tooltip: str
     bind: Any
+    nullable: bool

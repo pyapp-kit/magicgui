@@ -1,5 +1,5 @@
 from enum import EnumMeta
-from typing import Any, Callable
+from typing import Any, Callable, List, Tuple
 
 from magicgui.types import ChoicesType
 from magicgui.widgets import _protocols
@@ -17,6 +17,8 @@ class CategoricalWidget(ValueWidget):
     """
 
     _widget: _protocols.CategoricalWidgetProtocol
+    null_string: str = "-----"
+    null_value = None
 
     def __init__(self, choices: ChoicesType = (), **kwargs):
         self._default_choices = choices
@@ -92,7 +94,7 @@ class CategoricalWidget(ValueWidget):
         else:
             str_func = str
         if isinstance(choices, dict):
-            if not ("choices" in choices and "key" in choices):
+            if "choices" not in choices or "key" not in choices:
                 raise ValueError(
                     "When setting choices with a dict, the dict must have keys "
                     "'choices' (Iterable), and 'key' (callable that takes a each value "
@@ -105,6 +107,10 @@ class CategoricalWidget(ValueWidget):
 
         else:
             _choices = choices
-        if not all(isinstance(i, tuple) and len(i) == 2 for i in _choices):
-            _choices = [(str_func(i), i) for i in _choices]
-        return self._widget._mgui_set_choices(_choices)
+
+        _normed: List[Tuple[str, Any]] = list(_choices)
+        if not all(isinstance(i, tuple) and len(i) == 2 for i in _normed):
+            _normed = [(str_func(i), i) for i in _choices]
+        if self._nullable:
+            _normed.insert(0, (self.null_string, self.null_value))
+        return self._widget._mgui_set_choices(_normed)

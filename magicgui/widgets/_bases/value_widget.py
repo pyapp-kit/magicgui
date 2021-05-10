@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Union
+
+from typing_extensions import get_args, get_origin
 
 from magicgui.events import EventEmitter
 from magicgui.widgets import _protocols
@@ -28,7 +30,10 @@ class ValueWidget(Widget):
     _widget: _protocols.ValueWidgetProtocol
     changed: EventEmitter
 
-    def __init__(self, value: Any = None, bind: Any = UNBOUND, **kwargs):
+    def __init__(
+        self, value: Any = None, bind: Any = UNBOUND, nullable=False, **kwargs
+    ):
+        self._nullable = nullable
         self._bound_value: Any = bind
         self._call_bound: bool = True
         super().__init__(**kwargs)
@@ -118,3 +123,20 @@ class ValueWidget(Widget):
     def unbind(self) -> None:
         """Unbinds any bound values. (see ``ValueWidget.bind``)."""
         self._bound_value = UNBOUND
+
+    @property
+    def annotation(self):
+        """Return type annotation for the parameter represented by the widget.
+
+        ForwardRefs will be resolve when setting the annotation.
+        If the widget is nullable (had a type annototation of Optional[Type]),
+        annotation will return the first argument in the Optional clause.
+        """
+        annotation = Widget.annotation.fget(self)  # type: ignore
+        if self._nullable and get_origin(annotation) is Union:
+            return get_args(annotation)[0]
+        return annotation
+
+    @annotation.setter
+    def annotation(self, value):
+        Widget.annotation.fset(self, value)  # type: ignore
