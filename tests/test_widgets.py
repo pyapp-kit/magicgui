@@ -614,3 +614,10 @@ def test_container_removal():
     c.pop()
     assert len(c) == 0
     assert c.native.layout().count() == 0
+
+
+def test_tracking():
+    slider = widgets.Slider(tracking=False)
+    assert slider.tracking is False
+    slider.tracking = True
+    assert slider.tracking
