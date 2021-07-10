@@ -197,7 +197,7 @@ class EmptyWidget(ValueWidget):
         try:
             name = f"(name={self.name!r})" if self.name else ""
             return f"<{self.widget_type} {name}>"
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             return f"<Uninitialized {self.widget_type}>"
 
 

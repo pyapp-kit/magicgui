@@ -87,7 +87,7 @@ class ValueWidget(Widget):
                 f"{self.widget_type}(value={val!r}, "
                 f"annotation={self.annotation!r}, name={self.name!r})"
             )
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             return f"<Uninitialized {self.widget_type}>"
 
     def bind(self, value: Any, call: bool = True) -> None:
