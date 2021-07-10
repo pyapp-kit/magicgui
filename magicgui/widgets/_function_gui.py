@@ -90,7 +90,7 @@ class FunctionGui(Container, Generic[_R]):
     result_widget : bool, optional
         Whether to display a LineEdit widget the output of the function when called,
         by default False
-    gui_options : dict, optional
+    param_options : dict, optional
         A dict of name: widget_options dict for each parameter in the function.
         Will be passed to `magic_signature` by default ``None``
     name : str, optional

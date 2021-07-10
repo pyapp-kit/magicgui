@@ -195,7 +195,11 @@ class EmptyWidget(ValueWidget):
 
     def __repr__(self):
         """Return string repr (avoid looking for value)."""
-        return f"{self.widget_type}" + f"(name={self.name!r})" if self.name else ""
+        try:
+            name = f"(name={self.name!r})" if self.name else ""
+            return f"<{self.widget_type} {name}>"
+        except AttributeError:  # pragma: no cover
+            return f"<Uninitialized {self.widget_type}>"
 
 
 @backend_widget

@@ -601,6 +601,21 @@ def test_radiobutton_reset_choices():
     assert len(wdg.native.findChildren(QRadioButton)) == 3
 
 
+def test_container_removal():
+    c = widgets.Container()
+    s = widgets.Slider(label="label")
+    assert len(c) == 0
+    assert c.native.layout().count() == 0
+
+    c.append(s)
+    assert len(c) == 1
+    assert c.native.layout().count() == 1
+
+    c.pop()
+    assert len(c) == 0
+    assert c.native.layout().count() == 0
+
+
 def test_tracking():
     slider = widgets.Slider(tracking=False)
     assert slider.tracking is False
