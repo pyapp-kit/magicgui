@@ -132,9 +132,14 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         """Delete a widget by integer or slice index."""
         if isinstance(key, slice):
             for item in self._list[key]:
+                if hasattr(item, "_labeled_widget_ref"):
+                    item = item._labeled_widget_ref()  # type: ignore
                 self._widget._mgui_remove_widget(item)
         elif isinstance(key, int):
-            self._widget._mgui_remove_widget(self._list[key])
+            item = self._list[key]
+            if hasattr(item, "_labeled_widget_ref"):
+                item = item._labeled_widget_ref()  # type: ignore
+            self._widget._mgui_remove_widget(item)
         else:
             raise TypeError(f"list indices must be integers or slices, not {type(key)}")
         del self._list[key]
