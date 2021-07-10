@@ -132,8 +132,9 @@ class MagicParameter(inspect.Parameter):
     def to_widget(self, app: AppRef = None) -> Widget:
         """Create and return a widget for this object."""
         from magicgui.widgets._bases import create_widget
+        from magicgui.widgets._bases.value_widget import UNSET
 
-        value = None if self.default is self.empty else self.default
+        value = UNSET if self.default is self.empty else self.default
         annotation, options = split_annotated_type(self.annotation)
         widget = create_widget(
             name=self.name,

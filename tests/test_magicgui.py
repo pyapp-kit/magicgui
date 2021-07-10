@@ -412,7 +412,7 @@ def test_register_types():
     class Sub2(Main2):
         pass
 
-    register_type(Main, choices=[1, 2, 3])
+    register_type(Main, choices=[None, 1, 2, 3])
     register_type(Main2, widget_type="LineEdit")
 
     @magicgui
