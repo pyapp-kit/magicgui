@@ -477,6 +477,17 @@ class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     def _mgui_set_readout_visibility(self, value: bool):
         raise NotImplementedError()
 
+    def _mgui_get_tracking(self) -> bool:
+        # Progressbar also uses this base, but doesn't have tracking
+        if hasattr(self._qwidget, "hasTracking"):
+            return self._qwidget.hasTracking()
+        return False
+
+    def _mgui_set_tracking(self, value: bool) -> None:
+        # Progressbar also uses this base, but doesn't have tracking
+        if hasattr(self._qwidget, "setTracking"):
+            self._qwidget.setTracking(value)
+
 
 class Slider(_Slider):
     _qwidget: QtW.QSlider

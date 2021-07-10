@@ -18,6 +18,7 @@ from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
+from magicgui.widgets import _protocols
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
 from ._bases import (
@@ -300,8 +301,15 @@ class LogSlider(TransformedRangedWidget):
         The base to use for the log, by default math.e.
     """
 
+    _widget: _protocols.SliderWidgetProtocol
+
     def __init__(
-        self, min: float = 1, max: float = 100, base: float = math.e, **kwargs
+        self,
+        min: float = 1,
+        max: float = 100,
+        base: float = math.e,
+        tracking=True,
+        **kwargs,
     ):
         for key in ("maximum", "minimum"):
             if key in kwargs:
@@ -325,6 +333,23 @@ class LogSlider(TransformedRangedWidget):
             widget_type=app.get_obj("Slider"),
             **kwargs,
         )
+        self.tracking = tracking
+
+    @property
+    def tracking(self) -> bool:
+        """Return whether slider tracking is enabled.
+
+        If tracking is enabled (the default), the slider emits the changed()
+        signal while the slider is being dragged. If tracking is disabled,
+        the slider emits the valueChanged() signal only when the user releases
+        the slider.
+        """
+        return self._widget._mgui_get_tracking()
+
+    @tracking.setter
+    def tracking(self, value: bool) -> None:
+        """Set whether slider tracking is enabled."""
+        self._widget._mgui_set_tracking(value)
 
     @property
     def _scale(self):

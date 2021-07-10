@@ -599,3 +599,10 @@ def test_radiobutton_reset_choices():
     assert len(wdg.native.findChildren(QRadioButton)) == 3
     wdg.reset_choices()
     assert len(wdg.native.findChildren(QRadioButton)) == 3
+
+
+def test_tracking():
+    slider = widgets.Slider(tracking=False)
+    assert slider.tracking is False
+    slider.tracking = True
+    assert slider.tracking
