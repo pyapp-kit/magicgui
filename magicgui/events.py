@@ -540,10 +540,7 @@ class EventEmitter:
                     criteria = [criteria]
                 for c in criteria:
                     count = sum(
-                        [
-                            (c == cn or c == cc)
-                            for cn, cc in zip(callback_refs, callbacks)
-                        ]
+                        (c == cn or c == cc) for cn, cc in zip(callback_refs, callbacks)
                     )
                     if count != 1:
                         raise ValueError(
