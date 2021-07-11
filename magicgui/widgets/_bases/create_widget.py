@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 def create_widget(
-    value: Any = None,
+    value: Any = _bases.value_widget.UNSET,
     annotation: Any = None,
     name: str = "",
     param_kind: str | inspect._ParameterKind = "POSITIONAL_OR_KEYWORD",
