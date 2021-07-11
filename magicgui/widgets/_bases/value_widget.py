@@ -9,7 +9,13 @@ from magicgui.widgets import _protocols
 
 from .widget import Widget
 
-UNSET = object()
+
+class _Unset:
+    def __repr__(self) -> str:
+        return "UNSET"
+
+
+UNSET = _Unset()
 
 
 class ValueWidget(Widget):
@@ -18,13 +24,12 @@ class ValueWidget(Widget):
     Parameters
     ----------
     value : Any, optional
-        The starting value for the widget, by default ``None``
+        The starting value for the widget.
     bind : Any, optional
         A value or callback to bind this widget, then whenever `widget.value` is
         accessed, the value provided here will be returned.  ``value`` can be a
         callable, in which case ``value(self)`` will be returned (i.e. your callback
         must accept a single parameter, which is this widget instance.).
-
     """
 
     _widget: _protocols.ValueWidgetProtocol
