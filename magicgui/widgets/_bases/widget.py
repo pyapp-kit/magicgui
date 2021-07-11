@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING, Any, ForwardRef
 from psygnal import Signal
 
 from magicgui.application import use_app
-
-# from magicgui.events import EventEmitter
 from magicgui.widgets import _protocols
 
 if TYPE_CHECKING:
@@ -88,8 +86,6 @@ class Widget:
         self.enabled = enabled
         self.annotation: Any = annotation
         self.gui_only = gui_only
-        # self.parent_changed = EventEmitter(source=self, type="parent_changed")
-        # self.label_changed = EventEmitter(source=self, type="label_changed")
         self._widget._mgui_bind_parent_change_callback(self._emit_parent)
 
         # put the magicgui widget on the native object...may cause error on some backend
@@ -336,5 +332,5 @@ class Widget:
             file_obj.seek(0)
             return file_obj.read()
 
-    def _emit_parent(self, event=None):
+    def _emit_parent(self, *_):
         self.parent_changed.emit(self.parent)

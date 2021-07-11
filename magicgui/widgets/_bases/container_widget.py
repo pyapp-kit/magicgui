@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
 
-# from magicgui.events import EventEmitter
 from psygnal import Signal
 
 from magicgui._util import debounce
@@ -72,7 +71,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self._layout = layout
         kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
-        # self.changed = EventEmitter(source=self, type="changed")
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)
         self._initialized = True
@@ -177,7 +175,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self._widget._mgui_insert_widget(key, _widget)
         self._unify_label_widths()
 
-    def _unify_label_widths(self, event=None):
+    def _unify_label_widths(self):
         if not self._initialized:
             return
 
@@ -211,7 +209,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             "It is not yet possible to change layout after instantiation"
         )
 
-    def reset_choices(self, event=None):
+    def reset_choices(self):
         """Reset choices for all Categorical subWidgets to the default state.
 
         If widget._default_choices is a callable, this may NOT be the exact same set of

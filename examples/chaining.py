@@ -17,12 +17,10 @@ def func_b(input: int, mult=1.0):
 
 
 # alternatively, you can the `widget.called` signal to connect a callback function
-# where the result of the function being called is at `event.value`
-def _on_func_a(event):
-    func_b.input.value = event.value
-
-
-func_a.called.connect(_on_func_a)
+# where the result of the function being called is at `value`
+@func_a.called.connect
+def _on_func_a(value):
+    func_b.input.value = value
 
 
 @magicgui(

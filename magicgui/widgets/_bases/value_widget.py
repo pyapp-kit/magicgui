@@ -5,7 +5,6 @@ from typing import Any, Union
 from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
-# from magicgui.events import EventEmitter
 from magicgui.widgets import _protocols
 
 from .widget import Widget
@@ -45,7 +44,7 @@ class ValueWidget(Widget):
 
     def _post_init(self):
         super()._post_init()
-        # self.changed = EventEmitter(source=self, type="changed")
+        # self.changed = ter(source=self, type="changed")
         self._widget._mgui_bind_change_callback(self._on_value_change)
 
     def _on_value_change(self, *args):

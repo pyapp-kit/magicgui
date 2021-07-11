@@ -1,6 +1,5 @@
 from typing import Optional
 
-# from magicgui.events import EventEmitter
 from psygnal import Signal
 
 from magicgui.widgets import _protocols

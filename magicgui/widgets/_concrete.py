@@ -437,7 +437,7 @@ class FileEdit(Container):
         else:
             return "Select file" + ("s" if self.mode.name.endswith("S") else "")
 
-    def _on_choose_clicked(self, event=None):
+    def _on_choose_clicked(self):
         _p = self.value
         if _p:
             start_path: Path = _p[0] if isinstance(_p, tuple) else _p
@@ -621,8 +621,8 @@ class _LabeledWidget(Container):
     def label(self, label):
         self._label_widget.label = label
 
-    def _on_label_change(self, event):
-        self._label_widget.value = event.value
+    def _on_label_change(self, value):
+        self._label_widget.value = value
 
     @property
     def label_width(self):

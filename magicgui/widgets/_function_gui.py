@@ -21,7 +21,6 @@ from typing import (
     cast,
 )
 
-# from magicgui.events import EventEmitter
 from psygnal import Signal
 
 from magicgui.application import AppRef
@@ -165,7 +164,6 @@ class FunctionGui(Container, Generic[_R]):
             name=name or self._callable_name,
         )
         self._param_options = param_options
-        # self.called = EventEmitter(self, type="called")
         self._result_name = ""
         self._call_count: int = 0
 
