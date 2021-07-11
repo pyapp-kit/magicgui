@@ -1,6 +1,8 @@
 from typing import Optional
 
-from magicgui.events import EventEmitter
+# from magicgui.events import EventEmitter
+from psygnal import Signal
+
 from magicgui.widgets import _protocols
 
 from .value_widget import ValueWidget
@@ -16,7 +18,7 @@ class ButtonWidget(ValueWidget):
     """
 
     _widget: _protocols.ButtonWidgetProtocol
-    changed: EventEmitter
+    changed = Signal(object)
 
     def __init__(self, text: Optional[str] = None, **kwargs):
         if text and kwargs.get("label"):

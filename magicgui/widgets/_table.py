@@ -20,10 +20,12 @@ from typing import (
 )
 from warnings import warn
 
+from psygnal import Signal
+
+# from magicgui.events import EventEmitter
 from typing_extensions import Literal
 
 from magicgui.application import use_app
-from magicgui.events import EventEmitter
 from magicgui.widgets._bases import Widget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
@@ -207,6 +209,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
     """
 
     _widget: TableWidgetProtocol
+    changed = Signal(Any)
 
     def __new__(
         cls,
@@ -241,9 +244,9 @@ class Table(Widget, MutableMapping[TblKey, list]):
 
     def _post_init(self):
         super()._post_init()
-        self.changed = EventEmitter(source=self, type="changed")
+        # self.changed = EventEmitter(source=self, type="changed")
         self._widget._mgui_bind_change_callback(
-            lambda *x: self.changed(value=x[0] if x else None)
+            lambda *x: self.changed.emit(x[0] if x else None)
         )
 
     @property

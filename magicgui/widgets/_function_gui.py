@@ -21,8 +21,10 @@ from typing import (
     cast,
 )
 
+# from magicgui.events import EventEmitter
+from psygnal import Signal
+
 from magicgui.application import AppRef
-from magicgui.events import EventEmitter
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
@@ -106,6 +108,7 @@ class FunctionGui(Container, Generic[_R]):
         If unexpected keyword arguments are provided
     """
 
+    called = Signal(Any)
     _widget: ContainerProtocol
 
     def __init__(
@@ -162,7 +165,7 @@ class FunctionGui(Container, Generic[_R]):
             name=name or self._callable_name,
         )
         self._param_options = param_options
-        self.called = EventEmitter(self, type="called")
+        # self.called = EventEmitter(self, type="called")
         self._result_name = ""
         self._call_count: int = 0
 
@@ -286,7 +289,7 @@ class FunctionGui(Container, Generic[_R]):
 
         self._call_count += 1
         if self._result_widget is not None:
-            with self._result_widget.changed.blocker():
+            with self._result_widget.changed.blocked():
                 self._result_widget.value = value
 
         return_type = sig.return_annotation
@@ -295,7 +298,7 @@ class FunctionGui(Container, Generic[_R]):
 
             for callback in _type2callback(return_type):
                 callback(self, value, return_type)
-        self.called(value=value)
+        self.called.emit(value)
         return value
 
     def __repr__(self) -> str:

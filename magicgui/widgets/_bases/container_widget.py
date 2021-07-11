@@ -3,9 +3,11 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
 
+# from magicgui.events import EventEmitter
+from psygnal import Signal
+
 from magicgui._util import debounce
 from magicgui.application import use_app
-from magicgui.events import EventEmitter
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases.mixins import _OrientationMixin
@@ -54,7 +56,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         ``widget.name``, but can be overriden by setting ``widget.label``.
     """
 
-    changed: EventEmitter
+    changed = Signal(object)
     _widget: _protocols.ContainerProtocol
     _initialized = False
 
@@ -70,7 +72,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self._layout = layout
         kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
-        self.changed = EventEmitter(source=self, type="changed")
+        # self.changed = EventEmitter(source=self, type="changed")
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)
         self._initialized = True
@@ -156,7 +158,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     def insert(self, key: int, widget: Widget):
         """Insert widget at ``key``."""
         if isinstance(widget, ValueWidget):
-            widget.changed.connect(lambda x: self.changed(value=self))
+            widget.changed.connect(lambda x: self.changed.emit(self))
         _widget = widget
 
         if self.labels:
