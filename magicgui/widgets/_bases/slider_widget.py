@@ -29,7 +29,7 @@ class SliderWidget(RangedWidget, _OrientationMixin):
 
         If tracking is enabled (the default), the slider emits the changed()
         signal while the slider is being dragged. If tracking is disabled,
-        the slider emits the valueChanged() signal only when the user releases
+        the slider emits the changed() signal only when the user releases
         the slider.
         """
         return self._widget._mgui_get_tracking()

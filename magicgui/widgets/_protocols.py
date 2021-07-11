@@ -417,10 +417,10 @@ class SliderWidgetProtocol(RangedWidgetProtocol, SupportsOrientation, Protocol):
         """Set visibility of readout widget."""
 
     def _mgui_get_tracking(self) -> bool:
-        """If tracking is False, valueChanged is only emitted when released."""
+        """If tracking is False, changed is only emitted when released."""
 
     def _mgui_set_tracking(self, tracking: bool) -> None:
-        """If tracking is False, valueChanged is only emitted when released."""
+        """If tracking is False, changed is only emitted when released."""
 
 
 # CONTAINER ----------------------------------------------------------------------
