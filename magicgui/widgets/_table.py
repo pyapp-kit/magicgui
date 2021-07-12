@@ -207,7 +207,7 @@ class Table(Widget, MutableMapping[TblKey, list]):
     """
 
     _widget: TableWidgetProtocol
-    changed = Signal(Any)
+    changed = Signal(object)
 
     def __new__(
         cls,
