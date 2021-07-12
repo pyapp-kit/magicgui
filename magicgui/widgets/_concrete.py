@@ -446,8 +446,10 @@ class FileEdit(Container):
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
         self.choose_btn.changed.disconnect()
         self.line_edit.changed.disconnect()
-        self.choose_btn.changed.connect(self._on_choose_clicked)
-        self.line_edit.changed.connect(lambda x: self.changed.emit(self.value))
+        self.choose_btn.changed.connect(self._on_choose_clicked, opt_in=True)
+        self.line_edit.changed.connect(
+            lambda x: self.changed.emit(self.value), opt_in=True
+        )
 
     @property
     def mode(self) -> FileDialogMode:
@@ -623,7 +625,7 @@ class _LabeledWidget(Container):
         super().__init__(**kwargs, visible=_visible)
         self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
         self.labels = False  # important to avoid infinite recursion during insert!
-        self._inner_widget.label_changed.connect(self._on_label_change)
+        self._inner_widget.label_changed.connect(self._on_label_change, opt_in=True)
         for w in [self._label_widget, widget]:
             with w.parent_changed.blocked():
                 self.append(w)

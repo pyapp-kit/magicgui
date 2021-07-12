@@ -21,9 +21,8 @@ from typing import (
     cast,
 )
 
-from psygnal import Signal
-
 from magicgui.application import AppRef
+from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
@@ -189,7 +188,7 @@ class FunctionGui(Container, Generic[_R]):
                     finally:
                         self._call_button.enabled = True
 
-                self._call_button.changed.connect(_disable_button_and_call)
+                self._call_button.changed.connect(_disable_button_and_call, opt_in=True)
             self.append(self._call_button)
 
         self._result_widget: LineEdit | None = None
@@ -202,7 +201,7 @@ class FunctionGui(Container, Generic[_R]):
             self._load(quiet=True)
 
         self._auto_call = auto_call
-        self.changed.connect(self._on_change)
+        self.changed.connect(self._on_change, opt_in=True)
 
     def _on_change(self, e):
         if self.persist:

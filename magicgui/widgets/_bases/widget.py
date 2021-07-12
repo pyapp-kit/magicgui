@@ -4,9 +4,8 @@ import inspect
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, ForwardRef
 
-from psygnal import Signal
-
 from magicgui.application import use_app
+from magicgui.events import Signal
 from magicgui.widgets import _protocols
 
 if TYPE_CHECKING:

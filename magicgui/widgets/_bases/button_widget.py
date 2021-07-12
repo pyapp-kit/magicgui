@@ -1,7 +1,6 @@
 from typing import Optional
 
-from psygnal import Signal
-
+from magicgui.events import Signal
 from magicgui.widgets import _protocols
 
 from .value_widget import ValueWidget

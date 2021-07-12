@@ -3,10 +3,9 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
 
-from psygnal import Signal
-
 from magicgui._util import debounce
 from magicgui.application import use_app
+from magicgui.events import Signal
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases.mixins import _OrientationMixin
@@ -72,7 +71,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         kwargs["backend_kwargs"] = {"layout": layout}
         super().__init__(**kwargs)
         self.extend(widgets)
-        self.parent_changed.connect(self.reset_choices)
+        self.parent_changed.connect(self.reset_choices, opt_in=True)
         self._initialized = True
         self._unify_label_widths()
 
@@ -163,7 +162,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     def insert(self, key: int, widget: Widget):
         """Insert widget at ``key``."""
         if isinstance(widget, ValueWidget):
-            widget.changed.connect(lambda x: self.changed.emit(self))
+            widget.changed.connect(lambda x: self.changed.emit(self), opt_in=True)
         _widget = widget
 
         if self.labels:
@@ -172,7 +171,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             # no labels for button widgets (push buttons, checkboxes, have their own)
             if not isinstance(widget, (_LabeledWidget, ButtonWidget)):
                 _widget = _LabeledWidget(widget)
-                widget.label_changed.connect(self._unify_label_widths)
+                widget.label_changed.connect(self._unify_label_widths, opt_in=True)
 
         self._list.insert(key, widget)
         if key < 0:

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any, Union
 
-from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
+from magicgui.events import Signal
 from magicgui.widgets import _protocols
 
 from .widget import Widget

@@ -20,10 +20,10 @@ from typing import (
 )
 from warnings import warn
 
-from psygnal import Signal
 from typing_extensions import Literal
 
 from magicgui.application import use_app
+from magicgui.events import Signal
 from magicgui.widgets._bases import Widget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
