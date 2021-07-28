@@ -170,10 +170,12 @@ def sequence_of_paths(value, annotation) -> WidgetTuple | None:
 
 
 def pick_widget_type(
-    value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
+    value: Any = None,
+    annotation: type | None = None,
+    options: WidgetOptions | None = None,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
-    options = options.copy()
+    options = options or {}
     annotation = _evaluate_forwardref(annotation)
     dtype, optional = _normalize_type(value, annotation)
     if optional:
@@ -211,7 +213,9 @@ def pick_widget_type(
 
 
 def get_widget_class(
-    value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
+    value: Any = None,
+    annotation: type | None = None,
+    options: WidgetOptions | None = None,
 ) -> tuple[WidgetClass, WidgetOptions]:
     """Return a WidgetClass appropriate for the given parameters.
 
