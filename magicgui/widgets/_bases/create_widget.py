@@ -70,7 +70,7 @@ def create_widget(
         If the provided or autodetected ``widget_type`` does not implement any known
         widget protocols from widgets._protocols.
     """
-    options = dict(options)
+    options = options.copy()
     kwargs = locals()
     _kind = kwargs.pop("param_kind", None)
     _app = use_app(kwargs.pop("app"))

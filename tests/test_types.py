@@ -89,9 +89,9 @@ def test_optional_type():
 
 def test_widget_options():
     """Test bugfix: widget options shouldn't persist to next widget."""
-    E = Enum("E", ['a','b','c'])
+    E = Enum("E", ["a", "b", "c"])
     choice1 = widgets.create_widget(annotation=E)
     choice2 = widgets.create_widget(annotation=Optional[E])
     choice3 = widgets.create_widget(annotation=E)
-    assert choice1._nullable == choice3._nullable == False
+    assert choice1._nullable is choice3._nullable is False
     assert choice2._nullable is True

@@ -196,16 +196,16 @@ def pick_widget_type(
     for registered_type in _TYPE_DEFS:
         if dtype == registered_type or _is_subclass(dtype, registered_type):
             _cls, opts = _TYPE_DEFS[registered_type]
-            return _cls, {**options, **opts}
+            return _cls, {**options, **opts}  # type: ignore
 
     if choices:
-        return widgets.ComboBox, {**options, "choices": choices}
+        return widgets.ComboBox, {**options, "choices": choices}  # type: ignore
 
     for matcher in _TYPE_MATCHERS:
         _widget_type = matcher(value, annotation)
         if _widget_type:
             _cls, opts = _widget_type
-            return _cls, {**options, **opts}
+            return _cls, {**options, **opts}  # type: ignore
 
     return widgets.EmptyWidget, {"visible": False}
 
