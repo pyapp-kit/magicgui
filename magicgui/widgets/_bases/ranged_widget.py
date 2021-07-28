@@ -41,7 +41,7 @@ class RangedWidget(ValueWidget):
         self.step = step
         self.min = min
         self.max = max
-        if val is not UNSET:
+        if val not in (UNSET, None):
             self.value = val
 
     @property

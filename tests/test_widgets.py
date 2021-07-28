@@ -495,6 +495,18 @@ def test_range_widget_min():
         rw = widgets.RangeEdit(-100, 1000, 5, min=(0, 500, 5))
 
 
+def test_range_value_none():
+    """Test that arg: int = None defaults to 0"""
+
+    @magicgui
+    def f(x: int = None):
+        ...
+
+    assert f.x.value == 0
+    rw = widgets.SpinBox(value=None)
+    assert rw.value == 0
+
+
 def test_containers_show_nested_containers():
     """make sure showing a container shows a nested FunctionGui."""
 
