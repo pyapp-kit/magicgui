@@ -5,7 +5,6 @@ import math
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import qtpy
-from PyQt5.QtWidgets import QTableWidgetItem, QTableWidgetSelectionRange
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import (
@@ -943,10 +942,10 @@ class _QTableExtended(QtW.QTableWidget):
                 try:
                     self.item(row0 + r, col0 + c).setText(str(cell))
                 except AttributeError:
-                    self.setItem(row0 + r, col0 + c, QTableWidgetItem(str(cell)))
+                    self.setItem(row0 + r, col0 + c, QtW.QTableWidgetItem(str(cell)))
 
         # select what was just pasted
-        selrange = QTableWidgetSelectionRange(row0, col0, row0 + r, col0 + c)
+        selrange = QtW.QTableWidgetSelectionRange(row0, col0, row0 + r, col0 + c)
         self.clearSelection()
         self.setRangeSelected(selrange, True)
 
