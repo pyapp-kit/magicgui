@@ -4,7 +4,7 @@ from warnings import warn
 
 from magicgui.widgets import _protocols
 
-from .value_widget import ValueWidget
+from .value_widget import UNSET, ValueWidget
 
 
 class RangedWidget(ValueWidget):
@@ -35,13 +35,13 @@ class RangedWidget(ValueWidget):
                 else:
                     min = kwargs.pop(key)
         # value should be set *after* min max is set
-        val = kwargs.pop("value", None)
+        val = kwargs.pop("value", UNSET)
         super().__init__(**kwargs)
 
         self.step = step
         self.min = min
         self.max = max
-        if val is not None:
+        if val not in (UNSET, None):
             self.value = val
 
     @property

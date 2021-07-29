@@ -9,7 +9,7 @@ import pytest
 from qtpy.QtCore import Qt
 
 from magicgui import magicgui, register_type, type_map, widgets
-from magicgui.signature import MagicSignature
+from magicgui.signature import MagicSignature, magic_signature
 
 
 def func(a: str = "works", b: int = 3, c=7.1) -> str:
@@ -412,7 +412,7 @@ def test_register_types():
     class Sub2(Main2):
         pass
 
-    register_type(Main, choices=[1, 2, 3])
+    register_type(Main, choices=[None, 1, 2, 3])
     register_type(Main2, widget_type="LineEdit")
 
     @magicgui
@@ -682,3 +682,15 @@ def test_boolean_label():
             pass
 
     assert "'text' and 'label' are synonymous for button widgets" in str(record[0])
+
+
+def test_none_defaults():
+    """Make sure that an unannotated parameter with default=None is ok."""
+    assert widgets.create_widget(value=None).value is None
+
+    def func(arg=None):
+        return 1
+
+    assert magicgui(func)() == 1
+
+    assert str(magic_signature(func)) == str(magicgui(func).__signature__)

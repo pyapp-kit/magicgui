@@ -9,7 +9,7 @@ import types
 import warnings
 from collections import abc, defaultdict
 from enum import EnumMeta
-from typing import Any, DefaultDict, ForwardRef, cast
+from typing import Any, DefaultDict, ForwardRef, Union, cast
 
 from typing_extensions import get_args, get_origin
 
@@ -72,13 +72,20 @@ def _evaluate_forwardref(type_: Any) -> Any:
     return cast(Any, type_)._evaluate(globalns, {}, set())
 
 
-def _normalize_type(value: Any, annotation: Any) -> type:
+def _normalize_type(value: Any, annotation: Any) -> tuple[type, bool]:
     """Return annotation type origin or dtype of value."""
-    if annotation:
-        if annotation is inspect.Parameter.empty:
-            return type(value)
-        return get_origin(annotation) or annotation
-    return type(value)
+    if not annotation:
+        return type(value), False
+    if annotation is inspect.Parameter.empty:
+        return type(value), False
+
+    # look for Optional[Type], which manifests as Union[Type, None]
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    if origin is Union and len(args) == 2 and type(None) in args:
+        type_ = next(i for i in args if not issubclass(i, type(None)))
+        return type_, True
+    return (origin or annotation), False
 
 
 def type_matcher(func: TypeMatcher) -> TypeMatcher:
@@ -119,7 +126,7 @@ def simple_types(value, annotation) -> WidgetTuple | None:
     if annotation in _SIMPLE_ANNOTATIONS:
         return _SIMPLE_ANNOTATIONS[annotation], {}
 
-    dtype = _normalize_type(value, annotation)
+    dtype, optional = _normalize_type(value, annotation)
 
     if dtype is widgets.ProgressBar:
         return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
@@ -136,7 +143,7 @@ def simple_types(value, annotation) -> WidgetTuple | None:
 @type_matcher
 def callable_type(value, annotation) -> WidgetTuple | None:
     """Determine if value/annotation is a function type."""
-    dtype = _normalize_type(value, annotation)
+    dtype, optional = _normalize_type(value, annotation)
 
     if dtype in (types.FunctionType,):
         return widgets.FunctionGui, {"function": value}  # type: ignore
@@ -163,11 +170,16 @@ def sequence_of_paths(value, annotation) -> WidgetTuple | None:
 
 
 def pick_widget_type(
-    value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
+    value: Any = None,
+    annotation: type | None = None,
+    options: WidgetOptions | None = None,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
+    options = options or {}
     annotation = _evaluate_forwardref(annotation)
-    dtype = _normalize_type(value, annotation)
+    dtype, optional = _normalize_type(value, annotation)
+    if optional:
+        options.setdefault("nullable", True)
     choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
 
     if "widget_type" in options:
@@ -185,23 +197,27 @@ def pick_widget_type(
     # look for subclasses
     for registered_type in _TYPE_DEFS:
         if dtype == registered_type or _is_subclass(dtype, registered_type):
-            return _TYPE_DEFS[registered_type]
+            _cls, opts = _TYPE_DEFS[registered_type]
+            return _cls, {**options, **opts}  # type: ignore
 
     if choices:
-        if options.get("allow_multiple"):
-            return widgets.Select, {"choices": choices, "allow_multiple": True}
-        return widgets.ComboBox, {"choices": choices}
+        options["choices"] = choices
+        wdg = widgets.Select if options.get("allow_multiple") else widgets.ComboBox
+        return wdg, options
 
     for matcher in _TYPE_MATCHERS:
         _widget_type = matcher(value, annotation)
         if _widget_type:
-            return _widget_type
+            _cls, opts = _widget_type
+            return _cls, {**options, **opts}  # type: ignore
 
     return widgets.EmptyWidget, {"visible": False}
 
 
 def get_widget_class(
-    value: Any = None, annotation: type | None = None, options: WidgetOptions = {}
+    value: Any = None,
+    annotation: type | None = None,
+    options: WidgetOptions | None = None,
 ) -> tuple[WidgetClass, WidgetOptions]:
     """Return a WidgetClass appropriate for the given parameters.
 

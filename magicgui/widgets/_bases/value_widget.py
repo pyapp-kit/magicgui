@@ -1,13 +1,21 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Union
+
+from typing_extensions import get_args, get_origin
 
 from magicgui.events import EventEmitter
 from magicgui.widgets import _protocols
 
 from .widget import Widget
 
-UNBOUND = object()
+
+class _Unset:
+    def __repr__(self) -> str:
+        return "UNSET"
+
+
+UNSET = _Unset()
 
 
 class ValueWidget(Widget):
@@ -16,25 +24,26 @@ class ValueWidget(Widget):
     Parameters
     ----------
     value : Any, optional
-        The starting value for the widget, by default ``None``
+        The starting value for the widget.
     bind : Any, optional
         A value or callback to bind this widget, then whenever `widget.value` is
         accessed, the value provided here will be returned.  ``value`` can be a
         callable, in which case ``value(self)`` will be returned (i.e. your callback
         must accept a single parameter, which is this widget instance.).
-
     """
 
     _widget: _protocols.ValueWidgetProtocol
     changed: EventEmitter
+    null_value = None
 
-    def __init__(self, value: Any = None, bind: Any = UNBOUND, **kwargs):
+    def __init__(self, value: Any = UNSET, bind: Any = UNSET, nullable=False, **kwargs):
+        self._nullable = nullable
         self._bound_value: Any = bind
         self._call_bound: bool = True
         super().__init__(**kwargs)
-        if value is not None:
+        if value is not UNSET:
             self.value = value
-        if self._bound_value is not UNBOUND and "visible" not in kwargs:
+        if self._bound_value is not UNSET and "visible" not in kwargs:
             self.hide()
 
     def _post_init(self):
@@ -44,7 +53,10 @@ class ValueWidget(Widget):
 
     def _on_value_change(self, *args):
         """Called when the widget value changes.  args come from the widget itself."""
-        self.changed(value=args[0] if args else None)
+        value = args[0] if args else None
+        if value == self.null_value and not self._nullable:
+            return
+        self.changed(value=value)
 
     def get_value(self):
         """Callable version of `self.value`.
@@ -58,7 +70,7 @@ class ValueWidget(Widget):
     @property
     def value(self):
         """Return current value of the widget.  This may be interpreted by backends."""
-        if self._bound_value is not UNBOUND:
+        if self._bound_value is not UNSET:
             if callable(self._bound_value) and self._call_bound:
                 try:
                     return self._bound_value(self)
@@ -78,13 +90,13 @@ class ValueWidget(Widget):
 
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
-        val = self.value if self._bound_value is UNBOUND else self._bound_value
-        if hasattr(self, "_widget"):
+        try:
+            val = self.value if self._bound_value is UNSET else self._bound_value
             return (
                 f"{self.widget_type}(value={val!r}, "
                 f"annotation={self.annotation!r}, name={self.name!r})"
             )
-        else:
+        except AttributeError:  # pragma: no cover
             return f"<Uninitialized {self.widget_type}>"
 
     def bind(self, value: Any, call: bool = True) -> None:
@@ -117,4 +129,21 @@ class ValueWidget(Widget):
 
     def unbind(self) -> None:
         """Unbinds any bound values. (see ``ValueWidget.bind``)."""
-        self._bound_value = UNBOUND
+        self._bound_value = UNSET
+
+    @property
+    def annotation(self):
+        """Return type annotation for the parameter represented by the widget.
+
+        ForwardRefs will be resolve when setting the annotation.
+        If the widget is nullable (had a type annototation of Optional[Type]),
+        annotation will return the first argument in the Optional clause.
+        """
+        annotation = Widget.annotation.fget(self)  # type: ignore
+        if self._nullable and get_origin(annotation) is Union:
+            return get_args(annotation)[0]
+        return annotation
+
+    @annotation.setter
+    def annotation(self, value):
+        Widget.annotation.fset(self, value)  # type: ignore

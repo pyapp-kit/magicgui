@@ -135,3 +135,13 @@ def test_bad_type_factory_init():
         @magic_factory(widget_init=1)  # type: ignore
         def factory(x: int = 1):
             pass
+
+
+def test_none_defaults():
+    """Make sure that an unannotated parameter with default=None is ok."""
+
+    @magic_factory
+    def factory(arg=None):
+        return 1
+
+    assert factory()() == 1

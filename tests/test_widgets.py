@@ -495,6 +495,18 @@ def test_range_widget_min():
         rw = widgets.RangeEdit(-100, 1000, 5, min=(0, 500, 5))
 
 
+def test_range_value_none():
+    """Test that arg: int = None defaults to 0"""
+
+    @magicgui
+    def f(x: int = None):
+        ...
+
+    assert f.x.value == 0
+    rw = widgets.SpinBox(value=None)
+    assert rw.value == 0
+
+
 def test_containers_show_nested_containers():
     """make sure showing a container shows a nested FunctionGui."""
 
@@ -525,6 +537,27 @@ def test_file_dialog_button_events():
         fe.choose_btn.changed()
     fe.changed.assert_not_called()
     assert fe.value == Path("hi")
+
+
+def test_null_events():
+    """Test that nullable widgets emit events when their null value is set"""
+    wdg = widgets.ComboBox(choices=["a", "b"], nullable=True)
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    wdg.value = "b"
+    mock.assert_called_once()
+    mock.reset_mock()
+    wdg.value = None
+    mock.assert_called_once()
+    mock.reset_mock()
+
+    wdg._nullable = False
+    wdg.value = "a"
+    mock.assert_called_once()
+    mock.reset_mock()
+    mock.assert_not_called()
+    wdg.value = None
+    mock.assert_not_called()
 
 
 @pytest.mark.parametrize("WdgClass", [widgets.FloatSlider, widgets.FloatSpinBox])
@@ -599,3 +632,25 @@ def test_radiobutton_reset_choices():
     assert len(wdg.native.findChildren(QRadioButton)) == 3
     wdg.reset_choices()
     assert len(wdg.native.findChildren(QRadioButton)) == 3
+
+
+def test_container_removal():
+    c = widgets.Container()
+    s = widgets.Slider(label="label")
+    assert len(c) == 0
+    assert c.native.layout().count() == 0
+
+    c.append(s)
+    assert len(c) == 1
+    assert c.native.layout().count() == 1
+
+    c.pop()
+    assert len(c) == 0
+    assert c.native.layout().count() == 0
+
+
+def test_tracking():
+    slider = widgets.Slider(tracking=False)
+    assert slider.tracking is False
+    slider.tracking = True
+    assert slider.tracking

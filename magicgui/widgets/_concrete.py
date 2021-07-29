@@ -18,6 +18,7 @@ from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
+from magicgui.widgets import _protocols
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
 from ._bases import (
@@ -194,7 +195,11 @@ class EmptyWidget(ValueWidget):
 
     def __repr__(self):
         """Return string repr (avoid looking for value)."""
-        return f"{self.widget_type}" + f"(name={self.name!r})" if self.name else ""
+        try:
+            name = f"(name={self.name!r})" if self.name else ""
+            return f"<{self.widget_type} {name}>"
+        except AttributeError:  # pragma: no cover
+            return f"<Uninitialized {self.widget_type}>"
 
 
 @backend_widget
@@ -300,8 +305,15 @@ class LogSlider(TransformedRangedWidget):
         The base to use for the log, by default math.e.
     """
 
+    _widget: _protocols.SliderWidgetProtocol
+
     def __init__(
-        self, min: float = 1, max: float = 100, base: float = math.e, **kwargs
+        self,
+        min: float = 1,
+        max: float = 100,
+        base: float = math.e,
+        tracking=True,
+        **kwargs,
     ):
         for key in ("maximum", "minimum"):
             if key in kwargs:
@@ -325,6 +337,23 @@ class LogSlider(TransformedRangedWidget):
             widget_type=app.get_obj("Slider"),
             **kwargs,
         )
+        self.tracking = tracking
+
+    @property
+    def tracking(self) -> bool:
+        """Return whether slider tracking is enabled.
+
+        If tracking is enabled (the default), the slider emits the changed()
+        signal while the slider is being dragged. If tracking is disabled,
+        the slider emits the changed() signal only when the user releases
+        the slider.
+        """
+        return self._widget._mgui_get_tracking()
+
+    @tracking.setter
+    def tracking(self, value: bool) -> None:
+        """Set whether slider tracking is enabled."""
+        self._widget._mgui_set_tracking(value)
 
     @property
     def _scale(self):
@@ -403,12 +432,17 @@ class FileEdit(Container):
     """
 
     def __init__(
-        self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, filter=None, **kwargs
+        self,
+        mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
+        filter=None,
+        nullable=False,
+        **kwargs,
     ):
         self.line_edit = LineEdit(value=kwargs.pop("value", None))
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
         self.filter = filter
+        self._nullable = nullable
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
         kwargs["labels"] = False
         kwargs["layout"] = "horizontal"
@@ -439,8 +473,11 @@ class FileEdit(Container):
 
     def _on_choose_clicked(self, event=None):
         _p = self.value
-        start_path: Path = _p[0] if isinstance(_p, tuple) else _p
-        _start_path = os.fspath(start_path.expanduser().absolute())
+        if _p:
+            start_path: Path = _p[0] if isinstance(_p, tuple) else _p
+            _start_path: str | None = os.fspath(start_path.expanduser().absolute())
+        else:
+            _start_path = None
         result = self._show_file_dialog(
             self.mode,
             caption=self._btn_text,
@@ -451,9 +488,11 @@ class FileEdit(Container):
             self.value = result
 
     @property
-    def value(self) -> tuple[Path, ...] | Path:
+    def value(self) -> tuple[Path, ...] | Path | None:
         """Return current value of the widget.  This may be interpreted by backends."""
         text = self.line_edit.value
+        if self._nullable and not text:
+            return None
         if self.mode is FileDialogMode.EXISTING_FILES:
             return tuple(Path(p) for p in text.split(", "))
         return Path(text)
@@ -524,7 +563,7 @@ class RangeEdit(Container):
         if isinstance(arg, (int, float)):
             return (int(arg),) * 3
         elif isinstance(arg, (list, tuple)):
-            if not len(arg) == 3:
+            if len(arg) != 3:
                 raise ValueError(f"{name} sequence must be length 3")
             return tuple(int(x) for x in arg)
         elif arg is not None:

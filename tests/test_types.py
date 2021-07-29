@@ -1,3 +1,6 @@
+from enum import Enum
+from typing import Optional, Union
+
 import pytest
 
 from magicgui import magicgui, register_type, types, widgets
@@ -57,7 +60,6 @@ def test_forward_refs_return_annotation():
 
 def test_pathlike_annotation():
     import pathlib
-    from typing import Union
 
     @magicgui(fn={"mode": "r"})
     def widget(fn: types.PathLike):
@@ -73,3 +75,23 @@ def test_pathlike_annotation():
 
     assert isinstance(widget2.fn, widgets.FileEdit)
     assert widget2.fn.mode is types.FileDialogMode.EXISTING_FILES
+
+
+def test_optional_type():
+    @magicgui(x=dict(choices=["a", "b"]))
+    def widget(x: Optional[str] = None):
+        ...
+
+    assert isinstance(widget.x, widgets.ComboBox)
+    assert widget.x.value is None
+    assert None in widget.x.choices
+
+
+def test_widget_options():
+    """Test bugfix: widget options shouldn't persist to next widget."""
+    E = Enum("E", ["a", "b", "c"])
+    choice1 = widgets.create_widget(annotation=E)
+    choice2 = widgets.create_widget(annotation=Optional[E])
+    choice3 = widgets.create_widget(annotation=E)
+    assert choice1._nullable is choice3._nullable is False
+    assert choice2._nullable is True

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 def create_widget(
-    value: Any = None,
+    value: Any = _bases.value_widget.UNSET,
     annotation: Any = None,
     name: str = "",
     param_kind: str | inspect._ParameterKind = "POSITIONAL_OR_KEYWORD",
@@ -70,6 +70,7 @@ def create_widget(
         If the provided or autodetected ``widget_type`` does not implement any known
         widget protocols from widgets._protocols.
     """
+    options = options.copy()
     kwargs = locals()
     _kind = kwargs.pop("param_kind", None)
     _app = use_app(kwargs.pop("app"))
@@ -100,7 +101,7 @@ def create_widget(
 
             options = kwargs.pop("options", {})
             cls = getattr(_bases, f"{p}Widget")
-            widget = cls(widget_type=wdg_class, **kwargs, **options)
+            widget = cls(**{**kwargs, **options, "widget_type": wdg_class})
             if _kind:
                 widget.param_kind = _kind
             return widget
