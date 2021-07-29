@@ -913,9 +913,9 @@ class _QTableExtended(QtW.QTableWidget):
         # copy first selection range
         sel = selranges[0]
         lines = []
-        for r in range(sel.topRow(), sel.rowCount()):
+        for r in range(sel.topRow(), sel.bottomRow() + 1):
             cells = []
-            for c in range(sel.leftColumn(), sel.columnCount()):
+            for c in range(sel.leftColumn(), sel.rightColumn() + 1):
                 item = self.item(r, c)
                 cells.append(item.text()) if hasattr(item, "text") else ""
             lines.append("\t".join(cells))
@@ -936,6 +936,8 @@ class _QTableExtended(QtW.QTableWidget):
         data = [line.split("\t") for line in text.splitlines()]
         if (row0 + len(data)) > self.rowCount():
             self.setRowCount(row0 + len(data))
+        if data and (col0 + len(data[0])) > self.columnCount():
+            self.setColumnCount(col0 + len(data[0]))
         for r, line in enumerate(data):
             for c, cell in enumerate(line):
                 try:
