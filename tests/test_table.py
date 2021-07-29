@@ -340,3 +340,49 @@ def test_check_new_headers():
     with pytest.raises(ValueError) as e:
         table.row_headers = ("a", "b", "c", "d")
         assert "Length mismatch" in str(e)
+
+
+# these are Qt-specific
+
+
+def test_copy(qapp):
+    from qtpy.QtWidgets import QTableWidgetSelectionRange
+
+    table = Table(value=_TABLE_DATA["data"])
+    selrange = QTableWidgetSelectionRange(1, 1, 0, 0)
+    table.native.setRangeSelected(selrange, True)
+    table.native._copy_to_clipboard()
+    assert qapp.clipboard().text() == "1\t2\n4\t5"
+
+
+def test_paste(qapp):
+    from qtpy.QtWidgets import QTableWidgetSelectionRange
+
+    table = Table(value=_TABLE_DATA["data"])
+    selrange = QTableWidgetSelectionRange(1, 1, 0, 0)
+    table.native.setRangeSelected(selrange, True)
+    qapp.clipboard().setText("0\t0\n1\t1")
+
+    table.read_only = True
+    table.native._paste_from_clipboard()
+    assert table.data.to_list() == [[1, 2, 3], [4, 5, 6]]
+
+    table.read_only = False
+    table.native._paste_from_clipboard()
+    assert table.data.to_list() == [[0, 0, 3], [1, 1, 6]]
+
+
+def test_delete(qapp):
+    from qtpy.QtWidgets import QTableWidgetSelectionRange
+
+    table = Table(value=_TABLE_DATA["data"])
+    selrange = QTableWidgetSelectionRange(1, 1, 0, 0)
+    table.native.setRangeSelected(selrange, True)
+
+    table.read_only = True
+    table.native._delete_selection()
+    assert table.data.to_list() == [[1, 2, 3], [4, 5, 6]]
+
+    table.read_only = False
+    table.native._delete_selection()
+    assert table.data.to_list() == [[None, None, 3], [None, None, 6]]
