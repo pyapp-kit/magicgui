@@ -5,9 +5,18 @@ import math
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import qtpy
+from PyQt5.QtWidgets import QTableWidgetItem, QTableWidgetSelectionRange
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
-from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap, QResizeEvent, QTextDocument
+from qtpy.QtGui import (
+    QFont,
+    QFontMetrics,
+    QImage,
+    QKeyEvent,
+    QPixmap,
+    QResizeEvent,
+    QTextDocument,
+)
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -888,12 +897,83 @@ def _maybefloat(item):
         return num
 
 
+class _QTableExtended(QtW.QTableWidget):
+    def _copy_to_clipboard(self):
+        selranges = self.selectedRanges()
+        if not selranges:
+            return
+        if len(selranges) > 1:
+            import warnings
+
+            warnings.warn(
+                "Multiple table selections detected: "
+                "only the first (upper left) selection will be copied"
+            )
+
+        # copy first selection range
+        sel = selranges[0]
+        lines = []
+        for r in range(sel.topRow(), sel.rowCount()):
+            cells = []
+            for c in range(sel.leftColumn(), sel.columnCount()):
+                item = self.item(r, c)
+                cells.append(item.text()) if hasattr(item, "text") else ""
+            lines.append("\t".join(cells))
+
+        if lines:
+            QtW.QApplication.clipboard().setText("\n".join(lines))
+
+    def _paste_from_clipboard(self):
+        sel_idx = self.selectedIndexes()
+        if not sel_idx:
+            return
+        text = QtW.QApplication.clipboard().text()
+        if not text:
+            return
+
+        # paste in the text
+        row0, col0 = sel_idx[0].row(), sel_idx[0].column()
+        data = [line.split("\t") for line in text.splitlines()]
+        if (row0 + len(data)) > self.rowCount():
+            self.setRowCount(row0 + len(data))
+        for r, line in enumerate(data):
+            for c, cell in enumerate(line):
+                try:
+                    self.item(row0 + r, col0 + c).setText(str(cell))
+                except AttributeError:
+                    self.setItem(row0 + r, col0 + c, QTableWidgetItem(str(cell)))
+
+        # select what was just pasted
+        selrange = QTableWidgetSelectionRange(row0, col0, row0 + r, col0 + c)
+        self.clearSelection()
+        self.setRangeSelected(selrange, True)
+
+    def _delete_selection(self):
+        for item in self.selectedItems():
+            try:
+                item.setText("")
+            except AttributeError:
+                pass
+
+    def keyPressEvent(self, e: QKeyEvent):
+        if e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_C:
+            return self._copy_to_clipboard()
+        if e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_V:
+            return self._paste_from_clipboard()
+        if e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_X:
+            self._copy_to_clipboard()
+            return self._delete_selection()
+        if e.key() in (Qt.Key_Delete, Qt.Key_Backspace):
+            return self._delete_selection()
+        return super().keyPressEvent(e)
+
+
 class Table(QBaseWidget, _protocols.TableWidgetProtocol):
     _qwidget: QtW.QTableWidget
     _DATA_ROLE: int = 255
 
     def __init__(self):
-        super().__init__(QtW.QTableWidget)
+        super().__init__(_QTableExtended)
         header = self._qwidget.horizontalHeader()
         # avoid strange AttributeError on CI
         if hasattr(header, "setSectionResizeMode"):
