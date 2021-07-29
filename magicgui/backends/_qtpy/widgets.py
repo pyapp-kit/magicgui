@@ -634,9 +634,7 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         self._qwidget.currentIndexChanged.connect(self._emit_data)
 
     def _emit_data(self, index: int):
-        data = self._qwidget.itemData(index)
-        if data is not None:
-            self._event_filter.valueChanged.emit(data)
+        self._event_filter.valueChanged.emit(self._qwidget.itemData(index))
 
     def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)

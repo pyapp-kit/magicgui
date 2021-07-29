@@ -18,7 +18,6 @@ class CategoricalWidget(ValueWidget):
 
     _widget: _protocols.CategoricalWidgetProtocol
     null_string: str = "-----"
-    null_value = None
 
     def __init__(self, choices: ChoicesType = (), **kwargs):
         self._default_choices = choices
