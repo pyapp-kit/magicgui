@@ -539,6 +539,27 @@ def test_file_dialog_button_events():
     assert fe.value == Path("hi")
 
 
+def test_null_events():
+    """Test that nullable widgets emit events when their null value is set"""
+    wdg = widgets.ComboBox(choices=["a", "b"], nullable=True)
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    wdg.value = "b"
+    mock.assert_called_once()
+    mock.reset_mock()
+    wdg.value = None
+    mock.assert_called_once()
+    mock.reset_mock()
+
+    wdg._nullable = False
+    wdg.value = "a"
+    mock.assert_called_once()
+    mock.reset_mock()
+    mock.assert_not_called()
+    wdg.value = None
+    mock.assert_not_called()
+
+
 @pytest.mark.parametrize("WdgClass", [widgets.FloatSlider, widgets.FloatSpinBox])
 @pytest.mark.parametrize("value", [1, 1e6, 1e12, 1e16, 1e22])
 def test_extreme_floats(WdgClass, value):
