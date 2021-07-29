@@ -702,11 +702,11 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def __init__(self):
         super().__init__(QtW.QListWidget, "isChecked", "setCurrentIndex", "")
         self._qwidget.itemSelectionChanged.connect(self._emit_data)
-        self._qwidget.setSelectionMode(QtW.QAbstractItemView.MultiSelection)
+        self._qwidget.setSelectionMode(QtW.QAbstractItemView.ExtendedSelection)
 
     def _emit_data(self):
         data = self._qwidget.selectedItems()
-        self._event_filter.valueChanged.emit([d.itemData(Qt.UserRole) for d in data])
+        self._event_filter.valueChanged.emit([d.data(Qt.UserRole) for d in data])
 
     def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)

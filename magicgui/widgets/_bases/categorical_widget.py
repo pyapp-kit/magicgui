@@ -20,6 +20,7 @@ class CategoricalWidget(ValueWidget):
     null_string: str = "-----"
 
     def __init__(self, choices: ChoicesType = (), allow_multiple=False, **kwargs):
+        self._allow_multiple = allow_multiple
         self._default_choices = choices
         super().__init__(**kwargs)
 
@@ -35,7 +36,12 @@ class CategoricalWidget(ValueWidget):
 
     @value.setter
     def value(self, value):
-        if value not in self.choices:
+        if isinstance(value, (list, tuple)) and self._allow_multiple:
+            if any(v not in self.choices for v in value):
+                raise ValueError(
+                    f"{value!r} is not a valid choice. must be in {self.choices}"
+                )
+        elif value not in self.choices:
             raise ValueError(
                 f"{value!r} is not a valid choice. must be in {self.choices}"
             )

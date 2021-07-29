@@ -8,7 +8,7 @@ from magicgui import magicgui
     }
 )
 def my_widget(pick_some=["first"]):
-    pass
+    print("you selected", pick_some)
 
 
 my_widget.show(run=True)
