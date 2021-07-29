@@ -7,7 +7,15 @@ from typing import TYPE_CHECKING, Any, Iterable, Sequence
 import qtpy
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
-from qtpy.QtGui import QFont, QFontMetrics, QImage, QPixmap, QResizeEvent, QTextDocument
+from qtpy.QtGui import (
+    QFont,
+    QFontMetrics,
+    QImage,
+    QKeyEvent,
+    QPixmap,
+    QResizeEvent,
+    QTextDocument,
+)
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -886,18 +894,111 @@ def _maybefloat(item):
         return num
 
 
+class _QTableExtended(QtW.QTableWidget):
+    _read_only: bool = False
+
+    def _copy_to_clipboard(self):
+        selranges = self.selectedRanges()
+        if not selranges:
+            return
+        if len(selranges) > 1:
+            import warnings
+
+            warnings.warn(
+                "Multiple table selections detected: "
+                "only the first (upper left) selection will be copied"
+            )
+
+        # copy first selection range
+        sel = selranges[0]
+        lines = []
+        for r in range(sel.topRow(), sel.bottomRow() + 1):
+            cells = []
+            for c in range(sel.leftColumn(), sel.rightColumn() + 1):
+                item = self.item(r, c)
+                cells.append(item.text()) if hasattr(item, "text") else ""
+            lines.append("\t".join(cells))
+
+        if lines:
+            QtW.QApplication.clipboard().setText("\n".join(lines))
+
+    def _paste_from_clipboard(self):
+        if self._read_only:
+            return
+
+        sel_idx = self.selectedIndexes()
+        if not sel_idx:
+            return
+        text = QtW.QApplication.clipboard().text()
+        if not text:
+            return
+
+        # paste in the text
+        row0, col0 = sel_idx[0].row(), sel_idx[0].column()
+        data = [line.split("\t") for line in text.splitlines()]
+        if (row0 + len(data)) > self.rowCount():
+            self.setRowCount(row0 + len(data))
+        if data and (col0 + len(data[0])) > self.columnCount():
+            self.setColumnCount(col0 + len(data[0]))
+        for r, line in enumerate(data):
+            for c, cell in enumerate(line):
+                try:
+                    self.item(row0 + r, col0 + c).setText(str(cell))
+                except AttributeError:
+                    self.setItem(row0 + r, col0 + c, QtW.QTableWidgetItem(str(cell)))
+
+        # select what was just pasted
+        selrange = QtW.QTableWidgetSelectionRange(row0, col0, row0 + r, col0 + c)
+        self.clearSelection()
+        self.setRangeSelected(selrange, True)
+
+    def _delete_selection(self):
+        if self._read_only:
+            return
+
+        for item in self.selectedItems():
+            try:
+                item.setText("")
+            except AttributeError:
+                pass
+
+    def keyPressEvent(self, e: QKeyEvent):
+        if e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_C:
+            return self._copy_to_clipboard()
+        if e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_V:
+            return self._paste_from_clipboard()
+        if e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_X:
+            self._copy_to_clipboard()
+            return self._delete_selection()
+        if e.key() in (Qt.Key_Delete, Qt.Key_Backspace):
+            return self._delete_selection()
+        return super().keyPressEvent(e)
+
+
 class Table(QBaseWidget, _protocols.TableWidgetProtocol):
-    _qwidget: QtW.QTableWidget
+    _qwidget: _QTableExtended
     _DATA_ROLE: int = 255
+    _RO_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+    _DEFAULT_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
 
     def __init__(self):
-        super().__init__(QtW.QTableWidget)
+        super().__init__(_QTableExtended)
         header = self._qwidget.horizontalHeader()
         # avoid strange AttributeError on CI
         if hasattr(header, "setSectionResizeMode"):
             header.setSectionResizeMode(QtW.QHeaderView.Stretch)
         # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
+
+    def _mgui_set_read_only(self, value: bool) -> None:
+        self._qwidget._read_only = bool(value)
+        flags = Table._RO_FLAGS if value else Table._DEFAULT_FLAGS
+        for row in range(self._qwidget.rowCount()):
+            for col in range(self._qwidget.columnCount()):
+                self._qwidget.item(row, col).setFlags(flags)
+
+    def _mgui_get_read_only(self) -> bool:
+        return self._qwidget._read_only
 
     def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
         self._qwidget.blockSignals(True)
