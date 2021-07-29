@@ -380,9 +380,11 @@ def test_delete(qapp):
     table.native.setRangeSelected(selrange, True)
 
     table.read_only = True
+    assert table.read_only is True
     table.native._delete_selection()
     assert table.data.to_list() == [[1, 2, 3], [4, 5, 6]]
 
     table.read_only = False
+    assert table.read_only is False
     table.native._delete_selection()
     assert table.data.to_list() == [[None, None, 3], [None, None, 6]]
