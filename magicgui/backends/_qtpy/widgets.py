@@ -897,6 +897,8 @@ def _maybefloat(item):
 
 
 class _QTableExtended(QtW.QTableWidget):
+    _read_only: bool = False
+
     def _copy_to_clipboard(self):
         selranges = self.selectedRanges()
         if not selranges:
@@ -923,6 +925,9 @@ class _QTableExtended(QtW.QTableWidget):
             QtW.QApplication.clipboard().setText("\n".join(lines))
 
     def _paste_from_clipboard(self):
+        if self._read_only:
+            return
+
         sel_idx = self.selectedIndexes()
         if not sel_idx:
             return
@@ -950,6 +955,9 @@ class _QTableExtended(QtW.QTableWidget):
         self.setRangeSelected(selrange, True)
 
     def _delete_selection(self):
+        if self._read_only:
+            return
+
         for item in self.selectedItems():
             try:
                 item.setText("")
@@ -970,8 +978,10 @@ class _QTableExtended(QtW.QTableWidget):
 
 
 class Table(QBaseWidget, _protocols.TableWidgetProtocol):
-    _qwidget: QtW.QTableWidget
+    _qwidget: _QTableExtended
     _DATA_ROLE: int = 255
+    _RO_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+    _DEFAULT_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
 
     def __init__(self):
         super().__init__(_QTableExtended)
@@ -981,6 +991,16 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
             header.setSectionResizeMode(QtW.QHeaderView.Stretch)
         # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
+
+    def _mgui_set_read_only(self, value: bool) -> None:
+        self._qwidget._read_only = bool(value)
+        flags = Table._RO_FLAGS if value else Table._DEFAULT_FLAGS
+        for row in range(self._qwidget.rowCount()):
+            for col in range(self._qwidget.columnCount()):
+                self._qwidget.item(row, col).setFlags(flags)
+
+    def _mgui_get_read_only(self) -> bool:
+        return self._qwidget._read_only
 
     def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
         self._qwidget.blockSignals(True)
