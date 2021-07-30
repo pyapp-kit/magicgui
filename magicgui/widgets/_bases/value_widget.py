@@ -54,7 +54,7 @@ class ValueWidget(Widget):
     def _on_value_change(self, *args):
         """Called when the widget value changes.  args come from the widget itself."""
         value = args[0] if args else None
-        if value == self.null_value and not self._nullable:
+        if value is self.null_value and not self._nullable:
             return
         self.changed(value=value)
 
