@@ -83,7 +83,7 @@ def _normalize_type(value: Any, annotation: Any) -> tuple[type, bool]:
     origin = get_origin(annotation)
     args = get_args(annotation)
     if origin is Union and len(args) == 2 and type(None) in args:
-        type_ = next(i for i in args if not issubclass(i, type(None)))
+        type_ = next(i for i in args if not isinstance(i, type(None)))
         return type_, True
     return (origin or annotation), False
 
