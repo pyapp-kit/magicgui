@@ -45,3 +45,8 @@ class ButtonWidget(ValueWidget):
     @text.setter
     def text(self, value):
         self._widget._mgui_set_text(value)
+
+    @property
+    def clicked(self) -> EventEmitter:
+        """Alias for changed event."""
+        return self.changed
