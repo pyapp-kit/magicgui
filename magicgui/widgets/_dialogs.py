@@ -38,5 +38,6 @@ def show_file_dialog(
     """
     from magicgui import use_app
 
-    func = use_app().get_obj("show_file_dialog")
-    return func(mode, caption, start_path, filter, parent)
+    app = use_app()
+    assert app.native
+    return app.get_obj("show_file_dialog")(mode, caption, start_path, filter, parent)
