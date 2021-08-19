@@ -639,6 +639,14 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)
 
+    def _mgui_get_count(self) -> int:
+        """Return the number of items in the dropdown."""
+        return self._qwidget.count()
+
+    def _mgui_get_choice(self, choice_name: str) -> Any:
+        item_index = self._qwidget.findText(choice_name)
+        return None if item_index == -1 else self._qwidget.itemData(item_index)
+
     def _mgui_get_current_choice(self) -> str:
         return self._qwidget.itemText(self._qwidget.currentIndex())
 
@@ -647,17 +655,6 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
     def _mgui_set_value(self, value) -> None:
         self._qwidget.setCurrentIndex(self._qwidget.findData(value))
-
-    def _mgui_get_count(self) -> int:
-        """Return the number of items in the dropdown."""
-        return self._qwidget.count()
-
-    def _mgui_get_choice(self, choice_name: str) -> Any:
-        item_index = self._qwidget.findText(choice_name)
-        if item_index == -1:
-            return None
-        else:
-            return self._qwidget.itemData(item_index)
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
@@ -668,19 +665,6 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         # otherwise update its data
         else:
             self._qwidget.setItemData(item_index, data)
-
-    def _mgui_del_choice(self, choice_name: str) -> None:
-        """Delete choice_name."""
-        item_index = self._qwidget.findText(choice_name)
-        if item_index >= 0:
-            self._qwidget.removeItem(item_index)
-
-    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
-        """Get available choices."""
-        return tuple(
-            (self._qwidget.itemText(i), self._qwidget.itemData(i))
-            for i in range(self._qwidget.count())
-        )
 
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
@@ -705,6 +689,98 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             first = choice_names[0]
             self._qwidget.setCurrentIndex(self._qwidget.findText(first))
             self._qwidget.removeItem(self._qwidget.findText(current))
+
+    def _mgui_del_choice(self, choice_name: str) -> None:
+        """Delete choice_name."""
+        item_index = self._qwidget.findText(choice_name)
+        if item_index >= 0:
+            self._qwidget.removeItem(item_index)
+
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
+        """Get available choices."""
+        return tuple(
+            (self._qwidget.itemText(i), self._qwidget.itemData(i))
+            for i in range(self._qwidget.count())
+        )
+
+
+class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
+    _qwidget: QtW.QListWidget
+
+    def __init__(self):
+        super().__init__(QtW.QListWidget, "isChecked", "setCurrentIndex", "")
+        self._qwidget.itemSelectionChanged.connect(self._emit_data)
+        self._qwidget.setSelectionMode(QtW.QAbstractItemView.ExtendedSelection)
+
+    def _emit_data(self):
+        data = self._qwidget.selectedItems()
+        self._event_filter.valueChanged.emit([d.data(Qt.UserRole) for d in data])
+
+    def _mgui_bind_change_callback(self, callback):
+        self._event_filter.valueChanged.connect(callback)
+
+    def _mgui_get_count(self) -> int:
+        """Return the number of items in the dropdown."""
+        return self._qwidget.count()
+
+    def _mgui_get_choice(self, choice_name: str) -> list[Any]:
+        items = self._qwidget.findItems(choice_name, Qt.MatchExactly)
+        return [i.data(Qt.UserRole) for i in items]
+
+    def _mgui_get_current_choice(self) -> list[str]:  # type: ignore[override]
+        return [i.text() for i in self._qwidget.selectedItems()]
+
+    def _mgui_get_value(self) -> Any:
+        return [i.data(Qt.UserRole) for i in self._qwidget.selectedItems()]
+
+    def _mgui_set_value(self, value) -> None:
+        if not isinstance(value, (list, tuple)):
+            value = [value]
+        for i in range(self._qwidget.count()):
+            item = self._qwidget.item(i)
+            item.setSelected(item.data(Qt.UserRole) in value)
+
+    def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
+        """Set data for ``choice_name``."""
+        items = self._qwidget.findItems(choice_name, Qt.MatchExactly)
+        # if it's not in the list, add a new item
+        if not items:
+            item = QtW.QListWidgetItem(choice_name)
+            item.setData(Qt.UserRole, data)
+            self._qwidget.addItem(item)
+        # otherwise update its data
+        else:
+            for item in items:
+                item.setData(Qt.UserRole, data)
+
+    def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
+        """Set current items in categorical type ``widget`` to ``choices``."""
+        choices_ = list(choices)
+        if not choices_:
+            self._qwidget.clear()
+            return
+
+        choice_names = [x[0] for x in choices_]
+        # remove choices that no longer exist
+        for i in reversed(range(self._qwidget.count())):
+            if self._qwidget.item(i).text() not in choice_names:
+                self._qwidget.takeItem(i)
+        # update choices
+        for name, data in choices_:
+            self._mgui_set_choice(name, data)
+
+    def _mgui_del_choice(self, choice_name: str) -> None:
+        """Delete choice_name."""
+        for i in reversed(range(self._qwidget.count())):
+            if self._qwidget.item(i).text() == choice_name:
+                self._qwidget.takeItem(i)
+
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
+        """Get available choices."""
+        return tuple(
+            (self._qwidget.item(i).text(), self._qwidget.item(i).data(Qt.UserRole))
+            for i in range(self._qwidget.count())
+        )
 
 
 class RadioButtons(

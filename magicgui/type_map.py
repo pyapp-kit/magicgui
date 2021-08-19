@@ -201,7 +201,9 @@ def pick_widget_type(
             return _cls, {**options, **opts}  # type: ignore
 
     if choices:
-        return widgets.ComboBox, {**options, "choices": choices}  # type: ignore
+        options["choices"] = choices
+        wdg = widgets.Select if options.get("allow_multiple") else widgets.ComboBox
+        return wdg, options
 
     for matcher in _TYPE_MATCHERS:
         _widget_type = matcher(value, annotation)
