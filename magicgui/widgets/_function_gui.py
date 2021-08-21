@@ -316,7 +316,7 @@ class FunctionGui(Container, Generic[_R]):
         """Return a copy of this FunctionGui."""
         return FunctionGui(
             function=self._function,
-            call_button=bool(self._call_button),
+            call_button=self._call_button.text if self._call_button else None,
             layout=self.layout,
             labels=self.labels,
             param_options=self._param_options,
@@ -348,18 +348,21 @@ class FunctionGui(Container, Generic[_R]):
         >>> c.my_method(x=34)  # calling it works as usual, with `c` provided as `self`
         {'self': <__main__.MyClass object at 0x7fb610e455e0>, 'x': 34}
         """
-        if obj is not None:
-            obj_id = id(obj)
-            if obj_id not in self._bound_instances:
-                method = getattr(obj.__class__, self._function.__name__)
-                p0 = list(inspect.signature(method).parameters)[0]
-                prior, self._param_options = self._param_options, {p0: {"bind": obj}}
-                try:
-                    self._bound_instances[obj_id] = self.copy()
-                finally:
-                    self._param_options = prior
-            return self._bound_instances[obj_id]
-        return self
+        if obj is None:
+            return self
+        obj_id = id(obj)
+        if obj_id not in self._bound_instances:
+            method = getattr(obj.__class__, self._function.__name__)
+            p0 = list(inspect.signature(method).parameters)[0]
+            prior, self._param_options = self._param_options, {
+                p0: {"bind": obj},
+                **self._param_options,
+            }
+            try:
+                self._bound_instances[obj_id] = self.copy()
+            finally:
+                self._param_options = prior
+        return self._bound_instances[obj_id]
 
     def __set__(self, obj, value):
         """Prevent setting a magicgui attribute."""
