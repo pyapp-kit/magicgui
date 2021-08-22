@@ -15,7 +15,7 @@ from magicgui.widgets._bases import ValueWidget
     [
         getattr(widgets, n)
         for n in widgets.__all__
-        if n not in ("Widget", "FunctionGui", "MainFunctionGui")
+        if n not in ("Widget", "FunctionGui", "MainFunctionGui", "show_file_dialog")
     ],
 )
 def test_widgets(WidgetClass):

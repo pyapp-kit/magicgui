@@ -39,6 +39,7 @@ from ._concrete import (
     TextEdit,
     TimeEdit,
 )
+from ._dialogs import show_file_dialog
 from ._function_gui import FunctionGui, MainFunctionGui
 from ._image import Image
 from ._table import Table
@@ -93,6 +94,7 @@ __all__ = [
     "TextEdit",
     "TimeEdit",
     "Widget",
+    "show_file_dialog",
 ]
 
 del partial
