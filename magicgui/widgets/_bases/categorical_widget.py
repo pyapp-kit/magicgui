@@ -49,7 +49,7 @@ class CategoricalWidget(ValueWidget):
         d.update({"choices": self._default_choices})
         return d
 
-    def reset_choices(self):
+    def reset_choices(self, *_: Any):
         """Reset choices to the default state.
 
         If self._default_choices is a callable, this may NOT be the exact same set of

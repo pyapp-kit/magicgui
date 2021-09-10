@@ -215,7 +215,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             "It is not yet possible to change layout after instantiation"
         )
 
-    def reset_choices(self):
+    def reset_choices(self, *_: Any):
         """Reset choices for all Categorical subWidgets to the default state.
 
         If widget._default_choices is a callable, this may NOT be the exact same set of
