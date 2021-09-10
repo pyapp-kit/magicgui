@@ -1,6 +1,7 @@
 """deprecation strategy"""
 
 import weakref
+from collections import namedtuple
 from typing import Callable, Dict
 
 import psygnal
@@ -17,11 +18,7 @@ def new_style_slot(slot: Callable) -> bool:
     )
 
 
-class Event:
-    def __init__(self, value, type, source) -> None:
-        self.value = value
-        self.type = type
-        self.source = source
+Event = namedtuple("Event", ("value", "type", "source"))
 
 
 class SignalInstance(psygnal.SignalInstance):
