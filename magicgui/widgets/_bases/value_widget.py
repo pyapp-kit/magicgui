@@ -34,6 +34,7 @@ class ValueWidget(Widget):
 
     _widget: _protocols.ValueWidgetProtocol
     changed = Signal(object)
+    null_value = None
 
     def __init__(self, value: Any = UNSET, bind: Any = UNSET, nullable=False, **kwargs):
         self._nullable = nullable
@@ -52,7 +53,10 @@ class ValueWidget(Widget):
 
     def _on_value_change(self, *args):
         """Called when the widget value changes.  args come from the widget itself."""
-        self.changed.emit(args[0] if args else None)
+        value = args[0] if args else None
+        if value is self.null_value and not self._nullable:
+            return
+        self.changed.emit(value)
 
     def get_value(self):
         """Callable version of `self.value`.

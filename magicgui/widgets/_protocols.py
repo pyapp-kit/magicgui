@@ -194,7 +194,22 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
 
 
 @runtime_checkable
-class TableWidgetProtocol(WidgetProtocol, Protocol):
+class SupportsReadOnly(Protocol):
+    """Widget that can be read_only."""
+
+    @abstractmethod
+    def _mgui_set_read_only(self, value: bool) -> None:
+        """Set read_only."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_read_only(self) -> bool:
+        """Get read_only status."""
+        raise NotImplementedError()
+
+
+@runtime_checkable
+class TableWidgetProtocol(WidgetProtocol, SupportsReadOnly, Protocol):
     """ValueWidget subclass intended for 2D tabular data, with row & column headers."""
 
     @abstractmethod
@@ -371,21 +386,6 @@ class SupportsText(Protocol):
     @abstractmethod
     def _mgui_get_text(self) -> str:
         """Get text."""
-        raise NotImplementedError()
-
-
-@runtime_checkable
-class SupportsReadOnly(Protocol):
-    """Widget that can be read_only."""
-
-    @abstractmethod
-    def _mgui_set_read_only(self, value: bool) -> None:
-        """Set read_only."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_read_only(self) -> bool:
-        """Get read_only status."""
         raise NotImplementedError()
 
 

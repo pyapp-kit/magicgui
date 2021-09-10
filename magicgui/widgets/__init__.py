@@ -32,12 +32,14 @@ from ._concrete import (
     RadioButton,
     RadioButtons,
     RangeEdit,
+    Select,
     SliceEdit,
     Slider,
     SpinBox,
     TextEdit,
     TimeEdit,
 )
+from ._dialogs import show_file_dialog
 from ._function_gui import FunctionGui, MainFunctionGui
 from ._image import Image
 from ._table import Table
@@ -84,6 +86,7 @@ __all__ = [
     "RadioButton",
     "RadioButtons",
     "RangeEdit",
+    "Select",
     "SliceEdit",
     "Slider",
     "SpinBox",
@@ -91,6 +94,7 @@ __all__ = [
     "TextEdit",
     "TimeEdit",
     "Widget",
+    "show_file_dialog",
 ]
 
 del partial

@@ -472,7 +472,7 @@ def test_function_binding():
             self.name = name
             self.counter = 0.0
 
-        @magicgui(auto_call=True)
+        @magicgui(call_button="callme", sigma={"max": 365})
         def method(self, sigma: float = 1):
             self.counter = self.counter + sigma
             return self.name, self.counter
@@ -480,6 +480,8 @@ def test_function_binding():
     a = MyObject("a")
     b = MyObject("b")
 
+    assert a.method._call_button.text == "callme"  # type: ignore
+    assert a.method.sigma.max == 365
     assert a.method() == ("a", 1)
     assert b.method(sigma=4) == ("b", 4)
     assert a.method() == ("a", 2)

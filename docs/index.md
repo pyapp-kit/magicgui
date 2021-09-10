@@ -15,7 +15,7 @@ kernelspec:
 
 # magicgui 🧙
 
-[![License](https://img.shields.io/pypi/l/magicgui.svg)](https://github.com/napari/magicgui/blob/master/LICENSE)
+[![License](https://img.shields.io/pypi/l/magicgui.svg)](https://github.com/napari/magicgui/blob/main/LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/magicgui)](https://anaconda.org/conda-forge/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)

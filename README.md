@@ -1,11 +1,11 @@
-# ![icon](https://raw.githubusercontent.com/napari/magicgui/master/resources/logo_long.png)
+# ![icon](https://raw.githubusercontent.com/napari/magicgui/main/resources/logo_long.png)
 
 [![License](https://img.shields.io/github/license/napari/magicgui)](LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/magicgui)](https://anaconda.org/conda-forge/magicgui)
 [![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
 [![Build Status](https://img.shields.io/travis/napari/magicgui.svg)](https://travis-ci.com/napari/magicgui)
-[![codecov](https://codecov.io/gh/napari/magicgui/branch/master/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
+[![codecov](https://codecov.io/gh/napari/magicgui/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
 
 **magicgui**: build GUIs from functions, using magic.
 
@@ -61,7 +61,7 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
 snells_law.show(run=True)
 ```
 
-![snells](https://raw.githubusercontent.com/napari/magicgui/master/resources/snells.png)
+![snells](https://raw.githubusercontent.com/napari/magicgui/main/resources/snells.png)
 
 But that's just the beginning!  Please see [Documentation](https://napari.org/magicgui) for many more details
 and usage examples.

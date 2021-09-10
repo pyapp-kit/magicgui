@@ -46,4 +46,6 @@ def test_signature_to_container():
     assert len(container) == 2
     assert repr(container) == "<Container (a: int = 0, b: str = 'hi')>"
     assert repr(container.a) == "Slider(value=0, annotation=<class 'int'>, name='a')"
-    assert repr(sig.parameters["a"]) == '<MagicParameter "a: int" {}>'
+
+    param_repr = """<MagicParameter "a: int" {'widget_type': 'Slider'}>"""
+    assert repr(sig.parameters["a"]) == param_repr

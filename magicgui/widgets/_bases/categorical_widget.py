@@ -18,9 +18,9 @@ class CategoricalWidget(ValueWidget):
 
     _widget: _protocols.CategoricalWidgetProtocol
     null_string: str = "-----"
-    null_value = None
 
-    def __init__(self, choices: ChoicesType = (), **kwargs):
+    def __init__(self, choices: ChoicesType = (), allow_multiple=False, **kwargs):
+        self._allow_multiple = allow_multiple
         self._default_choices = choices
         super().__init__(**kwargs)
 
@@ -36,7 +36,12 @@ class CategoricalWidget(ValueWidget):
 
     @value.setter
     def value(self, value):
-        if value not in self.choices:
+        if isinstance(value, (list, tuple)) and self._allow_multiple:
+            if any(v not in self.choices for v in value):
+                raise ValueError(
+                    f"{value!r} is not a valid choice. must be in {self.choices}"
+                )
+        elif value not in self.choices:
             raise ValueError(
                 f"{value!r} is not a valid choice. must be in {self.choices}"
             )
@@ -85,7 +90,8 @@ class CategoricalWidget(ValueWidget):
     @property
     def choices(self):
         """Available value choices for this widget."""
-        return tuple(i[1] for i in self._widget._mgui_get_choices())
+        _choices = tuple(i[1] for i in self._widget._mgui_get_choices())
+        return _choices + (None,) if self._nullable else _choices
 
     @choices.setter
     def choices(self, choices: ChoicesType):

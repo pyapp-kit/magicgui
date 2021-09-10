@@ -15,7 +15,7 @@ from magicgui.widgets._bases import ValueWidget
     [
         getattr(widgets, n)
         for n in widgets.__all__
-        if n not in ("Widget", "FunctionGui", "MainFunctionGui")
+        if n not in ("Widget", "FunctionGui", "MainFunctionGui", "show_file_dialog")
     ],
 )
 def test_widgets(WidgetClass):
@@ -495,6 +495,18 @@ def test_range_widget_min():
         rw = widgets.RangeEdit(-100, 1000, 5, min=(0, 500, 5))
 
 
+def test_range_value_none():
+    """Test that arg: int = None defaults to 0"""
+
+    @magicgui
+    def f(x: int = None):
+        ...
+
+    assert f.x.value == 0
+    rw = widgets.SpinBox(value=None)
+    assert rw.value == 0
+
+
 def test_containers_show_nested_containers():
     """make sure showing a container shows a nested FunctionGui."""
 
@@ -527,6 +539,27 @@ def test_file_dialog_button_events():
         fe.choose_btn.changed.emit("value")
     mock.assert_not_called()
     assert fe.value == Path("hi")
+
+
+def test_null_events():
+    """Test that nullable widgets emit events when their null value is set"""
+    wdg = widgets.ComboBox(choices=["a", "b"], nullable=True)
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    wdg.value = "b"
+    mock.assert_called_once()
+    mock.reset_mock()
+    wdg.value = None
+    mock.assert_called_once()
+    mock.reset_mock()
+
+    wdg._nullable = False
+    wdg.value = "a"
+    mock.assert_called_once()
+    mock.reset_mock()
+    mock.assert_not_called()
+    wdg.value = None
+    mock.assert_not_called()
 
 
 @pytest.mark.parametrize("WdgClass", [widgets.FloatSlider, widgets.FloatSpinBox])

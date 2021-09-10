@@ -29,7 +29,7 @@ create interactivity.
 ## code
 
 *Code follows, with explanation below... You can also [get this example at
-github](https://github.com/napari/magicgui/blob/master/examples/napari_image_arithmetic.py).*
+github](https://github.com/napari/magicgui/blob/main/examples/napari_image_arithmetic.py).*
 
 ```{code-block} python
 ---
@@ -107,7 +107,7 @@ annotations](https://docs.python.org/3/library/typing.html), and allows
 third-party libraries to register widgets and behavior for handling their custom
 types (using {func}`magicgui.type_map.register_type`). `napari` [provides
 support for
-`magicgui`](https://github.com/napari/napari/blob/master/napari/utils/_magicgui.py)
+`magicgui`](https://github.com/napari/napari/blob/main/napari/utils/_magicgui.py)
 by registering a dropdown menu whenever a function parameter is annotated as one
 of the basic napari [`Layer` types](https://napari.org/tutorials/), or, in this
 case, `ImageData` indicates we just the `data` attribute of the layer.

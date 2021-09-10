@@ -1,6 +1,6 @@
 from typing import Optional
 
-from magicgui.events import Signal
+from magicgui.events import Signal, SignalInstance
 from magicgui.widgets import _protocols
 
 from .value_widget import ValueWidget
@@ -45,3 +45,8 @@ class ButtonWidget(ValueWidget):
     @text.setter
     def text(self, value):
         self._widget._mgui_set_text(value)
+
+    @property
+    def clicked(self) -> SignalInstance:
+        """Alias for changed event."""
+        return self.changed

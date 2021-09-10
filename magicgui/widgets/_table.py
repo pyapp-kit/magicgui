@@ -25,6 +25,7 @@ from typing_extensions import Literal
 from magicgui.application import use_app
 from magicgui.events import Signal
 from magicgui.widgets._bases import Widget
+from magicgui.widgets._bases.mixins import _ReadOnlyMixin
 from magicgui.widgets._protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
@@ -128,7 +129,7 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
         return f"table_items({n} {self._axis}s)"
 
 
-class Table(Widget, MutableMapping[TblKey, list]):
+class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     """A table widget representing columnar or 2D data with headers.
 
     Tables behave like plain `dicts`, where the keys are column headers and the
