@@ -82,7 +82,7 @@ class SignalInstance(psygnal.SignalInstance):
                     if self._new_callback.get(_slt[0]):
                         cb(*args[:max_args])
                     else:
-                        cb(Event(args[0], "hi", self.instance))
+                        cb(Event(args[0], self.name, self.instance))
 
             for slot in rem:
                 self.disconnect(slot)
