@@ -40,4 +40,4 @@ Running this function will show a GUI with a top app menu bar containing a singl
 
 This can be very helpful when your tool's functionality is not completely obvious at first glance, or when a few different user-enabled flags may interact in non-trivial ways. Alongside the tooltips for each parameter (which magicgui automatically generates) the GUI will be as well-documented as your code is.
 
-A runnable example which uses the HTML capabilties of this feature can be found in the github repository at [examples/main_window.py](https://github.com/napari/magicgui/blob/master/examples/main_window.py).
+A runnable example which uses the HTML capabilties of this feature can be found in the github repository at [examples/main_window.py](https://github.com/napari/magicgui/blob/main/examples/main_window.py).
