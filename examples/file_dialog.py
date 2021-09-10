@@ -24,7 +24,7 @@ def filespicker(filenames: Sequence[Path]):
 
 filepicker.show()
 filespicker.show()
-filepicker.filename.changed.connect(lambda e: print(e.value))
-filespicker.filenames.changed.connect(lambda e: print(e.value))
+filepicker.filename.changed.connect(print)
+filespicker.filenames.changed.connect(print)
 
 use_app().run()

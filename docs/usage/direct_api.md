@@ -34,7 +34,7 @@ label = Label(value=slider.value)
 
 # set up callbacks
 @slider.changed.connect
-def set_label(value):
+def set_label(value: str):
     label.value = value
 
 

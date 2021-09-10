@@ -1,9 +1,20 @@
 """deprecation strategy"""
 
 import weakref
+from typing import Callable, Dict
 
-from psygnal import Signal as _Sig
-from psygnal import SignalInstance as _SI
+import psygnal
+
+
+def new_style_slot(slot: Callable) -> bool:
+    sig = psygnal._signal.signature(slot)
+    if len(sig.parameters) != 1:
+        return True
+    p0 = list(sig.parameters.values())[0]
+    return p0.annotation is not p0.empty and (
+        (getattr(p0.annotation, "__name__", "") != "Event")
+        or (str(p0.annotation) == "Event")
+    )
 
 
 class Event:
@@ -13,8 +24,8 @@ class Event:
         self.source = source
 
 
-class SignalInstance(_SI):
-    _new_callback = {}  # type: ignore
+class SignalInstance(psygnal.SignalInstance):
+    _new_callback: Dict[psygnal._signal.NormedCallback, bool] = {}
 
     def connect(
         self,
@@ -23,9 +34,8 @@ class SignalInstance(_SI):
         check_nargs=None,
         check_types=None,
         unique=False,
-        new_callback=False,
     ):
-
+        new_callback = new_style_slot(slot)
         if not new_callback:
             import warnings
 
@@ -38,7 +48,9 @@ class SignalInstance(_SI):
                 f"@{name}.{signame}.connect\n"
                 "def my_callback(*args):\n"
                 "    # *args are the value(s) themselves!"
-                "\n\nTo silence this warning use `.connect(..., new_callback=True)`"
+                "\n\nTo silence this warning you may either provide a callback that "
+                "has more\nor less than 1 parameter.  Or annotate the single parameter "
+                "as anything\n*other* than `Event`, e.g. `def callback(x: int): ...`"
                 "\nFor details, see: https://github.com/napari/magicgui/issues/255",
                 FutureWarning,
             )
@@ -70,7 +82,7 @@ class SignalInstance(_SI):
                         cb = slot
 
                     # TODO: add better exception handling
-                    if self._new_callback.get(_slt):
+                    if self._new_callback.get(_slt[0]):
                         cb(*args[:max_args])
                     else:
                         cb(Event(args[0], "hi", self.instance))
@@ -81,7 +93,7 @@ class SignalInstance(_SI):
         return None
 
 
-class Signal(_Sig):
+class Signal(psygnal.Signal):
     def __get__(self, instance, owner=None):
         if instance is None:
             return self

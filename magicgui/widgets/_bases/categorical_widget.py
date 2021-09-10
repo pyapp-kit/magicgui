@@ -27,7 +27,7 @@ class CategoricalWidget(ValueWidget):
     def _post_init(self):
         super()._post_init()
         self.reset_choices()
-        self.parent_changed.connect(self.reset_choices, new_callback=True)
+        self.parent_changed.connect(self.reset_choices)
 
     @property
     def value(self):

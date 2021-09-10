@@ -14,10 +14,10 @@ def example(func="f"):
     pass
 
 
-def update(e):
+def update(f: str):
     if len(example) > 2:
         del example[1]
-    example.insert(1, magicgui(globals()[e.value]))
+    example.insert(1, magicgui(globals()[f]))
 
 
 example.func.changed.connect(update)

@@ -76,5 +76,5 @@ def widget_demo(
     return locals().values()
 
 
-widget_demo.changed.connect(lambda event: print(widget_demo))
+widget_demo.changed.connect(print)
 widget_demo.show(run=True)

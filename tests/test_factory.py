@@ -101,7 +101,7 @@ def test_magic_local_factory_self_reference():
 
 
 def test_factory_init():
-    def bomb(e):
+    def bomb():
         raise RuntimeError("boom")
 
     def widget_init(widget):

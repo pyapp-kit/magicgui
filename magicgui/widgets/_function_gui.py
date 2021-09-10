@@ -179,7 +179,8 @@ class FunctionGui(Container, Generic[_R]):
             self._call_button = PushButton(gui_only=True, text=text, name="call_button")
             if not auto_call:  # (otherwise it already gets called)
 
-                def _disable_button_and_call(val):
+                @self._call_button.changed.connect
+                def _disable_button_and_call():
                     # disable the call button until the function has finished
                     self._call_button = cast(PushButton, self._call_button)
                     self._call_button.enabled = False
@@ -188,9 +189,6 @@ class FunctionGui(Container, Generic[_R]):
                     finally:
                         self._call_button.enabled = True
 
-                self._call_button.changed.connect(
-                    _disable_button_and_call, new_callback=True
-                )
             self.append(self._call_button)
 
         self._result_widget: LineEdit | None = None
@@ -203,9 +201,9 @@ class FunctionGui(Container, Generic[_R]):
             self._load(quiet=True)
 
         self._auto_call = auto_call
-        self.changed.connect(self._on_change, new_callback=True)
+        self.changed.connect(self._on_change)
 
-    def _on_change(self, e):
+    def _on_change(self):
         if self.persist:
             self._dump()
         if self._auto_call:
