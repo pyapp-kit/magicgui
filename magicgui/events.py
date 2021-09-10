@@ -1,5 +1,6 @@
 """deprecation strategy"""
 
+import warnings
 import weakref
 from collections import namedtuple
 from typing import Callable, Dict
@@ -34,12 +35,10 @@ class SignalInstance(psygnal.SignalInstance):
     ):
         new_callback = new_style_slot(slot)
         if not new_callback:
-            import warnings
-
-            name = getattr(self._instance, "name", "widget")
+            name = getattr(self._instance, "name", "") or "widget"
             signame = self.name
             warnings.warn(
-                "\nmagicgui 0.3.0 will change the way that callbacks are called.\n"
+                "\nmagicgui 0.4.0 will change the way that callbacks are called.\n"
                 "Instead of a single `Event` instance, with an `event.value` attribute,"
                 "\ncallbacks will receive the value(s) directly:\n\n"
                 f"@{name}.{signame}.connect\n"
@@ -88,6 +87,20 @@ class SignalInstance(psygnal.SignalInstance):
                 self.disconnect(slot)
 
         return None
+
+    def __call__(self, *args, **kwds):
+        name = getattr(self._instance, "name", "") or "widget"
+        signame = self.name
+        _args = list(args) + list(kwds.values())
+        _argstring = "".join(str(x) for x in _args)
+        warnings.warn(
+            "\nmagicgui 0.4.0 is using psygnal for event emitters.\nPlease "
+            f"use '{name}.{signame}.emit({_argstring})' instead of calling "
+            f"{name}.{signame}(...) directly.\nIn the future this will be an error."
+            "\nFor details, see: https://github.com/napari/magicgui/issues/255",
+            FutureWarning,
+        )
+        return self._run_emit_loop(_args)
 
 
 class Signal(psygnal.Signal):
