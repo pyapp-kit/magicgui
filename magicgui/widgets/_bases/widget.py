@@ -304,6 +304,10 @@ class Widget:
         """
         self.visible = False
 
+    def close(self) -> None:
+        """Close widget."""
+        self._widget._mgui_close_widget()
+
     def render(self) -> np.ndarray:
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         return self._widget._mgui_render()
