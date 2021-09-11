@@ -20,7 +20,8 @@ from magicgui.widgets._bases import ValueWidget
 )
 def test_widgets(WidgetClass):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
-    _ = WidgetClass()
+    wdg: widgets.Widget = WidgetClass()
+    wdg.close()
 
 
 expectations = (
@@ -35,13 +36,16 @@ expectations = (
 @pytest.mark.parametrize("kwargs, expect_type", expectations)
 def test_create_widget(kwargs, expect_type):
     """Test that various values get turned into widgets."""
-    assert isinstance(widgets.create_widget(**kwargs), expect_type)
+    wdg = widgets.create_widget(**kwargs)
+    assert isinstance(wdg, expect_type)
+    wdg.close()
 
 
 # fmt: off
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
 
+    def _mgui_close_widget(self): ... # noqa
     def _mgui_get_visible(self): ... # noqa
     def _mgui_set_visible(self): ... # noqa
     def _mgui_get_enabled(self): ... # noqa
@@ -81,9 +85,9 @@ def test_custom_widget():
     """Test that create_widget works with arbitrary backend implementations."""
     # by implementing the ValueWidgetProtocol, magicgui will know to wrap the above
     # widget with a widgets._bases.ValueWidget
-    assert isinstance(
-        widgets.create_widget(1, widget_type=MyValueWidget), ValueWidget  # type:ignore
-    )
+    wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
+    assert isinstance(wdg, ValueWidget)
+    wdg.close()
 
 
 def test_custom_widget_fails():
@@ -142,7 +146,7 @@ def test_basic_widget_attributes():
     with pytest.raises(KeyError):
         widget.param_kind = "not a proper param type"
     with pytest.raises(TypeError):
-        widget.param_kind = 1
+        widget.param_kind = 1  # type: ignore
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {
@@ -152,6 +156,7 @@ def test_basic_widget_attributes():
         "enabled": False,
         "visible": False,
     }
+    widget.close()
 
 
 def test_tooltip():
@@ -190,6 +195,7 @@ def test_container_widget():
     del container[1:]
     del container[-1]
     assert not container
+    container.close()
 
 
 def test_container_label_widths():
@@ -210,6 +216,7 @@ def test_container_label_widths():
     before = _label_width()
     container.append(labelb)
     assert _label_width() > before
+    container.close()
 
 
 def test_labeled_widget_container():
@@ -231,6 +238,7 @@ def test_labeled_widget_container():
     assert not lw.visible
     w1.label = "another label"
     assert lw._label_widget.value == "another label"
+    container.close()
 
 
 def test_visible_in_container():
@@ -249,6 +257,7 @@ def test_visible_in_container():
     assert not w3.visible
     w1.show()
     assert w1.visible
+    container.close()
 
 
 def test_delete_widget():
@@ -285,6 +294,7 @@ def test_unhashable_choice_data():
     assert combo.choices == ([1, 2, 3], [1, 2, 5])
     combo.choices = ("x", "y", "z")
     assert combo.choices == ("x", "y", "z")
+    combo.close()
 
 
 def test_bound_values():
@@ -463,6 +473,7 @@ def test_main_function_gui():
     assert isinstance(add._help_text_edit, widgets.TextEdit)
     assert add._help_text_edit.value.startswith("Adds the given two numbers")
     assert add._help_text_edit.read_only
+    add.close()
 
 
 def test_range_widget():
@@ -519,6 +530,8 @@ def test_containers_show_nested_containers():
     assert not c2.visible
     c2.show()
     assert c2.visible and func.visible
+    c2.close()
+    assert not func.visible
 
 
 def test_file_dialog_events():
@@ -578,6 +591,8 @@ def test_extreme_floats(WdgClass, value):
     _value = 1 / value
     wdg2 = WdgClass(value=_value, step=_value / 10, max=_value * 100)
     assert round(wdg2.value / _value, 4) == 1.0
+    wdg.close()
+    wdg2.close()
 
 
 @pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
@@ -623,6 +638,7 @@ def test_categorical_widgets_with_enums(Cls):
     assert wdg.value == MyEnum.B
     assert wdg.current_choice == "B"
     assert wdg.choices == tuple(MyEnum.__members__.values())
+    wdg.close()
 
 
 @pytest.mark.skipif(use_app().backend_name != "qt", reason="only on qt")

@@ -119,7 +119,7 @@ following `ValueWidgets` track some `value`:
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Label
    LineEdit
@@ -194,7 +194,7 @@ values, and a step size.  `RangedWidgets` include:
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    SpinBox
    FloatSpinBox
@@ -243,7 +243,7 @@ that additionally have an `orientation`, and a `readout`.
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Slider
    FloatSlider
@@ -287,7 +287,7 @@ container.show()
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    PushButton
    CheckBox
@@ -328,10 +328,11 @@ of valid choices.  They can be created from:
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    ComboBox
    RadioButtons
+   Select
 ```
 
 ```{list-table}
@@ -360,7 +361,9 @@ of valid choices.  They can be created from:
 choices = ['one', 'two', 'three']
 w1 = widgets.ComboBox(choices=choices, value='two', label='ComboBox:')
 w2 = widgets.RadioButtons(choices=choices, label='RadioButtons:')
-container = widgets.Container(widgets=[w1, w2])
+w3 = widgets.Select(choices=choices, label='Select:')
+container = widgets.Container(widgets=[w1, w2, w3])
+container.max_height = 220
 container.show()
 ```
 
@@ -376,7 +379,7 @@ notable example of a `Container` is {class}`magicgui.widgets.FunctionGui`)
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Container
    MainWindow

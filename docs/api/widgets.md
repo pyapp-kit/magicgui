@@ -8,7 +8,7 @@ Functions
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    create_widget
 
@@ -20,7 +20,7 @@ Value Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Label
    LineEdit
@@ -38,7 +38,7 @@ Button Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    PushButton
    CheckBox
@@ -49,7 +49,7 @@ Ranged Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    SpinBox
    FloatSpinBox
@@ -59,7 +59,7 @@ Slider Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Slider
    FloatSlider
@@ -71,9 +71,10 @@ Categorical Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    ComboBox
+   Select
    RadioButtons
 
 Container Widgets
@@ -81,7 +82,7 @@ Container Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Container
    FunctionGui

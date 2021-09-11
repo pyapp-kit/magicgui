@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import sys
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, ForwardRef
 
@@ -8,10 +9,14 @@ from magicgui.application import use_app
 from magicgui.events import Signal
 from magicgui.widgets import _protocols
 
+BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
+if BUILDING_DOCS:
+    import numpy as np
+
 if TYPE_CHECKING:
     from weakref import ReferenceType
 
-    import numpy as np
+    import numpy as np  # noqa
 
     from magicgui.widgets._concrete import _LabeledWidget
 
@@ -304,6 +309,10 @@ class Widget:
         alias for ``widget.visible = False``
         """
         self.visible = False
+
+    def close(self) -> None:
+        """Close widget."""
+        self._widget._mgui_close_widget()
 
     def render(self) -> np.ndarray:
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""

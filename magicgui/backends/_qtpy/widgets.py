@@ -46,6 +46,9 @@ class QBaseWidget(_protocols.WidgetProtocol):
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
+    def _mgui_close_widget(self):
+        self._qwidget.close()
+
     def _mgui_get_visible(self):
         return self._qwidget.isVisible()
 

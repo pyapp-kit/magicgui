@@ -389,7 +389,7 @@ class ComboBox(CategoricalWidget):
 
 @backend_widget
 class Select(CategoricalWidget):
-    """A dropdown menu, allowing selection between multiple choices."""
+    """A list of options, allowing selection between multiple choices."""
 
 
 @merge_super_sigs
