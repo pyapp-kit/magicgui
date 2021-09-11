@@ -331,6 +331,7 @@ of valid choices.  They can be created from:
    :toctree: _autosummary
 
    ComboBox
+   Select
    RadioButtons
 ```
 
