@@ -1,6 +1,7 @@
 name: deploy docs
 
 on:
+  pull_request:
   # Trigger the workflow on push to main branch
   push:
     branches:
@@ -37,6 +38,7 @@ jobs:
           pip install --upgrade pip
           pip install .[pyqt5]
           pip install -r docs/requirements.txt
+          python docs/patch.py
 
       # Build the book
       - name: Build the book
