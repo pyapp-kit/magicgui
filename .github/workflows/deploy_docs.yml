@@ -1,7 +1,6 @@
 name: deploy docs
 
 on:
-  pull_request:
   # Trigger the workflow on push to main branch
   push:
     branches:
