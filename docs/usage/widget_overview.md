@@ -119,7 +119,7 @@ following `ValueWidgets` track some `value`:
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Label
    LineEdit
@@ -194,7 +194,7 @@ values, and a step size.  `RangedWidgets` include:
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    SpinBox
    FloatSpinBox
@@ -243,7 +243,7 @@ that additionally have an `orientation`, and a `readout`.
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Slider
    FloatSlider
@@ -287,7 +287,7 @@ container.show()
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    PushButton
    CheckBox
@@ -328,9 +328,10 @@ of valid choices.  They can be created from:
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    ComboBox
+   Select
    RadioButtons
 ```
 
@@ -376,7 +377,7 @@ notable example of a `Container` is {class}`magicgui.widgets.FunctionGui`)
 
 .. autosummary::
    :nosignatures:
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    Container
    MainWindow
