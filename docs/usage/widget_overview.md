@@ -331,8 +331,8 @@ of valid choices.  They can be created from:
    :toctree: _autosummary
 
    ComboBox
-   Select
    RadioButtons
+   Select
 ```
 
 ```{list-table}
@@ -361,7 +361,9 @@ of valid choices.  They can be created from:
 choices = ['one', 'two', 'three']
 w1 = widgets.ComboBox(choices=choices, value='two', label='ComboBox:')
 w2 = widgets.RadioButtons(choices=choices, label='RadioButtons:')
-container = widgets.Container(widgets=[w1, w2])
+w3 = widgets.Select(choices=choices, label='Select:')
+container = widgets.Container(widgets=[w1, w2, w3])
+container.max_height = 220
 container.show()
 ```
 
