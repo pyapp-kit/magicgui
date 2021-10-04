@@ -537,18 +537,20 @@ def test_containers_show_nested_containers():
 def test_file_dialog_events():
     """Test that file dialog events emit the value of the line_edit."""
     fe = widgets.FileEdit(value="hi")
-    fe.changed = MagicMock(wraps=fe.changed)
+    mock = MagicMock()
+    fe.changed.connect(mock)
     fe.line_edit.value = "world"
-    fe.changed.assert_called_once_with(value=Path("world"))
+    mock.assert_called_once_with(Path("world"))
 
 
 def test_file_dialog_button_events():
     """Test that clicking the file dialog button doesn't emit an event."""
     fe = widgets.FileEdit(value="hi")
-    fe.changed = MagicMock(wraps=fe.changed)
+    mock = MagicMock()
+    fe.changed.connect(mock)
     with patch.object(fe, "_show_file_dialog", return_value=""):
-        fe.choose_btn.changed()
-    fe.changed.assert_not_called()
+        fe.choose_btn.changed.emit("value")
+    mock.assert_not_called()
     assert fe.value == Path("hi")
 
 
@@ -580,11 +582,11 @@ def test_extreme_floats(WdgClass, value):
     assert round(wdg.value / value, 4) == 1
     assert round(wdg.max / value, 4) == 10
 
-    wdg.changed = MagicMock(wraps=wdg.changed)
+    mock = MagicMock()
+    wdg.changed.connect(mock)
     wdg.value = value * 2
-    wdg.changed.assert_called_once()
-    a, k = wdg.changed.call_args
-    assert round(k["value"] / value, 4) == 2
+    mock.assert_called_once()
+    assert round(mock.call_args[0][0] / value, 4) == 2
 
     _value = 1 / value
     wdg2 = WdgClass(value=_value, step=_value / 10, max=_value * 100)
@@ -600,14 +602,14 @@ def test_categorical_widgets(Cls):
         choices=[("first option", 1), ("second option", 2), ("third option", 3)],
     )
 
-    wdg.changed = MagicMock(wraps=wdg.changed)
+    mock = MagicMock()
+    wdg.changed.connect(mock)
     assert isinstance(wdg, widgets._bases.CategoricalWidget)
     assert wdg.value == 1
     assert wdg.current_choice == "first option"
-    wdg.changed.assert_not_called()
+    mock.assert_not_called()
     wdg.value = 2
-    wdg.changed.assert_called_once()
-    assert wdg.changed.call_args[1].get("value") == 2
+    mock.assert_called_once_with(2)
     assert wdg.value == 2
     assert wdg.current_choice == "second option"
     assert wdg.choices == (1, 2, 3)
@@ -625,14 +627,14 @@ class MyEnum(Enum):
 def test_categorical_widgets_with_enums(Cls):
     wdg = Cls(value=MyEnum.A, choices=MyEnum)
 
-    wdg.changed = MagicMock(wraps=wdg.changed)
+    mock = MagicMock()
+    wdg.changed.connect(mock)
     assert isinstance(wdg, widgets._bases.CategoricalWidget)
     assert wdg.value == MyEnum.A
     assert wdg.current_choice == "A"
-    wdg.changed.assert_not_called()
+    mock.assert_not_called()
     wdg.value = MyEnum.B
-    wdg.changed.assert_called_once()
-    assert wdg.changed.call_args[1].get("value") == MyEnum.B
+    mock.assert_called_once_with(MyEnum.B)
     assert wdg.value == MyEnum.B
     assert wdg.current_choice == "B"
     assert wdg.choices == tuple(MyEnum.__members__.values())

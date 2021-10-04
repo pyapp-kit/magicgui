@@ -22,7 +22,7 @@ from typing import (
 )
 
 from magicgui.application import AppRef
-from magicgui.events import EventEmitter
+from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
@@ -106,6 +106,7 @@ class FunctionGui(Container, Generic[_R]):
         If unexpected keyword arguments are provided
     """
 
+    called = Signal(object)
     _widget: ContainerProtocol
 
     def __init__(
@@ -162,7 +163,6 @@ class FunctionGui(Container, Generic[_R]):
             name=name or self._callable_name,
         )
         self._param_options = param_options
-        self.called = EventEmitter(self, type="called")
         self._result_name = ""
         self._call_count: int = 0
 
@@ -179,7 +179,8 @@ class FunctionGui(Container, Generic[_R]):
             self._call_button = PushButton(gui_only=True, text=text, name="call_button")
             if not auto_call:  # (otherwise it already gets called)
 
-                def _disable_button_and_call(val):
+                @self._call_button.changed.connect
+                def _disable_button_and_call():
                     # disable the call button until the function has finished
                     self._call_button = cast(PushButton, self._call_button)
                     self._call_button.enabled = False
@@ -188,7 +189,6 @@ class FunctionGui(Container, Generic[_R]):
                     finally:
                         self._call_button.enabled = True
 
-                self._call_button.changed.connect(_disable_button_and_call)
             self.append(self._call_button)
 
         self._result_widget: LineEdit | None = None
@@ -203,7 +203,7 @@ class FunctionGui(Container, Generic[_R]):
         self._auto_call = auto_call
         self.changed.connect(self._on_change)
 
-    def _on_change(self, e):
+    def _on_change(self):
         if self.persist:
             self._dump()
         if self._auto_call:
@@ -286,7 +286,7 @@ class FunctionGui(Container, Generic[_R]):
 
         self._call_count += 1
         if self._result_widget is not None:
-            with self._result_widget.changed.blocker():
+            with self._result_widget.changed.blocked():
                 self._result_widget.value = value
 
         return_type = sig.return_annotation
@@ -295,7 +295,7 @@ class FunctionGui(Container, Generic[_R]):
 
             for callback in _type2callback(return_type):
                 callback(self, value, return_type)
-        self.called(value=value)
+        self.called.emit(value)
         return value
 
     def __repr__(self) -> str:

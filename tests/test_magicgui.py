@@ -136,6 +136,7 @@ def test_call_button():
     func.a.value = 7
 
 
+@pytest.mark.filterwarnings("ignore")
 def test_auto_call(qtbot, magic_func):
     """Test that changing a parameter calls the function."""
     from qtpy.QtTest import QTest

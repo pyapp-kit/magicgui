@@ -54,7 +54,7 @@ class CategoricalWidget(ValueWidget):
         d.update({"choices": self._default_choices})
         return d
 
-    def reset_choices(self, event=None):
+    def reset_choices(self, *_: Any):
         """Reset choices to the default state.
 
         If self._default_choices is a callable, this may NOT be the exact same set of
@@ -81,7 +81,7 @@ class CategoricalWidget(ValueWidget):
         data = data if data is not None else choice_name
         self._widget._mgui_set_choice(choice_name, data)
         if choice_name == self.current_choice:
-            self.changed(value=self.value)
+            self.changed.emit(self.value)
 
     def del_choice(self, choice_name: str):
         """Delete the provided ``choice_name`` and associated data."""

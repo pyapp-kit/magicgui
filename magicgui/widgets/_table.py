@@ -23,7 +23,7 @@ from warnings import warn
 from typing_extensions import Literal
 
 from magicgui.application import use_app
-from magicgui.events import EventEmitter
+from magicgui.events import Signal
 from magicgui.widgets._bases import Widget
 from magicgui.widgets._bases.mixins import _ReadOnlyMixin
 from magicgui.widgets._protocols import TableWidgetProtocol
@@ -201,13 +201,14 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     Events
     ------
     changed
-        Emitted whenever a cell in the table changes.  the `event.value` will have a
+        Emitted whenever a cell in the table changes. The value will have a
         dict of information regarding the cell that changed:
         {'data': x, 'row': int, 'column': int, 'column_header': str, 'row_header': str}
         CURRENTLY: only emitted on changes in the GUI. not programattic changes.
     """
 
     _widget: TableWidgetProtocol
+    changed = Signal(object)
 
     def __new__(
         cls,
@@ -242,9 +243,8 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
 
     def _post_init(self):
         super()._post_init()
-        self.changed = EventEmitter(source=self, type="changed")
         self._widget._mgui_bind_change_callback(
-            lambda *x: self.changed(value=x[0] if x else None)
+            lambda *x: self.changed.emit(x[0] if x else None)
         )
 
     @property

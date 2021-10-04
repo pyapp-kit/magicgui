@@ -4,7 +4,7 @@ from typing import Any, Union
 
 from typing_extensions import get_args, get_origin
 
-from magicgui.events import EventEmitter
+from magicgui.events import Signal
 from magicgui.widgets import _protocols
 
 from .widget import Widget
@@ -33,7 +33,7 @@ class ValueWidget(Widget):
     """
 
     _widget: _protocols.ValueWidgetProtocol
-    changed: EventEmitter
+    changed = Signal(object)
     null_value = None
 
     def __init__(self, value: Any = UNSET, bind: Any = UNSET, nullable=False, **kwargs):
@@ -48,7 +48,7 @@ class ValueWidget(Widget):
 
     def _post_init(self):
         super()._post_init()
-        self.changed = EventEmitter(source=self, type="changed")
+        # self.changed = ter(source=self, type="changed")
         self._widget._mgui_bind_change_callback(self._on_value_change)
 
     def _on_value_change(self, *args):
@@ -56,7 +56,7 @@ class ValueWidget(Widget):
         value = args[0] if args else None
         if value is self.null_value and not self._nullable:
             return
-        self.changed(value=value)
+        self.changed.emit(value)
 
     def get_value(self):
         """Callable version of `self.value`.

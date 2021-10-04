@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, ForwardRef
 
 from magicgui.application import use_app
-from magicgui.events import EventEmitter
+from magicgui.events import Signal
 from magicgui.widgets import _protocols
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
@@ -51,6 +51,9 @@ class Widget:
     # if this widget becomes owned by a labeled widget
     _labeled_widget_ref: ReferenceType[_LabeledWidget] | None = None
 
+    parent_changed = Signal(object)
+    label_changed = Signal(str)
+
     def __init__(
         self,
         widget_type: type[_protocols.WidgetProtocol],
@@ -87,8 +90,6 @@ class Widget:
         self.enabled = enabled
         self.annotation: Any = annotation
         self.gui_only = gui_only
-        self.parent_changed = EventEmitter(source=self, type="parent_changed")
-        self.label_changed = EventEmitter(source=self, type="label_changed")
         self._widget._mgui_bind_parent_change_callback(self._emit_parent)
 
         # put the magicgui widget on the native object...may cause error on some backend
@@ -180,7 +181,7 @@ class Widget:
     @label.setter
     def label(self, value):
         self._label = value
-        self.label_changed(value=value)
+        self.label_changed.emit(value)
 
     @property
     def width(self) -> int:
@@ -339,5 +340,5 @@ class Widget:
             file_obj.seek(0)
             return file_obj.read()
 
-    def _emit_parent(self, event=None):
-        self.parent_changed(value=self.parent)
+    def _emit_parent(self, *_):
+        self.parent_changed.emit(self.parent)

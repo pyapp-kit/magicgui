@@ -201,12 +201,12 @@ of your choice.  Then, whenever the gui widget *or the original function* are
 called, the result will be passed to your callback function:
 
 ```python
-def print_mean(event):
+@image_arithmetic.called.connect
+def print_mean(value):
     """Callback function that accepts an event"""
-    # the event.value attribute has the result of calling the function
-    print(event.value.mean())
+    # the value attribute has the result of calling the function
+    print(np.mean(value))
 
-image_arithmetic.called.connect(print_mean)
 ```
 
 ```python

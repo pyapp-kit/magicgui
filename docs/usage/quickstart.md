@@ -124,12 +124,12 @@ calling the function.  The function will have a new `called` attribute that you
 can `connect` to an arbitrary callback function:
 
 ```{code-cell} python
-def my_callback(event):
+@snells_law.called.connect
+def my_callback(value: str):
     # The callback receives an `Event` object that has the result
     # of the function call in the `value` attribute
-    print("Your function was called! The result is", event.value)
+    print(f"Your function was called! The result is: {value}")
 
-snells_law.called.connect(my_callback)
 result = snells_law()
 ```
 
@@ -144,7 +144,10 @@ to the `<parameter>.changed` signal:
 
 ```{code-cell} python
 # whenever the current value for n1 changes, print it to the console:
-snells_law.n1.changed.connect(lambda e: print(f"changed to {e.value}"))
+@snells_law.n1.changed.connect
+def _on_n1_changed(x: Medium):
+    print(f"changed to {x}")
+
 snells_law.n1.value = Medium.Air
 ```
 
