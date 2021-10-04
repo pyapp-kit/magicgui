@@ -84,3 +84,4 @@ class WidgetOptions(TypedDict, total=False):
     tooltip: str
     bind: Any
     nullable: bool
+    allow_multiple: bool
