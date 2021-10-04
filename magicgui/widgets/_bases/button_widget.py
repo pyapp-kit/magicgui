@@ -28,7 +28,7 @@ class ButtonWidget(ValueWidget):
             )
         text = text or kwargs.get("label")
         super().__init__(**kwargs)
-        self.text = text or self.name
+        self.text = (text or self.name).replace("_", " ")
 
     @property
     def options(self) -> dict:
