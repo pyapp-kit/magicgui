@@ -8,7 +8,7 @@ from typing import Callable, Dict
 import psygnal
 
 
-def new_style_slot(slot: Callable) -> bool:
+def _new_style_slot(slot: Callable) -> bool:
     sig = psygnal._signal.signature(slot)
     if len(sig.parameters) != 1:
         return True
@@ -33,8 +33,8 @@ class SignalInstance(psygnal.SignalInstance):
         check_types=None,
         unique=False,
     ):
-        new_callback = new_style_slot(slot)
-        if not new_callback:
+        is_new_style = _new_style_slot(slot)
+        if not is_new_style:
             name = getattr(self._instance, "name", "") or "widget"
             signame = self.name
             warnings.warn(
@@ -53,7 +53,7 @@ class SignalInstance(psygnal.SignalInstance):
         result = super().connect(
             slot, check_nargs=check_nargs, check_types=check_types, unique=unique
         )
-        self._new_callback[self._normalize_slot(slot)] = new_callback
+        self._new_callback[self._normalize_slot(slot)] = is_new_style
         return result
 
     def _run_emit_loop(self, args) -> None:
@@ -87,18 +87,6 @@ class SignalInstance(psygnal.SignalInstance):
                 self.disconnect(slot)
 
         return None
-
-    def __call__(self, *args, **kwds):
-        name = getattr(self._instance, "name", "") or "widget"
-        signame = self.name
-        warnings.warn(
-            "\n\nmagicgui 0.4.0 is using psygnal for event emitters.\nPlease "
-            f"use '{name}.{signame}.emit(...)' instead of calling "
-            f"{name}.{signame}(...) directly.\nIn the future this will be an error."
-            "\nFor details, see: https://github.com/napari/magicgui/issues/255",
-            FutureWarning,
-        )
-        return self._run_emit_loop(args + tuple(kwds.values()))
 
 
 class Signal(psygnal.Signal):
