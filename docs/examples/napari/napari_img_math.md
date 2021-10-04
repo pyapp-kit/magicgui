@@ -205,7 +205,7 @@ called, the result will be passed to your callback function:
 def print_mean(value):
     """Callback function that accepts an event"""
     # the value attribute has the result of calling the function
-    print(value.mean())
+    print(np.mean(value))
 
 ```
 
