@@ -1,5 +1,52 @@
 # Changelog
 
+## [v0.3.0](https://github.com/napari/magicgui/tree/v0.3.0) (2021-10-10)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.0rc2...v0.3.0)
+
+**Implemented enhancements:**
+
+- Return type from `register_type`, so that it can be used as a decorator [\#297](https://github.com/napari/magicgui/pull/297) ([tlambert03](https://github.com/tlambert03))
+
+**Deprecated:**
+
+- Remove `choices` deprecation warning from 0.2.0 [\#298](https://github.com/napari/magicgui/pull/298) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- add v0.3.0 migration guide [\#299](https://github.com/napari/magicgui/pull/299) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.3.0rc2](https://github.com/napari/magicgui/tree/v0.3.0rc2) (2021-10-10)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.0rc1...v0.3.0rc2)
+
+**Fixed bugs:**
+
+- Allow `Signal.sender()` to work regardless of importing from magicgui or Psygnal [\#296](https://github.com/napari/magicgui/pull/296) ([tlambert03](https://github.com/tlambert03))
+- Catch kwargs in event emitter \(backwards compatibility with old event emitter\) [\#295](https://github.com/napari/magicgui/pull/295) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.3.0rc1](https://github.com/napari/magicgui/tree/v0.3.0rc1) (2021-10-04)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.11...v0.3.0rc1)
+
+**Implemented enhancements:**
+
+- Use psygnal instead of `EventEmitter` \(callbacks receive value directly\).  Add deprecation strategy [\#253](https://github.com/napari/magicgui/pull/253) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- Replace underscore with spaces in checkbox label [\#293](https://github.com/napari/magicgui/pull/293) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- misc typing fixes and changlelog generator config [\#292](https://github.com/napari/magicgui/pull/292) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- \[pre-commit.ci\] pre-commit autoupdate [\#291](https://github.com/napari/magicgui/pull/291) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- \[pre-commit.ci\] pre-commit autoupdate [\#289](https://github.com/napari/magicgui/pull/289) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- \[pre-commit.ci\] pre-commit autoupdate [\#287](https://github.com/napari/magicgui/pull/287) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
 ## [v0.2.11](https://github.com/napari/magicgui/tree/v0.2.11) (2021-09-11)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.2.10...v0.2.11)
@@ -21,11 +68,14 @@
 - Fix optional annotation affecting later widgets [\#262](https://github.com/napari/magicgui/pull/262) ([tlambert03](https://github.com/tlambert03))
 - Fix RangeWidget with implicit optional type [\#257](https://github.com/napari/magicgui/pull/257) ([tlambert03](https://github.com/tlambert03))
 
+**Tests & CI:**
+
+- Fix typesafety tests [\#282](https://github.com/napari/magicgui/pull/282) ([tlambert03](https://github.com/tlambert03))
+
 **Merged pull requests:**
 
 - Fix docs build again [\#286](https://github.com/napari/magicgui/pull/286) ([tlambert03](https://github.com/tlambert03))
 - Fix docs build, add Select widget [\#285](https://github.com/napari/magicgui/pull/285) ([tlambert03](https://github.com/tlambert03))
-- Fix typesafety tests [\#282](https://github.com/napari/magicgui/pull/282) ([tlambert03](https://github.com/tlambert03))
 - update master to main [\#280](https://github.com/napari/magicgui/pull/280) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#278](https://github.com/napari/magicgui/pull/278) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - \[pre-commit.ci\] pre-commit autoupdate [\#272](https://github.com/napari/magicgui/pull/272) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
@@ -66,7 +116,7 @@
 
 ## [v0.2.9](https://github.com/napari/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.9)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -89,13 +139,13 @@
 - skip docutils 0.17 [\#207](https://github.com/napari/magicgui/pull/207) ([tlambert03](https://github.com/tlambert03))
 - Add cache location hint to persist option documentation [\#200](https://github.com/napari/magicgui/pull/200) ([maweigert](https://github.com/maweigert))
 
-## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.8)
-
 ## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8rc0)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.8rc0)
+
+## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8)
 
 **Implemented enhancements:**
 
@@ -123,7 +173,7 @@
 
 ## [v0.2.7](https://github.com/napari/magicgui/tree/v0.2.7) (2021-02-28)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6rc0...v0.2.7)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6...v0.2.7)
 
 **Implemented enhancements:**
 
@@ -154,13 +204,13 @@
 - update changelog [\#137](https://github.com/napari/magicgui/pull/137) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#136](https://github.com/napari/magicgui/pull/136) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.6rc0](https://github.com/napari/magicgui/tree/v0.2.6rc0) (2021-01-25)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6...v0.2.6rc0)
-
 ## [v0.2.6](https://github.com/napari/magicgui/tree/v0.2.6) (2021-01-25)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6rc0...v0.2.6)
+
+## [v0.2.6rc0](https://github.com/napari/magicgui/tree/v0.2.6rc0) (2021-01-25)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6rc0)
 
 **Merged pull requests:**
 
