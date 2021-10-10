@@ -319,10 +319,6 @@ def register_type(
     _options = cast(WidgetOptions, options)
 
     if "choices" in _options:
-        _choices = _options["choices"]
-
-        if not isinstance(_choices, EnumMeta) and callable(_choices):
-            _options["choices"] = _check_choices(_choices)
         _TYPE_DEFS[type_] = (widgets.ComboBox, _options)
         if widget_type is not None:
             warnings.warn(
@@ -341,28 +337,6 @@ def register_type(
         # of ValueWidget is used... it usually won't be shown
         _TYPE_DEFS[type_] = (widgets.EmptyWidget, _options)
     return None
-
-
-def _check_choices(choices):
-    """Catch pre 0.2.0 API from developers using register_type."""
-    n_params = len(inspect.signature(choices).parameters)
-    if n_params > 1:
-        warnings.warn(
-            "\n\nDEVELOPER NOTICE: As of magicgui 0.2.0, when providing a callable to "
-            "`choices`, the\ncallable may accept only a single positional "
-            "argument (which will be an instance of\n"
-            "`magicgui.widgets._bases.CategoricalWidget`), and must "
-            "return an iterable (the choices\nto show).  Function "
-            f"'{choices.__module__}.{choices.__name__}' accepts {n_params} "
-            "arguments.\nIn the future, this will raise an exception.\n",
-            DeprecationWarning,
-        )
-
-        def wrapper(obj):
-            return choices(obj.native, obj.annotation)
-
-        return wrapper
-    return choices
 
 
 def _type2callback(type_: type) -> list[ReturnCallback]:
