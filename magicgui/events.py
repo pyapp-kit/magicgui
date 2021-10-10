@@ -61,7 +61,7 @@ class SignalInstance(psygnal.SignalInstance):
         rem = []
         # allow receiver to query sender with Signal.current_emitter()
         with self._lock:
-            with Signal._emitting(self):
+            with Signal._emitting(self), psygnal.Signal._emitting(self):
                 for _slt in self._slots:
                     (slot, max_args) = _slt
                     if isinstance(slot, tuple):
