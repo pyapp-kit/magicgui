@@ -9,9 +9,19 @@ import types
 import warnings
 from collections import abc, defaultdict
 from enum import EnumMeta
-from typing import Any, DefaultDict, ForwardRef, Union, cast
+from typing import (
+    Any,
+    Callable,
+    DefaultDict,
+    ForwardRef,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
-from typing_extensions import get_args, get_origin
+from typing_extensions import Literal, get_args, get_origin
 
 from magicgui import widgets
 from magicgui.types import (
@@ -272,13 +282,38 @@ def _validate_return_callback(func):
         raise TypeError(f"object {func!r} is not a valid return callback: {e}")
 
 
+_T = TypeVar("_T", bound=Type)
+
+
+@overload
 def register_type(
-    type: type,
+    type_: _T,
     *,
-    widget_type: WidgetRef = None,
+    widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
     **options,
-):
+) -> _T:
+    ...
+
+
+@overload
+def register_type(
+    type_: Literal[None] = None,
+    *,
+    widget_type: WidgetRef | None = None,
+    return_callback: ReturnCallback | None = None,
+    **options,
+) -> Callable[[_T], _T]:
+    ...
+
+
+def register_type(
+    type_: _T | None = None,
+    *,
+    widget_type: WidgetRef | None = None,
+    return_callback: ReturnCallback | None = None,
+    **options,
+) -> _T | Callable[[_T], _T]:
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
 
     Parameters
@@ -302,8 +337,6 @@ def register_type(
     ValueError
         If none of `widget_type`, `return_callback`, `bind` or `choices` are provided.
     """
-    type_ = _evaluate_forwardref(type)
-
     if all(
         x is None
         for x in [
@@ -318,35 +351,42 @@ def register_type(
             "must be provided."
         )
 
-    if return_callback is not None:
-        _validate_return_callback(return_callback)
-        _RETURN_CALLBACKS[type_].append(return_callback)
+    def _deco(type_):
+        _type_ = _evaluate_forwardref(type_)
 
-    _options = cast(WidgetOptions, options)
+        if return_callback is not None:
+            _validate_return_callback(return_callback)
+            _RETURN_CALLBACKS[_type_].append(return_callback)
 
-    if "choices" in _options:
-        _choices = _options["choices"]
+        _options = cast(WidgetOptions, options)
 
-        if not isinstance(_choices, EnumMeta) and callable(_choices):
-            _options["choices"] = _check_choices(_choices)
-        _TYPE_DEFS[type_] = (widgets.ComboBox, _options)
-        if widget_type is not None:
-            warnings.warn(
-                "Providing `choices` overrides `widget_type`. Categorical widget will "
-                f"be used for type {type_}"
-            )
-    elif widget_type is not None:
+        if "choices" in _options:
+            _choices = _options["choices"]
 
-        if not isinstance(widget_type, (str, widgets._bases.Widget, WidgetProtocol)):
-            raise TypeError(
-                '"widget_type" must be either a string, Widget, or WidgetProtocol'
-            )
-        _TYPE_DEFS[type_] = (widget_type, _options)
-    elif "bind" in _options:
-        # if we're binding a value to this parameter, it doesn't matter what type
-        # of ValueWidget is used... it usually won't be shown
-        _TYPE_DEFS[type_] = (widgets.EmptyWidget, _options)
-    return type_
+            if not isinstance(_choices, EnumMeta) and callable(_choices):
+                _options["choices"] = _check_choices(_choices)
+            _TYPE_DEFS[_type_] = (widgets.ComboBox, _options)
+            if widget_type is not None:
+                warnings.warn(
+                    "Providing `choices` overrides `widget_type`. Categorical widget "
+                    f"will be used for type {_type_}"
+                )
+        elif widget_type is not None:
+
+            if not isinstance(
+                widget_type, (str, widgets._bases.Widget, WidgetProtocol)
+            ):
+                raise TypeError(
+                    '"widget_type" must be either a string, Widget, or WidgetProtocol'
+                )
+            _TYPE_DEFS[_type_] = (widget_type, _options)
+        elif "bind" in _options:
+            # if we're binding a value to this parameter, it doesn't matter what type
+            # of ValueWidget is used... it usually won't be shown
+            _TYPE_DEFS[_type_] = (widgets.EmptyWidget, _options)
+        return _type_
+
+    return _deco if type_ is None else _deco(type_)
 
 
 def _check_choices(choices):
