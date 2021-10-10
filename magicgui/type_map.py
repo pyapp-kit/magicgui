@@ -273,7 +273,7 @@ def _validate_return_callback(func):
 
 
 def register_type(
-    type_: type,
+    type: type,
     *,
     widget_type: WidgetRef = None,
     return_callback: ReturnCallback | None = None,
@@ -300,12 +300,18 @@ def register_type(
     Raises
     ------
     ValueError
-        If both ``widget_type`` and ``choices`` are None
+        If none of `widget_type`, `return_callback`, `bind` or `choices` are provided.
     """
-    type_ = _evaluate_forwardref(type_)
+    type_ = _evaluate_forwardref(type)
 
-    if not (
-        return_callback or options.get("bind") or options.get("choices") or widget_type
+    if all(
+        x is None
+        for x in [
+            return_callback,
+            options.get("bind"),
+            options.get("choices"),
+            widget_type,
+        ]
     ):
         raise ValueError(
             "At least one of `widget_type`, `return_callback`, `bind` or `choices` "
@@ -340,7 +346,7 @@ def register_type(
         # if we're binding a value to this parameter, it doesn't matter what type
         # of ValueWidget is used... it usually won't be shown
         _TYPE_DEFS[type_] = (widgets.EmptyWidget, _options)
-    return None
+    return type_
 
 
 def _check_choices(choices):
