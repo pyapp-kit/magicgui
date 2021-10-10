@@ -88,6 +88,23 @@ class SignalInstance(psygnal.SignalInstance):
 
         return None
 
+    def __call__(self, *args, **kwds):
+        if kwds:
+            name = getattr(self._instance, "name", "") or "widget"
+            signame = self.name
+            args = args + tuple(kwds.values())
+            argrepr = ", ".join(repr(s) for s in args)
+            kwargrepr = ",".join(f"{k}={v!r}" for k, v in kwds.items())
+            warnings.warn(
+                "\n\nmagicgui 0.4.0 is using psygnal for event emitters.\n"
+                f"Keyword arguments ({set(kwds)!r}) are no longer accepted by the event"
+                f" emitter.\nUse '{name}.{signame}({argrepr})' instead of "
+                f"{name}.{signame}({kwargrepr}).\nIn the future this will be an error."
+                "\nFor details, see: https://github.com/napari/magicgui/issues/255",
+                FutureWarning,
+            )
+        return self._run_emit_loop(args)
+
 
 class Signal(psygnal.Signal):
     def __get__(self, instance, owner=None):
