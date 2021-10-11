@@ -975,6 +975,10 @@ def _maybefloat(item):
 
 class _QTableExtended(QtW.QTableWidget):
     _read_only: bool = False
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setItemDelegate(_ItemDelegate(parent=self))
 
     def _copy_to_clipboard(self):
         selranges = self.selectedRanges()
@@ -1180,3 +1184,35 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
             callback(data)
 
         self._qwidget.itemChanged.connect(_item_callback)
+
+class _ItemDelegate(QtW.QStyledItemDelegate):
+    """
+    This class is used for displaying table widget items. With this float will be displayed as a
+    formated string.
+    """    
+    def __init__(self, *args, ndigits: int = 3, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ndigits = ndigits
+
+    def displayText(self, value, locale):
+        """Display text in a simpler style"""
+        # convert to int or float if possible
+        try:
+            value = int(value)
+        except ValueError:
+            try:
+                value = float(value)
+            except ValueError:
+                pass
+        
+        if isinstance(value, (int, float)):
+            if 0.1 <= abs(value) < 10000 or value == 0:
+                if isinstance(value, int):
+                    value = str(value)
+                else:
+                    value = float(value)
+                    value = f"{value:.{self.ndigits}f}"
+            else:
+                value = f"{value:.{self.ndigits}e}"
+        
+        return super().displayText(value, locale)
