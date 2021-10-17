@@ -1061,8 +1061,11 @@ class _QTableExtended(QtW.QTableWidget):
 class Table(QBaseWidget, _protocols.TableWidgetProtocol):
     _qwidget: _QTableExtended
     _DATA_ROLE: int = 255
-    _RO_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEnabled
-    _DEFAULT_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
+    # _RO_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+    # _DEFAULT_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
+    
+    _EDITABLE = QtW.QTableWidget.EditKeyPressed | QtW.QTableWidget.DoubleClicked
+    _READ_ONLY = QtW.QTableWidget.NoEditTriggers
 
     def __init__(self):
         super().__init__(_QTableExtended)
@@ -1071,14 +1074,21 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         if hasattr(header, "setSectionResizeMode"):
             header.setSectionResizeMode(QtW.QHeaderView.Stretch)
         # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
+        header.setSectionResizeMode(QtW.QHeaderView.Interactive)
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
 
     def _mgui_set_read_only(self, value: bool) -> None:
-        self._qwidget._read_only = bool(value)
-        flags = Table._RO_FLAGS if value else Table._DEFAULT_FLAGS
-        for row in range(self._qwidget.rowCount()):
-            for col in range(self._qwidget.columnCount()):
-                self._qwidget.item(row, col).setFlags(flags)
+        # self._qwidget._read_only = bool(value)
+        # flags = Table._RO_FLAGS if value else Table._DEFAULT_FLAGS
+        # for row in range(self._qwidget.rowCount()):
+        #     for col in range(self._qwidget.columnCount()):
+        #         self._qwidget.item(row, col).setFlags(flags)
+        value = bool(value)
+        self._qwidget._read_only = value
+        if value:
+            self._qwidget.setEditTriggers(self._READ_ONLY)
+        else:
+            self._qwidget.setEditTriggers(self._EDITABLE)
 
     def _mgui_get_read_only(self) -> bool:
         return self._qwidget._read_only
@@ -1190,12 +1200,11 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
     This class is used for displaying table widget items. With this float will be displayed as a
     formated string.
     """    
-    def __init__(self, *args, ndigits: int = 3, **kwargs):
+    def __init__(self, *args, ndigits: int = 4, **kwargs):
         super().__init__(*args, **kwargs)
         self.ndigits = ndigits
 
     def displayText(self, value, locale):
-        """Display text in a simpler style"""
         # convert to int or float if possible
         try:
             value = int(value)
@@ -1206,13 +1215,13 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
                 pass
         
         if isinstance(value, (int, float)):
-            if 0.1 <= abs(value) < 10000 or value == 0:
+            if 0.1 <= abs(value) < 10**(self.ndigits+1) or value == 0:
                 if isinstance(value, int):
                     value = str(value)
                 else:
                     value = float(value)
                     value = f"{value:.{self.ndigits}f}"
             else:
-                value = f"{value:.{self.ndigits}e}"
+                value = f"{value:.{self.ndigits-1}e}"
         
         return super().displayText(value, locale)
