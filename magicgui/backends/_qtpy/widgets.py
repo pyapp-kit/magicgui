@@ -1189,10 +1189,7 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 
 
 class _ItemDelegate(QtW.QStyledItemDelegate):
-    """
-    This class is used for displaying table widget items. With this float will be displayed as a
-    formated string.
-    """
+    """Displays table widget items with properly formatted numbers."""
 
     def __init__(self, *args, ndigits: int = 4, **kwargs):
         super().__init__(*args, **kwargs)
