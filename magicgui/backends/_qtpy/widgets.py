@@ -975,7 +975,7 @@ def _maybefloat(item):
 
 class _QTableExtended(QtW.QTableWidget):
     _read_only: bool = False
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setItemDelegate(_ItemDelegate(parent=self))
@@ -1061,7 +1061,6 @@ class _QTableExtended(QtW.QTableWidget):
 class Table(QBaseWidget, _protocols.TableWidgetProtocol):
     _qwidget: _QTableExtended
     _DATA_ROLE: int = 255
-    
     _EDITABLE = QtW.QTableWidget.EditKeyPressed | QtW.QTableWidget.DoubleClicked
     _READ_ONLY = QtW.QTableWidget.NoEditTriggers
 
@@ -1188,11 +1187,13 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 
         self._qwidget.itemChanged.connect(_item_callback)
 
+
 class _ItemDelegate(QtW.QStyledItemDelegate):
     """
     This class is used for displaying table widget items. With this float will be displayed as a
     formated string.
-    """    
+    """
+
     def __init__(self, *args, ndigits: int = 4, **kwargs):
         super().__init__(*args, **kwargs)
         self.ndigits = ndigits
@@ -1206,9 +1207,9 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
                 value = float(value)
             except ValueError:
                 pass
-        
+
         if isinstance(value, (int, float)):
-            if 0.1 <= abs(value) < 10**(self.ndigits+1) or value == 0:
+            if 0.1 <= abs(value) < 10 ** (self.ndigits + 1) or value == 0:
                 if isinstance(value, int):
                     value = str(value)
                 else:
@@ -1216,5 +1217,5 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
                     value = f"{value:.{self.ndigits}f}"
             else:
                 value = f"{value:.{self.ndigits-1}e}"
-        
+
         return super().displayText(value, locale)
