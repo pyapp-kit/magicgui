@@ -1061,8 +1061,6 @@ class _QTableExtended(QtW.QTableWidget):
 class Table(QBaseWidget, _protocols.TableWidgetProtocol):
     _qwidget: _QTableExtended
     _DATA_ROLE: int = 255
-    # _RO_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEnabled
-    # _DEFAULT_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
     
     _EDITABLE = QtW.QTableWidget.EditKeyPressed | QtW.QTableWidget.DoubleClicked
     _READ_ONLY = QtW.QTableWidget.NoEditTriggers
@@ -1078,11 +1076,6 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
 
     def _mgui_set_read_only(self, value: bool) -> None:
-        # self._qwidget._read_only = bool(value)
-        # flags = Table._RO_FLAGS if value else Table._DEFAULT_FLAGS
-        # for row in range(self._qwidget.rowCount()):
-        #     for col in range(self._qwidget.columnCount()):
-        #         self._qwidget.item(row, col).setFlags(flags)
         value = bool(value)
         self._qwidget._read_only = value
         if value:
