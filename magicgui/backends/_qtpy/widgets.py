@@ -1197,6 +1197,11 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
 
     def displayText(self, value, locale):
         # convert to int or float if possible
+        value = self._format_number(value)
+
+        return super().displayText(value, locale)
+
+    def _format_number(self, value: str) -> str:
         try:
             value = int(value)
         except ValueError:
@@ -1214,5 +1219,5 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
                     value = f"{value:.{self.ndigits}f}"
             else:
                 value = f"{value:.{self.ndigits-1}e}"
-
-        return super().displayText(value, locale)
+        
+        return value
