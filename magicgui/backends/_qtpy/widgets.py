@@ -1218,12 +1218,6 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
                     text = float(value)
                     text = f"{text:.{self.ndigits}f}"
             else:
-<<<<<<< HEAD
                 text = f"{value:.{self.ndigits-1}e}"
 
         return text
-=======
-                value = f"{value:.{self.ndigits-1}e}"
-
-        return value
->>>>>>> 1d9d3ba3903968cc3b05c57b69c23086b94f418b
