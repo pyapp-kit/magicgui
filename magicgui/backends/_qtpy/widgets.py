@@ -1206,7 +1206,7 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
             value = int(text)
         except ValueError:
             try:
-                value = float(text) # type: ignore
+                value = float(text)  # type: ignore
             except ValueError:
                 pass
 
