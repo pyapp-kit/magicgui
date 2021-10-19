@@ -1201,23 +1201,23 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
 
         return super().displayText(value, locale)
 
-    def _format_number(self, value: str) -> str:
+    def _format_number(self, text: str) -> str:
         try:
-            value = int(value)
+            value = int(text)
         except ValueError:
             try:
-                value = float(value)
+                value = float(text)
             except ValueError:
                 pass
 
         if isinstance(value, (int, float)):
             if 0.1 <= abs(value) < 10 ** (self.ndigits + 1) or value == 0:
                 if isinstance(value, int):
-                    value = str(value)
+                    text = str(value)
                 else:
-                    value = float(value)
-                    value = f"{value:.{self.ndigits}f}"
+                    text = float(value)
+                    text = f"{text:.{self.ndigits}f}"
             else:
-                value = f"{value:.{self.ndigits-1}e}"
+                text = f"{value:.{self.ndigits-1}e}"
         
-        return value
+        return text
