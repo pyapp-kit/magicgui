@@ -389,8 +389,10 @@ def test_delete(qapp):
     table.native._delete_selection()
     assert table.data.to_list() == [[None, None, 3], [None, None, 6]]
 
+
 def test_item_delegate(qapp):
     from magicgui.backends._qtpy.widgets import _ItemDelegate
+
     data = ["1.2", "1.23456789", "0.000123", "1234567", "0.0"]
     idel = _ItemDelegate()
     results = [idel._format_number(v) for v in data]

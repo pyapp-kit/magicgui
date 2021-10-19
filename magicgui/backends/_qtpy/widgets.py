@@ -1219,5 +1219,5 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
                     value = f"{value:.{self.ndigits}f}"
             else:
                 value = f"{value:.{self.ndigits-1}e}"
-        
+
         return value
