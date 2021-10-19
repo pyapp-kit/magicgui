@@ -1220,7 +1220,7 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
             else:
 <<<<<<< HEAD
                 text = f"{value:.{self.ndigits-1}e}"
-        
+
         return text
 =======
                 value = f"{value:.{self.ndigits-1}e}"
