@@ -199,7 +199,8 @@ def pick_widget_type(
                 widget_type = "RadioButtons"
                 warnings.warn(
                     f"widget_type of 'RadioButton' (with dtype {dtype}) is being "
-                    "coerced to 'RadioButtons' due to choices or Enum type."
+                    "coerced to 'RadioButtons' due to choices or Enum type.",
+                    stacklevel=2,
                 )
             options.setdefault("choices", choices)
         return widget_type, options
@@ -365,7 +366,8 @@ def register_type(
             if widget_type is not None:
                 warnings.warn(
                     "Providing `choices` overrides `widget_type`. Categorical widget "
-                    f"will be used for type {_type_}"
+                    f"will be used for type {_type_}",
+                    stacklevel=2,
                 )
         elif widget_type is not None:
 
