@@ -49,7 +49,7 @@ class SignalInstance(psygnal.SignalInstance):
                 "as anything\n*other* than `Event`, e.g. `def callback(x: int): ...`"
                 "\nFor details, see: https://github.com/napari/magicgui/issues/255",
                 FutureWarning,
-                stacklevel=2
+                stacklevel=2,
             )
         result = super().connect(
             slot, check_nargs=check_nargs, check_types=check_types, unique=unique
