@@ -49,6 +49,7 @@ class SignalInstance(psygnal.SignalInstance):
                 "as anything\n*other* than `Event`, e.g. `def callback(x: int): ...`"
                 "\nFor details, see: https://github.com/napari/magicgui/issues/255",
                 FutureWarning,
+                stacklevel=2,
             )
         result = super().connect(
             slot, check_nargs=check_nargs, check_types=check_types, unique=unique
@@ -102,6 +103,7 @@ class SignalInstance(psygnal.SignalInstance):
                 f"{name}.{signame}({kwargrepr}).\nIn the future this will be an error."
                 "\nFor details, see: https://github.com/napari/magicgui/issues/255",
                 FutureWarning,
+                stacklevel=2,
             )
         return self._run_emit_loop(args)
 
