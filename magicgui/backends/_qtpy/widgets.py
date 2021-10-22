@@ -1196,28 +1196,24 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
         self.ndigits = ndigits
 
     def displayText(self, value, locale):
-        # convert to int or float if possible
         value = self._format_number(value)
-
         return super().displayText(value, locale)
 
     def _format_number(self, text: str) -> str:
+        """convert string to int or float if possible"""
         try:
-            value = int(text)
+            value: int | float | None = int(text)
         except ValueError:
             try:
-                value = float(text)  # type: ignore
+                value = float(text)
             except ValueError:
-                pass
+                value = None
 
         if isinstance(value, (int, float)):
-            if 0.1 <= abs(value) < 10 ** (self.ndigits + 1) or value == 0:
-                if isinstance(value, int):
-                    text = str(value)
-                else:
-                    text = float(value)
-                    text = f"{text:.{self.ndigits}f}"
+            dgt = self.ndigits
+            if 0.1 <= abs(value) < 10 ** (dgt + 1) or value == 0:
+                text = str(value) if isinstance(value, int) else f"{value:.{dgt}f}"
             else:
-                text = f"{value:.{self.ndigits-1}e}"
+                text = f"{value:.{dgt-1}e}"
 
         return text
