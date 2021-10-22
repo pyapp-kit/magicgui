@@ -638,7 +638,7 @@ def pil_to_array(pilImage):
         return np.asarray(pilImage)  # return MxNx4 RGBA array
 
 
-@lru_cache
+@lru_cache()
 def _get_ssl_context():
     try:
         import certifi
