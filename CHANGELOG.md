@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.3.2](https://github.com/napari/magicgui/tree/v0.3.2) (2021-10-22)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.1...v0.3.2)
+
+**Fixed bugs:**
+
+- Fix unbound variable in format\_number [\#303](https://github.com/napari/magicgui/pull/303) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.3.1](https://github.com/napari/magicgui/tree/v0.3.1) (2021-10-21)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.0...v0.3.1)
+
+**Implemented enhancements:**
+
+- Add stacklevel to provide better information about place of problem [\#302](https://github.com/napari/magicgui/pull/302) ([Czaki](https://github.com/Czaki))
+- Table widget updates [\#301](https://github.com/napari/magicgui/pull/301) ([hanjinliu](https://github.com/hanjinliu))
+
 ## [v0.3.0](https://github.com/napari/magicgui/tree/v0.3.0) (2021-10-10)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.3.0rc2...v0.3.0)
@@ -116,7 +133,7 @@
 
 ## [v0.2.9](https://github.com/napari/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.9)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -139,13 +156,13 @@
 - skip docutils 0.17 [\#207](https://github.com/napari/magicgui/pull/207) ([tlambert03](https://github.com/tlambert03))
 - Add cache location hint to persist option documentation [\#200](https://github.com/napari/magicgui/pull/200) ([maweigert](https://github.com/maweigert))
 
-## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.8rc0)
-
 ## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.8)
+
+## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8rc0)
 
 **Implemented enhancements:**
 
