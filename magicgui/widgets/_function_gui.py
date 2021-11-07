@@ -241,13 +241,7 @@ class FunctionGui(Container, Generic[_R]):
     @property
     def __signature__(self) -> MagicSignature:
         """Return a MagicSignature object representing the current state of the gui."""
-        sig = super().__signature__.replace(return_annotation=self.return_annotation)
-        from ..signature import MagicParameter
-
-        uw = MagicParameter(
-            "update_widget", MagicParameter.KEYWORD_ONLY, default=False, annotation=bool
-        )
-        return sig.replace(parameters=list(sig.parameters.values()) + [uw])
+        return super().__signature__.replace(return_annotation=self.return_annotation)
 
     def __call__(self, *args: Any, update_widget: bool = False, **kwargs: Any) -> _R:
         """Call the original function with the current parameter values from the Gui.
@@ -269,7 +263,7 @@ class FunctionGui(Container, Generic[_R]):
 
         gui()  # calls the original function with the current parameters
         """
-        sig = super().__signature__
+        sig = self.__signature__
         try:
             bound = sig.bind(*args, **kwargs)
         except TypeError as e:
