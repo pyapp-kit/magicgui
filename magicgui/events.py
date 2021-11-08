@@ -1,7 +1,6 @@
 """deprecation strategy"""
 
 import warnings
-import weakref
 from collections import namedtuple
 from typing import Callable, Dict
 
@@ -49,6 +48,7 @@ class SignalInstance(psygnal.SignalInstance):
                 "as anything\n*other* than `Event`, e.g. `def callback(x: int): ...`"
                 "\nFor details, see: https://github.com/napari/magicgui/issues/255",
                 FutureWarning,
+                stacklevel=2,
             )
         result = super().connect(
             slot, check_nargs=check_nargs, check_types=check_types, unique=unique
@@ -57,28 +57,29 @@ class SignalInstance(psygnal.SignalInstance):
         return result
 
     def _run_emit_loop(self, args) -> None:
-
         rem = []
         # allow receiver to query sender with Signal.current_emitter()
         with self._lock:
             with Signal._emitting(self):
-                for _slt in self._slots:
-                    (slot, max_args) = _slt
+                for (slot, max_args) in self._slots:
                     if isinstance(slot, tuple):
-                        _ref, method_name = slot
+                        _ref, name, method = slot
                         obj = _ref()
                         if obj is None:
                             rem.append(slot)  # add dead weakref
                             continue
-                        cb = getattr(obj, method_name, None)
-                        if cb is None:  # pragma: no cover
-                            rem.append(slot)  # object has changed?
-                            continue
+                        if method is not None:
+                            cb = method
+                        else:
+                            cb = getattr(obj, name, None)
+                            if cb is None:  # pragma: no cover
+                                rem.append(slot)  # object has changed?
+                                continue
                     else:
                         cb = slot
 
                     # TODO: add better exception handling
-                    if self._new_callback.get(_slt[0]):
+                    if self._new_callback.get(slot):
                         cb(*args[:max_args])
                     else:
                         cb(Event(args[0], self.name, self.instance))
@@ -88,19 +89,35 @@ class SignalInstance(psygnal.SignalInstance):
 
         return None
 
+    def __call__(self, *args, **kwds):
+        if kwds:
+            name = getattr(self._instance, "name", "") or "widget"
+            signame = self.name
+            args = args + tuple(kwds.values())
+            argrepr = ", ".join(repr(s) for s in args)
+            kwargrepr = ",".join(f"{k}={v!r}" for k, v in kwds.items())
+            warnings.warn(
+                "\n\nmagicgui 0.4.0 is using psygnal for event emitters.\n"
+                f"Keyword arguments ({set(kwds)!r}) are no longer accepted by the event"
+                f" emitter.\nUse '{name}.{signame}({argrepr})' instead of "
+                f"{name}.{signame}({kwargrepr}).\nIn the future this will be an error."
+                "\nFor details, see: https://github.com/napari/magicgui/issues/255",
+                FutureWarning,
+                stacklevel=2,
+            )
+        return self._run_emit_loop(args)
+
 
 class Signal(psygnal.Signal):
     def __get__(self, instance, owner=None):
         if instance is None:
             return self
-        d = self._signal_instances.setdefault(self, weakref.WeakKeyDictionary())
-        return d.setdefault(
-            instance,
-            SignalInstance(
-                self.signature,
-                instance=instance,
-                name=self._name,
-                check_nargs_on_connect=self._check_nargs_on_connect,
-                check_types_on_connect=self._check_types_on_connect,
-            ),
+        signal_instance = SignalInstance(
+            self.signature,
+            instance=instance,
+            name=self._name,
+            check_nargs_on_connect=self._check_nargs_on_connect,
+            check_types_on_connect=self._check_types_on_connect,
         )
+        setattr(instance, self._name, signal_instance)
+        return signal_instance

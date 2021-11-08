@@ -976,6 +976,10 @@ def _maybefloat(item):
 class _QTableExtended(QtW.QTableWidget):
     _read_only: bool = False
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setItemDelegate(_ItemDelegate(parent=self))
+
     def _copy_to_clipboard(self):
         selranges = self.selectedRanges()
         if not selranges:
@@ -1057,8 +1061,8 @@ class _QTableExtended(QtW.QTableWidget):
 class Table(QBaseWidget, _protocols.TableWidgetProtocol):
     _qwidget: _QTableExtended
     _DATA_ROLE: int = 255
-    _RO_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEnabled
-    _DEFAULT_FLAGS = Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
+    _EDITABLE = QtW.QTableWidget.EditKeyPressed | QtW.QTableWidget.DoubleClicked
+    _READ_ONLY = QtW.QTableWidget.NoEditTriggers
 
     def __init__(self):
         super().__init__(_QTableExtended)
@@ -1067,14 +1071,16 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         if hasattr(header, "setSectionResizeMode"):
             header.setSectionResizeMode(QtW.QHeaderView.Stretch)
         # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
+        header.setSectionResizeMode(QtW.QHeaderView.Interactive)
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
 
     def _mgui_set_read_only(self, value: bool) -> None:
-        self._qwidget._read_only = bool(value)
-        flags = Table._RO_FLAGS if value else Table._DEFAULT_FLAGS
-        for row in range(self._qwidget.rowCount()):
-            for col in range(self._qwidget.columnCount()):
-                self._qwidget.item(row, col).setFlags(flags)
+        value = bool(value)
+        self._qwidget._read_only = value
+        if value:
+            self._qwidget.setEditTriggers(self._READ_ONLY)
+        else:
+            self._qwidget.setEditTriggers(self._EDITABLE)
 
     def _mgui_get_read_only(self) -> bool:
         return self._qwidget._read_only
@@ -1180,3 +1186,34 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
             callback(data)
 
         self._qwidget.itemChanged.connect(_item_callback)
+
+
+class _ItemDelegate(QtW.QStyledItemDelegate):
+    """Displays table widget items with properly formatted numbers."""
+
+    def __init__(self, *args, ndigits: int = 4, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ndigits = ndigits
+
+    def displayText(self, value, locale):
+        value = self._format_number(value)
+        return super().displayText(value, locale)
+
+    def _format_number(self, text: str) -> str:
+        """convert string to int or float if possible"""
+        try:
+            value: int | float | None = int(text)
+        except ValueError:
+            try:
+                value = float(text)
+            except ValueError:
+                value = None
+
+        if isinstance(value, (int, float)):
+            dgt = self.ndigits
+            if 0.1 <= abs(value) < 10 ** (dgt + 1) or value == 0:
+                text = str(value) if isinstance(value, int) else f"{value:.{dgt}f}"
+            else:
+                text = f"{value:.{dgt-1}e}"
+
+        return text
