@@ -1,5 +1,7 @@
+import os
 import re
 import runpy
+import sys
 from glob import glob
 from pathlib import Path
 
@@ -40,6 +42,10 @@ def test_doc_code_cells(fname, globalns=globals()):
 )
 def test_examples(fname):
     """Make sure that all code cells in documentation perform as expected."""
+    if "table.py" in fname and os.name == "nt" and sys.version_info < (3, 8):
+        pytest.mark.skip()
+        return
+
     app = use_app()
     app.start_timer(0, app.quit)
     if "OLD" in fname:
