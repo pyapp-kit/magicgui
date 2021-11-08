@@ -14,7 +14,7 @@ repos:
       - id: autoflake
         args: ["--in-place", "--remove-all-unused-imports"]
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.3
+    rev: 5.10.0
     hooks:
       - id: isort
   - repo: https://github.com/asottile/pyupgrade
