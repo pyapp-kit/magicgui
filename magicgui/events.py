@@ -2,7 +2,7 @@
 
 import warnings
 from collections import namedtuple
-from typing import Callable, Dict
+from typing import Callable, Dict, cast
 
 import psygnal
 
@@ -119,5 +119,5 @@ class Signal(psygnal.Signal):
             check_nargs_on_connect=self._check_nargs_on_connect,
             check_types_on_connect=self._check_types_on_connect,
         )
-        setattr(instance, self._name, signal_instance)
+        setattr(instance, cast(str, self._name), signal_instance)
         return signal_instance
