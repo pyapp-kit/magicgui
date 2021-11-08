@@ -48,7 +48,11 @@ jobs:
           run: tox
         env:
           PLATFORM: ${{ matrix.platform }}
+<<<<<<< HEAD
           BACKEND:  ${{ matrix.backend }}
+=======
+          BACKEND:  "[[ matrix.python-version == '3.10' ]] && pyqt || ''"
+>>>>>>> dcb8d08baa7bce71909c35b6d3e1be7d45330c30
       - name: Coverage
         if: runner.os == 'Linux'
         uses: codecov/codecov-action@v2
