@@ -17,6 +17,8 @@ from typing import (
     Deque,
     ForwardRef,
     Generic,
+    Iterable,
+    Mapping,
     TypeVar,
     cast,
 )
@@ -58,6 +60,8 @@ def _inject_tooltips_from_docstrings(docstring: str | None, sig: MagicSignature)
 
 
 _R = TypeVar("_R")
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
 
 
 class FunctionGui(Container, Generic[_R]):
@@ -239,7 +243,7 @@ class FunctionGui(Container, Generic[_R]):
         """Return a MagicSignature object representing the current state of the gui."""
         return super().__signature__.replace(return_annotation=self.return_annotation)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> _R:
+    def __call__(self, *args: Any, update_widget: bool = False, **kwargs: Any) -> _R:
         """Call the original function with the current parameter values from the Gui.
 
         It is also possible to override the current parameter values from the GUI by
@@ -263,20 +267,27 @@ class FunctionGui(Container, Generic[_R]):
         try:
             bound = sig.bind(*args, **kwargs)
         except TypeError as e:
-            if "missing a required argument" in str(e):
-                match = re.search("argument: '(.+)'", str(e))
-                missing = match.groups()[0] if match else "<param>"
-                msg = (
-                    f"{e} in call to '{self._callable_name}{sig}'.\n"
-                    "To avoid this error, you can bind a value or callback to the "
-                    f"parameter:\n\n    {self._callable_name}.{missing}.bind(value)"
-                    "\n\nOr use the 'bind' option in the magicgui decorator:\n\n"
-                    f"    @magicgui({missing}={{'bind': value}})\n"
-                    f"    def {self._callable_name}{sig}: ..."
-                )
-                raise TypeError(msg) from None
-            else:
+            if "missing a required argument" not in str(e):
                 raise
+
+            match = re.search("argument: '(.+)'", str(e))
+            missing = match.groups()[0] if match else "<param>"
+            msg = (
+                f"{e} in call to '{self._callable_name}{sig}'.\n"
+                "To avoid this error, you can bind a value or callback to the "
+                f"parameter:\n\n    {self._callable_name}.{missing}.bind(value)"
+                "\n\nOr use the 'bind' option in the magicgui decorator:\n\n"
+                f"    @magicgui({missing}={{'bind': value}})\n"
+                f"    def {self._callable_name}{sig}: ..."
+            )
+            raise TypeError(msg) from None
+
+        if update_widget:
+            self._auto_call, before = False, self._auto_call
+            try:
+                self.update(bound.arguments)
+            finally:
+                self._auto_call = before
 
         bound.apply_defaults()
 
@@ -301,6 +312,27 @@ class FunctionGui(Container, Generic[_R]):
     def __repr__(self) -> str:
         """Return string representation of instance."""
         return f"<{type(self).__name__} {self._callable_name}{self.__signature__}>"
+
+    def asdict(self) -> dict[str, Any]:
+        """Return state of widget as dict."""
+        return {
+            w.name: getattr(w, "value", None) for w in self if w.name and not w.gui_only
+        }
+
+    def update(
+        self,
+        mapping: Mapping | Iterable[tuple[str, Any]] | None = None,
+        **kwargs: Any,
+    ):
+        """Update the parameters in the widget from a mapping, iterable, or kwargs."""
+        with self.changed.blocked():
+            if mapping:
+                items = mapping.items() if isinstance(mapping, Mapping) else mapping
+                for key, value in items:
+                    getattr(self, key).value = value
+            for key, value in kwargs.items():
+                getattr(self, key).value = value
+        self.changed.emit()
 
     @property
     def result_name(self) -> str:

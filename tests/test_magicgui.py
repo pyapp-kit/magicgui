@@ -697,3 +697,32 @@ def test_none_defaults():
     assert magicgui(func)() == 1
 
     assert str(magic_signature(func)) == str(magicgui(func).__signature__)
+
+
+def test_update_and_dict():
+    @magicgui
+    def test(a: int = 1, y: str = "a"):
+        ...
+
+    assert test.asdict() == {"a": 1, "y": "a"}
+
+    test.update(a=10, y="b")
+    assert test.asdict() == {"a": 10, "y": "b"}
+
+    test.update({"a": 1, "y": "a"})
+    assert test.asdict() == {"a": 1, "y": "a"}
+
+    test.update([("a", 10), ("y", "b")])
+    assert test.asdict() == {"a": 10, "y": "b"}
+
+
+def test_update_on_call():
+    @magicgui
+    def test(a: int = 1, y: str = "a"):
+        ...
+
+    assert test.call_count == 0
+    test(a=10, y="b", update_widget=True)
+    assert test.a.value == 10
+    assert test.y.value == "b"
+    assert test.call_count == 1
