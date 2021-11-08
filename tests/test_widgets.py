@@ -146,7 +146,7 @@ def test_basic_widget_attributes():
     with pytest.raises(KeyError):
         widget.param_kind = "not a proper param type"
     with pytest.raises(TypeError):
-        widget.param_kind = 1  # type: ignore
+        widget.param_kind = 1
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {

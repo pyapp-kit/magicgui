@@ -12,7 +12,7 @@ def test_make_annotated_raises():
 
 def test_make_annotated_works_with_already_annotated():
     """Test that make_annotated merges options with Annotated types."""
-    annotated_type = Annotated[int, {"max": 10}]  # type: ignore
+    annotated_type = Annotated[int, {"max": 10}]
     assert make_annotated(annotated_type) == annotated_type
     assert (
         make_annotated(annotated_type, {"min": 1})
