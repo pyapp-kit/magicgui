@@ -155,10 +155,16 @@ class FunctionGui(Container, Generic[_R]):
         # access attributes (like `__name__` that only function objects have).
         # Mypy doesn't seem catch this at this point:
         # https://github.com/python/mypy/issues/9934
-        self._callable_name = (
-            getattr(function, "__name__", None)
-            or f"{function.__module__}.{function.__class__}"
-        )
+        name = getattr(function, "__name__", None)
+        if not name:
+            try:
+                name = f"{function.__module__}.{function.__class__}"
+            except AttributeError:
+                # partials
+                f = getattr(function, "func", None)
+                name = getattr(f, "__name__", None) or str(function)
+        self._callable_name = name
+
         super().__init__(
             layout=layout,
             labels=labels,
