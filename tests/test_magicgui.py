@@ -747,3 +747,25 @@ def test_partial():
     assert isinstance(wdg.y, widgets.LineEdit)
     assert wdg2.y.value == "sdf"
     assert wdg2(1) == "sdf1"
+
+
+def test_curry():
+    import toolz as tz
+
+    @tz.curry
+    def some_func2(x: int, y: str) -> str:
+        return y + str(x)
+
+    wdg = magicgui(some_func2(1))
+    assert len(wdg) == 2  # because of the call_button
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert not hasattr(wdg, "x")
+    assert wdg("sdf") == "sdf1"
+    assert wdg._callable_name == "some_func"
+
+    wdg2 = magicgui(some_func2(y="sdf"))
+    assert len(wdg2) == 3  # keyword arguments don't change the partial signature
+    assert isinstance(wdg2.x, widgets.SpinBox)
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert wdg2.y.value == "sdf"
+    assert wdg2(1) == "sdf1"
