@@ -761,7 +761,7 @@ def test_curry():
     assert isinstance(wdg.y, widgets.LineEdit)
     assert not hasattr(wdg, "x")
     assert wdg("sdf") == "sdf1"
-    assert wdg._callable_name == "some_func"
+    assert wdg._callable_name == "some_func2"
 
     wdg2 = magicgui(some_func2(y="sdf"))
     assert len(wdg2) == 3  # keyword arguments don't change the partial signature
