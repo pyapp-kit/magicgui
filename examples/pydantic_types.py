@@ -1,5 +1,3 @@
-from enum import auto
-
 from pydantic.types import conint
 
 from magicgui import magicgui
