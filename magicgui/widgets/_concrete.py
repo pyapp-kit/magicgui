@@ -3,30 +3,56 @@
 All of these widgets should provide the `widget_type` argument to their
 super().__init__ calls.
 """
+from __future__ import annotations
+
 import inspect
 import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, Sequence, Tuple, Type, Union
+from typing import Callable, Sequence, TypeVar, overload
+from weakref import ref
 
-from magicgui._parse import docstring_to_param_list, param_list_to_str
+from docstring_parser import DocstringParam, parse
+from typing_extensions import Literal
+
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike
+from magicgui.widgets import _protocols
+from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
 from ._bases import (
     ButtonWidget,
     CategoricalWidget,
     ContainerWidget,
+    MainWindowWidget,
     RangedWidget,
     SliderWidget,
     TransformedRangedWidget,
     ValueWidget,
     Widget,
 )
-from ._transforms import make_float, make_literal_eval
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
+
+
+def _param_list_to_str(param_list: list[DocstringParam]) -> str:
+    """Format Parameters section for numpy docstring from list of tuples."""
+    out = []
+    out += ["Parameters", len("Parameters") * "-"]
+    for param in param_list:
+        parts = []
+        if param.arg_name:
+            parts.append(param.arg_name)
+        if param.type_name:
+            parts.append(param.type_name)
+        if not parts:
+            continue
+        out += [" : ".join(parts)]
+        if param.description and param.description.strip():
+            out += [" " * 4 + line for line in param.description.split("\n")]
+    out += [""]
+    return "\n".join(out)
 
 
 def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "extra")):
@@ -46,7 +72,7 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
         The modified class (can be used as a decorator)
     """
     params = {}
-    param_docs = []
+    param_docs: list[DocstringParam] = []
     for sup in reversed(inspect.getmro(cls)):
         try:
             sig = inspect.signature(getattr(sup, "__init__"))
@@ -58,7 +84,7 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
                 continue
             params[name] = param
 
-        param_docs += docstring_to_param_list(getattr(sup, "__doc__", ""))
+        param_docs += parse(getattr(sup, "__doc__", "")).params
 
     # sphinx_autodoc_typehints isn't removing the type annotations from the signature
     # so we do it manually when building documentation.
@@ -70,17 +96,40 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
     cls.__init__.__signature__ = inspect.Signature(
         sorted(params.values(), key=lambda x: x.kind)
     )
-    param_docs = [p for p in param_docs if p.name not in exclude]
+    param_docs = [p for p in param_docs if p.arg_name not in exclude]
     cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
-    cls.__doc__ += "\n".join(param_list_to_str(param_docs))
+    cls.__doc__ += _param_list_to_str(param_docs)
     # this makes docs linking work... but requires that all of these be in __init__
     cls.__module__ = "magicgui.widgets"
     return cls
 
 
+C = TypeVar("C")
+
+
+@overload
+def backend_widget(  # noqa
+    cls: type[C],
+    widget_name: str = None,
+    transform: Callable[[type], type] = None,
+) -> type[C]:
+    ...
+
+
+@overload
+def backend_widget(  # noqa
+    cls: Literal[None] = None,
+    widget_name: str = None,
+    transform: Callable[[type], type] = None,
+) -> Callable[..., type[C]]:
+    ...
+
+
 def backend_widget(
-    cls: Type = None, widget_name: str = None, transform: Callable[[Type], Type] = None
-):
+    cls: type[C] = None,
+    widget_name: str = None,
+    transform: Callable[[type], type] = None,
+) -> Callable | type[C]:
     """Decorate cls to inject the backend widget of the same name.
 
     The purpose of this decorator is to "inject" the appropriate backend
@@ -104,7 +153,7 @@ def backend_widget(
         The final concrete class backed by a backend widget.
     """
 
-    def wrapper(cls) -> Type[Widget]:
+    def wrapper(cls) -> type[Widget]:
         def __init__(self, **kwargs):
             app = use_app()
             assert app.native
@@ -122,8 +171,40 @@ def backend_widget(
 
 
 @backend_widget
+class EmptyWidget(ValueWidget):
+    """A base widget with no value.
+
+    This widget is primarily here to serve as a "hidden widget" to which a value or
+    callback can be bound.
+    """
+
+    _hidden_value = inspect.Parameter.empty
+
+    def get_value(self):
+        """Return value if one has been manually set... otherwise return Param.empty."""
+        return self._hidden_value
+
+    @property
+    def value(self):
+        """Look for a bound value, otherwise fallback to `get_value`."""
+        return super().value
+
+    @value.setter
+    def value(self, value):
+        self._hidden_value = value
+
+    def __repr__(self):
+        """Return string repr (avoid looking for value)."""
+        try:
+            name = f"(name={self.name!r})" if self.name else ""
+            return f"<{self.widget_type} {name}>"
+        except AttributeError:  # pragma: no cover
+            return f"<Uninitialized {self.widget_type}>"
+
+
+@backend_widget
 class Label(ValueWidget):
-    """A non-editable text or image display."""
+    """A non-editable text display."""
 
 
 @backend_widget
@@ -131,13 +212,13 @@ class LineEdit(ValueWidget):
     """A one-line text editor."""
 
 
-@backend_widget(widget_name="LineEdit", transform=make_literal_eval)
+@backend_widget
 class LiteralEvalLineEdit(ValueWidget):
     """A one-line text editor that evaluates strings as python literals."""
 
 
 @backend_widget
-class TextEdit(ValueWidget):
+class TextEdit(ValueWidget, _ReadOnlyMixin):  # type: ignore
     """A widget to edit and display both plain and rich text."""
 
 
@@ -182,13 +263,36 @@ class FloatSpinBox(RangedWidget):
 
 
 @backend_widget
+class ProgressBar(SliderWidget):
+    """A progress bar widget."""
+
+    def increment(self, val=None):
+        """Increase current value by step size, or provided value."""
+        self.value = self.get_value() + (val if val is not None else self.step)
+
+    def decrement(self, val=None):
+        """Decrease current value by step size, or provided value."""
+        self.value = self.get_value() - (val if val is not None else self.step)
+
+    # overriding because at least some backends don't have a step value for ProgressBar
+    @property
+    def step(self) -> float:
+        """Step size for widget values."""
+        return self._step
+
+    @step.setter
+    def step(self, value: float):
+        self._step = value
+
+
+@backend_widget
 class Slider(SliderWidget):
     """A slider widget to adjust an integer value within a range."""
 
 
-@backend_widget(widget_name="Slider", transform=make_float)
+@backend_widget
 class FloatSlider(SliderWidget):
-    """A slider widget to adjust a float value within a range."""
+    """A slider widget to adjust an integer value within a range."""
 
 
 @merge_super_sigs
@@ -201,8 +305,15 @@ class LogSlider(TransformedRangedWidget):
         The base to use for the log, by default math.e.
     """
 
+    _widget: _protocols.SliderWidgetProtocol
+
     def __init__(
-        self, min: float = 1, max: float = 100, base: float = math.e, **kwargs
+        self,
+        min: float = 1,
+        max: float = 100,
+        base: float = math.e,
+        tracking=True,
+        **kwargs,
     ):
         for key in ("maximum", "minimum"):
             if key in kwargs:
@@ -212,6 +323,7 @@ class LogSlider(TransformedRangedWidget):
                     f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
                     "In the future this will raise an exception\n",
                     FutureWarning,
+                    stacklevel=2,
                 )
                 if key == "maximum":
                     max = kwargs.pop(key)
@@ -226,6 +338,23 @@ class LogSlider(TransformedRangedWidget):
             widget_type=app.get_obj("Slider"),
             **kwargs,
         )
+        self.tracking = tracking
+
+    @property
+    def tracking(self) -> bool:
+        """Return whether slider tracking is enabled.
+
+        If tracking is enabled (the default), the slider emits the changed()
+        signal while the slider is being dragged. If tracking is disabled,
+        the slider emits the changed() signal only when the user releases
+        the slider.
+        """
+        return self._widget._mgui_get_tracking()
+
+    @tracking.setter
+    def tracking(self, value: bool) -> None:
+        """Set whether slider tracking is enabled."""
+        self._widget._mgui_set_tracking(value)
 
     @property
     def _scale(self):
@@ -260,7 +389,29 @@ class ComboBox(CategoricalWidget):
 
 
 @backend_widget
+class Select(CategoricalWidget):
+    """A list of options, allowing selection between multiple choices."""
+
+
+@merge_super_sigs
+class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
+    """An exclusive group of radio buttons, providing a choice from multiple choices."""
+
+    def __init__(self, choices=(), orientation="vertical", **kwargs):
+        app = use_app()
+        assert app.native
+        kwargs["widget_type"] = app.get_obj("RadioButtons")
+        super().__init__(choices=choices, **kwargs)
+        self.orientation = orientation
+
+
+@backend_widget
 class Container(ContainerWidget):
+    """A Widget to contain other widgets."""
+
+
+@backend_widget
+class MainWindow(MainWindowWidget):
     """A Widget to contain other widgets."""
 
 
@@ -282,18 +433,27 @@ class FileEdit(Container):
     """
 
     def __init__(
-        self, mode: FileDialogMode = FileDialogMode.EXISTING_FILE, filter=None, **kwargs
+        self,
+        mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
+        filter=None,
+        nullable=False,
+        **kwargs,
     ):
         self.line_edit = LineEdit(value=kwargs.pop("value", None))
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
         self.filter = filter
+        self._nullable = nullable
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
         kwargs["labels"] = False
+        kwargs["layout"] = "horizontal"
         super().__init__(**kwargs)
         self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
+        self.choose_btn.changed.disconnect()
+        self.line_edit.changed.disconnect()
         self.choose_btn.changed.connect(self._on_choose_clicked)
+        self.line_edit.changed.connect(lambda: self.changed.emit(self.value))
 
     @property
     def mode(self) -> FileDialogMode:
@@ -301,7 +461,7 @@ class FileEdit(Container):
         return self._mode
 
     @mode.setter
-    def mode(self, value: Union[FileDialogMode, str]):
+    def mode(self, value: FileDialogMode | str):
         self._mode = FileDialogMode(value)
         self.choose_btn.text = self._btn_text
 
@@ -312,10 +472,13 @@ class FileEdit(Container):
         else:
             return "Select file" + ("s" if self.mode.name.endswith("S") else "")
 
-    def _on_choose_clicked(self, event=None):
+    def _on_choose_clicked(self):
         _p = self.value
-        start_path: Path = _p[0] if isinstance(_p, tuple) else _p
-        _start_path = os.fspath(start_path.expanduser().absolute())
+        if _p:
+            start_path: Path = _p[0] if isinstance(_p, tuple) else _p
+            _start_path: str | None = os.fspath(start_path.expanduser().absolute())
+        else:
+            _start_path = None
         result = self._show_file_dialog(
             self.mode,
             caption=self._btn_text,
@@ -326,18 +489,20 @@ class FileEdit(Container):
             self.value = result
 
     @property
-    def value(self) -> Union[Tuple[Path, ...], Path]:
+    def value(self) -> tuple[Path, ...] | Path | None:
         """Return current value of the widget.  This may be interpreted by backends."""
         text = self.line_edit.value
+        if self._nullable and not text:
+            return None
         if self.mode is FileDialogMode.EXISTING_FILES:
             return tuple(Path(p) for p in text.split(", "))
         return Path(text)
 
     @value.setter
-    def value(self, value: Union[Sequence[PathLike], PathLike]):
+    def value(self, value: Sequence[PathLike] | PathLike):
         """Set current file path."""
         if isinstance(value, (list, tuple)):
-            value = ", ".join([os.fspath(p) for p in value])
+            value = ", ".join(os.fspath(p) for p in value)
         if not isinstance(value, (str, Path)):
             raise TypeError(
                 f"value must be a string, or list/tuple of strings, got {type(value)}"
@@ -346,7 +511,7 @@ class FileEdit(Container):
 
     def __repr__(self) -> str:
         """Return string representation."""
-        return f"<FileEdit mode={self.mode.value!r}, value={self.value!r}>"
+        return f"FileEdit(mode={self.mode.value!r}, value={self.value!r})"
 
 
 @merge_super_sigs
@@ -369,12 +534,43 @@ class RangeEdit(Container):
         The range step value, by default 1
     """
 
-    def __init__(self, start=0, stop=10, step=1, **kwargs):
-        self.start = SpinBox(value=start)
-        self.stop = SpinBox(value=stop)
-        self.step = SpinBox(value=step)
+    def __init__(
+        self,
+        start: int = 0,
+        stop: int = 10,
+        step: int = 1,
+        min: int | tuple[int, int, int] | None = None,
+        max: int | tuple[int, int, int] | None = None,
+        **kwargs,
+    ):
+        value = kwargs.pop("value", None)
+        if value is not None:
+            if not all(hasattr(value, x) for x in ("start", "stop", "step")):
+                raise TypeError(f"Invalid value type for {type(self)}: {type(value)}")
+            start, stop, step = value.start, value.stop, value.step
+        minstart, minstop, minstep = self._validate_min_max(min, "min", -9999999)
+        maxstart, maxstop, maxstep = self._validate_min_max(max, "max", 9999999)
+        self.start = SpinBox(value=start, min=minstart, max=maxstart, name="start")
+        self.stop = SpinBox(value=stop, min=minstop, max=maxstop, name="stop")
+        self.step = SpinBox(value=step, min=minstep, max=maxstep, name="step")
         kwargs["widgets"] = [self.start, self.stop, self.step]
+        kwargs.setdefault("layout", "horizontal")
+        kwargs.setdefault("labels", True)
         super().__init__(**kwargs)
+
+    @classmethod
+    def _validate_min_max(cls, arg, name, default):
+        """Validate input to the min/max arguments."""
+        if isinstance(arg, (int, float)):
+            return (int(arg),) * 3
+        elif isinstance(arg, (list, tuple)):
+            if len(arg) != 3:
+                raise ValueError(f"{name} sequence must be length 3")
+            return tuple(int(x) for x in arg)
+        elif arg is not None:
+            raise TypeError("min must be an integer or a 3-tuple of integers")
+        else:
+            return (int(default),) * 3
 
     @property
     def value(self) -> range:
@@ -425,16 +621,17 @@ class _LabeledWidget(Container):
         position: str = "left",
         **kwargs,
     ):
-        layout = "horizontal" if position in ("left", "right") else "vertical"
-        kwargs["backend_kwargs"] = {"layout": layout}
+        kwargs["layout"] = "horizontal" if position in ("left", "right") else "vertical"
         self._inner_widget = widget
-        self._label_widget = Label(value=label or widget.label)
-        super().__init__(**kwargs)
+        widget._labeled_widget_ref = ref(self)
+        _visible = False if widget._explicitly_hidden else None
+        self._label_widget = Label(value=label or widget.label, tooltip=widget.tooltip)
+        super().__init__(**kwargs, visible=_visible)
         self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)
         for w in [self._label_widget, widget]:
-            with w.parent_changed.blocker():
+            with w.parent_changed.blocked():
                 self.append(w)
         self.margins = (0, 0, 0, 0)
 
@@ -459,8 +656,8 @@ class _LabeledWidget(Container):
     def label(self, label):
         self._label_widget.label = label
 
-    def _on_label_change(self, event):
-        self._label_widget.value = event.value
+    def _on_label_change(self, value: str):
+        self._label_widget.value = value
 
     @property
     def label_width(self):
@@ -468,4 +665,4 @@ class _LabeledWidget(Container):
 
     @label_width.setter
     def label_width(self, width):
-        self._label_widget.width = width
+        self._label_widget.min_width = width

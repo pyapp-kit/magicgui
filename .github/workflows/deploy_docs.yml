@@ -4,26 +4,22 @@ on:
   # Trigger the workflow on push to main branch
   push:
     branches:
-      - master
+      - main
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 # This job installs dependencies, builds the book, and pushes it to `gh-pages`
 jobs:
   build-and-deploy-book:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.8]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
       # Install dependencies
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.9
         uses: actions/setup-python@v1
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.9
       - name: Install Libraries
         run: |
           sudo apt-get install -y libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 \
@@ -37,16 +33,18 @@ jobs:
           pip install --upgrade pip
           pip install .[pyqt5]
           pip install -r docs/requirements.txt
+          python docs/patch.py
 
       # Build the book
       - name: Build the book
         run: jupyter-book build docs
         env:
           DISPLAY: ":99.0"
+          XDG_RUNTIME_DIR: "/tmp/runtime-runner"
 
       # Deploy the book's HTML to gh-pages branch
       - name: GitHub Pages action
-        uses: peaceiris/actions-gh-pages@v3.6.1
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html

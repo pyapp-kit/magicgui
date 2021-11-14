@@ -9,7 +9,7 @@ For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -19,13 +19,13 @@ if TYPE_CHECKING:
     from magicgui.widgets._bases import Widget
 
 
-def assert_protocol(widget_class: Type, protocol: Type):
+def assert_protocol(widget_class: type, protocol: type):
     """Ensure that widget_class implements protocol, or raise helpful error."""
     if not isinstance(widget_class, protocol):
         _raise_protocol_error(widget_class, protocol)
 
 
-def _raise_protocol_error(widget_class: Type, protocol: Type):
+def _raise_protocol_error(widget_class: type, protocol: type):
     """Raise a more helpful error when required protocol members are missing."""
     missing = {
         i
@@ -47,13 +47,18 @@ class WidgetProtocol(Protocol):
         pass
 
     @abstractmethod
-    def _mgui_show_widget(self) -> None:
-        """Show the widget."""
+    def _mgui_close_widget(self) -> None:
+        """Close widget."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_hide_widget(self) -> None:
-        """Hide the widget."""
+    def _mgui_get_visible(self) -> bool:
+        """Get widget visibility."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_visible(self, value: bool) -> None:
+        """Set widget visibility."""
         raise NotImplementedError()
 
     @abstractmethod
@@ -84,25 +89,92 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_render(self) -> "np.ndarray":
+    def _mgui_render(self) -> np.ndarray:
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_get_width(self) -> int:
-        """Return the current width of the widget.
+        """Get the width of the widget.
 
-        The naming of this method may change. The intention is to get the width of the
-        widget after it is shown, for the purpose of unifying widget width in a layout.
-        Backends may do what they need to accomplish this. For example, Qt can use
-        ``sizeHint().width()``, since ``width()`` will return something large if the
-        widget has not yet been painted on screen.
+        The intention is to get the width of the widget after it is shown, for the
+        purpose of unifying widget width in a layout. Backends may do what they need to
+        accomplish this. For example, Qt can use ``sizeHint().width()``, since
+        ``width()`` may return something large if the widget has not yet been painted
+        on screen.
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_min_width(self, value: int) -> None:
+    def _mgui_set_width(self, value: int) -> None:
         """Set the width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_min_width(self) -> int:
+        """Get the minimum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_min_width(self, value: int) -> None:
+        """Set the minimum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_max_width(self) -> int:
+        """Get the maximum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_max_width(self, value: int) -> None:
+        """Set the maximum width of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_height(self) -> int:
+        """Get the height of the widget.
+
+        The intention is to get the height of the widget after it is shown, for the
+        purpose of unifying widget height in a layout. Backends may do what they need to
+        accomplish this. For example, Qt can use ``sizeHint().height()``, since
+        ``height()`` may return something large if the widget has not yet been painted
+        on screen.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_height(self, value: int) -> None:
+        """Set the height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_min_height(self) -> int:
+        """Get the minimum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_min_height(self, value: int) -> None:
+        """Set the minimum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_max_height(self) -> int:
+        """Get the maximum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_max_height(self, value: int) -> None:
+        """Set the maximum height of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_tooltip(self) -> str:
+        """Get the tooltip for this widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_tooltip(self, value: str | None) -> None:
+        """Set a tooltip for this widget."""
         raise NotImplementedError()
 
 
@@ -121,7 +193,106 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_bind_change_callback(self, callback: Callable[[Any], None]) -> None:
+    def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
+        """Bind callback to value change event."""
+        raise NotImplementedError()
+
+
+@runtime_checkable
+class SupportsReadOnly(Protocol):
+    """Widget that can be read_only."""
+
+    @abstractmethod
+    def _mgui_set_read_only(self, value: bool) -> None:
+        """Set read_only."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_read_only(self) -> bool:
+        """Get read_only status."""
+        raise NotImplementedError()
+
+
+@runtime_checkable
+class TableWidgetProtocol(WidgetProtocol, SupportsReadOnly, Protocol):
+    """ValueWidget subclass intended for 2D tabular data, with row & column headers."""
+
+    @abstractmethod
+    def _mgui_get_row_count(self) -> int:
+        """Get the number of rows in the table."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_row_count(self, nrows: int) -> None:
+        """Set the number of rows in the table. (Create/delete as needed)."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_remove_row(self, row: int) -> None:
+        """Remove row at index `row`."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_column_count(self) -> int:
+        """Get the number of columns in the table."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_column_count(self, ncols: int) -> None:
+        """Set the number of columns in the table. (Create/delete as needed)."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_remove_column(self, column: int) -> None:
+        """Remove column at index `column`."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_cell(self, row: int, col: int) -> Any:
+        """Get current value of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
+        """Set current value of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_row_headers(self) -> tuple:
+        """Get current row headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_row_headers(self, headers: Sequence) -> None:
+        """Set current row headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_column_headers(self) -> tuple:
+        """Get current column headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_column_headers(self, headers: Sequence) -> None:
+        """Set current column headers of the widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_bind_row_headers_change_callback(
+        self, callback: Callable[[Any], None]
+    ) -> None:
+        """Bind callback to row headers change event."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_bind_column_headers_change_callback(
+        self, callback: Callable[[Any], None]
+    ) -> None:
+        """Bind callback to column headers change event."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
         """Bind callback to value change event."""
         raise NotImplementedError()
 
@@ -168,12 +339,12 @@ class SupportsChoices(Protocol):
     """Widget that has a set of valid choices."""
 
     @abstractmethod
-    def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
         """Get available choices."""
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
+    def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set available choices."""
         raise NotImplementedError()
 
@@ -206,8 +377,6 @@ class SupportsChoices(Protocol):
 @runtime_checkable
 class CategoricalWidgetProtocol(ValueWidgetProtocol, SupportsChoices, Protocol):
     """Categorical widget, that has a set of valid choices, and a current value."""
-
-    pass
 
 
 @runtime_checkable
@@ -249,6 +418,15 @@ class SupportsOrientation(Protocol):
 class SliderWidgetProtocol(RangedWidgetProtocol, SupportsOrientation, Protocol):
     """Protocol for implementing a slider widget."""
 
+    def _mgui_set_readout_visibility(self, visible: bool) -> None:
+        """Set visibility of readout widget."""
+
+    def _mgui_get_tracking(self) -> bool:
+        """If tracking is False, changed is only emitted when released."""
+
+    def _mgui_set_tracking(self, tracking: bool) -> None:
+        """If tracking is False, changed is only emitted when released."""
+
 
 # CONTAINER ----------------------------------------------------------------------
 
@@ -257,44 +435,29 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     """Widget that can contain other widgets."""
 
     @abstractmethod
-    def _mgui_add_widget(self, widget: "Widget") -> None:
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
+    def _mgui_remove_widget(self, widget: Widget) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_remove_widget(self, widget: "Widget") -> None:
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_remove_index(self, position: int) -> None:
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
         raise NotImplementedError()
 
-    @abstractmethod
-    def _mgui_count(self) -> int:
-        raise NotImplementedError()
+
+class MainWindowProtocol(ContainerProtocol, Protocol):
+    """Application main widget."""
 
     @abstractmethod
-    def _mgui_index(self, widget: "Widget") -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_index(self, index: int) -> Optional[Widget]:
-        """(return None instead of index error)."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_native_layout(self) -> Any:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+    def _mgui_create_menu_item(
+        self, menu_name: str, action_name: str, callback=None, shortcut=None
+    ):
         raise NotImplementedError()
 
 
@@ -333,7 +496,7 @@ class BaseApplicationBackend(ABC):
     def _mgui_start_timer(
         self,
         interval: int = 0,
-        on_timeout: Optional[Callable[[], None]] = None,
+        on_timeout: Callable[[], None] | None = None,
         single: bool = False,
     ) -> None:
         """Create and start a timer.

@@ -1,5 +1,7 @@
+import os
 import re
 import runpy
+import sys
 from glob import glob
 from pathlib import Path
 
@@ -27,11 +29,11 @@ def test_doc_code_cells(fname, globalns=globals()):
             if "warns" in header.group():
                 with pytest.warns(None):
                     exec(cell, globalns)
-                    continue
+                continue
             if "raises-exception" in header.group():
                 with pytest.raises(Exception):
                     exec(cell, globalns)
-                    continue
+                continue
         exec(cell, globalns)
 
 
@@ -40,10 +42,18 @@ def test_doc_code_cells(fname, globalns=globals()):
 )
 def test_examples(fname):
     """Make sure that all code cells in documentation perform as expected."""
+    if "table.py" in fname and os.name == "nt" and sys.version_info < (3, 8):
+        pytest.mark.skip()
+        return
+
     app = use_app()
     app.start_timer(0, app.quit)
     if "OLD" in fname:
         with pytest.warns(FutureWarning):
-            assert runpy.run_path(fname)
+            runpy.run_path(fname)
     else:
-        assert runpy.run_path(fname)
+        try:
+            runpy.run_path(fname)
+        except ImportError as e:
+            if "Numpy required to use images" in str(e):
+                pytest.skip("numpy unavailable: skipping image example")

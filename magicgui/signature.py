@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import inspect
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Mapping, Sequence, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Sequence, cast
 
 from typing_extensions import Annotated, _AnnotatedAlias
 
@@ -25,6 +25,8 @@ from magicgui.types import WidgetOptions
 if TYPE_CHECKING:
     from magicgui.widgets import Container
     from magicgui.widgets._bases import Widget
+
+TZ_EMPTY = "__no__default__"
 
 
 def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
@@ -57,11 +59,10 @@ def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
         hint, anno_options = split_annotated_type(annotation)
         _options.update(anno_options)
         annotation = hint
-    annotation = Any if annotation is inspect.Parameter.empty else annotation
     return Annotated[annotation, _options]
 
 
-def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, WidgetOptions]:
+def split_annotated_type(annotation: _AnnotatedAlias) -> tuple[Any, WidgetOptions]:
     """Split an Annotated type into its base type and options dict."""
     if not isinstance(annotation, _AnnotatedAlias):
         raise TypeError("Type hint must be an 'Annotated' type.")
@@ -72,6 +73,10 @@ def split_annotated_type(annotation: _AnnotatedAlias) -> Tuple[Any, WidgetOption
 
     meta = cast(WidgetOptions, annotation.__metadata__[0])
     return annotation.__args__[0], meta
+
+
+class _void:
+    """private sentinel."""
 
 
 class MagicParameter(inspect.Parameter):
@@ -103,9 +108,6 @@ class MagicParameter(inspect.Parameter):
         annotation: Any = inspect.Parameter.empty,
         gui_options: dict = None,
     ):
-
-        if annotation is inspect.Parameter.empty:
-            annotation = Any if default is inspect.Parameter.empty else type(default)
         _annotation = make_annotated(annotation, gui_options)
         super().__init__(name, kind, default=default, annotation=_annotation)
 
@@ -132,8 +134,9 @@ class MagicParameter(inspect.Parameter):
     def to_widget(self, app: AppRef = None) -> Widget:
         """Create and return a widget for this object."""
         from magicgui.widgets._bases import create_widget
+        from magicgui.widgets._bases.value_widget import UNSET
 
-        value = None if self.default is self.empty else self.default
+        value = UNSET if self.default in (self.empty, TZ_EMPTY) else self.default
         annotation, options = split_annotated_type(self.annotation)
         widget = create_widget(
             name=self.name,
@@ -146,12 +149,12 @@ class MagicParameter(inspect.Parameter):
         return widget
 
     @classmethod
-    def from_widget(cls, widget: "Widget") -> MagicParameter:
+    def from_widget(cls, widget: Widget) -> MagicParameter:
         """Create a MagicParameter object representing a widget."""
         return cls(
             name=str(widget.name),
             kind=widget.param_kind,
-            default=getattr(widget, "value", None),
+            default=getattr(widget, "value", inspect.Parameter.empty),
             annotation=widget.annotation,
             gui_options=widget.options,
         )
@@ -194,7 +197,7 @@ class MagicSignature(inspect.Signature):
         parameters: Sequence[inspect.Parameter] = None,
         *,
         return_annotation=inspect.Signature.empty,
-        gui_options: Dict[str, dict] = None,
+        gui_options: dict[str, dict] = None,
     ):
         params = [
             MagicParameter.from_parameter(p, (gui_options or {}).get(p.name))
@@ -227,13 +230,31 @@ class MagicSignature(inspect.Signature):
 
         return Container(
             widgets=list(self.widgets(kwargs.get("app")).values()),
-            return_annotation=self.return_annotation,
             **kwargs,
         )
 
+    def replace(
+        self,
+        *,
+        parameters=_void,
+        return_annotation: Any = _void,
+    ) -> MagicSignature:
+        """Create a customized copy of the Signature.
+
+        Pass ``parameters`` and/or ``return_annotation`` arguments
+        to override them in the new copy.
+        """
+        if parameters is _void:
+            parameters = self.parameters.values()
+
+        if return_annotation is _void:
+            return_annotation = self.return_annotation
+
+        return type(self)(parameters, return_annotation=return_annotation)
+
 
 def magic_signature(
-    obj: Callable, *, gui_options: Dict[str, dict] = None, follow_wrapped: bool = True
+    obj: Callable, *, gui_options: dict[str, dict] = None, follow_wrapped: bool = True
 ) -> MagicSignature:
     """Create a MagicSignature from a callable object.
 
@@ -268,8 +289,8 @@ def magic_signature(
         invalid = set(gui_options) - set(sig.parameters)
         if invalid:
             raise ValueError(
-                "keyword arguments (gui_options) MUST match parameters in the "
-                f"decorated function.\nGot extra keys: {invalid}"
+                f"Received parameter option key(s) {invalid} that do not match "
+                f"parameters in the provided function: {sig}"
             )
         bad = {v for v in gui_options.values() if not isinstance(v, dict)}
         if bad:

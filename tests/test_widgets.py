@@ -1,5 +1,7 @@
 import inspect
-from unittest.mock import MagicMock
+from enum import Enum
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 from tests import MyInt
@@ -9,11 +11,17 @@ from magicgui.widgets._bases import ValueWidget
 
 
 @pytest.mark.parametrize(
-    "WidgetClass", [getattr(widgets, n) for n in widgets.__all__ if n != "Widget"]
+    "WidgetClass",
+    [
+        getattr(widgets, n)
+        for n in widgets.__all__
+        if n not in ("Widget", "FunctionGui", "MainFunctionGui", "show_file_dialog")
+    ],
 )
 def test_widgets(WidgetClass):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
-    _ = WidgetClass()
+    wdg: widgets.Widget = WidgetClass()
+    wdg.close()
 
 
 expectations = (
@@ -28,14 +36,18 @@ expectations = (
 @pytest.mark.parametrize("kwargs, expect_type", expectations)
 def test_create_widget(kwargs, expect_type):
     """Test that various values get turned into widgets."""
-    assert isinstance(widgets.create_widget(**kwargs), expect_type)
+    wdg = widgets.create_widget(**kwargs)
+    assert isinstance(wdg, expect_type)
+    wdg.close()
 
 
 # fmt: off
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
 
-    def _mgui_hide_widget(self): ... # noqa
+    def _mgui_close_widget(self): ... # noqa
+    def _mgui_get_visible(self): ... # noqa
+    def _mgui_set_visible(self): ... # noqa
     def _mgui_get_enabled(self): ... # noqa
     def _mgui_set_enabled(self, enabled): ... # noqa
     def _mgui_get_parent(self): ... # noqa
@@ -44,16 +56,28 @@ class MyBadWidget:
     def _mgui_bind_parent_change_callback(self, callback): ... # noqa
     def _mgui_render(self): ... # noqa
     def _mgui_get_width(self): ... # noqa
+    def _mgui_set_width(self, value: int): ... # noqa
+    def _mgui_get_min_width(self): ... # noqa
     def _mgui_set_min_width(self, value: int): ... # noqa
+    def _mgui_get_max_width(self): ... # noqa
+    def _mgui_set_max_width(self, value: int): ... # noqa
+    def _mgui_get_height(self): ... # noqa
+    def _mgui_set_height(self, value: int): ... # noqa
+    def _mgui_get_min_height(self): ... # noqa
+    def _mgui_set_min_height(self, value: int): ... # noqa
+    def _mgui_get_max_height(self): ... # noqa
+    def _mgui_set_max_height(self, value: int): ... # noqa
     def _mgui_get_value(self): ... # noqa
     def _mgui_set_value(self, value): ... # noqa
     def _mgui_bind_change_callback(self, callback): ... # noqa
+    def _mgui_get_tooltip(self, value): ... # noqa
+    # def _mgui_set_tooltip(self, value): ... # noqa
 
 
 class MyValueWidget(MyBadWidget):
     """Complete protocol implementation... should work."""
 
-    def _mgui_show_widget(self): ... # noqa
+    def _mgui_set_tooltip(self, value): ... # noqa
 # fmt: on
 
 
@@ -61,7 +85,9 @@ def test_custom_widget():
     """Test that create_widget works with arbitrary backend implementations."""
     # by implementing the ValueWidgetProtocol, magicgui will know to wrap the above
     # widget with a widgets._bases.ValueWidget
-    assert isinstance(widgets.create_widget(1, widget_type=MyValueWidget), ValueWidget)
+    wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
+    assert isinstance(wdg, ValueWidget)
+    wdg.close()
 
 
 def test_custom_widget_fails():
@@ -69,14 +95,14 @@ def test_custom_widget_fails():
     with pytest.raises(TypeError) as err:
         widgets.create_widget(1, widget_type=MyBadWidget)  # type: ignore
     assert "does not implement 'WidgetProtocol'" in str(err)
-    assert "Missing methods: {'_mgui_show_widget'}" in str(err)
+    assert "Missing methods: {'_mgui_set_tooltip'}" in str(err)
 
 
-def test_extra_kwargs_warn():
+def test_extra_kwargs_error():
     """Test that unrecognized kwargs gives a FutureWarning."""
-    with pytest.warns(FutureWarning) as wrn:
+    with pytest.raises(TypeError) as wrn:
         widgets.Label(unknown_kwarg="hi")
-    assert "unexpected keyword arguments" in str(wrn[0].message)
+    assert "unexpected keyword argument" in str(wrn)
 
 
 def test_autocall_no_runtime_error():
@@ -97,9 +123,9 @@ def test_basic_widget_attributes():
     widget.enabled = False
     assert not widget.enabled
 
-    assert widget.visible
-    widget.visible = False
     assert not widget.visible
+    widget.show()
+    assert widget.visible
 
     assert widget.parent is None
     container.append(widget)
@@ -109,7 +135,7 @@ def test_basic_widget_attributes():
     assert widget.label == "my name"
     widget.label = "A different label"
     assert widget.label == "A different label"
-    assert widget.width > 200
+    assert widget.width < 100
     widget.width = 150
     assert widget.width == 150
 
@@ -123,7 +149,21 @@ def test_basic_widget_attributes():
         widget.param_kind = 1
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
-    assert widget.options == {"max": 100, "min": 0, "step": 1, "visible": False}
+    assert widget.options == {
+        "max": 1000,
+        "min": 0,
+        "step": 1,
+        "enabled": False,
+        "visible": False,
+    }
+    widget.close()
+
+
+def test_tooltip():
+    label = widgets.Label()
+    assert not label.tooltip
+    label.tooltip = "My Tooltip"
+    assert label.tooltip == "My Tooltip"
 
 
 def test_container_widget():
@@ -142,9 +182,9 @@ def test_container_widget():
     with pytest.raises(NotImplementedError):
         container[0] = "something"
 
-    assert container.layout == "horizontal"
+    assert container.layout == "vertical"
     with pytest.raises(NotImplementedError):
-        container.layout = "vertical"
+        container.layout = "horizontal"
 
     assert all(x in dir(container) for x in ["labela", "labelb"])
 
@@ -155,9 +195,7 @@ def test_container_widget():
     del container[1:]
     del container[-1]
     assert not container
-
-    if use_app().backend_name == "qt":
-        assert container.native_layout.__class__.__name__ == "QHBoxLayout"
+    container.close()
 
 
 def test_container_label_widths():
@@ -178,6 +216,48 @@ def test_container_label_widths():
     before = _label_width()
     container.append(labelb)
     assert _label_width() > before
+    container.close()
+
+
+def test_labeled_widget_container():
+    """Test that _LabeledWidgets follow their children."""
+    from magicgui.widgets._concrete import _LabeledWidget
+
+    w1 = widgets.Label(value="hi", name="w1")
+    w2 = widgets.Label(value="hi", name="w2")
+    container = widgets.Container(widgets=[w1, w2], layout="vertical")
+    assert w1._labeled_widget
+    lw = w1._labeled_widget()
+    assert isinstance(lw, _LabeledWidget)
+    assert not lw.visible
+    container.show()
+    assert w1.visible
+    assert lw.visible
+    w1.hide()
+    assert not w1.visible
+    assert not lw.visible
+    w1.label = "another label"
+    assert lw._label_widget.value == "another label"
+    container.close()
+
+
+def test_visible_in_container():
+    """Test that visibility depends on containers."""
+    w1 = widgets.Label(value="hi", name="w1")
+    w2 = widgets.Label(value="hi", name="w2")
+    w3 = widgets.Label(value="hi", name="w2", visible=False)
+    container = widgets.Container(widgets=[w2, w3])
+    assert not w1.visible
+    assert not w2.visible
+    assert not w3.visible
+    assert not container.visible
+    container.show()
+    assert container.visible
+    assert w2.visible
+    assert not w3.visible
+    w1.show()
+    assert w1.visible
+    container.close()
 
 
 def test_delete_widget():
@@ -214,6 +294,7 @@ def test_unhashable_choice_data():
     assert combo.choices == ([1, 2, 3], [1, 2, 5])
     combo.choices = ("x", "y", "z")
     assert combo.choices == ("x", "y", "z")
+    combo.close()
 
 
 def test_bound_values():
@@ -249,6 +330,7 @@ def test_bound_values_visible():
     def f(x: int = 5):
         return x
 
+    f.show()
     assert f.x.visible
     assert f() == 10
     f.x.unbind()
@@ -323,3 +405,270 @@ def test_reset_choice_recursion():
     assert f.c.choices == (0, 1)
     container.reset_choices()
     assert f.c.choices == (0, 1, 2)
+
+
+def test_progressbar():
+    """Test manually controlling a progressbar."""
+
+    @magicgui(pbar={"min": 20, "max": 40, "step": 2, "value": 30})
+    def t(pbar: widgets.ProgressBar):
+        assert pbar.get_value() == 32
+        pbar.decrement()
+        assert pbar.get_value() == 30
+        pbar.step = 5
+        assert pbar.get_value() == 35
+        pbar.decrement(10)
+        assert pbar.get_value() == 25
+
+
+def test_container_indexing_with_native_mucking():
+    """Mostly make sure that the inner model isn't messed up.
+
+    keeping indexes with a manipulated native model *may* be something to do in future.
+    """
+    l1 = widgets.Label(name="l1")
+    l2 = widgets.Label(name="l2")
+    l3 = widgets.Label(name="l3")
+    c = widgets.Container(widgets=[l1, l2, l3])
+    assert c[-1] == l3
+    # so far they should be in sync
+    native = c.native.layout()
+    assert native.count() == len(c)
+    # much with native layout
+    native.addStretch()
+    # haven't changed the magicgui container
+    assert len(c) == 3
+    assert c[-1] == l3
+    # though it has changed the native model
+    assert native.count() == 4
+
+
+def test_main_function_gui():
+    """Test that main_window makes the widget a top level main window with menus."""
+
+    @magicgui(main_window=True)
+    def add(num1: int, num2: int) -> int:
+        """Adds the given two numbers, returning the result.
+
+        The function assumes that the two numbers can be added and does
+        not perform any prior checks.
+
+        Parameters
+        ----------
+        num1 , num2 : int
+            Numbers to be added
+
+        Returns
+        -------
+        int
+            Resulting integer
+        """
+
+    assert not add.visible
+    add.show()
+    assert add.visible
+
+    assert isinstance(add, widgets.MainFunctionGui)
+    add._show_docs()
+    assert isinstance(add._help_text_edit, widgets.TextEdit)
+    assert add._help_text_edit.value.startswith("Adds the given two numbers")
+    assert add._help_text_edit.read_only
+    add.close()
+
+
+def test_range_widget():
+    args = (-100, 1000, 2)
+    rw = widgets.RangeEdit(*args)
+    v = rw.value
+    assert isinstance(v, range)
+    assert (v.start, v.stop, v.step) == args
+
+
+def test_range_widget_max():
+    # max will override and restrict the possible values
+    rw = widgets.RangeEdit(-100, 250, 1, max=(0, 500, 1))
+    v = rw.value
+    assert isinstance(v, range)
+    assert (rw.start.max, rw.stop.max, rw.step.max) == (0, 500, 1)
+
+    with pytest.raises(ValueError):
+        rw = widgets.RangeEdit(100, 300, 5, max=(0, 500, 5))
+
+
+def test_range_widget_min():
+    # max will override and restrict the possible values
+    rw = widgets.RangeEdit(2, 1000, 5, min=(0, 500, 5))
+    v = rw.value
+    assert isinstance(v, range)
+    assert (rw.start.min, rw.stop.min, rw.step.min) == (0, 500, 5)
+
+    with pytest.raises(ValueError):
+        rw = widgets.RangeEdit(-100, 1000, 5, min=(0, 500, 5))
+
+
+def test_range_value_none():
+    """Test that arg: int = None defaults to 0"""
+
+    @magicgui
+    def f(x: int = None):
+        ...
+
+    assert f.x.value == 0
+    rw = widgets.SpinBox(value=None)
+    assert rw.value == 0
+
+
+def test_containers_show_nested_containers():
+    """make sure showing a container shows a nested FunctionGui."""
+
+    @magicgui
+    def func(x: int, y: str):
+        pass
+
+    assert not func.visible
+    c2 = widgets.Container(widgets=[func])
+    assert not c2.visible
+    c2.show()
+    assert c2.visible and func.visible
+    c2.close()
+    assert not func.visible
+
+
+def test_file_dialog_events():
+    """Test that file dialog events emit the value of the line_edit."""
+    fe = widgets.FileEdit(value="hi")
+    mock = MagicMock()
+    fe.changed.connect(mock)
+    fe.line_edit.value = "world"
+    mock.assert_called_once_with(Path("world"))
+
+
+def test_file_dialog_button_events():
+    """Test that clicking the file dialog button doesn't emit an event."""
+    fe = widgets.FileEdit(value="hi")
+    mock = MagicMock()
+    fe.changed.connect(mock)
+    with patch.object(fe, "_show_file_dialog", return_value=""):
+        fe.choose_btn.changed.emit("value")
+    mock.assert_not_called()
+    assert fe.value == Path("hi")
+
+
+def test_null_events():
+    """Test that nullable widgets emit events when their null value is set"""
+    wdg = widgets.ComboBox(choices=["a", "b"], nullable=True)
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    wdg.value = "b"
+    mock.assert_called_once()
+    mock.reset_mock()
+    wdg.value = None
+    mock.assert_called_once()
+    mock.reset_mock()
+
+    wdg._nullable = False
+    wdg.value = "a"
+    mock.assert_called_once()
+    mock.reset_mock()
+    mock.assert_not_called()
+    wdg.value = None
+    mock.assert_not_called()
+
+
+@pytest.mark.parametrize("WdgClass", [widgets.FloatSlider, widgets.FloatSpinBox])
+@pytest.mark.parametrize("value", [1, 1e6, 1e12, 1e16, 1e22])
+def test_extreme_floats(WdgClass, value):
+    wdg = WdgClass(value=value, max=value * 10)
+    assert round(wdg.value / value, 4) == 1
+    assert round(wdg.max / value, 4) == 10
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    wdg.value = value * 2
+    mock.assert_called_once()
+    assert round(mock.call_args[0][0] / value, 4) == 2
+
+    _value = 1 / value
+    wdg2 = WdgClass(value=_value, step=_value / 10, max=_value * 100)
+    assert round(wdg2.value / _value, 4) == 1.0
+    wdg.close()
+    wdg2.close()
+
+
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_widgets(Cls):
+    wdg = Cls(
+        value=1,
+        choices=[("first option", 1), ("second option", 2), ("third option", 3)],
+    )
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert wdg.value == 1
+    assert wdg.current_choice == "first option"
+    mock.assert_not_called()
+    wdg.value = 2
+    mock.assert_called_once_with(2)
+    assert wdg.value == 2
+    assert wdg.current_choice == "second option"
+    assert wdg.choices == (1, 2, 3)
+
+    wdg.del_choice("third option")
+    assert wdg.choices == (1, 2)
+
+
+class MyEnum(Enum):
+    A = "a"
+    B = "b"
+
+
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_widgets_with_enums(Cls):
+    wdg = Cls(value=MyEnum.A, choices=MyEnum)
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert wdg.value == MyEnum.A
+    assert wdg.current_choice == "A"
+    mock.assert_not_called()
+    wdg.value = MyEnum.B
+    mock.assert_called_once_with(MyEnum.B)
+    assert wdg.value == MyEnum.B
+    assert wdg.current_choice == "B"
+    assert wdg.choices == tuple(MyEnum.__members__.values())
+    wdg.close()
+
+
+@pytest.mark.skipif(use_app().backend_name != "qt", reason="only on qt")
+def test_radiobutton_reset_choices():
+    """Test that reset_choices doesn't change the number of buttons."""
+    from qtpy.QtWidgets import QRadioButton
+
+    wdg = widgets.RadioButtons(choices=["a", "b", "c"])
+    assert len(wdg.native.findChildren(QRadioButton)) == 3
+    wdg.reset_choices()
+    assert len(wdg.native.findChildren(QRadioButton)) == 3
+
+
+def test_container_removal():
+    c = widgets.Container()
+    s = widgets.Slider(label="label")
+    assert len(c) == 0
+    assert c.native.layout().count() == 0
+
+    c.append(s)
+    assert len(c) == 1
+    assert c.native.layout().count() == 1
+
+    c.pop()
+    assert len(c) == 0
+    assert c.native.layout().count() == 0
+
+
+def test_tracking():
+    slider = widgets.Slider(tracking=False)
+    assert slider.tracking is False
+    slider.tracking = True
+    assert slider.tracking

@@ -18,6 +18,7 @@ from ._concrete import (
     Container,
     DateEdit,
     DateTimeEdit,
+    EmptyWidget,
     FileEdit,
     FloatSlider,
     FloatSpinBox,
@@ -25,15 +26,23 @@ from ._concrete import (
     LineEdit,
     LiteralEvalLineEdit,
     LogSlider,
+    MainWindow,
+    ProgressBar,
     PushButton,
     RadioButton,
+    RadioButtons,
     RangeEdit,
+    Select,
     SliceEdit,
     Slider,
     SpinBox,
     TextEdit,
     TimeEdit,
 )
+from ._dialogs import show_file_dialog
+from ._function_gui import FunctionGui, MainFunctionGui
+from ._image import Image
+from ._table import Table
 
 #: Aliases for compatibility with ipywidgets.  (WIP)
 IntSlider = Slider
@@ -60,22 +69,32 @@ __all__ = [
     "create_widget",
     "DateEdit",
     "DateTimeEdit",
+    "EmptyWidget",
     "FileEdit",
     "FloatSlider",
     "FloatSpinBox",
+    "FunctionGui",
+    "Image",
     "Label",
     "LineEdit",
     "LiteralEvalLineEdit",
     "LogSlider",
+    "MainFunctionGui",
+    "MainWindow",
     "PushButton",
+    "ProgressBar",
     "RadioButton",
+    "RadioButtons",
     "RangeEdit",
+    "Select",
     "SliceEdit",
     "Slider",
     "SpinBox",
+    "Table",
     "TextEdit",
     "TimeEdit",
     "Widget",
+    "show_file_dialog",
 ]
 
 del partial

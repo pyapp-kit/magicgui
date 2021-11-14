@@ -1,27 +1,30 @@
-# Table of contents
-# Learn more at https://jupyterbook.org/customize/toc.html
-- file: index
-
-- part: Usage
+format: jb-book
+root: index
+parts:
+- caption: How it Works
   chapters:
-    - file: usage/installation
-    - file: usage/configuration
-    - file: usage/types_widgets
-    - file: usage/direct_api
-
-- part: Examples
+  - file: how_works/
+- caption: Usage
   chapters:
-    - file: examples/widget_demo
-    - file: examples/napari/napari_img_math
-    - file: examples/napari/napari_parameter_sweep
-
-- part: API
+  - file: usage/installation
+  - file: usage/quickstart
+  - file: usage/widget_overview
+  - file: usage/configuration
+  - file: usage/types_widgets
+  - file: usage/direct_api
+  - file: usage/main_window
+- caption: Examples
   chapters:
-    - file: api/magicgui
-    - file: api/widgets
-    - file: api/function_gui
-    - file: api/bases
-    - file: api/protocols
-    - file: api/type_map
-    - file: api/types
-    - file: api/v0_2_0
+  - file: examples/widget_demo
+  - file: examples/napari/napari_img_math
+  - file: examples/napari/napari_parameter_sweep
+- caption: API
+  chapters:
+  - file: api/magicgui
+  - file: api/widgets
+  - file: api/bases
+  - file: api/protocols
+  - file: api/type_map
+  - file: api/types
+  - file: api/v0_2_0
+  - file: api/v0_3_0

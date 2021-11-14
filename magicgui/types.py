@@ -1,4 +1,6 @@
 """Types used internally in magicgui."""
+from __future__ import annotations
+
 from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type, Union
@@ -6,9 +8,10 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from magicgui.function_gui import FunctionGui
+    from magicgui.widgets import FunctionGui
     from magicgui.widgets._bases import CategoricalWidget, Widget
     from magicgui.widgets._protocols import WidgetProtocol
+
 
 #: A :class:`~magicgui.widgets._bases.Widget` class or a
 #: :class:`~magicgui.widgets._protocols.WidgetProtocol`
@@ -29,7 +32,7 @@ ChoicesCallback = Callable[["CategoricalWidget"], ChoicesIterable]
 #: The set of all valid types for widget ``choices``.
 ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, "ChoicesDict"]
 #: A callback that may be registered for a given return annotation. When called, it will
-#: be provided an instance of a :class:`~magicgui.function_gui.FunctionGui`, the result
+#: be provided an instance of a :class:`~magicgui.widgets.FunctionGui`, the result
 #: of the function that was called, and the return annotation itself.
 ReturnCallback = Callable[["FunctionGui", Any, Type], None]
 #: A valid file path type
@@ -77,4 +80,8 @@ class WidgetOptions(TypedDict, total=False):
     step: float
     layout: str  # for things like containers
     orientation: str  # for things like sliders
-    mode: Union[str, FileDialogMode]
+    mode: str | FileDialogMode
+    tooltip: str
+    bind: Any
+    nullable: bool
+    allow_multiple: bool

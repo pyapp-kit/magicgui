@@ -3,6 +3,9 @@ exclude_lines =
     pragma: no cover
     if TYPE_CHECKING:
     \.\.\.
+    except ImportError*
+    raise NotImplementedError()
 omit =
     magicgui/events.py
+    magicgui/_mpl_image.py
     tests/*
