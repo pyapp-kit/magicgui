@@ -22,7 +22,7 @@ def create_widget(
     app=None,
     widget_type: str | type[_protocols.WidgetProtocol] | None = None,
     options: WidgetOptions = dict(),
-):
+) -> Widget:
     """Create and return appropriate widget subclass.
 
     This factory function can be used to create a widget appropriate for the
@@ -100,7 +100,7 @@ def create_widget(
         if isinstance(wdg_class, prot):
 
             options = kwargs.pop("options", {})
-            cls = getattr(_bases, f"{p}Widget")
+            cls: type[Widget] = getattr(_bases, f"{p}Widget")
             widget = cls(**{**kwargs, **options, "widget_type": wdg_class})
             if _kind:
                 widget.param_kind = _kind

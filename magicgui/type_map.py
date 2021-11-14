@@ -68,7 +68,7 @@ def _evaluate_forwardref(type_: Any) -> Any:
     try:
         _module = type_.__forward_arg__.split(".", maxsplit=1)[0]
         globalns = globals().copy()
-        globalns.update({_module: import_module(_module)})
+        globalns[_module] = import_module(_module)
     except ImportError as e:
         raise ImportError(
             "Could not resolve the magicgui forward reference annotation: "
@@ -137,9 +137,16 @@ def pydantic_type(value, annotation) -> WidgetTuple | None:
         import pydantic.types as pt
     except ImportError:
         return None
-    if isinstance(annotation, pt.ConstrainedNumberMeta):
-        if issubclass(annotation, pt.ConstrainedInt):
-            return widgets.SpinBox, {"min": annotation.ge, "max": annotation.le}
+    if isinstance(annotation, type) and issubclass(annotation, pt.ConstrainedInt):
+        # TODO: implement exclusive min/max
+        opts: WidgetOptions = {}
+        min = annotation.ge or annotation.gt  # type: ignore
+        max = annotation.le or annotation.lt  # type: ignore
+        if min is not None:
+            opts["min"] = min
+        if max is not None:
+            opts["max"] = max
+        return widgets.SpinBox, opts
     return None
 
 
@@ -204,6 +211,13 @@ def pick_widget_type(
     if optional:
         options.setdefault("nullable", True)
     choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
+
+    # TODO:
+    # this is in need of a major cleanup.  We need a better way to merge and combine
+    # options throughout the chain, without the first typematcher winning and returning
+    r = pydantic_type(None, annotation)
+    if r:
+        options.update(r[1])
 
     if "widget_type" in options:
         widget_type = options.pop("widget_type")

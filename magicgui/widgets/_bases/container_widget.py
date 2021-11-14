@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
+from typing import TYPE_CHECKING, Any, Callable, Iterable, MutableSequence, overload
 
 from magicgui._util import debounce
 from magicgui.application import use_app
@@ -61,7 +61,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     def __init__(
         self,
         layout: str = "vertical",
-        widgets: Sequence[Widget] = (),
+        widgets: Iterable[Widget] = (),
         labels=True,
         **kwargs,
     ):

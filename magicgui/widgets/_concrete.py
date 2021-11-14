@@ -621,7 +621,8 @@ class _LabeledWidget(Container):
         position: str = "left",
         **kwargs,
     ):
-        kwargs["layout"] = "horizontal" if position in ("left", "right") else "vertical"
+        kwargs["layout"] = "horizontal" if position in {"left", "right"} else "vertical"
+
         self._inner_widget = widget
         widget._labeled_widget_ref = ref(self)
         _visible = False if widget._explicitly_hidden else None

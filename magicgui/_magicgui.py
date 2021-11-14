@@ -230,7 +230,13 @@ def _magicgui(
         if not callable(func):
             raise TypeError("the first argument must be callable")
 
-        magic_class = MainFunctionGui if main_window else FunctionGui
+        if isinstance(func, type) and hasattr(func, "__fields__"):
+            from ._pydantic import model_widget
+
+            magic_class = model_widget
+            kwargs.clear()  # TODO
+        else:
+            magic_class = MainFunctionGui if main_window else FunctionGui
 
         if factory:
             return MagicFactory(

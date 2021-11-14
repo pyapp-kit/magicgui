@@ -350,6 +350,9 @@ class QBaseButtonWidget(QBaseValueWidget, _protocols.SupportsText):
         """Get text."""
         return self._qwidget.text()
 
+    def _mgui_set_value(self, value) -> None:
+        super()._mgui_set_value(bool(value))
+
 
 class PushButton(QBaseButtonWidget):
     def __init__(self):

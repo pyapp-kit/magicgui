@@ -5,7 +5,7 @@ from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type, Union
 
-from typing_extensions import TypedDict
+from typing_extensions import Literal, TypedDict, TypeGuard
 
 if TYPE_CHECKING:
     from magicgui.widgets import FunctionGui
@@ -85,3 +85,28 @@ class WidgetOptions(TypedDict, total=False):
     bind: Any
     nullable: bool
     allow_multiple: bool
+
+
+# just for type_guard:
+WidgetOptionKeys = Union[
+    Literal["widget_type"],
+    Literal["choices"],
+    Literal["gui_only"],
+    Literal["visible"],
+    Literal["enabled"],
+    Literal["text"],
+    Literal["min"],
+    Literal["max"],
+    Literal["step"],
+    Literal["layout"],
+    Literal["orientation"],
+    Literal["mode"],
+    Literal["tooltip"],
+    Literal["bind"],
+    Literal["nullable"],
+    Literal["allow_multiple"],
+]
+
+
+def _is_option_key(key: str) -> TypeGuard[WidgetOptionKeys]:
+    return key in WidgetOptions.__annotations__
