@@ -1,7 +1,7 @@
 """"Basic example of adding a generic QWidget to a container.
 
 main lesson: add your QWidget to container.native.layout()
-as shown on line 28
+as shown on line 30
 """
 
 import matplotlib.pyplot as plt
