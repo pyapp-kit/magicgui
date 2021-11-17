@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
-from functools import partial
 from enum import Enum
-
+from functools import partial
 
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvas
 import numpy as np
+from matplotlib.backends.backend_qt5agg import FigureCanvas
 from scipy import signal
-from magicgui import magicgui, type_map, widgets
+
+from magicgui import magicgui, widgets
 
 
 @dataclass
@@ -36,8 +36,7 @@ class Signal:
     data: np.ndarray = field(init=False)
 
     def __post_init__(self):
-        """evaluate the function at instantiation time
-        """
+        """evaluate the function at instantiation time"""
         self.time = np.linspace(0, self.duration, self.size)
         self.data = self.func(self.time)
 
@@ -169,12 +168,10 @@ class Select(Enum):
 
 
 class WaveForm(widgets.Container):
-    """Simple waveform generator widget, with plotting.
-    """
+    """Simple waveform generator widget, with plotting."""
 
     def __init__(self):
-        """Creates the widget
-        """
+        """Creates the widget"""
         super().__init__()
         self.fig, self.ax = plt.subplots()
         self.native.layout().addWidget(FigureCanvas(self.fig))
@@ -186,15 +183,13 @@ class WaveForm(widgets.Container):
 
     @magicgui(auto_call=True)
     def signal_widget(self, select: Select = Select.Sine) -> widgets.Container:
-        """Waveform selection, from the WAVEFORMS dict
-        """
+        """Waveform selection, from the WAVEFORMS dict"""
         self.waveform = WAVEFORMS[select.value]
         self.update_controls()
         self.update_graph(self.waveform())
 
     def update_controls(self):
-        """Reset controls according to the new function
-        """
+        """Reset controls according to the new function"""
         if self.controls is not None:
             self.remove(self.controls)
         self.controls = magicgui(auto_call=True)(self.waveform)
