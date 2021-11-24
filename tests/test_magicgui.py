@@ -697,3 +697,75 @@ def test_none_defaults():
     assert magicgui(func)() == 1
 
     assert str(magic_signature(func)) == str(magicgui(func).__signature__)
+
+
+def test_update_and_dict():
+    @magicgui
+    def test(a: int = 1, y: str = "a"):
+        ...
+
+    assert test.asdict() == {"a": 1, "y": "a"}
+
+    test.update(a=10, y="b")
+    assert test.asdict() == {"a": 10, "y": "b"}
+
+    test.update({"a": 1, "y": "a"})
+    assert test.asdict() == {"a": 1, "y": "a"}
+
+    test.update([("a", 10), ("y", "b")])
+    assert test.asdict() == {"a": 10, "y": "b"}
+
+
+def test_update_on_call():
+    @magicgui
+    def test(a: int = 1, y: str = "a"):
+        ...
+
+    assert test.call_count == 0
+    test(a=10, y="b", update_widget=True)
+    assert test.a.value == 10
+    assert test.y.value == "b"
+    assert test.call_count == 1
+
+
+def test_partial():
+    from functools import partial
+
+    def some_func(x: int, y: str) -> str:
+        return y + str(x)
+
+    wdg = magicgui(partial(some_func, 1))
+    assert len(wdg) == 2  # because of the call_button
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert not hasattr(wdg, "x")
+    assert wdg("sdf") == "sdf1"
+    assert wdg._callable_name == "some_func"
+
+    wdg2 = magicgui(partial(some_func, y="sdf"))
+    assert len(wdg2) == 3  # keyword arguments don't change the partial signature
+    assert isinstance(wdg2.x, widgets.SpinBox)
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert wdg2.y.value == "sdf"
+    assert wdg2(1) == "sdf1"
+
+
+def test_curry():
+    import toolz as tz
+
+    @tz.curry
+    def some_func2(x: int, y: str) -> str:
+        return y + str(x)
+
+    wdg = magicgui(some_func2(1))
+    assert len(wdg) == 2  # because of the call_button
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert not hasattr(wdg, "x")
+    assert wdg("sdf") == "sdf1"
+    assert wdg._callable_name == "some_func2"
+
+    wdg2 = magicgui(some_func2(y="sdf"))
+    assert len(wdg2) == 3  # keyword arguments don't change the partial signature
+    assert isinstance(wdg2.x, widgets.SpinBox)
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert wdg2.y.value == "sdf"
+    assert wdg2(1) == "sdf1"

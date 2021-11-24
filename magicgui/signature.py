@@ -26,6 +26,8 @@ if TYPE_CHECKING:
     from magicgui.widgets import Container
     from magicgui.widgets._bases import Widget
 
+TZ_EMPTY = "__no__default__"
+
 
 def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
     """Merge a annotation and an options dict into an Annotated type.
@@ -134,7 +136,7 @@ class MagicParameter(inspect.Parameter):
         from magicgui.widgets._bases import create_widget
         from magicgui.widgets._bases.value_widget import UNSET
 
-        value = UNSET if self.default is self.empty else self.default
+        value = UNSET if self.default in (self.empty, TZ_EMPTY) else self.default
         annotation, options = split_annotated_type(self.annotation)
         widget = create_widget(
             name=self.name,

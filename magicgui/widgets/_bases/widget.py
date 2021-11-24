@@ -74,8 +74,14 @@ class Widget:
                 f"{type(self).__name__} got an unexpected "
                 f"keyword argument: {', '.join(extra)}"
             )
-
-        _prot = self.__class__.__annotations__["_widget"]
+        for m in self.__class__.__mro__[:-1]:
+            _prot = m.__annotations__.get("_widget")
+            if _prot:
+                break
+        else:
+            raise TypeError(
+                f"Widget type {self.__class__} declared no _widget annotation"
+            )
         if not isinstance(_prot, str):
             _prot = _prot.__name__
         prot = getattr(_protocols, _prot.replace("_protocols.", ""))
