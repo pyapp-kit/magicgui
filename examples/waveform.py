@@ -8,7 +8,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvas
 from scipy import signal
 from typing_extensions import Annotated
 
-from magicgui import magicgui, type_map, widgets, widgets, register_type
+from magicgui import magicgui, register_type, widgets
 
 register_type(float, widget_type="FloatSlider")
 register_type(int, widget_type="Slider")
