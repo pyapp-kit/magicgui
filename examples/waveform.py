@@ -7,7 +7,20 @@ import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from scipy import signal
 
-from magicgui import magicgui, widgets
+from typing_extensions import Annotated
+
+
+from magicgui import magicgui
+
+from magicgui import magicgui, type_map, widgets, widgets, register_type
+
+register_type(float, widget_type="FloatSlider")
+register_type(int, widget_type="Slider")
+
+Freq = Annotated[float, {"min": 0.001, "max": 30.0}]
+Phase = Annotated[float, {"min": 0.0, "max": 360.0}]
+Duty = Annotated[float, {"min": 0.0, "max": 1.0}]
+Time = Annotated[int, {"min": 0.01, "max": 100.0}]
 
 
 @dataclass
@@ -30,7 +43,7 @@ class Signal:
     """
 
     func: callable
-    duration: float = 1.0
+    duration: Time = 1.0
     size: int = 500
     time: np.ndarray = field(init=False)
     data: np.ndarray = field(init=False)
@@ -66,7 +79,7 @@ class Signal:
 
 
 def sine(
-    duration: float = 10.0, size: int = 500, freq: float = 0.5, phase: float = 0.0
+    duration: Time = 10.0, size: int = 500, freq: Freq = 0.5, phase: Phase = 0.0
 ) -> Signal:
     """Returns a 1D sine wave
 
@@ -76,7 +89,7 @@ def sine(
        the duration of the signal in seconds
     freq: float
        the frequency of the signal in Hz
-    phase: float
+    phase: Phase
        the phase of the signal (in degrees)
     """
 
@@ -89,12 +102,12 @@ def sine(
 
 
 def chirp(
-    duration: float = 10.0,
+    duration: Time = 10.0,
     size: int = 500,
     f0: float = 1.0,
-    t1: float = 0.5,
+    t1: Time = 5.0,
     f1: float = 2.0,
-    phase: float = 0.0,
+    phase: Phase = 0.0,
 ) -> Signal:
     """Frequency-swept cosine generator
 
@@ -109,7 +122,11 @@ def chirp(
 
 
 def sawtooth(
-    duration: float = 10.0, size: int = 500, freq: float = 1.0, width: float = 1.0
+    duration: Time = 10.0,
+    size: int = 500,
+    freq: Freq = 1.0,
+    width: Duty = 1.0,
+    phase: Phase = 0.0,
 ) -> Signal:
     """Return a periodic sawtooth or triangle waveform.
 
@@ -118,13 +135,15 @@ def sawtooth(
     sig = Signal(
         duration=duration,
         size=size,
-        func=lambda t: signal.sawtooth(2 * np.pi * freq * t, width=width),
+        func=lambda t: signal.sawtooth(
+            2 * np.pi * freq * t + phase * np.pi / 180, width=width
+        ),
     )
     return sig
 
 
 def square(
-    duration: float = 10.0, size: int = 500, freq: float = 1.0, duty: float = 0.5
+    duration: Time = 10.0, size: int = 500, freq: Freq = 1.0, duty: Duty = 0.5
 ) -> Signal:
     """Return a periodic sawtooth or triangle waveform.
 
@@ -139,7 +158,7 @@ def square(
 
 
 def on_off(
-    duration: float = 10.0, size: int = 500, t_on: float = 0, t_off: float = 0.0
+    duration: Time = 10.0, size: int = 500, t_on: Time = 0, t_off: Time = 0.0
 ) -> Signal:
 
     data = np.ones(size)
@@ -160,11 +179,11 @@ WAVEFORMS = {
 
 
 class Select(Enum):
+    OnOff = "on_off"
     Sine = "sine"
     Chirp = "chirp"
     Sawtooth = "sawtooth"
     Square = "square"
-    OnOff = "on_off"
 
 
 class WaveForm(widgets.Container):
