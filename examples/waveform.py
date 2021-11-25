@@ -6,11 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from scipy import signal
-
 from typing_extensions import Annotated
-
-
-from magicgui import magicgui
 
 from magicgui import magicgui, type_map, widgets, widgets, register_type
 
