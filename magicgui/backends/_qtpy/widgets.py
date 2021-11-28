@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import re
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import qtpy
@@ -717,7 +718,9 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
     def _emit_data(self):
         data = self._qwidget.selectedItems()
-        self._event_filter.valueChanged.emit([d.data(Qt.UserRole) for d in data])
+        self._event_filter.valueChanged.emit(
+            [d.data(Qt.ItemDataRole.UserRole) for d in data]
+        )
 
     def _mgui_bind_change_callback(self, callback):
         self._event_filter.valueChanged.connect(callback)
@@ -728,20 +731,20 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
     def _mgui_get_choice(self, choice_name: str) -> list[Any]:
         items = self._qwidget.findItems(choice_name, Qt.MatchExactly)
-        return [i.data(Qt.UserRole) for i in items]
+        return [i.data(Qt.ItemDataRole.UserRole) for i in items]
 
     def _mgui_get_current_choice(self) -> list[str]:  # type: ignore[override]
         return [i.text() for i in self._qwidget.selectedItems()]
 
     def _mgui_get_value(self) -> Any:
-        return [i.data(Qt.UserRole) for i in self._qwidget.selectedItems()]
+        return [i.data(Qt.ItemDataRole.UserRole) for i in self._qwidget.selectedItems()]
 
     def _mgui_set_value(self, value) -> None:
         if not isinstance(value, (list, tuple)):
             value = [value]
         for i in range(self._qwidget.count()):
             item = self._qwidget.item(i)
-            item.setSelected(item.data(Qt.UserRole) in value)
+            item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
@@ -749,12 +752,12 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         # if it's not in the list, add a new item
         if not items:
             item = QtW.QListWidgetItem(choice_name)
-            item.setData(Qt.UserRole, data)
+            item.setData(Qt.ItemDataRole.UserRole, data)
             self._qwidget.addItem(item)
         # otherwise update its data
         else:
             for item in items:
-                item.setData(Qt.UserRole, data)
+                item.setData(Qt.ItemDataRole.UserRole, data)
 
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
@@ -781,7 +784,10 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_get_choices(self) -> tuple[tuple[str, Any], ...]:
         """Get available choices."""
         return tuple(
-            (self._qwidget.item(i).text(), self._qwidget.item(i).data(Qt.UserRole))
+            (
+                self._qwidget.item(i).text(),
+                self._qwidget.item(i).data(Qt.ItemDataRole.UserRole),
+            )
             for i in range(self._qwidget.count())
         )
 
@@ -947,14 +953,13 @@ def show_file_dialog(
     return result or None
 
 
-def get_text_width(text) -> int:
-    """Return the width required to render ``text`` (including rich text elements)."""
-    if qtpy.PYSIDE2:
-        from qtpy.QtGui import Qt as _Qt
-    else:
-        from qtpy.QtCore import Qt as _Qt
+def _might_be_rich_text(text):
+    return bool(re.search("<[^\n]+>", text))
 
-    if _Qt.mightBeRichText(text):
+
+def get_text_width(text: str) -> int:
+    """Return the width required to render ``text`` (including rich text elements)."""
+    if _might_be_rich_text(text):
         doc = QTextDocument()
         doc.setHtml(text)
         return doc.size().width()

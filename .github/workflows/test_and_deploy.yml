@@ -26,6 +26,12 @@ jobs:
             backend: pyqt
             platform: ubuntu-latest
           - python: '3.10'
+            backend: pyqt6
+            platform: ubuntu-latest
+          - python: '3.10'
+            backend: pyside6
+            platform: ubuntu-latest
+          - python: '3.10'
             backend: pyqt
             platform: macos-latest
           - python: '3.10'
