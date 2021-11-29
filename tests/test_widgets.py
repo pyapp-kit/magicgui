@@ -672,3 +672,10 @@ def test_tracking():
     assert slider.tracking is False
     slider.tracking = True
     assert slider.tracking
+
+
+def test_select_set_value():
+    sel = widgets.Select(value=[1, 3, 4], choices=list(range(10)))
+    assert sel.value == [1, 3, 4]
+    sel.value = [1, 4, 8]
+    assert sel.value == [1, 4, 8]
