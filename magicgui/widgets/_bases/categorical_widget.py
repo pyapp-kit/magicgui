@@ -38,7 +38,6 @@ class CategoricalWidget(ValueWidget):
 
     @value.setter
     def value(self, value):
-        print("value", value, self._allow_multiple)
         if isinstance(value, (list, tuple)) and self._allow_multiple:
             if any(v not in self.choices for v in value):
                 raise ValueError(
