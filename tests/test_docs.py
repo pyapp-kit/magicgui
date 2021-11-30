@@ -54,5 +54,5 @@ def test_examples(fname):
             pytest.skip("numpy unavailable: skipping image example")
     finally:
         if "waveform" in fname:
-            type_map._TYPE_DEFS.pop(int)
-            type_map._TYPE_DEFS.pop(float)
+            type_map._TYPE_DEFS.pop(int, None)
+            type_map._TYPE_DEFS.pop(float, None)
