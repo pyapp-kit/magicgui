@@ -16,7 +16,7 @@ register_type(int, widget_type="Slider")
 Freq = Annotated[float, {"min": 0.001, "max": 30.0}]
 Phase = Annotated[float, {"min": 0.0, "max": 360.0}]
 Duty = Annotated[float, {"min": 0.0, "max": 1.0}]
-Time = Annotated[int, {"min": 0.01, "max": 100.0}]
+Time = Annotated[float, {"min": 0.01, "max": 100.0}]
 
 
 @dataclass
@@ -154,7 +154,7 @@ def square(
 
 
 def on_off(
-    duration: Time = 10.0, size: int = 500, t_on: Time = 0, t_off: Time = 0.0
+    duration: Time = 10.0, size: int = 500, t_on: Time = 0.01, t_off: Time = 0.01
 ) -> Signal:
 
     data = np.ones(size)
