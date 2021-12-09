@@ -672,3 +672,31 @@ def test_tracking():
     assert slider.tracking is False
     slider.tracking = True
     assert slider.tracking
+
+
+def test_select_set_value():
+    sel = widgets.Select(value=[1, 3, 4], choices=list(range(10)))
+    assert sel.value == [1, 3, 4]
+    sel.value = [1, 4, 8]
+    assert sel.value == [1, 4, 8]
+
+
+def test_slider_readeout():
+    """Test that the slider readout spinbox visibility works."""
+    # FIXME: ugly direct backend access.
+    sld = widgets.Slider()
+    sld.show()
+    backend_slider = sld.native.children()[1]
+    assert "QSpinBox" in type(backend_slider).__name__
+    assert backend_slider.isVisible()
+
+    sld = widgets.Slider(readout=False)
+    sld.show()
+    backend_slider = sld.native.children()[1]
+    assert not backend_slider.isVisible()
+
+    sld = widgets.Slider(readout=True)
+    sld.show()
+    assert sld.native.children()[1].isVisible()
+    sld.readout = False
+    assert not sld.native.children()[1].isVisible()

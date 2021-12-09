@@ -515,6 +515,12 @@ class Slider(_Slider):
         self._qwidget.valueChanged.connect(self._on_slider_change)
         self._readout_widget.editingFinished.connect(self._on_readout_change)
 
+    def _mgui_get_visible(self):
+        return self._container.isVisible()
+
+    def _mgui_set_visible(self, value: bool):
+        self._container.setVisible(value)
+
     def _mgui_set_orientation(self, value: str) -> None:
         """Set orientation, value will be 'horizontal' or 'vertical'."""
         if value == "vertical":

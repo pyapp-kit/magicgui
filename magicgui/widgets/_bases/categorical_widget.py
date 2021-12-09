@@ -18,9 +18,11 @@ class CategoricalWidget(ValueWidget):
 
     _widget: _protocols.CategoricalWidgetProtocol
     null_string: str = "-----"
+    _allow_multiple = False
 
-    def __init__(self, choices: ChoicesType = (), allow_multiple=False, **kwargs):
-        self._allow_multiple = allow_multiple
+    def __init__(self, choices: ChoicesType = (), allow_multiple=None, **kwargs):
+        if allow_multiple is not None:
+            self._allow_multiple = allow_multiple
         self._default_choices = choices
         super().__init__(**kwargs)
 

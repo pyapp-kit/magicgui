@@ -11,16 +11,27 @@ class SliderWidget(RangedWidget, _OrientationMixin):
     ----------
     orientation : str, {'horizontal', 'vertical'}
         The orientation for the slider, by default "horizontal"
+    readout : bool, optional
+        Whether to show the editable spinbox next to the slider
+    tracking : bool, optional
+        If tracking is enabled (the default), the slider emits the `changed`
+        signal while the slider is being dragged. If tracking is disabled,
+        the slider emits the `changed` signal only after the user releases
+        the slider.
     """
 
     _widget: _protocols.SliderWidgetProtocol
 
     def __init__(
-        self, orientation: str = "horizontal", readout=True, tracking=True, **kwargs
+        self,
+        orientation: str = "horizontal",
+        readout: bool = True,
+        tracking: bool = True,
+        **kwargs
     ):
         kwargs["backend_kwargs"] = {"readout": readout, "orientation": orientation}
-        self._readout = readout
         super().__init__(**kwargs)
+        self.readout = readout
         self.tracking = tracking
 
     @property
