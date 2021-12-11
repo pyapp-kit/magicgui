@@ -700,3 +700,16 @@ def test_slider_readeout():
     assert sld.native.children()[1].isVisible()
     sld.readout = False
     assert not sld.native.children()[1].isVisible()
+
+
+def test_slice_edit_events():
+    """Test that changed events of spin boxes inside a slice edit are
+    observable from its parent."""
+    start, stop, step = 0, 10, 1
+    sl = widgets.SliceEdit(start, stop, step)
+    container = widgets.Container(widgets=[sl])
+    mock = MagicMock()
+    container.changed.connect(mock)
+    sl.start.changed.emit(sl.value)
+    mock.assert_called()
+    assert sl.value == slice(start, stop, step)
