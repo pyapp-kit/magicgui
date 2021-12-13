@@ -4,6 +4,7 @@ from typing import Optional, Union
 import pytest
 
 from magicgui import magicgui, register_type, types, widgets
+from magicgui.widgets._bases.value_widget import ValueWidget
 
 
 def test_forward_refs():
@@ -101,5 +102,8 @@ def test_widget_options():
     choice1 = widgets.create_widget(annotation=E)
     choice2 = widgets.create_widget(annotation=Optional[E])
     choice3 = widgets.create_widget(annotation=E)
+    assert isinstance(choice1, ValueWidget)
+    assert isinstance(choice2, ValueWidget)
+    assert isinstance(choice3, ValueWidget)
     assert choice1._nullable is choice3._nullable is False
     assert choice2._nullable is True
