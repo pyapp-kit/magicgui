@@ -636,7 +636,6 @@ def test_magicgui_type_error():
         magicgui("not a function")  # type: ignore
 
 
-@magicgui
 def self_referencing_function(x: int = 1):
     """Function that refers to itself, and wants the FunctionGui instance."""
     return self_referencing_function
@@ -644,8 +643,10 @@ def self_referencing_function(x: int = 1):
 
 def test_magicgui_self_reference():
     """Test that self-referential magicguis work in global scopes."""
-
-    assert isinstance(self_referencing_function(), widgets.FunctionGui)
+    global self_referencing_function
+    f = magicgui(self_referencing_function)
+    assert isinstance(f(), widgets.FunctionGui)
+    assert f() is f
 
 
 def test_local_magicgui_self_reference():

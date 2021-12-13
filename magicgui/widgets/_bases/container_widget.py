@@ -161,7 +161,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
     def insert(self, key: int, widget: Widget):
         """Insert widget at ``key``."""
-        if isinstance(widget, ValueWidget):
+        if isinstance(widget, (ValueWidget, ContainerWidget)):
             widget.changed.connect(lambda: self.changed.emit(self))
         _widget = widget
 
