@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import inspect
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Sequence, cast
+from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 
 from typing_extensions import Annotated, _AnnotatedAlias
 
@@ -190,7 +190,7 @@ class MagicSignature(inspect.Signature):
         by default None
     """
 
-    parameters: Mapping[str, MagicParameter]
+    parameters: MappingProxyType[str, MagicParameter]
 
     def __init__(
         self,
