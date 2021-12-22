@@ -24,6 +24,13 @@ jobs:
         include:
           # until pyside2 is available for 3.10
           - python-version: '3.10'
+            platform: ubuntu-latest
+            backend: pyqt5
+          - python-version: '3.10'
+            platform: macos-latest
+            backend: pyqt5
+          - python-version: '3.10'
+            platform: windows-latest
             backend: pyqt5
           - python-version: '3.10'
             platform: ubuntu-latest
