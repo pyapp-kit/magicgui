@@ -16,6 +16,7 @@ from qtpy.QtGui import (
     QResizeEvent,
     QTextDocument,
 )
+from superqt import QRangeSlider
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -290,7 +291,7 @@ class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
 class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
-    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider
+    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider | QRangeSlider
     _precision: float = 1
 
     def __init__(self, qwidg):
@@ -616,6 +617,14 @@ class FloatSlider(Slider):
             callback(self._post_get_hook(value))
 
         self._qwidget.valueChanged.connect(_converted_value)
+
+
+class RangeSlider(Slider):
+    _qwidget: QRangeSlider
+    _readout: None
+
+    def __init__(self, qwidg=QRangeSlider, **kwargs):
+        super().__init__(qwidg, **kwargs)
 
 
 class ProgressBar(_Slider):

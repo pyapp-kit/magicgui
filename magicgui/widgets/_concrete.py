@@ -295,6 +295,16 @@ class FloatSlider(SliderWidget):
     """A slider widget to adjust an integer value within a range."""
 
 
+@backend_widget
+class RangeSlider(SliderWidget):
+    """A slider widget to adjust a range defined by two integer values within a range."""
+
+
+@backend_widget
+class FloatRangeSlider(SliderWidget):
+    """A slider widget to adjust a range defined by two float values within a range."""
+
+
 @merge_super_sigs
 class LogSlider(TransformedRangedWidget):
     """A slider widget to adjust a numerical value logarithmically within a range.
