@@ -145,7 +145,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
         img = self._qwidget.grab().toImage()
         bits = img.constBits()
         h, w, c = img.height(), img.width(), 4
-        if qtpy.API_NAME == "PySide2":
+        if qtpy.API_NAME.startswith("PySide"):
             arr = np.array(bits).reshape(h, w, c)
         else:
             bits.setsize(h * w * c)
