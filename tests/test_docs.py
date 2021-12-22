@@ -6,7 +6,6 @@ from glob import glob
 from pathlib import Path
 
 import pytest
-import qtpy
 
 from magicgui import type_map, use_app
 
@@ -38,7 +37,6 @@ def test_doc_code_cells(fname, globalns=globals()):
         exec(cell, globalns)
 
 
-@pytest.mark.skipif("PyQt6" in qtpy.API_NAME, reason="crashes")
 @pytest.mark.parametrize(
     "fname", [f for f in glob("examples/*.py") if "napari" not in f]
 )
