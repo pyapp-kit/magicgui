@@ -31,9 +31,6 @@ jobs:
           - python-version: '3.10'
             platform: ubuntu-latest
             backend: pyside6
-          - python-version: '3.10'
-            platform: macos-latest
-            backend: pyqt5
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
