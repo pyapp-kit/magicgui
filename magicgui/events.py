@@ -71,10 +71,12 @@ class SignalInstance(psygnal.SignalInstance):
                         if method is not None:
                             cb = method
                         else:
-                            cb = getattr(obj, name, None)
-                            if cb is None:  # pragma: no cover
+                            _cb = getattr(obj, name, None)
+                            if _cb is None:  # pragma: no cover
                                 rem.append(slot)  # object has changed?
                                 continue
+                            else:
+                                cb = _cb
                     else:
                         cb = slot
 
