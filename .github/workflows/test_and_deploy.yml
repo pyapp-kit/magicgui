@@ -51,7 +51,7 @@ jobs:
           pip install setuptools tox tox-gh-actions
       - name: egl
         if: runner.os == 'Linux'
-        run: sudo apt-get install -y libegl1-mesa libegl1
+        run: sudo apt-get install -y libegl1
       - name: Test with tox
         uses: GabrielBB/xvfb-action@v1
         with:
