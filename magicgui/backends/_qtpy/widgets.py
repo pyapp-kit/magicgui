@@ -663,7 +663,11 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         return self._qwidget.itemData(self._qwidget.currentIndex())
 
     def _mgui_set_value(self, value) -> None:
-        self._qwidget.setCurrentIndex(self._qwidget.findData(value))
+        # Note: there's a bug in PyQt6, where CombBox.findData(value) will not
+        # find the data if value is an Enum. So we do it manually
+        wdg = self._qwidget
+        idx = next((i for i in range(wdg.count()) if wdg.itemData(i) == value), -1)
+        self._qwidget.setCurrentIndex(idx)
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
