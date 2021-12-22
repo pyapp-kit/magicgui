@@ -20,17 +20,24 @@ jobs:
       matrix:
         python-version: ["3.7", "3.8", "3.9"]
         platform: [ubuntu-latest, macos-latest, windows-latest]
+        backend: [pyqt5, pyside2]
         include:
           # until pyside2 is available for 3.10
           - python-version: '3.10'
-            backend: pyqt
             platform: ubuntu-latest
+            backend: pyqt5
           - python-version: '3.10'
-            backend: pyqt
             platform: macos-latest
+            backend: pyqt5
           - python-version: '3.10'
-            backend: pyqt
             platform: windows-latest
+            backend: pyqt5
+          - python-version: '3.10'
+            platform: ubuntu-latest
+            backend: pyqt6
+          - python-version: '3.10'
+            platform: ubuntu-latest
+            backend: pyside6
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
