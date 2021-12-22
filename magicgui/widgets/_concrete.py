@@ -392,6 +392,8 @@ class ComboBox(CategoricalWidget):
 class Select(CategoricalWidget):
     """A list of options, allowing selection between multiple choices."""
 
+    _allow_multiple = True
+
 
 @merge_super_sigs
 class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore

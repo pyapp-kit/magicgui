@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 import qtpy
 
-from magicgui import use_app
+from magicgui import type_map, use_app
 
 
 @pytest.mark.parametrize(
@@ -47,15 +47,14 @@ def test_examples(fname):
     if "table.py" in fname and os.name == "nt" and sys.version_info < (3, 8):
         pytest.mark.skip()
         return
-
     app = use_app()
     app.start_timer(0, app.quit)
-    if "OLD" in fname:
-        with pytest.warns(FutureWarning):
-            runpy.run_path(fname)
-    else:
-        try:
-            runpy.run_path(fname)
-        except ImportError as e:
-            if "Numpy required to use images" in str(e):
-                pytest.skip("numpy unavailable: skipping image example")
+    try:
+        runpy.run_path(fname)
+    except ImportError as e:
+        if "Numpy required to use images" in str(e):
+            pytest.skip("numpy unavailable: skipping image example")
+    finally:
+        if "waveform" in fname:
+            type_map._TYPE_DEFS.pop(int, None)
+            type_map._TYPE_DEFS.pop(float, None)
