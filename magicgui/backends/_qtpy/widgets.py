@@ -418,7 +418,6 @@ class MainWindow(Container):
         super().__init__(layout=layout)
         self._main_window = QtW.QMainWindow()
         self._main_window.setCentralWidget(self._qwidget)
-        self._main_menu = self._main_window.menuBar()
         self._menus: dict[str, QtW.QMenu] = {}
 
     def _mgui_get_visible(self):
@@ -434,7 +433,7 @@ class MainWindow(Container):
         self, menu_name: str, action_name: str, callback=None, shortcut=None
     ):
         menu = self._menus.setdefault(
-            menu_name, self._main_menu.addMenu(f"&{menu_name}")
+            menu_name, self._main_window.menuBar().addMenu(f"&{menu_name}")
         )
         action = QtW.QAction(action_name, self._main_window)
         if shortcut is not None:
