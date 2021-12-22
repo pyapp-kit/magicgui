@@ -159,12 +159,11 @@ class FunctionGui(Container, Generic[_R]):
         # https://github.com/python/mypy/issues/9934
         name = getattr(function, "__name__", None)
         if not name:
-            try:
-                name = f"{function.__module__}.{function.__class__}"
-            except AttributeError:
-                # partials
+            if hasattr(function, "func"):  # partials:
                 f = getattr(function, "func", None)
                 name = getattr(f, "__name__", None) or str(function)
+            else:
+                name = f"{function.__module__}.{function.__class__}"
         self._callable_name = name
 
         super().__init__(
