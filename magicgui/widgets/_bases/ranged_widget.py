@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Tuple, Union
 from warnings import warn
 
 from magicgui.widgets import _protocols
@@ -52,13 +52,19 @@ class RangedWidget(ValueWidget):
         return d
 
     @ValueWidget.value.setter  # type: ignore
-    def value(self, value):
+    def value(self, value: Union[float, Tuple[float, ...]]):
         """Set widget value, will raise Value error if not within min/max."""
-        if not (self.min <= float(value) <= self.max):
-            raise ValueError(
-                f"value {value} is outside of the allowed range: "
-                f"({self.min}, {self.max})"
-            )
+        # TODO: ugly stuff, but for now works
+        if isinstance(value, float):
+            to_check = (float,)
+        else:
+            to_check = value
+        for v in to_check:
+            if not (self.min <= float(v) <= self.max):
+                raise ValueError(
+                    f"value {v} is outside of the allowed range: "
+                    f"({self.min}, {self.max})"
+                )
         ValueWidget.value.fset(self, value)  # type: ignore
 
     @property

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Sequence, Union
 
 import qtpy
 from qtpy import QtWidgets as QtW
@@ -16,7 +16,7 @@ from qtpy.QtGui import (
     QResizeEvent,
     QTextDocument,
 )
-from superqt import QRangeSlider
+import superqt
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
@@ -291,7 +291,7 @@ class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
 class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
-    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider | QRangeSlider
+    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QAbstractSlider
     _precision: float = 1
 
     def __init__(self, qwidg):
@@ -467,11 +467,11 @@ class FloatSpinBox(QBaseRangedWidget):
         self._qwidget.setSingleStep(value)
 
 
-class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
-    _qwidget: QtW.QSlider
+class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
+    _qwidget = superqt.QLabeledSlider
 
-    def __init__(self, qwidg=QtW.QSlider, **kwargs):
-        super().__init__(qwidg)
+    def __init__(self, qwidg=superqt.QLabeledSlider, **kwargs):
+        super().__init__(qwidg=qwidg)
         self._mgui_set_orientation("horizontal")
         self._mgui_set_readout_visibility(kwargs.get("readout", True))
         self._mgui_set_orientation(kwargs.get("orientation", "horizontal"))
@@ -487,97 +487,23 @@ class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
         return "vertical" if orientation == Qt.Vertical else "horizontal"
 
     def _mgui_set_readout_visibility(self, value: bool):
-        raise NotImplementedError()
+        self._qwidget.setLabelVisible(value)
 
     def _mgui_get_tracking(self) -> bool:
-        # Progressbar also uses this base, but doesn't have tracking
-        if hasattr(self._qwidget, "hasTracking"):
-            return self._qwidget.hasTracking()
-        return False
+        return self._qwidget._slider.hasTracking()
 
     def _mgui_set_tracking(self, value: bool) -> None:
-        # Progressbar also uses this base, but doesn't have tracking
-        if hasattr(self._qwidget, "setTracking"):
-            self._qwidget.setTracking(value)
-
-
-class Slider(_Slider):
-    _qwidget: QtW.QSlider
-    _readout = QtW.QSpinBox
-
-    def __init__(self, qwidg=QtW.QSlider, **kwargs):
-        self._container = QtW.QWidget()
-        self._readout_widget = self._readout()
-        super().__init__(qwidg)
-
-        self._readout_widget.setButtonSymbols(self._readout_widget.NoButtons)
-        self._readout_widget.setStyleSheet("background:transparent; border: 0;")
-
-        self._qwidget.valueChanged.connect(self._on_slider_change)
-        self._readout_widget.editingFinished.connect(self._on_readout_change)
-
-    def _mgui_get_visible(self):
-        return self._container.isVisible()
-
-    def _mgui_set_visible(self, value: bool):
-        self._container.setVisible(value)
-
-    def _mgui_set_orientation(self, value: str) -> None:
-        """Set orientation, value will be 'horizontal' or 'vertical'."""
-        if value == "vertical":
-            layout = QtW.QVBoxLayout()
-            self._qwidget.setOrientation(Qt.Vertical)
-            layout.addWidget(self._qwidget, alignment=Qt.AlignHCenter)
-            layout.addWidget(self._readout_widget, alignment=Qt.AlignHCenter)
-            self._readout_widget.setAlignment(Qt.AlignCenter)
-            layout.setContentsMargins(0, 0, 0, 0)
-            layout.setSpacing(1)
-        else:
-            layout = QtW.QHBoxLayout()
-            self._qwidget.setOrientation(Qt.Horizontal)
-            layout.addWidget(self._qwidget)
-            layout.addWidget(self._readout_widget)
-            self._readout_widget.setAlignment(Qt.AlignRight)
-            right_margin = 0 if self._readout_widget.isVisible() else 4
-            layout.setContentsMargins(0, 0, right_margin, 0)
-            layout.setSpacing(4)
-        old_layout = self._container.layout()
-        if old_layout is not None:
-            QtW.QWidget().setLayout(old_layout)
-        self._container.setLayout(layout)
-
-    def _on_slider_change(self, value):
-        self._readout_widget.setValue(self._post_get_hook(value))
-
-    def _on_readout_change(self):
-        self._qwidget.setValue(self._pre_set_hook(self._readout_widget.value()))
-
-    def _mgui_get_native_widget(self) -> QtW.QWidget:
-        return self._container
-
-    def _mgui_set_min(self, value: float):
-        """Set the minimum possible value."""
-        super()._mgui_set_min(value)
-        self._readout_widget.setMinimum(value)
-
-    def _mgui_set_max(self, value: float):
-        """Set the maximum possible value."""
-        super()._mgui_set_max(value)
-        self._readout_widget.setMaximum(value)
-
-    def _mgui_set_step(self, value: float):
-        """Set the step size."""
-        super()._mgui_set_step(value)
-        self._readout_widget.setSingleStep(value)
-
-    def _mgui_set_readout_visibility(self, value: bool):
-        self._readout_widget.show() if value else self._readout_widget.hide()
+        self._qwidget._slider.setTracking(value)
 
 
 class FloatSlider(Slider):
-    _readout = QtW.QDoubleSpinBox
+    _qwidget = superqt.QLabeledDoubleSlider
     _precision = 1e6
 
+    def __init__(self, qwidg=superqt.QLabeledDoubleSlider, **kwargs):
+        super().__init__(qwidg=qwidg)
+
+    # TODO how much of this is handled by superqt?
     def _update_precision(self, minimum=None, maximum=None, step=None):
         """Called when min/max/step is changed.
 
@@ -620,14 +546,20 @@ class FloatSlider(Slider):
 
 
 class RangeSlider(Slider):
-    _qwidget: QRangeSlider
-    _readout: None
+    _qwidget: superqt.QLabeledRangeSlider
 
-    def __init__(self, qwidg=QRangeSlider, **kwargs):
-        super().__init__(qwidg, **kwargs)
+    def __init__(self, qwidg=superqt.QLabeledRangeSlider, **kwargs):
+        super().__init__(qwidg=qwidg, **kwargs)
 
 
-class ProgressBar(_Slider):
+class FloatRangeSlider(Slider):
+    _qwidget: superqt.QLabeledDoubleRangeSlider
+
+    def __init__(self, qwidg=superqt.QLabeledDoubleRangeSlider, **kwargs):
+        super().__init__(qwidg=qwidg, **kwargs)
+
+
+class ProgressBar:
     _qwidget: QtW.QProgressBar
 
     def __init__(self, **kwargs):
