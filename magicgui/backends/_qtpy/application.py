@@ -15,7 +15,6 @@ class ApplicationBackend(BaseApplicationBackend):
 
     def _mgui_process_events(self):
         app = self._mgui_get_native_app()
-        app.flush()
         app.processEvents()
 
     def _mgui_run(self):
@@ -31,7 +30,8 @@ class ApplicationBackend(BaseApplicationBackend):
         # Get native app
         self._app = QApplication.instance()
         if not self._app:
-            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+            if hasattr(Qt, "AA_EnableHighDpiScaling"):
+                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
             self._app = QApplication(sys.argv)
             self._app.setApplicationName(APPLICATION_NAME)
         return self._app

@@ -55,8 +55,10 @@ def _inject_tooltips_from_docstrings(docstring: str | None, sig: MagicSignature)
         # if using napoleon style google docstringss
         argname = name.split(" ", maxsplit=1)[0]
         desc = description.replace("`", "") if description else ""
-        # use setdefault so as not to override an explicitly provided tooltip
-        sig.parameters[argname].options.setdefault("tooltip", desc)
+        # some docstring params may be mislabeled and not appear in the params
+        if argname in sig.parameters:
+            # use setdefault so as not to override an explicitly provided tooltip
+            sig.parameters[argname].options.setdefault("tooltip", desc)
 
 
 _R = TypeVar("_R")
@@ -157,12 +159,11 @@ class FunctionGui(Container, Generic[_R]):
         # https://github.com/python/mypy/issues/9934
         name = getattr(function, "__name__", None)
         if not name:
-            try:
-                name = f"{function.__module__}.{function.__class__}"
-            except AttributeError:
-                # partials
+            if hasattr(function, "func"):  # partials:
                 f = getattr(function, "func", None)
                 name = getattr(f, "__name__", None) or str(function)
+            else:
+                name = f"{function.__module__}.{function.__class__}"
         self._callable_name = name
 
         super().__init__(
