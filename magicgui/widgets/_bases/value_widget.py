@@ -48,12 +48,10 @@ class ValueWidget(Widget):
 
     def _post_init(self):
         super()._post_init()
-        # self.changed = ter(source=self, type="changed")
         self._widget._mgui_bind_change_callback(self._on_value_change)
 
-    def _on_value_change(self, *args):
+    def _on_value_change(self, value=None):
         """Called when the widget value changes.  args come from the widget itself."""
-        value = args[0] if args else None
         if value is self.null_value and not self._nullable:
             return
         self.changed.emit(value)
