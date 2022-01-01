@@ -51,7 +51,7 @@ class ValueWidget(Widget):
         self._widget._mgui_bind_change_callback(self._on_value_change)
 
     def _on_value_change(self, value=None):
-        """Called when the widget value changes.  args come from the widget itself."""
+        """Called when the widget value changes."""
         if value is self.null_value and not self._nullable:
             return
         self.changed.emit(value)
