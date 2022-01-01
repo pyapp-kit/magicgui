@@ -727,7 +727,7 @@ def test_list_edit():
     list_edit = widgets.ListEdit(value=[1, 2, 3])
     assert list_edit.value == [1, 2, 3]
     list_edit.btn_plus.changed()
-    assert list_edit.value == [1, 2, 3, 0]
+    assert list_edit.value == [1, 2, 3, 3]
     list_edit.btn_minus.changed()
     assert list_edit.value == [1, 2, 3]
     list_edit.value[0] = 0
