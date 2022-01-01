@@ -15,7 +15,14 @@ from magicgui.widgets._bases import ValueWidget
     [
         getattr(widgets, n)
         for n in widgets.__all__
-        if n not in ("Widget", "FunctionGui", "MainFunctionGui", "show_file_dialog")
+        if n
+        not in (
+            "Widget",
+            "TupleEdit",
+            "FunctionGui",
+            "MainFunctionGui",
+            "show_file_dialog",
+        )
     ],
 )
 def test_widgets(WidgetClass):
@@ -713,3 +720,68 @@ def test_slice_edit_events():
     sl.start.changed.emit(sl.value)
     mock.assert_called()
     assert sl.value == slice(start, stop, step)
+
+
+def test_list_edit():
+    """Test ListEdit."""
+    list_edit = widgets.ListEdit(value=[1, 2, 3])
+    assert list_edit.value == [1, 2, 3]
+    list_edit.btn_plus.changed()
+    assert list_edit.value == [1, 2, 3, 0]
+    list_edit.btn_minus.changed()
+    assert list_edit.value == [1, 2, 3]
+    list_edit.value[0] = 0
+    assert list_edit.value == [0, 2, 3]
+    list_edit.value[0:2] = [6, 5]  # type: ignore
+    assert list_edit.value == [6, 5, 3]
+
+    @magicgui
+    def f1(x=[2, 4, 6]):
+        pass
+
+    assert type(f1.x) is widgets.ListEdit
+    assert f1.x.value == [2, 4, 6]
+
+    @magicgui
+    def f2(x: list[int]):
+        pass
+
+    assert type(f2.x) is widgets.ListEdit
+    assert f2.x.value == []
+
+    @magicgui(
+        x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
+    )
+    def f3(x: list[int] = [0]):
+        pass
+
+    assert type(f3.x) is widgets.ListEdit
+    assert type(f3.x[0]) is widgets.Slider
+    assert f3.x[0].min == -10
+    assert f3.x[0].max == 10
+    assert f3.x[0].step == 5
+
+
+def test_tuple_edit():
+    """Test TupleEdit."""
+    tuple_edit = widgets.TupleEdit(value=(1, "a", 2.5))
+    assert tuple_edit.value == (1, "a", 2.5)
+    tuple_edit.value = (2, "xyz", 1.0)
+    assert tuple_edit.value == (2, "xyz", 1.0)
+
+    with pytest.raises(ValueError):
+        tuple_edit.value = (2, "x")
+
+    @magicgui
+    def f1(x=(2, 4, 6)):
+        pass
+
+    assert type(f1.x) is widgets.TupleEdit
+    assert f1.x.value == (2, 4, 6)
+
+    @magicgui
+    def f2(x: tuple[int, str]):
+        pass
+
+    assert type(f2.x) is widgets.TupleEdit
+    assert f2.x.value == (0, "")

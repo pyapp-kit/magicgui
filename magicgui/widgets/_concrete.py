@@ -10,14 +10,14 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, Sequence, TypeVar, overload
+from typing import Callable, Generic, Iterable, Iterator, Sequence, TypeVar, overload
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
 from typing_extensions import Literal
 
 from magicgui.application import use_app
-from magicgui.types import FileDialogMode, PathLike
+from magicgui.types import FileDialogMode, PathLike, WidgetOptions
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
@@ -31,7 +31,9 @@ from ._bases import (
     TransformedRangedWidget,
     ValueWidget,
     Widget,
+    create_widget,
 )
+from ._bases.value_widget import UNSET, _Unset
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
@@ -611,6 +613,228 @@ class SliceEdit(RangeEdit):
         self.start.value = value.start
         self.stop.value = value.stop
         self.step.value = value.step
+
+
+_V = TypeVar("_V")
+
+
+@merge_super_sigs
+class ListEdit(Container, Generic[_V]):
+    """A widget to represent a list of values.
+
+    A ListEdit container can create a list with multiple objects of same type. It
+    will contain many child widgets and their value is represented as a Python list
+    object. If a list is given as the initial value, types of child widgets are
+    determined from the contents. Number of contents can be adjusted with +/-
+    buttons.
+
+    Parameters
+    ----------
+    type_ : type, optional
+        Type of values in the list.
+    """
+
+    def __init__(
+        self,
+        value: Iterable[_V] | _Unset = UNSET,
+        type_: type | None = None,
+        layout: str = "horizontal",
+        options: WidgetOptions = None,
+        **kwargs,
+    ):
+        if not isinstance(value, _Unset):
+            types = {type(a) for a in value}
+            if len(types) == 1:
+                self._type = types.pop()
+            else:
+                raise TypeError("Values have inconsistent type.")
+            _value: Iterable[_V] = value
+        else:
+            self._type = type_ if type_ is not None else str
+            _value = []
+
+        self._child_options = options or {}
+
+        super().__init__(layout=layout, labels=False, **kwargs)
+        self.margins = (0, 0, 0, 0)
+
+        button_plus = PushButton(name="+")
+        button_plus.changed.connect(lambda: self._append_value())
+
+        button_minus = PushButton(name="-")
+        button_minus.changed.connect(self._pop_value)
+
+        if layout == "horizontal":
+            button_plus.max_width = 40
+            button_minus.max_width = 40
+
+        self.append(button_plus)
+        self.append(button_minus)
+
+        for a in _value:
+            self._append_value(a)
+
+        self.btn_plus = button_plus
+        self.btn_minus = button_minus
+
+    def _append_value(self, value=None):
+        i = len(self) - 2
+        widget = create_widget(
+            value=value,
+            annotation=self._type,
+            name=f"value_{i}",
+            options=self._child_options,
+        )
+        self.insert(i, widget)
+
+    def _pop_value(self):
+        try:
+            self.pop(-3)
+        except IndexError:
+            pass
+
+    @property
+    def value(self) -> ListDataView:
+        """Return a data view of current value."""
+        return ListDataView(self)
+
+    @value.setter
+    def value(self, vals: Iterable[_V]):
+        del self[:-2]
+        for v in vals:
+            self._append_value(v)
+
+
+class ListDataView:
+    """Data view of ListEdit."""
+
+    def __init__(self, widget: ListEdit):
+        self.widget: list[ValueWidget] = list(widget[:-2])  # type: ignore
+
+    def __repr__(self):
+        """Convert to a string as a list."""
+        return repr([w.value for w in self.widget])
+
+    def __str__(self):
+        """Convert to a string as a list."""
+        return str([w.value for w in self.widget])
+
+    def __len__(self):
+        """Length as a list."""
+        return len(self.widget)
+
+    def __eq__(self, other):
+        """Compare as a list."""
+        return [w.value for w in self.widget] == other
+
+    @overload
+    def __getitem__(self, i: int) -> _V:  # noqa
+        ...
+
+    @overload
+    def __getitem__(self, key: slice) -> list[_V]:  # noqa
+        ...
+
+    def __getitem__(self, key):
+        """Slice as a list."""
+        if isinstance(key, int):
+            return self.widget[key].value
+        elif isinstance(key, slice):
+            return [w.value for w in self.widget[key]]
+        else:
+            raise TypeError(
+                f"list indices must be integers or slices, not {type(key).__name__}"
+            )
+
+    @overload
+    def __setitem__(self, key: int, value: _V) -> None:  # noqa
+        ...
+
+    @overload
+    def __setitem__(self, key: slice, value: _V | Iterable[_V]) -> None:  # noqa
+        ...
+
+    def __setitem__(self, key, value):
+        """Update widget value."""
+        if isinstance(key, int):
+            self.widget[key].value = value
+        elif isinstance(key, slice):
+            if isinstance(value, type(self.widget[0].value)):
+                for w in self.widget[key]:
+                    w.value = value
+            else:
+                for w, v in zip(self.widget[key], value):
+                    w.value = v
+        else:
+            raise TypeError(
+                f"list indices must be integers or slices, not {type(key).__name__}"
+            )
+
+    def __iter__(self) -> Iterator[_V]:
+        """Iterate over values of child widgets."""
+        for w in self.widget:
+            yield w.value
+
+
+@merge_super_sigs
+class TupleEdit(Container):
+    """A widget to represent a tuple of values.
+
+    A TupleEdit container has several child widgets of different type. Their value is
+    represented as a Python tuple object. If a tuple is given as the initial value,
+    types of child widgets are determined one by one. Unlike ListEdit, number of
+    contents is not editable.
+
+    Parameters
+    ----------
+    types : iterable of types, optional
+        Types of values in the tuple.
+    """
+
+    def __init__(
+        self,
+        value: Iterable[_V] | _Unset = UNSET,
+        types: Iterable[type] | None = None,
+        layout: str = "horizontal",
+        **kwargs,
+    ):
+        if not isinstance(value, _Unset):
+            self._types = tuple(type(a) for a in value)
+            _value: Iterable = value
+        elif types is not None:
+            self._types = tuple(types)
+            _value = (UNSET,) * len(self._types)
+        else:
+            raise ValueError(
+                "Either 'value' or 'types' must be specified in TupleEdit."
+            )
+
+        super().__init__(layout=layout, labels=False, **kwargs)
+        self.margins = (0, 0, 0, 0)
+
+        for i, a in enumerate(_value):
+            i = len(self)
+            widget = create_widget(
+                value=a, annotation=self._types[i], name=f"value_{i}"
+            )
+            self.insert(i, widget)
+
+    def __iter__(self) -> Iterator[ValueWidget]:
+        """Just for typing."""
+        return super().__iter__()  # type: ignore
+
+    @property
+    def value(self) -> tuple:
+        """Return current value as a tuple."""
+        return tuple(w.value for w in self)
+
+    @value.setter
+    def value(self, vals: Sequence):
+        if len(vals) != len(self):
+            raise ValueError("Length of tuple does not match.")
+
+        for w, v in zip(self, vals):
+            w.value = v  # type: ignore
 
 
 class _LabeledWidget(Container):
