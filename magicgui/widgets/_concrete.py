@@ -10,7 +10,7 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, Generic, Iterable, Iterator, Sequence, TypeVar, overload
+from typing import Callable, Iterable, Iterator, Sequence, TypeVar, overload
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
@@ -619,7 +619,7 @@ _V = TypeVar("_V")
 
 
 @merge_super_sigs
-class ListEdit(Container, Generic[_V]):
+class ListEdit(Container):
     """A widget to represent a list of values.
 
     A ListEdit container can create a list with multiple objects of same type. It
@@ -677,8 +677,12 @@ class ListEdit(Container, Generic[_V]):
         self.btn_plus = button_plus
         self.btn_minus = button_minus
 
-    def _append_value(self, value=None):
+    def _append_value(self, value=UNSET):
+        """Create a new child value widget and append it."""
         i = len(self) - 2
+        if value is UNSET and i > 0:
+            value = self[i - 1].value  # type: ignore
+
         widget = create_widget(
             value=value,
             annotation=self._type,
@@ -688,6 +692,7 @@ class ListEdit(Container, Generic[_V]):
         self.insert(i, widget)
 
     def _pop_value(self):
+        """Delete last child value widget."""
         try:
             self.pop(-3)
         except IndexError:
