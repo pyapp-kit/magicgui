@@ -713,3 +713,14 @@ def test_slice_edit_events():
     sl.start.changed.emit(sl.value)
     mock.assert_called()
     assert sl.value == slice(start, stop, step)
+
+
+def test_pushbutton_cick_signal():
+    btn = widgets.PushButton(text="click me")
+    mock = MagicMock()
+    mock2 = MagicMock()
+    btn.changed.connect(mock)
+    btn.clicked.connect(mock2)
+    btn.native.click()
+    mock.assert_called_once()
+    mock2.assert_called_once()
