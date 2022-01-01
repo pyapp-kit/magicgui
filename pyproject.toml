@@ -5,3 +5,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "magicgui/_version.py"
+
+[tool.check-manifest]
+ignore = [".github_changelog_generator", ".pre-commit-config.yaml", "codecov.yml"]
