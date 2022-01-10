@@ -735,6 +735,8 @@ def test_pushbutton_cick_signal():
 
 def test_list_edit():
     """Test ListEdit."""
+    from typing import List
+
     list_edit = widgets.ListEdit(value=[1, 2, 3])
     assert list_edit.value == [1, 2, 3]
     list_edit.btn_plus.changed()
@@ -755,11 +757,11 @@ def test_list_edit():
     assert f1.x.value == [2, 4, 6]
 
     @magicgui
-    def f2(x: list[int]):
+    def f2(x: List[int]):
         pass
 
     assert type(f2.x) is widgets.ListEdit
-    assert f2.x.annotation == list[int]
+    assert f2.x.annotation == List[int]
     assert f2.x._args_type is int
     assert f2.x.value == []
     f2.x.btn_plus.changed()
@@ -768,7 +770,7 @@ def test_list_edit():
     @magicgui(
         x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
     )
-    def f3(x: list[int] = [0]):
+    def f3(x: List[int] = [0]):
         pass
 
     assert type(f3.x) is widgets.ListEdit
@@ -780,6 +782,8 @@ def test_list_edit():
 
 def test_tuple_edit():
     """Test TupleEdit."""
+    from typing import Tuple
+
     tuple_edit = widgets.TupleEdit(value=(1, "a", 2.5))
     assert tuple_edit.value == (1, "a", 2.5)
     tuple_edit.value = (2, "xyz", 1.0)
@@ -796,8 +800,9 @@ def test_tuple_edit():
     assert f1.x.value == (2, 4, 6)
 
     @magicgui
-    def f2(x: tuple[int, str]):
+    def f2(x: Tuple[int, str]):
         pass
 
     assert type(f2.x) is widgets.TupleEdit
+    assert f2.x.annotation == Tuple[int, str]
     assert f2.x.value == (0, "")
