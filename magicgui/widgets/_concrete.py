@@ -10,11 +10,22 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Callable, Iterable, Iterator, Sequence, TypeVar, overload
+from typing import (
+    Any,
+    Callable,
+    ForwardRef,
+    Iterable,
+    Iterator,
+    List,
+    Sequence,
+    Tuple,
+    TypeVar,
+    overload,
+)
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
-from typing_extensions import Literal
+from typing_extensions import Literal, get_args, get_origin
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike, WidgetOptions
@@ -637,26 +648,25 @@ class ListEdit(Container):
     def __init__(
         self,
         value: Iterable[_V] | _Unset = UNSET,
-        type_: type | None = None,
         layout: str = "horizontal",
         options: WidgetOptions = None,
         **kwargs,
     ):
+        self._args_type: type | None = None
+        super().__init__(layout=layout, labels=False, **kwargs)
+        self.margins = (0, 0, 0, 0)
+
         if not isinstance(value, _Unset):
             types = {type(a) for a in value}
             if len(types) == 1:
-                self._type = types.pop()
+                self._args_type = types.pop()
             else:
-                raise TypeError("Values have inconsistent type.")
+                raise TypeError("values have inconsistent type.")
             _value: Iterable[_V] = value
         else:
-            self._type = type_ if type_ is not None else str
             _value = []
 
         self._child_options = options or {}
-
-        super().__init__(layout=layout, labels=False, **kwargs)
-        self.margins = (0, 0, 0, 0)
 
         button_plus = PushButton(name="+")
         button_plus.changed.connect(lambda: self._append_value())
@@ -677,6 +687,50 @@ class ListEdit(Container):
         self.btn_plus = button_plus
         self.btn_minus = button_minus
 
+    @property
+    def annotation(self):
+        """Return type annotation for the parameter represented by the widget.
+
+        ForwardRefs will be resolve when setting the annotation. For ListEdit,
+        annotation will be like 'list[str]'.
+        """
+        return self._annotation
+
+    @annotation.setter
+    def annotation(self, value):
+        if isinstance(value, (str, ForwardRef)):
+            raise TypeError(
+                "annotation using str or forward reference is not supported in "
+                f"{type(self).__name__}"
+            )
+
+        arg: type | None = None
+
+        if value and value is not inspect.Parameter.empty:
+            from magicgui.type_map import _is_subclass
+
+            orig = get_origin(value)
+            if not (_is_subclass(orig, list) or isinstance(orig, list)):
+                raise TypeError(
+                    f"cannot set annotation {value} to {type(self).__name__}."
+                )
+            args = get_args(value)
+            if len(args) > 0:
+                _arg = args[0]
+            else:
+                _arg = None
+            if isinstance(_arg, (str, ForwardRef)):
+                from magicgui.type_map import _evaluate_forwardref
+
+                arg = _evaluate_forwardref(_arg)
+                if not isinstance(arg, type):
+                    raise TypeError(f"could not resolve type {arg!r}.")
+
+                value = List[arg]  # type: ignore
+
+        self._annotation = value
+        self._args_type = arg
+
     def _append_value(self, value=UNSET):
         """Create a new child value widget and append it."""
         i = len(self) - 2
@@ -685,7 +739,7 @@ class ListEdit(Container):
 
         widget = create_widget(
             value=value,
-            annotation=self._type,
+            annotation=self._args_type,
             name=f"value_{i}",
             options=self._child_options,
         )
@@ -799,34 +853,76 @@ class TupleEdit(Container):
     def __init__(
         self,
         value: Iterable[_V] | _Unset = UNSET,
-        types: Iterable[type] | None = None,
         layout: str = "horizontal",
         **kwargs,
     ):
-        if not isinstance(value, _Unset):
-            self._types = tuple(type(a) for a in value)
-            _value: Iterable = value
-        elif types is not None:
-            self._types = tuple(types)
-            _value = (UNSET,) * len(self._types)
-        else:
-            raise ValueError(
-                "Either 'value' or 'types' must be specified in TupleEdit."
-            )
-
+        self._args_types: tuple[type, ...] | None = None
         super().__init__(layout=layout, labels=False, **kwargs)
         self.margins = (0, 0, 0, 0)
+
+        if not isinstance(value, _Unset):
+            self._args_types = tuple(type(a) for a in value)
+            _value: Iterable[Any] = value
+        elif self._args_types is not None:
+            _value = (UNSET,) * len(self._args_types)
+        else:
+            raise ValueError(
+                "Either 'value' or 'annotation' must be specified in "
+                f"{type(self).__name__}."
+            )
 
         for i, a in enumerate(_value):
             i = len(self)
             widget = create_widget(
-                value=a, annotation=self._types[i], name=f"value_{i}"
+                value=a, annotation=self._args_types[i], name=f"value_{i}"
             )
             self.insert(i, widget)
 
     def __iter__(self) -> Iterator[ValueWidget]:
         """Just for typing."""
         return super().__iter__()  # type: ignore
+
+    @property
+    def annotation(self):
+        """Return type annotation for the parameter represented by the widget.
+
+        ForwardRefs will be resolve when setting the annotation. For TupleEdit,
+        annotation will be like 'tuple[str, int]'.
+        """
+        return self._annotation
+
+    @annotation.setter
+    def annotation(self, value):
+        if isinstance(value, (str, ForwardRef)):
+            raise TypeError(
+                "annotation using str or forward reference is not supported in "
+                f"{type(self).__name__}"
+            )
+
+        args: tuple[type, ...] | None = None
+        if value and value is not inspect.Parameter.empty:
+            from magicgui.type_map import _is_subclass
+
+            orig = get_origin(value)
+            if not (_is_subclass(orig, tuple) or isinstance(orig, tuple)):
+                raise TypeError(
+                    f"cannot set annotation {value} to {type(self).__name__}."
+                )
+            _args: list[type] = []
+            for arg in get_args(value):
+                if isinstance(arg, (str, ForwardRef)):
+                    from magicgui.type_map import _evaluate_forwardref
+
+                    arg = _evaluate_forwardref(arg)
+
+                if not isinstance(arg, type):
+                    raise TypeError(f"could not resolve type {arg!r}.")
+                _args.append(arg)
+            args = tuple(_args)
+            value = Tuple[args]
+
+        self._annotation = value
+        self._args_types = args
 
     @property
     def value(self) -> tuple:

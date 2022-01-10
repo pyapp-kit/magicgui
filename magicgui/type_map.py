@@ -180,7 +180,7 @@ def sequence_of_paths(value, annotation) -> WidgetTuple | None:
 
 
 @type_matcher
-def list_of_any(value, annotation):
+def list_of_any(value, annotation) -> WidgetTuple | None:
     """Determine if value/annotation is a list[X]."""
     if annotation and annotation is not inspect.Parameter.empty:
         orig = get_origin(annotation)
@@ -188,15 +188,15 @@ def list_of_any(value, annotation):
         if not (inspect.isclass(orig) and args):
             return None
         if _is_subclass(orig, list) or isinstance(orig, list):
-            return widgets.ListEdit, {"type_": args[0]}
+            return widgets.ListEdit, {}
     elif value:
         if isinstance(value, list) and len({type(v) for v in value}) == 1:
-            return widgets.ListEdit, {"value": value}
+            return widgets.ListEdit, {}
     return None
 
 
 @type_matcher
-def tuple_of_any(value, annotation):
+def tuple_of_any(value, annotation) -> WidgetTuple | None:
     """Determine if value/annotation is a tuple[X, Y, ...]."""
     if annotation and annotation is not inspect.Parameter.empty:
         orig = get_origin(annotation)
@@ -204,10 +204,10 @@ def tuple_of_any(value, annotation):
         if not (inspect.isclass(orig) and args):
             return None
         if _is_subclass(orig, tuple) or isinstance(orig, tuple):
-            return widgets.TupleEdit, {"types": args}
+            return widgets.TupleEdit, {}
     elif value:
         if isinstance(value, tuple):
-            return widgets.TupleEdit, {"value": value}
+            return widgets.TupleEdit, {}
     return None
 
 
