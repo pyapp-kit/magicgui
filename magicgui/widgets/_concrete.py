@@ -727,6 +727,8 @@ class ListEdit(Container):
                     raise TypeError(f"could not resolve type {arg!r}.")
 
                 value = List[arg]  # type: ignore
+            else:
+                arg = _arg
 
         self._annotation = value
         self._args_type = arg
@@ -734,16 +736,20 @@ class ListEdit(Container):
     def _append_value(self, value=UNSET):
         """Create a new child value widget and append it."""
         i = len(self) - 2
-        if value is UNSET and i > 0:
-            value = self[i - 1].value  # type: ignore
 
         widget = create_widget(
-            value=value,
             annotation=self._args_type,
             name=f"value_{i}",
             options=self._child_options,
         )
         self.insert(i, widget)
+
+        # Value must be set after new widget is inserted because it could be
+        # valid only after same parent is shared between widgets.
+        if value is UNSET and i > 0:
+            value = self[i - 1].value  # type: ignore
+        if value is not UNSET:
+            widget.value = value
 
     def _pop_value(self):
         """Delete last child value widget."""

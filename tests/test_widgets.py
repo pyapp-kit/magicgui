@@ -751,6 +751,7 @@ def test_list_edit():
         pass
 
     assert type(f1.x) is widgets.ListEdit
+    assert f1.x._args_type is int
     assert f1.x.value == [2, 4, 6]
 
     @magicgui
@@ -758,7 +759,11 @@ def test_list_edit():
         pass
 
     assert type(f2.x) is widgets.ListEdit
+    assert f2.x.annotation == list[int]
+    assert f2.x._args_type is int
     assert f2.x.value == []
+    f2.x.btn_plus.changed()
+    assert f2.x.value == [0]
 
     @magicgui(
         x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
