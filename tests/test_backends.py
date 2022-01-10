@@ -10,13 +10,16 @@ from qtpy import QtWidgets as QtW
 from magicgui import event_loop, widgets
 
 
-@pytest.mark.skipif(API_NAME == "PyQt5", reason="Couldn't delete app on PyQt")
+@pytest.mark.skipif("PyQt" in API_NAME, reason="Couldn't delete app on PyQt")
 def test_event():
     """Test that the event loop makes a Qt app."""
     if QtW.QApplication.instance():
-        import shiboken2
-
-        shiboken2.delete(QtW.QApplication.instance())
+        if API_NAME == "PySide2":
+            __import__("shiboken2").delete(QtW.QApplication.instance())
+        elif API_NAME == "PySide6":
+            __import__("shiboken6").delete(QtW.QApplication.instance())
+        else:
+            raise AssertionError(f"known API name: {API_NAME}")
     assert not QtW.QApplication.instance()
     with event_loop():
         app = QtW.QApplication.instance()
