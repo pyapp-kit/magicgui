@@ -641,6 +641,20 @@ def test_categorical_widgets_with_enums(Cls):
     wdg.close()
 
 
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_change_choices(Cls):
+    """Make sure we can change choices to more or fewer options."""
+    a = tuple(range(10))
+    wdg = Cls(choices=a)
+    assert wdg.choices == a
+    b = tuple(range(5))
+    wdg.choices = b
+    assert wdg.choices == b
+    c = tuple(range(15))
+    wdg.choices = c
+    assert wdg.choices == c
+
+
 @pytest.mark.skipif(use_app().backend_name != "qt", reason="only on qt")
 def test_radiobutton_reset_choices():
     """Test that reset_choices doesn't change the number of buttons."""

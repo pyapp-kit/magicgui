@@ -688,7 +688,7 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
         choice_names = [x[0] for x in choices_]
         # remove choices that no longer exist
-        for i in range(self._qwidget.count()):
+        for i in reversed(range(self._qwidget.count())):
             if self._qwidget.itemText(i) not in choice_names:
                 self._qwidget.removeItem(i)
         # update choices
