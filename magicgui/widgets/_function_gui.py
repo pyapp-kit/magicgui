@@ -202,10 +202,19 @@ class FunctionGui(Container, Generic[_R]):
 
             self.append(self._call_button)
 
-        self._result_widget: LineEdit | None = None
+        self._result_widget: LineEdit | Table | None = None
         if result_widget:
-            self._result_widget = LineEdit(gui_only=True, name="result")
-            self._result_widget.enabled = False
+            # HACKING - START
+            import pandas as pd
+
+            from magicgui.widgets import Table
+
+            if self._return_annotation == pd.DataFrame:
+                self._result_widget = Table()
+            else:
+                # HACKING - END
+                self._result_widget = LineEdit(gui_only=True, name="result")
+                self._result_widget.enabled = False
             self.append(self._result_widget)
 
         if persist:
