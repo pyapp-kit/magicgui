@@ -71,7 +71,7 @@ def create_widget(
         widget protocols from widgets._protocols.
     """
     options = options.copy()
-    kwargs = locals()
+    kwargs = locals().copy()
     _kind = kwargs.pop("param_kind", None)
     _app = use_app(kwargs.pop("app"))
     assert _app.native
