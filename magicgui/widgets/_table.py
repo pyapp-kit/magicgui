@@ -28,15 +28,15 @@ from magicgui.widgets._bases.value_widget import ValueWidget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
-    import numpy as np
-    import pandas as pd
+    import numpy
+    import pandas
 
 
 TblKey = Any
 _KT = TypeVar("_KT")  # Key type
 _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
 _VT_co = TypeVar("_VT_co", covariant=True)  # Value type covariant containers.
-TableData = Union[dict, "pd.DataFrame", list, "np.ndarray", tuple, None]
+TableData = Union[dict, "pandas.DataFrame", list, "numpy.ndarray", tuple, None]
 IndexKey = Union[int, slice]
 
 
@@ -70,7 +70,7 @@ def normalize_table_data(data: TableData) -> tuple[Collection[Collection], list,
         _columns = data[2] if data_len > 2 else []
         return _data, _index, _columns
     if _is_dataframe(data):
-        data = cast("pd.DataFrame", data)
+        data = cast("pandas.DataFrame", data)
         return data.values, data.index, data.columns
     if isinstance(data, list):
         if data:
@@ -479,7 +479,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
 
     # #### EXPORT METHODS #####
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def to_dataframe(self) -> pandas.DataFrame:
         """Convert TableData to dataframe."""
         try:
             import pandas
@@ -504,7 +504,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     @overload
     def to_dict(self, orient: Literal['index']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['series']) -> dict[TblKey, pd.Series]: ...  # noqa
+    def to_dict(self, orient: Literal['series']) -> dict[TblKey, pandas.Series]: ...  # noqa
     # fmt: on
 
     def to_dict(self, orient: str = "dict") -> list | dict:
@@ -734,9 +734,9 @@ def _from_nested_column_dict(data: dict) -> tuple[list[list], list]:
     _index = {frozenset(i) for i in data.values()}
     if len(_index) > 1:
         try:
-            import pandas as pd
+            import pandas
 
-            df = pd.DataFrame(data)
+            df = pandas.DataFrame(data)
             return df.values, df.index
         except ImportError:
             raise ValueError(
@@ -778,9 +778,9 @@ def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list
     _columns = {frozenset(i) for i in data}
     if len(_columns) > 1:
         try:
-            import pandas as pd
+            import pandas
 
-            df = pd.DataFrame(data)
+            df = pandas.DataFrame(data)
             return df.values, df.index, df.columns
         except ImportError:
             raise ValueError(
