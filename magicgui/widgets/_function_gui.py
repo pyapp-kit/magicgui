@@ -27,6 +27,7 @@ from magicgui.application import AppRef
 from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
+from magicgui.widgets._bases.widget import Widget
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
@@ -202,19 +203,10 @@ class FunctionGui(Container, Generic[_R]):
 
             self.append(self._call_button)
 
-        self._result_widget: LineEdit | Table | None = None
+        self._result_widget: Widget | None = None
         if result_widget:
-            # HACKING - START
-            import pandas as pd
-
-            from magicgui.widgets import Table
-
-            if self._return_annotation == pd.DataFrame:
-                self._result_widget = Table()
-            else:
-                # HACKING - END
-                self._result_widget = LineEdit(gui_only=True, name="result")
-                self._result_widget.enabled = False
+            from magicgui.widgets._bases import create_widget
+            self._result_widget = create_widget(value=None, annotation=self._return_annotation, gui_only=True, is_input=False)
             self.append(self._result_widget)
 
         if persist:
