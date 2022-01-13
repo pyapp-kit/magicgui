@@ -1,4 +1,4 @@
-"""Functions in this module are responsible for mapping type annotations to widgets."""
+"""Functions responsible for mapping return annotations to widgets."""
 from __future__ import annotations
 
 import datetime
@@ -186,9 +186,8 @@ def pick_widget_type(
             _cls, opts = _widget_type
             return _cls, {**options, **opts}  # type: ignore
 
-    return widgets.LineEdit, {
-        "gui_only": True
-    }  # Chosen for backwards/test compatibility
+    # Chosen for backwards/test compatibility
+    return widgets.LineEdit, {"gui_only": True}
 
 
 def get_widget_class(

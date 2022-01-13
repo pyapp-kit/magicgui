@@ -20,7 +20,7 @@ def create_widget(
     label=None,
     gui_only=False,
     app=None,
-    is_input: bool =True,
+    is_input: bool = True,
     widget_type: str | type[_protocols.WidgetProtocol] | None = None,
     options: WidgetOptions = dict(),
 ):
@@ -51,7 +51,8 @@ def create_widget(
         Whether the widget should be considered "only for the gui", or if it should
         be included in any widget container signatures, by default False
     is_input : boolean, optional
-        Whether the widget belongs to an input or an output. By defult, an input is assumed.
+        Whether the widget belongs to an input or an output. By defult, an input
+        is assumed.
     app : str, optional
         The backend to use, by default ``None``
     widget_type : str or Type[WidgetProtocol] or None
@@ -76,7 +77,7 @@ def create_widget(
     options = options.copy()
     kwargs = locals().copy()
     _kind = kwargs.pop("param_kind", None)
-    _is_input = kwargs.pop('is_input', None)
+    _is_input = kwargs.pop("is_input", None)
     _app = use_app(kwargs.pop("app"))
     assert _app.native
     if isinstance(widget_type, _protocols.WidgetProtocol):
@@ -84,9 +85,11 @@ def create_widget(
     else:
         if _is_input:
             from magicgui.type_map import get_widget_class as param_widget_getter
+
             widget_getter = param_widget_getter
         else:
             from magicgui.return_map import get_widget_class as return_widget_getter
+
             widget_getter = return_widget_getter
 
         if widget_type:

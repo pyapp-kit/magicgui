@@ -766,7 +766,10 @@ def _from_dict(data: dict, dtype=None) -> tuple[list[list], list, list]:
     if isinstance(list(data.values())[0], dict):
         _data, index = _from_nested_column_dict(data)
     else:
-        _data = list(list(x) for x in zip(*data.values()))
+        try:
+            _data = list(list(x) for x in zip(*data.values()))
+        except TypeError:
+            raise ValueError("All values in the dict must be iterable (e.g. a list).")
         index = []
     return _data, index, columns
 

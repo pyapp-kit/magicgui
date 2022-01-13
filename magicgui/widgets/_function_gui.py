@@ -26,7 +26,7 @@ from typing import (
 from magicgui.application import AppRef
 from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
-from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
+from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
 from magicgui.widgets._bases.widget import Widget
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
 
@@ -206,7 +206,13 @@ class FunctionGui(Container, Generic[_R]):
         self._result_widget: Widget | None = None
         if result_widget:
             from magicgui.widgets._bases import create_widget
-            self._result_widget = create_widget(value=None, annotation=self._return_annotation, gui_only=True, is_input=False)
+
+            self._result_widget = create_widget(
+                value=None,
+                annotation=self._return_annotation,
+                gui_only=True,
+                is_input=False,
+            )
             self.append(self._result_widget)
 
         if persist:
@@ -305,8 +311,8 @@ class FunctionGui(Container, Generic[_R]):
 
         self._call_count += 1
         if self._result_widget is not None:
-            with self._result_widget.changed.blocked():
-                self._result_widget.value = value
+            with self._result_widget.changed.blocked():  # type: ignore
+                self._result_widget.value = value  # type: ignore
 
         return_type = sig.return_annotation
         if return_type:
