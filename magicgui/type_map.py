@@ -27,6 +27,7 @@ from magicgui import widgets
 from magicgui.types import (
     PathLike,
     ReturnCallback,
+    ReturnMatcher,
     TypeMatcher,
     WidgetClass,
     WidgetOptions,
@@ -43,6 +44,7 @@ class MissingWidget(RuntimeError):
 
 
 _RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
+_RETURN_MATCHERS: list[ReturnMatcher] = list()
 _TYPE_MATCHERS: list[TypeMatcher] = list()
 _TYPE_DEFS: dict[type, WidgetTuple] = dict()
 
@@ -109,6 +111,19 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
     ...         return widgets.LineEdit, {}
     """
     _TYPE_MATCHERS.append(func)
+    return func
+
+
+def return_matcher(func: ReturnMatcher) -> ReturnMatcher:
+    """Add function to the set of return matchers.
+
+    Example
+    -------
+    >>> @return
+    ... def default_return_widget(value, annotation):
+    ...     return widgets.LineEdit, {}
+    """
+    _RETURN_MATCHERS.append(func)
     return func
 
 
@@ -225,10 +240,91 @@ def pick_widget_type(
     return widgets.EmptyWidget, {"visible": False}
 
 
+_SIMPLE_RETURN_TYPES = [
+    bool,
+    int,
+    float,
+    str,
+    pathlib.Path,
+    datetime.time,
+    datetime.date,
+    datetime.datetime,
+    range,
+    slice,
+]
+
+
+@return_matcher
+def default_return_matcher(value, annotation) -> WidgetTuple | None:
+    """Checks for 'simple' types that fit in a LineEdit."""
+    dtype, optional = _normalize_type(value, annotation)
+    if dtype in _SIMPLE_TYPES:
+        return widgets.LineEdit, {"gui_only": True}
+    else:
+        return None
+
+
+@return_matcher
+def tabular_return_matcher(value, annotation) -> WidgetTuple | None:
+    """Checks for tabular data."""
+    # TODO: is this correct?
+    if annotation == inspect._empty:
+        return None
+    dtype, optional = _normalize_type(value, annotation)
+    args = [_evaluate_forwardref(a) for a in get_args(widgets._table.TableData)]
+    if dtype in args:
+        return widgets.Table, {}
+
+    return None
+
+
+def return_widget_type(
+    value: Any = None,
+    annotation: type | None = None,
+    options: WidgetOptions | None = None,
+) -> WidgetTuple:
+    """Pick the appropriate widget type for ``value`` with ``annotation``."""
+    options = options or {}
+    annotation = _evaluate_forwardref(annotation)
+    dtype, optional = _normalize_type(value, annotation)
+    if optional:
+        options.setdefault("nullable", True)
+    choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
+
+    if "widget_type" in options:
+        widget_type = options.pop("widget_type")
+        if choices:
+            if widget_type == "RadioButton":
+                widget_type = "RadioButtons"
+                warnings.warn(
+                    f"widget_type of 'RadioButton' (with dtype {dtype}) is being "
+                    "coerced to 'RadioButtons' due to choices or Enum type.",
+                    stacklevel=2,
+                )
+            options.setdefault("choices", choices)
+        return widget_type, options
+
+    # look for subclasses
+    for registered_type in _TYPE_DEFS:
+        if dtype == registered_type or _is_subclass(dtype, registered_type):
+            _cls, opts = _TYPE_DEFS[registered_type]
+            return _cls, {**options, **opts}  # type: ignore
+
+    for matcher in _RETURN_MATCHERS:
+        _widget_type = matcher(value, annotation)
+        if _widget_type:
+            _cls, opts = _widget_type
+            return _cls, {**options, **opts}  # type: ignore
+
+    # Chosen for backwards/test compatibility
+    return widgets.LineEdit, {"gui_only": True}
+
+
 def get_widget_class(
     value: Any = None,
     annotation: type | None = None,
     options: WidgetOptions | None = None,
+    is_result: bool = False,
 ) -> tuple[WidgetClass, WidgetOptions]:
     """Return a WidgetClass appropriate for the given parameters.
 
@@ -241,6 +337,8 @@ def get_widget_class(
         A type annotation, by default None
     options : WidgetOptions, optional
         Options to pass when constructing the widget, by default {}
+    is_result : bool, optional
+        Identifies whether the returned widget should be tailored to an input or to an output.
 
     Returns
     -------
@@ -249,7 +347,10 @@ def get_widget_class(
         may be different than the options passed in.
     """
     _options = cast(WidgetOptions, options)
-    widget_type, _options = pick_widget_type(value, annotation, _options)
+    if is_result:
+        widget_type, _options = return_widget_type(value, annotation, _options)
+    else:
+        widget_type, _options = pick_widget_type(value, annotation, _options)
 
     if isinstance(widget_type, str):
         widget_class: WidgetClass = _import_class(widget_type)

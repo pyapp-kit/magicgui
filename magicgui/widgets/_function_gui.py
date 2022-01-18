@@ -211,7 +211,7 @@ class FunctionGui(Container, Generic[_R]):
                 value=None,
                 annotation=self._return_annotation,
                 gui_only=True,
-                is_input=False,
+                is_result=True,
             )
             self.append(self._result_widget)
 
