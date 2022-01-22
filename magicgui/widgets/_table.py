@@ -23,9 +23,8 @@ from warnings import warn
 from typing_extensions import Literal
 
 from magicgui.application import use_app
-from magicgui.events import Signal
-from magicgui.widgets._bases import Widget
 from magicgui.widgets._bases.mixins import _ReadOnlyMixin
+from magicgui.widgets._bases.value_widget import ValueWidget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
@@ -129,7 +128,7 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
         return f"table_items({n} {self._axis}s)"
 
 
-class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
+class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     """A table widget representing columnar or 2D data with headers.
 
     Tables behave like plain `dicts`, where the keys are column headers and the
@@ -208,7 +207,6 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     """
 
     _widget: TableWidgetProtocol
-    changed = Signal(object)
 
     def __new__(
         cls,
@@ -229,10 +227,7 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         columns: Collection = None,
         **kwargs,
     ) -> None:
-        app = use_app()
-        assert app.native
-        kwargs["widget_type"] = app.get_obj("Table")
-        super().__init__(**kwargs)
+        super().__init__(widget_type=use_app().get_obj("Table"), **kwargs)
         self._data = DataView(self)
         data, _index, _columns = normalize_table_data(value)
         self.value = {
@@ -240,12 +235,6 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             "index": index if index is not None else _index,
             "columns": columns if columns is not None else _columns,
         }
-
-    def _post_init(self):
-        super()._post_init()
-        self._widget._mgui_bind_change_callback(
-            lambda *x: self.changed.emit(x[0] if x else None)
-        )
 
     @property
     def value(self) -> dict[TblKey, Collection]:

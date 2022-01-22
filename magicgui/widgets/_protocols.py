@@ -214,7 +214,7 @@ class SupportsReadOnly(Protocol):
 
 
 @runtime_checkable
-class TableWidgetProtocol(WidgetProtocol, SupportsReadOnly, Protocol):
+class TableWidgetProtocol(ValueWidgetProtocol, SupportsReadOnly, Protocol):
     """ValueWidget subclass intended for 2D tabular data, with row & column headers."""
 
     @abstractmethod
