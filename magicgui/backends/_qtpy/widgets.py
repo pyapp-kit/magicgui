@@ -1201,6 +1201,15 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 
         self._qwidget.itemChanged.connect(_item_callback)
 
+    # These are only here to implement the ValueWidget interface... but in this one
+    # case, all of the get/set value logic happens in magicgui.widgets.Table
+    # calling Table._mgui_set_cell and Table._mgui_get_cell instead
+    def _mgui_get_value(self):
+        pass
+
+    def _mgui_set_value(self):
+        pass
+
 
 class _ItemDelegate(QtW.QStyledItemDelegate):
     """Displays table widget items with properly formatted numbers."""
