@@ -27,7 +27,6 @@ from magicgui import widgets
 from magicgui.types import (
     PathLike,
     ReturnCallback,
-    ReturnMatcher,
     TypeMatcher,
     WidgetClass,
     WidgetOptions,
@@ -44,7 +43,7 @@ class MissingWidget(RuntimeError):
 
 
 _RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
-_RETURN_MATCHERS: list[ReturnMatcher] = list()
+_RETURN_MATCHERS: list[TypeMatcher] = list()
 _TYPE_MATCHERS: list[TypeMatcher] = list()
 _TYPE_DEFS: dict[type, WidgetTuple] = dict()
 
@@ -114,12 +113,12 @@ def type_matcher(func: TypeMatcher) -> TypeMatcher:
     return func
 
 
-def return_matcher(func: ReturnMatcher) -> ReturnMatcher:
+def return_matcher(func: TypeMatcher) -> TypeMatcher:
     """Add function to the set of return matchers.
 
     Example
     -------
-    >>> @return
+    >>> @return_matcher
     ... def default_return_widget(value, annotation):
     ...     return widgets.LineEdit, {}
     """
@@ -338,7 +337,8 @@ def get_widget_class(
     options : WidgetOptions, optional
         Options to pass when constructing the widget, by default {}
     is_result : bool, optional
-        Identifies whether the returned widget should be tailored to an input or to an output.
+        Identifies whether the returned widget should be tailored to
+        an input or to an output.
 
     Returns
     -------
