@@ -444,19 +444,24 @@ def test_register_return_callback():
     register_type(int, return_callback=check_value)
     register_type(Base, return_callback=check_value)
 
-    @magicgui
-    def func(a=1) -> int:
-        return a
+    try:
+        @magicgui
+        def func(a=1) -> int:
+            return a
 
-    func()
-    with pytest.raises(AssertionError):
-        func(3)
+        func()
+        with pytest.raises(AssertionError):
+            func(3)
 
-    @magicgui
-    def func2(a=1) -> Sub:
-        return a
+        @magicgui
+        def func2(a=1) -> Sub:
+            return a
 
-    func2()
+        func2()
+    finally:
+        from magicgui.type_map import _RETURN_CALLBACKS
+        _RETURN_CALLBACKS.pop(int)
+        _RETURN_CALLBACKS.pop(Base)
 
 
 # @pytest.mark.skip(reason="need to rethink how to test this")
