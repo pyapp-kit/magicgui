@@ -7,13 +7,12 @@ from datetime import date, datetime, time
 from inspect import signature
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from magicgui import magicgui, widgets
 
 
-def _dataframe_equals(object1: pd.DataFrame, object2: pd.DataFrame):
+def _dataframe_equals(object1, object2):
     assert object1.equals(object2)
 
 
@@ -25,10 +24,17 @@ def _default_equals(object1, object2):
     assert object1 == object2
 
 
+def _generate_pandas_test_data():
+    pd = pytest.importorskip(
+        "pandas", reason="Pandas required for a return widget test"
+    )
+    return pd.DataFrame({"Res1": [1, 2, 3], "Res2": [4, 5, 6]})
+
+
 parameterizations = [
     # pandas dataframe
     (
-        pd.DataFrame({"Res1": [1, 2, 3], "Res2": [4, 5, 6]}),
+        _generate_pandas_test_data(),
         widgets.Table,
         _dataframe_equals,
     ),
