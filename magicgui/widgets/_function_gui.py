@@ -27,7 +27,7 @@ from magicgui.application import AppRef
 from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
-from magicgui.widgets._bases.widget import Widget
+from magicgui.widgets._bases.value_widget import ValueWidget
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
@@ -203,7 +203,7 @@ class FunctionGui(Container, Generic[_R]):
 
             self.append(self._call_button)
 
-        self._result_widget: Widget | None = None
+        self._result_widget: ValueWidget | None = None
         if result_widget:
             from magicgui.widgets._bases import create_widget
 
@@ -311,8 +311,8 @@ class FunctionGui(Container, Generic[_R]):
 
         self._call_count += 1
         if self._result_widget is not None:
-            with self._result_widget.changed.blocked():  # type: ignore
-                self._result_widget.value = value  # type: ignore
+            with self._result_widget.changed.blocked():
+                self._result_widget.value = value
 
         return_type = sig.return_annotation
         if return_type:
