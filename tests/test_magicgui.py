@@ -445,6 +445,7 @@ def test_register_return_callback():
     register_type(Base, return_callback=check_value)
 
     try:
+
         @magicgui
         def func(a=1) -> int:
             return a
@@ -460,6 +461,7 @@ def test_register_return_callback():
         func2()
     finally:
         from magicgui.type_map import _RETURN_CALLBACKS
+
         _RETURN_CALLBACKS.pop(int)
         _RETURN_CALLBACKS.pop(Base)
 

@@ -87,7 +87,7 @@ def create_widget(
 
         if widget_type:
             options["widget_type"] = widget_type
-        wdg_class, opts = get_widget_class(value, annotation, options, is_result) 
+        wdg_class, opts = get_widget_class(value, annotation, options, is_result)
 
         if issubclass(wdg_class, Widget):
             opts.update(kwargs.pop("options"))
