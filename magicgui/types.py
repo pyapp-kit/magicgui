@@ -24,6 +24,9 @@ WidgetTuple = Tuple[WidgetRef, "WidgetOptions"]
 #: A function that takes a ``(value, annotation)`` argument and returns an optional
 #: :attr:`WidgetTuple`
 TypeMatcher = Callable[[Any, Optional[Type]], Optional[WidgetTuple]]
+#: A function that takes a ``(value, annotation)`` argument and returns an optional
+#: :attr:`WidgetTuple`
+ReturnMatcher = Callable[[Any, Optional[Type]], Optional[WidgetTuple]]
 #: An iterable that can be used as a valid argument for widget ``choices``
 ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes
