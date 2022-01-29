@@ -23,21 +23,20 @@ from warnings import warn
 from typing_extensions import Literal
 
 from magicgui.application import use_app
-from magicgui.events import Signal
-from magicgui.widgets._bases import Widget
 from magicgui.widgets._bases.mixins import _ReadOnlyMixin
+from magicgui.widgets._bases.value_widget import ValueWidget
 from magicgui.widgets._protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
-    import numpy as np
-    import pandas as pd
+    import numpy
+    import pandas
 
 
 TblKey = Any
 _KT = TypeVar("_KT")  # Key type
 _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
 _VT_co = TypeVar("_VT_co", covariant=True)  # Value type covariant containers.
-TableData = Union[dict, "pd.DataFrame", list, "np.ndarray", tuple, None]
+TableData = Union[dict, "pandas.DataFrame", list, "numpy.ndarray", tuple, None]
 IndexKey = Union[int, slice]
 
 
@@ -71,7 +70,7 @@ def normalize_table_data(data: TableData) -> tuple[Collection[Collection], list,
         _columns = data[2] if data_len > 2 else []
         return _data, _index, _columns
     if _is_dataframe(data):
-        data = cast("pd.DataFrame", data)
+        data = cast("pandas.DataFrame", data)
         return data.values, data.index, data.columns
     if isinstance(data, list):
         if data:
@@ -129,7 +128,7 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
         return f"table_items({n} {self._axis}s)"
 
 
-class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
+class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     """A table widget representing columnar or 2D data with headers.
 
     Tables behave like plain `dicts`, where the keys are column headers and the
@@ -208,7 +207,6 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     """
 
     _widget: TableWidgetProtocol
-    changed = Signal(object)
 
     def __new__(
         cls,
@@ -229,10 +227,7 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         columns: Collection = None,
         **kwargs,
     ) -> None:
-        app = use_app()
-        assert app.native
-        kwargs["widget_type"] = app.get_obj("Table")
-        super().__init__(**kwargs)
+        super().__init__(widget_type=use_app().get_obj("Table"), **kwargs)
         self._data = DataView(self)
         data, _index, _columns = normalize_table_data(value)
         self.value = {
@@ -240,12 +235,6 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             "index": index if index is not None else _index,
             "columns": columns if columns is not None else _columns,
         }
-
-    def _post_init(self):
-        super()._post_init()
-        self._widget._mgui_bind_change_callback(
-            lambda *x: self.changed.emit(x[0] if x else None)
-        )
 
     @property
     def value(self) -> dict[TblKey, Collection]:
@@ -490,7 +479,7 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
 
     # #### EXPORT METHODS #####
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def to_dataframe(self) -> pandas.DataFrame:
         """Convert TableData to dataframe."""
         try:
             import pandas
@@ -515,7 +504,7 @@ class Table(Widget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     @overload
     def to_dict(self, orient: Literal['index']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['series']) -> dict[TblKey, pd.Series]: ...  # noqa
+    def to_dict(self, orient: Literal['series']) -> dict[TblKey, pandas.Series]: ...  # noqa
     # fmt: on
 
     def to_dict(self, orient: str = "dict") -> list | dict:
@@ -745,9 +734,9 @@ def _from_nested_column_dict(data: dict) -> tuple[list[list], list]:
     _index = {frozenset(i) for i in data.values()}
     if len(_index) > 1:
         try:
-            import pandas as pd
+            import pandas
 
-            df = pd.DataFrame(data)
+            df = pandas.DataFrame(data)
             return df.values, df.index
         except ImportError:
             raise ValueError(
@@ -777,7 +766,10 @@ def _from_dict(data: dict, dtype=None) -> tuple[list[list], list, list]:
     if isinstance(list(data.values())[0], dict):
         _data, index = _from_nested_column_dict(data)
     else:
-        _data = list(list(x) for x in zip(*data.values()))
+        try:
+            _data = list(list(x) for x in zip(*data.values()))
+        except TypeError:
+            raise ValueError("All values in the dict must be iterable (e.g. a list).")
         index = []
     return _data, index, columns
 
@@ -789,9 +781,9 @@ def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list
     _columns = {frozenset(i) for i in data}
     if len(_columns) > 1:
         try:
-            import pandas as pd
+            import pandas
 
-            df = pd.DataFrame(data)
+            df = pandas.DataFrame(data)
             return df.values, df.index, df.columns
         except ImportError:
             raise ValueError(
