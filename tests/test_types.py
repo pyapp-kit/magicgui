@@ -28,7 +28,7 @@ def test_forward_refs():
         def testA(x: "testsd.MyInt" = "1"):  # type: ignore  # noqa
             pass
 
-    assert "Could not resolve the magicgui forward reference" in str(err.value)
+    assert "Magicgui could not resolve ForwardRef" in str(err.value)
 
 
 def test_forward_refs_return_annotation():

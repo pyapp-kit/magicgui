@@ -150,12 +150,20 @@ class TypeWrapper:
         return False
 
     def resolve(self, ns: Optional[Mapping[str, Any]] = None, try_import=True):
+        """May raise a NameError, or a ModuleNotFoundError."""
         if self.is_resolved:
             return self.type_
-        new_t = resolve_annotation(self.type_, ns, try_import=try_import, raise_=True)
-        self.type_ = new_t
-        for f in self.sub_fields or ():
-            f.resolve(ns, try_import=try_import)
+
+        try:
+            new_t = resolve_annotation(
+                self.type_, ns, try_import=try_import, raise_=True
+            )
+            self.type_ = new_t
+            for f in self.sub_fields or ():
+                f.resolve(ns, try_import=try_import)
+        except Exception as e:
+            raise type(e)(f"Magicgui could not resolve {self._type_display()}: {e}")
+
         return self.type_
 
     def _prepare(self) -> None:
@@ -387,7 +395,12 @@ def resolve_annotation(
                 name = msg.split()[1].strip("\"'")
                 ns = dict(namespace) if namespace else {}
                 if name not in ns:
-                    ns[name] = import_module(name)
+                    try:
+                        ns[name] = import_module(name)
+                    except ModuleNotFoundError:
+                        alt_name = {"pd": "pandas", "np": "numpy"}.get(name)
+                        if alt_name:
+                            ns[name] = import_module(alt_name)
                     return resolve_annotation(annotation, ns, try_import=try_import)
         if raise_:
             raise

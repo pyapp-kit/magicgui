@@ -13,9 +13,9 @@ from typing import (
     Any,
     Callable,
     DefaultDict,
+    ForwardRef,
     Type,
     TypeVar,
-    Union,
     cast,
     overload,
 )
@@ -33,11 +33,10 @@ from magicgui.types import (
 )
 from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
-from ._type_wrapper import TypeWrapper
+from ._type_wrapper import TypeWrapper, resolve_annotation
 
 if TYPE_CHECKING:
-    import numpy
-    import pandas
+    pass
 
 
 __all__: list[str] = ["register_type", "get_widget_class"]
@@ -116,11 +115,20 @@ _SIMPLE_RETURN_TYPES = [
 
 def match_return_type(tw: TypeWrapper) -> WidgetTuple | None:
     """Check simple type mappings for result widgets."""
+    import sys
+
     if tw.type_ in _SIMPLE_TYPES:
         return widgets.LineEdit, {"gui_only": True}
 
-    table_type = TypeWrapper(Union["pandas.DataFrame", "numpy.ndarray"])  # type: ignore
-    if table_type.is_superclass(tw.type_):
+    if tw.type_ is widgets.Table:
+        return widgets.Table, {}
+
+    table_types = [
+        resolve_annotation(x, sys.modules)
+        for x in ("pandas.DataFrame", "numpy.ndarray")
+    ]
+
+    if any(tw.is_subclass(tt) for tt in table_types if not isinstance(tt, ForwardRef)):
         return widgets.Table, {}
 
     return None
