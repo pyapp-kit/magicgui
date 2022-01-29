@@ -31,7 +31,6 @@ import sys
 from collections import abc
 from typing import _eval_type  # type: ignore  # noqa
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Counter,
@@ -64,29 +63,8 @@ except ImportError:
 
 __all__ = ["TypeWrapper"]
 
-T = TypeVar("T")
-
-
-class UndefinedType:
-    def __repr__(self) -> str:
-        return "UndefinedType"
-
-    def __copy__(self: T) -> T:
-        return self
-
-    def __reduce__(self) -> str:
-        return "Undefined"
-
-    def __deepcopy__(self: T, _: Any) -> T:
-        return self
-
 
 Required: Any = Ellipsis
-Undefined = UndefinedType()
-
-if TYPE_CHECKING:
-
-    BoolUndefined = Union[bool, UndefinedType]
 
 
 class SHAPE:
@@ -106,6 +84,7 @@ class SHAPE:
     COUNTER = 14
 
     MAPPING_LIKE: Set[int] = {DEFAULTDICT, DICT, MAPPING, COUNTER}
+    SEQUENCE_LIKE: Set[int] = {LIST, TUPLE, TUPLE_ELLIPSIS, SEQUENCE, DEQUE}
     NAME_LOOKUP = {
         LIST: "List[{}]",
         SET: "Set[{}]",
@@ -121,18 +100,17 @@ class SHAPE:
 
 
 class TypeWrapper:
+    SHAPE = SHAPE
+
     def __init__(
-        self,
-        type_: Union[Type[Any], UndefinedType] = Undefined,
-        default: Any = None,
-        required: "BoolUndefined" = Undefined,
+        self, type_: Union[str, Type[Any], None, ForwardRef] = None, default: Any = None
     ) -> None:
-        if not isinstance(type_, UndefinedType):
+        if type_ is not None:
             type_ = resolve_annotation(type_)
 
         self.type_: Any = type_
         self.default: Any = default
-        self.required: "BoolUndefined" = required
+        self.required: bool = None  # type: ignore  # will be set in _prepare
 
         self.outer_type_: Any = type_
         self.allow_none: bool = False
@@ -153,28 +131,46 @@ class TypeWrapper:
     def is_union(self):
         return is_union(get_origin(self.type_))
 
+    def is_subclass(self, class_or_tuple: Union[Type, Tuple[Union[Type, Tuple], ...]]):
+        try:
+            return issubclass(self.type_, class_or_tuple)
+        except TypeError:
+            return False
+
+    def is_superclass(self, other: Type):
+        try:
+            return issubclass(other, self.type_)
+        except TypeError:
+            types = tuple(sf.type_ for sf in self.sub_fields or ())
+            try:
+                return issubclass(other, types)
+            except TypeError:
+                pass
+        return False
+
     def resolve(self, ns: Optional[Mapping[str, Any]] = None, try_import=True):
         if self.is_resolved:
-            return
+            return self.type_
         new_t = resolve_annotation(self.type_, ns, try_import=try_import, raise_=True)
         self.type_ = new_t
         for f in self.sub_fields or ():
             f.resolve(ns, try_import=try_import)
+        return self.type_
 
     def _prepare(self) -> None:
         """not idempotent"""
         self._set_default_and_type()
         if self.type_.__class__ is not ForwardRef:
             self._type_analysis()
-        if self.required is Undefined:
+        if self.required is None:
             self.required = True
 
     def _set_default_and_type(self) -> Any:
-        if self.default is not None and self.type_ is Undefined:
+        if self.default is not None and self.type_ is None:
             self.type_ = self.default.__class__
             self.outer_type_ = self.type_
 
-        if self.type_ is Undefined:
+        if self.type_ is None:
             raise ValueError("Either `type_` or `default` must be defined.")
 
         if self.required is False and self.default is None:
@@ -193,7 +189,7 @@ class TypeWrapper:
         elif is_new_type(self.type_):
             self.type_ = new_type_supertype(self.type_)
         if self.type_ is Any or self.type_ is object:
-            if self.required is Undefined:
+            if self.required is None:
                 self.required = False
             self.allow_none = True
             return
@@ -222,7 +218,7 @@ class TypeWrapper:
             types_ = []
             for type_ in get_args(self.type_):
                 if is_none_type(type_) or type_ is Any or type_ is object:
-                    if self.required is Undefined:
+                    if self.required is None:
                         self.required = False
                     self.allow_none = True
                 if is_none_type(type_):
@@ -345,12 +341,12 @@ class TypeWrapper:
 
 
 def resolve_annotation(
-    annotation: Type[Any],
+    annotation: Union[str, Type[Any], None, ForwardRef],
     namespace: Optional[Mapping[str, Any]] = None,
     *,
     try_import=False,
     raise_=False,
-) -> Type[Any]:
+) -> Union[Type[Any], ForwardRef]:
     """[summary]
 
     part of typing.get_type_hints.
@@ -372,7 +368,9 @@ def resolve_annotation(
 
     if isinstance(annotation, str):
         if (3, 10) > sys.version_info >= (3, 9, 8) or sys.version_info >= (3, 10, 1):
-            annotation = ForwardRef(annotation, is_argument=False, is_class=True)
+            annotation = ForwardRef(  # type: ignore
+                annotation, is_argument=False, is_class=True
+            )
         else:
             annotation = ForwardRef(annotation, is_argument=False)
 

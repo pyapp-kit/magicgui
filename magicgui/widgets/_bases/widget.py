@@ -117,9 +117,9 @@ class Widget:
     @annotation.setter
     def annotation(self, value):
         if isinstance(value, (str, ForwardRef)):
-            from magicgui.type_map import _evaluate_forwardref
+            from magicgui._type_wrapper import TypeWrapper
 
-            value = _evaluate_forwardref(value)
+            value = TypeWrapper(value).resolve()
         self._annotation = value
 
     @property
