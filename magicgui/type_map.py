@@ -135,7 +135,12 @@ def pick_widget_type(
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
     if is_result and annotation is inspect.Parameter.empty:
         annotation = str
-    tw = TypeWrapper(annotation, value)
+    try:
+        tw = TypeWrapper(annotation, value)
+    except ValueError:
+        if value is None:
+            return widgets.EmptyWidget, {"visible": False}
+        raise
     tw.resolve()
     options = options or {}
     options.setdefault("nullable", not tw.required)
