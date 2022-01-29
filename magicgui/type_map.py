@@ -138,7 +138,7 @@ def pick_widget_type(
     tw = TypeWrapper(annotation, value)
     tw.resolve()
     options = options or {}
-    options.setdefault("nullable", tw.required)
+    options.setdefault("nullable", not tw.required)
     choices = options.get("choices") or (isinstance(tw.type_, EnumMeta) and tw.type_)
 
     if "widget_type" in options:

@@ -29,6 +29,7 @@ SOFTWARE.
 """
 import sys
 from collections import abc
+from inspect import Parameter
 from typing import _eval_type  # type: ignore  # noqa
 from typing import (
     Any,
@@ -166,7 +167,7 @@ class TypeWrapper:
             self.required = True
 
     def _set_default_and_type(self) -> Any:
-        if self.default is not None and self.type_ is None:
+        if self.default is not None and self.type_ in (None, Parameter.empty):
             self.type_ = self.default.__class__
             self.outer_type_ = self.type_
 
