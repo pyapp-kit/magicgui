@@ -149,23 +149,21 @@ class TypeWrapper:
                 pass
         return False
 
-    def resolve(self, ns: Optional[Mapping[str, Any]] = None, try_import=True):
+    def resolve(self, ns: Optional[Mapping[str, Any]] = None, allow_import=True):
         """May raise a NameError, or a ModuleNotFoundError."""
         if self.is_resolved:
             return self.type_
 
+        err_msg = f"Magicgui could not resolve {self._type_display()}"
         try:
             new_t = resolve_annotation(
-                self.type_, ns, try_import=try_import, raise_=True
+                self.type_, ns, allow_import=allow_import, raise_=True
             )
             self.type_ = new_t
             for f in self.sub_fields or ():
-                f.resolve(ns, try_import=try_import)
+                f.resolve(ns, allow_import=allow_import)
         except (NameError, ImportError) as e:
-            raise type(e)(
-                f"Magicgui could not resolve {self._type_display()}: {e}"
-            ) from e
-
+            raise type(e)(err_msg + f": {e}") from e
         return self.type_
 
     def _prepare(self) -> None:
@@ -355,7 +353,7 @@ def resolve_annotation(
     annotation: Union[str, Type[Any], None, ForwardRef],
     namespace: Optional[Mapping[str, Any]] = None,
     *,
-    try_import=False,
+    allow_import=False,
     raise_=False,
 ) -> Union[Type[Any], ForwardRef]:
     """[summary]
@@ -388,7 +386,7 @@ def resolve_annotation(
     try:
         return _eval_type(annotation, namespace, None)
     except NameError as e:
-        if try_import:
+        if allow_import:
             # try to import the top level name and try again
             msg = str(e)
             if msg.startswith("name ") and msg.endswith(" is not defined"):
@@ -398,7 +396,9 @@ def resolve_annotation(
                 ns = dict(namespace) if namespace else {}
                 if name not in ns:
                     ns[name] = import_module(name)
-                    return resolve_annotation(annotation, ns, try_import=False)
+                    return resolve_annotation(
+                        annotation, ns, allow_import=allow_import, raise_=raise_
+                    )
         if raise_:
             raise
     return annotation
