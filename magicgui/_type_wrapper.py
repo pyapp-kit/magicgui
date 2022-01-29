@@ -161,8 +161,10 @@ class TypeWrapper:
             self.type_ = new_t
             for f in self.sub_fields or ():
                 f.resolve(ns, try_import=try_import)
-        except Exception as e:
-            raise type(e)(f"Magicgui could not resolve {self._type_display()}: {e}")
+        except (NameError, ImportError) as e:
+            raise type(e)(
+                f"Magicgui could not resolve {self._type_display()}: {e}"
+            ) from e
 
         return self.type_
 
@@ -395,13 +397,8 @@ def resolve_annotation(
                 name = msg.split()[1].strip("\"'")
                 ns = dict(namespace) if namespace else {}
                 if name not in ns:
-                    try:
-                        ns[name] = import_module(name)
-                    except ModuleNotFoundError:
-                        alt_name = {"pd": "pandas", "np": "numpy"}.get(name)
-                        if alt_name:
-                            ns[name] = import_module(alt_name)
-                    return resolve_annotation(annotation, ns, try_import=try_import)
+                    ns[name] = import_module(name)
+                    return resolve_annotation(annotation, ns, try_import=False)
         if raise_:
             raise
     return annotation
