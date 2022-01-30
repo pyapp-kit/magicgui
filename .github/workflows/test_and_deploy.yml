@@ -54,7 +54,7 @@ jobs:
       - name: Test with tox
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: pytest -v --color=yes --cov-report=xml --cov=magicgui --basetemp={envtmpdir} {posargs}
+          run: pytest -v --color=yes --cov-report=xml --cov=magicgui
         env:
           PLATFORM: ${{ matrix.platform }}
           BACKEND: ${{ matrix.backend }}
