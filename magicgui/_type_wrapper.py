@@ -55,13 +55,6 @@ from typing import (
 
 from typing_extensions import Annotated, Literal, get_args, get_origin
 
-try:
-    from typing import GenericAlias as TypingGenericAlias  # type: ignore
-except ImportError:
-    # python < 3.9 does not have GenericAlias (list[int], tuple[str, ...] and so on)
-    TypingGenericAlias = ()
-
-
 __all__ = ["TypeWrapper"]
 
 
@@ -422,6 +415,12 @@ def is_literal_type(type_: Type[Any]) -> bool:
     return Literal is not None and get_origin(type_) is Literal
 
 
+try:
+    from typing import GenericAlias as TypingGenericAlias  # type: ignore
+except ImportError:
+    # python < 3.9 does not have GenericAlias (list[int], tuple[str, ...] and so on)
+    TypingGenericAlias = ()
+
 if sys.version_info < (3, 10):
 
     def is_union(tp: Optional[Type[Any]]) -> bool:
@@ -431,12 +430,11 @@ if sys.version_info < (3, 10):
 
 else:
     import types
-    import typing
 
     def is_union(tp: Optional[Type[Any]]) -> bool:
         return tp is Union or tp is types.UnionType  # noqa: E721
 
-    WithArgsTypes = (typing._GenericAlias, types.GenericAlias, types.UnionType)  # noqa
+    WithArgsTypes = (TypingGenericAlias, types.GenericAlias, types.UnionType)
 
 
 NONE_TYPES: Tuple[Any, Any, Any] = (None, type(None), Literal[None])
