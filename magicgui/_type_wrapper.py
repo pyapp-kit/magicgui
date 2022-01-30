@@ -99,6 +99,9 @@ class TypeWrapper:
     def __init__(
         self, type_: Union[str, Type[Any], None, ForwardRef] = None, default: Any = None
     ) -> None:
+        if default is None and type_ in (None, Parameter.empty):
+            raise ValueError("Either `type_` or `default` must be defined.")
+
         if type_ is not None:
             type_ = resolve_annotation(type_)
 
@@ -115,33 +118,35 @@ class TypeWrapper:
         self._prepare()
 
     @property
-    def is_resolved(self) -> bool:
-        if self.type_.__class__ is ForwardRef:
-            return False
-        if self.sub_fields:
-            return all(f.is_resolved for f in self.sub_fields)
-        return True
-
-    @property
     def is_union(self):
         return is_union(get_origin(self.type_))
 
     def is_subclass(self, class_or_tuple: Union[Type, Tuple[Union[Type, Tuple], ...]]):
         try:
-            return issubclass(self.type_, class_or_tuple)
+            return issubclass(self.outer_type_, class_or_tuple)
         except TypeError:
             return False
 
     def is_superclass(self, other: Type):
         try:
-            return issubclass(other, self.type_)
+            return issubclass(other, self.outer_type_)
         except TypeError:
-            types = tuple(sf.type_ for sf in self.sub_fields or ())
+            types = tuple(sf.outer_type_ for sf in self.sub_fields or ())
             try:
                 return issubclass(other, types)
             except TypeError:
                 pass
         return False
+
+    @property
+    def is_resolved(self) -> bool:
+        if self.type_.__class__ is ForwardRef:
+            return False
+        if self.outer_type_.__class__ is ForwardRef:
+            return False
+        if self.sub_fields:
+            return all(f.is_resolved for f in self.sub_fields)
+        return True
 
     def resolve(self, ns: Optional[Mapping[str, Any]] = None, allow_import=True):
         """May raise a NameError, or a ModuleNotFoundError."""
@@ -150,15 +155,17 @@ class TypeWrapper:
 
         err_msg = f"Magicgui could not resolve {self._type_display()}"
         try:
-            new_t = resolve_annotation(
+            self.type_ = resolve_annotation(
                 self.type_, ns, allow_import=allow_import, raise_=True
             )
-            self.type_ = new_t
+            self.outer_type_ = resolve_annotation(
+                self.outer_type_, ns, allow_import=allow_import, raise_=True
+            )
             for f in self.sub_fields or ():
                 f.resolve(ns, allow_import=allow_import)
         except (NameError, ImportError) as e:
             raise type(e)(err_msg + f": {e}") from e
-        return self.type_
+        return self.outer_type_
 
     def _prepare(self) -> None:
         """not idempotent"""
@@ -169,14 +176,10 @@ class TypeWrapper:
             self.required = True
 
     def _set_default_and_type(self) -> Any:
-        if self.default is not None and self.type_ in (None, Parameter.empty):
-            self.type_ = self.default.__class__
-            self.outer_type_ = self.type_
-
-        if self.type_ is None:
-            raise ValueError("Either `type_` or `default` must be defined.")
-
-        if self.required is False and self.default is None:
+        if self.default is not None:
+            if self.type_ in (None, Parameter.empty):
+                self.outer_type_ = self.type_ = self.default.__class__
+        elif self.required is False:
             self.allow_none = True
 
     def _type_analysis(self):

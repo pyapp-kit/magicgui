@@ -8,17 +8,7 @@ import types
 import warnings
 from collections import defaultdict
 from enum import EnumMeta
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    DefaultDict,
-    ForwardRef,
-    Type,
-    TypeVar,
-    cast,
-    overload,
-)
+from typing import Any, Callable, DefaultDict, ForwardRef, Type, TypeVar, cast, overload
 
 from typing_extensions import Literal
 
@@ -34,10 +24,6 @@ from magicgui.types import (
 from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
 from ._type_wrapper import TypeWrapper, resolve_annotation
-
-if TYPE_CHECKING:
-    pass
-
 
 __all__: list[str] = ["register_type", "get_widget_class"]
 
@@ -78,23 +64,25 @@ _SIMPLE_TYPES = {
 
 def match_type(tw: TypeWrapper) -> WidgetTuple | None:
     """Check simple type mappings."""
-    if tw.type_ in _SIMPLE_ANNOTATIONS:
-        return _SIMPLE_ANNOTATIONS[tw.type_], {}
+    _type = tw.outer_type_
 
-    if tw.type_ is widgets.ProgressBar:
+    if _type in _SIMPLE_ANNOTATIONS:
+        return _SIMPLE_ANNOTATIONS[_type], {}
+
+    if _type is widgets.ProgressBar:
         return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
 
-    if tw.type_ in _SIMPLE_TYPES:
-        return _SIMPLE_TYPES[tw.type_], {}
+    if _type in _SIMPLE_TYPES:
+        return _SIMPLE_TYPES[_type], {}
     for key in _SIMPLE_TYPES.keys():
         if tw.is_subclass(key):
             return _SIMPLE_TYPES[key], {}
 
-    if tw.type_ in (types.FunctionType,):
+    if _type in (types.FunctionType,):
         return widgets.FunctionGui, {"function": tw.default}  # type: ignore
 
     # sequence of paths
-    if tw.shape in tw.SHAPE.SEQUENCE_LIKE and tw.is_subclass(pathlib.Path):
+    if tw.shape in tw.SHAPE.SEQUENCE_LIKE and _is_subclass(tw.type_, pathlib.Path):
         return widgets.FileEdit, {"mode": "rm"}
     return None
 
@@ -117,10 +105,10 @@ def match_return_type(tw: TypeWrapper) -> WidgetTuple | None:
     """Check simple type mappings for result widgets."""
     import sys
 
-    if tw.type_ in _SIMPLE_TYPES:
+    if tw.outer_type_ in _SIMPLE_TYPES:
         return widgets.LineEdit, {"gui_only": True}
 
-    if tw.type_ is widgets.Table:
+    if tw.outer_type_ is widgets.Table:
         return widgets.Table, {}
 
     table_types = [
@@ -150,9 +138,10 @@ def pick_widget_type(
             return widgets.EmptyWidget, {"visible": False}
         raise
     tw.resolve()
+    _type = tw.outer_type_
     options = options or {}
     options.setdefault("nullable", not tw.required)
-    choices = options.get("choices") or (isinstance(tw.type_, EnumMeta) and tw.type_)
+    choices = options.get("choices") or (isinstance(_type, EnumMeta) and _type)
 
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
@@ -169,7 +158,7 @@ def pick_widget_type(
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
-        if tw.type_ == registered_type or tw.is_subclass(registered_type):
+        if _type == registered_type or tw.is_subclass(registered_type):
             _cls, opts = _TYPE_DEFS[registered_type]
             return _cls, {**options, **opts}  # type: ignore
 
@@ -329,7 +318,7 @@ def register_type(
     def _deco(type_):
         tw = TypeWrapper(type_)
         tw.resolve()
-        _type_ = tw.type_
+        _type_ = tw.outer_type_
 
         if return_callback is not None:
             _validate_return_callback(return_callback)
@@ -382,8 +371,8 @@ def _type2callback(type_: type) -> list[ReturnCallback]:
     # look for direct hits
     tw = TypeWrapper(type_)
     tw.resolve()
-    if tw.type_ in _RETURN_CALLBACKS:
-        return _RETURN_CALLBACKS[tw.type_]
+    if tw.outer_type_ in _RETURN_CALLBACKS:
+        return _RETURN_CALLBACKS[tw.outer_type_]
 
     # look for subclasses
     for registered_type in _RETURN_CALLBACKS:
