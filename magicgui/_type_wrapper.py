@@ -110,6 +110,7 @@ class TypeWrapper:
         self.allow_none: bool = False
         self.sub_fields: Optional[List[TypeWrapper]] = None
         self._annotated_meta: tuple = ()
+        self.key_field: Optional[TypeWrapper] = None
         self.shape: int = SHAPE.SINGLETON
         self._prepare()
 
@@ -301,7 +302,10 @@ class TypeWrapper:
         elif issubclass(origin, Type):  # type: ignore
             return
         else:
-            raise TypeError(f'Type "{origin}" is not supported.')
+            self.shape = SHAPE.GENERIC
+            self.sub_fields = [self.__class__(type_=t) for t in get_args(self.type_)]
+            self.type_ = origin
+            return
 
         # type_ has been refined eg. as the type of a List
         # sub_fields needs to be populated
@@ -316,7 +320,7 @@ class TypeWrapper:
         # have to do this since display_as_type(self.outer_type_) is different
         # (and wrong) on python 3.6
         if self.shape in SHAPE.MAPPING_LIKE:
-            t = f"Mapping[{display_as_type(self.key_field.type_)}, {t}]"
+            t = f"Mapping[{display_as_type(self.key_field.type_)}, {t}]"  # type: ignore
         elif self.shape == SHAPE.TUPLE:
             t = "Tuple[{}]".format(
                 ", ".join(display_as_type(f.type_) for f in self.sub_fields or ())
