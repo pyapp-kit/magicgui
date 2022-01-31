@@ -602,7 +602,7 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
         choice_names = [x[0] for x in choices_]
         # remove choices that no longer exist
-        for i in range(self._qwidget.count()):
+        for i in reversed(range(self._qwidget.count())):
             if self._qwidget.itemText(i) not in choice_names:
                 self._qwidget.removeItem(i)
         # update choices
@@ -1114,6 +1114,15 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
             callback(data)
 
         self._qwidget.itemChanged.connect(_item_callback)
+
+    # These are only here to implement the ValueWidget interface... but in this one
+    # case, all of the get/set value logic happens in magicgui.widgets.Table
+    # calling Table._mgui_set_cell and Table._mgui_get_cell instead
+    def _mgui_get_value(self):
+        pass
+
+    def _mgui_set_value(self):
+        pass
 
 
 class _ItemDelegate(QtW.QStyledItemDelegate):

@@ -1,5 +1,33 @@
 # Changelog
 
+## [v0.3.4](https://github.com/napari/magicgui/tree/v0.3.4) (2022-01-01)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.3...v0.3.4)
+
+**Implemented enhancements:**
+
+- support Qt6 [\#324](https://github.com/napari/magicgui/pull/324) ([tlambert03](https://github.com/tlambert03))
+- Support partials and tz.curry [\#316](https://github.com/napari/magicgui/pull/316) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- Fix buttons on PySide2 [\#343](https://github.com/napari/magicgui/pull/343) ([tlambert03](https://github.com/tlambert03))
+- fix py3.10 test [\#339](https://github.com/napari/magicgui/pull/339) ([tlambert03](https://github.com/tlambert03))
+- Skip bad parameter names in inject tooltip [\#336](https://github.com/napari/magicgui/pull/336) ([tlambert03](https://github.com/tlambert03))
+- Relay signals from Container to Container [\#331](https://github.com/napari/magicgui/pull/331) ([hanjinliu](https://github.com/hanjinliu))
+- Fix readout visibility on slider `__init__` [\#329](https://github.com/napari/magicgui/pull/329) ([tlambert03](https://github.com/tlambert03))
+- Fix bug in Select widget value setter in direct API usage [\#326](https://github.com/napari/magicgui/pull/326) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- Pre commit ci update config [\#338](https://github.com/napari/magicgui/pull/338) ([tlambert03](https://github.com/tlambert03))
+- Fixing a few test things [\#325](https://github.com/napari/magicgui/pull/325) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- adds waveform generator exemple [\#322](https://github.com/napari/magicgui/pull/322) ([glyg](https://github.com/glyg))
+- add example of adding mpl FigureCanvas  to widget [\#321](https://github.com/napari/magicgui/pull/321) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.3.3](https://github.com/napari/magicgui/tree/v0.3.3) (2021-11-08)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.3.2...v0.3.3)
@@ -42,7 +70,7 @@
 
 - Remove `choices` deprecation warning from 0.2.0 [\#298](https://github.com/napari/magicgui/pull/298) ([tlambert03](https://github.com/tlambert03))
 
-**Merged pull requests:**
+**Documentation:**
 
 - add v0.3.0 migration guide [\#299](https://github.com/napari/magicgui/pull/299) ([tlambert03](https://github.com/tlambert03))
 
@@ -102,10 +130,13 @@
 
 - Fix typesafety tests [\#282](https://github.com/napari/magicgui/pull/282) ([tlambert03](https://github.com/tlambert03))
 
-**Merged pull requests:**
+**Documentation:**
 
 - Fix docs build again [\#286](https://github.com/napari/magicgui/pull/286) ([tlambert03](https://github.com/tlambert03))
 - Fix docs build, add Select widget [\#285](https://github.com/napari/magicgui/pull/285) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
 - update master to main [\#280](https://github.com/napari/magicgui/pull/280) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#278](https://github.com/napari/magicgui/pull/278) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - \[pre-commit.ci\] pre-commit autoupdate [\#272](https://github.com/napari/magicgui/pull/272) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
@@ -130,23 +161,26 @@
 - Fix reuse of magic factory [\#224](https://github.com/napari/magicgui/pull/224) ([tlambert03](https://github.com/tlambert03))
 - Fix EventEmitter loop when event is blocked [\#215](https://github.com/napari/magicgui/pull/215) ([tlambert03](https://github.com/tlambert03))
 
-**Merged pull requests:**
+**Documentation:**
 
 - Small change to improve repr of sentinel in docs [\#251](https://github.com/napari/magicgui/pull/251) ([tlambert03](https://github.com/tlambert03))
 - Minor docstring change for tracking [\#250](https://github.com/napari/magicgui/pull/250) ([tlambert03](https://github.com/tlambert03))
 - Specify XDG\_RUNTIME\_DIR to avoid warnings showing up in the docs [\#249](https://github.com/napari/magicgui/pull/249) ([hmaarrfk](https://github.com/hmaarrfk))
 - Fix FunctionGui docstring parameter name [\#247](https://github.com/napari/magicgui/pull/247) ([tlambert03](https://github.com/tlambert03))
-- \[pre-commit.ci\] pre-commit autoupdate [\#235](https://github.com/napari/magicgui/pull/235) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - fix-docs [\#231](https://github.com/napari/magicgui/pull/231) ([tlambert03](https://github.com/tlambert03))
+- Widget overview docs [\#213](https://github.com/napari/magicgui/pull/213) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- \[pre-commit.ci\] pre-commit autoupdate [\#235](https://github.com/napari/magicgui/pull/235) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - \[pre-commit.ci\] pre-commit autoupdate [\#228](https://github.com/napari/magicgui/pull/228) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - \[pre-commit.ci\] pre-commit autoupdate [\#223](https://github.com/napari/magicgui/pull/223) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - \[pre-commit.ci\] pre-commit autoupdate [\#221](https://github.com/napari/magicgui/pull/221) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - \[pre-commit.ci\] pre-commit autoupdate [\#219](https://github.com/napari/magicgui/pull/219) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
-- Widget overview docs [\#213](https://github.com/napari/magicgui/pull/213) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.2.9](https://github.com/napari/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.9)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -163,19 +197,22 @@
 - fix enum choices in radiobuttons [\#201](https://github.com/napari/magicgui/pull/201) ([tlambert03](https://github.com/tlambert03))
 - Delete button when removing from qt RadioGroup [\#198](https://github.com/napari/magicgui/pull/198) ([tlambert03](https://github.com/tlambert03))
 
-**Merged pull requests:**
+**Documentation:**
 
-- \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/napari/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - skip docutils 0.17 [\#207](https://github.com/napari/magicgui/pull/207) ([tlambert03](https://github.com/tlambert03))
 - Add cache location hint to persist option documentation [\#200](https://github.com/napari/magicgui/pull/200) ([maweigert](https://github.com/maweigert))
 
-## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
+**Merged pull requests:**
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.8)
+- \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/napari/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
 ## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8rc0)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.8rc0)
+
+## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8)
 
 **Implemented enhancements:**
 
@@ -191,10 +228,13 @@
 - fix nested functiongui show [\#175](https://github.com/napari/magicgui/pull/175) ([tlambert03](https://github.com/tlambert03))
 - Fail gracefully with persistence errors, better debounce [\#170](https://github.com/napari/magicgui/pull/170) ([tlambert03](https://github.com/tlambert03))
 
+**Documentation:**
+
+- docs reorg [\#193](https://github.com/napari/magicgui/pull/193) ([tlambert03](https://github.com/tlambert03))
+
 **Merged pull requests:**
 
 - Replace turbo with magma colormap in tests [\#195](https://github.com/napari/magicgui/pull/195) ([jni](https://github.com/jni))
-- docs reorg [\#193](https://github.com/napari/magicgui/pull/193) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#191](https://github.com/napari/magicgui/pull/191) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - fix mypy errors [\#185](https://github.com/napari/magicgui/pull/185) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#184](https://github.com/napari/magicgui/pull/184) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
@@ -223,10 +263,13 @@
 - Fix typesafety checks with numpy 1.20 [\#141](https://github.com/napari/magicgui/pull/141) ([tlambert03](https://github.com/tlambert03))
 - Disable call button while function is running [\#139](https://github.com/napari/magicgui/pull/139) ([tlambert03](https://github.com/tlambert03))
 
+**Documentation:**
+
+- Fix napari return annotations [\#154](https://github.com/napari/magicgui/pull/154) ([sofroniewn](https://github.com/sofroniewn))
+
 **Merged pull requests:**
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#157](https://github.com/napari/magicgui/pull/157) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
-- Fix napari return annotations [\#154](https://github.com/napari/magicgui/pull/154) ([sofroniewn](https://github.com/sofroniewn))
 - \[pre-commit.ci\] pre-commit autoupdate [\#148](https://github.com/napari/magicgui/pull/148) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - Move return\_annotation from container to FunctionGui [\#143](https://github.com/napari/magicgui/pull/143) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#142](https://github.com/napari/magicgui/pull/142) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))

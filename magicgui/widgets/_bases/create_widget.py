@@ -22,6 +22,7 @@ def create_widget(
     app=None,
     widget_type: str | type[_protocols.WidgetProtocol] | None = None,
     options: WidgetOptions = dict(),
+    is_result: bool = False,
 ):
     """Create and return appropriate widget subclass.
 
@@ -58,6 +59,9 @@ def create_widget(
         autodetermined from ``value`` and/or ``annotation`` above.
     options : WidgetOptions, optional
         Dict of options to pass to the Widget constructor, by default dict()
+    is_result : boolean, optional
+        Whether the widget belongs to an input or an output. By defult, an input
+        is assumed.
 
     Returns
     -------
@@ -71,8 +75,9 @@ def create_widget(
         widget protocols from widgets._protocols.
     """
     options = options.copy()
-    kwargs = locals()
+    kwargs = locals().copy()
     _kind = kwargs.pop("param_kind", None)
+    _is_result = kwargs.pop("is_result", None)
     _app = use_app(kwargs.pop("app"))
     assert _app.native
     if isinstance(widget_type, _protocols.WidgetProtocol):
@@ -82,7 +87,7 @@ def create_widget(
 
         if widget_type:
             options["widget_type"] = widget_type
-        wdg_class, opts = get_widget_class(value, annotation, options)
+        wdg_class, opts = get_widget_class(value, annotation, options, is_result)
 
         if issubclass(wdg_class, Widget):
             opts.update(kwargs.pop("options"))

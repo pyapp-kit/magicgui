@@ -26,7 +26,8 @@ from typing import (
 from magicgui.application import AppRef
 from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
-from magicgui.widgets import Container, LineEdit, MainWindow, ProgressBar, PushButton
+from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
+from magicgui.widgets._bases.value_widget import ValueWidget
 from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
@@ -202,10 +203,16 @@ class FunctionGui(Container, Generic[_R]):
 
             self.append(self._call_button)
 
-        self._result_widget: LineEdit | None = None
+        self._result_widget: ValueWidget | None = None
         if result_widget:
-            self._result_widget = LineEdit(gui_only=True, name="result")
-            self._result_widget.enabled = False
+            from magicgui.widgets._bases import create_widget
+
+            self._result_widget = create_widget(
+                value=None,
+                annotation=self._return_annotation,
+                gui_only=True,
+                is_result=True,
+            )
             self.append(self._result_widget)
 
         if persist:
