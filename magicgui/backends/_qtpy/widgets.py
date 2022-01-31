@@ -467,27 +467,22 @@ class FloatSpinBox(QBaseRangedWidget):
         self._qwidget.setSingleStep(value)
 
 
-class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
-    _qwidget = superqt.QLabeledSlider
+class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
+    _qwidget: superqt.QLabeledSlider | superqt.QLabeledRangeSlider
 
-    def __init__(self, qwidg=superqt.QLabeledSlider, **kwargs):
-        super().__init__(qwidg=qwidg)
+    def __init__(self, qwidg, **kwargs):
+        super().__init__(qwidg)
         self._mgui_set_orientation("horizontal")
         self._mgui_set_readout_visibility(kwargs.get("readout", True))
         self._mgui_set_orientation(kwargs.get("orientation", "horizontal"))
 
     def _mgui_set_orientation(self, value) -> Any:
-        """Get current value of the widget."""
         orientation = Qt.Vertical if value == "vertical" else Qt.Horizontal
         self._qwidget.setOrientation(orientation)
 
     def _mgui_get_orientation(self) -> Any:
-        """Get current value of the widget."""
         orientation = self._qwidget.orientation()
         return "vertical" if orientation == Qt.Vertical else "horizontal"
-
-    def _mgui_set_readout_visibility(self, value: bool):
-        self._qwidget.setLabelVisible(value)
 
     def _mgui_get_tracking(self) -> bool:
         return self._qwidget._slider.hasTracking()
@@ -495,75 +490,53 @@ class Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     def _mgui_set_tracking(self, value: bool) -> None:
         self._qwidget._slider.setTracking(value)
 
+    def _mgui_set_readout_visibility(self, value: bool):
+        self._qwidget.setEdgeLabelMode(value)
+
+
+class Slider(_Slider):
+    _qwidget = superqt.QLabeledSlider
+
+    def __init__(self, qwidg=superqt.QLabeledSlider, **kwargs):
+        super().__init__(qwidg=qwidg, **kwargs)
+
 
 class FloatSlider(Slider):
     _qwidget = superqt.QLabeledDoubleSlider
-    _precision = 1e6
 
     def __init__(self, qwidg=superqt.QLabeledDoubleSlider, **kwargs):
         super().__init__(qwidg=qwidg)
 
-    # TODO how much of this is handled by superqt?
-    def _update_precision(self, minimum=None, maximum=None, step=None):
-        """Called when min/max/step is changed.
 
-        _precision is the factor that converts from integer representation in the slider
-        widget, to the actual float representation needed.
-        """
-        orig = self._precision
-
-        if minimum is not None or maximum is not None:
-            _min = minimum or self._mgui_get_min()
-            _max = maximum or self._mgui_get_max()
-
-            # make sure val * precision is within int32 overflow limit for Qt
-            val = max([abs(_min), abs(_max)])
-            while abs(self._precision * val) >= 2 ** 32 // 2:
-                self._precision *= 0.1
-        elif step:
-            while step < (1 / self._precision):
-                self._precision *= 10
-
-        ratio = self._precision / orig
-        if ratio != 1:
-            self._mgui_set_value(self._mgui_get_value() * ratio)
-            if not step:
-                self._mgui_set_max(self._mgui_get_max() * ratio)
-                self._mgui_set_min(self._mgui_get_min() * ratio)
-            # self._mgui_set_step(self._mgui_get_step() * ratio)
-
-    def _post_get_hook(self, value):
-        return value / self._precision
-
-    def _pre_set_hook(self, value):
-        return int(value * self._precision)
-
-    def _mgui_bind_change_callback(self, callback):
-        def _converted_value(value):
-            callback(self._post_get_hook(value))
-
-        self._qwidget.valueChanged.connect(_converted_value)
-
-
-class RangeSlider(Slider):
+class RangeSlider(_Slider):
     _qwidget: superqt.QLabeledRangeSlider
 
     def __init__(self, qwidg=superqt.QLabeledRangeSlider, **kwargs):
         super().__init__(qwidg=qwidg, **kwargs)
 
 
-class FloatRangeSlider(Slider):
+class FloatRangeSlider(RangeSlider):
     _qwidget: superqt.QLabeledDoubleRangeSlider
 
     def __init__(self, qwidg=superqt.QLabeledDoubleRangeSlider, **kwargs):
         super().__init__(qwidg=qwidg, **kwargs)
 
 
-class ProgressBar:
-    _qwidget: QtW.QProgressBar
+class ProgressBar(QBaseRangedWidget, _protocols.SupportsOrientation):
+    _qwidget = QtW.QProgressBar
 
-    def __init__(self, **kwargs):
-        super().__init__(QtW.QProgressBar)
+    def __init__(self, qwidg=QtW.QProgressBar, **kwargs):
+        super().__init__(qwidg)
+        self._mgui_set_readout_visibility(kwargs.get("readout", True))
+        self._mgui_set_orientation(kwargs.get("orientation", "horizontal"))
+
+    def _mgui_set_orientation(self, value) -> Any:
+        orientation = Qt.Vertical if value == "vertical" else Qt.Horizontal
+        self._qwidget.setOrientation(orientation)
+
+    def _mgui_get_orientation(self) -> Any:
+        orientation = self._qwidget.orientation()
+        return "vertical" if orientation == Qt.Vertical else "horizontal"
 
     def _mgui_get_step(self) -> float:
         """Get the step size."""
