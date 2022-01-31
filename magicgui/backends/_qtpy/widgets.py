@@ -6,6 +6,7 @@ import re
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import qtpy
+import superqt
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import (
@@ -17,7 +18,6 @@ from qtpy.QtGui import (
     QResizeEvent,
     QTextDocument,
 )
-import superqt
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
