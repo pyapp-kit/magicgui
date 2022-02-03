@@ -591,7 +591,7 @@ class FloatSlider(Slider):
 
             # make sure val * precision is within int32 overflow limit for Qt
             val = max([abs(_min), abs(_max)])
-            while abs(self._precision * val) >= 2 ** 32 // 2:
+            while abs(self._precision * val) >= 2**32 // 2:
                 self._precision *= 0.1
         elif step:
             while step < (1 / self._precision):
