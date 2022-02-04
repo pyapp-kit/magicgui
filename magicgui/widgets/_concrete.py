@@ -641,8 +641,8 @@ class ListEdit(Container):
 
     Parameters
     ----------
-    type_ : type, optional
-        Type of values in the list.
+    options: WidgetOptions, optional
+        Widget options of child widgets.
     """
 
     def __init__(
@@ -668,10 +668,10 @@ class ListEdit(Container):
 
         self._child_options = options or {}
 
-        button_plus = PushButton(name="+")
+        button_plus = PushButton(text="+", name="plus")
         button_plus.changed.connect(lambda: self._append_value())
 
-        button_minus = PushButton(name="-")
+        button_minus = PushButton(text="-", name="minus")
         button_minus.changed.connect(self._pop_value)
 
         if layout == "horizontal":
@@ -742,6 +742,10 @@ class ListEdit(Container):
             name=f"value_{i}",
             options=self._child_options,
         )
+
+        if isinstance(widget, EmptyWidget):
+            raise TypeError("could not determine the type of child widget.")
+
         self.insert(i, widget)
 
         # Value must be set after new widget is inserted because it could be
@@ -852,18 +856,20 @@ class TupleEdit(Container):
 
     Parameters
     ----------
-    types : iterable of types, optional
-        Types of values in the tuple.
+    options: WidgetOptions, optional
+        Widget options of child widgets.
     """
 
     def __init__(
         self,
         value: Iterable[_V] | _Unset = UNSET,
         layout: str = "horizontal",
+        options: WidgetOptions = None,
         **kwargs,
     ):
         self._args_types: tuple[type, ...] | None = None
         super().__init__(layout=layout, labels=False, **kwargs)
+        self._child_options = options or {}
         self.margins = (0, 0, 0, 0)
 
         if not isinstance(value, _Unset):
@@ -880,7 +886,10 @@ class TupleEdit(Container):
         for i, a in enumerate(_value):
             i = len(self)
             widget = create_widget(
-                value=a, annotation=self._args_types[i], name=f"value_{i}"
+                value=a,
+                annotation=self._args_types[i],
+                name=f"value_{i}",
+                options=self._child_options,
             )
             self.insert(i, widget)
 
