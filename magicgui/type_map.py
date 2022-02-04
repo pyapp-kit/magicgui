@@ -56,6 +56,16 @@ def _is_subclass(obj, superclass):
         return False
 
 
+_SIMPLE_TYPE_STRINGS = {
+    "int": int,
+    "float": float,
+    "str": str,
+    "bool": bool,
+    "slice": slice,
+    "range": range,
+}
+
+
 def _evaluate_forwardref(type_: Any) -> Any:
     """Convert typing.ForwardRef into an actual object."""
     if isinstance(type_, str):
@@ -63,6 +73,9 @@ def _evaluate_forwardref(type_: Any) -> Any:
 
     if not isinstance(type_, ForwardRef):
         return type_
+
+    if type_.__forward_arg__ in _SIMPLE_TYPE_STRINGS.keys():
+        return _SIMPLE_TYPE_STRINGS[type_.__forward_arg__]
 
     from importlib import import_module
 
