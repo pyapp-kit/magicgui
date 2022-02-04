@@ -9,7 +9,8 @@ from inspect import signature
 import numpy as np
 import pytest
 
-from magicgui import magicgui, widgets
+import magicgui
+from magicgui import widgets
 
 
 def _dataframe_equals(object1, object2):
@@ -44,12 +45,13 @@ parameterizations = [
         widgets.Table,
         _ndarray_equals,
     ),
-    # dict
-    ({"a": [1], "b": [2], "c": [3]}, widgets.Table, _default_equals),
-    # list
-    ([1, 2, 3], widgets.Table, _default_equals),
-    # tuple
-    (([[1], [2], [3]], ["A", "B", "C"], ["Row 1"]), widgets.Table, _default_equals),
+    # NOTE: disabling for now... these types are too broad to choose a table
+    # # dict
+    # ({"a": [1], "b": [2], "c": [3]}, widgets.Table, _default_equals),
+    # # list
+    # ([1, 2, 3], widgets.Table, _default_equals),
+    # # tuple
+    # (([[1], [2], [3]], ["A", "B", "C"], ["Row 1"]), widgets.Table, _default_equals),
     # boolean
     (True, widgets.LineEdit, _default_equals),
     # int
@@ -77,15 +79,10 @@ def generate_magicgui(data):
     def func():
         return data
 
-    try:
-        sig = signature(func)
-        func.__signature__ = sig.replace(return_annotation=type(data))  # type: ignore
-    except Exception:
-        pytest.fail()
+    sig = signature(func)
+    setattr(func, "__signature__", sig.replace(return_annotation=type(data)))
 
-    return magicgui(
-        func, call_button="my_button", auto_call=True, labels=False, result_widget=True
-    )
+    return magicgui.magicgui(func, result_widget=True)
 
 
 @pytest.mark.parametrize("data, expected_type, equality_check", parameterizations)
@@ -95,26 +92,14 @@ def test_return_widget_for_type(data, expected_type, equality_check):
     assert isinstance(widget._result_widget, expected_type)
 
 
-_noniterable_dict: dict = {"a": 1, "b": 2, "c": 3}
+def test_table_return_annotation():
+    @magicgui.magicgui(result_widget=True)
+    def f() -> "magicgui.widgets.Table":
+        ...
 
+    @magicgui.magicgui(result_widget=True)
+    def f2() -> widgets.Table:
+        ...
 
-def _func_noniterable_dict() -> dict:
-    return _noniterable_dict
-
-
-@pytest.fixture
-def magic_func_noniterable_dict():
-    """Test function decorated by magicgui"""
-    return magicgui(
-        _func_noniterable_dict,
-        call_button="my_button",
-        auto_call=True,
-        labels=False,
-        result_widget=True,
-    )
-
-
-def test_error_for_noniterable_dict(magic_func_noniterable_dict):
-    with pytest.raises(ValueError) as excinfo:
-        assert magic_func_noniterable_dict() == _noniterable_dict
-    assert "must be iterable" in str(excinfo.value)
+    assert isinstance(f._result_widget, widgets.Table)
+    assert isinstance(f2._result_widget, widgets.Table)

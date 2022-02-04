@@ -247,9 +247,10 @@ class FunctionGui(Container, Generic[_R]):
     @return_annotation.setter
     def return_annotation(self, value):
         if isinstance(value, (str, ForwardRef)):
-            from magicgui.type_map import _evaluate_forwardref
+            from magicgui._type_wrapper import TypeWrapper
 
-            value = _evaluate_forwardref(value)
+            value = TypeWrapper(value).resolve()
+
         self._return_annotation = value
 
     @property
