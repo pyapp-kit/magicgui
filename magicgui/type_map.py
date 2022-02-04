@@ -299,7 +299,7 @@ def default_return_matcher(value, annotation) -> WidgetTuple | None:
 def tabular_return_matcher(value, annotation) -> WidgetTuple | None:
     """Checks for tabular data."""
     # TODO: is this correct?
-    if annotation == inspect._empty:
+    if annotation == inspect.Parameter.empty:
         return None
     dtype, optional = _normalize_type(value, annotation)
     args = [_evaluate_forwardref(a) for a in get_args(widgets._table.TableData)]
