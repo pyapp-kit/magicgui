@@ -9,5 +9,4 @@
 
    get_widget_class
    register_type
-   type_matcher
 ```

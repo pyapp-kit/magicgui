@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 import pytest
 
-from magicgui import magicgui, register_type, types, widgets
+from magicgui import magicgui, register_type, type_map, types, widgets
 
 
 def test_forward_refs():
@@ -28,7 +28,15 @@ def test_forward_refs():
         def testA(x: "testsd.MyInt" = "1"):  # type: ignore  # noqa
             pass
 
-    assert "Could not resolve the magicgui forward reference" in str(err.value)
+    assert "Magicgui could not resolve ForwardRef" in str(err.value)
+
+
+@pytest.mark.parametrize(
+    "cls, string", [("LineEdit", "str"), ("SpinBox", "int"), ("FloatSpinBox", "float")]
+)
+def test_pick_widget_builtins_forward_refs(cls, string):
+    wdg = type_map.pick_widget_type(annotation=string)[0]
+    assert getattr(wdg, "__name__") == cls
 
 
 def test_forward_refs_return_annotation():

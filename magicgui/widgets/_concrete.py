@@ -10,18 +10,7 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import (
-    Any,
-    Callable,
-    ForwardRef,
-    Iterable,
-    Iterator,
-    List,
-    Sequence,
-    Tuple,
-    TypeVar,
-    overload,
-)
+from typing import Any, Callable, Iterable, Iterator, Sequence, Tuple, TypeVar, overload
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
@@ -649,19 +638,22 @@ class ListEdit(Container):
         self,
         value: Iterable[_V] | _Unset = UNSET,
         layout: str = "horizontal",
+        nullable: bool = False,
         options: WidgetOptions = None,
         **kwargs,
     ):
         self._args_type: type | None = None
+        self._nullable = nullable
         super().__init__(layout=layout, labels=False, **kwargs)
         self.margins = (0, 0, 0, 0)
 
         if not isinstance(value, _Unset):
             types = {type(a) for a in value}
             if len(types) == 1:
-                self._args_type = types.pop()
+                if self._args_type is None:
+                    self._args_type = types.pop()
             else:
-                raise TypeError("values have inconsistent type.")
+                raise TypeError("values have inconsistent types.")
             _value: Iterable[_V] = value
         else:
             _value = []
@@ -698,12 +690,14 @@ class ListEdit(Container):
 
     @annotation.setter
     def annotation(self, value):
-        if isinstance(value, (str, ForwardRef)):
-            raise TypeError(
-                "annotation using str or forward reference is not supported in "
-                f"{type(self).__name__}"
-            )
+        if value is None:
+            self._annotation = None
+            self._args_type = None
+            return
 
+        from .._type_wrapper import resolve_annotation
+
+        value = resolve_annotation(value)
         arg: type | None = None
 
         if value and value is not inspect.Parameter.empty:
@@ -716,19 +710,9 @@ class ListEdit(Container):
                 )
             args = get_args(value)
             if len(args) > 0:
-                _arg = args[0]
+                arg = args[0]
             else:
-                _arg = None
-            if isinstance(_arg, (str, ForwardRef)):
-                from magicgui.type_map import _evaluate_forwardref
-
-                arg = _evaluate_forwardref(_arg)
-                if not isinstance(arg, type):
-                    raise TypeError(f"could not resolve type {arg!r}.")
-
-                value = List[arg]  # type: ignore
-            else:
-                arg = _arg
+                arg = None
 
         self._annotation = value
         self._args_type = arg
@@ -765,6 +749,7 @@ class ListEdit(Container):
     @property
     def value(self) -> ListDataView:
         """Return a data view of current value."""
+        # TODO: use `data`. see Table widget.
         return ListDataView(self)
 
     @value.setter
@@ -864,16 +849,19 @@ class TupleEdit(Container):
         self,
         value: Iterable[_V] | _Unset = UNSET,
         layout: str = "horizontal",
+        nullable: bool = False,
         options: WidgetOptions = None,
         **kwargs,
     ):
+        self._nullable = nullable
         self._args_types: tuple[type, ...] | None = None
         super().__init__(layout=layout, labels=False, **kwargs)
         self._child_options = options or {}
         self.margins = (0, 0, 0, 0)
 
         if not isinstance(value, _Unset):
-            self._args_types = tuple(type(a) for a in value)
+            if self._args_types is None:
+                self._args_types = tuple(type(a) for a in value)
             _value: Iterable[Any] = value
         elif self._args_types is not None:
             _value = (UNSET,) * len(self._args_types)
@@ -908,13 +896,15 @@ class TupleEdit(Container):
 
     @annotation.setter
     def annotation(self, value):
-        if isinstance(value, (str, ForwardRef)):
-            raise TypeError(
-                "annotation using str or forward reference is not supported in "
-                f"{type(self).__name__}"
-            )
+        if value is None:
+            self._annotation = None
+            self._args_types = None
+            return
+        from .._type_wrapper import resolve_annotation
 
+        value = resolve_annotation(value)
         args: tuple[type, ...] | None = None
+
         if value and value is not inspect.Parameter.empty:
             from magicgui.type_map import _is_subclass
 
@@ -923,17 +913,7 @@ class TupleEdit(Container):
                 raise TypeError(
                     f"cannot set annotation {value} to {type(self).__name__}."
                 )
-            _args: list[type] = []
-            for arg in get_args(value):
-                if isinstance(arg, (str, ForwardRef)):
-                    from magicgui.type_map import _evaluate_forwardref
-
-                    arg = _evaluate_forwardref(arg)
-
-                if not isinstance(arg, type):
-                    raise TypeError(f"could not resolve type {arg!r}.")
-                _args.append(arg)
-            args = tuple(_args)
+            args = get_args(value)
             value = Tuple[args]
 
         self._annotation = value
