@@ -747,13 +747,23 @@ class ListEdit(Container):
             pass
 
     @property
-    def value(self) -> ListDataView:
-        """Return a data view of current value."""
-        # TODO: use `data`. see Table widget.
-        return ListDataView(self)
+    def value(self) -> list:
+        """Return current value as a list object."""
+        return list(ListDataView(self))
 
     @value.setter
     def value(self, vals: Iterable[_V]):
+        del self[:-2]
+        for v in vals:
+            self._append_value(v)
+
+    @property
+    def data(self) -> ListDataView:
+        """Return a data view of current value."""
+        return ListDataView(self)
+
+    @data.setter
+    def data(self, vals: Iterable[_V]):
         del self[:-2]
         for v in vals:
             self._append_value(v)
@@ -762,24 +772,21 @@ class ListEdit(Container):
 class ListDataView:
     """Data view of ListEdit."""
 
-    def __init__(self, widget: ListEdit):
-        self.widget: list[ValueWidget] = list(widget[:-2])  # type: ignore
+    def __init__(self, obj: ListEdit):
+        self._obj = obj
+        self._widgets: list[ValueWidget] = list(obj[:-2])  # type: ignore
 
     def __repr__(self):
-        """Convert to a string as a list."""
-        return repr([w.value for w in self.widget])
-
-    def __str__(self):
-        """Convert to a string as a list."""
-        return str([w.value for w in self.widget])
+        """A list-like representation."""
+        return f"{self.__class__.__name__}({list(self)!r})"
 
     def __len__(self):
         """Length as a list."""
-        return len(self.widget)
+        return len(self._widgets)
 
     def __eq__(self, other):
         """Compare as a list."""
-        return [w.value for w in self.widget] == other
+        return list(self) == other
 
     @overload
     def __getitem__(self, i: int) -> _V:  # noqa
@@ -792,9 +799,9 @@ class ListDataView:
     def __getitem__(self, key):
         """Slice as a list."""
         if isinstance(key, int):
-            return self.widget[key].value
+            return self._widgets[key].value
         elif isinstance(key, slice):
-            return [w.value for w in self.widget[key]]
+            return [w.value for w in self._widgets[key]]
         else:
             raise TypeError(
                 f"list indices must be integers or slices, not {type(key).__name__}"
@@ -811,22 +818,34 @@ class ListDataView:
     def __setitem__(self, key, value):
         """Update widget value."""
         if isinstance(key, int):
-            self.widget[key].value = value
+            self._widgets[key].value = value
         elif isinstance(key, slice):
-            if isinstance(value, type(self.widget[0].value)):
-                for w in self.widget[key]:
+            if isinstance(value, type(self._widgets[0].value)):
+                for w in self._widgets[key]:
                     w.value = value
             else:
-                for w, v in zip(self.widget[key], value):
+                for w, v in zip(self._widgets[key], value):
                     w.value = v
         else:
             raise TypeError(
                 f"list indices must be integers or slices, not {type(key).__name__}"
             )
 
+    @overload
+    def __delitem__(self, key: int) -> None:  # noqa
+        ...
+
+    @overload
+    def __delitem__(self, key: slice) -> None:  # noqa
+        ...
+
+    def __delitem__(self, key):
+        """Delete widget at the key(s)."""
+        self._obj.__delitem__(key)
+
     def __iter__(self) -> Iterator[_V]:
         """Iterate over values of child widgets."""
-        for w in self.widget:
+        for w in self._widgets:
             yield w.value
 
 

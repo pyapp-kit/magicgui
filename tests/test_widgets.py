@@ -753,14 +753,27 @@ def test_list_edit():
 
     list_edit = widgets.ListEdit(value=[1, 2, 3])
     assert list_edit.value == [1, 2, 3]
+    assert list_edit.data == [1, 2, 3]
+
     list_edit.btn_plus.changed()
     assert list_edit.value == [1, 2, 3, 3]
+    assert list_edit.data == [1, 2, 3, 3]
+
     list_edit.btn_minus.changed()
     assert list_edit.value == [1, 2, 3]
-    list_edit.value[0] = 0
+    assert list_edit.data == [1, 2, 3]
+
+    list_edit.data[0] = 0
     assert list_edit.value == [0, 2, 3]
-    list_edit.value[0:2] = [6, 5]  # type: ignore
+    assert list_edit.data == [0, 2, 3]
+
+    list_edit.data[0:2] = [6, 5]  # type: ignore
     assert list_edit.value == [6, 5, 3]
+    assert list_edit.data == [6, 5, 3]
+
+    del list_edit.data[0]
+    assert list_edit.value == [5, 3]
+    assert list_edit.data == [5, 3]
 
     @magicgui
     def f1(x=[2, 4, 6]):
