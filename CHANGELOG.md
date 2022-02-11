@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.3.6](https://github.com/napari/magicgui/tree/v0.3.6) (2022-02-11)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.5...v0.3.6)
+
+**Fixed bugs:**
+
+- Fix `_normalize_slot` private attr access, and fix annotation setter forward ref resolution [\#367](https://github.com/napari/magicgui/pull/367) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.3.5](https://github.com/napari/magicgui/tree/v0.3.5) (2022-02-07)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.3.4...v0.3.5)
