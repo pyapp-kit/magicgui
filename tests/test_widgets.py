@@ -245,7 +245,7 @@ def test_visible_in_container():
     """Test that visibility depends on containers."""
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
-    w3 = widgets.Label(value="hi", name="w2", visible=False)
+    w3 = widgets.Label(value="hi", name="w3", visible=False)
     container = widgets.Container(widgets=[w2, w3])
     assert not w1.visible
     assert not w2.visible
