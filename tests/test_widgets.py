@@ -371,18 +371,18 @@ def test_bound_callable_catches_recursion():
     (... rather than a recursion error)
     """
 
-    @magicgui(x={"bind": lambda x: x.value * 2})
-    def f(x: int = 5):
-        return x
-
     with pytest.raises(RuntimeError):
-        assert f() == 10
-    f.x.unbind()
-    assert f() == 5
+
+        @magicgui(x={"bind": lambda x: x.value * 2})
+        def f(x: int = 5):
+            return x
 
     # use `get_value` within the callback if you need to access widget.value
-    f.x.bind(lambda x: x.get_value() * 4)
-    assert f() == 20
+    @magicgui(x={"bind": lambda x: x.get_value() * 2})
+    def f2(x: int = 5):
+        return x
+
+    assert f2() == 10
 
 
 def test_reset_choice_recursion():
