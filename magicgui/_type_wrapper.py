@@ -151,7 +151,7 @@ class TypeWrapper:
     def resolve(self, ns: Optional[Mapping[str, Any]] = None, allow_import=True):
         """May raise a NameError, or a ModuleNotFoundError."""
         if self.is_resolved:
-            return self.type_
+            return self.outer_type_
 
         err_msg = f"Magicgui could not resolve {self._type_display()}"
         try:
@@ -164,7 +164,7 @@ class TypeWrapper:
             for f in self.sub_fields or ():
                 f.resolve(ns, allow_import=allow_import)
         except (NameError, ImportError) as e:
-            raise type(e)(err_msg + f": {e}") from e
+            raise type(e)(f"{err_msg}: {e}") from e
         return self.outer_type_
 
     def _prepare(self) -> None:
@@ -488,3 +488,11 @@ def display_as_type(v: Type[Any]) -> str:
     except AttributeError:
         # happens with typing objects
         return str(v).replace("typing.", "")
+
+
+def resolve_forward_refs(value: Any) -> Any:
+    """Resolve forward refs in value, using TypeWrapper"""
+    if value in (None, Parameter.empty):
+        return value
+    v = TypeWrapper(type_=value)
+    return v.outer_type_ if v.is_resolved else v.resolve()

@@ -15,7 +15,6 @@ from typing import (
     Any,
     Callable,
     Deque,
-    ForwardRef,
     Generic,
     Iterable,
     Mapping,
@@ -23,6 +22,7 @@ from typing import (
     cast,
 )
 
+from magicgui._type_wrapper import resolve_forward_refs
 from magicgui.application import AppRef
 from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
@@ -246,12 +246,7 @@ class FunctionGui(Container, Generic[_R]):
 
     @return_annotation.setter
     def return_annotation(self, value):
-        if isinstance(value, (str, ForwardRef)):
-            from magicgui._type_wrapper import TypeWrapper
-
-            value = TypeWrapper(value).resolve()
-
-        self._return_annotation = value
+        self._return_annotation = resolve_forward_refs(value)
 
     @property
     def __signature__(self) -> MagicSignature:
