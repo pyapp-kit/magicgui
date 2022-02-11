@@ -3,8 +3,9 @@ from __future__ import annotations
 import inspect
 import sys
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, ForwardRef
+from typing import TYPE_CHECKING, Any
 
+from magicgui._type_wrapper import resolve_forward_refs
 from magicgui.application import use_app
 from magicgui.events import Signal
 from magicgui.widgets import _protocols
@@ -116,11 +117,7 @@ class Widget:
 
     @annotation.setter
     def annotation(self, value):
-        if isinstance(value, (str, ForwardRef)):
-            from magicgui._type_wrapper import TypeWrapper
-
-            value = TypeWrapper(value).resolve()
-        self._annotation = value
+        self._annotation = resolve_forward_refs(value)
 
     @property
     def param_kind(self) -> inspect._ParameterKind:

@@ -53,7 +53,8 @@ class SignalInstance(psygnal.SignalInstance):
         result = super().connect(
             slot, check_nargs=check_nargs, check_types=check_types, unique=unique
         )
-        self._new_callback[self._normalize_slot(slot)] = is_new_style
+        norm = getattr(self, "_normalize_slot", psygnal._signal._normalize_slot)
+        self._new_callback[norm(slot)] = is_new_style
         return result
 
     def _run_emit_loop(self, args) -> None:
