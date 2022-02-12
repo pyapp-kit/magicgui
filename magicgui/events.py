@@ -5,6 +5,7 @@ from collections import namedtuple
 from typing import Callable, Dict, cast
 
 import psygnal
+from psygnal._signal import _normalize_slot
 
 
 def _new_style_slot(slot: Callable) -> bool:
@@ -53,8 +54,7 @@ class SignalInstance(psygnal.SignalInstance):
         result = super().connect(
             slot, check_nargs=check_nargs, check_types=check_types, unique=unique
         )
-        norm = getattr(self, "_normalize_slot", psygnal._signal._normalize_slot)
-        self._new_callback[norm(slot)] = is_new_style
+        self._new_callback[_normalize_slot(slot)] = is_new_style
         return result
 
     def _run_emit_loop(self, args) -> None:
