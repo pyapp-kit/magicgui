@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.3.7](https://github.com/napari/magicgui/tree/v0.3.7) (2022-02-12)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.6...v0.3.7)
+
+**Merged pull requests:**
+
+- bump psygnal dep to 0.3.0 [\#369](https://github.com/napari/magicgui/pull/369) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.3.6](https://github.com/napari/magicgui/tree/v0.3.6) (2022-02-11)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.3.5...v0.3.6)
