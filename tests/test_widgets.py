@@ -365,24 +365,36 @@ def test_bound_callable_without_calling():
     assert f()() == "hi"
 
 
+def test_bound_not_called():
+    """Test that"""
+    mock = MagicMock()
+    f = magicgui(lambda a: None, a={"bind": mock})
+    # the bind function should not be called when creating the widget
+    mock.assert_not_called()
+    # the bind function should be called when getting the value
+    _ = f.a.value
+    mock.assert_called_once_with(f.a)
+
+
 def test_bound_callable_catches_recursion():
     """Test that accessing widget.value raises an informative error message.
 
     (... rather than a recursion error)
     """
 
-    with pytest.raises(RuntimeError):
-
-        @magicgui(x={"bind": lambda x: x.value * 2})
-        def f(x: int = 5):
-            return x
-
-    # use `get_value` within the callback if you need to access widget.value
-    @magicgui(x={"bind": lambda x: x.get_value() * 2})
-    def f2(x: int = 5):
+    # this should NOT raise here. the function should not be called greedily
+    @magicgui(x={"bind": lambda x: x.value * 2})
+    def f(x: int = 5):
         return x
 
-    assert f2() == 10
+    with pytest.raises(RuntimeError):
+        assert f() == 10
+    f.x.unbind()
+    assert f() == 5
+
+    # use `get_value` within the callback if you need to access widget.value
+    f.x.bind(lambda x: x.get_value() * 4)
+    assert f() == 20
 
 
 def test_reset_choice_recursion():
