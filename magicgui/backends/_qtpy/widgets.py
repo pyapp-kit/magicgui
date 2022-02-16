@@ -992,7 +992,7 @@ class _QTableExtended(QtW.QTableWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setItemDelegate(_ItemDelegate(parent=self))
+        # self.setItemDelegate(_ItemDelegate(parent=self))
 
     def _copy_to_clipboard(self):
         selranges = self.selectedRanges()
