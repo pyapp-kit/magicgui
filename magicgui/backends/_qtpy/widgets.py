@@ -1220,7 +1220,10 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
 
     def displayText(self, value, locale):
         value = self._format_number(value)
-        return super().displayText(value, locale)
+        try:
+            return super().displayText(value, locale)
+        except RuntimeError:
+            pass  # pragma: no cover  # seeing deleted wrapped object in tests
 
     def _format_number(self, text: str) -> str:
         """convert string to int or float if possible"""
