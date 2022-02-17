@@ -681,6 +681,22 @@ def test_categorical_widgets(Cls):
     assert wdg.choices == (1, 2)
 
 
+@pytest.mark.parametrize("Cls", [widgets.ComboBox])
+def test_reset_choices_emits_once(Cls):
+    data = {"index": ["c1", "c2", "c3"]}
+    wdg = Cls(
+        value="c3",
+        choices=lambda w: data["index"],
+    )
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    mock.assert_not_called()
+    data["index"] = ["d2", "d4"]
+    wdg.reset_choices()
+    mock.assert_called_once()
+
+
 class MyEnum(Enum):
     A = "a"
     B = "b"
