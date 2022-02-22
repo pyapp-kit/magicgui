@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import re
+from functools import partial
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import qtpy
@@ -1184,22 +1185,21 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 
     def _mgui_bind_change_callback(self, callback):
         """Bind callback to event of changing any cell."""
+        self._qwidget.itemChanged.connect(partial(self._item_callback, callback))
 
-        def _item_callback(item, callback=callback):
-            col_head = item.tableWidget().horizontalHeaderItem(item.column())
-            col_head = col_head.text() if col_head is not None else ""
-            row_head = item.tableWidget().verticalHeaderItem(item.row())
-            row_head = row_head.text() if row_head is not None else ""
-            data = {
-                "data": item.data(self._DATA_ROLE),
-                "row": item.row(),
-                "column": item.column(),
-                "column_header": col_head,
-                "row_header": row_head,
-            }
-            callback(data)
-
-        self._qwidget.itemChanged.connect(_item_callback)
+    def _item_callback(self, callback, item: QtW.QTableWidgetItem):
+        col_head = item.tableWidget().horizontalHeaderItem(item.column())
+        col_head = col_head.text() if col_head is not None else ""
+        row_head = item.tableWidget().verticalHeaderItem(item.row())
+        row_head = row_head.text() if row_head is not None else ""
+        data = {
+            "data": item.data(self._DATA_ROLE),
+            "row": item.row(),
+            "column": item.column(),
+            "column_header": col_head,
+            "row_header": row_head,
+        }
+        callback(data)
 
     # These are only here to implement the ValueWidget interface... but in this one
     # case, all of the get/set value logic happens in magicgui.widgets.Table
