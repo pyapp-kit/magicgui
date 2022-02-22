@@ -60,5 +60,5 @@ table.data[2, ::2] = [99, 99]
 
 # the table.changed event emits a dict of information on any cell change
 # e.g. {'data': 'sdfg', 'row': 1, 'column': 0, 'column_header': '1', 'row_header': '1'}
-table.changed.connect(print)
+table.changed.connect(lambda v: print(v))
 table.show(run=True)
