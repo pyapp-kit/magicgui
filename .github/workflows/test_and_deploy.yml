@@ -69,6 +69,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          repository: napari/napari
+          path: napari-from-github
       - uses: tlambert03/setup-qt-libs@v1
       - uses: actions/setup-python@v2
         with:
@@ -77,7 +81,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .[testing]
-          python -m pip install git+https://github.com/napari/napari.git#egg=napari[pyqt5]
+          python -m pip install ./napari-from-github[pyqt5]
           wget https://raw.githubusercontent.com/napari/napari/main/napari/utils/_tests/test_magicgui.py
           # remove napari marker
           sed '/@pytest.mark.sync_only/d' test_magicgui.py > test_napari.py
