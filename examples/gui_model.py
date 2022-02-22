@@ -8,4 +8,4 @@ class MyWidget(GUIModel):
 
 
 widget = MyWidget()
-widget.show(run=True)
+widget.gui.show(run=True)

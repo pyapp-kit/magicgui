@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Type, TypeVar
+from typing import Any, TypeVar
 
 from psygnal import Signal, SignalGroup, SignalInstance
-from pydantic import BaseModel, PrivateAttr, fields, Field
+from pydantic import BaseModel, PrivateAttr, fields
 from pydantic.typing import is_callable_type
 from pydantic.utils import get_model
 from typing_extensions import Literal
@@ -105,38 +105,38 @@ def model_field_widget(field: fields.ModelField) -> widgets.Widget | None:
     )
 
 
-def _build_signal_group(model: BaseModel) -> Type[SignalGroup]:
+def _build_signal_group(model: BaseModel | type[BaseModel]) -> type[SignalGroup]:
     return type(
         "Events",
         (SignalGroup,),
         {k: Signal(name=k) for k in model.__fields__},
     )
 
+
+def _build_widget(instance: BaseModel, connect: bool = True) -> widgets.Container:
+    cls = type(instance)
+    widget = model_widget(cls)
+    for n in cls.__fields__:
+        subwdg = getattr(widget, n)
+        siginst = getattr(subwdg, "changed", None)
+        if isinstance(siginst, SignalInstance):
+            siginst.connect_setattr(instance, n)
+    return widget
+
+
 class GUIModel(BaseModel):
     _widget: widgets.Container = PrivateAttr(...)
     _events: SignalGroup = PrivateAttr(...)
+    __slots__ = {"__weakref__"}
 
     def __init__(__guiself__, **data) -> None:
         super().__init__(**data)
-        wdg = widgets.Container(
-            widgets=filter(
-                None, (model_field_widget(f) for f in __guiself__.__fields__.values())
-            ),
-        )
-        __guiself__._widget = wdg
-        __guiself__._events = _build_signal_group(__guiself__)(__guiself__)
-        for n in __guiself__.__fields__:
-            subwdg = getattr(wdg, n)
-            if isinstance(getattr(subwdg, "changed"), SignalInstance):
-                subwdg.changed.connect_setattr(__guiself__._events, n)
-
+        __guiself__._widget = _build_widget(__guiself__)
+        __guiself__._events = _build_signal_group(__guiself__)(instance=__guiself__)
 
     @property
     def events(self) -> SignalGroup:
         return self._events
-
-    def show(self, run=False):
-        self._widget.show(run=run)
 
     @property
     def gui(self) -> widgets.Container:
@@ -153,4 +153,3 @@ class GUIModel(BaseModel):
             attr = getattr(self.events, name, None)
             if attr is not None:
                 attr.emit(after)
-
