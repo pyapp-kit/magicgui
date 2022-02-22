@@ -6,6 +6,9 @@ class MyWidget(GUIModel):
     x: int = 1
     y: int = Field(2, ui_widget_type=Slider)
 
+    class Config:
+        layout = "horizontal"
+
 
 widget = MyWidget()
 widget.gui.show(run=True)

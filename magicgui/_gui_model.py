@@ -115,7 +115,13 @@ def _build_signal_group(model: BaseModel | type[BaseModel]) -> type[SignalGroup]
 
 def _build_widget(instance: BaseModel, connect: bool = True) -> widgets.Container:
     cls = type(instance)
-    widget = model_widget(cls)
+    container_kwargs = {}
+    if hasattr(instance.__config__, "layout"):
+        container_kwargs["layout"] = instance.__config__.layout
+    if hasattr(instance.__config__, "labels"):
+        container_kwargs["labels"] = instance.__config__.labels
+
+    widget = model_widget(cls, **container_kwargs)
     for n in cls.__fields__:
         subwdg = getattr(widget, n)
         siginst = getattr(subwdg, "changed", None)
@@ -131,7 +137,7 @@ class GUIModel(BaseModel):
 
     def __init__(__guiself__, **data) -> None:
         super().__init__(**data)
-        __guiself__._widget = _build_widget(__guiself__)
+        __guiself__._widget = _build_widget(__guiself__, __guiself__.__config__)
         __guiself__._events = _build_signal_group(__guiself__)(instance=__guiself__)
 
     @property
