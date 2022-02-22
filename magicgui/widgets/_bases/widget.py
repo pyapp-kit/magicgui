@@ -5,9 +5,10 @@ import sys
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any
 
+from psygnal import Signal
+
 from magicgui._type_wrapper import resolve_forward_refs
 from magicgui.application import use_app
-from magicgui.events import Signal
 from magicgui.widgets import _protocols
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]

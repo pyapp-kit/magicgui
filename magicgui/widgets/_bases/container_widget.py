@@ -3,9 +3,10 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
 
+from psygnal import Signal
+
 from magicgui._util import debounce
 from magicgui.application import use_app
-from magicgui.events import Signal
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases.mixins import _OrientationMixin
