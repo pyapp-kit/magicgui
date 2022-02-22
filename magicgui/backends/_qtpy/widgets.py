@@ -992,7 +992,7 @@ class _QTableExtended(QtW.QTableWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.setItemDelegate(_ItemDelegate(parent=self))
+        self.setItemDelegate(_ItemDelegate(parent=self))
 
     def _copy_to_clipboard(self):
         selranges = self.selectedRanges()
@@ -1214,32 +1214,24 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 class _ItemDelegate(QtW.QStyledItemDelegate):
     """Displays table widget items with properly formatted numbers."""
 
-    def __init__(self, *args, ndigits: int = 4, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.ndigits = ndigits
-
     def displayText(self, value, locale):
-        value = self._format_number(value)
-        try:
-            return super().displayText(value, locale)
-        except RuntimeError:
-            pass  # pragma: no cover  # seeing deleted wrapped object in tests
+        return super().displayText(_format_number(value, 4), locale)
 
-    def _format_number(self, text: str) -> str:
-        """convert string to int or float if possible"""
+
+def _format_number(text: str, ndigits: int = 4) -> str:
+    """convert string to int or float if possible"""
+    try:
+        value: int | float | None = int(text)
+    except ValueError:
         try:
-            value: int | float | None = int(text)
+            value = float(text)
         except ValueError:
-            try:
-                value = float(text)
-            except ValueError:
-                value = None
+            value = None
 
-        if isinstance(value, (int, float)):
-            dgt = self.ndigits
-            if 0.1 <= abs(value) < 10 ** (dgt + 1) or value == 0:
-                text = str(value) if isinstance(value, int) else f"{value:.{dgt}f}"
-            else:
-                text = f"{value:.{dgt-1}e}"
+    if isinstance(value, (int, float)):
+        if 0.1 <= abs(value) < 10 ** (ndigits + 1) or value == 0:
+            text = str(value) if isinstance(value, int) else f"{value:.{ndigits}f}"
+        else:
+            text = f"{value:.{ndigits-1}e}"
 
-        return text
+    return text
