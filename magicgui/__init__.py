@@ -11,9 +11,6 @@ __email__ = "talley.lambert@gmail.com"
 from ._magicgui import magic_factory, magicgui
 from .application import event_loop, use_app
 from .type_map import register_type
-from ._gui_model import GUIModel
-from pydantic import Field
-
 
 __all__ = [
     "event_loop",
