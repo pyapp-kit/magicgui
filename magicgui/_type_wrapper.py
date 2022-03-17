@@ -377,9 +377,7 @@ def resolve_annotation(
 
     if isinstance(annotation, str):
         if (3, 10) > sys.version_info >= (3, 9, 8) or sys.version_info >= (3, 10, 1):
-            annotation = ForwardRef(
-                annotation, is_argument=False, is_class=True
-            )
+            annotation = ForwardRef(annotation, is_argument=False, is_class=True)
         else:
             annotation = ForwardRef(annotation, is_argument=False)
 
