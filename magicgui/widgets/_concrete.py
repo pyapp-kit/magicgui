@@ -504,7 +504,7 @@ class FileEdit(Container):
         return Path(text)
 
     @value.setter
-    def value(self, value: Sequence[PathLike] | PathLike):
+    def value(self, value: Sequence[PathLike] | PathLike | None):
         """Set current file path."""
         if value is None and self._nullable:
             value = ''
