@@ -443,7 +443,7 @@ class FileEdit(Container):
     ):
         value = kwargs.pop("value", None)
         if value is None:
-            value = ''
+            value = ""
         self.line_edit = LineEdit(value=value)
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
@@ -507,7 +507,7 @@ class FileEdit(Container):
     def value(self, value: Sequence[PathLike] | PathLike):
         """Set current file path."""
         if value is None and self._nullable:
-            value = ''
+            value = ""
         if isinstance(value, (list, tuple)):
             value = ", ".join(os.fspath(p) for p in value)
         if not isinstance(value, (str, Path)):
