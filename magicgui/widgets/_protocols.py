@@ -460,6 +460,14 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mgui_get_scrollable(self) -> bool:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_scrollable(self, scrollable: bool) -> None:
+        raise NotImplementedError()
+
 
 class MainWindowProtocol(ContainerProtocol, Protocol):
     """Application main widget."""

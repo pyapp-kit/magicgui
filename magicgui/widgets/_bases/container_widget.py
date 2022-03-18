@@ -216,6 +216,15 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             "It is not yet possible to change layout after instantiation"
         )
 
+    @property
+    def scrollable(self) -> bool:
+        """Return if the widget can have scroll bars."""
+        return self._widget._mgui_get_scrollable()
+
+    @scrollable.setter
+    def scrollable(self, value: bool):
+        self._widget._mgui_set_scrollable(value)
+
     def reset_choices(self, *_: Any):
         """Reset choices for all Categorical subWidgets to the default state.
 

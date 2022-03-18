@@ -408,6 +408,24 @@ class Container(
         else:
             self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
+        # Create a scroll widget, but don't use it initially
+        self._scroll = QtW.QScrollArea()
+        # Allow widget to resize when window is larger than min widget size
+        self._scroll.setWidgetResizable(True)
+
+    def _mgui_set_scrollable(self, scrollable: bool):
+        if scrollable == self._mgui_get_scrollable():
+            return
+
+        if scrollable:
+            # Transfer widget from MainWindow to ScrollArea
+            self._scroll.setWidget(self._qwidget)
+            self._qwidget = self._scroll
+        if not scrollable:
+            self._qwidget = self._scroll.takeWidget()
+
+    def _mgui_get_scrollable(self):
+        return self._scroll.widget() is not None
 
     def _mgui_insert_widget(self, position: int, widget: Widget):
         self._layout.insertWidget(position, widget.native)
