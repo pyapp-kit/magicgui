@@ -389,7 +389,7 @@ def test_show(magic_func):
     assert magic_func.visible
 
 
-def test_register_types():
+def test_register_types_by_string():
     """Test that we can register custom widget classes for certain types."""
     # must provide a non-None choices or widget_type
     with pytest.raises(ValueError):
@@ -427,6 +427,18 @@ def test_register_types():
 
     del type_map._TYPE_DEFS[str]
     del type_map._TYPE_DEFS[int]
+
+
+def test_register_types_by_class():
+    class MyLineEdit(widgets.LineEdit):
+        pass
+
+    class MyStr:
+        pass
+
+    register_type(MyStr, widget_type=MyLineEdit)
+    w = widgets.create_widget(value=MyStr())
+    assert isinstance(w, MyLineEdit)
 
 
 def test_register_return_callback():

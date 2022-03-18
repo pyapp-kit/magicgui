@@ -336,11 +336,12 @@ def register_type(
                 )
         elif widget_type is not None:
 
-            if not isinstance(
-                widget_type, (str, widgets._bases.Widget, WidgetProtocol)
+            if not isinstance(widget_type, (str, WidgetProtocol)) and not (
+                inspect.isclass(widget_type) and issubclass(widget_type, widgets.Widget)
             ):
                 raise TypeError(
-                    '"widget_type" must be either a string, Widget, or WidgetProtocol'
+                    '"widget_type" must be either a string, WidgetProtocol, or '
+                    "Widget subclass"
                 )
             _TYPE_DEFS[_type_] = (widget_type, _options)
         elif "bind" in _options:
