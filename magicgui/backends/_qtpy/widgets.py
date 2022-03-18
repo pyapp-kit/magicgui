@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import re
+from functools import partial
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import qtpy
@@ -1184,22 +1185,21 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 
     def _mgui_bind_change_callback(self, callback):
         """Bind callback to event of changing any cell."""
+        self._qwidget.itemChanged.connect(partial(self._item_callback, callback))
 
-        def _item_callback(item, callback=callback):
-            col_head = item.tableWidget().horizontalHeaderItem(item.column())
-            col_head = col_head.text() if col_head is not None else ""
-            row_head = item.tableWidget().verticalHeaderItem(item.row())
-            row_head = row_head.text() if row_head is not None else ""
-            data = {
-                "data": item.data(self._DATA_ROLE),
-                "row": item.row(),
-                "column": item.column(),
-                "column_header": col_head,
-                "row_header": row_head,
-            }
-            callback(data)
-
-        self._qwidget.itemChanged.connect(_item_callback)
+    def _item_callback(self, callback, item: QtW.QTableWidgetItem):
+        col_head = item.tableWidget().horizontalHeaderItem(item.column())
+        col_head = col_head.text() if col_head is not None else ""
+        row_head = item.tableWidget().verticalHeaderItem(item.row())
+        row_head = row_head.text() if row_head is not None else ""
+        data = {
+            "data": item.data(self._DATA_ROLE),
+            "row": item.row(),
+            "column": item.column(),
+            "column_header": col_head,
+            "row_header": row_head,
+        }
+        callback(data)
 
     # These are only here to implement the ValueWidget interface... but in this one
     # case, all of the get/set value logic happens in magicgui.widgets.Table
@@ -1214,29 +1214,24 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
 class _ItemDelegate(QtW.QStyledItemDelegate):
     """Displays table widget items with properly formatted numbers."""
 
-    def __init__(self, *args, ndigits: int = 4, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.ndigits = ndigits
-
     def displayText(self, value, locale):
-        value = self._format_number(value)
-        return super().displayText(value, locale)
+        return super().displayText(_format_number(value, 4), locale)
 
-    def _format_number(self, text: str) -> str:
-        """convert string to int or float if possible"""
+
+def _format_number(text: str, ndigits: int = 4) -> str:
+    """convert string to int or float if possible"""
+    try:
+        value: int | float | None = int(text)
+    except ValueError:
         try:
-            value: int | float | None = int(text)
+            value = float(text)
         except ValueError:
-            try:
-                value = float(text)
-            except ValueError:
-                value = None
+            value = None
 
-        if isinstance(value, (int, float)):
-            dgt = self.ndigits
-            if 0.1 <= abs(value) < 10 ** (dgt + 1) or value == 0:
-                text = str(value) if isinstance(value, int) else f"{value:.{dgt}f}"
-            else:
-                text = f"{value:.{dgt-1}e}"
+    if isinstance(value, (int, float)):
+        if 0.1 <= abs(value) < 10 ** (ndigits + 1) or value == 0:
+            text = str(value) if isinstance(value, int) else f"{value:.{ndigits}f}"
+        else:
+            text = f"{value:.{ndigits-1}e}"
 
-        return text
+    return text

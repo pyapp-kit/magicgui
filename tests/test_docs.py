@@ -46,7 +46,7 @@ def test_examples(fname):
         pytest.mark.skip()
         return
     app = use_app()
-    app.start_timer(0, app.quit)
+    app.start_timer(50 if "table" in str(fname) else 5, app.quit)
     try:
         runpy.run_path(fname)
     except ImportError as e:
