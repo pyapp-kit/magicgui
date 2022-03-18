@@ -59,6 +59,8 @@ _SIMPLE_TYPES = {
     datetime.datetime: widgets.DateTimeEdit,
     range: widgets.RangeEdit,
     slice: widgets.SliceEdit,
+    list: widgets.ListEdit,
+    tuple: widgets.TupleEdit,
 }
 
 
@@ -82,8 +84,13 @@ def match_type(tw: TypeWrapper) -> WidgetTuple | None:
         return widgets.FunctionGui, {"function": tw.default}  # type: ignore
 
     # sequence of paths
-    if tw.shape in tw.SHAPE.SEQUENCE_LIKE and _is_subclass(tw.type_, pathlib.Path):
-        return widgets.FileEdit, {"mode": "rm"}
+    if tw.shape in tw.SHAPE.SEQUENCE_LIKE:
+        if _is_subclass(tw.type_, pathlib.Path):
+            return widgets.FileEdit, {"mode": "rm"}
+        elif tw.shape == tw.SHAPE.LIST:
+            return widgets.ListEdit, {}
+        elif tw.shape == tw.SHAPE.TUPLE:
+            return widgets.TupleEdit, {}
     return None
 
 
