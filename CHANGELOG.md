@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.0](https://github.com/napari/magicgui/tree/v0.4.0) (2022-03-25)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.4.0rc1...v0.4.0)
+
+**Documentation:**
+
+- Fix pyqt conda install instruction [\#386](https://github.com/napari/magicgui/pull/386) ([dstansby](https://github.com/dstansby))
+
 ## [v0.4.0rc1](https://github.com/napari/magicgui/tree/v0.4.0rc1) (2022-03-18)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.3.7...v0.4.0rc1)
