@@ -804,3 +804,10 @@ def test_curry():
     assert isinstance(wdg.y, widgets.LineEdit)
     assert wdg2.y.value == "sdf"
     assert wdg2(1) == "sdf1"
+
+
+def test_scrollable(magic_func):
+    # Scrollable should be enabled by deafult
+    assert magic_func.scrollable
+    magic_func.scrollable = False
+    assert not magic_func.scrollable
