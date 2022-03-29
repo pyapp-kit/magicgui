@@ -79,6 +79,7 @@ class FunctionGui(Container, Generic[_R]):
         If True, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False when
         auto_call is True, and True otherwise.
+        The button can be accessed from the ``.call_button`` property.
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
@@ -227,6 +228,11 @@ class FunctionGui(Container, Generic[_R]):
             self._dump()
         if self._auto_call:
             self()
+
+    @property
+    def call_button(self) -> PushButton | None:
+        """Return the call button."""
+        return self._call_button
 
     @property
     def call_count(self) -> int:
