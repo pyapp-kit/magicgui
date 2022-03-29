@@ -98,6 +98,8 @@ def add(a: int, b: int) -> int:
 add.show()
 ```
 
+By default the widget will be scrollable in the direction of the layout.
+
 ```{eval-rst}
 .. _parameter-specific-options:
 ```

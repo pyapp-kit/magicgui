@@ -408,10 +408,19 @@ class Container(
         else:
             self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
-        # Create a scroll widget, but don't use it initially
+
+        # Setup a scroll widget, but don't enable it by default
         self._scroll = QtW.QScrollArea()
         # Allow widget to resize when window is larger than min widget size
         self._scroll.setWidgetResizable(True)
+        if layout == "horizontal":
+            horiz_policy = Qt.ScrollBarAsNeeded
+            vert_policy = Qt.ScrollBarAlwaysOff
+        else:
+            horiz_policy = Qt.ScrollBarAlwaysOff
+            vert_policy = Qt.ScrollBarAsNeeded
+        self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
+        self._scroll.setVerticalScrollBarPolicy(vert_policy)
 
     def _mgui_set_scrollable(self, scrollable: bool):
         if scrollable == self._mgui_get_scrollable():
