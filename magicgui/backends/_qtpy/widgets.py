@@ -433,6 +433,12 @@ class Container(
         if not scrollable:
             self._qwidget = self._scroll.takeWidget()
 
+        min_size = self._layout.totalMinimumSize()
+        if isinstance(self._layout, QtW.QHBoxLayout):
+            self._scroll.setMinimumHeight(min_size.height())
+        else:
+            self._scroll.setMinimumWidth(min_size.width())
+
     def _mgui_get_scrollable(self):
         return self._scroll.widget() is not None
 
