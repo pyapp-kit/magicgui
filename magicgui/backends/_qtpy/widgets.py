@@ -442,6 +442,15 @@ class Container(
     def _mgui_get_scrollable(self):
         return self._scroll.widget() is not None
 
+    def _mgui_get_native_widget(self):
+        if self._mgui_get_scrollable():
+            return self._scroll.widget()
+        else:
+            return self._qwidget
+
+    def _mgui_get_visible(self):
+        return self._mgui_get_native_widget().isVisible()
+
     def _mgui_insert_widget(self, position: int, widget: Widget):
         self._layout.insertWidget(position, widget.native)
 
