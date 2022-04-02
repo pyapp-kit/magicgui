@@ -176,7 +176,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
         self._list.insert(key, widget)
         if key < 0:
-            key += len(self)
+            key += len(self) - 1
         # NOTE: if someone has manually mucked around with self.native.layout()
         # it's possible that indices will be off.
         self._widget._mgui_insert_widget(key, _widget)
