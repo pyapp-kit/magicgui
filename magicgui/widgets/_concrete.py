@@ -553,7 +553,7 @@ class RangeEdit(Container):
         **kwargs,
     ):
         value = kwargs.pop("value", None)
-        if value is not None:
+        if value is not None and value is not UNSET:
             if not all(hasattr(value, x) for x in ("start", "stop", "step")):
                 raise TypeError(f"Invalid value type for {type(self)}: {type(value)}")
             start, stop, step = value.start, value.stop, value.step
@@ -565,6 +565,7 @@ class RangeEdit(Container):
         kwargs["widgets"] = [self.start, self.stop, self.step]
         kwargs.setdefault("layout", "horizontal")
         kwargs.setdefault("labels", True)
+        kwargs.pop("nullable", None)
         super().__init__(**kwargs)
 
     @classmethod
