@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from math import ceil,log10
 from typing import Tuple
 from warnings import warn
 
@@ -6,6 +7,9 @@ from magicgui.widgets import _protocols
 
 from .value_widget import UNSET, ValueWidget
 
+py_min = min
+py_max = max
+# Workaround for names that are used in RangeWidget constructor
 
 class RangedWidget(ValueWidget):
     """Widget with a contstrained value. Wraps RangedWidgetProtocol.
@@ -22,7 +26,7 @@ class RangedWidget(ValueWidget):
 
     _widget: _protocols.RangedWidgetProtocol
 
-    def __init__(self, min: float = 0, max: float = 1000, step: float = 1, **kwargs):
+    def __init__(self, min: float = UNSET, max: float = UNSET, step: float = 1, **kwargs):
         for key in ("maximum", "minimum"):
             if key in kwargs:
                 warn(
@@ -38,9 +42,11 @@ class RangedWidget(ValueWidget):
         val = kwargs.pop("value", UNSET)
         super().__init__(**kwargs)
 
+        tmp_val = val if val not in (UNSET, None) else 1
+
         self.step = step
-        self.min = min
-        self.max = max
+        self.min = min if min is not UNSET else py_min(0, tmp_val)
+        self.max = max if max is not UNSET else py_max(1000, 10**ceil(log10(py_max(1, tmp_val+1))))-1
         if val not in (UNSET, None):
             self.value = val
 

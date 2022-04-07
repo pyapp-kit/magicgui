@@ -536,6 +536,23 @@ def test_range_value_none():
     rw = widgets.SpinBox(value=None)
     assert rw.value == 0
 
+@pytest.mark.parametrize("value,maksimum", [(10, 999), (None, 999), (1000, 9999), (1500, 9999)])
+def test_range_big_value(value, maksimum):
+    rw = widgets.SpinBox(value=value)
+    rw.value == value
+    rw.max = maksimum
+
+def test_range_negative_value():
+    rw = widgets.SpinBox(value=-10)
+    rw.value == -10
+    rw.min == -10
+
+def test_exception_range_out_of_range():
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=10000, max=1000)
+
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=-10, min=0)
 
 def test_containers_show_nested_containers():
     """make sure showing a container shows a nested FunctionGui."""
