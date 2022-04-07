@@ -45,7 +45,7 @@ class RangedWidget(ValueWidget):
         val = kwargs.pop("value", UNSET)
         super().__init__(**kwargs)
 
-        tmp_val = val if val not in (UNSET, None) else 1
+        tmp_val = float(val if val not in (UNSET, None) else 1)
 
         self.step = step
         self.min = min if min is not UNSET else py_min(0, tmp_val)
