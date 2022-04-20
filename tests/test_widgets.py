@@ -430,6 +430,7 @@ def test_reset_choice_recursion():
     x = 0
 
     def get_choices(widget):
+        # import pdb; pdb.set_trace()
         nonlocal x
         x += 1
         return list(range(x))
@@ -438,13 +439,14 @@ def test_reset_choice_recursion():
     def f(c):
         pass
 
-    assert f.c.choices == (0,)
+    # Constructing the gui already calls reset_choices() once
+    assert f.c.choices == (0, 1)
 
     container = widgets.Container(widgets=[f])
     container.reset_choices()
-    assert f.c.choices == (0, 1)
-    container.reset_choices()
     assert f.c.choices == (0, 1, 2)
+    container.reset_choices()
+    assert f.c.choices == (0, 1, 2, 3)
 
 
 def test_progressbar():
