@@ -15,7 +15,6 @@ from typing import (
     Any,
     Callable,
     Deque,
-    ForwardRef,
     Generic,
     Iterable,
     Mapping,
@@ -23,8 +22,10 @@ from typing import (
     cast,
 )
 
+from psygnal import Signal
+
+from magicgui._type_wrapper import resolve_forward_refs
 from magicgui.application import AppRef
-from magicgui.events import Signal
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
 from magicgui.widgets._bases.value_widget import ValueWidget
@@ -78,6 +79,7 @@ class FunctionGui(Container, Generic[_R]):
         If True, create an additional button that calls the original function when
         clicked.  If a ``str``, set the button text. by default False when
         auto_call is True, and True otherwise.
+        The button can be accessed from the ``.call_button`` property.
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
@@ -228,6 +230,11 @@ class FunctionGui(Container, Generic[_R]):
             self()
 
     @property
+    def call_button(self) -> PushButton | None:
+        """Return the call button."""
+        return self._call_button
+
+    @property
     def call_count(self) -> int:
         """Return the number of times the function has been called."""
         return self._call_count
@@ -246,11 +253,7 @@ class FunctionGui(Container, Generic[_R]):
 
     @return_annotation.setter
     def return_annotation(self, value):
-        if isinstance(value, (str, ForwardRef)):
-            from magicgui.type_map import _evaluate_forwardref
-
-            value = _evaluate_forwardref(value)
-        self._return_annotation = value
+        self._return_annotation = resolve_forward_refs(value)
 
     @property
     def __signature__(self) -> MagicSignature:

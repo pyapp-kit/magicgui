@@ -58,9 +58,9 @@ def test_magicgui(magic_func):
 
 
 def test_default_call_button_behavior(magic_func_defaults, magic_func_autocall):
-    assert magic_func_defaults._call_button is not None
+    assert magic_func_defaults.call_button is not None
 
-    assert magic_func_autocall._call_button is None
+    assert magic_func_autocall.call_button is None
     prior_autocall_count = magic_func_autocall.call_count
     magic_func_autocall.a.value = "hello"
     magic_func_autocall.b.value = 7
@@ -131,8 +131,8 @@ def test_call_button():
     def func(a: int, b: int = 3, c=7.1):
         assert a == 7
 
-    assert hasattr(func, "_call_button")
-    assert isinstance(func._call_button, widgets.PushButton)
+    assert hasattr(func, "call_button")
+    assert isinstance(func.call_button, widgets.PushButton)
     func.a.value = 7
 
 
@@ -389,7 +389,7 @@ def test_show(magic_func):
     assert magic_func.visible
 
 
-def test_register_types():
+def test_register_types_by_string():
     """Test that we can register custom widget classes for certain types."""
     # must provide a non-None choices or widget_type
     with pytest.raises(ValueError):
@@ -427,6 +427,18 @@ def test_register_types():
 
     del type_map._TYPE_DEFS[str]
     del type_map._TYPE_DEFS[int]
+
+
+def test_register_types_by_class():
+    class MyLineEdit(widgets.LineEdit):
+        pass
+
+    class MyStr:
+        pass
+
+    register_type(MyStr, widget_type=MyLineEdit)
+    w = widgets.create_widget(value=MyStr())
+    assert isinstance(w, MyLineEdit)
 
 
 def test_register_return_callback():
@@ -487,7 +499,7 @@ def test_function_binding():
     a = MyObject("a")
     b = MyObject("b")
 
-    assert a.method._call_button.text == "callme"  # type: ignore
+    assert a.method.call_button.text == "callme"  # type: ignore
     assert a.method.sigma.max == 365
     assert a.method() == ("a", 1)
     assert b.method(sigma=4) == ("b", 4)

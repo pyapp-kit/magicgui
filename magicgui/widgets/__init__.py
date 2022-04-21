@@ -24,6 +24,7 @@ from ._concrete import (
     FloatSpinBox,
     Label,
     LineEdit,
+    ListEdit,
     LiteralEvalLineEdit,
     LogSlider,
     MainWindow,
@@ -39,6 +40,7 @@ from ._concrete import (
     SpinBox,
     TextEdit,
     TimeEdit,
+    TupleEdit,
 )
 from ._dialogs import show_file_dialog
 from ._function_gui import FunctionGui, MainFunctionGui
@@ -78,6 +80,7 @@ __all__ = [
     "Image",
     "Label",
     "LineEdit",
+    "ListEdit",
     "LiteralEvalLineEdit",
     "LogSlider",
     "MainFunctionGui",
@@ -95,6 +98,7 @@ __all__ = [
     "Table",
     "TextEdit",
     "TimeEdit",
+    "TupleEdit",
     "Widget",
     "show_file_dialog",
 ]

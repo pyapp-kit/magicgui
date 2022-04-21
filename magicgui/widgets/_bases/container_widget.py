@@ -3,9 +3,10 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
 
+from psygnal import Signal
+
 from magicgui._util import debounce
 from magicgui.application import use_app
-from magicgui.events import Signal
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases.mixins import _OrientationMixin
@@ -173,9 +174,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
                 _widget = _LabeledWidget(widget)
                 widget.label_changed.connect(self._unify_label_widths)
 
-        self._list.insert(key, widget)
         if key < 0:
             key += len(self)
+        self._list.insert(key, widget)
         # NOTE: if someone has manually mucked around with self.native.layout()
         # it's possible that indices will be off.
         self._widget._mgui_insert_widget(key, _widget)

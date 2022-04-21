@@ -17,14 +17,14 @@ def test_magic_factory():
     # factories make widgets that are FunctionGui instances
     widget1 = factory()
     assert isinstance(widget1, FunctionGui)
-    assert widget1._call_button
+    assert widget1.call_button
 
     # You can call them repeatedly, and even override the initial kwargs
     # given to magic_factory (just like with functools.partial)
     widget2 = factory(call_button=False, x={"widget_type": "Slider"})
     assert widget1 is not widget2
     assert isinstance(widget2, FunctionGui)
-    assert not widget2._call_button
+    assert not widget2.call_button
     assert isinstance(widget2.x, Slider)
 
     # the widget, (like all FunctionGuis) is still callable and accepts args

@@ -1,3 +1,4 @@
+import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
@@ -15,7 +16,14 @@ from magicgui.widgets._bases import ValueWidget
     [
         getattr(widgets, n)
         for n in widgets.__all__
-        if n not in ("Widget", "FunctionGui", "MainFunctionGui", "show_file_dialog")
+        if n
+        not in (
+            "Widget",
+            "TupleEdit",
+            "FunctionGui",
+            "MainFunctionGui",
+            "show_file_dialog",
+        )
     ],
 )
 def test_widgets(WidgetClass):
@@ -38,6 +46,26 @@ def test_create_widget(kwargs, expect_type):
     """Test that various values get turned into widgets."""
     wdg = widgets.create_widget(**kwargs)
     assert isinstance(wdg, expect_type)
+    wdg.close()
+
+
+expectations_annotation = (
+    (int, widgets.SpinBox),
+    (float, widgets.FloatSpinBox),
+    (range, widgets.RangeEdit),
+    (str, widgets.LineEdit),
+    (bool, widgets.CheckBox),
+    (slice, widgets.SliceEdit),
+    (datetime.date, widgets.DateEdit),
+    (datetime.time, widgets.TimeEdit),
+    (datetime.datetime, widgets.DateTimeEdit),
+)
+
+
+@pytest.mark.parametrize("annotation, expected_type", expectations_annotation)
+def test_create_widget_annotation(annotation, expected_type):
+    wdg = widgets.create_widget(annotation=annotation)
+    assert isinstance(wdg, expected_type)
     wdg.close()
 
 
@@ -245,7 +273,7 @@ def test_visible_in_container():
     """Test that visibility depends on containers."""
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
-    w3 = widgets.Label(value="hi", name="w2", visible=False)
+    w3 = widgets.Label(value="hi", name="w3", visible=False)
     container = widgets.Container(widgets=[w2, w3])
     assert not w1.visible
     assert not w2.visible
@@ -365,12 +393,24 @@ def test_bound_callable_without_calling():
     assert f()() == "hi"
 
 
+def test_bound_not_called():
+    """Test that"""
+    mock = MagicMock()
+    f = magicgui(lambda a: None, a={"bind": mock})
+    # the bind function should not be called when creating the widget
+    mock.assert_not_called()
+    # the bind function should be called when getting the value
+    _ = f.a.value
+    mock.assert_called_once_with(f.a)
+
+
 def test_bound_callable_catches_recursion():
     """Test that accessing widget.value raises an informative error message.
 
     (... rather than a recursion error)
     """
 
+    # this should NOT raise here. the function should not be called greedily
     @magicgui(x={"bind": lambda x: x.value * 2})
     def f(x: int = 5):
         return x
@@ -738,3 +778,91 @@ def test_pushbutton_cick_signal():
     btn.native.click()
     mock.assert_called_once()
     mock2.assert_called_once()
+
+
+def test_list_edit():
+    """Test ListEdit."""
+    from typing import List
+
+    list_edit = widgets.ListEdit(value=[1, 2, 3])
+    assert list_edit.value == [1, 2, 3]
+    assert list_edit.data == [1, 2, 3]
+
+    list_edit.btn_plus.changed()
+    assert list_edit.value == [1, 2, 3, 3]
+    assert list_edit.data == [1, 2, 3, 3]
+
+    list_edit.btn_minus.changed()
+    assert list_edit.value == [1, 2, 3]
+    assert list_edit.data == [1, 2, 3]
+
+    list_edit.data[0] = 0
+    assert list_edit.value == [0, 2, 3]
+    assert list_edit.data == [0, 2, 3]
+
+    list_edit.data[0:2] = [6, 5]  # type: ignore
+    assert list_edit.value == [6, 5, 3]
+    assert list_edit.data == [6, 5, 3]
+
+    del list_edit.data[0]
+    assert list_edit.value == [5, 3]
+    assert list_edit.data == [5, 3]
+
+    @magicgui
+    def f1(x=[2, 4, 6]):
+        pass
+
+    assert type(f1.x) is widgets.ListEdit
+    assert f1.x._args_type is int
+    assert f1.x.value == [2, 4, 6]
+
+    @magicgui
+    def f2(x: List[int]):
+        pass
+
+    assert type(f2.x) is widgets.ListEdit
+    assert f2.x.annotation == List[int]
+    assert f2.x._args_type is int
+    assert f2.x.value == []
+    f2.x.btn_plus.changed()
+    assert f2.x.value == [0]
+
+    @magicgui(
+        x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
+    )
+    def f3(x: List[int] = [0]):
+        pass
+
+    assert type(f3.x) is widgets.ListEdit
+    assert type(f3.x[0]) is widgets.Slider
+    assert f3.x[0].min == -10
+    assert f3.x[0].max == 10
+    assert f3.x[0].step == 5
+
+
+def test_tuple_edit():
+    """Test TupleEdit."""
+    from typing import Tuple
+
+    tuple_edit = widgets.TupleEdit(value=(1, "a", 2.5))
+    assert tuple_edit.value == (1, "a", 2.5)
+    tuple_edit.value = (2, "xyz", 1.0)
+    assert tuple_edit.value == (2, "xyz", 1.0)
+
+    with pytest.raises(ValueError):
+        tuple_edit.value = (2, "x")
+
+    @magicgui
+    def f1(x=(2, 4, 6)):
+        pass
+
+    assert type(f1.x) is widgets.TupleEdit
+    assert f1.x.value == (2, 4, 6)
+
+    @magicgui
+    def f2(x: Tuple[int, str]):
+        pass
+
+    assert type(f2.x) is widgets.TupleEdit
+    assert f2.x.annotation == Tuple[int, str]
+    assert f2.x.value == (0, "")

@@ -1,5 +1,78 @@
 # Changelog
 
+## [v0.4.0](https://github.com/napari/magicgui/tree/v0.4.0) (2022-03-25)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.4.0rc1...v0.4.0)
+
+**Documentation:**
+
+- Fix pyqt conda install instruction [\#386](https://github.com/napari/magicgui/pull/386) ([dstansby](https://github.com/dstansby))
+
+## [v0.4.0rc1](https://github.com/napari/magicgui/tree/v0.4.0rc1) (2022-03-18)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.7...v0.4.0rc1)
+
+**Implemented enhancements:**
+
+- Support sequences [\#342](https://github.com/napari/magicgui/pull/342) ([hanjinliu](https://github.com/hanjinliu))
+
+**Fixed bugs:**
+
+- Use empty string as null value for FileEdit [\#384](https://github.com/napari/magicgui/pull/384) ([brisvag](https://github.com/brisvag))
+- fix register\_widget with widget subclass [\#376](https://github.com/napari/magicgui/pull/376) ([tlambert03](https://github.com/tlambert03))
+
+**Deprecated:**
+
+- Remove event deprecations strategy \(for release 0.4.0\) [\#368](https://github.com/napari/magicgui/pull/368) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- Check out napari repo instead of git+https [\#378](https://github.com/napari/magicgui/pull/378) ([jni](https://github.com/jni))
+- Test that bound values don't get called greedily upon widget creation [\#371](https://github.com/napari/magicgui/pull/371) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.3.7](https://github.com/napari/magicgui/tree/v0.3.7) (2022-02-12)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.6...v0.3.7)
+
+**Merged pull requests:**
+
+- bump psygnal dep to 0.3.0 [\#369](https://github.com/napari/magicgui/pull/369) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.3.6](https://github.com/napari/magicgui/tree/v0.3.6) (2022-02-11)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.5...v0.3.6)
+
+**Fixed bugs:**
+
+- Fix `_normalize_slot` private attr access, and fix annotation setter forward ref resolution [\#367](https://github.com/napari/magicgui/pull/367) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.3.5](https://github.com/napari/magicgui/tree/v0.3.5) (2022-02-07)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.3.4...v0.3.5)
+
+**Implemented enhancements:**
+
+- Create return matcher for extensible return widget creation [\#355](https://github.com/napari/magicgui/pull/355) ([gselzer](https://github.com/gselzer))
+
+**Fixed bugs:**
+
+- Add new type normalization TypeWrapper, fix builtin and optional ForwardRefs [\#362](https://github.com/napari/magicgui/pull/362) ([tlambert03](https://github.com/tlambert03))
+- Fix changing choices on ComboBox [\#352](https://github.com/napari/magicgui/pull/352) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- fix tests in xvfb-action [\#366](https://github.com/napari/magicgui/pull/366) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- update napari examples [\#357](https://github.com/napari/magicgui/pull/357) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- Do not package tests [\#365](https://github.com/napari/magicgui/pull/365) ([jaimergp](https://github.com/jaimergp))
+- Make Table a ValueWidget [\#360](https://github.com/napari/magicgui/pull/360) ([tlambert03](https://github.com/tlambert03))
+- Update build workflow [\#344](https://github.com/napari/magicgui/pull/344) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.3.4](https://github.com/napari/magicgui/tree/v0.3.4) (2022-01-01)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.3.3...v0.3.4)
@@ -180,7 +253,7 @@
 
 ## [v0.2.9](https://github.com/napari/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.9)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -206,13 +279,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/napari/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.8rc0)
-
 ## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.8)
+
+## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8rc0)
 
 **Implemented enhancements:**
 

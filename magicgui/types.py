@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
+    from magicgui._type_wrapper import TypeWrapper
     from magicgui.widgets import FunctionGui
     from magicgui.widgets._bases import CategoricalWidget, Widget
     from magicgui.widgets._protocols import WidgetProtocol
-
 
 #: A :class:`~magicgui.widgets._bases.Widget` class or a
 #: :class:`~magicgui.widgets._protocols.WidgetProtocol`
@@ -23,10 +23,10 @@ WidgetRef = Union[str, WidgetClass]
 WidgetTuple = Tuple[WidgetRef, "WidgetOptions"]
 #: A function that takes a ``(value, annotation)`` argument and returns an optional
 #: :attr:`WidgetTuple`
-TypeMatcher = Callable[[Any, Optional[Type]], Optional[WidgetTuple]]
+TypeMatcher = Callable[["TypeWrapper"], Optional[WidgetTuple]]
 #: A function that takes a ``(value, annotation)`` argument and returns an optional
 #: :attr:`WidgetTuple`
-ReturnMatcher = Callable[[Any, Optional[Type]], Optional[WidgetTuple]]
+ReturnMatcher = Callable[["TypeWrapper"], Optional[WidgetTuple]]
 #: An iterable that can be used as a valid argument for widget ``choices``
 ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes
