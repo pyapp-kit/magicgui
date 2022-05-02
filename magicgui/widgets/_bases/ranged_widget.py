@@ -55,10 +55,7 @@ class RangedWidget(ValueWidget):
     def value(self, value: Union[float, Tuple[float, ...]]):
         """Set widget value, will raise Value error if not within min/max."""
         # TODO: ugly stuff, but for now works
-        if isinstance(value, float):
-            to_check = (float,)
-        else:
-            to_check = value
+        to_check = (value,) if isinstance(value, (float, int)) else value
         for v in to_check:
             if not (self.min <= float(v) <= self.max):
                 raise ValueError(
