@@ -1,3 +1,4 @@
+import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
@@ -45,6 +46,26 @@ def test_create_widget(kwargs, expect_type):
     """Test that various values get turned into widgets."""
     wdg = widgets.create_widget(**kwargs)
     assert isinstance(wdg, expect_type)
+    wdg.close()
+
+
+expectations_annotation = (
+    (int, widgets.SpinBox),
+    (float, widgets.FloatSpinBox),
+    (range, widgets.RangeEdit),
+    (str, widgets.LineEdit),
+    (bool, widgets.CheckBox),
+    (slice, widgets.SliceEdit),
+    (datetime.date, widgets.DateEdit),
+    (datetime.time, widgets.TimeEdit),
+    (datetime.datetime, widgets.DateTimeEdit),
+)
+
+
+@pytest.mark.parametrize("annotation, expected_type", expectations_annotation)
+def test_create_widget_annotation(annotation, expected_type):
+    wdg = widgets.create_widget(annotation=annotation)
+    assert isinstance(wdg, expected_type)
     wdg.close()
 
 
