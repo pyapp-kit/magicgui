@@ -1,28 +1,37 @@
+import builtins
 from abc import ABC, abstractmethod
-from typing import Tuple
+from math import ceil, log10
+from typing import Tuple, Union, cast
 from warnings import warn
 
 from magicgui.widgets import _protocols
 
-from .value_widget import UNSET, ValueWidget
+from .value_widget import UNSET, ValueWidget, _Unset
 
 
 class RangedWidget(ValueWidget):
-    """Widget with a contstrained value. Wraps RangedWidgetProtocol.
+    """Widget with a constrained value. Wraps RangedWidgetProtocol.
 
     Parameters
     ----------
     min : float, optional
-        The minimum allowable value, by default 0
+        The minimum allowable value, by default 0 (or `value` if `value` is less than 0)
     max : float, optional
-        The maximum allowable value, by default 1000
+        The maximum allowable value, by default 1000 (or `value` if `value` is greater
+        than 1000)
     step : float, optional
         The step size for incrementing the value, by default 1
     """
 
     _widget: _protocols.RangedWidgetProtocol
 
-    def __init__(self, min: float = 0, max: float = 1000, step: float = 1, **kwargs):
+    def __init__(
+        self,
+        min: Union[float, _Unset] = UNSET,
+        max: Union[float, _Unset] = UNSET,
+        step: float = 1,
+        **kwargs,
+    ):  # sourcery skip: avoid-builtin-shadow
         for key in ("maximum", "minimum"):
             if key in kwargs:
                 warn(
@@ -38,9 +47,17 @@ class RangedWidget(ValueWidget):
         val = kwargs.pop("value", UNSET)
         super().__init__(**kwargs)
 
+        tmp_val = float(val if val not in (UNSET, None) else 1)
+
         self.step = step
-        self.min = min
-        self.max = max
+        self.min: float = (
+            cast(float, min) if min is not UNSET else builtins.min(0, tmp_val)
+        )
+        self.max: float = (
+            cast(float, max)
+            if max is not UNSET
+            else builtins.max(1000, 10 ** ceil(log10(builtins.max(1, tmp_val + 1)))) - 1
+        )
         if val not in (UNSET, None):
             self.value = val
 

@@ -178,7 +178,7 @@ def test_basic_widget_attributes():
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {
-        "max": 1000,
+        "max": 999,
         "min": 0,
         "step": 1,
         "enabled": False,
@@ -556,6 +556,29 @@ def test_range_value_none():
     assert f.x.value == 0
     rw = widgets.SpinBox(value=None)
     assert rw.value == 0
+
+
+@pytest.mark.parametrize(
+    "value,maksimum", [(10, 999), (None, 999), (1000, 9999), (1500, 9999)]
+)
+def test_range_big_value(value, maksimum):
+    rw = widgets.SpinBox(value=value)
+    rw.value == value
+    rw.max = maksimum
+
+
+def test_range_negative_value():
+    rw = widgets.SpinBox(value=-10)
+    rw.value == -10
+    rw.min == -10
+
+
+def test_exception_range_out_of_range():
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=10000, max=1000)
+
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=-10, min=0)
 
 
 def test_containers_show_nested_containers():
