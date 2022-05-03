@@ -1,3 +1,4 @@
+import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
@@ -15,7 +16,14 @@ from magicgui.widgets._bases import ValueWidget
     [
         getattr(widgets, n)
         for n in widgets.__all__
-        if n not in ("Widget", "FunctionGui", "MainFunctionGui", "show_file_dialog")
+        if n
+        not in (
+            "Widget",
+            "TupleEdit",
+            "FunctionGui",
+            "MainFunctionGui",
+            "show_file_dialog",
+        )
     ],
 )
 def test_widgets(WidgetClass):
@@ -38,6 +46,26 @@ def test_create_widget(kwargs, expect_type):
     """Test that various values get turned into widgets."""
     wdg = widgets.create_widget(**kwargs)
     assert isinstance(wdg, expect_type)
+    wdg.close()
+
+
+expectations_annotation = (
+    (int, widgets.SpinBox),
+    (float, widgets.FloatSpinBox),
+    (range, widgets.RangeEdit),
+    (str, widgets.LineEdit),
+    (bool, widgets.CheckBox),
+    (slice, widgets.SliceEdit),
+    (datetime.date, widgets.DateEdit),
+    (datetime.time, widgets.TimeEdit),
+    (datetime.datetime, widgets.DateTimeEdit),
+)
+
+
+@pytest.mark.parametrize("annotation, expected_type", expectations_annotation)
+def test_create_widget_annotation(annotation, expected_type):
+    wdg = widgets.create_widget(annotation=annotation)
+    assert isinstance(wdg, expected_type)
     wdg.close()
 
 
@@ -150,7 +178,7 @@ def test_basic_widget_attributes():
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {
-        "max": 1000,
+        "max": 999,
         "min": 0,
         "step": 1,
         "enabled": False,
@@ -530,6 +558,29 @@ def test_range_value_none():
     assert rw.value == 0
 
 
+@pytest.mark.parametrize(
+    "value,maksimum", [(10, 999), (None, 999), (1000, 9999), (1500, 9999)]
+)
+def test_range_big_value(value, maksimum):
+    rw = widgets.SpinBox(value=value)
+    rw.value == value
+    rw.max = maksimum
+
+
+def test_range_negative_value():
+    rw = widgets.SpinBox(value=-10)
+    rw.value == -10
+    rw.min == -10
+
+
+def test_exception_range_out_of_range():
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=10000, max=1000)
+
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=-10, min=0)
+
+
 def test_containers_show_nested_containers():
     """make sure showing a container shows a nested FunctionGui."""
 
@@ -750,3 +801,91 @@ def test_pushbutton_cick_signal():
     btn.native.click()
     mock.assert_called_once()
     mock2.assert_called_once()
+
+
+def test_list_edit():
+    """Test ListEdit."""
+    from typing import List
+
+    list_edit = widgets.ListEdit(value=[1, 2, 3])
+    assert list_edit.value == [1, 2, 3]
+    assert list_edit.data == [1, 2, 3]
+
+    list_edit.btn_plus.changed()
+    assert list_edit.value == [1, 2, 3, 3]
+    assert list_edit.data == [1, 2, 3, 3]
+
+    list_edit.btn_minus.changed()
+    assert list_edit.value == [1, 2, 3]
+    assert list_edit.data == [1, 2, 3]
+
+    list_edit.data[0] = 0
+    assert list_edit.value == [0, 2, 3]
+    assert list_edit.data == [0, 2, 3]
+
+    list_edit.data[0:2] = [6, 5]  # type: ignore
+    assert list_edit.value == [6, 5, 3]
+    assert list_edit.data == [6, 5, 3]
+
+    del list_edit.data[0]
+    assert list_edit.value == [5, 3]
+    assert list_edit.data == [5, 3]
+
+    @magicgui
+    def f1(x=[2, 4, 6]):
+        pass
+
+    assert type(f1.x) is widgets.ListEdit
+    assert f1.x._args_type is int
+    assert f1.x.value == [2, 4, 6]
+
+    @magicgui
+    def f2(x: List[int]):
+        pass
+
+    assert type(f2.x) is widgets.ListEdit
+    assert f2.x.annotation == List[int]
+    assert f2.x._args_type is int
+    assert f2.x.value == []
+    f2.x.btn_plus.changed()
+    assert f2.x.value == [0]
+
+    @magicgui(
+        x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
+    )
+    def f3(x: List[int] = [0]):
+        pass
+
+    assert type(f3.x) is widgets.ListEdit
+    assert type(f3.x[0]) is widgets.Slider
+    assert f3.x[0].min == -10
+    assert f3.x[0].max == 10
+    assert f3.x[0].step == 5
+
+
+def test_tuple_edit():
+    """Test TupleEdit."""
+    from typing import Tuple
+
+    tuple_edit = widgets.TupleEdit(value=(1, "a", 2.5))
+    assert tuple_edit.value == (1, "a", 2.5)
+    tuple_edit.value = (2, "xyz", 1.0)
+    assert tuple_edit.value == (2, "xyz", 1.0)
+
+    with pytest.raises(ValueError):
+        tuple_edit.value = (2, "x")
+
+    @magicgui
+    def f1(x=(2, 4, 6)):
+        pass
+
+    assert type(f1.x) is widgets.TupleEdit
+    assert f1.x.value == (2, 4, 6)
+
+    @magicgui
+    def f2(x: Tuple[int, str]):
+        pass
+
+    assert type(f2.x) is widgets.TupleEdit
+    assert f2.x.annotation == Tuple[int, str]
+    assert f2.x.value == (0, "")

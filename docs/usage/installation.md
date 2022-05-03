@@ -32,6 +32,6 @@ pip install magicgui[pyside2]
 
 or with conda:
 ```bash
-conda install -c conda-forge magicgui pyqt5
+conda install -c conda-forge magicgui pyqt
 ```
 ````

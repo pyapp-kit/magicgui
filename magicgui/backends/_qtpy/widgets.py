@@ -452,6 +452,9 @@ class SpinBox(QBaseRangedWidget):
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(int(value))
 
+    def _pre_set_hook(self, value):
+        return int(value)
+
 
 class FloatSpinBox(QBaseRangedWidget):
     def __init__(self):
@@ -499,6 +502,9 @@ class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
         # Progressbar also uses this base, but doesn't have tracking
         if hasattr(self._qwidget, "setTracking"):
             self._qwidget.setTracking(value)
+
+    def _pre_set_hook(self, value):
+        return int(value)
 
 
 class Slider(_Slider):

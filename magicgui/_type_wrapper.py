@@ -376,12 +376,10 @@ def resolve_annotation(
         annotation = type(None)
 
     if isinstance(annotation, str):
+        kwargs = dict(is_argument=False)
         if (3, 10) > sys.version_info >= (3, 9, 8) or sys.version_info >= (3, 10, 1):
-            annotation = ForwardRef(  # type: ignore
-                annotation, is_argument=False, is_class=True
-            )
-        else:
-            annotation = ForwardRef(annotation, is_argument=False)
+            kwargs["is_class"] = True
+        annotation = ForwardRef(annotation, **kwargs)
 
     try:
         return _eval_type(annotation, namespace, None)
