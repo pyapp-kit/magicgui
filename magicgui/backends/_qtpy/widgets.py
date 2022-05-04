@@ -324,11 +324,15 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
         """Get the step size."""
         val = self._qwidget.singleStep()
         return self._post_get_hook(val)
-    
+
     def _mgui_set_adaptive_step(self, value: bool):
         """Seti is widget single steep should be adaptive."""
-        self._qwidget.setStepType(QtW.QAbstractSpinBox.AdaptiveDecimalStepType if value else QtW.QAbstractSpinBox.DefaultStepType)
-    
+        self._qwidget.setStepType(
+            QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+            if value
+            else QtW.QAbstractSpinBox.DefaultStepType
+        )
+
     def _mgui_get_adaptive_step(self) -> bool:
         """Get is widget single steep should be adaptive."""
         return self._qwidget.stepType() == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
@@ -588,7 +592,11 @@ class Slider(_Slider):
         return self._readout_widget.stepType() == QtW.QAbstractSpinBox.AdaptiveStep
 
     def _mgui_set_adaptive_step(self, value: bool):
-        self._readout_widget.setStepType(QtW.QAbstractSpinBox.AdaptiveDecimalStepType  if value else QtW.QAbstractSpinBox.DefaultStepType)
+        self._readout_widget.setStepType(
+            QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+            if value
+            else QtW.QAbstractSpinBox.DefaultStepType
+        )
 
     def _mgui_set_readout_visibility(self, value: bool):
         self._readout_widget.show() if value else self._readout_widget.hide()
