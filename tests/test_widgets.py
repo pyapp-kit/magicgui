@@ -575,14 +575,14 @@ def test_range_negative_value():
 
 def test_adaptive():
     rw = widgets.SpinBox()
-    rw.adaptive_step == True
+    assert rw.adaptive_step
     rw.adaptive_step = False
-    rw.adaptive_step == False
+    assert not rw.adaptive_step
 
 
 def test_adaptive2():
     rw = widgets.SpinBox(adaptive_step=False)
-    rw.adaptive_step == False
+    assert not rw.adaptive_step
 
 
 def test_exception_range_out_of_range():
