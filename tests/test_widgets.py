@@ -572,6 +572,15 @@ def test_range_negative_value():
     rw.value == -10
     rw.min == -10
 
+def test_adaptive():
+    rw = widgets.SpinBox()
+    rw.adaptive_step == True
+    rw.adaptive_step = False
+    rw.adaptive_step == False
+
+def test_adaptive2():
+    rw = widgets.SpinBox(adaptive_step=False)
+    rw.adaptive_step == False
 
 def test_exception_range_out_of_range():
     with pytest.raises(ValueError):
