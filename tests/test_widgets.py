@@ -862,6 +862,18 @@ def test_list_edit():
     assert f3.x[0].max == 10
     assert f3.x[0].step == 5
 
+    @magicgui
+    def f4(x: List[int] = ()):  # type: ignore
+        pass
+
+    assert type(f4.x) is widgets.ListEdit
+    assert f4.x.annotation == List[int]
+    assert f4.x._args_type is int
+    assert f4.x.value == []
+    f4.x.btn_plus.changed()
+    assert type(f4.x[0]) is widgets.SpinBox
+    assert f4.x.value == [0]
+
 
 def test_tuple_edit():
     """Test TupleEdit."""
