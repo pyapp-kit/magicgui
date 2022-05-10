@@ -693,6 +693,7 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             self._qwidget.clear()
             return
 
+        self._qwidget.blockSignals(True)
         choice_names = [x[0] for x in choices_]
         # remove choices that no longer exist
         for i in reversed(range(self._qwidget.count())):
@@ -709,6 +710,8 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             first = choice_names[0]
             self._qwidget.setCurrentIndex(self._qwidget.findText(first))
             self._qwidget.removeItem(self._qwidget.findText(current))
+        self._qwidget.blockSignals(False)
+        self._emit_data(self._qwidget.currentIndex())
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
