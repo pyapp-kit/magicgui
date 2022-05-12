@@ -1120,9 +1120,8 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         return self._qwidget._read_only
 
     def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
-        self._qwidget.blockSignals(True)
-        item.setData(self._DATA_ROLE, _maybefloat(item.text()))
-        self._qwidget.blockSignals(False)
+        with _signals_blocked(self._qwidget):
+            item.setData(self._DATA_ROLE, _maybefloat(item.text()))
 
     def _mgui_set_row_count(self, nrows: int) -> None:
         """Set the number of rows in the table. (Create/delete as needed)."""
