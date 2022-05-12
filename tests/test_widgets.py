@@ -681,19 +681,54 @@ def test_categorical_widgets(Cls):
     assert wdg.choices == (1, 2)
 
 
-@pytest.mark.parametrize("Cls", [widgets.ComboBox])
-def test_reset_choices_emits_once(Cls):
-    data = {"index": ["c1", "c2", "c3"]}
+@pytest.mark.parametrize(
+    "Cls,value", [(widgets.ComboBox, "c3"), (widgets.Select, ["c2", "c3"])]
+)
+def test_reset_choices_emits_once(Cls, value):
+    data = ["c1", "c2", "c3"]
     wdg = Cls(
-        value="c3",
-        choices=lambda w: data["index"],
+        value=value,
+        choices=lambda w: data,
     )
 
     mock = MagicMock()
     wdg.changed.connect(mock)
     mock.assert_not_called()
-    data["index"] = ["d2", "d4"]
+    data = ["d2", "d4"]
     wdg.reset_choices()
+    mock.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "Cls,value1,value2",
+    [(widgets.ComboBox, "c4", "c1"), (widgets.Select, ["c3", "c4"], ["c1", "c2"])],
+)
+def test_set_value_emits_once(Cls, value1, value2):
+    wdg = Cls(
+        value=value1,
+        choices=["c1", "c2", "c3", "c4"],
+    )
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    mock.assert_not_called()
+    wdg.value = value2
+    mock.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "Cls,value", [(widgets.ComboBox, "c3"), (widgets.Select, ["c3", "c4"])]
+)
+def test_set_choices_emits_once(Cls, value):
+    wdg = Cls(
+        value=value,
+        choices=["c1", "c2", "c3", "c4"],
+    )
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    mock.assert_not_called()
+    wdg.choices = ["d2", "d4", "d5"]
     mock.assert_called_once()
 
 
