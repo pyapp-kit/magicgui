@@ -771,9 +771,11 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_set_value(self, value) -> None:
         if not isinstance(value, (list, tuple)):
             value = [value]
-        for i in range(self._qwidget.count()):
-            item = self._qwidget.item(i)
-            item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
+        with _signals_blocked(self._qwidget):
+            for i in range(self._qwidget.count()):
+                item = self._qwidget.item(i)
+                item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
+        self._emit_data()
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
@@ -795,14 +797,16 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             self._qwidget.clear()
             return
 
-        choice_names = [x[0] for x in choices_]
-        # remove choices that no longer exist
-        for i in reversed(range(self._qwidget.count())):
-            if self._qwidget.item(i).text() not in choice_names:
-                self._qwidget.takeItem(i)
-        # update choices
-        for name, data in choices_:
-            self._mgui_set_choice(name, data)
+        with _signals_blocked(self._qwidget):
+            choice_names = [x[0] for x in choices_]
+            # remove choices that no longer exist
+            for i in reversed(range(self._qwidget.count())):
+                if self._qwidget.item(i).text() not in choice_names:
+                    self._qwidget.takeItem(i)
+            # update choices
+            for name, data in choices_:
+                self._mgui_set_choice(name, data)
+        self._emit_data()
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
