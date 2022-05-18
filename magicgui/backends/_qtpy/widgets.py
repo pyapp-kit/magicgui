@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import re
+from contextlib import contextmanager
 from functools import partial
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
@@ -22,6 +23,16 @@ from qtpy.QtGui import (
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases import Widget
+
+
+@contextmanager
+def _signals_blocked(obj: QtW.QWidget):
+    before = obj.blockSignals(True)
+    try:
+        yield
+    finally:
+        obj.blockSignals(before)
+
 
 if TYPE_CHECKING:
     import numpy as np
@@ -693,22 +704,24 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             self._qwidget.clear()
             return
 
-        choice_names = [x[0] for x in choices_]
-        # remove choices that no longer exist
-        for i in reversed(range(self._qwidget.count())):
-            if self._qwidget.itemText(i) not in choice_names:
-                self._qwidget.removeItem(i)
-        # update choices
-        for name, data in choices_:
-            self._mgui_set_choice(name, data)
+        with _signals_blocked(self._qwidget):
+            choice_names = [x[0] for x in choices_]
+            # remove choices that no longer exist
+            for i in reversed(range(self._qwidget.count())):
+                if self._qwidget.itemText(i) not in choice_names:
+                    self._qwidget.removeItem(i)
+            # update choices
+            for name, data in choices_:
+                self._mgui_set_choice(name, data)
 
-        # if the currently selected item is not in the new set,
-        # remove it and select the first item in the list
-        current = self._qwidget.itemText(self._qwidget.currentIndex())
-        if current not in choice_names:
-            first = choice_names[0]
-            self._qwidget.setCurrentIndex(self._qwidget.findText(first))
-            self._qwidget.removeItem(self._qwidget.findText(current))
+            # if the currently selected item is not in the new set,
+            # remove it and select the first item in the list
+            current = self._qwidget.itemText(self._qwidget.currentIndex())
+            if current not in choice_names:
+                first = choice_names[0]
+                self._qwidget.setCurrentIndex(self._qwidget.findText(first))
+                self._qwidget.removeItem(self._qwidget.findText(current))
+        self._emit_data(self._qwidget.currentIndex())
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
@@ -758,9 +771,11 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_set_value(self, value) -> None:
         if not isinstance(value, (list, tuple)):
             value = [value]
-        for i in range(self._qwidget.count()):
-            item = self._qwidget.item(i)
-            item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
+        with _signals_blocked(self._qwidget):
+            for i in range(self._qwidget.count()):
+                item = self._qwidget.item(i)
+                item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
+        self._emit_data()
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
@@ -782,14 +797,16 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             self._qwidget.clear()
             return
 
-        choice_names = [x[0] for x in choices_]
-        # remove choices that no longer exist
-        for i in reversed(range(self._qwidget.count())):
-            if self._qwidget.item(i).text() not in choice_names:
-                self._qwidget.takeItem(i)
-        # update choices
-        for name, data in choices_:
-            self._mgui_set_choice(name, data)
+        with _signals_blocked(self._qwidget):
+            choice_names = [x[0] for x in choices_]
+            # remove choices that no longer exist
+            for i in reversed(range(self._qwidget.count())):
+                if self._qwidget.item(i).text() not in choice_names:
+                    self._qwidget.takeItem(i)
+            # update choices
+            for name, data in choices_:
+                self._mgui_set_choice(name, data)
+        self._emit_data()
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
@@ -1107,9 +1124,8 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         return self._qwidget._read_only
 
     def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
-        self._qwidget.blockSignals(True)
-        item.setData(self._DATA_ROLE, _maybefloat(item.text()))
-        self._qwidget.blockSignals(False)
+        with _signals_blocked(self._qwidget):
+            item.setData(self._DATA_ROLE, _maybefloat(item.text()))
 
     def _mgui_set_row_count(self, nrows: int) -> None:
         """Set the number of rows in the table. (Create/delete as needed)."""
