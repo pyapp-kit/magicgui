@@ -654,8 +654,9 @@ class ListEdit(Container):
         self.margins = (0, 0, 0, 0)
 
         if not isinstance(value, _Unset):
+            # check type consistency
             types = {type(a) for a in value}
-            if len(types) == 1:
+            if len(types) <= 1:
                 if self._args_type is None:
                     self._args_type = types.pop()
             else:
