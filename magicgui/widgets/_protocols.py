@@ -333,6 +333,16 @@ class RangedWidgetProtocol(ValueWidgetProtocol, Protocol):
         """Set the step size."""
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mgui_get_adaptive_step(self) -> bool:
+        """Get adaptive step status."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_adaptive_step(self, value: bool) -> None:
+        """Set adaptive step status."""
+        raise NotImplementedError()
+
 
 @runtime_checkable
 class SupportsChoices(Protocol):

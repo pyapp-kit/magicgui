@@ -573,6 +573,18 @@ def test_range_negative_value():
     rw.min == -10
 
 
+def test_adaptive():
+    rw = widgets.SpinBox()
+    assert rw.adaptive_step
+    rw.adaptive_step = False
+    assert not rw.adaptive_step
+
+
+def test_adaptive2():
+    rw = widgets.SpinBox(adaptive_step=False)
+    assert not rw.adaptive_step
+
+
 def test_exception_range_out_of_range():
     with pytest.raises(ValueError):
         widgets.SpinBox(value=10000, max=1000)

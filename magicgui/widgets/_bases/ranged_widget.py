@@ -17,8 +17,8 @@ class RangedWidget(ValueWidget):
     min : float, optional
         The minimum allowable value, by default 0 (or `value` if `value` is less than 0)
     max : float, optional
-        The maximum allowable value, by default 1000 (or `value` if `value` is greater
-        than 1000)
+        The maximum allowable value, by default 999 (or `value` if `value` is greater
+        than 999)
     step : float, optional
         The step size for incrementing the value, by default 1
     """
@@ -30,6 +30,7 @@ class RangedWidget(ValueWidget):
         min: Union[float, _Unset] = UNSET,
         max: Union[float, _Unset] = UNSET,
         step: float = 1,
+        adaptive_step: bool = True,
         **kwargs,
     ):  # sourcery skip: avoid-builtin-shadow
         for key in ("maximum", "minimum"):
@@ -50,6 +51,7 @@ class RangedWidget(ValueWidget):
         tmp_val = float(val if val not in (UNSET, None) else 1)
 
         self.step = step
+        self.adaptive_step = adaptive_step
         self.min: float = (
             cast(float, min) if min is not UNSET else builtins.min(0, tmp_val)
         )
@@ -104,6 +106,15 @@ class RangedWidget(ValueWidget):
     @step.setter
     def step(self, value: float):
         self._widget._mgui_set_step(value)
+
+    @property
+    def adaptive_step(self):
+        """Whether the step size is adaptive."""
+        return self._widget._mgui_get_adaptive_step()
+
+    @adaptive_step.setter
+    def adaptive_step(self, value: bool):
+        self._widget._mgui_set_adaptive_step(value)
 
     @property
     def range(self) -> Tuple[float, float]:
