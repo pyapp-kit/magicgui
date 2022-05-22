@@ -487,6 +487,15 @@ class MainWindow(Container):
         self._main_window.setCentralWidget(self._qwidget)
         self._menus: dict[str, QtW.QMenu] = {}
 
+    def _mgui_set_scrollable(self, scrollable: bool):
+        if scrollable == self._mgui_get_scrollable():
+            return
+        super()._mgui_set_scrollable(scrollable)
+        if scrollable:
+            self._main_window.setCentralWidget(self._scroll)
+        else:
+            self._main_window.setCentralWidget(self._qwidget)
+
     def _mgui_get_visible(self):
         return self._main_window.isVisible()
 
