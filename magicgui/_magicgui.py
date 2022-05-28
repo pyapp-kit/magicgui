@@ -16,6 +16,7 @@ def magicgui(
     function: Callable | None = None,
     *,
     layout: str = "vertical",
+    scrollable: bool = False,
     labels: bool = True,
     tooltips: bool = True,
     call_button: bool | str | None = None,
@@ -36,6 +37,9 @@ def magicgui(
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "vertical".
+    scrollable : bool, optional
+        Whether to enable scroll bars or not. If enabled, scroll bars will
+        only appear along the layout direction, not in both directions.
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     tooltips : bool, optional
@@ -94,6 +98,7 @@ def magic_factory(
     function: Callable | None = None,
     *,
     layout: str = "vertical",
+    scrollable: bool = False,
     labels: bool = True,
     tooltips: bool = True,
     call_button: bool | str | None = None,

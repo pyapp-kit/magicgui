@@ -46,6 +46,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     layout : str, optional
         The layout for the container.  must be one of ``{'horizontal',
         'vertical'}``. by default "vertical"
+    scrollable : bool, optional
+        Whether to enable scroll bars or not. If enabled, scroll bars will
+        only appear along the layout direction, not in both directions.
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to intialize the container, by default
         ``None``.
@@ -62,6 +65,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
     def __init__(
         self,
         layout: str = "vertical",
+        scrollable: bool = False,
         widgets: Sequence[Widget] = (),
         labels=True,
         **kwargs,
@@ -74,6 +78,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)
         self._initialized = True
+        self.scrollable = scrollable
         self._unify_label_widths()
 
     def __getattr__(self, name: str):
