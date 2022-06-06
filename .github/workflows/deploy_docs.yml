@@ -17,7 +17,7 @@ jobs:
 
       # Install dependencies
       - name: Set up Python 3.9
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v3
         with:
           python-version: 3.9
       - name: Install Libraries
