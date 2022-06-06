@@ -39,7 +39,7 @@ jobs:
             platform: ubuntu-latest
             backend: pyside6
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -68,8 +68,8 @@ jobs:
     name: napari tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           repository: napari/napari
           path: napari-from-github
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'napari/magicgui' && contains(github.ref, 'tags') }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
