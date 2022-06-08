@@ -635,29 +635,29 @@ def test_file_edit_values():
     fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE)
     assert isinstance(fe.value, Path)
 
-    fe.value = "hi"
+    fe.value = Path("hi")
     assert fe.value == cwd / "hi"
 
     fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE, nullable=True)
     assert fe.value is None
 
-    fe.value = "hi"
+    fe.value = Path("hi")
     assert fe.value == cwd / "hi"
 
     fe.value = None
-    assert fe.value is None # FIXME: Fails because empty string is expanded to absolute path
+    assert fe.value is None
 
     fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILES)
     assert fe.value == tuple()
 
-    fe.value = "hi"
+    fe.value = Path("hi")
     assert fe.value == (cwd / "hi",)
 
-    fe.value = ("hi", "world")
-    assert fe.value == (cwd / "hi", cwd / "world") # FIXME: Fails because only first path is expanded
+    fe.value = (Path("hi"), Path("world"))
+    assert fe.value == (cwd / "hi", cwd / "world")
 
     fe.value = tuple()
-    assert fe.value == tuple() # FIXME: Fails because empty string is expanded to absolute path
+    assert fe.value == tuple()
 
 
 def test_null_events():

@@ -510,13 +510,15 @@ class FileEdit(Container):
         """Set current file path."""
         if value is None and self._nullable:
             value = ""
-        if isinstance(value, (list, tuple)):
-            value = ", ".join(os.fspath(p) for p in value)
-        if not isinstance(value, (str, Path)):
+        elif isinstance(value, (list, tuple)):
+            value = ", ".join(os.fspath(Path(p).expanduser().absolute()) for p in value)
+        elif isinstance(value, (str, Path)):
+            value = os.fspath(Path(value).expanduser().absolute())
+        else:
             raise TypeError(
                 f"value must be a string, or list/tuple of strings, got {type(value)}"
             )
-        self.line_edit.value = os.fspath(Path(value).expanduser().absolute())
+        self.line_edit.value = value
 
     def __repr__(self) -> str:
         """Return string representation."""
