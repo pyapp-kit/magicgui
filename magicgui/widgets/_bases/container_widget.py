@@ -73,12 +73,11 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self._list: list[Widget] = []
         self._labels = labels
         self._layout = layout
-        kwargs["backend_kwargs"] = {"layout": layout}
+        kwargs["backend_kwargs"] = {"layout": layout, 'scrollable': scrollable}
         super().__init__(**kwargs)
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)
         self._initialized = True
-        self.scrollable = scrollable
         self._unify_label_widths()
 
     def __getattr__(self, name: str):
@@ -220,15 +219,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         raise NotImplementedError(
             "It is not yet possible to change layout after instantiation"
         )
-
-    @property
-    def scrollable(self) -> bool:
-        """Return if the widget can have scroll bars."""
-        return self._widget._mgui_get_scrollable()
-
-    @scrollable.setter
-    def scrollable(self, value: bool):
-        self._widget._mgui_set_scrollable(value)
 
     def reset_choices(self, *_: Any):
         """Reset choices for all Categorical subWidgets to the default state.

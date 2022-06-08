@@ -7,6 +7,7 @@ from enum import Enum
 
 import pytest
 from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QScrollArea
 
 from magicgui import magicgui, register_type, type_map, widgets
 from magicgui.signature import MagicSignature, magic_signature
@@ -806,8 +807,14 @@ def test_curry():
     assert wdg2(1) == "sdf1"
 
 
-def test_scrollable(magic_func):
-    # Scrollable should not be enabled by deafult
-    assert not magic_func.scrollable
-    magic_func.scrollable = True
-    assert magic_func.scrollable
+def test_scrollable():
+    @magicgui(scrollable=True)
+    def test_scrollable(a: int = 1, y: str = "a"):
+        ...
+
+    @magicgui(scrollable=False)
+    def test_nonscrollable(a: int = 1, y: str = "a"):
+        ...
+
+    assert isinstance(test_scrollable.native.parent().parent(), QScrollArea)
+    assert not test_nonscrollable.native.parent()

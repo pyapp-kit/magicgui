@@ -401,58 +401,47 @@ class RadioButton(QBaseButtonWidget):
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, layout="vertical"):
+    def __init__(self, layout="vertical", scrollable: bool = False):
         QBaseWidget.__init__(self, QtW.QWidget)
         if layout == "horizontal":
-            self._layout: QtW.QLayout = QtW.QHBoxLayout()
+            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
         else:
             self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
 
-        # Setup a scroll widget, but don't enable it by default
-        self._scroll = QtW.QScrollArea()
-        # Allow widget to resize when window is larger than min widget size
-        self._scroll.setWidgetResizable(True)
-        if layout == "horizontal":
-            horiz_policy = Qt.ScrollBarAsNeeded
-            vert_policy = Qt.ScrollBarAlwaysOff
-        else:
-            horiz_policy = Qt.ScrollBarAlwaysOff
-            vert_policy = Qt.ScrollBarAsNeeded
-        self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
-        self._scroll.setVerticalScrollBarPolicy(vert_policy)
-
-    def _mgui_set_scrollable(self, scrollable: bool):
-        if scrollable == self._mgui_get_scrollable():
-            return
-
         if scrollable:
-            # Transfer widget from MainWindow to ScrollArea
+            self._scroll = QtW.QScrollArea()
+            # Allow widget to resize when window is larger than min widget size
+            self._scroll.setWidgetResizable(True)
+            if layout == "horizontal":
+                horiz_policy = Qt.ScrollBarAsNeeded
+                vert_policy = Qt.ScrollBarAlwaysOff
+            else:
+                horiz_policy = Qt.ScrollBarAlwaysOff
+                vert_policy = Qt.ScrollBarAsNeeded
+            self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
+            self._scroll.setVerticalScrollBarPolicy(vert_policy)
             self._scroll.setWidget(self._qwidget)
             self._qwidget = self._scroll
-        if not scrollable:
-            self._qwidget = self._scroll.takeWidget()
 
-        min_size = self._layout.totalMinimumSize()
-        if isinstance(self._layout, QtW.QHBoxLayout):
-            self._scroll.setMinimumHeight(min_size.height())
-        else:
-            self._scroll.setMinimumWidth(min_size.width())
-
-    def _mgui_get_scrollable(self):
-        return self._scroll.widget() is not None
+    @property
+    def _is_scrollable(self) -> bool:
+        return isinstance(self._qwidget, QtW.QScrollArea)
 
     def _mgui_get_native_widget(self):
-        if self._mgui_get_scrollable():
-            return self._scroll.widget()
-        else:
-            return self._qwidget
+        return self._qwidget.widget() if self._is_scrollable else self._qwidget
 
     def _mgui_get_visible(self):
         return self._mgui_get_native_widget().isVisible()
 
     def _mgui_insert_widget(self, position: int, widget: Widget):
         self._layout.insertWidget(position, widget.native)
+        if self._is_scrollable:
+            min_size = self._layout.totalMinimumSize()
+            if isinstance(self._layout, QtW.QHBoxLayout):
+                self._scroll.setMinimumHeight(min_size.height())
+            else:
+                self._scroll.setMinimumWidth(min_size.width() + 20)
 
     def _mgui_remove_widget(self, widget: Widget):
         self._layout.removeWidget(widget.native)
@@ -481,16 +470,10 @@ class Container(
 
 
 class MainWindow(Container):
-    def __init__(self, layout="vertical"):
-        super().__init__(layout=layout)
+    def __init__(self, layout="vertical", scrollable: bool = False):
+        super().__init__(layout=layout, scrollable=scrollable)
         self._main_window = QtW.QMainWindow()
-        self._main_window.setCentralWidget(self._qwidget)
         self._menus: dict[str, QtW.QMenu] = {}
-
-    def _mgui_set_scrollable(self, scrollable: bool):
-        if scrollable == self._mgui_get_scrollable():
-            return
-        super()._mgui_set_scrollable(scrollable)
         if scrollable:
             self._main_window.setCentralWidget(self._scroll)
         else:
