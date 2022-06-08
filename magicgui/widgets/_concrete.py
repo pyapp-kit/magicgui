@@ -502,7 +502,7 @@ class FileEdit(Container):
         if self._nullable and not text:
             return None
         if self.mode is FileDialogMode.EXISTING_FILES:
-            return tuple(Path(p) for p in text.split(", ")) if text else tuple()
+            return tuple(Path(p) for p in text.split(", ") if p.strip())
         return Path(text)
 
     @value.setter
