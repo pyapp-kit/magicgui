@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from tests import MyInt
 
-from magicgui import magicgui, use_app, widgets
+from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets._bases import ValueWidget
 
 
@@ -627,6 +627,37 @@ def test_file_dialog_button_events():
         fe.choose_btn.changed.emit("value")
     mock.assert_not_called()
     assert fe.value == Path("hi")
+
+
+def test_file_edit_values():
+    cwd = Path(".").absolute()
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE)
+    assert isinstance(fe.value, Path)
+
+    fe.value = Path("hi")
+    assert fe.value == cwd / "hi"
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE, nullable=True)
+    assert fe.value is None
+
+    fe.value = Path("hi")
+    assert fe.value == cwd / "hi"
+
+    fe.value = None
+    assert fe.value is None
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILES)
+    assert fe.value == tuple()
+
+    fe.value = Path("hi")
+    assert fe.value == (cwd / "hi",)
+
+    fe.value = (Path("hi"), Path("world"))
+    assert fe.value == (cwd / "hi", cwd / "world")
+
+    fe.value = tuple()
+    assert fe.value == tuple()
 
 
 def test_null_events():
