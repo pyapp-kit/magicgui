@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from tests import MyInt
 
-from magicgui import magicgui, use_app, widgets
+from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets._bases import ValueWidget
 
 
@@ -627,6 +627,37 @@ def test_file_dialog_button_events():
         fe.choose_btn.changed.emit("value")
     mock.assert_not_called()
     assert fe.value == Path("hi")
+
+
+def test_file_edit_values():
+    cwd = Path(".").absolute()
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE)
+    assert isinstance(fe.value, Path)
+
+    fe.value = "hi"
+    assert fe.value == cwd / "hi"
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE, nullable=True)
+    assert fe.value is None
+
+    fe.value = "hi"
+    assert fe.value == cwd / "hi"
+
+    fe.value = None
+    assert fe.value is None # FIXME: Fails because empty string is expanded to absolute path
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILES)
+    assert fe.value == tuple()
+
+    fe.value = "hi"
+    assert fe.value == (cwd / "hi",)
+
+    fe.value = ("hi", "world")
+    assert fe.value == (cwd / "hi", cwd / "world") # FIXME: Fails because only first path is expanded
+
+    fe.value = tuple()
+    assert fe.value == tuple() # FIXME: Fails because empty string is expanded to absolute path
 
 
 def test_null_events():
