@@ -807,7 +807,7 @@ def test_curry():
 
 
 def test_scrollable(magic_func):
-    # Scrollable should be enabled by deafult
-    assert magic_func.scrollable
-    magic_func.scrollable = False
+    # Scrollable should not be enabled by deafult
     assert not magic_func.scrollable
+    magic_func.scrollable = True
+    assert magic_func.scrollable

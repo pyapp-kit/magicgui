@@ -181,7 +181,6 @@ class FunctionGui(Container, Generic[_R]):
             widgets=list(sig.widgets(app).values()),
             name=name or self._callable_name,
         )
-        self.scrollable = True
         self._param_options = param_options
         self._result_name = ""
         self._call_count: int = 0
