@@ -401,16 +401,47 @@ class RadioButton(QBaseButtonWidget):
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, layout="vertical"):
+    def __init__(self, layout="vertical", scrollable: bool = False):
         QBaseWidget.__init__(self, QtW.QWidget)
         if layout == "horizontal":
-            self._layout: QtW.QLayout = QtW.QHBoxLayout()
+            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
         else:
             self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
 
+        if scrollable:
+            self._scroll = QtW.QScrollArea()
+            # Allow widget to resize when window is larger than min widget size
+            self._scroll.setWidgetResizable(True)
+            if layout == "horizontal":
+                horiz_policy = Qt.ScrollBarAsNeeded
+                vert_policy = Qt.ScrollBarAlwaysOff
+            else:
+                horiz_policy = Qt.ScrollBarAlwaysOff
+                vert_policy = Qt.ScrollBarAsNeeded
+            self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
+            self._scroll.setVerticalScrollBarPolicy(vert_policy)
+            self._scroll.setWidget(self._qwidget)
+            self._qwidget = self._scroll
+
+    @property
+    def _is_scrollable(self) -> bool:
+        return isinstance(self._qwidget, QtW.QScrollArea)
+
+    def _mgui_get_native_widget(self):
+        return self._qwidget.widget() if self._is_scrollable else self._qwidget
+
+    def _mgui_get_visible(self):
+        return self._mgui_get_native_widget().isVisible()
+
     def _mgui_insert_widget(self, position: int, widget: Widget):
         self._layout.insertWidget(position, widget.native)
+        if self._is_scrollable:
+            min_size = self._layout.totalMinimumSize()
+            if isinstance(self._layout, QtW.QHBoxLayout):
+                self._scroll.setMinimumHeight(min_size.height())
+            else:
+                self._scroll.setMinimumWidth(min_size.width() + 20)
 
     def _mgui_remove_widget(self, widget: Widget):
         self._layout.removeWidget(widget.native)
@@ -439,11 +470,14 @@ class Container(
 
 
 class MainWindow(Container):
-    def __init__(self, layout="vertical"):
-        super().__init__(layout=layout)
+    def __init__(self, layout="vertical", scrollable: bool = False):
+        super().__init__(layout=layout, scrollable=scrollable)
         self._main_window = QtW.QMainWindow()
-        self._main_window.setCentralWidget(self._qwidget)
         self._menus: dict[str, QtW.QMenu] = {}
+        if scrollable:
+            self._main_window.setCentralWidget(self._scroll)
+        else:
+            self._main_window.setCentralWidget(self._qwidget)
 
     def _mgui_get_visible(self):
         return self._main_window.isVisible()

@@ -83,6 +83,9 @@ class FunctionGui(Container, Generic[_R]):
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
+    scrollable : bool, optional
+        Whether to enable scroll bars or not. If enabled, scroll bars will
+        only appear along the layout direction, not in both directions.
     labels : bool, optional
         Whether labels are shown in the widget. by default True
     tooltips : bool, optional
@@ -123,6 +126,7 @@ class FunctionGui(Container, Generic[_R]):
         function: Callable[..., _R],
         call_button: bool | str | None = None,
         layout: str = "vertical",
+        scrollable: bool = False,
         labels: bool = True,
         tooltips: bool = True,
         app: AppRef = None,
@@ -171,6 +175,7 @@ class FunctionGui(Container, Generic[_R]):
 
         super().__init__(
             layout=layout,
+            scrollable=scrollable,
             labels=labels,
             visible=visible,
             widgets=list(sig.widgets(app).values()),

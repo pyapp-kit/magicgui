@@ -194,9 +194,10 @@ def test_tooltip():
     assert label.tooltip == "My Tooltip"
 
 
-def test_container_widget():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_container_widget(scrollable):
     """Test basic container functionality."""
-    container = widgets.Container(labels=False)
+    container = widgets.Container(labels=False, scrollable=scrollable)
     labela = widgets.Label(value="hi", name="labela")
     labelb = widgets.Label(value="hi", name="labelb")
     container.append(labela)
@@ -226,9 +227,10 @@ def test_container_widget():
     container.close()
 
 
-def test_container_label_widths():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_container_label_widths(scrollable):
     """Test basic container functionality."""
-    container = widgets.Container(layout="vertical")
+    container = widgets.Container(layout="vertical", scrollable=scrollable)
     labela = widgets.Label(value="hi", name="labela")
     labelb = widgets.Label(value="hi", name="I have a very long label")
 
@@ -247,13 +249,16 @@ def test_container_label_widths():
     container.close()
 
 
-def test_labeled_widget_container():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_labeled_widget_container(scrollable):
     """Test that _LabeledWidgets follow their children."""
     from magicgui.widgets._concrete import _LabeledWidget
 
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
-    container = widgets.Container(widgets=[w1, w2], layout="vertical")
+    container = widgets.Container(
+        widgets=[w1, w2], layout="vertical", scrollable=scrollable
+    )
     assert w1._labeled_widget
     lw = w1._labeled_widget()
     assert isinstance(lw, _LabeledWidget)
@@ -269,12 +274,13 @@ def test_labeled_widget_container():
     container.close()
 
 
-def test_visible_in_container():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_visible_in_container(scrollable):
     """Test that visibility depends on containers."""
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
     w3 = widgets.Label(value="hi", name="w3", visible=False)
-    container = widgets.Container(widgets=[w2, w3])
+    container = widgets.Container(widgets=[w2, w3], scrollable=scrollable)
     assert not w1.visible
     assert not w2.visible
     assert not w3.visible
