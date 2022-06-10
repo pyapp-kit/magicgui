@@ -1,6 +1,9 @@
-from typing import Optional, Union
+from typing import Any, Dict, Hashable, Iterable, Mapping, Optional, Tuple, Type, Union
 
 from magicgui.types import FileDialogMode
+from magicgui.widgets._bases.create_widget import create_widget
+
+from ._concrete import Dialog
 
 
 def show_file_dialog(
@@ -41,3 +44,30 @@ def show_file_dialog(
     app = use_app()
     assert app.native
     return app.get_obj("show_file_dialog")(mode, caption, start_path, filter, parent)
+
+
+def show_values_dialog(
+    values: Union[Mapping, Iterable[Tuple[Hashable, Any]]] = (),
+    *,
+    title: str = "",
+    **kwargs: Union[Type, Dict]
+) -> Dict[str, Any]:
+
+
+    widgets = []
+    if title:
+        from . import Label
+
+        widgets.append(Label(value=title))
+
+    for key, val in dict(values, **kwargs).items():
+        if isinstance(val, dict):
+            val.setdefault("name", key)
+            widget = create_widget(**val)
+        else:
+            widget = create_widget(name=key, annotation=val)
+        widgets.append(widget)
+
+    d = Dialog(widgets=widgets)
+    d.exec()
+    return d.asdict()

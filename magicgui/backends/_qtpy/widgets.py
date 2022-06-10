@@ -1025,6 +1025,52 @@ class TimeEdit(QBaseValueWidget):
             return self._qwidget.time().toPyTime()
 
 
+class Dialog(QBaseWidget, _protocols.ContainerProtocol):
+    def __init__(self, layout="vertical", **k):
+        QBaseWidget.__init__(self, QtW.QDialog)
+        if layout == "horizontal":
+            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
+        else:
+            self._layout = QtW.QVBoxLayout()
+        self._qwidget.setLayout(self._layout)
+        self._layout.setSizeConstraint(QtW.QLayout.SizeConstraint.SetMinAndMaxSize)
+
+        button_box = QtW.QDialogButtonBox(
+            QtW.QDialogButtonBox.StandardButton.Ok
+            | QtW.QDialogButtonBox.StandardButton.Cancel,
+            Qt.Orientation.Horizontal,
+            self._qwidget,
+        )
+        button_box.accepted.connect(self._qwidget.accept)
+        button_box.rejected.connect(self._qwidget.reject)
+        self._layout.addWidget(button_box)
+
+    def _mgui_insert_widget(self, position: int, widget: Widget):
+        self._layout.insertWidget(position, widget.native)
+
+    def _mgui_remove_widget(self, widget: Widget):
+        self._layout.removeWidget(widget.native)
+        widget.native.setParent(None)
+
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
+        m = self._layout.contentsMargins()
+        return m.left(), m.top(), m.right(), m.bottom()
+
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
+        self._layout.setContentsMargins(*margins)
+
+    def _mgui_set_orientation(self, value) -> None:
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
+        raise NotImplementedError("Setting orientation not supported for dialogs.")
+
+    def _mgui_get_orientation(self) -> str:
+        """Set orientation, return either 'horizontal' or 'vertical'."""
+        return "horizontal" if isinstance(self, QtW.QHBoxLayout) else "vertical"
+
+    def _mgui_exec(self) -> Any:
+        return self._qwidget.exec_()
+
+
 QFILE_DIALOG_MODES = {
     FileDialogMode.EXISTING_FILE: QtW.QFileDialog.getOpenFileName,
     FileDialogMode.EXISTING_FILES: QtW.QFileDialog.getOpenFileNames,

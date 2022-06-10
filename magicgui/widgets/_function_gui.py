@@ -335,12 +335,6 @@ class FunctionGui(Container, Generic[_R]):
         """Return string representation of instance."""
         return f"<{type(self).__name__} {self._callable_name}{self.__signature__}>"
 
-    def asdict(self) -> dict[str, Any]:
-        """Return state of widget as dict."""
-        return {
-            w.name: getattr(w, "value", None) for w in self if w.name and not w.gui_only
-        }
-
     def update(
         self,
         mapping: Mapping | Iterable[tuple[str, Any]] | None = None,

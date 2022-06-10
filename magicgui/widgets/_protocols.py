@@ -461,6 +461,14 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
         raise NotImplementedError()
 
 
+class DialogProtocol(ContainerProtocol, Protocol):
+    """Protocol for modal (blocking) containers."""
+    @abstractmethod
+    def _mgui_exec(self):
+        """Show the dialog and block."""
+        raise NotImplementedError()
+
+
 class MainWindowProtocol(ContainerProtocol, Protocol):
     """Application main widget."""
 

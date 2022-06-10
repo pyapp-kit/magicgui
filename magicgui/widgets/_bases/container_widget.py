@@ -285,6 +285,12 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
 
     NO_VALUE = "NO_VALUE"
 
+    def asdict(self) -> dict[str, Any]:
+        """Return state of widget as dict."""
+        return {
+            w.name: getattr(w, "value", None) for w in self if w.name and not w.gui_only
+        }
+
     @debounce
     def _dump(self, path):
         """Dump the state of the widget to `path`."""
@@ -336,3 +342,13 @@ class MainWindowWidget(ContainerWidget):
         ``menu_name`` will be created if it does not already exist.
         """
         self._widget._mgui_create_menu_item(menu_name, item_name, callback, shortcut)
+
+
+class DialogWidget(ContainerWidget):
+    """Modal Container."""
+
+    _widget: _protocols.DialogProtocol
+
+    def exec(self):
+        """Show the dialog and return the result."""
+        return self._widget._mgui_exec()

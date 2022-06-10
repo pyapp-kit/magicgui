@@ -18,6 +18,7 @@ from ._concrete import (
     Container,
     DateEdit,
     DateTimeEdit,
+    Dialog,
     EmptyWidget,
     FileEdit,
     FloatSlider,
@@ -41,7 +42,7 @@ from ._concrete import (
     TimeEdit,
     TupleEdit,
 )
-from ._dialogs import show_file_dialog
+from ._dialogs import show_file_dialog, show_values_dialog
 from ._function_gui import FunctionGui, MainFunctionGui
 from ._image import Image
 from ._table import Table
@@ -71,6 +72,7 @@ __all__ = [
     "create_widget",
     "DateEdit",
     "DateTimeEdit",
+    "Dialog",
     "EmptyWidget",
     "FileEdit",
     "FloatSlider",
@@ -99,6 +101,7 @@ __all__ = [
     "TupleEdit",
     "Widget",
     "show_file_dialog",
+    "show_values_dialog",
 ]
 
 del partial

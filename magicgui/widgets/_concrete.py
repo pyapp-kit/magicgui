@@ -19,6 +19,7 @@ from typing_extensions import Literal, get_args, get_origin
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike, WidgetOptions
 from magicgui.widgets import _protocols
+from magicgui.widgets._bases.container_widget import DialogWidget
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
 from ._bases import (
@@ -412,6 +413,11 @@ class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
 @backend_widget
 class Container(ContainerWidget):
     """A Widget to contain other widgets."""
+
+
+@backend_widget
+class Dialog(DialogWidget):
+    """A modal container."""
 
 
 @backend_widget
