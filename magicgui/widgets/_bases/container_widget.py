@@ -349,6 +349,9 @@ class DialogWidget(ContainerWidget):
 
     _widget: _protocols.DialogProtocol
 
-    def exec(self):
-        """Show the dialog and return the result."""
-        return self._widget._mgui_exec()
+    def exec(self) -> bool:
+        """Show the dialog, and block.
+
+        Return True if the dialog was accepted, False if rejected.
+        """
+        return bool(self._widget._mgui_exec())

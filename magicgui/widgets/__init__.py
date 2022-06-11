@@ -42,7 +42,7 @@ from ._concrete import (
     TimeEdit,
     TupleEdit,
 )
-from ._dialogs import show_file_dialog, show_values_dialog
+from ._dialogs import request_values, show_file_dialog
 from ._function_gui import FunctionGui, MainFunctionGui
 from ._image import Image
 from ._table import Table
@@ -101,7 +101,7 @@ __all__ = [
     "TupleEdit",
     "Widget",
     "show_file_dialog",
-    "show_values_dialog",
+    "request_values",
 ]
 
 del partial
