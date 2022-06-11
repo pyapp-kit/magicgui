@@ -53,7 +53,6 @@ def show_values_dialog(
     **kwargs: Union[Type, Dict]
 ) -> Dict[str, Any]:
 
-
     widgets = []
     if title:
         from . import Label

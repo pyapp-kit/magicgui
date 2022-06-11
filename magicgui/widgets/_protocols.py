@@ -463,6 +463,7 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
 
 class DialogProtocol(ContainerProtocol, Protocol):
     """Protocol for modal (blocking) containers."""
+
     @abstractmethod
     def _mgui_exec(self):
         """Show the dialog and block."""

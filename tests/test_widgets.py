@@ -23,6 +23,7 @@ from magicgui.widgets._bases import ValueWidget
             "FunctionGui",
             "MainFunctionGui",
             "show_file_dialog",
+            "show_values_dialog",
         )
     ],
 )
