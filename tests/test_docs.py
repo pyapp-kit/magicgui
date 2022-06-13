@@ -48,8 +48,10 @@ def test_examples(fname, monkeypatch):
     if "values_dialog" in str(fname):
         from magicgui.backends._qtpy.widgets import QtW  # type: ignore
 
-        monkeypatch.setattr(QtW.QDialog, "exec", lambda s: None)
-        monkeypatch.setattr(QtW.QDialog, "exec_", lambda s: None)
+        try:
+            monkeypatch.setattr(QtW.QDialog, "exec", lambda s: None)
+        except AttributeError:
+            monkeypatch.setattr(QtW.QDialog, "exec_", lambda s: None)
     app = use_app()
     app.start_timer(50 if "table" in str(fname) else 5, app.quit)
     try:
