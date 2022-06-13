@@ -40,11 +40,18 @@ def test_doc_code_cells(fname, globalns=globals()):
 @pytest.mark.parametrize(
     "fname", [f for f in glob("examples/*.py") if "napari" not in f]
 )
-def test_examples(fname):
+def test_examples(fname, monkeypatch):
     """Make sure that all code cells in documentation perform as expected."""
     if "table.py" in fname and os.name == "nt" and sys.version_info < (3, 8):
         pytest.mark.skip()
         return
+    if "values_dialog" in str(fname):
+        from magicgui.backends._qtpy.widgets import QtW  # type: ignore
+
+        try:
+            monkeypatch.setattr(QtW.QDialog, "exec", lambda s: None)
+        except AttributeError:
+            monkeypatch.setattr(QtW.QDialog, "exec_", lambda s: None)
     app = use_app()
     app.start_timer(50 if "table" in str(fname) else 5, app.quit)
     try:
