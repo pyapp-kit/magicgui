@@ -82,7 +82,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e .[testing]
           python -m pip install ./napari-from-github[pyqt5]
-          wget https://raw.githubusercontent.com/napari/napari/main/napari/utils/_tests/test_magicgui.py
+          wget https://raw.githubusercontent.com/napari/napari/main/napari/_tests/test_magicgui.py
           # remove napari marker
           sed '/@pytest.mark.sync_only/d' test_magicgui.py > test_napari.py
 
