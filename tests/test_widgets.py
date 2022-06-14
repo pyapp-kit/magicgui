@@ -767,6 +767,8 @@ def test_set_value_emits_once(Cls, value1, value2):
     mock.assert_not_called()
     wdg.value = value2
     mock.assert_called_once()
+    wdg.value = value2
+    mock.assert_called_once()
 
 
 @pytest.mark.parametrize(
