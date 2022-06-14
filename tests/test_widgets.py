@@ -747,6 +747,9 @@ def test_reset_choices_emits_once(Cls, value):
     data = ["d2", "d4"]
     wdg.reset_choices()
     mock.assert_called_once()
+    data = ["d2", "d4", "d5"]
+    wdg.reset_choices()
+    mock.assert_called_once()
 
 
 @pytest.mark.parametrize(
