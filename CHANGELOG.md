@@ -1,8 +1,16 @@
 # Changelog
 
-## [0.5.0](https://github.com/napari/magicgui/tree/0.5.0) (2022-06-13)
+## [0.5.1](https://github.com/napari/magicgui/tree/0.5.1) (2022-06-14)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.4.0...0.5.0)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.5.0...0.5.1)
+
+**Fixed bugs:**
+
+- Emit signal only if value of caterogical widget changed [\#422](https://github.com/napari/magicgui/pull/422) ([Czaki](https://github.com/Czaki))
+
+## [v0.5.0](https://github.com/napari/magicgui/tree/v0.5.0) (2022-06-13)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.4.0...v0.5.0)
 
 **Implemented enhancements:**
 
@@ -28,6 +36,10 @@
 - ci\(dependabot\): bump actions/checkout from 2 to 3 [\#412](https://github.com/napari/magicgui/pull/412) ([dependabot[bot]](https://github.com/apps/dependabot))
 - ci: add dependabot [\#411](https://github.com/napari/magicgui/pull/411) ([tlambert03](https://github.com/tlambert03))
 - Fix typesafety tests [\#399](https://github.com/napari/magicgui/pull/399) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- add changelog for v0.5.0 [\#418](https://github.com/napari/magicgui/pull/418) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.4.0](https://github.com/napari/magicgui/tree/v0.4.0) (2022-03-25)
 
