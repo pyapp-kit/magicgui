@@ -783,7 +783,8 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
                 first = choice_names[0]
                 self._qwidget.setCurrentIndex(self._qwidget.findText(first))
                 self._qwidget.removeItem(self._qwidget.findText(current))
-        self._emit_data(self._qwidget.currentIndex())
+        if current not in choice_names:
+            self._emit_data(self._qwidget.currentIndex())
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
