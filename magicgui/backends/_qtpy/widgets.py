@@ -769,6 +769,7 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         with _signals_blocked(self._qwidget):
             choice_names = [x[0] for x in choices_]
             # remove choices that no longer exist
+            current = self._qwidget.itemText(self._qwidget.currentIndex())
             for i in reversed(range(self._qwidget.count())):
                 if self._qwidget.itemText(i) not in choice_names:
                     self._qwidget.removeItem(i)
@@ -778,12 +779,16 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
             # if the currently selected item is not in the new set,
             # remove it and select the first item in the list
-            current = self._qwidget.itemText(self._qwidget.currentIndex())
+            current2 = self._qwidget.itemText(self._qwidget.currentIndex())
             if current not in choice_names:
+                # previous value was not in the new choices so set first element
                 first = choice_names[0]
                 self._qwidget.setCurrentIndex(self._qwidget.findText(first))
-                self._qwidget.removeItem(self._qwidget.findText(current))
-        self._emit_data(self._qwidget.currentIndex())
+            elif current2 != current:
+                # element is present but order is different
+                self._qwidget.setCurrentIndex(self._qwidget.findText(current))
+        if current not in choice_names:
+            self._emit_data(self._qwidget.currentIndex())
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
@@ -833,11 +838,14 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_set_value(self, value) -> None:
         if not isinstance(value, (list, tuple)):
             value = [value]
+        selected_prev = self._qwidget.selectedItems()
         with _signals_blocked(self._qwidget):
             for i in range(self._qwidget.count()):
                 item = self._qwidget.item(i)
                 item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
-        self._emit_data()
+        selected_post = self._qwidget.selectedItems()
+        if selected_prev != selected_post:
+            self._emit_data()
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
@@ -861,6 +869,7 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
         with _signals_blocked(self._qwidget):
             choice_names = [x[0] for x in choices_]
+            selected_prev = self._qwidget.selectedItems()
             # remove choices that no longer exist
             for i in reversed(range(self._qwidget.count())):
                 if self._qwidget.item(i).text() not in choice_names:
@@ -868,7 +877,9 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             # update choices
             for name, data in choices_:
                 self._mgui_set_choice(name, data)
-        self._emit_data()
+            selected_post = self._qwidget.selectedItems()
+        if selected_prev != selected_post:
+            self._emit_data()
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
