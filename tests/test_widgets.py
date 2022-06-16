@@ -181,7 +181,7 @@ def test_basic_widget_attributes():
     assert widget.options == {
         "max": 999,
         "min": 0,
-        "step": 1,
+        "step": None,
         "enabled": False,
         "visible": False,
     }
