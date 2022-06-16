@@ -581,15 +581,30 @@ def test_range_negative_value():
 
 
 def test_adaptive():
+    """Turn on and off adaptive step."""
+
     rw = widgets.SpinBox()
     assert rw.adaptive_step
+    assert rw.step is None
     rw.adaptive_step = False
     assert not rw.adaptive_step
-
-
-def test_adaptive2():
-    rw = widgets.SpinBox(adaptive_step=False)
+    assert rw.step == 1
+    rw.step = None
+    assert rw.adaptive_step
+    assert rw.step is None
+    rw.step = 3
     assert not rw.adaptive_step
+    assert rw.step == 3
+
+    rw = widgets.SpinBox(step=2)
+    assert not rw.adaptive_step
+    assert rw.step == 2
+    rw.adaptive_step = True
+    assert rw.adaptive_step
+    assert rw.step is None
+    rw.adaptive_step = False
+    assert not rw.adaptive_step
+    assert rw.step == 2
 
 
 def test_exception_range_out_of_range():
