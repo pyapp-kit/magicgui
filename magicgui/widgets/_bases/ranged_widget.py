@@ -119,7 +119,7 @@ class RangedWidget(ValueWidget):
     @property
     def adaptive_step(self):
         """Whether the step size is adaptive."""
-        return self._widget._mgui_get_adaptive_step()
+        return self.step is None
 
     @adaptive_step.setter
     def adaptive_step(self, value: bool):
