@@ -634,7 +634,10 @@ class Slider(_Slider):
         self._readout_widget.setSingleStep(value)
 
     def _mgui_get_adaptive_step(self) -> bool:
-        return self._readout_widget.stepType() == QtW.QAbstractSpinBox.AdaptiveStep
+        return (
+            self._readout_widget.stepType()
+            == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+        )
 
     def _mgui_set_adaptive_step(self, value: bool):
         self._readout_widget.setStepType(
