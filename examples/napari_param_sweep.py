@@ -21,7 +21,7 @@ viewer.add_image(skimage.data.grass().astype("float"), name="grass")
 
 # turn the gaussian blur function into a magicgui
 # for details on why the `-> ImageData` return annotation works:
-# https://napari.org/guides/stable/magicgui.html#return-annotations
+# https://napari.org/guides/magicgui.html#return-annotations
 @magicgui(
     # tells magicgui to call the function whenever a parameter changes
     auto_call=True,

@@ -30,7 +30,7 @@ viewer.add_image(numpy.random.rand(20, 20), name="Layer 2")
 
 
 # for details on why the `-> ImageData` return annotation works:
-# https://napari.org/guides/stable/magicgui.html#return-annotations
+# https://napari.org/guides/magicgui.html#return-annotations
 @magicgui(call_button="execute", layout="horizontal")
 def image_arithmetic(layerA: Image, operation: Operation, layerB: Image) -> ImageData:
     """Add, subtracts, multiplies, or divides to image layers with equal shape."""

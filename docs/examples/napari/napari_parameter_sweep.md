@@ -7,7 +7,7 @@ we demonstrate how to build a interactive widget that lets you immediately see
 the effect of changing one of the parameters of your function.
 
 For napari-specific magicgui documentation, see the
-[napari docs](https://napari.org/guides/stable/magicgui.html)
+[napari docs](https://napari.org/guides/magicgui.html)
 
 ```{image} ../../images/param_sweep.gif
 :width: 80%
@@ -90,7 +90,7 @@ start with the actual function we'd like to write to apply a gaussian filter to 
 Our function is a very thin wrapper around
 [`skimage.filters.gaussian`](https://scikit-image.org/docs/dev/api/skimage.filters.html#skimage.filters.gaussian).
 It takes a `napari` [Image
-layer](https://napari.org/tutorials/fundamentals/image), a `sigma` to control
+layer](https://napari.org/howtos/layers/image.html), a `sigma` to control
 the blur radius, and a `mode` that determines how edges are handled.
 
 ```python
@@ -115,7 +115,7 @@ layers for our `layer` parameter, and automatically adding the result of our
 function to the viewer when called.
 
 For documentation on napari types with magicgui, see the
-[napari docs](https://napari.org/guides/stable/magicgui.html)
+[napari docs](https://napari.org/guides/magicgui.html)
 
 ### the magic part
 
