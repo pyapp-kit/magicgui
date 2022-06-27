@@ -7,7 +7,7 @@ we're going to build this simple image arithmetic widget with a few additional
 lines of code.
 
 For napari-specific magicgui documentation, see the
-[napari docs](https://napari.org/guides/stable/magicgui.html)
+[napari docs](https://napari.org/guides/magicgui.html)
 
 ```{image} ../../images/imagemath.gif
 :width: 80%
@@ -91,7 +91,7 @@ arithmetic.
 ### the function
 
 Our function takes two `numpy` arrays (in this case, from [Image
-layers](https://napari.org/tutorials/fundamentals/image)), and some mathematical
+layers](https://napari.org/howtos/layers/image.html)), and some mathematical
 operation (we'll restrict the options using an {class}`~enum.Enum`).  When
 called, our function calls the selected operation on the data.
 
@@ -109,7 +109,7 @@ types (using {func}`magicgui.type_map.register_type`). `napari` [provides
 support for
 `magicgui`](https://github.com/napari/napari/blob/main/napari/utils/_magicgui.py)
 by registering a dropdown menu whenever a function parameter is annotated as one
-of the basic napari [`Layer` types](https://napari.org/tutorials/), or, in this
+of the basic napari [`Layer` types](https://napari.org/howtos/layers/index.html), or, in this
 case, `ImageData` indicates we just the `data` attribute of the layer.
 Furthermore, it recognizes when a function has a
 {class}`~napari.layers.base.base.Layer` or `LayerData` return type annotation,
