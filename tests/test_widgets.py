@@ -82,6 +82,7 @@ class MyBadWidget:
     def _mgui_get_parent(self): ... # noqa
     def _mgui_set_parent(self, widget): ... # noqa
     def _mgui_get_native_widget(self): return MagicMock()  # noqa
+    def _mgui_get_root_native_widget(self): ... # noqa
     def _mgui_bind_parent_change_callback(self, callback): ... # noqa
     def _mgui_render(self): ... # noqa
     def _mgui_get_width(self): ... # noqa
