@@ -63,13 +63,13 @@ class RangedWidget(ValueWidget):
         min: Union[float, _Unset],
         max: Union[float, _Unset],
     ) -> Tuple[float, float]:
-        """Initialize value and range based on given arguments."""
-        if isinstance(value, tuple):
-            tmp_value = value
-        else:
-            tmp_value = (value,)
+        """
+        Initialize man and max based on given value and arguments.
 
-        tmp_val = tuple(float(v) if v not in (UNSET, None) else 1.0 for v in tmp_value)
+        If min or max are unset, constrain so the given value is within the range.
+        """
+        val = (value,) if isinstance(value, (float, int)) else value
+        tmp_val = tuple(float(v) if v not in (UNSET, None) else 1.0 for v in val)
 
         new_min: float = (
             cast(float, min) if min is not UNSET else builtins.min(0.0, *tmp_val)
