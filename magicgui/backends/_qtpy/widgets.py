@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import re
+from contextlib import contextmanager
 from functools import partial
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
@@ -23,6 +24,16 @@ from qtpy.QtGui import (
 from magicgui.types import FileDialogMode
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases import Widget
+
+
+@contextmanager
+def _signals_blocked(obj: QtW.QWidget):
+    before = obj.blockSignals(True)
+    try:
+        yield
+    finally:
+        obj.blockSignals(before)
+
 
 if TYPE_CHECKING:
     import numpy as np
@@ -326,6 +337,18 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
         val = self._qwidget.singleStep()
         return self._post_get_hook(val)
 
+    def _mgui_set_adaptive_step(self, value: bool):
+        """Seti is widget single steep should be adaptive."""
+        self._qwidget.setStepType(
+            QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+            if value
+            else QtW.QAbstractSpinBox.DefaultStepType
+        )
+
+    def _mgui_get_adaptive_step(self) -> bool:
+        """Get is widget single steep should be adaptive."""
+        return self._qwidget.stepType() == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+
     def _mgui_set_step(self, value: float):
         """Set the step size."""
         self._update_precision(step=value)
@@ -379,16 +402,47 @@ class RadioButton(QBaseButtonWidget):
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, layout="vertical"):
+    def __init__(self, layout="vertical", scrollable: bool = False):
         QBaseWidget.__init__(self, QtW.QWidget)
         if layout == "horizontal":
-            self._layout: QtW.QLayout = QtW.QHBoxLayout()
+            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
         else:
             self._layout = QtW.QVBoxLayout()
         self._qwidget.setLayout(self._layout)
 
+        if scrollable:
+            self._scroll = QtW.QScrollArea()
+            # Allow widget to resize when window is larger than min widget size
+            self._scroll.setWidgetResizable(True)
+            if layout == "horizontal":
+                horiz_policy = Qt.ScrollBarAsNeeded
+                vert_policy = Qt.ScrollBarAlwaysOff
+            else:
+                horiz_policy = Qt.ScrollBarAlwaysOff
+                vert_policy = Qt.ScrollBarAsNeeded
+            self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
+            self._scroll.setVerticalScrollBarPolicy(vert_policy)
+            self._scroll.setWidget(self._qwidget)
+            self._qwidget = self._scroll
+
+    @property
+    def _is_scrollable(self) -> bool:
+        return isinstance(self._qwidget, QtW.QScrollArea)
+
+    def _mgui_get_native_widget(self):
+        return self._qwidget.widget() if self._is_scrollable else self._qwidget
+
+    def _mgui_get_visible(self):
+        return self._mgui_get_native_widget().isVisible()
+
     def _mgui_insert_widget(self, position: int, widget: Widget):
         self._layout.insertWidget(position, widget.native)
+        if self._is_scrollable:
+            min_size = self._layout.totalMinimumSize()
+            if isinstance(self._layout, QtW.QHBoxLayout):
+                self._scroll.setMinimumHeight(min_size.height())
+            else:
+                self._scroll.setMinimumWidth(min_size.width() + 20)
 
     def _mgui_remove_widget(self, widget: Widget):
         self._layout.removeWidget(widget.native)
@@ -417,11 +471,14 @@ class Container(
 
 
 class MainWindow(Container):
-    def __init__(self, layout="vertical"):
-        super().__init__(layout=layout)
+    def __init__(self, layout="vertical", scrollable: bool = False):
+        super().__init__(layout=layout, scrollable=scrollable)
         self._main_window = QtW.QMainWindow()
-        self._main_window.setCentralWidget(self._qwidget)
         self._menus: dict[str, QtW.QMenu] = {}
+        if scrollable:
+            self._main_window.setCentralWidget(self._scroll)
+        else:
+            self._main_window.setCentralWidget(self._qwidget)
 
     def _mgui_get_visible(self):
         return self._main_window.isVisible()
@@ -452,6 +509,9 @@ class SpinBox(QBaseRangedWidget):
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(int(value))
+
+    def _pre_set_hook(self, value):
+        return int(value)
 
 
 class FloatSpinBox(QBaseRangedWidget):
@@ -493,6 +553,9 @@ class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
 
     def _mgui_set_readout_visibility(self, value: bool):
         self._qwidget.setEdgeLabelMode(value)
+
+    def _pre_set_hook(self, value):
+        return int(value)
 
 
 class Slider(_Slider):
@@ -545,6 +608,12 @@ class ProgressBar(QBaseRangedWidget, _protocols.SupportsOrientation):
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
+
+    def _mgui_set_adaptive_step(self, value: bool):
+        """Set is step is adaptive"""
+
+    def _mgui_get_adaptive_step(self) -> bool:
+        return False
 
     def _mgui_set_readout_visibility(self, value: bool):
         self._qwidget.setTextVisible(value)
@@ -601,22 +670,29 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             self._qwidget.clear()
             return
 
-        choice_names = [x[0] for x in choices_]
-        # remove choices that no longer exist
-        for i in reversed(range(self._qwidget.count())):
-            if self._qwidget.itemText(i) not in choice_names:
-                self._qwidget.removeItem(i)
-        # update choices
-        for name, data in choices_:
-            self._mgui_set_choice(name, data)
+        with _signals_blocked(self._qwidget):
+            choice_names = [x[0] for x in choices_]
+            # remove choices that no longer exist
+            current = self._qwidget.itemText(self._qwidget.currentIndex())
+            for i in reversed(range(self._qwidget.count())):
+                if self._qwidget.itemText(i) not in choice_names:
+                    self._qwidget.removeItem(i)
+            # update choices
+            for name, data in choices_:
+                self._mgui_set_choice(name, data)
 
-        # if the currently selected item is not in the new set,
-        # remove it and select the first item in the list
-        current = self._qwidget.itemText(self._qwidget.currentIndex())
+            # if the currently selected item is not in the new set,
+            # remove it and select the first item in the list
+            current2 = self._qwidget.itemText(self._qwidget.currentIndex())
+            if current not in choice_names:
+                # previous value was not in the new choices so set first element
+                first = choice_names[0]
+                self._qwidget.setCurrentIndex(self._qwidget.findText(first))
+            elif current2 != current:
+                # element is present but order is different
+                self._qwidget.setCurrentIndex(self._qwidget.findText(current))
         if current not in choice_names:
-            first = choice_names[0]
-            self._qwidget.setCurrentIndex(self._qwidget.findText(first))
-            self._qwidget.removeItem(self._qwidget.findText(current))
+            self._emit_data(self._qwidget.currentIndex())
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
@@ -666,9 +742,14 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     def _mgui_set_value(self, value) -> None:
         if not isinstance(value, (list, tuple)):
             value = [value]
-        for i in range(self._qwidget.count()):
-            item = self._qwidget.item(i)
-            item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
+        selected_prev = self._qwidget.selectedItems()
+        with _signals_blocked(self._qwidget):
+            for i in range(self._qwidget.count()):
+                item = self._qwidget.item(i)
+                item.setSelected(item.data(Qt.ItemDataRole.UserRole) in value)
+        selected_post = self._qwidget.selectedItems()
+        if selected_prev != selected_post:
+            self._emit_data()
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
@@ -690,14 +771,19 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
             self._qwidget.clear()
             return
 
-        choice_names = [x[0] for x in choices_]
-        # remove choices that no longer exist
-        for i in reversed(range(self._qwidget.count())):
-            if self._qwidget.item(i).text() not in choice_names:
-                self._qwidget.takeItem(i)
-        # update choices
-        for name, data in choices_:
-            self._mgui_set_choice(name, data)
+        with _signals_blocked(self._qwidget):
+            choice_names = [x[0] for x in choices_]
+            selected_prev = self._qwidget.selectedItems()
+            # remove choices that no longer exist
+            for i in reversed(range(self._qwidget.count())):
+                if self._qwidget.item(i).text() not in choice_names:
+                    self._qwidget.takeItem(i)
+            # update choices
+            for name, data in choices_:
+                self._mgui_set_choice(name, data)
+            selected_post = self._qwidget.selectedItems()
+        if selected_prev != selected_post:
+            self._emit_data()
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete choice_name."""
@@ -852,6 +938,52 @@ class TimeEdit(QBaseValueWidget):
             return self._qwidget.time().toPython()
         except (TypeError, AttributeError):
             return self._qwidget.time().toPyTime()
+
+
+class Dialog(QBaseWidget, _protocols.ContainerProtocol):
+    def __init__(self, layout="vertical", **k):
+        QBaseWidget.__init__(self, QtW.QDialog)
+        if layout == "horizontal":
+            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
+        else:
+            self._layout = QtW.QVBoxLayout()
+        self._qwidget.setLayout(self._layout)
+        self._layout.setSizeConstraint(QtW.QLayout.SizeConstraint.SetMinAndMaxSize)
+
+        button_box = QtW.QDialogButtonBox(
+            QtW.QDialogButtonBox.StandardButton.Ok
+            | QtW.QDialogButtonBox.StandardButton.Cancel,
+            Qt.Orientation.Horizontal,
+            self._qwidget,
+        )
+        button_box.accepted.connect(self._qwidget.accept)
+        button_box.rejected.connect(self._qwidget.reject)
+        self._layout.addWidget(button_box)
+
+    def _mgui_insert_widget(self, position: int, widget: Widget):
+        self._layout.insertWidget(position, widget.native)
+
+    def _mgui_remove_widget(self, widget: Widget):
+        self._layout.removeWidget(widget.native)
+        widget.native.setParent(None)
+
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
+        m = self._layout.contentsMargins()
+        return m.left(), m.top(), m.right(), m.bottom()
+
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
+        self._layout.setContentsMargins(*margins)
+
+    def _mgui_set_orientation(self, value) -> None:
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
+        raise NotImplementedError("Setting orientation not supported for dialogs.")
+
+    def _mgui_get_orientation(self) -> str:
+        """Set orientation, return either 'horizontal' or 'vertical'."""
+        return "horizontal" if isinstance(self, QtW.QHBoxLayout) else "vertical"
+
+    def _mgui_exec(self) -> Any:
+        return self._qwidget.exec_()
 
 
 QFILE_DIALOG_MODES = {
@@ -1015,9 +1147,8 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
         return self._qwidget._read_only
 
     def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
-        self._qwidget.blockSignals(True)
-        item.setData(self._DATA_ROLE, _maybefloat(item.text()))
-        self._qwidget.blockSignals(False)
+        with _signals_blocked(self._qwidget):
+            item.setData(self._DATA_ROLE, _maybefloat(item.text()))
 
     def _mgui_set_row_count(self, nrows: int) -> None:
         """Set the number of rows in the table. (Create/delete as needed)."""

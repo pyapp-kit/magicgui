@@ -1,6 +1,9 @@
-from typing import Optional, Union
+from typing import Any, Dict, Hashable, Iterable, Mapping, Optional, Tuple, Type, Union
 
 from magicgui.types import FileDialogMode
+from magicgui.widgets._bases.create_widget import create_widget
+
+from ._concrete import Dialog
 
 
 def show_file_dialog(
@@ -41,3 +44,69 @@ def show_file_dialog(
     app = use_app()
     assert app.native
     return app.get_obj("show_file_dialog")(mode, caption, start_path, filter, parent)
+
+
+def request_values(
+    values: Union[Mapping, Iterable[Tuple[Hashable, Any]]] = (),
+    *,
+    title: str = "",
+    **kwargs: Union[Type, Dict]
+) -> Optional[Dict[str, Any]]:
+    """Show a dialog with a set of values and request the user to enter them.
+
+    Dialog is modal and immediately blocks execution until user closes it.
+    If the dialog is accepted, the values are returned as a dictionary, otherwise
+    returns `None`.
+
+    See also the docstring of :func:`magicgui.widgets.create_widget` for more
+    information.
+
+    Parameters
+    ----------
+    values : Union[Mapping, Iterable[Tuple[Hashable, Any]]], optional
+        A mapping of name to arguments to create_widget.  Values can be a dict, in which
+        case they are kwargs to `create_widget`, or a single value, in which case it is
+        interpreted as the `annotation` in `create_widget`, by default ()
+    title : str
+        An optional label to put at the top., by default ""
+    **kwargs : Union[Type, Dict]
+        Additional keyword arguments are used as name -> annotation arguments to
+        `create_widget`.
+
+    Returns
+    -------
+    Optional[Dict[str, Any]]
+        Dictionary of values if accepted, or `None` if canceled.
+
+    Examples
+    --------
+    >>> from magicgui.widgets import request_values
+
+    >>> request_values(age=int, name=str, title="Hi! Who are you?")
+
+    >>> request_values(
+    ...     age=dict(value=40),
+    ...     name=dict(annotation=str, label="Enter your name:"),
+    ...     title="Hi! Who are you?"
+    ... )
+
+    >>> request_values(
+    ...     values={'age': int, 'name': str},
+    ...     title="Hi! Who are you?"
+    ... )
+    """
+    widgets = []
+    if title:
+        from . import Label
+
+        widgets.append(Label(value=title))
+
+    for key, val in dict(values, **kwargs).items():
+        kwargs = val if isinstance(val, dict) else dict(annotation=val)
+        kwargs.setdefault("name", key)
+        widgets.append(create_widget(**kwargs))  # type: ignore
+
+    d = Dialog(widgets=widgets)
+    if d.exec():
+        return d.asdict()
+    return None

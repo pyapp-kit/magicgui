@@ -1,5 +1,46 @@
 # Changelog
 
+## [0.5.1](https://github.com/napari/magicgui/tree/0.5.1) (2022-06-14)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.5.0...0.5.1)
+
+**Fixed bugs:**
+
+- Emit signal only if value of caterogical widget changed [\#422](https://github.com/napari/magicgui/pull/422) ([Czaki](https://github.com/Czaki))
+
+## [v0.5.0](https://github.com/napari/magicgui/tree/v0.5.0) (2022-06-13)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.4.0...v0.5.0)
+
+**Implemented enhancements:**
+
+- feat: add request\_values convenience, shows modal dialog to request values [\#416](https://github.com/napari/magicgui/pull/416) ([tlambert03](https://github.com/tlambert03))
+- Change to use adaptive step is SpinBox and FloatSpinBox [\#403](https://github.com/napari/magicgui/pull/403) ([Czaki](https://github.com/Czaki))
+- Make call\_button public [\#391](https://github.com/napari/magicgui/pull/391) ([dstansby](https://github.com/dstansby))
+- Add scrollable widgets [\#388](https://github.com/napari/magicgui/pull/388) ([dstansby](https://github.com/dstansby))
+
+**Fixed bugs:**
+
+- Return empty tuple for no selected files [\#415](https://github.com/napari/magicgui/pull/415) ([aeisenbarth](https://github.com/aeisenbarth))
+- Block event emits during choices batch update [\#407](https://github.com/napari/magicgui/pull/407) ([aeisenbarth](https://github.com/aeisenbarth))
+- Bug fix of type check in ListEdit [\#404](https://github.com/napari/magicgui/pull/404) ([hanjinliu](https://github.com/hanjinliu))
+- Fix bug with small default range in SpinBox [\#397](https://github.com/napari/magicgui/pull/397) ([Czaki](https://github.com/Czaki))
+- Fix bug in creation of RangeEdit using create\_widget [\#396](https://github.com/napari/magicgui/pull/396) ([Czaki](https://github.com/Czaki))
+- Fix insertion of Container widget [\#394](https://github.com/napari/magicgui/pull/394) ([hanjinliu](https://github.com/hanjinliu))
+
+**Tests & CI:**
+
+- fix napari CI test [\#417](https://github.com/napari/magicgui/pull/417) ([tlambert03](https://github.com/tlambert03))
+- ci\(dependabot\): bump actions/setup-python from 1 to 3 [\#414](https://github.com/napari/magicgui/pull/414) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump codecov/codecov-action from 2 to 3 [\#413](https://github.com/napari/magicgui/pull/413) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump actions/checkout from 2 to 3 [\#412](https://github.com/napari/magicgui/pull/412) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci: add dependabot [\#411](https://github.com/napari/magicgui/pull/411) ([tlambert03](https://github.com/tlambert03))
+- Fix typesafety tests [\#399](https://github.com/napari/magicgui/pull/399) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- add changelog for v0.5.0 [\#418](https://github.com/napari/magicgui/pull/418) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.4.0](https://github.com/napari/magicgui/tree/v0.4.0) (2022-03-25)
 
 [Full Changelog](https://github.com/napari/magicgui/compare/v0.4.0rc1...v0.4.0)
@@ -316,7 +357,7 @@
 
 ## [v0.2.7](https://github.com/napari/magicgui/tree/v0.2.7) (2021-02-28)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6...v0.2.7)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6rc0...v0.2.7)
 
 **Implemented enhancements:**
 
@@ -350,13 +391,13 @@
 - update changelog [\#137](https://github.com/napari/magicgui/pull/137) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#136](https://github.com/napari/magicgui/pull/136) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.6](https://github.com/napari/magicgui/tree/v0.2.6) (2021-01-25)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6rc0...v0.2.6)
-
 ## [v0.2.6rc0](https://github.com/napari/magicgui/tree/v0.2.6rc0) (2021-01-25)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6rc0)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6...v0.2.6rc0)
+
+## [v0.2.6](https://github.com/napari/magicgui/tree/v0.2.6) (2021-01-25)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6)
 
 **Merged pull requests:**
 

@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from tests import MyInt
 
-from magicgui import magicgui, use_app, widgets
+from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets._bases import ValueWidget
 
 
@@ -23,6 +23,7 @@ from magicgui.widgets._bases import ValueWidget
             "FunctionGui",
             "MainFunctionGui",
             "show_file_dialog",
+            "request_values",
         )
     ],
 )
@@ -178,9 +179,9 @@ def test_basic_widget_attributes():
 
     assert repr(widget) == "SpinBox(value=1, annotation=None, name='my_name')"
     assert widget.options == {
-        "max": 1000,
+        "max": 999,
         "min": 0,
-        "step": 1,
+        "step": None,
         "enabled": False,
         "visible": False,
     }
@@ -194,9 +195,10 @@ def test_tooltip():
     assert label.tooltip == "My Tooltip"
 
 
-def test_container_widget():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_container_widget(scrollable):
     """Test basic container functionality."""
-    container = widgets.Container(labels=False)
+    container = widgets.Container(labels=False, scrollable=scrollable)
     labela = widgets.Label(value="hi", name="labela")
     labelb = widgets.Label(value="hi", name="labelb")
     container.append(labela)
@@ -226,9 +228,10 @@ def test_container_widget():
     container.close()
 
 
-def test_container_label_widths():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_container_label_widths(scrollable):
     """Test basic container functionality."""
-    container = widgets.Container(layout="vertical")
+    container = widgets.Container(layout="vertical", scrollable=scrollable)
     labela = widgets.Label(value="hi", name="labela")
     labelb = widgets.Label(value="hi", name="I have a very long label")
 
@@ -247,13 +250,16 @@ def test_container_label_widths():
     container.close()
 
 
-def test_labeled_widget_container():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_labeled_widget_container(scrollable):
     """Test that _LabeledWidgets follow their children."""
     from magicgui.widgets._concrete import _LabeledWidget
 
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
-    container = widgets.Container(widgets=[w1, w2], layout="vertical")
+    container = widgets.Container(
+        widgets=[w1, w2], layout="vertical", scrollable=scrollable
+    )
     assert w1._labeled_widget
     lw = w1._labeled_widget()
     assert isinstance(lw, _LabeledWidget)
@@ -269,12 +275,13 @@ def test_labeled_widget_container():
     container.close()
 
 
-def test_visible_in_container():
+@pytest.mark.parametrize("scrollable", [False, True])
+def test_visible_in_container(scrollable):
     """Test that visibility depends on containers."""
     w1 = widgets.Label(value="hi", name="w1")
     w2 = widgets.Label(value="hi", name="w2")
     w3 = widgets.Label(value="hi", name="w3", visible=False)
-    container = widgets.Container(widgets=[w2, w3])
+    container = widgets.Container(widgets=[w2, w3], scrollable=scrollable)
     assert not w1.visible
     assert not w2.visible
     assert not w3.visible
@@ -558,6 +565,56 @@ def test_range_value_none():
     assert rw.value == 0
 
 
+@pytest.mark.parametrize(
+    "value,maksimum", [(10, 999), (None, 999), (1000, 9999), (1500, 9999)]
+)
+def test_range_big_value(value, maksimum):
+    rw = widgets.SpinBox(value=value)
+    rw.value == value
+    rw.max = maksimum
+
+
+def test_range_negative_value():
+    rw = widgets.SpinBox(value=-10)
+    rw.value == -10
+    rw.min == -10
+
+
+def test_adaptive():
+    """Turn on and off adaptive step."""
+
+    rw = widgets.SpinBox()
+    assert rw.adaptive_step
+    assert rw.step is None
+    rw.adaptive_step = False
+    assert not rw.adaptive_step
+    assert rw.step == 1
+    rw.step = None
+    assert rw.adaptive_step
+    assert rw.step is None
+    rw.step = 3
+    assert not rw.adaptive_step
+    assert rw.step == 3
+
+    rw = widgets.SpinBox(step=2)
+    assert not rw.adaptive_step
+    assert rw.step == 2
+    rw.adaptive_step = True
+    assert rw.adaptive_step
+    assert rw.step is None
+    rw.adaptive_step = False
+    assert not rw.adaptive_step
+    assert rw.step == 2
+
+
+def test_exception_range_out_of_range():
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=10000, max=1000)
+
+    with pytest.raises(ValueError):
+        widgets.SpinBox(value=-10, min=0)
+
+
 def test_containers_show_nested_containers():
     """make sure showing a container shows a nested FunctionGui."""
 
@@ -592,6 +649,37 @@ def test_file_dialog_button_events():
         fe.choose_btn.changed.emit("value")
     mock.assert_not_called()
     assert fe.value == Path("hi")
+
+
+def test_file_edit_values():
+    cwd = Path(".").absolute()
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE)
+    assert isinstance(fe.value, Path)
+
+    fe.value = Path("hi")
+    assert fe.value == cwd / "hi"
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILE, nullable=True)
+    assert fe.value is None
+
+    fe.value = Path("hi")
+    assert fe.value == cwd / "hi"
+
+    fe.value = None
+    assert fe.value is None
+
+    fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILES)
+    assert fe.value == tuple()
+
+    fe.value = Path("hi")
+    assert fe.value == (cwd / "hi",)
+
+    fe.value = (Path("hi"), Path("world"))
+    assert fe.value == (cwd / "hi", cwd / "world")
+
+    fe.value = tuple()
+    assert fe.value == tuple()
 
 
 def test_null_events():
@@ -656,6 +744,62 @@ def test_categorical_widgets(Cls):
 
     wdg.del_choice("third option")
     assert wdg.choices == (1, 2)
+
+
+@pytest.mark.parametrize(
+    "Cls,value", [(widgets.ComboBox, "c3"), (widgets.Select, ["c2", "c3"])]
+)
+def test_reset_choices_emits_once(Cls, value):
+    data = ["c1", "c2", "c3"]
+    wdg = Cls(
+        value=value,
+        choices=lambda w: data,
+    )
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    mock.assert_not_called()
+    data = ["d2", "d4"]
+    wdg.reset_choices()
+    mock.assert_called_once()
+    data = ["d2", "d4", "d5"]
+    wdg.reset_choices()
+    mock.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "Cls,value1,value2",
+    [(widgets.ComboBox, "c4", "c1"), (widgets.Select, ["c3", "c4"], ["c1", "c2"])],
+)
+def test_set_value_emits_once(Cls, value1, value2):
+    wdg = Cls(
+        value=value1,
+        choices=["c1", "c2", "c3", "c4"],
+    )
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    mock.assert_not_called()
+    wdg.value = value2
+    mock.assert_called_once()
+    wdg.value = value2
+    mock.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "Cls,value", [(widgets.ComboBox, "c3"), (widgets.Select, ["c3", "c4"])]
+)
+def test_set_choices_emits_once(Cls, value):
+    wdg = Cls(
+        value=value,
+        choices=["c1", "c2", "c3", "c4"],
+    )
+
+    mock = MagicMock()
+    wdg.changed.connect(mock)
+    mock.assert_not_called()
+    wdg.choices = ["d2", "d4", "d5"]
+    mock.assert_called_once()
 
 
 class MyEnum(Enum):
@@ -838,6 +982,18 @@ def test_list_edit():
     assert f3.x[0].min == -10
     assert f3.x[0].max == 10
     assert f3.x[0].step == 5
+
+    @magicgui
+    def f4(x: List[int] = ()):  # type: ignore
+        pass
+
+    assert type(f4.x) is widgets.ListEdit
+    assert f4.x.annotation == List[int]
+    assert f4.x._args_type is int
+    assert f4.x.value == []
+    f4.x.btn_plus.changed()
+    assert type(f4.x[0]) is widgets.SpinBox
+    assert f4.x.value == [0]
 
 
 def test_tuple_edit():

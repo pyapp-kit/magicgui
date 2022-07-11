@@ -19,6 +19,7 @@ from typing_extensions import Literal, get_args, get_origin
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike, WidgetOptions
 from magicgui.widgets import _protocols
+from magicgui.widgets._bases.container_widget import DialogWidget
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
 from ._bases import (
@@ -425,6 +426,11 @@ class Container(ContainerWidget):
 
 
 @backend_widget
+class Dialog(DialogWidget):
+    """A modal container."""
+
+
+@backend_widget
 class MainWindow(MainWindowWidget):
     """A Widget to contain other widgets."""
 
@@ -512,7 +518,7 @@ class FileEdit(Container):
         if self._nullable and not text:
             return None
         if self.mode is FileDialogMode.EXISTING_FILES:
-            return tuple(Path(p) for p in text.split(", "))
+            return tuple(Path(p) for p in text.split(", ") if p.strip())
         return Path(text)
 
     @value.setter
@@ -520,13 +526,15 @@ class FileEdit(Container):
         """Set current file path."""
         if value is None and self._nullable:
             value = ""
-        if isinstance(value, (list, tuple)):
-            value = ", ".join(os.fspath(p) for p in value)
-        if not isinstance(value, (str, Path)):
+        elif isinstance(value, (list, tuple)):
+            value = ", ".join(os.fspath(Path(p).expanduser().absolute()) for p in value)
+        elif isinstance(value, (str, Path)):
+            value = os.fspath(Path(value).expanduser().absolute())
+        else:
             raise TypeError(
                 f"value must be a string, or list/tuple of strings, got {type(value)}"
             )
-        self.line_edit.value = os.fspath(Path(value).expanduser().absolute())
+        self.line_edit.value = value
 
     def __repr__(self) -> str:
         """Return string representation."""
@@ -664,8 +672,9 @@ class ListEdit(Container):
         self.margins = (0, 0, 0, 0)
 
         if not isinstance(value, _Unset):
+            # check type consistency
             types = {type(a) for a in value}
-            if len(types) == 1:
+            if len(types) <= 1:
                 if self._args_type is None:
                     self._args_type = types.pop()
             else:

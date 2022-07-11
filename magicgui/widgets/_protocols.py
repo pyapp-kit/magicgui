@@ -333,6 +333,16 @@ class RangedWidgetProtocol(ValueWidgetProtocol, Protocol):
         """Set the step size."""
         raise NotImplementedError()
 
+    @abstractmethod
+    def _mgui_get_adaptive_step(self) -> bool:
+        """Get adaptive step status."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_adaptive_step(self, value: bool) -> None:
+        """Set adaptive step status."""
+        raise NotImplementedError()
+
 
 @runtime_checkable
 class SupportsChoices(Protocol):
@@ -448,6 +458,15 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
 
     @abstractmethod
     def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
+        raise NotImplementedError()
+
+
+class DialogProtocol(ContainerProtocol, Protocol):
+    """Protocol for modal (blocking) containers."""
+
+    @abstractmethod
+    def _mgui_exec(self):
+        """Show the dialog and block."""
         raise NotImplementedError()
 
 
