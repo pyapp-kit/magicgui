@@ -43,11 +43,13 @@ class RangedWidget(ValueWidget):
                     max = kwargs.pop(key)
                 else:
                     min = kwargs.pop(key)
-        # value should be set *after* min max is set
         val = kwargs.pop("value", UNSET)
+
         super().__init__(**kwargs)
 
-        tmp_val = float(val if val not in (UNSET, None) else 1)
+        self.min, self.max = self._init_range(val, min, max)
+        if val not in (UNSET, None):
+            self.value = val
 
         if step is UNSET or step is None:
             self.step = None
@@ -55,16 +57,33 @@ class RangedWidget(ValueWidget):
         else:
             self.step = cast(float, step)
 
-        self.min: float = (
-            cast(float, min) if min is not UNSET else builtins.min(0, tmp_val)
+    def _init_range(
+        self,
+        value: Union[float, Tuple[float, ...]],
+        min: Union[float, _Unset],
+        max: Union[float, _Unset],
+    ) -> Tuple[float, float]:
+        """Initialize value and range based on given arguments."""
+        if isinstance(value, tuple):
+            tmp_value = value
+        else:
+            tmp_value = (value,)
+
+        tmp_val = tuple(float(v) if v not in (UNSET, None) else 1.0 for v in tmp_value)
+
+        new_min: float = (
+            cast(float, min) if min is not UNSET else builtins.min(0.0, *tmp_val)
         )
-        self.max: float = (
+        new_max: float = (
             cast(float, max)
             if max is not UNSET
-            else builtins.max(1000, 10 ** ceil(log10(builtins.max(1, tmp_val + 1)))) - 1
+            else builtins.max(
+                1000.0,
+                10.0 ** ceil(log10(builtins.max(1, *(v + 1 for v in tmp_val)))) - 1,
+            )
         )
-        if val not in (UNSET, None):
-            self.value = val
+
+        return new_min, new_max
 
     @property
     def options(self) -> dict:

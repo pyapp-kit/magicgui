@@ -557,6 +557,20 @@ class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     def _pre_set_hook(self, value):
         return int(value)
 
+    def _mgui_get_adaptive_step(self) -> bool:
+        return (
+            self._qwidget._handle_labels[0].stepType()
+            == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+        )
+
+    def _mgui_set_adaptive_step(self, value: bool):
+        for label in self._qwidget._handle_labels:
+            label.setStepType(
+                QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+                if value
+                else QtW.QAbstractSpinBox.DefaultStepType
+            )
+
 
 class Slider(_Slider):
     _qwidget = superqt.QLabeledSlider

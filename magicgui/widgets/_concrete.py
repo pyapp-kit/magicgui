@@ -300,7 +300,7 @@ class FloatSlider(SliderWidget):
 
 @backend_widget
 class RangeSlider(SliderWidget):
-    """A slider widget to adjust a range defined by two integer values within a range."""
+    """A slider widget to adjust a range between two integer values within a range."""
 
 
 @backend_widget
