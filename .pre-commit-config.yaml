@@ -4,10 +4,6 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.2
-    hooks:
-      - id: pyupgrade
   - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
