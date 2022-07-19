@@ -812,9 +812,13 @@ def test_scrollable():
     def test_scrollable(a: int = 1, y: str = "a"):
         ...
 
+    assert test_scrollable.native is not test_scrollable.root_native_widget
+    assert not isinstance(test_scrollable.native, QScrollArea)
+    assert isinstance(test_scrollable.root_native_widget, QScrollArea)
+
     @magicgui(scrollable=False)
     def test_nonscrollable(a: int = 1, y: str = "a"):
         ...
 
-    assert isinstance(test_scrollable.native.parent().parent(), QScrollArea)
-    assert not test_nonscrollable.native.parent()
+    assert test_nonscrollable.native is test_nonscrollable.root_native_widget
+    assert not isinstance(test_nonscrollable.native, QScrollArea)
