@@ -66,6 +66,7 @@ class Widget:
         visible: bool | None = None,
         enabled: bool = True,
         gui_only=False,
+        parent: Any = None,
         backend_kwargs=dict(),
         **extra,
     ):
@@ -90,7 +91,7 @@ class Widget:
         _protocols.assert_protocol(widget_type, prot)
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
-        self._widget = widget_type(**backend_kwargs)
+        self._widget = widget_type(parent=parent, **backend_kwargs)
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label

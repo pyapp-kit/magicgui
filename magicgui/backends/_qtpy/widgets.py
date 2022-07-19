@@ -53,8 +53,8 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     _qwidget: QtW.QWidget
 
-    def __init__(self, qwidg: QtW.QWidget):
-        self._qwidget = qwidg()
+    def __init__(self, qwidg: type[QtW.QWidget], **backend_kwargs):
+        self._qwidget = qwidg(**backend_kwargs)
         self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
@@ -1040,8 +1040,8 @@ class TimeEdit(QBaseValueWidget):
 
 
 class Dialog(QBaseWidget, _protocols.ContainerProtocol):
-    def __init__(self, layout="vertical", **k):
-        QBaseWidget.__init__(self, QtW.QDialog)
+    def __init__(self, layout="vertical", scrollable: bool = False, **backend_kwargs):
+        QBaseWidget.__init__(self, QtW.QDialog, **backend_kwargs)
         if layout == "horizontal":
             self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
         else:
