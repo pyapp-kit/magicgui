@@ -149,8 +149,25 @@ class Widget:
 
     @property
     def native(self):
-        """Return native backend widget."""
+        """
+        Return native backend widget.
+
+        Note this is the widget that contains the layout, and not any
+        parent widgets of this (e.g. a parent widget that is used to
+        enable scroll bars)
+        """
         return self._widget._mgui_get_native_widget()
+
+    @property
+    def root_native_widget(self):
+        """
+        Return the root native backend widget.
+
+        This can be different from the ``.native`` widget if the layout
+        is a child of some other widget, e.g. a widget used to enable
+        scroll bars.
+        """
+        return self._widget._mgui_get_root_native_widget()
 
     @property
     def enabled(self) -> bool:
