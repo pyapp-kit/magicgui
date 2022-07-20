@@ -91,6 +91,8 @@ class Widget:
         _protocols.assert_protocol(widget_type, prot)
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
+        if isinstance(parent, Widget):
+            parent = parent.native
         self._widget = widget_type(parent=parent, **backend_kwargs)
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD

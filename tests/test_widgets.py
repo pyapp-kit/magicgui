@@ -73,7 +73,7 @@ def test_create_widget_annotation(annotation, expected_type):
 # fmt: off
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
-
+    def __init__(self, parent=None) -> None: ... # noqa
     def _mgui_close_widget(self): ... # noqa
     def _mgui_get_visible(self): ... # noqa
     def _mgui_set_visible(self): ... # noqa
