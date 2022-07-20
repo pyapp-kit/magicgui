@@ -113,7 +113,7 @@ def test_custom_widget():
     """Test that create_widget works with arbitrary backend implementations."""
     # by implementing the ValueWidgetProtocol, magicgui will know to wrap the above
     # widget with a widgets._bases.ValueWidget
-    with pytest.warns(FutureWarning, match="must accept a `parent` Argument"):
+    with pytest.warns(UserWarning, match="must accept a `parent` Argument"):
         wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
     assert isinstance(wdg, ValueWidget)
     wdg.close()

@@ -105,7 +105,7 @@ class Widget:
                 "`magicgui.Widget` must accept a `parent` Argument. In v0.7 this "
                 "will raise an exception. "
                 f"Please update '{widget_type.__name__}.__init__()'",
-                FutureWarning,
+                stacklevel=2,
             )
             self._widget = widget_type(**backend_kwargs)
 
