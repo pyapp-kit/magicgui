@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import sys
+import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any
 
@@ -93,7 +94,20 @@ class Widget:
         assert self.__magicgui_app__.native
         if isinstance(parent, Widget):
             parent = parent.native
-        self._widget = widget_type(parent=parent, **backend_kwargs)
+        try:
+            self._widget = widget_type(parent=parent, **backend_kwargs)
+        except TypeError as e:
+            if "unexpected keyword argument" not in str(e):
+                raise
+            warnings.warn(
+                "Beginning with magicgui v0.6, the `widget_type` class passed to "
+                "`magicgui.Widget` must accept a `parent` Argument. In v0.7 this "
+                "will raise an exception. "
+                f"Please update '{widget_type.__name__}.__init__()'",
+                FutureWarning,
+            )
+            self._widget = widget_type(**backend_kwargs)
+
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
