@@ -71,7 +71,8 @@ def request_values(
     title : str
         An optional label to put at the top., by default ""
     parent : Widget, optional
-        An optional parent widget, by default None
+        An optional parent widget, by default None.
+        The dialog will inherit style from the parent object.
     **kwargs : Union[Type, Dict]
         Additional keyword arguments are used as name -> annotation arguments to
         `create_widget`.
