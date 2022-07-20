@@ -1022,3 +1022,36 @@ def test_tuple_edit():
     assert type(f2.x) is widgets.TupleEdit
     assert f2.x.annotation == Tuple[int, str]
     assert f2.x.value == (0, "")
+
+
+def test_request_values(monkeypatch):
+    from unittest.mock import Mock
+
+    from magicgui.widgets import Container, request_values
+    from magicgui.widgets._bases.container_widget import DialogWidget
+
+    container = Container()
+
+    mock = Mock()
+
+    def _exec(self, **k):
+        mock()
+        assert self.native.parent() is container.native
+        return True
+
+    monkeypatch.setattr(DialogWidget, "exec", _exec)
+    vals = request_values(
+        age=dict(value=40),
+        name=dict(annotation=str, label="Enter your name:"),
+        title="Hi! Who are you?",
+        parent=container,
+    )
+    assert vals == dict(age=40, name="")
+    mock.assert_called_once()
+
+    mock.reset_mock()
+    vals = request_values(
+        values={"age": int, "name": str}, title="Hi! Who are you?", parent=container
+    )
+    assert vals == dict(age=0, name="")
+    mock.assert_called_once()

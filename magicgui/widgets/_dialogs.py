@@ -50,6 +50,7 @@ def request_values(
     values: Union[Mapping, Iterable[Tuple[Hashable, Any]]] = (),
     *,
     title: str = "",
+    parent: Any = None,
     **kwargs: Union[Type, Dict]
 ) -> Optional[Dict[str, Any]]:
     """Show a dialog with a set of values and request the user to enter them.
@@ -69,6 +70,8 @@ def request_values(
         interpreted as the `annotation` in `create_widget`, by default ()
     title : str
         An optional label to put at the top., by default ""
+    parent : Widget, optional
+        An optional parent widget, by default None
     **kwargs : Union[Type, Dict]
         Additional keyword arguments are used as name -> annotation arguments to
         `create_widget`.
@@ -106,7 +109,7 @@ def request_values(
         kwargs.setdefault("name", key)
         widgets.append(create_widget(**kwargs))  # type: ignore
 
-    d = Dialog(widgets=widgets)
+    d = Dialog(widgets=widgets, parent=parent)
     if d.exec():
         return d.asdict()
     return None
