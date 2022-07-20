@@ -97,8 +97,9 @@ class Widget:
         try:
             self._widget = widget_type(parent=parent, **backend_kwargs)
         except TypeError as e:
-            if "unexpected keyword argument" not in str(e):
+            if "unexpected keyword" not in str(e) and "no arguments" not in str(e):
                 raise
+
             warnings.warn(
                 "Beginning with magicgui v0.6, the `widget_type` class passed to "
                 "`magicgui.Widget` must accept a `parent` Argument. In v0.7 this "

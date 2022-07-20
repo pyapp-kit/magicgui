@@ -73,7 +73,6 @@ def test_create_widget_annotation(annotation, expected_type):
 # fmt: off
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
-    def __init__(self, parent=None) -> None: ... # noqa
     def _mgui_close_widget(self): ... # noqa
     def _mgui_get_visible(self): ... # noqa
     def _mgui_set_visible(self): ... # noqa
@@ -106,7 +105,6 @@ class MyBadWidget:
 
 class MyValueWidget(MyBadWidget):
     """Complete protocol implementation... should work."""
-
     def _mgui_set_tooltip(self, value): ... # noqa
 # fmt: on
 
@@ -115,7 +113,8 @@ def test_custom_widget():
     """Test that create_widget works with arbitrary backend implementations."""
     # by implementing the ValueWidgetProtocol, magicgui will know to wrap the above
     # widget with a widgets._bases.ValueWidget
-    wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
+    with pytest.warns(FutureWarning, match="must accept a `parent` Argument"):
+        wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
     assert isinstance(wdg, ValueWidget)
     wdg.close()
 
