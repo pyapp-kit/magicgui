@@ -4,10 +4,6 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
-    hooks:
-      - id: pyupgrade
   - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
@@ -18,7 +14,7 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
+    rev: v2.37.2
     hooks:
       - id: pyupgrade
         args: ["--py37-plus", "--keep-runtime-typing"]
@@ -37,5 +33,5 @@ repos:
     rev: v0.961
     hooks:
       - id: mypy
-        additional_dependencies: [tokenize-rt==3.2.0]
-        exclude: (examples|magicgui/_magicgui.py)
+        files: magicgui
+        exclude: magicgui/_magicgui.py
