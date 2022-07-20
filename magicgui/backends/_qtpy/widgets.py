@@ -84,6 +84,9 @@ class QBaseWidget(_protocols.WidgetProtocol):
     def _mgui_get_native_widget(self) -> QtW.QWidget:
         return self._qwidget
 
+    def _mgui_get_root_native_widget(self) -> QtW.QWidget:
+        return self._qwidget
+
     def _mgui_get_width(self) -> int:
         """Return the current width of the widget."""
         return self._qwidget.width()
@@ -428,7 +431,11 @@ class Container(
     def _is_scrollable(self) -> bool:
         return isinstance(self._qwidget, QtW.QScrollArea)
 
+    def _mgui_get_root_native_widget(self):
+        return self._qwidget
+
     def _mgui_get_native_widget(self):
+        # Return widget with the layout set
         return self._qwidget.widget() if self._is_scrollable else self._qwidget
 
     def _mgui_get_visible(self):

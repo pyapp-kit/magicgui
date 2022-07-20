@@ -1,6 +1,6 @@
 import sys
 
-from qtpy.QtCore import Qt, QTimer
+from qtpy.QtCore import QCoreApplication, Qt, QTimer
 from qtpy.QtWidgets import QApplication
 
 from magicgui.application import APPLICATION_NAME
@@ -8,7 +8,7 @@ from magicgui.widgets._protocols import BaseApplicationBackend
 
 
 class ApplicationBackend(BaseApplicationBackend):
-    _app: QApplication
+    _app: QCoreApplication
 
     def _mgui_get_backend_name(self):
         return "qt"
