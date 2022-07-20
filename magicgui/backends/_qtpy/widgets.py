@@ -557,26 +557,25 @@ class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     def _pre_set_hook(self, value):
         return int(value)
 
-    def _mgui_get_adaptive_step(self) -> bool:
-        return (
-            self._qwidget._handle_labels[0].stepType()
-            == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
-        )
-
-    def _mgui_set_adaptive_step(self, value: bool):
-        for label in self._qwidget._handle_labels:
-            label.setStepType(
-                QtW.QAbstractSpinBox.AdaptiveDecimalStepType
-                if value
-                else QtW.QAbstractSpinBox.DefaultStepType
-            )
-
 
 class Slider(_Slider):
     _qwidget = superqt.QLabeledSlider
 
     def __init__(self, qwidg=superqt.QLabeledSlider, **kwargs):
         super().__init__(qwidg=qwidg, **kwargs)
+
+    def _mgui_get_adaptive_step(self) -> bool:
+        return (
+            self._qwidget._label.stepType()
+            == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+        )
+
+    def _mgui_set_adaptive_step(self, value: bool):
+        self._qwidget._label.setStepType(
+            QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+            if value
+            else QtW.QAbstractSpinBox.DefaultStepType
+        )
 
 
 class FloatSlider(Slider):
@@ -591,6 +590,24 @@ class RangeSlider(_Slider):
 
     def __init__(self, qwidg=superqt.QLabeledRangeSlider, **kwargs):
         super().__init__(qwidg=qwidg, **kwargs)
+
+    def _mgui_get_adaptive_step(self) -> bool:
+        return (
+            self._qwidget._min_label.stepType()
+            == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+        )
+
+    def _mgui_set_adaptive_step(self, value: bool):
+        for label in (
+            self._qwidget._handle_labels,
+            self._qwidget._min_label,
+            self._qwidget._max_label,
+        ):
+            label.setStepType(
+                QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+                if value
+                else QtW.QAbstractSpinBox.DefaultStepType
+            )
 
 
 class FloatRangeSlider(RangeSlider):
@@ -631,6 +648,12 @@ class ProgressBar(QBaseRangedWidget, _protocols.SupportsOrientation):
 
     def _mgui_set_readout_visibility(self, value: bool):
         self._qwidget.setTextVisible(value)
+
+    def _mgui_get_tracking(self) -> bool:
+        pass
+
+    def _mgui_set_tracking(self, value: bool) -> None:
+        pass
 
 
 class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):

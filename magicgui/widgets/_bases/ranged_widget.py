@@ -68,7 +68,7 @@ class RangedWidget(ValueWidget):
 
         If min or max are unset, constrain so the given value is within the range.
         """
-        val = (value,) if isinstance(value, (float, int)) else value
+        val = (value,) if not isinstance(value, tuple) else value
         tmp_val = tuple(float(v) if v not in (UNSET, None) else 1.0 for v in val)
 
         new_min: float = (
@@ -79,8 +79,9 @@ class RangedWidget(ValueWidget):
             if max is not UNSET
             else builtins.max(
                 1000.0,
-                10.0 ** ceil(log10(builtins.max(1, *(v + 1 for v in tmp_val)))) - 1,
+                10.0 ** ceil(log10(builtins.max(1, *(v + 1 for v in tmp_val)))),
             )
+            - 1
         )
 
         return new_min, new_max
