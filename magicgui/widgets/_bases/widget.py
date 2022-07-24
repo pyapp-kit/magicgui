@@ -46,6 +46,15 @@ class Widget:
         A tooltip to display when hovering over the widget.
     visible : bool, optional
         Whether the widget is visible, by default ``True``.
+    enabled : bool, optional
+        Whether the widget is enabled, by default ``True``.
+    gui_only : bool, optional
+        If ``True``, widget is excluded from any function signature representation.
+        by default ``False``.  (This will likely be deprecated.)
+    parent : Widget, optional
+        Optional parent widget of this widget.  CAREFUL: if a parent is set, and
+        subsequently deleted, this widget will likely be deleted as well (depending on
+        the backend), and will no longer be usable.
     backend_kwargs : dict, optional
         keyword argument to pass to the backend widget constructor.
     """
@@ -66,7 +75,7 @@ class Widget:
         tooltip: str | None = None,
         visible: bool | None = None,
         enabled: bool = True,
-        gui_only=False,
+        gui_only: bool = False,
         parent: Any = None,
         backend_kwargs=dict(),
         **extra,
