@@ -184,6 +184,7 @@ class FunctionGui(Container, Generic[_R]):
         self._param_options = param_options
         self._result_name = ""
         self._call_count: int = 0
+        self._bound_instances: dict[int, FunctionGui] = {}
 
         # a deque of Progressbars to be created by (possibly nested) tqdm_mgui iterators
         self._tqdm_pbars: Deque[ProgressBar] = deque()
@@ -372,8 +373,6 @@ class FunctionGui(Container, Generic[_R]):
             result_widget=bool(self._result_widget),
             app=None,
         )
-
-    _bound_instances: dict[int, FunctionGui] = {}
 
     def __get__(self, obj, objtype=None) -> FunctionGui:
         """Provide descriptor protocol.
