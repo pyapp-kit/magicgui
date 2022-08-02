@@ -508,6 +508,26 @@ def test_function_binding():
     assert b.method() == ("b", 5)
 
 
+def test_function_binding_multiple():
+    class MyObject:
+        def __init__(self):
+            pass
+
+        @magicgui
+        def method_0(self, sigma: float = 1):
+            pass
+
+        @magicgui
+        def method_1(self, sigma: float = 2):
+            pass
+
+    a = MyObject()
+    assert MyObject.method_0 is not a.method_0
+    assert a.method_0 is not a.method_1
+    assert a.method_0.sigma.value == 1
+    assert a.method_1.sigma.value == 2
+
+
 def test_call_count():
     """Test that a function gui remembers how many times it's been called."""
 
