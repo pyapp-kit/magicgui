@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 from typing import TYPE_CHECKING, AbstractSet, Any, Callable, Mapping, NamedTuple, Type
 
 from pydantic import BaseConfig, BaseModel, PrivateAttr
@@ -12,13 +13,12 @@ from magicgui.type_map import get_widget_class
 from magicgui.widgets._bases import ContainerWidget, ValueWidget
 
 if TYPE_CHECKING:
-    import dataclasses
     from typing import Dict, Optional, Tuple, TypeVar, Union
 
     from pydantic.dataclasses import Dataclass as PydanticDataclass
     from pydantic.fields import ModelField, UndefinedType
     from pydantic.typing import NoArgAnyCallable
-    from typing_extensions import Protocol
+    from typing_extensions import Protocol, TypeGuard
 
     class _DataclassParams:
         init: bool
@@ -55,7 +55,23 @@ class ResolvedUIMetadata(NamedTuple):
 
     widget: Type[ValueWidget]
     options: Dict[str, Any]
-    field_name: str
+    field_name: str = ""
+
+
+def _has_dataclass_params(obj: Any) -> bool:
+    return bool(
+        hasattr(obj, "__dataclass_params__")
+        and isinstance(obj.__dataclass_params__, dataclasses._DataclassParams)
+        and hasattr(obj, "__dataclass_fields__")
+    )
+
+
+def _is_dataclass_type(obj: Any) -> TypeGuard[Type[PythonDataclass]]:
+    return isinstance(obj, type) and _has_dataclass_params(obj)
+
+
+def _is_dataclass_instance(obj: Any) -> TypeGuard[PythonDataclass]:
+    return _has_dataclass_params(obj) and _has_dataclass_params(type(obj))
 
 
 class FieldInfo(PydanticFieldInfo):
@@ -282,9 +298,9 @@ def get_widget_info_for_field(field: ModelField) -> ResolvedUIMetadata:
 class _build_descriptor(property):
     """Descriptor that knows how to build a widget for a Model.
 
-    We use a descriptor here so we can know if we're being called on a model instance,
-    in which case we use the current values, or if we're being called on a model class,
-    in which case we use the default values.
+    We use a descriptor here so we can know if the build() function is being accessed on
+    a model instance, in which case we use the current values, or if we're being called
+    on a model class, in which case we use the default values.
     """
 
     # this subclasses property so as to sneak into the UNTOUCHED_TYPES
@@ -295,7 +311,13 @@ class _build_descriptor(property):
     def __get__(  # type: ignore [override]
         self, instance: GUIModelVar, cls: Type[GUIModelVar]
     ) -> Callable[..., ValueWidgetContainer]:
-        def _build(values: Optional[Mapping[str, Any]] = None) -> ValueWidgetContainer:
+
+        # this function is what will ulimately be at the GUIModel.build attribute
+
+        def _build(
+            values: Optional[Mapping[str, Any]] = None,
+            bind_changes: Optional[bool] = None,
+        ) -> ValueWidgetContainer:
             """Build a widget for the model.
 
             {}
@@ -304,11 +326,15 @@ class _build_descriptor(property):
             ----------
             values : Optional[Mapping[str, Any]]
                 Optionally overrides the values to use for the widget.
+            bind_changes : Optional[bool]
+                If `True`, changes in the widget will be reflected in the model.
+                By default (`None`), changes will be bound only if the model config
+                does not have `frozen` set to `True` or `allow_mutation` set to `False`
 
             Returns
             -------
             ValueWidgetContainer
-                magicgui Container instance with widgets representing each field
+                magicgui `Container` instance with widgets representing each field
                 in the model.
             """
             if instance is not None:
@@ -322,9 +348,18 @@ class _build_descriptor(property):
 
             if values:
                 _values.update(values)
+
             wdg = _build_widget(cls.__ui_info__, _values)
             if instance is not None:
-                connect_model_to_gui(instance, wdg)
+                config = getattr(instance, "__config__", None)
+                if bind_changes is None:
+                    bind_changes = not getattr(config, "frozen", False) and getattr(
+                        config, "allow_mutation", True
+                    )
+                if bind_changes:
+                    bind_gui_changes_to_model(gui=wdg, model=instance)
+                else:
+                    breakpoint()
             return wdg
 
         doc = "default" if instance is None else "current"
@@ -340,21 +375,21 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
     __ui_info__: Dict[str, ResolvedUIMetadata]  # move?
     _gui: Optional[ValueWidgetContainer] = PrivateAttr(None)
 
-    build = _build_descriptor()  # function that builds the widget
+    build_gui = _build_descriptor()  # function that builds the widget
 
     @property
     def gui(self) -> ValueWidgetContainer:
         """Return a GUI (Container widget) for the model."""
         if self._gui is None:
-            self._gui = self.build()
+            self._gui = self.build_gui()
         return self._gui
 
     def _disconnect_gui(self) -> Optional[ValueWidgetContainer]:
-        wgd = None
+        gui = None
         if self._gui is not None:
-            wgd, self._gui = self._gui, None
-            disconnect_model_to_from_gui(self, wgd)
-        return wgd
+            gui, self._gui = self._gui, None
+            unbind_gui_changes_from_model(gui=gui, model=self)
+        return gui
 
     def __setattr__(self, name: str, value: Any):
         """Set an attribute on the model, as well as the GUI if it exists."""
@@ -368,21 +403,55 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
             wdg.value = getattr(self, name)
 
 
-def connect_model_to_gui(model: GUIModel, gui: ValueWidgetContainer) -> None:
+def bind_gui_changes_to_model(gui: ContainerWidget, model: BaseModel) -> None:
+    """Set change events in `gui` to update the corresponding attributes in `model`."""
     for widget in gui:
-        if hasattr(model, widget.name):
+        if isinstance(widget, ValueWidget) and hasattr(model, widget.name):
             widget.changed.connect_setattr(model, widget.name)
 
 
-def disconnect_model_to_from_gui(model: GUIModel, gui: ValueWidgetContainer) -> None:
+def unbind_gui_changes_from_model(gui: ContainerWidget, model: BaseModel) -> None:
+    """Disconnect change events in `gui` from updating `model`."""
     for widget in gui:
-        widget.changed.disconnect_setattr(model, widget.name, missing_ok=True)
+        if isinstance(widget, ValueWidget):
+            widget.changed.disconnect_setattr(model, widget.name, missing_ok=True)
+
+
+def build_widget(
+    obj: Any, values: Optional[Mapping[str, Any]] = None, bind_changes: bool = None
+) -> ContainerWidget:
+    """Build a GUI for `obj`."""
+    if isinstance(obj, GUIModel):
+        ...
+    elif isinstance(obj, type) and issubclass(obj, GUIModel):
+        ...
+    elif isinstance(obj, BaseModel):
+        ...
+    elif isinstance(obj, type) and issubclass(obj, BaseModel):
+        ...
+    else:
+        raise TypeError(f"{obj} is not a GUIModel")
 
 
 def _build_widget(
     ui_info: Dict[str, ResolvedUIMetadata],
     values: Union[Mapping[str, Any], None] = None,
 ) -> ValueWidgetContainer:
+    """Build a widget for a mapping of field names to UI metadata.
+
+    Parameters
+    ----------
+    ui_info : Dict[str, ResolvedUIMetadata]
+        keys are field names, values are ResolvedUIMetadata instances.
+        (a named tuple containing `(widget_class, kwargs)`)
+    values : Union[Mapping[str, Any], None], optional
+        Optionally values to initialize the widget, by default None
+
+    Returns
+    -------
+    ValueWidgetContainer
+        A magicgui Container instance with widgets representing each field.
+    """
     if values is None:
         values = {}
 
