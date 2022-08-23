@@ -1,12 +1,6 @@
 # flake8: noqa
-import os
-
 import pytest
 from typing_extensions import reveal_type
-
-if os.name == "nt":
-    # https://github.com/davidfritzsche/pytest-mypy-testing/issues/17
-    pytest.skip(reason="broken on windows", allow_module_level=True)
 
 
 # fmt: off
