@@ -14,13 +14,13 @@ from typing import (
     Type,
     TypeVar,
     Union,
-    cast,
 )
 
 from pydantic import BaseConfig, BaseModel, PrivateAttr
 from pydantic.fields import FieldInfo as PydanticFieldInfo
-from pydantic.fields import ModelField, Undefined, UndefinedType
-from pydantic.main import ConfigError, ModelMetaclass, create_model
+from pydantic.fields import Undefined
+from pydantic.main import ModelMetaclass, create_model
+
 
 from magicgui import widgets
 from magicgui.type_map import get_widget_class
@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from pydantic.dataclasses import Dataclass as PydanticDataclass
     from pydantic.typing import NoArgAnyCallable
+    from pydantic.fields import ModelField, UndefinedType
 
     class _DataclassParams:
         init: bool
@@ -55,15 +56,13 @@ if TYPE_CHECKING:
     ValueWidgetContainer = ContainerWidget[ValueWidget]
 
 
-_T = TypeVar("_T")
-
 # class BaseConfig:
 #     ui_layout: Optional[str] = None
 
 
 class ResolvedUIMetadata(NamedTuple):
     widget: Type[ValueWidget]
-    options: WidgetOptions
+    options: Dict[str, Any]
     field_name: str
 
 
@@ -139,9 +138,13 @@ def Field(
         ui_options=ui_options,
         **extra,
     )
-    field_info._validate()
+    if hasattr(field_info, "validate"):
+        # pydantic > 1.8
+        field_info._validate()
     return field_info
 
+
+_T = TypeVar("_T")
 
 # https://peps.python.org/pep-0681/
 # https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
@@ -170,6 +173,7 @@ class GUIModelMetaclass(ModelMetaclass):
 
 
 def _get_pydantic_model(obj: Any) -> Type[BaseModel]:
+    """Try to find a pydantic BaseModel on the given object."""
     if isinstance(obj, BaseModel):
         model_cls = type(obj)
     elif hasattr(obj, "__pydantic_model__"):
@@ -185,13 +189,18 @@ def _get_pydantic_model(obj: Any) -> Type[BaseModel]:
 def collect_ui_info(
     obj: Union[SupportsPydantic, PythonDataclass, Type[PythonDataclass]],
 ) -> Dict[str, ResolvedUIMetadata]:
-    """Given an object, collect ui information.
+    """Given an object, collect information needed to present a UI for it.
 
     Parameters
     ----------
     obj : Any
         The object to collect ui information for.  Could be a pydantic BaseModel or
         dataclass (type or instance).  Or a python dataclass.
+
+    Returns
+    -------
+    Dict[str, ResolvedUIMetadata]
+        A dictionary of field names to ui information.
     """
     try:
         model = _get_pydantic_model(obj)
@@ -215,7 +224,26 @@ def _collect_pydantic_ui_info(model: Type[BaseModel]) -> Dict[str, ResolvedUIMet
     return ui_info
 
 
-def get_widget_info_for_field(field: ModelField) -> Optional[ResolvedUIMetadata]:
+def get_widget_info_for_field(field: ModelField) -> ResolvedUIMetadata:
+    """Given a pydantic field, return the ui information for it.
+
+    Parameters
+    ----------
+    field : ModelField
+        The field to get ui information for.
+
+    Returns
+    -------
+    Optional[ResolvedUIMetadata]
+        The ui information for the field.  If there is no ui information for the field
+
+    Raises
+    ------
+    TypeError
+        _description_
+    TypeError
+        _description_
+    """
     # search for user provided ui_options in field_info
     _ui_opts = getattr(field.field_info, "ui_options", Undefined)
     user_options = {} if _ui_opts is Undefined else _ui_opts
@@ -238,19 +266,55 @@ def get_widget_info_for_field(field: ModelField) -> Optional[ResolvedUIMetadata]
         annotation=field, options=user_options, is_result=False
     )
     widget_kwargs["annotation"] = field.outer_type_
-    return ResolvedUIMetadata(widget_class, widget_kwargs, field.name)
+    return ResolvedUIMetadata(widget_class, dict(widget_kwargs), field.name)
+
+
+class _build_descriptor(property):
+    """Descriptor that knows how to build a widget for a Model.
+
+    We use a descriptor here so we can know if we're being called on a model instance,
+    in which case we use the current values, or if we're being called on a model class,
+    in which case we use the default values.
+    """
+
+    # this subclasses property so as to sneak into the UNTOUCHED_TYPES
+    # in ModelMetaclass.__new__. But we're not actually using the property
+    def __init__(self) -> None:
+        pass
+
+    def __get__(  # type: ignore [override]
+        self, instance: GUIModelVar, cls: Type[GUIModelVar]
+    ) -> Callable[[], ValueWidgetContainer]:
+        if instance is not None:
+            values = instance.dict(exclude_unset=True)
+        else:
+            values = {
+                k: f.get_default() for k, f in cls.__fields__.items() if not f.required
+            }
+
+        def _build() -> ValueWidgetContainer:
+            wdg = _build_widget(cls.__ui_info__, values)
+            if instance is not None:
+                connect_model_to_gui(instance, wdg)
+            return wdg
+
+        return _build
 
 
 class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
+    """Pydantic BaseModel subclass that offers a GUI at the `.gui` attribute."""
+
     __slots__ = ("__weakref__",)
     __ui_info__: Dict[str, ResolvedUIMetadata]  # move?
     _gui: Optional[ValueWidgetContainer] = PrivateAttr(None)
 
+    build = _build_descriptor()  # function that builds the widget
+
     @property
     def gui(self) -> ValueWidgetContainer:
+        """Return a GUI (Container widget) for the model."""
         if self._gui is None:
-            self._gui = type(self).build(self.dict(exclude_unset=True))
-            connect_model_to_gui(self, self._gui)
+            self._gui = self.build()
         return self._gui
 
     def _disconnect_gui(self) -> Optional[ValueWidgetContainer]:
@@ -261,6 +325,7 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
         return wgd
 
     def __setattr__(self, name: str, value: Any):
+        """Set an attribute on the model, as well as the GUI if it exists."""
         super().__setattr__(name, value)
         if self._gui is not None and name in self.__fields__:
             try:
@@ -269,15 +334,6 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
                 # no widget by that name
                 return
             wdg.value = getattr(self, name)
-
-    @classmethod
-    def build(
-        cls, values: Union[Mapping[str, Any], None] = None
-    ) -> ValueWidgetContainer:
-        values = dict(values) if values else {}
-        for field_name, field in cls.__fields__.items():
-            values.setdefault(field_name, field.get_default())
-        return _build_widget(cls.__ui_info__, values)
 
 
 def connect_model_to_gui(model: GUIModel, gui: ValueWidgetContainer) -> None:
@@ -348,9 +404,10 @@ def create_gui_model(
         `<name>=<FieldInfo>`, e.g. `foo=Field(default_factory=datetime.utcnow,
         alias='bar')`
     """
-
     if __base__ is not None:
         if __config__ is not None:
+            from pydantic.errors import ConfigError
+
             raise ConfigError(
                 "to avoid confusion __config__ and __base__ " "cannot be used together"
             )
