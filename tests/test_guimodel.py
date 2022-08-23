@@ -6,7 +6,7 @@ from datetime import date
 from enum import Enum
 from typing import List, Optional
 
-from magicgui import Field, GUIModel
+from magicgui import Field, GUIModel, create_gui_model
 from magicgui.widgets import Container
 
 
@@ -38,3 +38,18 @@ def test_basic_model(qapp):
 
     obj.birthday = date(2020, 1, 1)
     assert obj.birthday == date(2020, 1, 1) == obj.gui.birthday.value
+
+    gui = obj._disconnect_gui()
+    assert isinstance(gui, Container)
+    assert obj._gui is None
+
+    obj.age = 70
+    assert obj.age == 70
+    assert gui.age.value == 44
+
+
+def test_create_gui_model():
+    M = create_gui_model("Person", name=(str, ...), age=55, married=(bool, False))
+    frank = M(name="Frank")
+    assert frank.age == 55
+    assert frank.gui.age.value == 55

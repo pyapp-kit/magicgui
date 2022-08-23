@@ -161,7 +161,7 @@ def Field(
         ui_options=ui_options,
         **extra,
     )
-    if hasattr(field_info, "validate"):
+    if hasattr(field_info, "_validate"):
         # pydantic > 1.8
         field_info._validate()
     return field_info
@@ -198,47 +198,48 @@ class GUIModelMetaclass(ModelMetaclass):
         return new_cls
 
 
-def _get_pydantic_model(obj: Any) -> Type[BaseModel]:
-    """Try to find a pydantic BaseModel on the given object."""
-    if isinstance(obj, BaseModel):
-        model_cls = type(obj)
-    elif hasattr(obj, "__pydantic_model__"):
-        model_cls = obj.__pydantic_model__
-    else:
-        model_cls = obj
+# def _get_pydantic_model(obj: Any) -> Type[BaseModel]:
+#     """Try to find a pydantic BaseModel on the given object."""
+#     if isinstance(obj, BaseModel):
+#         model_cls = type(obj)
+#     elif hasattr(obj, "__pydantic_model__"):
+#         model_cls = obj.__pydantic_model__
+#     else:
+#         model_cls = obj
 
-    if not issubclass(model_cls, BaseModel):
-        raise TypeError(f"{model_cls} must be either BaseModel or dataclass")
-    return model_cls
+#     if not issubclass(model_cls, BaseModel):
+#         raise TypeError(f"{model_cls} must be either BaseModel or dataclass")
+#     return model_cls
 
 
-def collect_ui_info(
-    obj: Union[SupportsPydantic, PythonDataclass, Type[PythonDataclass]],
-) -> Dict[str, ResolvedUIMetadata]:
-    """Given an object, collect information needed to present a UI for it.
+# TODO: enable this as a way to collect ui info from an arbitrary object
+# def collect_ui_info(
+#     obj: Union[SupportsPydantic, PythonDataclass, Type[PythonDataclass]],
+# ) -> Dict[str, ResolvedUIMetadata]:
+#     """Given an object, collect information needed to present a UI for it.
 
-    Parameters
-    ----------
-    obj : Any
-        The object to collect ui information for.  Could be a pydantic BaseModel or
-        dataclass (type or instance).  Or a python dataclass.
+#     Parameters
+#     ----------
+#     obj : Any
+#         The object to collect ui information for.  Could be a pydantic BaseModel or
+#         dataclass (type or instance).  Or a python dataclass.
 
-    Returns
-    -------
-    Dict[str, ResolvedUIMetadata]
-        A dictionary of field names to ui information.
-    """
-    try:
-        model = _get_pydantic_model(obj)
-    except TypeError:
-        pass
-    else:
-        return _collect_pydantic_ui_info(model)
+#     Returns
+#     -------
+#     Dict[str, ResolvedUIMetadata]
+#         A dictionary of field names to ui information.
+#     """
+#     try:
+#         model = _get_pydantic_model(obj)
+#     except TypeError:
+#         pass
+#     else:
+#         return _collect_pydantic_ui_info(model)
 
-    if hasattr(obj, "__dataclass_fields__") and hasattr(obj, "__dataclass_params__"):
-        # TODO:
-        ...
-    raise TypeError(f"Cannot collect UI information for type {type(obj)}")
+#     if hasattr(obj, "__dataclass_fields__") and hasattr(obj, "__dataclass_params__"):
+#         # TODO:
+#         ...
+#     raise TypeError(f"Cannot collect UI information for type {type(obj)}")
 
 
 def _collect_pydantic_ui_info(model: Type[BaseModel]) -> Dict[str, ResolvedUIMetadata]:
@@ -273,7 +274,7 @@ def get_widget_info_for_field(field: ModelField) -> ResolvedUIMetadata:
     # search for user provided ui_options in field_info
     _ui_opts = getattr(field.field_info, "ui_options", Undefined)
     user_options = {} if _ui_opts is Undefined else _ui_opts
-    if not isinstance(user_options, Mapping):
+    if not isinstance(user_options, Mapping):  # pragma: no cover
         raise TypeError(f"ui_options must be a mapping, not {type(user_options)}")
     user_options = dict(user_options)
 
@@ -282,7 +283,7 @@ def get_widget_info_for_field(field: ModelField) -> ResolvedUIMetadata:
         if not isinstance(_ui_wdg, str) or (
             isinstance(_ui_wdg, type) and issubclass(_ui_wdg, ValueWidget)
         ):
-            raise TypeError(
+            raise TypeError(  # pragma: no cover
                 "ui_widget must be a string, or subclass of ValueWidget, "
                 f"not {type(_ui_wdg)}"
             )
@@ -338,7 +339,7 @@ class _build_descriptor(property):
                 in the model.
             """
             if instance is not None:
-                _values = instance.dict(exclude_unset=True)
+                _values = instance.dict()
             else:
                 _values = {
                     k: f.get_default()
@@ -397,7 +398,7 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
         if self._gui is not None and name in self.__fields__:
             try:
                 wdg = self._gui[name]
-            except AttributeError:
+            except AttributeError:  # pragma: no cover
                 # no widget by that name
                 return
             wdg.value = getattr(self, name)
@@ -417,20 +418,20 @@ def unbind_gui_changes_from_model(gui: ContainerWidget, model: BaseModel) -> Non
             widget.changed.disconnect_setattr(model, widget.name, missing_ok=True)
 
 
-def build_widget(
-    obj: Any, values: Optional[Mapping[str, Any]] = None, bind_changes: bool = None
-) -> ContainerWidget:
-    """Build a GUI for `obj`."""
-    if isinstance(obj, GUIModel):
-        ...
-    elif isinstance(obj, type) and issubclass(obj, GUIModel):
-        ...
-    elif isinstance(obj, BaseModel):
-        ...
-    elif isinstance(obj, type) and issubclass(obj, BaseModel):
-        ...
-    else:
-        raise TypeError(f"{obj} is not a GUIModel")
+# def build_widget(
+#     obj: Any, values: Optional[Mapping[str, Any]] = None, bind_changes: bool = None
+# ) -> ContainerWidget:
+#     """Build a GUI for `obj`."""
+#     if isinstance(obj, GUIModel):
+#         ...
+#     elif isinstance(obj, type) and issubclass(obj, GUIModel):
+#         ...
+#     elif isinstance(obj, BaseModel):
+#         ...
+#     elif isinstance(obj, type) and issubclass(obj, BaseModel):
+#         ...
+#     else:
+#         raise TypeError(f"{obj} is not a GUIModel")
 
 
 def _build_widget(
@@ -502,7 +503,8 @@ def create_gui_model(
         `<name>=<FieldInfo>`, e.g. `foo=Field(default_factory=datetime.utcnow,
         alias='bar')`
     """
-    if __base__ is not None:
+    if __base__ is not None:  # pragma: no cover
+        # this section and error is just duplicated from pydantic
         if __config__ is not None:
             from pydantic.errors import ConfigError
 
