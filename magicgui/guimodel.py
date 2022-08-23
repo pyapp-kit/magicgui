@@ -1,38 +1,24 @@
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    AbstractSet,
-    Any,
-    Callable,
-    Dict,
-    Mapping,
-    NamedTuple,
-    Optional,
-    Protocol,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, AbstractSet, Any, Callable, Mapping, NamedTuple, Type
 
 from pydantic import BaseConfig, BaseModel, PrivateAttr
 from pydantic.fields import FieldInfo as PydanticFieldInfo
 from pydantic.fields import Undefined
 from pydantic.main import ModelMetaclass, create_model
 
-
 from magicgui import widgets
 from magicgui.type_map import get_widget_class
-from magicgui.types import WidgetOptions
 from magicgui.widgets._bases import ContainerWidget, ValueWidget
 
 if TYPE_CHECKING:
     import dataclasses
+    from typing import Dict, Optional, Tuple, TypeVar, Union
 
     from pydantic.dataclasses import Dataclass as PydanticDataclass
-    from pydantic.typing import NoArgAnyCallable
     from pydantic.fields import ModelField, UndefinedType
+    from pydantic.typing import NoArgAnyCallable
+    from typing_extensions import Protocol
 
     class _DataclassParams:
         init: bool
@@ -43,6 +29,8 @@ if TYPE_CHECKING:
         frozen: bool
 
     class PythonDataclass(Protocol):
+        """Protocol for dataclasses.dataclass."""
+
         __dataclass_fields__: Dict[str, dataclasses.Field]
         __dataclass_params__: _DataclassParams
 
@@ -54,6 +42,8 @@ if TYPE_CHECKING:
     UiOptions = Mapping[str, Any]
     UiMeta = Tuple[UiWidget, UiOptions]
     ValueWidgetContainer = ContainerWidget[ValueWidget]
+    GUIModelVar = TypeVar("GUIModelVar", bound="GUIModel")
+    _T = TypeVar("_T")
 
 
 # class BaseConfig:
@@ -61,12 +51,21 @@ if TYPE_CHECKING:
 
 
 class ResolvedUIMetadata(NamedTuple):
+    """Info required to create a widget for a field."""
+
     widget: Type[ValueWidget]
     options: Dict[str, Any]
     field_name: str
 
 
 class FieldInfo(PydanticFieldInfo):
+    """Captures extra information about a field.
+
+    Added for magicgui:
+    - ui_widget: the widget to use for the field.
+    - ui_options: options to pass to the widget on construction.
+    """
+
     def __init__(self, default: Any = Undefined, **kwargs: Any) -> None:
         ui_widget = kwargs.pop("ui_widget", Undefined)
         ui_options = kwargs.pop("ui_options", Undefined)
@@ -109,6 +108,14 @@ def Field(
     ui_options: Union[UiOptions, UndefinedType] = Undefined,
     **extra: Any,
 ) -> Any:
+    """Used to provide extra information about a field.
+
+    See docs for `pydantic.fields.Field` for details.
+
+    Added for magicgui:
+    - ui_widget: the widget to use for the field.
+    - ui_options: options to pass to the widget on construction.
+    """
     field_info = FieldInfo(
         default,
         default_factory=default_factory,
@@ -144,8 +151,6 @@ def Field(
     return field_info
 
 
-_T = TypeVar("_T")
-
 # https://peps.python.org/pep-0681/
 # https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
 def __dataclass_transform__(
@@ -160,6 +165,11 @@ def __dataclass_transform__(
 
 @__dataclass_transform__(kw_only_default=True, field_specifiers=(Field, FieldInfo))
 class GUIModelMetaclass(ModelMetaclass):
+    """Metaclass for GUIModel.
+
+    Just adds `__ui_info__` to the class.
+    """
+
     def __new__(
         cls,
         name: str,
@@ -365,9 +375,6 @@ def _build_widget(
         wdgs.append(new_widget)
 
     return widgets.Container(widgets=wdgs)
-
-
-GUIModelVar = TypeVar("GUIModelVar", bound=GUIModel)
 
 
 def create_gui_model(
