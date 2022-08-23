@@ -170,7 +170,7 @@ class GUIModelMetaclass(ModelMetaclass):
     Just adds `__ui_info__` to the class.
     """
 
-    def __new__(
+    def __new__(  # noqa: D102
         cls,
         name: str,
         bases: Tuple[Type[Any], ...],
@@ -294,20 +294,42 @@ class _build_descriptor(property):
 
     def __get__(  # type: ignore [override]
         self, instance: GUIModelVar, cls: Type[GUIModelVar]
-    ) -> Callable[[], ValueWidgetContainer]:
-        if instance is not None:
-            values = instance.dict(exclude_unset=True)
-        else:
-            values = {
-                k: f.get_default() for k, f in cls.__fields__.items() if not f.required
-            }
+    ) -> Callable[..., ValueWidgetContainer]:
+        def _build(values: Optional[Mapping[str, Any]] = None) -> ValueWidgetContainer:
+            """Build a widget for the model.
 
-        def _build() -> ValueWidgetContainer:
-            wdg = _build_widget(cls.__ui_info__, values)
+            {}
+
+            Parameters
+            ----------
+            values : Optional[Mapping[str, Any]]
+                Optionally overrides the values to use for the widget.
+
+            Returns
+            -------
+            ValueWidgetContainer
+                magicgui Container instance with widgets representing each field
+                in the model.
+            """
+            if instance is not None:
+                _values = instance.dict(exclude_unset=True)
+            else:
+                _values = {
+                    k: f.get_default()
+                    for k, f in cls.__fields__.items()
+                    if not f.required
+                }
+
+            if values:
+                _values.update(values)
+            wdg = _build_widget(cls.__ui_info__, _values)
             if instance is not None:
                 connect_model_to_gui(instance, wdg)
             return wdg
 
+        doc = "default" if instance is None else "current"
+        doc = f"The widget will be populated with the {doc} values."
+        _build.__doc__ = _build.__doc__.format(doc)  # type: ignore
         return _build
 
 
