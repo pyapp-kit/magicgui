@@ -1,36 +1,68 @@
-import ipaddress
-import uuid
-from datetime import date, datetime, time, timedelta
-from decimal import Decimal
-from enum import Enum
-from pathlib import Path
+from __future__ import annotations
+
 from typing import (
-    Any,
-    Sequence,
+    TYPE_CHECKING,
     AbstractSet,
+    Any,
     Callable,
     Dict,
     Mapping,
+    NamedTuple,
     Optional,
+    Protocol,
     Tuple,
     Type,
     TypeVar,
     Union,
-    cast,
 )
 
-from pydantic import BaseModel, PrivateAttr, BaseConfig
+from pydantic import BaseModel, PrivateAttr
 from pydantic.fields import FieldInfo as PydanticFieldInfo
 from pydantic.fields import ModelField, Undefined, UndefinedType
 from pydantic.main import ModelMetaclass
-from pydantic.typing import NoArgAnyCallable
+
 from magicgui import widgets
+from magicgui.type_map import get_widget_class
+from magicgui.types import WidgetOptions
+from magicgui.widgets._bases import ContainerWidget, ValueWidget
+
+if TYPE_CHECKING:
+    import dataclasses
+
+    from pydantic.dataclasses import Dataclass as PydanticDataclass
+    from pydantic.typing import NoArgAnyCallable
+
+    class _DataclassParams:
+        init: bool
+        repr: bool
+        eq: bool
+        order: bool
+        unsafe_hash: bool
+        frozen: bool
+
+    class PythonDataclass(Protocol):
+        __dataclass_fields__: Dict[str, dataclasses.Field]
+        __dataclass_params__: _DataclassParams
+
+    SupportsPydantic = Union[
+        BaseModel, Type[BaseModel], PydanticDataclass, Type[PydanticDataclass]
+    ]
+    SupportsDataclass = Union[PythonDataclass, Type[PythonDataclass]]
+    UiWidget = Union[Type[ValueWidget], str]
+    UiOptions = Mapping[str, Any]
+    UiMeta = Tuple[UiWidget, UiOptions]
+
 
 _T = TypeVar("_T")
 
-
 # class BaseConfig:
 #     ui_layout: Optional[str] = None
+
+
+class ResolvedUIMetadata(NamedTuple):
+    widget: Type[ValueWidget]
+    options: WidgetOptions
+    field_name: str
 
 
 class FieldInfo(PydanticFieldInfo):
@@ -40,11 +72,6 @@ class FieldInfo(PydanticFieldInfo):
         super().__init__(default=default, **kwargs)
         self.ui_widget = ui_widget
         self.ui_options = ui_options
-
-
-UiWidget = Union[Type[widgets._bases.ValueWidget], str]
-UiOptions = Mapping[str, Any]
-UiMeta = Tuple[UiWidget, UiOptions]
 
 
 def Field(
@@ -114,6 +141,8 @@ def Field(
     return field_info
 
 
+# https://peps.python.org/pep-0681/
+# https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
 def __dataclass_transform__(
     *,
     eq_default: bool = True,
@@ -134,91 +163,91 @@ class GUIModelMetaclass(ModelMetaclass):
         **kwargs: Any,
     ) -> Any:
         new_cls = super().__new__(cls, name, bases, class_dict, **kwargs)
-
-        # TODO: add to dir
-        cls.__widgets__ = {
-            k: get_widget_info_for_field(v) for k, v in new_cls.__fields__.items()
-        }
+        cls.__ui_info__ = _collect_pydantic_ui_info(new_cls)
         return new_cls
 
 
-def get_widget_class_for_field(field: ModelField) -> Optional[UiMeta]:
-    if issubclass(field.type_, str):
-        # if field.field_info.max_length:
-        #     return AutoString(length=field.field_info.max_length)
-        return widgets.LineEdit, {}
-    if issubclass(field.type_, float):
-        return widgets.FloatSpinBox, {}
-    if issubclass(field.type_, bool):
-        return widgets.CheckBox, {}
-    if issubclass(field.type_, int):
-        return widgets.SpinBox, {}
-    if issubclass(field.type_, datetime):
-        return widgets.DateTimeEdit, {}
-    if issubclass(field.type_, date):
-        return widgets.DateEdit, {}
-    if issubclass(field.type_, timedelta):
-        return widgets.TimeEdit, {}
-    if issubclass(field.type_, time):
-        return widgets.TimeEdit, {}
-    if issubclass(field.type_, Enum):
-        return widgets.ComboBox, {}
-    if issubclass(field.type_, bytes):
-        return widgets.LineEdit, {}
-    if issubclass(field.type_, Decimal):
-        # return Numeric(
-        #     precision=getattr(field.type_, "max_digits", None),
-        #     scale=getattr(field.type_, "decimal_places", None),
-        # )
-        return widgets.FloatSpinBox, {}
-    if issubclass(field.type_, ipaddress.IPv4Address):
-        return widgets.LineEdit, {}
-    if issubclass(field.type_, ipaddress.IPv4Network):
-        return widgets.LineEdit, {}
-    if issubclass(field.type_, ipaddress.IPv6Address):
-        return widgets.LineEdit, {}
-    if issubclass(field.type_, ipaddress.IPv6Network):
-        return widgets.LineEdit, {}
-    if issubclass(field.type_, Path):
-        # FIXME: this is really a ValueWidget
-        return widgets.FileEdit, {}  # type: ignore
-    if issubclass(field.type_, uuid.UUID):
-        return widgets.LineEdit, {}
+def _get_pydantic_model(obj: Any) -> Type[BaseModel]:
+    if isinstance(obj, BaseModel):
+        model_cls = type(obj)
+    elif hasattr(obj, "__pydantic_model__"):
+        model_cls = obj.__pydantic_model__
+    else:
+        model_cls = obj
+
+    if not issubclass(model_cls, BaseModel):
+        raise TypeError(f"{model_cls} must be either BaseModel or dataclass")
+    return model_cls
 
 
-def get_widget_info_for_field(field: ModelField) -> Optional[UiMeta]:
-    _wdg_kwargs = getattr(field.field_info, "widget_kwargs", Undefined)
-    user_kwargs = {} if _wdg_kwargs is Undefined else _wdg_kwargs
-    if not isinstance(user_kwargs, Mapping):
-        raise TypeError(f"widget_kwargs must be a mapping, not {type(user_kwargs)}")
+def collect_ui_info(
+    obj: Union[SupportsPydantic, PythonDataclass, Type[PythonDataclass]],
+) -> Dict[str, ResolvedUIMetadata]:
+    """Given an object, collect ui information.
 
-    _wdg_class = getattr(field.field_info, "ui_widget", Undefined)
-    if _wdg_class is not Undefined:
-        _wdg_class = cast(UiWidget, _wdg_class)
-        if isinstance(_wdg_class, type) and issubclass(
-            _wdg_class, widgets._bases.ValueWidget
+    Parameters
+    ----------
+    obj : Any
+        The object to collect ui information for.  Could be a pydantic BaseModel or
+        dataclass (type or instance).  Or a python dataclass.
+    """
+    try:
+        model = _get_pydantic_model(obj)
+    except TypeError:
+        pass
+    else:
+        return _collect_pydantic_ui_info(model)
+
+    if hasattr(obj, "__dataclass_fields__") and hasattr(obj, "__dataclass_params__"):
+        # TODO:
+        ...
+    raise TypeError(f"Cannot collect UI information for type {type(obj)}")
+
+
+def _collect_pydantic_ui_info(model: Type[BaseModel]) -> Dict[str, ResolvedUIMetadata]:
+    ui_info = {}
+    for field_name, field_info in model.__fields__.items():
+        info = get_widget_info_for_field(field_info)
+        if info is not None:
+            ui_info[field_name] = info
+    return ui_info
+
+
+def get_widget_info_for_field(field: ModelField) -> Optional[ResolvedUIMetadata]:
+    # search for user provided ui_options in field_info
+    _ui_opts = getattr(field.field_info, "ui_options", Undefined)
+    user_options = {} if _ui_opts is Undefined else _ui_opts
+    if not isinstance(user_options, Mapping):
+        raise TypeError(f"ui_options must be a mapping, not {type(user_options)}")
+    user_options = dict(user_options)
+
+    _ui_wdg = getattr(field.field_info, "ui_widget", Undefined)
+    if _ui_wdg is not Undefined:
+        if not isinstance(_ui_wdg, str) or (
+            isinstance(_ui_wdg, type) and issubclass(_ui_wdg, ValueWidget)
         ):
-            return _wdg_class, dict(user_kwargs)
-        elif isinstance(_wdg_class, str):
-            raise NotImplementedError(
-                "Passing widget class as string is not yet supported"
+            raise TypeError(
+                "ui_widget must be a string, or subclass of ValueWidget, "
+                f"not {type(_ui_wdg)}"
             )
-        raise TypeError(f"ui_widget '{_wdg_class}' is not a subclass of ValueWidget")
-    meta = get_widget_class_for_field(field)
-    if meta is not None:
-        wdg_class, wdg_kwargs = meta
-        cast(dict, wdg_kwargs).update(user_kwargs)
-        # TODO: convert string to class
-        return wdg_class, wdg_kwargs
-    return None
+        user_options["widget_type"] = _ui_wdg
+
+    widget_class, widget_kwargs = get_widget_class(
+        annotation=field, options=user_options, is_result=False
+    )
+    return ResolvedUIMetadata(widget_class, widget_kwargs, field.name)
+
+
+ValueWidgetContainer = ContainerWidget[ValueWidget]
+
 
 class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
     __slots__ = ("__weakref__",)
-    __widgets__: Dict[str, UiMeta]  # move?
-    _gui: Optional[widgets.Container] = PrivateAttr(None)
+    __ui_info__: Dict[str, ResolvedUIMetadata]  # move?
+    _gui: Optional[ValueWidgetContainer] = PrivateAttr(None)
 
     @property
-    def gui(self) -> widgets.Container:
+    def gui(self) -> ValueWidgetContainer:
         if self._gui is None:
             self._gui = type(self).build(self.dict(exclude_unset=True))
             self._connect_gui()
@@ -227,12 +256,10 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
     def _connect_gui(self) -> None:
         for widget in self._gui or ():
             if hasattr(self, widget.name):
-                widget = cast(widgets._bases.ValueWidget, widget)
                 widget.changed.connect_setattr(self, widget.name)
 
-    def _disconnect_gui(self) -> Optional[widgets.Container]:
+    def _disconnect_gui(self) -> Optional[ValueWidgetContainer]:
         for widget in self._gui or ():
-            widget = cast(widgets._bases.ValueWidget, widget)
             widget.changed.disconnect_setattr(self, widget.name, missing_ok=True)
         if self._gui is not None:
             popped, self._gui = self._gui, None
@@ -240,23 +267,13 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
         return None
 
     @classmethod
-    def build(cls, values: Union[Mapping[str, Any], None] = None) -> widgets.Container:
-        if values is None:
-            values = {}
-
-        wdgs = []
+    def build(
+        cls, values: Union[Mapping[str, Any], None] = None
+    ) -> ValueWidgetContainer:
+        values = dict(values) if values else {}
         for field_name, field in cls.__fields__.items():
-            meta = cls.__widgets__.get(field_name, None)
-            if meta is None:
-                continue
-            wdg_cls, wdg_kwargs = meta
-            wdg_kwargs = dict(wdg_kwargs)
-            wdg_kwargs["value"] = values.get(field_name, field.get_default())
-            wdg_kwargs["name"] = field_name
-            new_widget = wdg_cls(**wdg_kwargs)
-            wdgs.append(new_widget)
-
-        return widgets.Container(widgets=wdgs)
+            values.setdefault(field_name, field.get_default())
+        return _build_widget(cls.__ui_info__, values)
 
     def __setattr__(self, name: str, value: Any):
         if self._gui is not None:
@@ -266,10 +283,21 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
         return super().__setattr__(name, value)
 
 
-def build_widget_for_model(model: BaseModel) -> widgets.Container:
-    # TODO: ... for stuff that didn't subclass on GUIModel
-    ...
+def _build_widget(
+    ui_info: Dict[str, ResolvedUIMetadata],
+    values: Union[Mapping[str, Any], None] = None,
+) -> ValueWidgetContainer:
+    if values is None:
+        values = {}
 
+    wdgs = []
+    for field_name, ui_metadata in ui_info.items():
+        wdg_kwargs = dict(ui_metadata.options)
+        wdg_kwargs.setdefault("name", field_name)
+        value = values.get(field_name, Undefined)
+        if value is not Undefined:
+            wdg_kwargs["value"] = value
+        new_widget = ui_metadata.widget(**wdg_kwargs)
+        wdgs.append(new_widget)
 
-class T(GUIModel):
-    x: int
+    return widgets.Container(widgets=wdgs)

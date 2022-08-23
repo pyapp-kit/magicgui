@@ -3,13 +3,27 @@ from __future__ import annotations
 
 import datetime
 import inspect
+import ipaddress
 import pathlib
 import types
+import uuid
 import warnings
 from collections import defaultdict
 from enum import EnumMeta
-from typing import Any, Callable, DefaultDict, ForwardRef, Type, TypeVar, cast, overload
+from typing import (
+    Any,
+    Callable,
+    DefaultDict,
+    ForwardRef,
+    Mapping,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
+from pydantic.fields import ModelField
 from typing_extensions import Literal
 
 from magicgui import widgets
@@ -32,6 +46,8 @@ class MissingWidget(RuntimeError):
     """Raised when a backend widget cannot be found."""
 
 
+FieldType = Union[TypeWrapper, ModelField]  # TODO: remove later
+
 _RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
 _TYPE_DEFS: dict[type, WidgetTuple] = dict()
 
@@ -53,18 +69,25 @@ _SIMPLE_TYPES = {
     int: widgets.SpinBox,
     float: widgets.FloatSpinBox,
     str: widgets.LineEdit,
+    bytes: widgets.LineEdit,
     pathlib.Path: widgets.FileEdit,
     datetime.time: widgets.TimeEdit,
+    datetime.timedelta: widgets.TimeEdit,
     datetime.date: widgets.DateEdit,
     datetime.datetime: widgets.DateTimeEdit,
     range: widgets.RangeEdit,
     slice: widgets.SliceEdit,
     list: widgets.ListEdit,
     tuple: widgets.TupleEdit,
+    uuid.UUID: widgets.LineEdit,
+    ipaddress.IPv4Address: widgets.LineEdit,
+    ipaddress.IPv6Address: widgets.LineEdit,
+    ipaddress.IPv4Network: widgets.LineEdit,
+    ipaddress.IPv6Network: widgets.LineEdit,
 }
 
 
-def match_type(tw: TypeWrapper) -> WidgetTuple | None:
+def match_type(tw: FieldType) -> WidgetTuple | None:
     """Check simple type mappings."""
     _type = tw.outer_type_
 
@@ -77,19 +100,25 @@ def match_type(tw: TypeWrapper) -> WidgetTuple | None:
     if _type in _SIMPLE_TYPES:
         return _SIMPLE_TYPES[_type], {}
     for key in _SIMPLE_TYPES.keys():
-        if tw.is_subclass(key):
+        if _is_subclass(tw.outer_type_, key):
             return _SIMPLE_TYPES[key], {}
+
+    # TODO:
+    # if issubclass(field.type_, Decimal):
+    #       precision=getattr(field.type_, "max_digits", None),
+    #       scale=getattr(field.type_, "decimal_places", None),
+    #     return widgets.FloatSpinBox, {}
 
     if _type in (types.FunctionType,):
         return widgets.FunctionGui, {"function": tw.default}  # type: ignore
 
     # sequence of paths
-    if tw.shape in tw.SHAPE.SEQUENCE_LIKE:
+    if tw.shape in TypeWrapper.SHAPE.SEQUENCE_LIKE:
         if _is_subclass(tw.type_, pathlib.Path):
             return widgets.FileEdit, {"mode": "rm"}
-        elif tw.shape == tw.SHAPE.LIST:
+        elif tw.shape == TypeWrapper.SHAPE.LIST:
             return widgets.ListEdit, {}
-        elif tw.shape == tw.SHAPE.TUPLE:
+        elif tw.shape == TypeWrapper.SHAPE.TUPLE:
             return widgets.TupleEdit, {}
     return None
 
@@ -108,7 +137,7 @@ _SIMPLE_RETURN_TYPES = [
 ]
 
 
-def match_return_type(tw: TypeWrapper) -> WidgetTuple | None:
+def match_return_type(tw: FieldType) -> WidgetTuple | None:
     """Check simple type mappings for result widgets."""
     import sys
 
@@ -123,7 +152,11 @@ def match_return_type(tw: TypeWrapper) -> WidgetTuple | None:
         for x in ("pandas.DataFrame", "numpy.ndarray")
     ]
 
-    if any(tw.is_subclass(tt) for tt in table_types if not isinstance(tt, ForwardRef)):
+    if any(
+        _is_subclass(tw.outer_type_, tt)
+        for tt in table_types
+        if not isinstance(tt, ForwardRef)
+    ):
         return widgets.Table, {}
 
     return None
@@ -131,22 +164,26 @@ def match_return_type(tw: TypeWrapper) -> WidgetTuple | None:
 
 def pick_widget_type(
     value: Any = None,
-    annotation: type[Any] | None = None,
+    annotation: type[Any] | FieldType | None = None,
     options: WidgetOptions | None = None,
     is_result: bool = False,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
     if is_result and annotation is inspect.Parameter.empty:
         annotation = str
-    try:
-        tw = TypeWrapper(annotation, value)
-    except ValueError:
-        if value is None:
-            return widgets.EmptyWidget, {"visible": False}
-        raise
-    tw.resolve()
-    _type = tw.outer_type_
+    if isinstance(annotation, (ModelField, TypeWrapper)):
+        tw = annotation
+    else:
+        try:
+            tw = TypeWrapper(annotation, value)
+        except ValueError:
+            if value is None:
+                return widgets.EmptyWidget, {"visible": False}
+            raise
+        tw.resolve()
     options = options or {}
+
+    _type = tw.outer_type_
     options.setdefault("nullable", not tw.required)
     choices = options.get("choices") or (isinstance(_type, EnumMeta) and _type)
 
@@ -192,8 +229,8 @@ def pick_widget_type(
 
 def get_widget_class(
     value: Any = None,
-    annotation: type[Any] | None = None,
-    options: WidgetOptions | None = None,
+    annotation: type[Any] | FieldType | None = None,
+    options: Mapping[str, Any] | None = None,
     is_result: bool = False,
 ) -> tuple[WidgetClass, WidgetOptions]:
     """Return a WidgetClass appropriate for the given parameters.
@@ -217,7 +254,7 @@ def get_widget_class(
         The WidgetClass, and WidgetOptions that can be used for params. WidgetOptions
         may be different than the options passed in.
     """
-    _options = cast(WidgetOptions, options)
+    _options = cast(WidgetOptions, dict(options or {}))
 
     widget_type, _options = pick_widget_type(value, annotation, _options, is_result)
 

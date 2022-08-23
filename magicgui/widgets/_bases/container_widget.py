@@ -1,7 +1,15 @@
 from __future__ import annotations
 
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    MutableSequence,
+    Sequence,
+    TypeVar,
+    overload,
+)
 
 from psygnal import Signal
 
@@ -18,8 +26,10 @@ from .widget import Widget
 if TYPE_CHECKING:
     from magicgui.widgets import Container
 
+WidgetVar = TypeVar("WidgetVar", bound=Widget)
 
-class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
+
+class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
