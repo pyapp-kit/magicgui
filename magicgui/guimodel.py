@@ -250,21 +250,22 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
     def gui(self) -> ValueWidgetContainer:
         if self._gui is None:
             self._gui = type(self).build(self.dict(exclude_unset=True))
-            self._connect_gui()
+            connect_model_to_gui(self, self._gui)
         return self._gui
 
-    def _connect_gui(self) -> None:
-        for widget in self._gui or ():
-            if hasattr(self, widget.name):
-                widget.changed.connect_setattr(self, widget.name)
-
     def _disconnect_gui(self) -> Optional[ValueWidgetContainer]:
-        for widget in self._gui or ():
-            widget.changed.disconnect_setattr(self, widget.name, missing_ok=True)
+        wgd = None
         if self._gui is not None:
-            popped, self._gui = self._gui, None
-            return popped
-        return None
+            wgd, self._gui = self._gui, None
+            disconnect_model_to_from_gui(self, wgd)
+        return wgd
+
+    def __setattr__(self, name: str, value: Any):
+        if self._gui is not None:
+            wdg = getattr(self._gui, name, None)
+            if wdg is not None:
+                wdg.value = value
+        return super().__setattr__(name, value)
 
     @classmethod
     def build(
@@ -275,12 +276,16 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
             values.setdefault(field_name, field.get_default())
         return _build_widget(cls.__ui_info__, values)
 
-    def __setattr__(self, name: str, value: Any):
-        if self._gui is not None:
-            wdg = getattr(self._gui, name, None)
-            if wdg is not None:
-                wdg.value = value
-        return super().__setattr__(name, value)
+
+def connect_model_to_gui(model: GUIModel, gui: ValueWidgetContainer) -> None:
+    for widget in gui:
+        if hasattr(model, widget.name):
+            widget.changed.connect_setattr(model, widget.name)
+
+
+def disconnect_model_to_from_gui(model: GUIModel, gui: ValueWidgetContainer) -> None:
+    for widget in gui:
+        widget.changed.disconnect_setattr(model, widget.name, missing_ok=True)
 
 
 def _build_widget(
