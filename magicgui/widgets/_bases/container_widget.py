@@ -111,11 +111,11 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         object.__setattr__(self, name, value)
 
     @overload
-    def __getitem__(self, key: int | str) -> Widget:  # noqa: D105
+    def __getitem__(self, key: int | str) -> WidgetVar:  # noqa: D105
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> MutableSequence[Widget]:  # noqa: F811, D105
+    def __getitem__(self, key: slice) -> MutableSequence[WidgetVar]:  # noqa: F811, D105
         ...
 
     def __getitem__(self, key):  # noqa: F811
@@ -175,7 +175,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         d.extend([w.name for w in self if not w.gui_only])
         return d
 
-    def insert(self, key: int, widget: Widget):
+    def insert(self, key: int, widget: WidgetVar):
         """Insert widget at ``key``."""
         if isinstance(widget, (ValueWidget, ContainerWidget)):
             widget.changed.connect(lambda: self.changed.emit(self))

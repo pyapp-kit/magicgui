@@ -11,6 +11,8 @@ __email__ = "talley.lambert@gmail.com"
 from ._magicgui import magic_factory, magicgui
 from .application import event_loop, use_app
 from .type_map import register_type
+from .guimodel import GUIModel, Field, create_gui_model
+
 
 __all__ = [
     "event_loop",
@@ -18,6 +20,9 @@ __all__ = [
     "magic_factory",
     "register_type",
     "use_app",
+    "GUIModel",
+    "Field",
+    "create_gui_model",
 ]
 
 

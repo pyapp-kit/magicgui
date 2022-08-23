@@ -14,12 +14,13 @@ from typing import (
     Type,
     TypeVar,
     Union,
+    cast,
 )
 
-from pydantic import BaseModel, PrivateAttr
+from pydantic import BaseConfig, BaseModel, PrivateAttr
 from pydantic.fields import FieldInfo as PydanticFieldInfo
 from pydantic.fields import ModelField, Undefined, UndefinedType
-from pydantic.main import ModelMetaclass
+from pydantic.main import ConfigError, ModelMetaclass, create_model
 
 from magicgui import widgets
 from magicgui.type_map import get_widget_class
@@ -51,6 +52,7 @@ if TYPE_CHECKING:
     UiWidget = Union[Type[ValueWidget], str]
     UiOptions = Mapping[str, Any]
     UiMeta = Tuple[UiWidget, UiOptions]
+    ValueWidgetContainer = ContainerWidget[ValueWidget]
 
 
 _T = TypeVar("_T")
@@ -163,7 +165,7 @@ class GUIModelMetaclass(ModelMetaclass):
         **kwargs: Any,
     ) -> Any:
         new_cls = super().__new__(cls, name, bases, class_dict, **kwargs)
-        cls.__ui_info__ = _collect_pydantic_ui_info(new_cls)
+        new_cls.__ui_info__ = _collect_pydantic_ui_info(new_cls)
         return new_cls
 
 
@@ -235,10 +237,8 @@ def get_widget_info_for_field(field: ModelField) -> Optional[ResolvedUIMetadata]
     widget_class, widget_kwargs = get_widget_class(
         annotation=field, options=user_options, is_result=False
     )
+    widget_kwargs["annotation"] = field.outer_type_
     return ResolvedUIMetadata(widget_class, widget_kwargs, field.name)
-
-
-ValueWidgetContainer = ContainerWidget[ValueWidget]
 
 
 class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
@@ -261,11 +261,14 @@ class GUIModel(BaseModel, metaclass=GUIModelMetaclass):
         return wgd
 
     def __setattr__(self, name: str, value: Any):
-        if self._gui is not None:
-            wdg = getattr(self._gui, name, None)
-            if wdg is not None:
-                wdg.value = value
-        return super().__setattr__(name, value)
+        super().__setattr__(name, value)
+        if self._gui is not None and name in self.__fields__:
+            try:
+                wdg = self._gui[name]
+            except AttributeError:
+                # no widget by that name
+                return
+            wdg.value = getattr(self, name)
 
     @classmethod
     def build(
@@ -306,3 +309,62 @@ def _build_widget(
         wdgs.append(new_widget)
 
     return widgets.Container(widgets=wdgs)
+
+
+GUIModelVar = TypeVar("GUIModelVar", bound=GUIModel)
+
+
+def create_gui_model(
+    __model_name: str,
+    *,
+    __config__: Optional[Type[BaseConfig]] = None,
+    __base__: Union[None, Type[GUIModelVar], Tuple[Type[GUIModelVar], ...]] = None,
+    __module__: str = __name__,
+    __validators__: Dict[str, classmethod[Any]] = None,
+    __cls_kwargs__: Dict[str, Any] = None,
+    **field_definitions: Any,
+) -> Type[GUIModelVar]:
+    """Dynamically create a GUIModel class.
+
+    Parameters
+    ----------
+    __model_name : str
+        The name of the created model.
+    __config__ : Optional[Type[BaseConfig]]
+        The config class to use for the model.
+    __base__ : Optional[Type[GUIModelVar], Tuple[Type[GUIModelVar], ...]]
+        The base class(es) to use for the model. If provided, at least one of these
+        should be a GUIModel subclasses.
+    __module__ : str
+        The module name to use for the model.
+    __validators__ : Dict[str, classmethod[Any]]
+        The validators to use for the model.
+    __cls_kwargs__ : Dict[str, Any]
+        The keyword arguments to use for the model.
+    **field_definitions : Any
+        fields of the model (or extra fields if a base is supplied) in the format
+        `<name>=(<type>, <default default>)` or `<name>=<default value>, e.g.
+        `foobar=(str, ...)` or `foobar=123`, or, for complex use-cases, in the format
+        `<name>=<FieldInfo>`, e.g. `foo=Field(default_factory=datetime.utcnow,
+        alias='bar')`
+    """
+
+    if __base__ is not None:
+        if __config__ is not None:
+            raise ConfigError(
+                "to avoid confusion __config__ and __base__ " "cannot be used together"
+            )
+        if not isinstance(__base__, tuple):
+            __base__ = (__base__,)
+    else:
+        __base__ = (GUIModel,)  # type: ignore
+
+    return create_model(  # type: ignore
+        __model_name=__model_name,
+        __config__=__config__,
+        __base__=__base__,
+        __module__=__module__,
+        __validators__=__validators__,
+        __cls_kwargs__=__cls_kwargs__,
+        **field_definitions,
+    )
