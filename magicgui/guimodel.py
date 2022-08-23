@@ -21,18 +21,16 @@ from pydantic.fields import FieldInfo as PydanticFieldInfo
 from pydantic.fields import Undefined
 from pydantic.main import ModelMetaclass, create_model
 
-
 from magicgui import widgets
 from magicgui.type_map import get_widget_class
-from magicgui.types import WidgetOptions
 from magicgui.widgets._bases import ContainerWidget, ValueWidget
 
 if TYPE_CHECKING:
     import dataclasses
 
     from pydantic.dataclasses import Dataclass as PydanticDataclass
-    from pydantic.typing import NoArgAnyCallable
     from pydantic.fields import ModelField, UndefinedType
+    from pydantic.typing import NoArgAnyCallable
 
     class _DataclassParams:
         init: bool

@@ -1,7 +1,8 @@
 """For now, this module assumes qt backend.
 """
 from datetime import date
-from magicgui import GUIModel, Field
+
+from magicgui import Field, GUIModel
 from magicgui.widgets import Container
 
 
