@@ -46,16 +46,12 @@ if TYPE_CHECKING:
     _T = TypeVar("_T")
 
 
-
-
-
 class ResolvedUIMetadata(NamedTuple):
     """Info required to create a widget for a field."""
 
     widget: Type[ValueWidget]
     options: Dict[str, Any]
     field_name: str = ""
-
 
 
 class FieldInfo(PydanticFieldInfo):
@@ -358,7 +354,6 @@ def unbind_gui_changes_from_model(gui: ContainerWidget, model: BaseModel) -> Non
             widget.changed.disconnect_setattr(model, widget.name, missing_ok=True)
 
 
-
 def _build_widget(
     ui_info: Dict[str, ResolvedUIMetadata],
     values: Union[Mapping[str, Any], None] = None,
@@ -449,84 +444,3 @@ def create_gui_model(
         __cls_kwargs__=__cls_kwargs__,
         **field_definitions,
     )
-
-
-# class BaseConfig:
-#     ui_layout: Optional[str] = None
-
-
-# def build_widget(
-#     obj: Any, values: Optional[Mapping[str, Any]] = None, bind_changes: bool = None
-# ) -> ContainerWidget:
-#     """Build a GUI for `obj`."""
-#     if isinstance(obj, GUIModel):
-#         ...
-#     elif isinstance(obj, type) and issubclass(obj, GUIModel):
-#         ...
-#     elif isinstance(obj, BaseModel):
-#         ...
-#     elif isinstance(obj, type) and issubclass(obj, BaseModel):
-#         ...
-#     else:
-#         raise TypeError(f"{obj} is not a GUIModel")
-
-
-# def _has_dataclass_params(obj: Any) -> bool:
-#     return bool(
-#         hasattr(obj, "__dataclass_params__")
-#         and isinstance(obj.__dataclass_params__, dataclasses._DataclassParams)
-#         and hasattr(obj, "__dataclass_fields__")
-#     )
-
-
-# def _is_dataclass_type(obj: Any) -> TypeGuard[Type[PythonDataclass]]:
-#     return isinstance(obj, type) and _has_dataclass_params(obj)
-
-
-# def _is_dataclass_instance(obj: Any) -> TypeGuard[PythonDataclass]:
-#     return _has_dataclass_params(obj) and _has_dataclass_params(type(obj))
-
-
-
-# def _get_pydantic_model(obj: Any) -> Type[BaseModel]:
-#     """Try to find a pydantic BaseModel on the given object."""
-#     if isinstance(obj, BaseModel):
-#         model_cls = type(obj)
-#     elif hasattr(obj, "__pydantic_model__"):
-#         model_cls = obj.__pydantic_model__
-#     else:
-#         model_cls = obj
-
-#     if not issubclass(model_cls, BaseModel):
-#         raise TypeError(f"{model_cls} must be either BaseModel or dataclass")
-#     return model_cls
-
-
-# TODO: enable this as a way to collect ui info from an arbitrary object
-# def collect_ui_info(
-#     obj: Union[SupportsPydantic, PythonDataclass, Type[PythonDataclass]],
-# ) -> Dict[str, ResolvedUIMetadata]:
-#     """Given an object, collect information needed to present a UI for it.
-
-#     Parameters
-#     ----------
-#     obj : Any
-#         The object to collect ui information for.  Could be a pydantic BaseModel or
-#         dataclass (type or instance).  Or a python dataclass.
-
-#     Returns
-#     -------
-#     Dict[str, ResolvedUIMetadata]
-#         A dictionary of field names to ui information.
-#     """
-#     try:
-#         model = _get_pydantic_model(obj)
-#     except TypeError:
-#         pass
-#     else:
-#         return _collect_pydantic_ui_info(model)
-
-#     if hasattr(obj, "__dataclass_fields__") and hasattr(obj, "__dataclass_params__"):
-#         # TODO:
-#         ...
-#     raise TypeError(f"Cannot collect UI information for type {type(obj)}")
