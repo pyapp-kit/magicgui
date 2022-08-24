@@ -110,7 +110,7 @@ jobs:
           pip install numpy superqt vispy pyqtgraph
           python -m pip install ./magic-class
 
-      - name: Test napari magicclass
+      - name: Test magicclass
         uses: GabrielBB/xvfb-action@v1
         # continue-on-error: true
         with:
