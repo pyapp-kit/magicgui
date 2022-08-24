@@ -6,8 +6,7 @@ from datetime import date
 from enum import Enum
 from typing import List, Optional
 
-from magicgui import Field, GUIModel, create_gui_model
-from magicgui.widgets import Container
+from magicgui._guimodel import Field, GUIModel, create_gui_model
 
 
 def test_basic_model(qapp):
@@ -18,9 +17,10 @@ def test_basic_model(qapp):
 
     class Person(GUIModel):
         name: str
-        age: int
         birthday: date
+        age: int = Field(ui_widget="Slider", ui_options={"tracking": False})
         married: bool = False
+        degree: Degree = Degree.BACHELOR
         salary: Optional[float] = Field(None, ge=0, le=999999)
         children: List[ipaddress.IPv4Address] = []
         uid: uuid.UUID = Field(default_factory=uuid.uuid4)
@@ -28,7 +28,7 @@ def test_basic_model(qapp):
 
     obj = Person(name="Frank", age=55, married=True, birthday=date(1965, 1, 1))
     assert obj._gui is None
-    assert isinstance(obj.gui, Container)
+    assert obj.gui
     assert obj._gui is not None
 
     obj.age = 42
@@ -38,9 +38,7 @@ def test_basic_model(qapp):
 
     obj.birthday = date(2020, 1, 1)
     assert obj.birthday == date(2020, 1, 1) == obj.gui.birthday.value
-
     gui = obj._disconnect_gui()
-    assert isinstance(gui, Container)
     assert obj._gui is None
 
     obj.age = 70
