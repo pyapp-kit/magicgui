@@ -107,12 +107,12 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e .[testing]
+          python -m pip install -e .[testing,pyqt5]
           python -m pip install ./magic-class
 
       - name: Test napari magicclass
         uses: GabrielBB/xvfb-action@v1
-        continue-on-error: true
+        # continue-on-error: true
         with:
           working-directory: magic-class
           run: pytest -v --color=yes
