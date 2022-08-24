@@ -225,11 +225,12 @@ def get_widget_info_for_field(field: ModelField) -> ResolvedUIMetadata:
             )
         user_options["widget_type"] = _ui_wdg
 
-    widget_class, widget_kwargs = get_widget_class(
+    widget_class, _widget_kwargs = get_widget_class(
         annotation=field, options=user_options, is_result=False
     )
+    widget_kwargs = dict(_widget_kwargs)
     widget_kwargs["annotation"] = field.outer_type_
-    return ResolvedUIMetadata(widget_class, dict(widget_kwargs), field.name)
+    return ResolvedUIMetadata(widget_class, widget_kwargs, field.name)  # type: ignore
 
 
 class _build_descriptor(property):
@@ -433,9 +434,9 @@ def create_gui_model(
         if not isinstance(__base__, tuple):
             __base__ = (__base__,)
     else:
-        __base__ = (GUIModel,)  # type: ignore
+        __base__ = (GUIModel,)
 
-    return create_model(  # type: ignore
+    return create_model(
         __model_name=__model_name,
         __config__=__config__,
         __base__=__base__,

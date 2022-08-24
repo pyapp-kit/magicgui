@@ -76,7 +76,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         self,
         layout: str = "vertical",
         scrollable: bool = False,
-        widgets: Sequence[Widget] = (),
+        widgets: Sequence[WidgetVar] = (),
         labels=True,
         **kwargs,
     ):
