@@ -91,6 +91,31 @@ jobs:
         with:
           run: pytest test_napari.py -v --color=yes
 
+  test_magicclass:
+    name: magic-class tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          repository: hanjinliu/magic-class
+          path: magic-class
+      - uses: tlambert03/setup-qt-libs@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[testing]
+          python -m pip install ./magic-class
+
+      - name: Test napari magicclass
+        uses: GabrielBB/xvfb-action@v1
+        continue-on-error: true
+        with:
+          working-directory: magic-class
+          run: pytest -v --color=yes
 
   deploy:
     needs: test
