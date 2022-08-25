@@ -4,6 +4,7 @@ from typing import Optional, Union
 import pytest
 
 from magicgui import magicgui, register_type, type_map, types, widgets
+from magicgui._type_resolution import resolve_single_type
 
 
 def test_forward_refs():
@@ -103,3 +104,14 @@ def test_widget_options():
     choice3 = widgets.create_widget(annotation=E)
     assert choice1._nullable is choice3._nullable is False
     assert choice2._nullable is True
+
+
+def test_nested_forward_refs():
+
+    resolved = resolve_single_type(Optional['List["numpy.ndarray"]'])  # noqa
+
+    from typing import List
+
+    import numpy as np
+
+    assert resolved == Optional[List[np.ndarray]]
