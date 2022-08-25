@@ -23,7 +23,7 @@ from magicgui.widgets import _protocols
 from magicgui.widgets._bases.container_widget import DialogWidget
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
-from .._sentinal import Undefined, _Undefined
+from ..types import Undefined, _Undefined
 from ._bases import (
     ButtonWidget,
     CategoricalWidget,

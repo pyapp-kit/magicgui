@@ -219,18 +219,9 @@ class MagicSignature(inspect.Signature):
 
     def widgets(self, app: AppRef = None) -> MappingProxyType:
         """Return mapping from parameters to widgets for all params in Signature."""
-        _widgets = {}
-        for i, (n, p) in enumerate(self.parameters.items()):
-            try:
-                _widgets[n] = p.to_widget(app)
-            except ValueError:
-                # skip unnotated self in first position
-                # probably a method decorator
-                if n == "self" and i == 0:
-                    continue
-                raise
-
-        return MappingProxyType(_widgets)
+        return MappingProxyType(
+            {n: p.to_widget(app) for n, p in self.parameters.items()}
+        )
 
     def to_container(self, **kwargs) -> Container:
         """Return a ``magicgui.widgets.Container`` for this MagicSignature."""
