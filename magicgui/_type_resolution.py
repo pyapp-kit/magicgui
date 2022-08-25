@@ -1,5 +1,7 @@
+import sys
 import types
 import typing
+from copy import copy
 from functools import lru_cache, partial
 from importlib import import_module
 from typing import Any, Callable, Dict, Optional, Tuple, Type, Union, get_type_hints
@@ -51,7 +53,7 @@ def resolve_types(
     obj = _unwrap_partial(obj)
 
     try:
-        return get_type_hints(obj, globalns=globalns, localns=localns)
+        hints = get_type_hints(obj, globalns=globalns, localns=localns)
     except NameError as e:
         if do_imports:
             # try to import the top level name and try again
@@ -63,6 +65,28 @@ def resolve_types(
                     ns[name] = import_module(name)
                     return resolve_types(obj, globalns, ns, do_imports=do_imports)
         raise e
+
+    # before version 3.9, typing.get_type_hints did not resolve hint.__args__
+    if sys.version_info < (3, 9):
+        _iterdict(hints, _resolve_forwards)
+    return hints
+
+
+def _iterdict(d: Dict[str, Any], func: Callable) -> None:
+    for k, v in d.items():
+        if isinstance(v, dict):
+            _iterdict(v, func)
+        else:
+            d[k] = func(v)
+
+
+def _resolve_forwards(v: Any) -> Any:
+    if isinstance(v, typing.ForwardRef):
+        return _try_cached_resolve(v.__forward_arg__)
+    if getattr(v, "__args__", ()):
+        v = copy(v)
+        v.__args__ = tuple(_resolve_forwards(a) for a in v.__args__)
+    return v
 
 
 def resolve_single_type(
@@ -80,3 +104,13 @@ def resolve_single_type(
     mock_obj = type("_T", (), {"__annotations__": {"obj": hint}})()
     hints = resolve_types(mock_obj, globalns, localns, do_imports=do_imports)
     return hints["obj"]
+
+
+_cached_resolve = lru_cache(maxsize=1)(resolve_single_type)
+
+
+def _try_cached_resolve(v):
+    try:
+        return _cached_resolve(v)
+    except TypeError:
+        return resolve_single_type(v)
