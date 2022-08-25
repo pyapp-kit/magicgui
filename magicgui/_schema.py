@@ -80,11 +80,13 @@ class StringContraints:
             aliases=["maxLength"],
         ),
     )
-    regex: Optional[str] = field(
+    pattern: Optional[str] = field(
         default=None,
         metadata=dict(
-            description="Regular expression pattern",
-            aliases=["pattern"],
+            description="Regular expression pattern. For file dialogs, this is used "
+            "to filter the files shown, and will be interpreted as a glob pattern. "
+            "For other strings, it is a regex pattern.",
+            aliases=["regex", "filter"],
         ),
     )
     format: JsonStringFormats = field(
@@ -252,6 +254,9 @@ def _field(**kwargs):
                 _kwargs.pop(key)
                 _kwargs["widget_type"] = "Select"
                 # TODO: add a warning
+            elif key in ("options", "readout", "tracking", "mode"):
+                # TODO
+                _kwargs.pop(key)
             else:
                 raise ValueError(f"{key} is not a valid field")
     return WidgetOptions(**_kwargs)
