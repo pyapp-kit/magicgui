@@ -66,14 +66,17 @@ def resolve_types(
 
 
 def resolve_single_type(
-    obj: Any,
+    hint: Any,
     globalns: Optional[Dict[str, Any]] = None,
     localns: Optional[Dict[str, Any]] = None,
     do_imports: bool = True,
-):
-    """Resolve a single type hint from an object."""
-    if obj is None:
+) -> Any:
+    """Resolve a single type hint.
+
+    See `resolve_types` for details on parameters.
+    """
+    if hint is None:
         return None
-    mock_obj = type("_T", (), {"__annotations__": {"obj": obj}})()
+    mock_obj = type("_T", (), {"__annotations__": {"obj": hint}})()
     hints = resolve_types(mock_obj, globalns, localns, do_imports=do_imports)
     return hints["obj"]
