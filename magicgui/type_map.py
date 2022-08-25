@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime
 import inspect
 import pathlib
+import sys
 import types
 import warnings
 from collections import defaultdict
@@ -17,12 +18,15 @@ from typing import (
     Type,
     TypeVar,
     cast,
+    get_args,
+    get_origin,
     overload,
 )
 
 from typing_extensions import Literal
 
 from magicgui import widgets
+from magicgui._sentinal import Undefined, _Undefined
 from magicgui.types import (
     PathLike,
     ReturnCallback,
@@ -92,13 +96,15 @@ def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
     if type_ in (types.FunctionType,):
         return widgets.FunctionGui, {"function": default}  # type: ignore
 
+    origin = get_origin(type_) or type_
     # sequence of paths
-    if _is_subclass(type_, Sequence):
-        if _is_subclass(type_, pathlib.Path):
+    if _is_subclass(origin, Sequence):
+        args = get_args(type_)
+        if len(args) == 1 and _is_subclass(args[0], pathlib.Path):
             return widgets.FileEdit, {"mode": "rm"}
-        elif _is_subclass(type_, list):
+        elif _is_subclass(origin, list):
             return widgets.ListEdit, {}
-        elif _is_subclass(type_, tuple):
+        elif _is_subclass(origin, tuple):
             return widgets.TupleEdit, {}
     return None
 
@@ -138,27 +144,74 @@ def match_return_type(type_: Any) -> WidgetTuple | None:
     return None
 
 
-def _type_required(default, annotation) -> tuple[Any, bool]:
+NONE_TYPES: tuple[Any, Any, Any] = (None, type(None), Literal[None])
 
-    type_ = resolve_single_type(annotation)
-    required = default is inspect.Parameter
-    return type_, required
+
+if sys.version_info[:2] == (3, 8):
+    # We can use the fast implementation for 3.8 but there is a very weird bug
+    # where it can fail for `Literal[None]`.
+    # We just need to redefine a useless `Literal[None]` inside the function body to fix
+
+    def is_none_type(type_: Any) -> bool:
+        Literal[None]  # fix edge case
+        return any(type_ is none_type for none_type in NONE_TYPES)
+
+else:
+
+    def is_none_type(type_: Any) -> bool:
+        return any(type_ is none_type for none_type in NONE_TYPES)
+
+
+def _type_nullable(
+    default: Any = Undefined,
+    annotation: type[Any] | _Undefined = Undefined,
+) -> tuple[Any, bool]:
+    if default is Undefined:
+        if annotation in (Undefined, inspect.Parameter.empty):
+            raise ValueError("Either `type_` or `default` must be defined.")
+    elif annotation in (None, inspect.Parameter.empty):
+        annotation = type(default)
+
+    try:
+        type_ = resolve_single_type(annotation)
+    except (NameError, ImportError) as e:
+        raise type(e)(f"Magicgui could not resolve {annotation}: {e}") from e
+
+    # look for Optional[Type], which manifests as Union[Type, None]
+    nullable = default is None
+    args = get_args(annotation)
+    for arg in args:
+        if is_none_type(arg) or arg is Any or arg is object:
+            nullable = True
+            if len(args) == 2:
+                type_ = next(i for i in args if i is not arg)
+            break
+
+    return type_, nullable
 
 
 def pick_widget_type(
-    value: Any = None,
-    annotation: type[Any] | None = None,
+    value: Any = Undefined,
+    annotation: Any = Undefined,
     options: WidgetOptions | None = None,
     is_result: bool = False,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
+    options = options or {}
+    choices = options.get("choices")
     if is_result and annotation is inspect.Parameter.empty:
         annotation = str
-    _type, required = _type_required(value, annotation)
-    options = options or {}
-    options.setdefault("nullable", not required)
-    choices = options.get("choices") or (isinstance(_type, EnumMeta) and _type)
 
+    try:
+        _type, nullable = _type_nullable(value, annotation)
+    except ValueError:
+        if choices:
+            wdg = widgets.Select if options.get("allow_multiple") else widgets.ComboBox
+            return wdg, options
+        return widgets.EmptyWidget, {"visible": False, **options}  # type: ignore
+
+    options.setdefault("nullable", nullable)
+    choices = choices or (isinstance(_type, EnumMeta) and _type)  # type: ignore
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
         if choices:
@@ -199,8 +252,8 @@ def pick_widget_type(
 
 
 def get_widget_class(
-    value: Any = None,
-    annotation: type[Any] | None = None,
+    value: Any = Undefined,
+    annotation: Any = Undefined,
     options: WidgetOptions | None = None,
     is_result: bool = False,
 ) -> tuple[WidgetClass, WidgetOptions]:

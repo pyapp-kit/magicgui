@@ -4,9 +4,10 @@ from math import ceil, log10
 from typing import Tuple, Union, cast
 from warnings import warn
 
+from magicgui._sentinal import Undefined, _Undefined
 from magicgui.widgets import _protocols
 
-from .value_widget import UNSET, ValueWidget, _Unset
+from .value_widget import ValueWidget
 
 
 class RangedWidget(ValueWidget):
@@ -27,9 +28,9 @@ class RangedWidget(ValueWidget):
 
     def __init__(
         self,
-        min: Union[float, _Unset] = UNSET,
-        max: Union[float, _Unset] = UNSET,
-        step: Union[float, _Unset, None] = UNSET,
+        min: Union[float, _Undefined] = Undefined,
+        max: Union[float, _Undefined] = Undefined,
+        step: Union[float, _Undefined, None] = Undefined,
         **kwargs,
     ):  # sourcery skip: avoid-builtin-shadow
         for key in ("maximum", "minimum"):
@@ -44,26 +45,26 @@ class RangedWidget(ValueWidget):
                 else:
                     min = kwargs.pop(key)
         # value should be set *after* min max is set
-        val = kwargs.pop("value", UNSET)
+        val = kwargs.pop("value", Undefined)
         super().__init__(**kwargs)
 
-        tmp_val = float(val if val not in (UNSET, None) else 1)
+        tmp_val = float(val if val not in (Undefined, None) else 1)
 
-        if step is UNSET or step is None:
+        if step is Undefined or step is None:
             self.step = None
             self._widget._mgui_set_step(1)
         else:
             self.step = cast(float, step)
 
         self.min: float = (
-            cast(float, min) if min is not UNSET else builtins.min(0, tmp_val)
+            cast(float, min) if min is not Undefined else builtins.min(0, tmp_val)
         )
         self.max: float = (
             cast(float, max)
-            if max is not UNSET
+            if max is not Undefined
             else builtins.max(1000, 10 ** ceil(log10(builtins.max(1, tmp_val + 1)))) - 1
         )
-        if val not in (UNSET, None):
+        if val not in (Undefined, None):
             self.value = val
 
     @property

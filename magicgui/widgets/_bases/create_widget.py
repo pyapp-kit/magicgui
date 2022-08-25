@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any
 
+from magicgui._sentinal import Undefined
 from magicgui.application import use_app
 from magicgui.widgets import _bases, _protocols
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def create_widget(
-    value: Any = _bases.value_widget.UNSET,
+    value: Any = Undefined,
     annotation: Any = None,
     name: str = "",
     param_kind: str | inspect._ParameterKind = "POSITIONAL_OR_KEYWORD",

@@ -125,30 +125,6 @@ from typing import Any, Mapping
 from ._notes import WidgetMeta
 
 
-class _Undefined:
-    """
-    Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
-
-    ``_Undefined`` is a singleton. There is only ever one of it.
-
-    """
-
-    _singleton = None
-
-    def __new__(cls):
-        if _Undefined._singleton is None:
-            _Undefined._singleton = super().__new__(cls)
-        return _Undefined._singleton
-
-    def __repr__(self):
-        return "<Undefined>"
-
-    def __bool__(self):
-        return False
-
-
-Undefined = _Undefined()
-
 # TODO: test that we're hitting the kwargs of every widget in widgets.
 class WidgetOptions:
     widget_type: str | None = None

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from psygnal import Signal
 
-from magicgui._type_wrapper import resolve_forward_refs
+from magicgui._type_resolution import resolve_single_type
 from magicgui.application import use_app
 from magicgui.widgets import _protocols
 
@@ -118,7 +118,7 @@ class Widget:
 
     @annotation.setter
     def annotation(self, value):
-        self._annotation = resolve_forward_refs(value)
+        self._annotation = resolve_single_type(value)
 
     @property
     def param_kind(self) -> inspect._ParameterKind:

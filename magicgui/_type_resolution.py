@@ -67,6 +67,8 @@ def resolve_types(
 
 
 def resolve_single_type(obj, globalns=None, localns=None, do_imports: bool = True):
+    if obj is None:
+        return None
     mock_obj = type("_T", (), {"__annotations__": {"obj": obj}})()
     hints = resolve_types(mock_obj, globalns, localns, do_imports=do_imports)
     return hints["obj"]

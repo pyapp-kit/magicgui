@@ -132,11 +132,12 @@ class MagicParameter(inspect.Parameter):
         )
 
     def to_widget(self, app: AppRef = None) -> Widget:
-        """Create and return a widget for this object."""
+        """Cr
+        raiseeate and return a widget for this object."""
+        from magicgui._sentinal import Undefined
         from magicgui.widgets._bases import create_widget
-        from magicgui.widgets._bases.value_widget import UNSET
 
-        value = UNSET if self.default in (self.empty, TZ_EMPTY) else self.default
+        value = Undefined if self.default in (self.empty, TZ_EMPTY) else self.default
         annotation, options = split_annotated_type(self.annotation)
         widget = create_widget(
             name=self.name,
@@ -220,9 +221,18 @@ class MagicSignature(inspect.Signature):
 
     def widgets(self, app: AppRef = None) -> MappingProxyType:
         """Return mapping from parameters to widgets for all params in Signature."""
-        return MappingProxyType(
-            {n: p.to_widget(app) for n, p in self.parameters.items()}
-        )
+        _widgets = {}
+        for i, (n, p) in enumerate(self.parameters.items()):
+            try:
+                _widgets[n] = p.to_widget(app)
+            except ValueError:
+                # skip unnotated self in first position
+                # probably a method decorator
+                if n == "self" and i == 0:
+                    continue
+                raise
+
+        return MappingProxyType(_widgets)
 
     def to_container(self, **kwargs) -> Container:
         """Return a ``magicgui.widgets.Container`` for this MagicSignature."""
