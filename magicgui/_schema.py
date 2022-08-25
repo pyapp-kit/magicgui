@@ -1,8 +1,9 @@
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, List, Optional
-from typing_extensions import Literal
-from magicgui.types import WidgetRef, ChoicesType, Undefined, JsonStringFormats
 
+from typing_extensions import Literal
+
+from magicgui.types import JsonStringFormats, Undefined, WidgetRef
 
 # @dataclass
 # class UiField:
@@ -236,3 +237,7 @@ class WidgetOptions(
     FieldInfo,
 ):
     pass
+
+
+def _field(**kwargs):
+    return WidgetOptions(**kwargs)
