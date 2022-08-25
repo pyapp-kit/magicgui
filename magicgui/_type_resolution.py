@@ -43,16 +43,6 @@ def resolve_types(
         If `True`, will attempt to import modules when a NameError is
         encountered while resolving hints. For example, resolving `numpy.ndarray`
         will `import numpy` if a NameError is encountered.  By default, `False`.
-
-    Returns
-    -------
-    Dict[str, Any]
-        _description_
-
-    Raises
-    ------
-    e
-        _description_
     """
     # inject typing names into localns for convenience
     _localns = dict(_typing_names())
