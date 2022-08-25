@@ -1,34 +1,10 @@
-from dataclasses import dataclass, field
-from typing import Any, Callable, List, Optional
+from dataclasses import dataclass, field, fields
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from typing_extensions import Literal
 
 from magicgui.types import JsonStringFormats, Undefined, WidgetRef
-
-# @dataclass
-# class UiField:
-#     widget_type: Optional[WidgetRef] = None
-#     text: Optional[str] = None
-#     visible: bool = field(
-#         default=True, metadata={"description": "Whether the field is visible"}
-#     )
-#     enabled: bool = field(
-#         default=True, metadata={"description": "Whether the field is enabled"}
-#     )
-
-#     choices: Optional[ChoicesType] = None
-#     enum: Optional[ChoicesType] = None  # alias for choices
-
-#     # for numbers
-#     min: Optional[float] = field(
-#         default=None, metadata={"description": "(Inclusive) Minimum value"}
-#     )
-#     ge: Optional[float] = field(default=None, metadata={"description": "alias for min"})
-#     max: Optional[float] = field(
-#         default=None, metadata={"description": "(Inclusive) Maximum value"}
-#     )
-#     le: Optional[float] = field(default=None, metadata={"description": "alias for max"})
-#     step: Optional[float] = field(default=None, metadata={"description": "Step value"})
+from magicgui.widgets._bases.value_widget import ValueWidget
 
 
 @dataclass(frozen=True)
@@ -38,7 +14,7 @@ class NumericContraints:
         metadata=dict(
             description="Restrict number to a multiple of a given number. "
             "May be any positive number.",
-            aliases=["multipleOf"],
+            aliases=["multipleOf", "step"],
         ),
     )
     minimum: Optional[float] = field(
@@ -71,17 +47,21 @@ class NumericContraints:
     max_digits: Optional[int] = field(
         default=None,
         metadata=dict(
-            "Maximum number of digits within the decimal. It does not include a zero "
-            "before the decimal point or trailing decimal zeroes."
+            description="Maximum number of digits within the decimal. It does not "
+            "include a zero before the decimal point or trailing decimal zeroes."
         ),
     )
     decimal_places: Optional[int] = field(
         default=None,
         metadata=dict(
-            "Maximum number of decimal places within the decimal.  It does not include "
-            "trailing decimal zeroes."
+            descripion="Maximum number of decimal places within the decimal. It does "
+            "not include trailing decimal zeroes."
         ),
     )
+
+    # SLIDER WIDGET STUFF
+    # readout
+    # tracking
 
 
 @dataclass(frozen=True)
@@ -171,7 +151,7 @@ class WidgetConstraints:
 class ValueConstraints:
     default: Any = field(
         default=Undefined,
-        metadata=dict(description="The default value of the field"),
+        metadata=dict(description="The default value of the field", aliases=["value"]),
     )
     default_factory: Optional[Callable[[], Any]] = field(
         default=None,
@@ -193,15 +173,23 @@ class ValueConstraints:
             aliases=["choices"],
         ),
     )
+
+    # ### From magicgui ###
+    bind: Union[Callable[[ValueWidget], Any], Any, None] = field(
+        default=None,
+        metadata=dict(
+            description="A value or callable bind to the value of the field. If a "
+            "callable, it will be called (with one argument, the ValueWidget), whenever"
+            " the value of the field is requested."
+        ),
+    )
+    # nullable: bool  # for stuff like combo boxes and value widgets
+
     # ### From JSON Schema ###
     # any_of
 
     # ### From Pydantic ###
     # allow_mutation
-
-    # ### From magicgui ###
-    # bind
-    # nullable: bool  # for stuff like combo boxes and value widgets
 
 
 @dataclass(frozen=True)
@@ -210,15 +198,21 @@ class FieldInfo:
         default=None,
         metadata=dict(
             description="The title of the field. (If not provided the name of the "
-            "field variable is used.)"
+            "field variable is used.)",
+            aliases=["label", "text"],
         ),
     )
     description: Optional[str] = field(
         default=None,
-        metadata=dict(description="The description of the field"),
+        metadata=dict(
+            description="The description of the field",
+            aliases=["tooltip"],
+        ),
     )
-
-    # text: str  # confusingly used on buttons, deprecate
+    button_text: Optional[str] = field(
+        default=None,
+        metadata=dict(description="The text of a button", aliases=["text"]),
+    )
     # mode: str | FileDialogMode
 
 
@@ -239,5 +233,25 @@ class WidgetOptions(
     pass
 
 
+FIELDS: Set[str] = set()
+ALIASES: Dict[str, str] = {}
+
+for field_info in fields(WidgetOptions):
+    FIELDS.add(field_info.name)
+    for alias in field_info.metadata.get("aliases", []):
+        ALIASES[alias] = field_info.name
+
+
 def _field(**kwargs):
-    return WidgetOptions(**kwargs)
+    _kwargs = dict(kwargs)
+    for key in kwargs:
+        if key not in FIELDS:
+            if key in ALIASES:
+                _kwargs[ALIASES[key]] = _kwargs.pop(key)
+            elif key == "allow_multiple":
+                _kwargs.pop(key)
+                _kwargs["widget_type"] = "Select"
+                # TODO: add a warning
+            else:
+                raise ValueError(f"{key} is not a valid field")
+    return WidgetOptions(**_kwargs)

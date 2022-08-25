@@ -108,6 +108,9 @@ class MagicParameter(inspect.Parameter):
         annotation: Any = inspect.Parameter.empty,
         gui_options: dict = None,
     ):
+        from ._schema import _field
+
+        _field(**gui_options or {})
         _annotation = make_annotated(annotation, gui_options)
         super().__init__(name, kind, default=default, annotation=_annotation)
 
