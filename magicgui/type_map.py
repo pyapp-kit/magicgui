@@ -4,7 +4,6 @@ from __future__ import annotations
 import datetime
 import inspect
 import pathlib
-import sys
 import types
 import warnings
 from collections import defaultdict
@@ -141,25 +140,11 @@ def match_return_type(type_: Any) -> WidgetTuple | None:
     return None
 
 
-NONE_TYPES: tuple[Any, Any, Any] = (None, type(None), Literal[None])
+def _is_none_type(type_: Any) -> bool:
+    return any(type_ is x for x in {None, type(None), Literal[None]})
 
 
-if sys.version_info[:2] == (3, 8):
-    # We can use the fast implementation for 3.8 but there is a very weird bug
-    # where it can fail for `Literal[None]`.
-    # We just need to redefine a useless `Literal[None]` inside the function body to fix
-
-    def _is_none_type(type_: Any) -> bool:
-        Literal[None]  # fix edge case
-        return any(type_ is none_type for none_type in NONE_TYPES)
-
-else:
-
-    def _is_none_type(type_: Any) -> bool:
-        return any(type_ is none_type for none_type in NONE_TYPES)
-
-
-def _type_nullable(
+def _type_optional(
     default: Any = Undefined,
     annotation: type[Any] | _Undefined = Undefined,
 ) -> tuple[Any, bool]:
@@ -208,8 +193,8 @@ def pick_widget_type(
     ):
         return widgets.EmptyWidget, {"visible": False, **options}  # type: ignore
 
-    _type, nullable = _type_nullable(value, annotation)
-    options.setdefault("nullable", nullable)
+    _type, optional = _type_optional(value, annotation)
+    options.setdefault("nullable", optional)
     choices = choices or (isinstance(_type, EnumMeta) and _type)  # type: ignore
 
     if "widget_type" in options:
