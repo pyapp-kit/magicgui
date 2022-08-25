@@ -24,14 +24,15 @@ from typing import (
 from typing_extensions import Literal, get_args, get_origin
 
 from magicgui import widgets
-from magicgui._sentinal import Undefined, _Undefined
 from magicgui.types import (
     PathLike,
     ReturnCallback,
+    Undefined,
     WidgetClass,
     WidgetOptions,
     WidgetRef,
     WidgetTuple,
+    _Undefined,
 )
 from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 

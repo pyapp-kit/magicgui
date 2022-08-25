@@ -5,7 +5,7 @@ from typing import Any, Union
 from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
-from magicgui._sentinal import Undefined, _Undefined
+from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import _protocols
 
 from .widget import Widget

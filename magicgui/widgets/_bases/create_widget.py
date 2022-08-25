@@ -3,8 +3,8 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any
 
-from magicgui._sentinal import Undefined
 from magicgui.application import use_app
+from magicgui.types import Undefined
 from magicgui.widgets import _bases, _protocols
 
 from .widget import Widget

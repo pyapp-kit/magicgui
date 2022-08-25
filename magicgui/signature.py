@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 from typing_extensions import Annotated, _AnnotatedAlias
 
 from magicgui.application import AppRef
-from magicgui.types import WidgetOptions
+from magicgui.types import Undefined, WidgetOptions
 
 if TYPE_CHECKING:
     from magicgui.widgets import Container
@@ -133,7 +133,6 @@ class MagicParameter(inspect.Parameter):
 
     def to_widget(self, app: AppRef = None) -> Widget:
         """Create and return a widget for this object."""
-        from magicgui._sentinal import Undefined
         from magicgui.widgets._bases import create_widget
 
         value = Undefined if self.default in (self.empty, TZ_EMPTY) else self.default

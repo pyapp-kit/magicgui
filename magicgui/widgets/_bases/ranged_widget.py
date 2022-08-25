@@ -4,7 +4,7 @@ from math import ceil, log10
 from typing import Tuple, Union, cast
 from warnings import warn
 
-from magicgui._sentinal import Undefined, _Undefined
+from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import _protocols
 
 from .value_widget import ValueWidget
