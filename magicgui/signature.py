@@ -132,8 +132,7 @@ class MagicParameter(inspect.Parameter):
         )
 
     def to_widget(self, app: AppRef = None) -> Widget:
-        """Cr
-        raiseeate and return a widget for this object."""
+        """Create and return a widget for this object."""
         from magicgui._sentinal import Undefined
         from magicgui.widgets._bases import create_widget
 

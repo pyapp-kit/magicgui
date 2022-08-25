@@ -2,7 +2,7 @@ import types
 import typing
 from functools import lru_cache, partial
 from importlib import import_module
-from typing import Any, Callable, Dict, Tuple, Type, Union, get_type_hints, overload
+from typing import Any, Callable, Dict, Optional, Tuple, Type, Union, get_type_hints
 
 try:
     from toolz import curry
@@ -23,26 +23,37 @@ def _unwrap_partial(func: Any) -> Any:
     return func
 
 
-@overload
 def resolve_types(
     obj: Union[Callable, types.ModuleType, types.MethodType, type],
-    globalns=None,
-    localns=None,
-    do_imports: bool = True,
+    globalns: Optional[Dict[str, Any]] = None,
+    localns: Optional[Dict[str, Any]] = None,
+    do_imports: bool = False,
 ) -> Dict[str, Any]:
-    ...
+    """Resolve type hints from an object.
 
+    Parameters
+    ----------
+    obj : Union[Callable, types.ModuleType, types.MethodType, type]
+        Object to resolve type hints from.
+    globalns : Optional[Dict[str, Any]]
+        Global namespace to resolve imports from.
+    localns : Optional[Dict[str, Any]]
+        Local namespace to resolve imports from.
+    do_imports : bool
+        If `True`, will attempt to import modules when a NameError is
+        encountered while resolving hints. For example, resolving `numpy.ndarray`
+        will `import numpy` if a NameError is encountered.  By default, `False`.
 
-@overload
-def resolve_types(
-    obj: str, globalns=None, localns=None, do_imports: bool = True
-) -> Any:
-    ...
+    Returns
+    -------
+    Dict[str, Any]
+        _description_
 
-
-def resolve_types(
-    obj, globalns=None, localns=None, do_imports: bool = True
-) -> Dict[str, Any]:
+    Raises
+    ------
+    e
+        _description_
+    """
     # inject typing names into localns for convenience
     _localns = dict(_typing_names())
     # explicitly provided locals take precedence
@@ -51,8 +62,6 @@ def resolve_types(
 
     try:
         return get_type_hints(obj, globalns=globalns, localns=localns)
-    except TypeError:
-        return resolve_single_type(obj, globalns, localns, do_imports)
     except NameError as e:
         if do_imports:
             # try to import the top level name and try again
@@ -66,7 +75,13 @@ def resolve_types(
         raise e
 
 
-def resolve_single_type(obj, globalns=None, localns=None, do_imports: bool = True):
+def resolve_single_type(
+    obj: Any,
+    globalns: Optional[Dict[str, Any]] = None,
+    localns: Optional[Dict[str, Any]] = None,
+    do_imports: bool = True,
+):
+    """Resolve a single type hint from an object."""
     if obj is None:
         return None
     mock_obj = type("_T", (), {"__annotations__": {"obj": obj}})()
