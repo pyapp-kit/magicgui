@@ -1,9 +1,20 @@
 """Types used internally in magicgui."""
 from __future__ import annotations
+from ast import alias
 
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Literal,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from typing_extensions import TypedDict
 
@@ -111,3 +122,35 @@ class _Undefined:
 
 
 Undefined = _Undefined()
+
+JsonStringFormats = Literal[
+    None,
+    # ISO 8601 format.
+    # https://www.iso.org/iso-8601-date-and-time-format.html
+    "date-time",  # 2018-11-13T20:20:39+00:00
+    "time",  # 20:20:39+00:00, Draft 7
+    "date",  # 2018-11-13, Draft 7
+    "duration",  # P1Y2M3DT4H5M6S, Draft 2019-09
+    # email addresses
+    "email",
+    "idn-email",  # Draft 7
+    # hostnames
+    "hostname",  # internet host name, RFC 1123
+    "idn-hostname",
+    # ip addresses
+    "ipv4",
+    "ipv6",
+    # resource identifiers
+    "uuid",  # 3e4666bf-d5e5-4aa7-b8ce-cefe41c7568a, draft 2019-09
+    "uri",  # RFC3986
+    "uri-reference",  # RFC3986, section 4.1., draft 6
+    "iri",  # draft 7
+    "iri-reference",  # draft 7
+    # uri template
+    "uri-template",  # RFC6570, draft 6
+    # json pointer
+    "json-pointer",  # RFC6901, draft 6
+    "relative-json-pointer",  # draft 7
+    # regular expressions
+    "regex",  # draft 7
+]
