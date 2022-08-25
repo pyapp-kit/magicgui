@@ -331,7 +331,7 @@ class Widget:
         from io import BytesIO
 
         try:
-            from imageio import imsave
+            from imageio import imwrite
         except ImportError:
             print(
                 "(For a nicer magicgui widget representation in "
@@ -340,7 +340,7 @@ class Widget:
             return None
 
         with BytesIO() as file_obj:
-            imsave(file_obj, self.render(), format="png")
+            imwrite(file_obj, self.render(), format="png")
             file_obj.seek(0)
             return file_obj.read()
 

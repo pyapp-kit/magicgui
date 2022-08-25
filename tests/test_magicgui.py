@@ -78,6 +78,13 @@ def test_overriding_widget_type():
     assert isinstance(func.a, widgets.LineEdit)
     assert func.a.value == "1"
 
+    # also without type annotation
+    @magicgui(a={"widget_type": "LogSlider"})
+    def g(a):
+        ...
+
+    assert isinstance(g.a, widgets.LogSlider)
+
 
 def test_unrecognized_types():
     """Test that arg with an unrecognized type is hidden."""

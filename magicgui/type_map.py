@@ -18,12 +18,10 @@ from typing import (
     Type,
     TypeVar,
     cast,
-    get_args,
-    get_origin,
     overload,
 )
 
-from typing_extensions import Literal
+from typing_extensions import Literal, get_args, get_origin
 
 from magicgui import widgets
 from magicgui._sentinal import Undefined, _Undefined
@@ -80,7 +78,6 @@ _SIMPLE_TYPES = {
 
 def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
     """Check simple type mappings."""
-
     if type_ in _SIMPLE_ANNOTATIONS:
         return _SIMPLE_ANNOTATIONS[type_], {}
 
@@ -125,7 +122,6 @@ _SIMPLE_RETURN_TYPES = [
 
 def match_return_type(type_: Any) -> WidgetTuple | None:
     """Check simple type mappings for result widgets."""
-
     if type_ in _SIMPLE_TYPES:
         return widgets.LineEdit, {"gui_only": True}
 
@@ -152,13 +148,13 @@ if sys.version_info[:2] == (3, 8):
     # where it can fail for `Literal[None]`.
     # We just need to redefine a useless `Literal[None]` inside the function body to fix
 
-    def is_none_type(type_: Any) -> bool:
+    def _is_none_type(type_: Any) -> bool:
         Literal[None]  # fix edge case
         return any(type_ is none_type for none_type in NONE_TYPES)
 
 else:
 
-    def is_none_type(type_: Any) -> bool:
+    def _is_none_type(type_: Any) -> bool:
         return any(type_ is none_type for none_type in NONE_TYPES)
 
 
@@ -166,26 +162,26 @@ def _type_nullable(
     default: Any = Undefined,
     annotation: type[Any] | _Undefined = Undefined,
 ) -> tuple[Any, bool]:
-    if default is Undefined:
-        if annotation in (Undefined, inspect.Parameter.empty):
-            raise ValueError("Either `type_` or `default` must be defined.")
-    elif annotation in (None, inspect.Parameter.empty):
-        annotation = type(default)
-
-    try:
-        type_ = resolve_single_type(annotation)
-    except (NameError, ImportError) as e:
-        raise type(e)(f"Magicgui could not resolve {annotation}: {e}") from e
+    type_ = annotation
+    if annotation in (Undefined, None, inspect.Parameter.empty):
+        if default is not Undefined:
+            type_ = type(default)
+    else:
+        try:
+            type_ = resolve_single_type(annotation)
+        except (NameError, ImportError) as e:
+            raise type(e)(f"Magicgui could not resolve {annotation}: {e}") from e
 
     # look for Optional[Type], which manifests as Union[Type, None]
     nullable = default is None
-    args = get_args(annotation)
-    for arg in args:
-        if is_none_type(arg) or arg is Any or arg is object:
-            nullable = True
-            if len(args) == 2:
-                type_ = next(i for i in args if i is not arg)
-            break
+    if type_ is not Undefined:
+        args = get_args(type_)
+        for arg in args:
+            if _is_none_type(arg) or arg is Any or arg is object:
+                nullable = True
+                if len(args) == 2:
+                    type_ = next(i for i in args if i is not arg)
+                break
 
     return type_, nullable
 
@@ -199,19 +195,22 @@ def pick_widget_type(
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
     options = options or {}
     choices = options.get("choices")
+
     if is_result and annotation is inspect.Parameter.empty:
         annotation = str
 
-    try:
-        _type, nullable = _type_nullable(value, annotation)
-    except ValueError:
-        if choices:
-            wdg = widgets.Select if options.get("allow_multiple") else widgets.ComboBox
-            return wdg, options
+    if (
+        value is Undefined
+        and annotation in (Undefined, inspect.Parameter.empty)
+        and not choices
+        and "widget_type" not in options
+    ):
         return widgets.EmptyWidget, {"visible": False, **options}  # type: ignore
 
+    _type, nullable = _type_nullable(value, annotation)
     options.setdefault("nullable", nullable)
     choices = choices or (isinstance(_type, EnumMeta) and _type)  # type: ignore
+
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
         if choices:

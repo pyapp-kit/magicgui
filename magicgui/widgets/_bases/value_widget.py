@@ -5,10 +5,15 @@ from typing import Any, Union
 from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
-from magicgui._sentinal import Undefined
+from magicgui._sentinal import Undefined, _Undefined
 from magicgui.widgets import _protocols
 
 from .widget import Widget
+
+# legacy import for backwards compatibility
+# shouldn't be used externally, but magic-class still uses it
+UNSET = Undefined
+_Unset = _Undefined
 
 
 class ValueWidget(Widget):
