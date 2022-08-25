@@ -82,6 +82,10 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
+    def _mgui_get_root_native_widget(self) -> Any:
+        raise NotImplementedError()
+
+    @abstractmethod
     def _mgui_bind_parent_change_callback(
         self, callback: Callable[[Any], None]
     ) -> None:

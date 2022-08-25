@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import sys
+import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any
 
@@ -45,6 +46,15 @@ class Widget:
         A tooltip to display when hovering over the widget.
     visible : bool, optional
         Whether the widget is visible, by default ``True``.
+    enabled : bool, optional
+        Whether the widget is enabled, by default ``True``.
+    gui_only : bool, optional
+        If ``True``, widget is excluded from any function signature representation.
+        by default ``False``.  (This will likely be deprecated.)
+    parent : Widget, optional
+        Optional parent widget of this widget.  CAREFUL: if a parent is set, and
+        subsequently deleted, this widget will likely be deleted as well (depending on
+        the backend), and will no longer be usable.
     backend_kwargs : dict, optional
         keyword argument to pass to the backend widget constructor.
     """
@@ -65,7 +75,8 @@ class Widget:
         tooltip: str | None = None,
         visible: bool | None = None,
         enabled: bool = True,
-        gui_only=False,
+        gui_only: bool = False,
+        parent: Any = None,
         backend_kwargs=dict(),
         **extra,
     ):
@@ -90,7 +101,23 @@ class Widget:
         _protocols.assert_protocol(widget_type, prot)
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
-        self._widget = widget_type(**backend_kwargs)
+        if isinstance(parent, Widget):
+            parent = parent.native
+        try:
+            self._widget = widget_type(parent=parent, **backend_kwargs)
+        except TypeError as e:
+            if "unexpected keyword" not in str(e) and "no arguments" not in str(e):
+                raise
+
+            warnings.warn(
+                "Beginning with magicgui v0.6, the `widget_type` class passed to "
+                "`magicgui.Widget` must accept a `parent` Argument. In v0.7 this "
+                "will raise an exception. "
+                f"Please update '{widget_type.__name__}.__init__()'",
+                stacklevel=2,
+            )
+            self._widget = widget_type(**backend_kwargs)
+
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
@@ -149,8 +176,25 @@ class Widget:
 
     @property
     def native(self):
-        """Return native backend widget."""
+        """
+        Return native backend widget.
+
+        Note this is the widget that contains the layout, and not any
+        parent widgets of this (e.g. a parent widget that is used to
+        enable scroll bars)
+        """
         return self._widget._mgui_get_native_widget()
+
+    @property
+    def root_native_widget(self):
+        """
+        Return the root native backend widget.
+
+        This can be different from the ``.native`` widget if the layout
+        is a child of some other widget, e.g. a widget used to enable
+        scroll bars.
+        """
+        return self._widget._mgui_get_root_native_widget()
 
     @property
     def enabled(self) -> bool:

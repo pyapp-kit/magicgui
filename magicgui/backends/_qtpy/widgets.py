@@ -5,7 +5,7 @@ import math
 import re
 from contextlib import contextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence
 
 import qtpy
 from qtpy import QtWidgets as QtW
@@ -53,8 +53,10 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     _qwidget: QtW.QWidget
 
-    def __init__(self, qwidg: QtW.QWidget):
-        self._qwidget = qwidg()
+    def __init__(
+        self, qwidg: type[QtW.QWidget], parent: Optional[QtW.QWidget] = None, **kwargs
+    ):
+        self._qwidget = qwidg(parent)
         self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
@@ -82,6 +84,9 @@ class QBaseWidget(_protocols.WidgetProtocol):
         self._qwidget.setParent(widget.native if widget else None)
 
     def _mgui_get_native_widget(self) -> QtW.QWidget:
+        return self._qwidget
+
+    def _mgui_get_root_native_widget(self) -> QtW.QWidget:
         return self._qwidget
 
     def _mgui_get_width(self) -> int:
@@ -169,8 +174,10 @@ class QBaseWidget(_protocols.WidgetProtocol):
 class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
     """Implements get/set/bind_change."""
 
-    def __init__(self, qwidg: QtW.QWidget, getter: str, setter: str, onchange: str):
-        super().__init__(qwidg)
+    def __init__(
+        self, qwidg: QtW.QWidget, getter: str, setter: str, onchange: str, **kwargs
+    ):
+        super().__init__(qwidg, **kwargs)
         self._getter_name = getter
         self._setter_name = setter
         self._onchange_name = onchange
@@ -199,8 +206,8 @@ class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
 
 
 class EmptyWidget(QBaseWidget):
-    def __init__(self):
-        super().__init__(QtW.QWidget)
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QWidget, **kwargs)
 
     def _mgui_get_value(self) -> Any:
         raise NotImplementedError()
@@ -225,8 +232,8 @@ class QBaseStringWidget(QBaseValueWidget):
 class Label(QBaseStringWidget):
     _qwidget: QtW.QLabel
 
-    def __init__(self):
-        super().__init__(QtW.QLabel, "text", "setText", "")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QLabel, "text", "setText", "", **kwargs)
         self._qwidget.setSizePolicy(QtW.QSizePolicy.Fixed, QtW.QSizePolicy.Fixed)
 
     def _mgui_bind_change_callback(self, callback):
@@ -248,8 +255,8 @@ class _ResizeableLabel(QtW.QLabel):
 class Image(QBaseValueWidget):
     _qwidget: _ResizeableLabel
 
-    def __init__(self):
-        super().__init__(_ResizeableLabel, "text", "setText", "")
+    def __init__(self, **kwargs):
+        super().__init__(_ResizeableLabel, "text", "setText", "", **kwargs)
         self._qwidget.setSizePolicy(QtW.QSizePolicy.Ignored, QtW.QSizePolicy.Ignored)
         self._qwidget.resized.connect(self._rescale)
         self._pixmap: QPixmap = None
@@ -270,15 +277,15 @@ class Image(QBaseValueWidget):
 class LineEdit(QBaseStringWidget):
     _qwidget: QtW.QLineEdit
 
-    def __init__(self):
-        super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QLineEdit, "text", "setText", "textChanged", **kwargs)
 
 
 class LiteralEvalLineEdit(QBaseStringWidget):
     _qwidget: QtW.QLineEdit
 
-    def __init__(self):
-        super().__init__(QtW.QLineEdit, "text", "setText", "textChanged")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QLineEdit, "text", "setText", "textChanged", **kwargs)
 
     def _post_get_hook(self, value):
         from ast import literal_eval
@@ -287,8 +294,10 @@ class LiteralEvalLineEdit(QBaseStringWidget):
 
 
 class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
-    def __init__(self):
-        super().__init__(QtW.QTextEdit, "toPlainText", "setText", "textChanged")
+    def __init__(self, **kwargs):
+        super().__init__(
+            QtW.QTextEdit, "toPlainText", "setText", "textChanged", **kwargs
+        )
 
     def _mgui_set_read_only(self, value: bool) -> None:
         self._qwidget.setReadOnly(value)
@@ -306,8 +315,8 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider
     _precision: float = 1
 
-    def __init__(self, qwidg):
-        super().__init__(qwidg, "value", "setValue", "valueChanged")
+    def __init__(self, qwidg, **kwargs):
+        super().__init__(qwidg, "value", "setValue", "valueChanged", **kwargs)
 
     def _mgui_get_min(self) -> float:
         """Get the minimum possible value."""
@@ -364,8 +373,8 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
 class QBaseButtonWidget(QBaseValueWidget, _protocols.SupportsText):
     _qwidget: QtW.QCheckBox | QtW.QPushButton | QtW.QRadioButton | QtW.QToolButton
 
-    def __init__(self, qwidg):
-        super().__init__(qwidg, "isChecked", "setChecked", "toggled")
+    def __init__(self, qwidg, **kwargs):
+        super().__init__(qwidg, "isChecked", "setChecked", "toggled", **kwargs)
 
     def _mgui_set_text(self, value: str) -> None:
         """Set text."""
@@ -377,32 +386,32 @@ class QBaseButtonWidget(QBaseValueWidget, _protocols.SupportsText):
 
 
 class PushButton(QBaseButtonWidget):
-    def __init__(self):
+    def __init__(self, **kwargs):
         QBaseValueWidget.__init__(
-            self, QtW.QPushButton, "isChecked", "setChecked", "clicked"
+            self, QtW.QPushButton, "isChecked", "setChecked", "clicked", **kwargs
         )
 
 
 class CheckBox(QBaseButtonWidget):
-    def __init__(self):
-        super().__init__(QtW.QCheckBox)
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QCheckBox, **kwargs)
 
 
 class RadioButton(QBaseButtonWidget):
-    def __init__(self):
-        super().__init__(QtW.QRadioButton)
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QRadioButton, **kwargs)
 
 
 # class ToolButton(QBaseButtonWidget):
-#     def __init__(self):
-#         super().__init__(QtW.QToolButton)
+#     def __init__(self,**kwargs):
+#         super().__init__(QtW.QToolButton, **kwargs)
 
 
 class Container(
     QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, layout="vertical", scrollable: bool = False):
-        QBaseWidget.__init__(self, QtW.QWidget)
+    def __init__(self, layout="vertical", scrollable: bool = False, **kwargs):
+        QBaseWidget.__init__(self, QtW.QWidget, **kwargs)
         if layout == "horizontal":
             self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
         else:
@@ -428,7 +437,11 @@ class Container(
     def _is_scrollable(self) -> bool:
         return isinstance(self._qwidget, QtW.QScrollArea)
 
+    def _mgui_get_root_native_widget(self):
+        return self._qwidget
+
     def _mgui_get_native_widget(self):
+        # Return widget with the layout set
         return self._qwidget.widget() if self._is_scrollable else self._qwidget
 
     def _mgui_get_visible(self):
@@ -470,8 +483,8 @@ class Container(
 
 
 class MainWindow(Container):
-    def __init__(self, layout="vertical", scrollable: bool = False):
-        super().__init__(layout=layout, scrollable=scrollable)
+    def __init__(self, layout="vertical", scrollable: bool = False, **kwargs):
+        super().__init__(layout=layout, scrollable=scrollable, **kwargs)
         self._main_window = QtW.QMainWindow()
         self._menus: dict[str, QtW.QMenu] = {}
         if scrollable:
@@ -503,8 +516,8 @@ class MainWindow(Container):
 
 
 class SpinBox(QBaseRangedWidget):
-    def __init__(self):
-        super().__init__(QtW.QSpinBox)
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QSpinBox, **kwargs)
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(int(value))
@@ -514,8 +527,8 @@ class SpinBox(QBaseRangedWidget):
 
 
 class FloatSpinBox(QBaseRangedWidget):
-    def __init__(self):
-        super().__init__(QtW.QDoubleSpinBox)
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QDoubleSpinBox, **kwargs)
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(float(value))
@@ -530,11 +543,17 @@ class FloatSpinBox(QBaseRangedWidget):
 class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
-    def __init__(self, qwidg=QtW.QSlider, **kwargs):
-        super().__init__(qwidg)
+    def __init__(
+        self,
+        qwidg=QtW.QSlider,
+        readout: bool = True,
+        orientation: str = "horizontal",
+        **kwargs,
+    ):
+        super().__init__(qwidg, **kwargs)
         self._mgui_set_orientation("horizontal")
-        self._mgui_set_readout_visibility(kwargs.get("readout", True))
-        self._mgui_set_orientation(kwargs.get("orientation", "horizontal"))
+        self._mgui_set_readout_visibility(readout)
+        self._mgui_set_orientation(orientation)
 
     def _mgui_set_orientation(self, value) -> Any:
         """Get current value of the widget."""
@@ -571,7 +590,7 @@ class Slider(_Slider):
     def __init__(self, qwidg=QtW.QSlider, **kwargs):
         self._container = QtW.QWidget()
         self._readout_widget = self._readout()
-        super().__init__(qwidg)
+        super().__init__(qwidg, **kwargs)
 
         self._readout_widget.setButtonSymbols(self._readout_widget.NoButtons)
         self._readout_widget.setStyleSheet("background:transparent; border: 0;")
@@ -699,7 +718,7 @@ class ProgressBar(_Slider):
     _qwidget: QtW.QProgressBar
 
     def __init__(self, **kwargs):
-        super().__init__(QtW.QProgressBar)
+        super().__init__(QtW.QProgressBar, **kwargs)
 
     def _mgui_get_step(self) -> float:
         """Get the step size."""
@@ -721,8 +740,8 @@ class ProgressBar(_Slider):
 class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     _qwidget: QtW.QComboBox
 
-    def __init__(self):
-        super().__init__(QtW.QComboBox, "isChecked", "setCurrentIndex", "")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QComboBox, "isChecked", "setCurrentIndex", "", **kwargs)
         self._qwidget.currentIndexChanged.connect(self._emit_data)
 
     def _emit_data(self, index: int):
@@ -810,8 +829,8 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
     _qwidget: QtW.QListWidget
 
-    def __init__(self):
-        super().__init__(QtW.QListWidget, "isChecked", "setCurrentIndex", "")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QListWidget, "isChecked", "setCurrentIndex", "", **kwargs)
         self._qwidget.itemSelectionChanged.connect(self._emit_data)
         self._qwidget.setSelectionMode(QtW.QAbstractItemView.ExtendedSelection)
 
@@ -908,8 +927,8 @@ class RadioButtons(
 ):
     _qwidget: QtW.QGroupBox
 
-    def __init__(self):
-        super().__init__(QtW.QGroupBox, "", "", "")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QGroupBox, "", "", "", **kwargs)
         self._btn_group = QtW.QButtonGroup(self._qwidget)
         self._mgui_set_orientation("vertical")
         self._btn_group.buttonToggled.connect(self._emit_data)
@@ -1007,8 +1026,10 @@ class RadioButtons(
 
 
 class DateTimeEdit(QBaseValueWidget):
-    def __init__(self):
-        super().__init__(QtW.QDateTimeEdit, "", "setDateTime", "dateTimeChanged")
+    def __init__(self, **kwargs):
+        super().__init__(
+            QtW.QDateTimeEdit, "", "setDateTime", "dateTimeChanged", **kwargs
+        )
 
     def _mgui_get_value(self):
         try:
@@ -1018,8 +1039,8 @@ class DateTimeEdit(QBaseValueWidget):
 
 
 class DateEdit(QBaseValueWidget):
-    def __init__(self):
-        super().__init__(QtW.QDateEdit, "", "setDate", "dateChanged")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QDateEdit, "", "setDate", "dateChanged", **kwargs)
 
     def _mgui_get_value(self):
         try:
@@ -1029,8 +1050,8 @@ class DateEdit(QBaseValueWidget):
 
 
 class TimeEdit(QBaseValueWidget):
-    def __init__(self):
-        super().__init__(QtW.QTimeEdit, "", "setTime", "timeChanged")
+    def __init__(self, **kwargs):
+        super().__init__(QtW.QTimeEdit, "", "setTime", "timeChanged", **kwargs)
 
     def _mgui_get_value(self):
         try:
@@ -1040,8 +1061,8 @@ class TimeEdit(QBaseValueWidget):
 
 
 class Dialog(QBaseWidget, _protocols.ContainerProtocol):
-    def __init__(self, layout="vertical", **k):
-        QBaseWidget.__init__(self, QtW.QDialog)
+    def __init__(self, layout="vertical", scrollable: bool = False, **kwargs):
+        QBaseWidget.__init__(self, QtW.QDialog, **kwargs)
         if layout == "horizontal":
             self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
         else:
@@ -1224,8 +1245,8 @@ class Table(QBaseWidget, _protocols.TableWidgetProtocol):
     _EDITABLE = QtW.QTableWidget.EditKeyPressed | QtW.QTableWidget.DoubleClicked
     _READ_ONLY = QtW.QTableWidget.NoEditTriggers
 
-    def __init__(self):
-        super().__init__(_QTableExtended)
+    def __init__(self, **kwargs):
+        super().__init__(_QTableExtended, **kwargs)
         header = self._qwidget.horizontalHeader()
         # avoid strange AttributeError on CI
         if hasattr(header, "setSectionResizeMode"):

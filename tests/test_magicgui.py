@@ -515,6 +515,26 @@ def test_function_binding():
     assert b.method() == ("b", 5)
 
 
+def test_function_binding_multiple():
+    class MyObject:
+        def __init__(self):
+            pass
+
+        @magicgui
+        def method_0(self, sigma: float = 1):
+            pass
+
+        @magicgui
+        def method_1(self, sigma: float = 2):
+            pass
+
+    a = MyObject()
+    assert MyObject.method_0 is not a.method_0
+    assert a.method_0 is not a.method_1
+    assert a.method_0.sigma.value == 1
+    assert a.method_1.sigma.value == 2
+
+
 def test_call_count():
     """Test that a function gui remembers how many times it's been called."""
 
@@ -819,9 +839,13 @@ def test_scrollable():
     def test_scrollable(a: int = 1, y: str = "a"):
         ...
 
+    assert test_scrollable.native is not test_scrollable.root_native_widget
+    assert not isinstance(test_scrollable.native, QScrollArea)
+    assert isinstance(test_scrollable.root_native_widget, QScrollArea)
+
     @magicgui(scrollable=False)
     def test_nonscrollable(a: int = 1, y: str = "a"):
         ...
 
-    assert isinstance(test_scrollable.native.parent().parent(), QScrollArea)
-    assert not test_nonscrollable.native.parent()
+    assert test_nonscrollable.native is test_nonscrollable.root_native_widget
+    assert not isinstance(test_nonscrollable.native, QScrollArea)

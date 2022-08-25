@@ -73,7 +73,8 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self._list: list[Widget] = []
         self._labels = labels
         self._layout = layout
-        kwargs["backend_kwargs"] = {"layout": layout, "scrollable": scrollable}
+        kwargs.setdefault("backend_kwargs", {})
+        kwargs["backend_kwargs"].update({"layout": layout, "scrollable": scrollable})
         super().__init__(**kwargs)
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)

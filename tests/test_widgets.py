@@ -73,7 +73,6 @@ def test_create_widget_annotation(annotation, expected_type):
 # fmt: off
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
-
     def _mgui_close_widget(self): ... # noqa
     def _mgui_get_visible(self): ... # noqa
     def _mgui_set_visible(self): ... # noqa
@@ -82,6 +81,7 @@ class MyBadWidget:
     def _mgui_get_parent(self): ... # noqa
     def _mgui_set_parent(self, widget): ... # noqa
     def _mgui_get_native_widget(self): return MagicMock()  # noqa
+    def _mgui_get_root_native_widget(self): ... # noqa
     def _mgui_bind_parent_change_callback(self, callback): ... # noqa
     def _mgui_render(self): ... # noqa
     def _mgui_get_width(self): ... # noqa
@@ -105,7 +105,6 @@ class MyBadWidget:
 
 class MyValueWidget(MyBadWidget):
     """Complete protocol implementation... should work."""
-
     def _mgui_set_tooltip(self, value): ... # noqa
 # fmt: on
 
@@ -114,7 +113,8 @@ def test_custom_widget():
     """Test that create_widget works with arbitrary backend implementations."""
     # by implementing the ValueWidgetProtocol, magicgui will know to wrap the above
     # widget with a widgets._bases.ValueWidget
-    wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
+    with pytest.warns(UserWarning, match="must accept a `parent` Argument"):
+        wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
     assert isinstance(wdg, ValueWidget)
     wdg.close()
 
@@ -1022,3 +1022,36 @@ def test_tuple_edit():
     assert type(f2.x) is widgets.TupleEdit
     assert f2.x.annotation == Tuple[int, str]
     assert f2.x.value == (0, "")
+
+
+def test_request_values(monkeypatch):
+    from unittest.mock import Mock
+
+    from magicgui.widgets import Container, request_values
+    from magicgui.widgets._bases.container_widget import DialogWidget
+
+    container = Container()
+
+    mock = Mock()
+
+    def _exec(self, **k):
+        mock()
+        assert self.native.parent() is container.native
+        return True
+
+    monkeypatch.setattr(DialogWidget, "exec", _exec)
+    vals = request_values(
+        age=dict(value=40),
+        name=dict(annotation=str, label="Enter your name:"),
+        title="Hi! Who are you?",
+        parent=container,
+    )
+    assert vals == dict(age=40, name="")
+    mock.assert_called_once()
+
+    mock.reset_mock()
+    vals = request_values(
+        values={"age": int, "name": str}, title="Hi! Who are you?", parent=container
+    )
+    assert vals == dict(age=0, name="")
+    mock.assert_called_once()
