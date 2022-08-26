@@ -425,7 +425,6 @@ class GUIField:
             type annotation of the variable, (might be an instance of `typing.Annotated`
             with a UiFieldInfo as the annotation)
         """
-        import inspect
 
         field_info, value = cls._get_field_info(name, annotation, value)
         required: Union[bool, _Undefined] = Undefined
@@ -435,10 +434,7 @@ class GUIField:
         elif value is not Undefined:
             required = False
 
-        if (
-            annotation in (Undefined, None, inspect.Parameter.empty)
-            and value is not Undefined
-        ):
+        if annotation in (Undefined, None) and value is not Undefined:
             type_ = type(value)
         elif isinstance(annotation, (str, ForwardRef)):
             try:
