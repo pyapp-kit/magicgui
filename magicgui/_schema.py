@@ -226,12 +226,12 @@ class ContainerOptions:
 
 @dataclass(frozen=True)
 class UiFieldInfo(
-    ValueConstraints,
-    NumericContraints,
-    StringContraints,
-    ArrayContraints,
     WidgetConstraints,
+    ArrayContraints,
+    StringContraints,
+    NumericContraints,
     FieldInfo,
+    ValueConstraints,
 ):
     extra: dict = field(
         default_factory=dict,
@@ -249,6 +249,7 @@ for field_info in fields(UiFieldInfo):
 
 
 def UiField(
+    *,
     default: Any = Undefined,
     default_factory: Optional[Callable[[], Any]] = None,
     const: bool = False,
