@@ -235,6 +235,8 @@ def _magicgui(
         if not callable(func):
             raise TypeError("the first argument must be callable")
 
+        _infer_model(func, kwargs.get("param_options", {}))
+
         magic_class = MainFunctionGui if main_window else FunctionGui
 
         if factory:
@@ -249,3 +251,26 @@ def _magicgui(
         return inner_func
     else:
         return inner_func(function)
+
+
+def _infer_model(obj, param_options: dict = {}) -> None:
+    from dataclasses import replace
+    from inspect import signature
+
+    from rich import print
+
+    from ._schema import GUIField, UiField, UiFieldInfo
+
+    sig = signature(obj)
+    for name, param in sig.parameters.items():
+        options = param_options.get(name)
+        if options:
+            if isinstance(param.default, UiFieldInfo):
+                value = replace(param.default, **options)
+            elif param.default is not param.empty:
+                options.setdefault("default", param.default)
+                value = UiField(**options)
+        else:
+            value = param.default
+        field = GUIField.infer(name=name, value=value, annotation=param.annotation)
+        print(field)
