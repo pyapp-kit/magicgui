@@ -8,6 +8,76 @@ from magicgui.widgets._bases.value_widget import ValueWidget
 
 
 @dataclass(frozen=True)
+class ValueConstraints:
+    default: Any = field(
+        default=Undefined,
+        metadata=dict(description="The default value of the field", aliases=["value"]),
+    )
+    default_factory: Optional[Callable[[], Any]] = field(
+        default=None,
+        metadata=dict(
+            description="A callable that returns the default value of the field."
+        ),
+    )
+    const: bool = field(
+        default=False,
+        metadata=dict(
+            description="If True, this argument must be the same as the field's "
+            "default value if present"
+        ),
+    )
+    enum: Optional[List[Any]] = field(
+        default=None,
+        metadata=dict(
+            description="A list of valid values for this field. Prefer a python enum.",
+            aliases=["choices"],
+        ),
+    )
+
+    # ### From magicgui ###
+    bind: Union[Callable[[ValueWidget], Any], Any, None] = field(
+        default=None,
+        metadata=dict(
+            description="A value or callable bind to the value of the field. If a "
+            "callable, it will be called (with one argument, the ValueWidget), whenever"
+            " the value of the field is requested."
+        ),
+    )
+    # nullable: bool  # for stuff like combo boxes and value widgets
+
+    # ### From JSON Schema ###
+    # any_of
+
+    # ### From Pydantic ###
+    # allow_mutation
+
+
+@dataclass(frozen=True)
+class FieldInfo:
+    title: Optional[str] = field(
+        default=None,
+        metadata=dict(
+            description="The title of the field. (If not provided the name of the "
+            "field variable is used.)",
+            aliases=["label", "text"],
+        ),
+    )
+    description: Optional[str] = field(
+        default=None,
+        metadata=dict(
+            description="The description of the field",
+            aliases=["tooltip"],
+        ),
+    )
+    # TODO: can we remove this?
+    button_text: Optional[str] = field(
+        default=None,
+        metadata=dict(description="The text of a button", aliases=["text"]),
+    )
+    # mode: str | FileDialogMode
+
+
+@dataclass(frozen=True)
 class NumericContraints:
     multiple_of: Optional[float] = field(
         default=None,
@@ -89,7 +159,7 @@ class StringContraints:
             aliases=["regex", "filter"],
         ),
     )
-    format: JsonStringFormats = field(
+    format: Optional[JsonStringFormats] = field(
         default=None,
         metadata=dict(
             description="Allows for basic semantic identification of certain kinds of "
@@ -101,18 +171,18 @@ class StringContraints:
 
 @dataclass(frozen=True)
 class ArrayContraints:
-    min_length: Optional[int] = field(
+    min_items: Optional[int] = field(
         default=None,
         metadata=dict(
             description="Minimum length of the list. Must be a non-negative number.",
-            aliases=["minLength"],
+            aliases=["minItems"],
         ),
     )
-    max_length: Optional[int] = field(
+    max_items: Optional[int] = field(
         default=None,
         metadata=dict(
             description="Maximum length of the list. Must be a non-negative number.",
-            aliases=["maxLength"],
+            aliases=["maxItems"],
         ),
     )
     unique_items: Optional[bool] = field(
@@ -141,7 +211,7 @@ class WidgetConstraints:
         default=True,
         metadata=dict(description="Whether the widget is enabled"),
     )
-    orientation: Literal[None, "horizontal", "vertical"] = field(
+    orientation: Optional[Literal["horizontal", "vertical"]] = field(
         default=None,
         metadata=dict(description="Orientation of the widget."),
     )
@@ -150,113 +220,117 @@ class WidgetConstraints:
 
 
 @dataclass(frozen=True)
-class ValueConstraints:
-    default: Any = field(
-        default=Undefined,
-        metadata=dict(description="The default value of the field", aliases=["value"]),
-    )
-    default_factory: Optional[Callable[[], Any]] = field(
-        default=None,
-        metadata=dict(
-            description="A callable that returns the default value of the field."
-        ),
-    )
-    const: bool = field(
-        default=False,
-        metadata=dict(
-            description="If True, this argument must be the same as the field's "
-            "default value if present"
-        ),
-    )
-    enum: Optional[List[Any]] = field(
-        default=None,
-        metadata=dict(
-            description="A list of valid values for this field. Prefer a python enum.",
-            aliases=["choices"],
-        ),
-    )
-
-    # ### From magicgui ###
-    bind: Union[Callable[[ValueWidget], Any], Any, None] = field(
-        default=None,
-        metadata=dict(
-            description="A value or callable bind to the value of the field. If a "
-            "callable, it will be called (with one argument, the ValueWidget), whenever"
-            " the value of the field is requested."
-        ),
-    )
-    # nullable: bool  # for stuff like combo boxes and value widgets
-
-    # ### From JSON Schema ###
-    # any_of
-
-    # ### From Pydantic ###
-    # allow_mutation
-
-
-@dataclass(frozen=True)
-class FieldInfo:
-    title: Optional[str] = field(
-        default=None,
-        metadata=dict(
-            description="The title of the field. (If not provided the name of the "
-            "field variable is used.)",
-            aliases=["label", "text"],
-        ),
-    )
-    description: Optional[str] = field(
-        default=None,
-        metadata=dict(
-            description="The description of the field",
-            aliases=["tooltip"],
-        ),
-    )
-    button_text: Optional[str] = field(
-        default=None,
-        metadata=dict(description="The text of a button", aliases=["text"]),
-    )
-    # mode: str | FileDialogMode
-
-
-@dataclass(frozen=True)
 class ContainerOptions:
     layout: str  # for things like containers
 
 
 @dataclass(frozen=True)
-class WidgetOptions(
+class UiFieldInfo(
+    ValueConstraints,
     NumericContraints,
     StringContraints,
     ArrayContraints,
     WidgetConstraints,
-    ValueConstraints,
     FieldInfo,
 ):
-    pass
+    extra: dict = field(
+        default_factory=dict,
+        metadata=dict(description="Extra info passed to the UiField constructor"),
+    )
 
 
 FIELDS: Set[str] = set()
 ALIASES: Dict[str, str] = {}
 
-for field_info in fields(WidgetOptions):
+for field_info in fields(UiFieldInfo):
     FIELDS.add(field_info.name)
     for alias in field_info.metadata.get("aliases", []):
         ALIASES[alias] = field_info.name
 
 
-def _field(**kwargs):
-    _kwargs = dict(kwargs)
-    for key in kwargs:
+def UiField(
+    default: Any = Undefined,
+    default_factory: Optional[Callable[[], Any]] = None,
+    const: bool = False,
+    enum: Optional[List[Any]] = None,
+    bind: Union[Callable[[ValueWidget], Any], Any, None] = None,
+    #
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    button_text: Optional[str] = None,
+    #
+    multiple_of: Optional[float] = None,
+    minimum: Optional[float] = None,
+    maximum: Optional[float] = None,
+    exclusive_minimum: Optional[float] = None,
+    exclusive_maximum: Optional[float] = None,
+    max_digits: Optional[int] = None,
+    decimal_places: Optional[int] = None,
+    #
+    min_length: Optional[int] = None,
+    max_length: Optional[int] = None,
+    pattern: Optional[str] = None,
+    format: Optional[JsonStringFormats] = None,
+    #
+    min_items: Optional[int] = None,
+    max_items: Optional[int] = None,
+    unique_items: Optional[bool] = None,
+    #
+    widget_type: Optional[WidgetRef] = None,
+    visible: bool = True,
+    enabled: bool = True,
+    orientation: Optional[Literal["horizontal", "vertical"]] = None,
+    **extra,
+) -> UiFieldInfo:
+
+    _extra = dict(extra)
+    for key in list(_extra):
         if key not in FIELDS:
             if key in ALIASES:
-                _kwargs[ALIASES[key]] = _kwargs.pop(key)
+                # if locals()[ALIASES[key]] is None:  # which takes precendence ?
+                locals()[ALIASES[key]] = _extra.pop(key)
             elif key == "allow_multiple":
-                _kwargs.pop(key)
-                _kwargs["widget_type"] = "Select"
+                _extra.pop(key)
+                widget_type = "Select"
                 # TODO: add a warning
             elif key in ("options", "readout", "tracking", "mode"):
                 # TODO
-                _kwargs.pop(key)
+                # _extra.pop(key)
+                ...
             else:
                 raise ValueError(f"{key} is not a valid field")
-    return WidgetOptions(**_kwargs)
+
+    return UiFieldInfo(
+        default=default,
+        default_factory=default_factory,
+        const=const,
+        enum=enum,
+        bind=bind,
+        #
+        title=title,
+        description=description,
+        button_text=button_text,
+        #
+        multiple_of=multiple_of,
+        minimum=minimum,
+        maximum=maximum,
+        exclusive_minimum=exclusive_minimum,
+        exclusive_maximum=exclusive_maximum,
+        max_digits=max_digits,
+        decimal_places=decimal_places,
+        #
+        min_length=min_length,
+        max_length=max_length,
+        pattern=pattern,
+        format=format,
+        #
+        min_items=min_items,
+        max_items=max_items,
+        unique_items=unique_items,
+        #
+        widget_type=widget_type,
+        visible=visible,
+        enabled=enabled,
+        orientation=orientation,
+        extra=_extra,
+    )

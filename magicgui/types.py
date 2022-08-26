@@ -1,6 +1,5 @@
 """Types used internally in magicgui."""
 from __future__ import annotations
-from ast import alias
 
 from enum import Enum, EnumMeta
 from pathlib import Path
@@ -124,7 +123,6 @@ class _Undefined:
 Undefined = _Undefined()
 
 JsonStringFormats = Literal[
-    None,
     # ISO 8601 format.
     # https://www.iso.org/iso-8601-date-and-time-format.html
     "date-time",  # 2018-11-13T20:20:39+00:00
