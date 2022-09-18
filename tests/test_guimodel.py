@@ -1,10 +1,10 @@
 """For now, this module assumes qt backend.
 """
 
-from datetime import datetime
-from typing import Optional
-import pydantic
 from dataclasses import dataclass
+from datetime import datetime
+
+import pydantic
 from attrs import define
 
 
@@ -29,6 +29,7 @@ def dataclass_base(obj):
     # pydantic
     if hasattr(obj, "__fields__"):
         return obj.__fields__
+
 
 # named tuple
 # typed dict
