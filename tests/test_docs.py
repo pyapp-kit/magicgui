@@ -1,11 +1,13 @@
+import os
 import re
 import runpy
+import sys
 from glob import glob
 from pathlib import Path
 
 import pytest
 
-from magicgui import use_app
+from magicgui import type_map, use_app
 
 
 @pytest.mark.parametrize(
@@ -27,23 +29,37 @@ def test_doc_code_cells(fname, globalns=globals()):
             if "warns" in header.group():
                 with pytest.warns(None):
                     exec(cell, globalns)
-                    continue
+                continue
             if "raises-exception" in header.group():
                 with pytest.raises(Exception):
                     exec(cell, globalns)
-                    continue
+                continue
         exec(cell, globalns)
 
 
 @pytest.mark.parametrize(
     "fname", [f for f in glob("examples/*.py") if "napari" not in f]
 )
-def test_examples(fname):
+def test_examples(fname, monkeypatch):
     """Make sure that all code cells in documentation perform as expected."""
+    if "table.py" in fname and os.name == "nt" and sys.version_info < (3, 8):
+        pytest.mark.skip()
+        return
+    if "values_dialog" in str(fname):
+        from magicgui.backends._qtpy.widgets import QtW  # type: ignore
+
+        try:
+            monkeypatch.setattr(QtW.QDialog, "exec", lambda s: None)
+        except AttributeError:
+            monkeypatch.setattr(QtW.QDialog, "exec_", lambda s: None)
     app = use_app()
-    app.start_timer(0, app.quit)
-    if "OLD" in fname:
-        with pytest.warns(FutureWarning):
-            assert runpy.run_path(fname)
-    else:
-        assert runpy.run_path(fname)
+    app.start_timer(50 if "table" in str(fname) else 5, app.quit)
+    try:
+        runpy.run_path(fname)
+    except ImportError as e:
+        if "Numpy required to use images" in str(e):
+            pytest.skip("numpy unavailable: skipping image example")
+    finally:
+        if "waveform" in fname:
+            type_map._TYPE_DEFS.pop(int, None)
+            type_map._TYPE_DEFS.pop(float, None)

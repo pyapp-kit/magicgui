@@ -1,7 +1,9 @@
+from enum import Enum
+from typing import Optional, Union
+
 import pytest
 
-from magicgui import magicgui, register_type, widgets
-from magicgui.function_gui import FunctionGui
+from magicgui import magicgui, register_type, type_map, types, widgets
 
 
 def test_forward_refs():
@@ -26,7 +28,15 @@ def test_forward_refs():
         def testA(x: "testsd.MyInt" = "1"):  # type: ignore  # noqa
             pass
 
-    assert "Could not resolve the magicgui forward reference" in str(err.value)
+    assert "Magicgui could not resolve ForwardRef" in str(err.value)
+
+
+@pytest.mark.parametrize(
+    "cls, string", [("LineEdit", "str"), ("SpinBox", "int"), ("FloatSpinBox", "float")]
+)
+def test_pick_widget_builtins_forward_refs(cls, string):
+    wdg = type_map.pick_widget_type(annotation=string)[0]
+    assert getattr(wdg, "__name__") == cls
 
 
 def test_forward_refs_return_annotation():
@@ -50,7 +60,46 @@ def test_forward_refs_return_annotation():
 
     testB()
     gui, result, return_annotation = results[0]
-    assert isinstance(gui, FunctionGui)
+    assert isinstance(gui, widgets.FunctionGui)
     assert result == 1
     # the forward ref has been resolved
     assert return_annotation is MyInt
+
+
+def test_pathlike_annotation():
+    import pathlib
+
+    @magicgui(fn={"mode": "r"})
+    def widget(fn: types.PathLike):
+        print(fn)
+
+    assert isinstance(widget.fn, widgets.FileEdit)
+    assert widget.fn.mode is types.FileDialogMode.EXISTING_FILE
+
+    # an equivalent union also works
+    @magicgui(fn={"mode": "rm"})
+    def widget2(fn: Union[bytes, pathlib.Path, str]):
+        print(fn)
+
+    assert isinstance(widget2.fn, widgets.FileEdit)
+    assert widget2.fn.mode is types.FileDialogMode.EXISTING_FILES
+
+
+def test_optional_type():
+    @magicgui(x=dict(choices=["a", "b"]))
+    def widget(x: Optional[str] = None):
+        ...
+
+    assert isinstance(widget.x, widgets.ComboBox)
+    assert widget.x.value is None
+    assert None in widget.x.choices
+
+
+def test_widget_options():
+    """Test bugfix: widget options shouldn't persist to next widget."""
+    E = Enum("E", ["a", "b", "c"])
+    choice1 = widgets.create_widget(annotation=E)
+    choice2 = widgets.create_widget(annotation=Optional[E])
+    choice3 = widgets.create_widget(annotation=E)
+    assert choice1._nullable is choice3._nullable is False
+    assert choice2._nullable is True

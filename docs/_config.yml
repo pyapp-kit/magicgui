@@ -11,7 +11,7 @@ execute:
 
 repository:
   url: https://github.com/napari/magicgui
-  branch: master
+  branch: main
   path_to_book: docs
 
 # launch_buttons:
@@ -50,7 +50,7 @@ sphinx:
         - "https://docs.python.org/3"
         - null
       napari:
-        - "https://napari.org/docs/dev/"
+        - "https://napari.org/"
         - null
     html_favicon: "images/favicon.ico"
     html_theme: "sphinx_material"

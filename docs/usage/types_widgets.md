@@ -50,7 +50,7 @@ def function(arg):
 
 ## type-to-widget conversion
 
-Using a set of {func}`~magicgui.type_map.type_matcher`s and other logic defined
+Using the logic defined
 in the {mod}`magicgui.type_map` module, magicgui will select an appropriate
 {class}`~magicgui.widgets._bases.Widget` subclass to display the any given type
 or type annotation. To see the default type of widget magicgui will for a given

@@ -6,7 +6,7 @@
 .. autosummary::
    :nosignatures:
    :template: autosummary/protocol-class.rst
-   :toctree: ../_autosummary
+   :toctree: _autosummary
 
    WidgetProtocol
    ValueWidgetProtocol

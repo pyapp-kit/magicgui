@@ -1,0 +1,9 @@
+include *.md
+recursive-include magicgui *.pyi
+
+exclude tox.ini
+recursive-exclude docs *
+recursive-exclude examples *
+recursive-exclude resources *
+recursive-exclude tests *
+recursive-exclude typesafety *

@@ -33,10 +33,10 @@ slider = Slider(value=30, min=20, max=40)
 label = Label(value=slider.value)
 
 # set up callbacks
-def set_label(event):
-    label.value = event.value
+@slider.changed.connect
+def set_label(value: str):
+    label.value = value
 
-slider.changed.connect(set_label)
 
 # create a container to hold the widgets:
 container = Container(widgets=[spin_box, file_picker, slider, label])

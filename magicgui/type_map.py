@@ -1,20 +1,21 @@
 """Functions in this module are responsible for mapping type annotations to widgets."""
+from __future__ import annotations
+
 import datetime
 import inspect
 import pathlib
-import sys
 import types
 import warnings
-from collections import abc, defaultdict
+from collections import defaultdict
 from enum import EnumMeta
-from typing import Any, DefaultDict, Dict, ForwardRef, List, Optional, Tuple, Type, cast
+from typing import Any, Callable, DefaultDict, ForwardRef, Type, TypeVar, cast, overload
 
-from typing_extensions import get_args, get_origin
+from typing_extensions import Literal
 
-from magicgui import function_gui, widgets
+from magicgui import widgets
 from magicgui.types import (
+    PathLike,
     ReturnCallback,
-    TypeMatcher,
     WidgetClass,
     WidgetOptions,
     WidgetRef,
@@ -22,18 +23,17 @@ from magicgui.types import (
 )
 from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
-__all__: List[str] = ["register_type", "get_widget_class", "type_matcher"]
+from ._type_wrapper import TypeWrapper, resolve_annotation
+
+__all__: list[str] = ["register_type", "get_widget_class"]
 
 
 class MissingWidget(RuntimeError):
     """Raised when a backend widget cannot be found."""
 
-    pass
 
-
-_RETURN_CALLBACKS: DefaultDict[type, List[ReturnCallback]] = defaultdict(list)
-_TYPE_MATCHERS: List[TypeMatcher] = list()
-_TYPE_DEFS: Dict[type, WidgetTuple] = dict()
+_RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
+_TYPE_DEFS: dict[type, WidgetTuple] = dict()
 
 
 def _is_subclass(obj, superclass):
@@ -44,142 +44,158 @@ def _is_subclass(obj, superclass):
         return False
 
 
-def _evaluate_forwardref(type_: Any) -> Any:
-    """Convert typing.ForwardRef into an actual object."""
-    if isinstance(type_, str):
-        type_ = ForwardRef(type_)
+_SIMPLE_ANNOTATIONS = {
+    PathLike: widgets.FileEdit,
+}
 
-    if not isinstance(type_, ForwardRef):
-        return type_
-
-    from importlib import import_module
-
-    try:
-        _module = type_.__forward_arg__.split(".", maxsplit=1)[0]
-        globalns = globals().copy()
-        globalns.update({_module: import_module(_module)})
-    except ImportError as e:
-        raise ImportError(
-            "Could not resolve the magicgui forward reference annotation: "
-            f"{type_.__forward_arg__!r}."
-        ) from e
-
-    if sys.version_info < (3, 9):
-        return type_._evaluate(globalns, {})
-    # Even though it is the right signature for python 3.9, mypy complains with
-    # `error: Too many arguments for "_evaluate" of "ForwardRef"` hence the cast...
-    return cast(Any, type_)._evaluate(globalns, {}, set())
+_SIMPLE_TYPES = {
+    bool: widgets.CheckBox,
+    int: widgets.SpinBox,
+    float: widgets.FloatSpinBox,
+    str: widgets.LineEdit,
+    pathlib.Path: widgets.FileEdit,
+    datetime.time: widgets.TimeEdit,
+    datetime.date: widgets.DateEdit,
+    datetime.datetime: widgets.DateTimeEdit,
+    range: widgets.RangeEdit,
+    slice: widgets.SliceEdit,
+    list: widgets.ListEdit,
+    tuple: widgets.TupleEdit,
+}
 
 
-def _normalize_type(value: Any, annotation: Any) -> Type:
-    """Return annotation type origin or dtype of value."""
-    return (get_origin(annotation) or annotation) if annotation else type(value)
-
-
-def type_matcher(func: TypeMatcher) -> TypeMatcher:
-    """Add function to the set of type matchers.
-
-    Example
-    -------
-    >>> @type_matcher
-    ... def str_to_line_edit(value, annotation):
-    ...     if annotation in (str, 'str') or type(str) is str:
-    ...         return widgets.LineEdit, {}
-    """
-    _TYPE_MATCHERS.append(func)
-    return func
-
-
-@type_matcher
-def simple_types(value, annotation) -> Optional[WidgetTuple]:
+def match_type(tw: TypeWrapper) -> WidgetTuple | None:
     """Check simple type mappings."""
-    dtype = _normalize_type(value, annotation)
+    _type = tw.outer_type_
 
-    simple = {
-        bool: widgets.CheckBox,
-        int: widgets.SpinBox,
-        float: widgets.FloatSpinBox,
-        str: widgets.LineEdit,
-        pathlib.Path: widgets.FileEdit,
-        datetime.time: widgets.TimeEdit,
-        datetime.date: widgets.DateEdit,
-        datetime.datetime: widgets.DateTimeEdit,
-        type(None): widgets.LiteralEvalLineEdit,
-        Any: widgets.LiteralEvalLineEdit,
-        range: widgets.RangeEdit,
-        slice: widgets.SliceEdit,
-    }
-    if dtype in simple:
-        return simple[dtype], {}
-    else:
-        for key in simple.keys():
-            if _is_subclass(dtype, key):
-                return simple[key], {}
-    return None
+    if _type in _SIMPLE_ANNOTATIONS:
+        return _SIMPLE_ANNOTATIONS[_type], {}
 
+    if _type is widgets.ProgressBar:
+        return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
 
-@type_matcher
-def callable_type(value, annotation) -> Optional[WidgetTuple]:
-    """Determine if value/annotation is a function type."""
-    dtype = _normalize_type(value, annotation)
+    if _type in _SIMPLE_TYPES:
+        return _SIMPLE_TYPES[_type], {}
+    for key in _SIMPLE_TYPES.keys():
+        if tw.is_subclass(key):
+            return _SIMPLE_TYPES[key], {}
 
-    if dtype in (types.FunctionType,):
-        return function_gui.FunctionGui, {"function": value}  # type: ignore
-    return None
+    if _type in (types.FunctionType,):
+        return widgets.FunctionGui, {"function": tw.default}  # type: ignore
 
-
-@type_matcher
-def sequence_of_paths(value, annotation) -> Optional[WidgetTuple]:
-    """Determine if value/annotation is a Sequence[pathlib.Path]."""
-    if annotation:
-        orig = get_origin(annotation)
-        args = get_args(annotation)
-        if not (inspect.isclass(orig) and args):
-            return None
-        if _is_subclass(orig, abc.Sequence) or isinstance(orig, abc.Sequence):
-            if _is_subclass(args[0], pathlib.Path):
-                return widgets.FileEdit, {"mode": "rm"}
-    elif value:
-        if isinstance(value, abc.Sequence) and all(
-            isinstance(v, pathlib.Path) for v in value
-        ):
+    # sequence of paths
+    if tw.shape in tw.SHAPE.SEQUENCE_LIKE:
+        if _is_subclass(tw.type_, pathlib.Path):
             return widgets.FileEdit, {"mode": "rm"}
+        elif tw.shape == tw.SHAPE.LIST:
+            return widgets.ListEdit, {}
+        elif tw.shape == tw.SHAPE.TUPLE:
+            return widgets.TupleEdit, {}
+    return None
+
+
+_SIMPLE_RETURN_TYPES = [
+    bool,
+    int,
+    float,
+    str,
+    pathlib.Path,
+    datetime.time,
+    datetime.date,
+    datetime.datetime,
+    range,
+    slice,
+]
+
+
+def match_return_type(tw: TypeWrapper) -> WidgetTuple | None:
+    """Check simple type mappings for result widgets."""
+    import sys
+
+    if tw.outer_type_ in _SIMPLE_TYPES:
+        return widgets.LineEdit, {"gui_only": True}
+
+    if tw.outer_type_ is widgets.Table:
+        return widgets.Table, {}
+
+    table_types = [
+        resolve_annotation(x, sys.modules)
+        for x in ("pandas.DataFrame", "numpy.ndarray")
+    ]
+
+    if any(tw.is_subclass(tt) for tt in table_types if not isinstance(tt, ForwardRef)):
+        return widgets.Table, {}
+
     return None
 
 
 def pick_widget_type(
-    value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {}
+    value: Any = None,
+    annotation: type[Any] | None = None,
+    options: WidgetOptions | None = None,
+    is_result: bool = False,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
+    if is_result and annotation is inspect.Parameter.empty:
+        annotation = str
+    try:
+        tw = TypeWrapper(annotation, value)
+    except ValueError:
+        if value is None:
+            return widgets.EmptyWidget, {"visible": False}
+        raise
+    tw.resolve()
+    _type = tw.outer_type_
+    options = options or {}
+    options.setdefault("nullable", not tw.required)
+    choices = options.get("choices") or (isinstance(_type, EnumMeta) and _type)
+
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
+        if choices:
+            if widget_type == "RadioButton":
+                widget_type = "RadioButtons"
+                warnings.warn(
+                    f"widget_type of 'RadioButton' (with dtype {tw._type_display()}) is"
+                    " being coerced to 'RadioButtons' due to choices or Enum type.",
+                    stacklevel=2,
+                )
+            options.setdefault("choices", choices)
         return widget_type, options
-
-    annotation = _evaluate_forwardref(annotation)
-
-    dtype = _normalize_type(value, annotation)
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
-        if dtype == registered_type or _is_subclass(dtype, registered_type):
-            return _TYPE_DEFS[registered_type]
+        if _type == registered_type or tw.is_subclass(registered_type):
+            _cls, opts = _TYPE_DEFS[registered_type]
+            return _cls, {**options, **opts}  # type: ignore
 
-    choices = options.get("choices") or (isinstance(dtype, EnumMeta) and dtype)
-    if choices:
-        return widgets.ComboBox, {"choices": choices}
-
-    for matcher in _TYPE_MATCHERS:
-        _widget_type = matcher(value, annotation)
+    if is_result:
+        _widget_type = match_return_type(tw)
         if _widget_type:
-            return _widget_type
+            _cls, opts = _widget_type
+            return _cls, {**options, **opts}  # type: ignore
+        # Chosen for backwards/test compatibility
+        return widgets.LineEdit, {"gui_only": True}
 
-    # return widgets.LiteralEvalLineEdit, {}
-    raise ValueError(f"Could not pick widget for type: {dtype!r}")
+    if choices:
+        options["choices"] = choices
+        wdg = widgets.Select if options.get("allow_multiple") else widgets.ComboBox
+        return wdg, options
+
+    _widget_type = match_type(tw)
+    if _widget_type:
+        _cls, opts = _widget_type
+        return _cls, {**options, **opts}  # type: ignore
+
+    return widgets.EmptyWidget, {"visible": False}
 
 
 def get_widget_class(
-    value: Any = None, annotation: Optional[Type] = None, options: WidgetOptions = {}
-) -> Tuple[WidgetClass, WidgetOptions]:
+    value: Any = None,
+    annotation: type[Any] | None = None,
+    options: WidgetOptions | None = None,
+    is_result: bool = False,
+) -> tuple[WidgetClass, WidgetOptions]:
     """Return a WidgetClass appropriate for the given parameters.
 
     Parameters
@@ -191,6 +207,9 @@ def get_widget_class(
         A type annotation, by default None
     options : WidgetOptions, optional
         Options to pass when constructing the widget, by default {}
+    is_result : bool, optional
+        Identifies whether the returned widget should be tailored to
+        an input or to an output.
 
     Returns
     -------
@@ -199,7 +218,8 @@ def get_widget_class(
         may be different than the options passed in.
     """
     _options = cast(WidgetOptions, options)
-    widget_type, _options = pick_widget_type(value, annotation, _options)
+
+    widget_type, _options = pick_widget_type(value, annotation, _options, is_result)
 
     if isinstance(widget_type, str):
         widget_class: WidgetClass = _import_class(widget_type)
@@ -233,13 +253,38 @@ def _validate_return_callback(func):
         raise TypeError(f"object {func!r} is not a valid return callback: {e}")
 
 
+_T = TypeVar("_T", bound=Type)
+
+
+@overload
 def register_type(
-    type_: type,
+    type_: _T,
     *,
-    widget_type: WidgetRef = None,
-    return_callback: Optional[ReturnCallback] = None,
+    widget_type: WidgetRef | None = None,
+    return_callback: ReturnCallback | None = None,
     **options,
-):
+) -> _T:
+    ...
+
+
+@overload
+def register_type(
+    type_: Literal[None] = None,
+    *,
+    widget_type: WidgetRef | None = None,
+    return_callback: ReturnCallback | None = None,
+    **options,
+) -> Callable[[_T], _T]:
+    ...
+
+
+def register_type(
+    type_: _T | None = None,
+    *,
+    widget_type: WidgetRef | None = None,
+    return_callback: ReturnCallback | None = None,
+    **options,
+) -> _T | Callable[[_T], _T]:
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
 
     Parameters
@@ -261,67 +306,61 @@ def register_type(
     Raises
     ------
     ValueError
-        If both ``widget_type`` and ``choices`` are None
+        If none of `widget_type`, `return_callback`, `bind` or `choices` are provided.
     """
-    type_ = _evaluate_forwardref(type_)
-
-    if not (return_callback or options.get("choices") or widget_type):
+    if all(
+        x is None
+        for x in [
+            return_callback,
+            options.get("bind"),
+            options.get("choices"),
+            widget_type,
+        ]
+    ):
         raise ValueError(
-            "At least one of `widget_type`, `choices`, or "
-            "`return_callback` must be provided."
+            "At least one of `widget_type`, `return_callback`, `bind` or `choices` "
+            "must be provided."
         )
 
-    if return_callback is not None:
-        _validate_return_callback(return_callback)
-        _RETURN_CALLBACKS[type_].append(return_callback)
+    def _deco(type_):
+        tw = TypeWrapper(type_)
+        tw.resolve()
+        _type_ = tw.outer_type_
 
-    _options = cast(WidgetOptions, options)
+        if return_callback is not None:
+            _validate_return_callback(return_callback)
+            _RETURN_CALLBACKS[_type_].append(return_callback)
 
-    if "choices" in _options:
-        _choices = _options["choices"]
+        _options = cast(WidgetOptions, options)
 
-        if not isinstance(_choices, EnumMeta) and callable(_choices):
-            _options["choices"] = _check_choices(_choices)
-        _TYPE_DEFS[type_] = (widgets.ComboBox, _options)
-        if widget_type is not None:
-            warnings.warn(
-                "Providing `choices` overrides `widget_type`. Categorical widget will "
-                f"be used for type {type_}"
-            )
-    elif widget_type is not None:
+        if "choices" in _options:
+            _TYPE_DEFS[_type_] = (widgets.ComboBox, _options)
+            if widget_type is not None:
+                warnings.warn(
+                    "Providing `choices` overrides `widget_type`. Categorical widget "
+                    f"will be used for type {_type_}",
+                    stacklevel=2,
+                )
+        elif widget_type is not None:
 
-        if not isinstance(widget_type, (str, widgets._bases.Widget, WidgetProtocol)):
-            raise TypeError(
-                '"widget_type" must be either a string, Widget, or WidgetProtocol'
-            )
-        _TYPE_DEFS[type_] = (widget_type, _options)
+            if not isinstance(widget_type, (str, WidgetProtocol)) and not (
+                inspect.isclass(widget_type) and issubclass(widget_type, widgets.Widget)
+            ):
+                raise TypeError(
+                    '"widget_type" must be either a string, WidgetProtocol, or '
+                    "Widget subclass"
+                )
+            _TYPE_DEFS[_type_] = (widget_type, _options)
+        elif "bind" in _options:
+            # if we're binding a value to this parameter, it doesn't matter what type
+            # of ValueWidget is used... it usually won't be shown
+            _TYPE_DEFS[_type_] = (widgets.EmptyWidget, _options)
+        return _type_
 
-    return None
-
-
-def _check_choices(choices):
-    """Catch pre 0.2.0 API from developers using register_type."""
-    n_params = len(inspect.signature(choices).parameters)
-    if n_params > 1:
-        warnings.warn(
-            "\n\nDEVELOPER NOTICE: As of magicgui 0.2.0, when providing a callable to "
-            "`choices`, the\ncallable may accept only a single positional "
-            "argument (which will be an instance of\n"
-            "`magicgui.widgets._bases.CategoricalWidget`), and must "
-            "return an iterable (the choices\nto show).  Function "
-            f"'{choices.__module__}.{choices.__name__}' accepts {n_params} "
-            "arguments.\nIn the future, this will raise an exception.\n",
-            DeprecationWarning,
-        )
-
-        def wrapper(obj):
-            return choices(obj.native, obj.annotation)
-
-        return wrapper
-    return choices
+    return _deco if type_ is None else _deco(type_)
 
 
-def _type2callback(type_: type) -> List[ReturnCallback]:
+def _type2callback(type_: type) -> list[ReturnCallback]:
     """Check if return callbacks have been registered for ``type_`` and return if so.
 
     Parameters
@@ -334,12 +373,17 @@ def _type2callback(type_: type) -> List[ReturnCallback]:
     list of callable
         Where a return callback accepts two arguments (gui, value) and does something.
     """
+    if type_ is inspect.Parameter.empty:
+        return []
+
     # look for direct hits
-    type_ = _evaluate_forwardref(type_)
-    if type_ in _RETURN_CALLBACKS:
-        return _RETURN_CALLBACKS[type_]
+    tw = TypeWrapper(type_)
+    tw.resolve()
+    if tw.outer_type_ in _RETURN_CALLBACKS:
+        return _RETURN_CALLBACKS[tw.outer_type_]
+
     # look for subclasses
     for registered_type in _RETURN_CALLBACKS:
-        if _is_subclass(type_, registered_type):
+        if tw.is_subclass(registered_type):
             return _RETURN_CALLBACKS[registered_type]
     return []

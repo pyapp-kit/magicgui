@@ -8,16 +8,31 @@ __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"
 
 
-from . import widgets
+from ._magicgui import magic_factory, magicgui
 from .application import event_loop, use_app
-from .function_gui import FunctionGui, magicgui
 from .type_map import register_type
 
 __all__ = [
     "event_loop",
-    "FunctionGui",
     "magicgui",
+    "magic_factory",
     "register_type",
     "use_app",
-    "widgets",
 ]
+
+
+def __getattr__(name: str):
+    if name == "FunctionGui":
+        from warnings import warn
+
+        from .widgets import FunctionGui
+
+        warn(
+            "magicgui.FunctionGui is deprecated. "
+            "Please import at magicgui.widgets.FunctionGui",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+        return FunctionGui
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

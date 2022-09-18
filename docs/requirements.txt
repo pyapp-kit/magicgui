@@ -1,7 +1,6 @@
-jupyter-book
-sphinx_material
-jupytext
+jupyter-book==0.13.0
+sphinx_material==0.0.35
+jupytext==1.13.8
 numpy
 imageio
-sphinx-autodoc-typehints
-sphinxcontrib-bibtex<2.0.0
+sphinx-autodoc-typehints==1.18.3

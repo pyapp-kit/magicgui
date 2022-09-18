@@ -98,6 +98,8 @@ def add(a: int, b: int) -> int:
 add.show()
 ```
 
+By default the widget will be scrollable in the direction of the layout.
+
 ```{eval-rst}
 .. _parameter-specific-options:
 ```
@@ -128,7 +130,7 @@ argument "`min`":
 
 ```{code-cell} python
 ---
-tags: [warns]
+:tags: [raises-exception]
 ---
 @magicgui(a_string={'min': 10})
 def whoops(a_string: str = 'Hi there'):
@@ -195,7 +197,7 @@ add.show()
 
 ```{tip}
 The object returned from {func}`magicgui.magicgui` is a
-{class}`~magicgui.function_gui.FunctionGui`, which is in turn just
+{class}`~magicgui.widgets.FunctionGui`, which is in turn just
 a special type of {class}`~magicgui.widgets.Container` widget. A `Container`
 acts just like a basic python list.  So in the example above, we could
 manually add a {class}`~magicgui.widgets.Label` with "`+`" to our widget as

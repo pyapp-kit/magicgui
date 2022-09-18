@@ -7,20 +7,30 @@ from enum import Enum
 
 import pytest
 from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QScrollArea
 
 from magicgui import magicgui, register_type, type_map, widgets
-from magicgui.signature import MagicSignature
+from magicgui.signature import MagicSignature, magic_signature
+
+
+def func(a: str = "works", b: int = 3, c=7.1) -> str:
+    return a + str(b)
 
 
 @pytest.fixture
 def magic_func():
     """Test function decorated by magicgui."""
+    return magicgui(func, call_button="my_button", auto_call=True, labels=False)
 
-    @magicgui(call_button="my_button", auto_call=True, labels=False)
-    def func(a: str = "works", b: int = 3, c=7.1) -> str:
-        return a + str(b)
 
-    return func
+@pytest.fixture
+def magic_func_defaults():
+    return magicgui(func)
+
+
+@pytest.fixture
+def magic_func_autocall():
+    return magicgui(func, auto_call=True)
 
 
 def test_magicgui(magic_func):
@@ -48,6 +58,16 @@ def test_magicgui(magic_func):
         magic_func.index(a)
 
 
+def test_default_call_button_behavior(magic_func_defaults, magic_func_autocall):
+    assert magic_func_defaults.call_button is not None
+
+    assert magic_func_autocall.call_button is None
+    prior_autocall_count = magic_func_autocall.call_count
+    magic_func_autocall.a.value = "hello"
+    magic_func_autocall.b.value = 7
+    assert magic_func_autocall.call_count == prior_autocall_count + 2
+
+
 def test_overriding_widget_type():
     """Test overriding the widget type of a parameter."""
     # a will now be a LineEdit instead of a spinbox
@@ -59,6 +79,24 @@ def test_overriding_widget_type():
     assert func.a.value == "1"
 
 
+def test_unrecognized_types():
+    """Test that arg with an unrecognized type is hidden."""
+
+    class Something:
+        pass
+
+    # don't know how to handle Something type
+    @magicgui
+    def func(arg: Something, b: int = 1):
+        pass
+
+    assert isinstance(func.arg, widgets.EmptyWidget)
+
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+
+
 def test_no_type_provided():
     """Test position args with unknown type."""
 
@@ -66,7 +104,25 @@ def test_no_type_provided():
     def func(a):
         pass
 
-    assert isinstance(func.a, widgets.LiteralEvalLineEdit)
+    assert isinstance(func.a, widgets.EmptyWidget)
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+    assert "@magicgui(a={'bind': value})" in str(e)
+
+
+def test_bind_out_of_order():
+    """Test that binding a value before a non-default argument still gives message."""
+
+    @magicgui(a={"bind": 10})
+    def func(a, x):
+        pass
+
+    assert isinstance(func.a, widgets.EmptyWidget)
+    with pytest.raises(TypeError) as e:
+        func()
+    assert "missing a required argument" in str(e)
+    assert "@magicgui(x={'bind': value})" in str(e)
 
 
 def test_call_button():
@@ -76,24 +132,25 @@ def test_call_button():
     def func(a: int, b: int = 3, c=7.1):
         assert a == 7
 
-    assert hasattr(func, "_call_button")
-    assert isinstance(func._call_button, widgets.PushButton)
+    assert hasattr(func, "call_button")
+    assert isinstance(func.call_button, widgets.PushButton)
     func.a.value = 7
 
 
+@pytest.mark.filterwarnings("ignore")
 def test_auto_call(qtbot, magic_func):
     """Test that changing a parameter calls the function."""
+    from qtpy.QtTest import QTest
 
     # TODO: remove qtbot requirement so we can test other backends eventually.
-
     # changing the widget parameter calls the function
     with qtbot.waitSignal(magic_func.called, timeout=1000):
         magic_func.b.value = 6
 
     # changing the gui calls the function
     with qtbot.waitSignal(magic_func.called, timeout=1000):
-        qtbot.keyClick(magic_func.a.native, Qt.Key_A, Qt.ControlModifier)
-        qtbot.keyClick(magic_func.a.native, Qt.Key_Delete)
+        QTest.keyClick(magic_func.a.native, Qt.Key_A, Qt.ControlModifier)
+        QTest.keyClick(magic_func.a.native, Qt.Key_Delete)
 
 
 def test_dropdown_list_from_enum():
@@ -226,6 +283,7 @@ def test_invisible_param():
         return "works"
 
     assert hasattr(func, "a")
+    func.show()
     assert not func.a.visible
     assert func.b.visible
     assert func.c.visible
@@ -236,7 +294,7 @@ def test_bad_options():
     """Test that invalid parameter options raise TypeError."""
     with pytest.raises(TypeError):
 
-        @magicgui(b=7)
+        @magicgui(b=7)  # type: ignore
         def func(a="string", b=3, c=7.1):
             return "works"
 
@@ -262,26 +320,6 @@ def test_signature_repr():
         str(inspect.signature(magic_func))
         == "(a: str = 'string', b: int = 0, c: float = 7.1)"
     )
-
-
-def test_unrecognized_types():
-    """Test error handling when an arg with an unrecognized type is encountered."""
-
-    class Something:
-        pass
-
-    with pytest.raises(ValueError):
-        # don't know how to handle Something type
-        @magicgui
-        def func(arg: Something, b: int = 1):
-            pass
-
-    # # now it should not raise an error... but `arg` should not be in the gui
-    # core.SKIP_UNRECOGNIZED_TYPES = True
-    # with pytest.warns(UserWarning):
-    #     gui = func.Gui()
-    # assert not hasattr(gui, "arg")
-    # assert hasattr(gui, "b")
 
 
 def test_set_choices_raises():
@@ -310,22 +348,6 @@ def test_get_choices_raises():
     assert func.mood.choices == (1, 2, 3)
 
 
-@pytest.mark.skip(reason="does not yet work")
-def test_positions():
-    """Test that providing position options puts widget in the right place."""
-
-    def func(a=1, b=2, c=3):
-        pass
-
-    def get_layout_items(layout):
-        return [layout.itemAt(i).widget().objectName() for i in range(layout.count())]
-
-    gui = magicgui(func)
-    assert get_layout_items(gui.layout()) == ["a", "b", "c"]
-    gui = magicgui(func, a={"position": 2}, b={"position": 1}).Gui()
-    assert get_layout_items(gui.layout()) == ["c", "b", "a"]
-
-
 @pytest.mark.parametrize(
     "labels",
     [
@@ -350,9 +372,9 @@ def test_add_at_position(labels):
         return items
 
     gui = magicgui(func, labels=labels)
-    assert get_layout_items(gui) == ["a", "b", "c"]
+    assert get_layout_items(gui) == ["a", "b", "c", "call_button"]
     gui.insert(1, widgets.create_widget(name="new"))
-    assert get_layout_items(gui) == ["a", "new", "b", "c"]
+    assert get_layout_items(gui) == ["a", "new", "b", "c", "call_button"]
 
 
 def test_original_function_works(magic_func):
@@ -368,7 +390,7 @@ def test_show(magic_func):
     assert magic_func.visible
 
 
-def test_register_types():
+def test_register_types_by_string():
     """Test that we can register custom widget classes for certain types."""
     # must provide a non-None choices or widget_type
     with pytest.raises(ValueError):
@@ -392,7 +414,7 @@ def test_register_types():
     class Sub2(Main2):
         pass
 
-    register_type(Main, choices=[1, 2, 3])
+    register_type(Main, choices=[None, 1, 2, 3])
     register_type(Main2, widget_type="LineEdit")
 
     @magicgui
@@ -406,6 +428,18 @@ def test_register_types():
 
     del type_map._TYPE_DEFS[str]
     del type_map._TYPE_DEFS[int]
+
+
+def test_register_types_by_class():
+    class MyLineEdit(widgets.LineEdit):
+        pass
+
+    class MyStr:
+        pass
+
+    register_type(MyStr, widget_type=MyLineEdit)
+    w = widgets.create_widget(value=MyStr())
+    assert isinstance(w, MyLineEdit)
 
 
 def test_register_return_callback():
@@ -423,19 +457,26 @@ def test_register_return_callback():
     register_type(int, return_callback=check_value)
     register_type(Base, return_callback=check_value)
 
-    @magicgui
-    def func(a=1) -> int:
-        return a
+    try:
 
-    func()
-    with pytest.raises(AssertionError):
-        func(3)
+        @magicgui
+        def func(a=1) -> int:
+            return a
 
-    @magicgui
-    def func2(a=1) -> Sub:
-        return a
+        func()
+        with pytest.raises(AssertionError):
+            func(3)
 
-    func2()
+        @magicgui
+        def func2(a=1) -> Sub:
+            return a
+
+        func2()
+    finally:
+        from magicgui.type_map import _RETURN_CALLBACKS
+
+        _RETURN_CALLBACKS.pop(int)
+        _RETURN_CALLBACKS.pop(Base)
 
 
 # @pytest.mark.skip(reason="need to rethink how to test this")
@@ -451,7 +492,7 @@ def test_function_binding():
             self.name = name
             self.counter = 0.0
 
-        @magicgui(auto_call=True)
+        @magicgui(call_button="callme", sigma={"max": 365})
         def method(self, sigma: float = 1):
             self.counter = self.counter + sigma
             return self.name, self.counter
@@ -459,10 +500,32 @@ def test_function_binding():
     a = MyObject("a")
     b = MyObject("b")
 
+    assert a.method.call_button.text == "callme"  # type: ignore
+    assert a.method.sigma.max == 365
     assert a.method() == ("a", 1)
     assert b.method(sigma=4) == ("b", 4)
     assert a.method() == ("a", 2)
     assert b.method() == ("b", 5)
+
+
+def test_function_binding_multiple():
+    class MyObject:
+        def __init__(self):
+            pass
+
+        @magicgui
+        def method_0(self, sigma: float = 1):
+            pass
+
+        @magicgui
+        def method_1(self, sigma: float = 2):
+            pass
+
+    a = MyObject()
+    assert MyObject.method_0 is not a.method_0
+    assert a.method_0 is not a.method_1
+    assert a.method_0.sigma.value == 1
+    assert a.method_1.sigma.value == 2
 
 
 def test_call_count():
@@ -478,3 +541,304 @@ def test_call_count():
     assert func.call_count == 2
     func.reset_call_count()
     assert func.call_count == 0
+
+
+def test_tooltips_from_numpydoc():
+    """Test that numpydocs docstrings can be used for tooltips."""
+
+    x_tooltip = "override tooltip"
+    y_docstring = """A greeting, by default 'hi'. Notice how we miraculously pull
+the entirety of the docstring just like that"""
+
+    @magicgui(x={"tooltip": x_tooltip}, z={"tooltip": None})
+    def func(x: int, y: str = "hi", z=None):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'. Notice how we miraculously pull
+            the entirety of the docstring just like that
+        z : Any, optional
+            No tooltip for me please.
+        """
+
+    assert func.x.tooltip == x_tooltip
+    assert func.y.tooltip == y_docstring
+    assert not func.z.tooltip
+
+
+def test_bad_param_name_in_docstring():
+    @magicgui
+    def func(x: int):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        not_x: int
+            DESCRIPTION.
+        """
+        return x
+
+    assert not func.x.tooltip
+
+
+def test_duplicated_and_missing_params_from_numpydoc():
+    """Test that numpydocs docstrings can be used for tooltips."""
+
+    @magicgui
+    def func(x, y, z=None):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x, y : int
+            Integers for you to use
+        """
+
+    assert func.x.tooltip == "Integers for you to use"
+    assert func.y.tooltip == "Integers for you to use"
+    assert not func.z.tooltip
+
+
+def test_tooltips_from_google_doc():
+    """Test that google docstrings can be used for tooltips."""
+
+    x_docstring = "An integer for you to use"
+    y_docstring = """A greeting. Notice how we miraculously pull
+the entirety of the docstring just like that"""
+
+    @magicgui
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Args:
+            x (int): An integer for you to use
+            y (str, optional): A greeting. Notice how we miraculously pull
+                               the entirety of the docstring just like that
+        """
+
+    assert func.x.tooltip == x_docstring
+    assert func.y.tooltip == y_docstring
+
+
+def test_tooltips_from_rest_doc():
+    """Test that google docstrings can be used for tooltips."""
+
+    x_docstring = "An integer for you to use"
+    y_docstring = """A greeting, by default 'hi'. Notice how we miraculously pull
+the entirety of the docstring just like that"""
+
+    @magicgui
+    def func(x: int, y: str = "hi", z=None):
+        """Do a little thing.
+
+        :param x: An integer for you to use
+        :param y: A greeting, by default 'hi'. Notice how we miraculously pull
+                  the entirety of the docstring just like that
+        :type x: int
+        :type y: str
+        """
+
+    assert func.x.tooltip == x_docstring
+    assert func.y.tooltip == y_docstring
+
+
+def test_no_tooltips_from_numpydoc():
+    """Test that ``tooltips=False`` hides all tooltips."""
+
+    @magicgui(tooltips=False)
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'
+        """
+
+    assert not func.x.tooltip
+    assert not func.y.tooltip
+
+
+def test_only_some_tooltips_from_numpydoc():
+    """Test that we can still show some tooltips with ``tooltips=False``."""
+    # tooltips=False, means docstrings wont be parsed at all, but tooltips
+    # can still be manually provided.
+    @magicgui(tooltips=False, y={"tooltip": "Still want a tooltip"})
+    def func(x: int, y: str = "hi"):
+        """Do a little thing.
+
+        Parameters
+        ----------
+        x : int
+            An integer for you to use
+        y : str, optional
+            A greeting, by default 'hi'
+        """
+
+    assert not func.x.tooltip
+    assert func.y.tooltip == "Still want a tooltip"
+
+
+def test_magicgui_type_error():
+
+    with pytest.raises(TypeError):
+        magicgui("not a function")  # type: ignore
+
+
+def self_referencing_function(x: int = 1):
+    """Function that refers to itself, and wants the FunctionGui instance."""
+    return self_referencing_function
+
+
+def test_magicgui_self_reference():
+    """Test that self-referential magicguis work in global scopes."""
+    global self_referencing_function
+    f = magicgui(self_referencing_function)
+    assert isinstance(f(), widgets.FunctionGui)
+    assert f() is f
+
+
+def test_local_magicgui_self_reference():
+    """Test that self-referential magicguis work in local scopes."""
+
+    @magicgui
+    def local_self_referencing_function(x: int = 1):
+        """Function that refers to itself, and wants the FunctionGui instance."""
+        return local_self_referencing_function
+
+    assert isinstance(local_self_referencing_function(), widgets.FunctionGui)
+
+
+def test_empty_function():
+    """Test that a function with no params works."""
+
+    @magicgui(call_button=True)
+    def f():
+        ...
+
+    f.show()
+
+
+def test_boolean_label():
+    """Test that label can be used to set the text of a button widget."""
+
+    @magicgui(check={"label": "ABC"})
+    def test(check: bool, x=1):
+        pass
+
+    assert test.check.text == "ABC"
+
+    with pytest.warns(UserWarning) as record:
+
+        @magicgui(check={"text": "ABC", "label": "BCD"})
+        def test2(check: bool, x=1):
+            pass
+
+    assert "'text' and 'label' are synonymous for button widgets" in str(record[0])
+
+
+def test_none_defaults():
+    """Make sure that an unannotated parameter with default=None is ok."""
+    assert widgets.create_widget(value=None).value is None
+
+    def func(arg=None):
+        return 1
+
+    assert magicgui(func)() == 1
+
+    assert str(magic_signature(func)) == str(magicgui(func).__signature__)
+
+
+def test_update_and_dict():
+    @magicgui
+    def test(a: int = 1, y: str = "a"):
+        ...
+
+    assert test.asdict() == {"a": 1, "y": "a"}
+
+    test.update(a=10, y="b")
+    assert test.asdict() == {"a": 10, "y": "b"}
+
+    test.update({"a": 1, "y": "a"})
+    assert test.asdict() == {"a": 1, "y": "a"}
+
+    test.update([("a", 10), ("y", "b")])
+    assert test.asdict() == {"a": 10, "y": "b"}
+
+
+def test_update_on_call():
+    @magicgui
+    def test(a: int = 1, y: str = "a"):
+        ...
+
+    assert test.call_count == 0
+    test(a=10, y="b", update_widget=True)
+    assert test.a.value == 10
+    assert test.y.value == "b"
+    assert test.call_count == 1
+
+
+def test_partial():
+    from functools import partial
+
+    def some_func(x: int, y: str) -> str:
+        return y + str(x)
+
+    wdg = magicgui(partial(some_func, 1))
+    assert len(wdg) == 2  # because of the call_button
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert not hasattr(wdg, "x")
+    assert wdg("sdf") == "sdf1"
+    assert wdg._callable_name == "some_func"
+
+    wdg2 = magicgui(partial(some_func, y="sdf"))
+    assert len(wdg2) == 3  # keyword arguments don't change the partial signature
+    assert isinstance(wdg2.x, widgets.SpinBox)
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert wdg2.y.value == "sdf"
+    assert wdg2(1) == "sdf1"
+
+
+def test_curry():
+    import toolz as tz
+
+    @tz.curry
+    def some_func2(x: int, y: str) -> str:
+        return y + str(x)
+
+    wdg = magicgui(some_func2(1))
+    assert len(wdg) == 2  # because of the call_button
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert not hasattr(wdg, "x")
+    assert wdg("sdf") == "sdf1"
+    assert wdg._callable_name == "some_func2"
+
+    wdg2 = magicgui(some_func2(y="sdf"))
+    assert len(wdg2) == 3  # keyword arguments don't change the partial signature
+    assert isinstance(wdg2.x, widgets.SpinBox)
+    assert isinstance(wdg.y, widgets.LineEdit)
+    assert wdg2.y.value == "sdf"
+    assert wdg2(1) == "sdf1"
+
+
+def test_scrollable():
+    @magicgui(scrollable=True)
+    def test_scrollable(a: int = 1, y: str = "a"):
+        ...
+
+    assert test_scrollable.native is not test_scrollable.root_native_widget
+    assert not isinstance(test_scrollable.native, QScrollArea)
+    assert isinstance(test_scrollable.root_native_widget, QScrollArea)
+
+    @magicgui(scrollable=False)
+    def test_nonscrollable(a: int = 1, y: str = "a"):
+        ...
+
+    assert test_nonscrollable.native is test_nonscrollable.root_native_widget
+    assert not isinstance(test_nonscrollable.native, QScrollArea)
