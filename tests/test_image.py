@@ -100,6 +100,8 @@ def test_internal_cmap():
 
 
 def test_mpl_cmap():
+    cm = pytest.importorskip("matplotlib.cm")
+
     # 2D uint8
     image = Image()
     data = np.random.randint(0, 255, (60, 60)).astype("uint8")
@@ -118,7 +120,7 @@ def test_mpl_cmap():
     assert data.size - np.count_nonzero(rendered2[..., 0] == data) > 3000
 
     # can also use an mpl colormap instance
-    image.set_cmap(_mpl_image.get_cmap("viridis"))
+    image.set_cmap(cm.get_cmap("viridis"))
     rendered3 = image.image_rgba
     assert isinstance(rendered3, np.ndarray)
     # the colormap has been applied
