@@ -267,7 +267,7 @@ class Container(
 
     def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
         lft, top, rgt, bot = margins
-        self._ipywidget.layout.margin = "{}px {}px {}px {}px".format(top, rgt, bot, lft)
+        self._ipywidget.layout.margin = f"{top}px {rgt}px {bot}px {lft}px"
 
     def _mgui_set_orientation(self, value) -> None:
         raise NotImplementedError(
