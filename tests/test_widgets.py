@@ -11,7 +11,9 @@ from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets._bases import ValueWidget
 
 
-@pytest.fixture(scope="module", params=["qt", "ipynb"])
+# it's important that "qt" be last here, so that it's used for
+# the rest of the tests
+@pytest.fixture(scope="module", params=["ipynb", "qt"])
 def backend(request):
     return request.param
 
