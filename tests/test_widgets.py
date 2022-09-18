@@ -29,10 +29,11 @@ def backend(request):
             "MainFunctionGui",
             "show_file_dialog",
             "request_values",
+            "create_widget",
         )
     ],
 )
-def test_widgets(WidgetClass):
+def test_widgets(WidgetClass, backend):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
     use_app(backend)
     try:

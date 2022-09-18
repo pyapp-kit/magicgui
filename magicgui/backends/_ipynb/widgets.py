@@ -1,50 +1,59 @@
-from typing import Any, Iterable, Optional, Tuple, Union
+from typing import Any, Callable, Iterable, Optional, Tuple, Type, Union
 
-import ipywidgets
-from ipywidgets import widgets as ipywdg
+try:
+    import ipywidgets
+    from ipywidgets import widgets as ipywdg
+except ImportError as e:
+    raise ImportError(
+        "magicgui requires ipywidgets to be installed to use the 'ipynb' backend. "
+        "Please run `pip install ipywidgets`"
+    ) from e
 
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases import Widget
 
 
+def _pxstr2int(pxstr: Union[int, str]) -> int:
+    if isinstance(pxstr, int):
+        return pxstr
+    if isinstance(pxstr, str) and pxstr.endswith("px"):
+        return int(pxstr[:-2])
+    return int(pxstr)
+
+
+def _int2pxstr(pxint: Union[int, str]) -> str:
+    return f"{pxint}px" if isinstance(pxint, int) else pxint
+
+
 class _IPyWidget(_protocols.WidgetProtocol):
     _ipywidget: ipywdg.Widget
 
-    def __init__(self, qwidg: ipywdg.Widget):
+    def __init__(
+        self, qwidg: Type[ipywdg.Widget] = None, parent: Optional[ipywdg.Widget] = None
+    ):
+        if qwidg is None:
+            qwidg = type(self).__annotations__.get("_ipywidget")
+        if qwidg is None:
+            raise TypeError("Must provide a valid ipywidget type")
         self._ipywidget = qwidg()
+        # TODO: assign parent
+
+    def _mgui_close_widget(self):
+        self._ipywidget.close()
 
     # `layout.display` will hide and unhide the widget and collapse the space
     # `layout.visibility` will make the widget (in)visible without changing layout
-    def _mgui_hide_widget(self):
-        self._ipywidget.layout.display = "none"
+    def _mgui_get_visible(self):
+        return self._ipywidget.layout.display != "none"
 
-    def _mgui_show_widget(self):
-        self._ipywidget.layout.display = "block"
+    def _mgui_set_visible(self, value: bool):
+        self._ipywidget.layout.display = "block" if value else "none"
 
-    def _mgui_get_enabled(self):
+    def _mgui_get_enabled(self) -> bool:
         return not self._ipywidget.disabled
 
-    def _mgui_set_enabled(self, enabled):
+    def _mgui_set_enabled(self, enabled: bool):
         self._ipywidget.disabled = not enabled
-
-    def _mgui_get_native_widget(self):
-        return self._ipywidget
-
-    def _mgui_get_width(self):
-        # TODO: ipywidgets deals in CSS ... by default width is `None`
-        # will this always work with our base Widget assumptions?
-        width = self._ipywidget.layout.width
-        if isinstance(width, str) and width.endswith("px"):
-            return int(width[:-2])
-        return None
-
-    def _mgui_set_min_width(self, value: Union[int, str]):
-        if isinstance(value, int):
-            value = f"{value}px"
-        self._ipywidget.layout.min_width = value
-
-    def _ipython_display_(self, **kwargs):
-        return self._ipywidget._ipython_display_(**kwargs)
 
     def _mgui_get_parent(self):
         # TODO: how does ipywidgets handle this?
@@ -54,10 +63,83 @@ class _IPyWidget(_protocols.WidgetProtocol):
         # TODO: how does ipywidgets handle this?
         self._ipywidget.parent = widget
 
+    def _mgui_get_native_widget(self) -> ipywdg.Widget:
+        return self._ipywidget
+
+    def _mgui_get_root_native_widget(self) -> ipywdg.Widget:
+        return self._ipywidget
+
+    def _mgui_get_width(self) -> int:
+        # TODO: ipywidgets deals in CSS ... by default width is `None`
+        # will this always work with our base Widget assumptions?
+        return _pxstr2int(self._ipywidget.layout.width)
+
+    def _mgui_set_width(self, value: Union[int, str]) -> None:
+        """Set the current width of the widget."""
+        self._ipywidget.layout.width = _int2pxstr(value)
+
+    def _mgui_get_min_width(self) -> int:
+        return _pxstr2int(self._ipywidget.layout.min_width)
+
+    def _mgui_set_min_width(self, value: Union[int, str]):
+        self._ipywidget.layout.min_width = _int2pxstr(value)
+
+    def _mgui_get_max_width(self) -> int:
+        return _pxstr2int(self._ipywidget.layout.max_width)
+
+    def _mgui_set_max_width(self, value: Union[int, str]):
+        self._ipywidget.layout.max_width = _int2pxstr(value)
+
+    def _mgui_get_height(self) -> int:
+        """Return the current height of the widget."""
+        return _pxstr2int(self._ipywidget.layout.height)
+
+    def _mgui_set_height(self, value: int) -> None:
+        """Set the current height of the widget."""
+        self._ipywidget.layout.height = _int2pxstr(value)
+
+    def _mgui_get_min_height(self) -> int:
+        """Get the minimum allowable height of the widget."""
+        return _pxstr2int(self._ipywidget.layout.min_height)
+
+    def _mgui_set_min_height(self, value: int) -> None:
+        """Set the minimum allowable height of the widget."""
+        self._ipywidget.layout.min_height = _int2pxstr(value)
+
+    def _mgui_get_max_height(self) -> int:
+        """Get the maximum allowable height of the widget."""
+        return _pxstr2int(self._ipywidget.layout.max_height)
+
+    def _mgui_set_max_height(self, value: int) -> None:
+        """Set the maximum allowable height of the widget."""
+        self._ipywidget.layout.max_height = _int2pxstr(value)
+
+    def _mgui_get_tooltip(self) -> str:
+        return self._ipywidget.tooltip
+
+    def _mgui_set_tooltip(self, value: str | None) -> None:
+        self._ipywidget.tooltip = value
+
+    def _ipython_display_(self, **kwargs):
+        return self._ipywidget._ipython_display_(**kwargs)
+
     def _mgui_bind_parent_change_callback(self, callback):
         pass
 
     def _mgui_render(self):
+        pass
+
+
+class EmptyWidget(_IPyWidget):
+    _ipywidget: ipywdg.Widget
+
+    def _mgui_get_value(self) -> Any:
+        raise NotImplementedError()
+
+    def _mgui_set_value(self, value: Any) -> None:
+        raise NotImplementedError()
+
+    def _mgui_bind_change_callback(self, callback: Callable):
         pass
 
 
@@ -99,6 +181,14 @@ class _IPyRangedWidget(_IPyValueWidget, _protocols.RangedWidgetProtocol):
     def _mgui_set_step(self, value: float) -> None:
         self._ipywidget.step = value
 
+    def _mgui_get_adaptive_step(self) -> bool:
+        return False
+
+    def _mgui_set_adaptive_step(self, value: bool):
+        # TODO:
+        ...
+        # raise NotImplementedError('adaptive step not implemented for ipywidgets')
+
 
 class _IPySupportsOrientation(_protocols.SupportsOrientation):
     _ipywidget: ipywdg.Widget
@@ -120,6 +210,35 @@ class _IPySupportsChoices(_protocols.SupportsChoices):
     def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
         """Set available choices."""
         self._ipywidget.options = choices
+
+    def _mgui_del_choice(self, choice_name: str) -> None:
+        """Delete a choice."""
+        options = [
+            item
+            for item in self._ipywidget.options
+            if (not isinstance(item, tuple) or item[0] != choice_name)
+            and item != choice_name  # noqa: W503
+        ]
+        self._ipywidget.options = options
+
+    def _mgui_get_choice(self, choice_name: str) -> Any:
+        """Get the data associated with a choice."""
+        for item in self._ipywidget.options:
+            if isinstance(item, tuple) and item[0] == choice_name:
+                return item[1]
+            elif item == choice_name:
+                return item
+        return None
+
+    def _mgui_get_count(self) -> int:
+        return len(self._ipywidget.options)
+
+    def _mgui_get_current_choice(self) -> str:
+        return self._ipywidget.label
+
+    def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
+        """Set the data associated with a choice."""
+        self._ipywidget.options = self._ipywidget.options + ((choice_name, data),)
 
 
 class _IPySupportsText(_protocols.SupportsText):
@@ -147,68 +266,89 @@ class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText):
 class _IPySliderWidget(_IPyRangedWidget, _IPySupportsOrientation):
     """Protocol for implementing a slider widget."""
 
+    def __init__(self, readout: bool = True, orientation: str = "horizontal", **kwargs):
+        super().__init__(**kwargs)
+
+    def _mgui_set_readout_visibility(self, visible: bool) -> None:
+        """Set visibility of readout widget."""
+        # TODO
+
+    def _mgui_get_tracking(self) -> bool:
+        """If tracking is False, changed is only emitted when released."""
+        # TODO
+
+    def _mgui_set_tracking(self, tracking: bool) -> None:
+        """If tracking is False, changed is only emitted when released."""
+        # TODO
+
 
 class Label(_IPyStringWidget):
-    def __init__(self):
-        super().__init__(ipywdg.Label)
+    _ipywidget: ipywdg.Label
 
 
 class LineEdit(_IPyStringWidget):
-    def __init__(self):
-        super().__init__(ipywdg.Text)
+    _ipywidget: ipywdg.Text
+
+
+class LiteralEvalLineEdit(_IPyStringWidget):
+    _ipywidget: ipywdg.Text
+
+    def _mgui_get_value(self) -> Any:
+        from ast import literal_eval
+
+        value = super()._mgui_get_value()
+        return literal_eval(value)  # type: ignore
 
 
 class TextEdit(_IPyStringWidget):
-    def __init__(self):
-        super().__init__(ipywdg.Textarea)
+    _ipywidget: ipywdg.Textarea
 
 
-# class DateTimeEdit(_IPyValueWidget):
-#     def __init__(self):
-#         super().__init__(?)
+class DateEdit(_IPyValueWidget):
+    _ipywidget: ipywdg.DatePicker
+
+
+class DateTimeEdit(_IPyValueWidget):
+    _ipywidget: ipywdg.DatetimePicker
+
+
+class TimeEdit(_IPyValueWidget):
+    _ipywidget: ipywdg.TimePicker
 
 
 class PushButton(_IPyButtonWidget):
-    def __init__(self):
-        super().__init__(ipywdg.Button)
+    _ipywidget: ipywdg.Button
 
     def _mgui_bind_change_callback(self, callback):
         self._ipywidget.on_click(lambda e: callback())
 
 
 class CheckBox(_IPyButtonWidget):
-    def __init__(self):
-        super().__init__(ipywdg.Checkbox)
+    _ipywidget: ipywdg.Checkbox
 
 
 class RadioButton(_IPyButtonWidget):
-    def __init__(self):
-        super().__init__(ipywdg.RadioButtons)
+    _ipywidget: ipywidgets.RadioButtons
 
 
 class SpinBox(_IPyRangedWidget):
-    def __init__(self):
-        super().__init__(ipywdg.IntText)
+    _ipywidget: ipywidgets.IntText
 
 
 class FloatSpinBox(_IPyRangedWidget):
-    def __init__(self):
-        super().__init__(ipywdg.FloatText)
+    _ipywidget: ipywidgets.FloatText
 
 
 class Slider(_IPySliderWidget):
-    def __init__(self):
-        super().__init__(ipywdg.IntSlider)
+    _ipywidget: ipywidgets.IntSlider
 
 
 class FloatSlider(_IPySliderWidget):
-    def __init__(self):
-        super().__init__(ipywdg.FloatSlider)
+    _ipywidget: ipywidgets.FloatSlider
 
 
 class ComboBox(_IPyCategoricalWidget):
-    def __init__(self):
-        super().__init__(ipywidgets.Dropdown)
+    _ipywidget: ipywidgets.Dropdown
 
 
 # CONTAINER ----------------------------------------------------------------------
@@ -217,8 +357,9 @@ class ComboBox(_IPyCategoricalWidget):
 class Container(
     _IPyWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
-    def __init__(self, layout="horizontal"):
-        super().__init__(ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox)
+    def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
+        qwidg = ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox
+        super().__init__(qwidg, **kwargs)
 
     def _mgui_add_widget(self, widget: "Widget") -> None:
         children = list(self._ipywidget.children)
@@ -267,7 +408,7 @@ class Container(
 
     def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
         lft, top, rgt, bot = margins
-        self._ipywidget.layout.margin = "{}px {}px {}px {}px".format(top, rgt, bot, lft)
+        self._ipywidget.layout.margin = f"{top}px {rgt}px {bot}px {lft}px"
 
     def _mgui_set_orientation(self, value) -> None:
         raise NotImplementedError(

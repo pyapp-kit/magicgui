@@ -395,6 +395,11 @@ class Widget:
         self.parent_changed.emit(self.parent)
 
     def _ipython_display_(self, *args, **kwargs):
-        if hasattr(self._widget, "_ipython_display_"):
-            return self._widget._ipython_display_(*args, **kwargs)  # type: ignore
+        if hasattr(self.native, "_ipython_display_"):
+            return self.native._ipython_display_(*args, **kwargs)
+        raise NotImplementedError()
+
+    def _repr_mimebundle_(self, *args, **kwargs):
+        if hasattr(self.native, "_repr_mimebundle_"):
+            return self.native._repr_mimebundle_(*args, **kwargs)
         raise NotImplementedError()
