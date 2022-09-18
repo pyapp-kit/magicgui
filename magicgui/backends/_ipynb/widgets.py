@@ -117,7 +117,7 @@ class _IPyWidget(_protocols.WidgetProtocol):
     def _mgui_get_tooltip(self) -> str:
         return self._ipywidget.tooltip
 
-    def _mgui_set_tooltip(self, value: str | None) -> None:
+    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
         self._ipywidget.tooltip = value
 
     def _ipython_display_(self, **kwargs):
