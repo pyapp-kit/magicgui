@@ -448,9 +448,6 @@ def test_bound_not_called():
     mock.assert_called_once_with(f.a)
 
 
-
-
-
 def test_reset_choice_recursion():
     """Test that reset_choices recursion works for multiple types of widgets."""
     x = 0
