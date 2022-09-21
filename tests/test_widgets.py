@@ -18,6 +18,32 @@ def backend(request):
     return request.param
 
 
+# FIXME: this test needs to come before we start swapping backends between qt and ipynb
+# in other tests, otherwise it causes a stack overflow in windows...
+# I'm not sure why that is, but it likely means that switching apps mid-process is
+# not a good idea.  This should be explored further and perhaps prevented... and
+# testing might need to be reorganized to avoid this problem.
+def test_bound_callable_catches_recursion():
+    """Test that accessing widget.value raises an informative error message.
+
+    (... rather than a recursion error)
+    """
+
+    # this should NOT raise here. the function should not be called greedily
+    @magicgui(x={"bind": lambda x: x.value * 2})
+    def f(x: int = 5):
+        return x
+
+    with pytest.raises(RuntimeError):
+        assert f() == 10
+    f.x.unbind()
+    assert f() == 5
+
+    # use `get_value` within the callback if you need to access widget.value
+    f.x.bind(lambda x: x.get_value() * 4)
+    assert f() == 20
+
+
 @pytest.mark.parametrize(
     "WidgetClass",
     [
@@ -422,25 +448,7 @@ def test_bound_not_called():
     mock.assert_called_once_with(f.a)
 
 
-def test_bound_callable_catches_recursion():
-    """Test that accessing widget.value raises an informative error message.
 
-    (... rather than a recursion error)
-    """
-
-    # this should NOT raise here. the function should not be called greedily
-    @magicgui(x={"bind": lambda x: x.value * 2})
-    def f(x: int = 5):
-        return x
-
-    with pytest.raises(RuntimeError):
-        assert f() == 10
-    f.x.unbind()
-    assert f() == 5
-
-    # use `get_value` within the callback if you need to access widget.value
-    f.x.bind(lambda x: x.get_value() * 4)
-    assert f() == 20
 
 
 def test_reset_choice_recursion():
