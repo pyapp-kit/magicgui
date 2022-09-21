@@ -29,13 +29,15 @@ class _IPyWidget(_protocols.WidgetProtocol):
     _ipywidget: ipywdg.Widget
 
     def __init__(
-        self, qwidg: Type[ipywdg.Widget] = None, parent: Optional[ipywdg.Widget] = None
+        self,
+        wdg_class: Type[ipywdg.Widget] = None,
+        parent: Optional[ipywdg.Widget] = None,
     ):
-        if qwidg is None:
-            qwidg = type(self).__annotations__.get("_ipywidget")
-        if qwidg is None:
+        if wdg_class is None:
+            wdg_class = type(self).__annotations__.get("_ipywidget")
+        if wdg_class is None:
             raise TypeError("Must provide a valid ipywidget type")
-        self._ipywidget = qwidg()
+        self._ipywidget = wdg_class()
         # TODO: assign parent
 
     def _mgui_close_widget(self):
@@ -358,8 +360,8 @@ class Container(
     _IPyWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
 ):
     def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
-        qwidg = ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox
-        super().__init__(qwidg, **kwargs)
+        wdg_class = ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox
+        super().__init__(wdg_class, **kwargs)
 
     def _mgui_add_widget(self, widget: "Widget") -> None:
         children = list(self._ipywidget.children)
