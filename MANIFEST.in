@@ -6,4 +6,3 @@ recursive-exclude docs *
 recursive-exclude examples *
 recursive-exclude resources *
 recursive-exclude tests *
-recursive-exclude typesafety *

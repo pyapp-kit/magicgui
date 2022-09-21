@@ -165,11 +165,15 @@ def get_cmap(name):
         return name
     elif isinstance(name, str):
         try:
+            import matplotlib
             import matplotlib.cm
         except ImportError:
             raise ImportError("must install matplotlib to specify colormaps by name")
         else:
-            return matplotlib.cm.get_cmap(name)
+            try:
+                return matplotlib.colormaps[name]
+            except AttributeError:
+                return matplotlib.cm.get_cmap(name)
     return Colormap()
 
 
