@@ -28,6 +28,9 @@ class ButtonWidget(ValueWidget):
                 " warning, only provide one of the two kwargs."
             )
         text = text or kwargs.get("label")
+        # TODO: make a backend hook that lets backends inject their optional API
+        # ipywidgets button texts are called descriptions
+        text = text or kwargs.pop("description", None)
         super().__init__(**kwargs)
         self.text = (text or self.name).replace("_", " ")
 
