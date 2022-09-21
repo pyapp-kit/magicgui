@@ -37,15 +37,11 @@ def backend(request):
 )
 def test_widgets(WidgetClass, backend):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
-    use_app(backend)
-    try:
-        wdg: widgets.Widget = WidgetClass()
-        wdg.close()
-    except AttributeError as e:
-        if "Could not import object" in str(e):
-            pytest.skip(f"no {WidgetClass.__name__!r} in backend {backend!r}")
-            return
-        raise e
+    app = use_app(backend)
+    if not hasattr(app.backend_module, WidgetClass.__name__):
+        pytest.skip(f"no {WidgetClass.__name__!r} in backend {backend!r}")
+    wdg: widgets.Widget = WidgetClass()
+    wdg.close()
 
 
 expectations = (
