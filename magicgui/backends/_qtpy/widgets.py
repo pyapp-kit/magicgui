@@ -643,17 +643,17 @@ class Slider(_Slider):
     def _mgui_set_min(self, value: float):
         """Set the minimum possible value."""
         super()._mgui_set_min(value)
-        self._readout_widget.setMinimum(value)
+        self._readout_widget.setMinimum(self._pre_set_hook(value))
 
     def _mgui_set_max(self, value: float):
         """Set the maximum possible value."""
         super()._mgui_set_max(value)
-        self._readout_widget.setMaximum(value)
+        self._readout_widget.setMaximum(self._pre_set_hook(value))
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
         super()._mgui_set_step(value)
-        self._readout_widget.setSingleStep(value)
+        self._readout_widget.setSingleStep(self._pre_set_hook(value))
 
     def _mgui_get_adaptive_step(self) -> bool:
         return (

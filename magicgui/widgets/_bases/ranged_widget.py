@@ -8,6 +8,9 @@ from magicgui.widgets import _protocols
 
 from .value_widget import UNSET, ValueWidget, _Unset
 
+DEFAULT_MIN = 0.0
+DEFAULT_MAX = 1000.0
+
 
 class RangedWidget(ValueWidget):
     """Widget with a constrained value. Wraps RangedWidgetProtocol.
@@ -47,15 +50,15 @@ class RangedWidget(ValueWidget):
         val = kwargs.pop("value", UNSET)
         super().__init__(**kwargs)
 
-        self.min, self.max = self._init_range(val, min, max)
-        if val not in (UNSET, None):
-            self.value = val
-
         if step is UNSET or step is None:
             self.step = None
             self._widget._mgui_set_step(1)
         else:
             self.step = cast(float, step)
+
+        self.min, self.max = self._init_range(val, min, max)
+        if val not in (UNSET, None):
+            self.value = val
 
     def _init_range(
         self,
@@ -63,25 +66,24 @@ class RangedWidget(ValueWidget):
         min: Union[float, _Unset],
         max: Union[float, _Unset],
     ) -> Tuple[float, float]:
-        """Initialize man and max based on given value and arguments.
+        """Return min and max based on given value and arguments.
 
         If min or max are unset, constrain so the given value is within the range.
         """
-        val = (value,) if not isinstance(value, tuple) else value
-        tmp_val = tuple(float(v) if v not in (UNSET, None) else 1.0 for v in val)
+        val = value if isinstance(value, tuple) else (value,)
+        tmp_val = tuple(float(v) if v not in (UNSET, None) else 1 for v in val)
 
         new_min: float = (
-            cast(float, min) if min is not UNSET else builtins.min(0.0, *tmp_val)
+            cast("float", min)
+            if min is not UNSET
+            else builtins.min(DEFAULT_MIN, *tmp_val)
         )
-        new_max: float = (
-            cast(float, max)
-            if max is not UNSET
-            else builtins.max(
-                1000.0,
-                10.0 ** ceil(log10(builtins.max(1, *(v + 1 for v in tmp_val)))),
-            )
-            - 1
-        )
+
+        if max is UNSET:
+            t = 10.0 ** ceil(log10(builtins.max(0, *tmp_val) + 1))
+            new_max = builtins.max(DEFAULT_MAX, t) - 1
+        else:
+            new_max = cast("float", max)
 
         return new_min, new_max
 
