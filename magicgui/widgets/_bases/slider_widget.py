@@ -1,7 +1,7 @@
 from magicgui.widgets import _protocols
 
 from .mixins import _OrientationMixin
-from .ranged_widget import RangedWidget
+from .ranged_widget import MultiValueRangedWidget, RangedWidget
 
 
 class SliderWidget(RangedWidget, _OrientationMixin):
@@ -67,3 +67,9 @@ class SliderWidget(RangedWidget, _OrientationMixin):
         """Set visibility state of readout widget."""
         self._readout = value
         self._widget._mgui_set_readout_visibility(value)
+
+
+class MultiValuedSliderWidget(MultiValueRangedWidget, SliderWidget):
+    """Slider widget that expects a iterable value."""
+
+    _widget: _protocols.SliderWidgetProtocol

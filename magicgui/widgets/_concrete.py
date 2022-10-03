@@ -27,6 +27,7 @@ from ._bases import (
     CategoricalWidget,
     ContainerWidget,
     MainWindowWidget,
+    MultiValuedSliderWidget,
     RangedWidget,
     SliderWidget,
     TransformedRangedWidget,
@@ -296,6 +297,16 @@ class Slider(SliderWidget):
 @backend_widget
 class FloatSlider(SliderWidget):
     """A slider widget to adjust an integer value within a range."""
+
+
+@backend_widget
+class RangeSlider(MultiValuedSliderWidget):
+    """A slider widget to adjust a range between two integer values within a range."""
+
+
+@backend_widget
+class FloatRangeSlider(MultiValuedSliderWidget):
+    """A slider widget to adjust a range defined by two float values within a range."""
 
 
 @merge_super_sigs

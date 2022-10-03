@@ -3,11 +3,14 @@ from __future__ import annotations
 
 import math
 import re
+import warnings
 from contextlib import contextmanager
 from functools import partial
+from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence
 
 import qtpy
+import superqt
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import (
@@ -56,7 +59,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
     def __init__(
         self, qwidg: type[QtW.QWidget], parent: Optional[QtW.QWidget] = None, **kwargs
     ):
-        self._qwidget = qwidg(parent)
+        self._qwidget = qwidg(parent=parent)
         self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
@@ -312,7 +315,7 @@ class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
 class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
-    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider
+    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QAbstractSlider
     _precision: float = 1
 
     def __init__(self, qwidg, **kwargs):
@@ -712,6 +715,36 @@ class FloatSlider(Slider):
             callback(self._post_get_hook(value))
 
         self._qwidget.valueChanged.connect(_converted_value)
+
+
+class RangeSlider(_Slider):
+    _qwidget: superqt.QLabeledRangeSlider
+
+    def __init__(self, **kwargs):
+        super().__init__(superqt.QLabeledRangeSlider, **kwargs)
+        if hasattr(self._qwidget, "applyMacStylePatch"):
+            # >= magicgui v0.5.2
+            self._qwidget.applyMacStylePatch()
+
+    def _mgui_set_readout_visibility(self, value: bool):
+        method = "show" if value else "hide"
+        try:
+            for label in chain(
+                self._qwidget._handle_labels,
+                [self._qwidget._min_label, self._qwidget._max_label],
+            ):
+                getattr(label, method)()
+        except AttributeError as e:
+            warnings.warn(str(e))
+
+    def _mgui_set_adaptive_step(self, value: bool):
+        pass
+
+    def _mgui_get_adaptive_step(self) -> bool:
+        return False
+
+    def _pre_set_hook(self, value):
+        return value
 
 
 class ProgressBar(_Slider):
