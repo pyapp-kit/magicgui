@@ -4,7 +4,7 @@ import inspect
 import sys
 import warnings
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from psygnal import Signal
 
@@ -370,7 +370,7 @@ class Widget:
         """Return representation of widget of instsance."""
         return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> Optional[bytes]:
         """Return PNG representation of the widget for QtConsole."""
         from io import BytesIO
 
@@ -383,10 +383,23 @@ class Widget:
             )
             return None
 
-        with BytesIO() as file_obj:
-            imwrite(file_obj, self.render(), format="png")
-            file_obj.seek(0)
-            return file_obj.read()
+        rendered = self.render()
+        if rendered is not None:
+            with BytesIO() as file_obj:
+                imwrite(file_obj, rendered, format="png")
+                file_obj.seek(0)
+                return file_obj.read()
+        return None
 
     def _emit_parent(self, *_):
         self.parent_changed.emit(self.parent)
+
+    def _ipython_display_(self, *args, **kwargs):
+        if hasattr(self.native, "_ipython_display_"):
+            return self.native._ipython_display_(*args, **kwargs)
+        raise NotImplementedError()
+
+    def _repr_mimebundle_(self, *args, **kwargs):
+        if hasattr(self.native, "_repr_mimebundle_"):
+            return self.native._repr_mimebundle_(*args, **kwargs)
+        raise NotImplementedError()

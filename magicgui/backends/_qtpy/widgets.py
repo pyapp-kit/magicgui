@@ -144,7 +144,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
     def _mgui_get_tooltip(self) -> str:
         return self._qwidget.toolTip()
 
-    def _mgui_set_tooltip(self, value: str | None) -> None:
+    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
         self._qwidget.setToolTip(str(value) if value else None)
 
     def _mgui_bind_parent_change_callback(self, callback):

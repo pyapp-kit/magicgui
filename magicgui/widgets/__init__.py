@@ -64,6 +64,7 @@ DatePicker = DateTimeEdit
 Box = Container
 HBox = partial(Container, layout="horizontal")
 VBox = partial(Container, layout="vertical")
+Button = PushButton
 
 __all__ = [
     "CheckBox",

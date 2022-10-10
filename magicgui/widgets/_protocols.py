@@ -9,7 +9,7 @@ For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Sequence
 
 from typing_extensions import Protocol, runtime_checkable
 
@@ -177,7 +177,7 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_tooltip(self, value: str | None) -> None:
+    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
         """Set a tooltip for this widget."""
         raise NotImplementedError()
 

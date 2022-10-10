@@ -11,6 +11,39 @@ from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets._bases import ValueWidget
 
 
+# it's important that "qt" be last here, so that it's used for
+# the rest of the tests
+@pytest.fixture(scope="module", params=["ipynb", "qt"])
+def backend(request):
+    return request.param
+
+
+# FIXME: this test needs to come before we start swapping backends between qt and ipynb
+# in other tests, otherwise it causes a stack overflow in windows...
+# I'm not sure why that is, but it likely means that switching apps mid-process is
+# not a good idea.  This should be explored further and perhaps prevented... and
+# testing might need to be reorganized to avoid this problem.
+def test_bound_callable_catches_recursion():
+    """Test that accessing widget.value raises an informative error message.
+
+    (... rather than a recursion error)
+    """
+
+    # this should NOT raise here. the function should not be called greedily
+    @magicgui(x={"bind": lambda x: x.value * 2})
+    def f(x: int = 5):
+        return x
+
+    with pytest.raises(RuntimeError):
+        assert f() == 10
+    f.x.unbind()
+    assert f() == 5
+
+    # use `get_value` within the callback if you need to access widget.value
+    f.x.bind(lambda x: x.get_value() * 4)
+    assert f() == 20
+
+
 @pytest.mark.parametrize(
     "WidgetClass",
     [
@@ -24,11 +57,15 @@ from magicgui.widgets._bases import ValueWidget
             "MainFunctionGui",
             "show_file_dialog",
             "request_values",
+            "create_widget",
         )
     ],
 )
-def test_widgets(WidgetClass):
+def test_widgets(WidgetClass, backend):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
+    app = use_app(backend)
+    if not hasattr(app.backend_module, WidgetClass.__name__):
+        pytest.skip(f"no {WidgetClass.__name__!r} in backend {backend!r}")
     wdg: widgets.Widget = WidgetClass()
     wdg.close()
 
@@ -409,27 +446,6 @@ def test_bound_not_called():
     # the bind function should be called when getting the value
     _ = f.a.value
     mock.assert_called_once_with(f.a)
-
-
-def test_bound_callable_catches_recursion():
-    """Test that accessing widget.value raises an informative error message.
-
-    (... rather than a recursion error)
-    """
-
-    # this should NOT raise here. the function should not be called greedily
-    @magicgui(x={"bind": lambda x: x.value * 2})
-    def f(x: int = 5):
-        return x
-
-    with pytest.raises(RuntimeError):
-        assert f() == 10
-    f.x.unbind()
-    assert f() == 5
-
-    # use `get_value` within the callback if you need to access widget.value
-    f.x.bind(lambda x: x.get_value() * 4)
-    assert f() == 20
 
 
 def test_reset_choice_recursion():
