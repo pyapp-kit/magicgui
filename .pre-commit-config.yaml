@@ -35,3 +35,5 @@ repos:
       - id: mypy
         files: magicgui
         exclude: magicgui/_magicgui.py
+        additional_dependencies:
+          - numpy
