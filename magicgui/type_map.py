@@ -10,7 +10,7 @@ from collections import defaultdict
 from enum import EnumMeta
 from typing import Any, Callable, DefaultDict, ForwardRef, Type, TypeVar, cast, overload
 
-from typing_extensions import Literal
+from typing_extensions import Literal, get_origin
 
 from magicgui import widgets
 from magicgui.types import (
@@ -83,14 +83,17 @@ def match_type(tw: TypeWrapper) -> WidgetTuple | None:
     if _type in (types.FunctionType,):
         return widgets.FunctionGui, {"function": tw.default}  # type: ignore
 
-    # sequence of paths
     if tw.shape in tw.SHAPE.SEQUENCE_LIKE:
         if _is_subclass(tw.type_, pathlib.Path):
+            # sequence of paths
             return widgets.FileEdit, {"mode": "rm"}
         elif tw.shape == tw.SHAPE.LIST:
             return widgets.ListEdit, {}
         elif tw.shape == tw.SHAPE.TUPLE:
             return widgets.TupleEdit, {}
+
+    if get_origin(_type) is Literal:
+        return widgets.ComboBox, {"choices": _type.__args__}
     return None
 
 
