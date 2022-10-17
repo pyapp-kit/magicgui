@@ -92,6 +92,12 @@ def match_type(tw: TypeWrapper) -> WidgetTuple | None:
         elif tw.shape == tw.SHAPE.TUPLE:
             return widgets.TupleEdit, {}
 
+    if tw.shape == tw.SHAPE.SET:
+        if len(_type.__args__) > 0:
+            arg = _type.__args__[0]
+            if get_origin(arg) is Literal:
+                return widgets.Select, {"choices": arg.__args__}
+
     if get_origin(_type) is Literal:
         return widgets.ComboBox, {"choices": _type.__args__}
     return None

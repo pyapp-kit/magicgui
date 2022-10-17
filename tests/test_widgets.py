@@ -1071,3 +1071,25 @@ def test_request_values(monkeypatch):
     )
     assert vals == dict(age=0, name="")
     mock.assert_called_once()
+
+
+def test_literal():
+    from typing import Set
+
+    from typing_extensions import Literal
+
+    @magicgui
+    def f(x: Literal["a", "b", "c"]):
+        ...
+
+    cbox = f.x
+    assert type(cbox) is widgets.ComboBox
+    assert cbox.choices == ("a", "b", "c")
+
+    @magicgui
+    def f(x: Set[Literal["a", "b", "c"]]):
+        ...
+
+    sel = f.x
+    assert type(sel) is widgets.Select
+    assert cbox.choices == ("a", "b", "c")
