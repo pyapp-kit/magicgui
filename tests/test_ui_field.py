@@ -1,11 +1,12 @@
+from typing import Optional, NamedTuple, TypedDict
 import attrs
 import pydantic
 from typing_extensions import Annotated
-
-from magicgui._schema2 import UiField, iter_ui_fields
+import pytest
+from magicgui._schema import UiField, iter_ui_fields
 
 EXPECTED = (
-    UiField(name="a", type=int),
+    UiField(name="a", type=int, nullable=True),
     UiField(name="b", type=str, description="the b"),
     UiField(name="c", default=0, type=float, widget="FloatSlider"),
 )
@@ -22,7 +23,7 @@ def _assert_uifields(cls, instantiate=True):
 def test_attrs_descriptor():
     @attrs.define
     class Foo:
-        a: int
+        a: Optional[int]
         b: str = attrs.field(metadata={"description": "the b"})
         c: float = attrs.field(default=0.0, metadata={"widget": "FloatSlider"})
 
@@ -34,7 +35,7 @@ def test_dataclass():
 
     @dataclass
     class Foo:
-        a: int
+        a: Optional[int]
         b: str = field(metadata={"description": "the b"})
         c: float = field(default=0.0, metadata={"widget": "FloatSlider"})
 
@@ -43,7 +44,17 @@ def test_dataclass():
 
 def test_pydantic():
     class Foo(pydantic.BaseModel):
-        a: int
+        a: Optional[int]
+        b: str = pydantic.Field(description="the b")
+        c: float = pydantic.Field(0, widget="FloatSlider")
+
+    _assert_uifields(Foo)
+
+
+def test_pydantic_dataclass():
+    @pydantic.dataclasses.dataclass
+    class Foo:
+        a: Optional[int]
         b: str = pydantic.Field(description="the b")
         c: float = pydantic.Field(0, widget="FloatSlider")
 
@@ -51,10 +62,8 @@ def test_pydantic():
 
 
 def test_named_tuple():
-    from typing import NamedTuple
-
     class Foo(NamedTuple):
-        a: int
+        a: Optional[int]
         b: Annotated[str, UiField(description="the b")]
         c: Annotated[float, UiField(widget="FloatSlider")] = 0.0
 
@@ -62,10 +71,8 @@ def test_named_tuple():
 
 
 def test_typed_dict():
-    from typing import TypedDict
-
     class Foo(TypedDict):
-        a: int
+        a: Optional[int]
         b: Annotated[str, UiField(description="the b")]
         c: Annotated[float, UiField(default=0.0, widget="FloatSlider")]
 
@@ -74,10 +81,30 @@ def test_typed_dict():
 
 def test_function():
     def foo(
-        a: int,
+        a: Optional[int],
         b: Annotated[str, UiField(description="the b")],
         c: Annotated[float, UiField(widget="FloatSlider")] = 0.0,
     ):
         ...
 
     _assert_uifields(foo, instantiate=False)
+
+
+def test_annotated():
+    class Foo(NamedTuple):
+        x: Annotated[float, UiField(default=1)] = 0.0
+
+    with pytest.warns(
+        UserWarning, match="Cannot set default value in both type annotation and field"
+    ):
+        fields = tuple(iter_ui_fields(Foo))
+        assert fields[0].default == 0
+
+    class Foo2(NamedTuple):
+        x: Annotated[float, UiField(name="y")] = 0.0
+
+    with pytest.warns(
+        UserWarning, match="Cannot set name in both type annotation and field"
+    ):
+        fields = tuple(iter_ui_fields(Foo2))
+        assert fields[0].name == "x"

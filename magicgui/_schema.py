@@ -1,549 +1,525 @@
-import contextlib
-import types
-import weakref
-from collections import OrderedDict, defaultdict, deque
-from copy import copy
-from dataclasses import dataclass, field, fields, replace
-from typing import (
-    Annotated,
-    Any,
-    Callable,
-    Dict,
-    ForwardRef,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    get_args,
-    get_origin,
-)
+from __future__ import annotations
 
-from typing_extensions import Literal
+import sys
+import warnings
+from dataclasses import dataclass, field
+import dataclasses as dc
+from types import FunctionType
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Union
 
-from magicgui._type_resolution import resolve_single_type
-from magicgui.types import JsonStringFormats, Undefined, WidgetRef, _Undefined
-from magicgui.widgets._bases.value_widget import ValueWidget
+from typing_extensions import Annotated, Literal, TypeGuard, get_args, get_origin
+
+from .types import JsonStringFormats, Undefined
+
+if TYPE_CHECKING:
+    from typing import Protocol
+
+    import attrs
+    import pydantic
+    from attrs import Attribute
+    from pydantic.fields import ModelField
+    from annotated_types import BaseMetadata
+
+    class HasAttrs(Protocol):
+        __attrs_attrs__: tuple[attrs.Attribute, ...]
 
 
-@dataclass(frozen=True)
-class ValueConstraints:
-    default: Any = field(
-        default=Undefined,
-        metadata=dict(description="The default value of the field", aliases=["value"]),
+_dc_kwargs = {"frozen": True}
+if sys.version_info >= (3, 10):
+    _dc_kwargs["slots"] = True
+
+
+@dataclass(**_dc_kwargs)
+class UiField:
+    """Metadata about a specific widget in a GUI."""
+
+    def __post_init__(self):
+        """Coerce Optional[...] to nullable and remove it from the type."""
+        if get_origin(self.type) is Union:
+            args = get_args(self.type)
+            nonnull = tuple(a for a in args if a is not type(None))  # noqa: E721
+            if len(nonnull) < len(args):
+                object.__setattr__(self, "type", Union[nonnull])
+                object.__setattr__(self, "nullable", True)
+
+    name: str | None = field(
+        default=None,
+        metadata=dict(
+            description="The name of the field.  This differs from `title` in that "
+            "refers to the python name used to refer to this value. e.g. the parameter "
+            "name, or field name in a dataclass"
+        ),
     )
-    default_factory: Optional[Callable[[], Any]] = field(
+
+    # Basic Meta-Data Annotations vocabulary
+    # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-a-vocabulary-for-basic-meta
+    title: str | None = field(
+        default=None,
+        metadata=dict(
+            description="A short title for the field.  If not provided, "
+            "the `name` will be used."
+        ),
+    )
+    description: str | None = field(
+        default=None, metadata=dict(description="A description of the field.")
+    )
+    default: Any = field(
+        default=Undefined, metadata=dict(description="The default value for the field.")
+    )
+    # NOTE: this does not have an analog in JSON Schema
+    default_factory: Callable[[], Any] | None = field(
         default=None,
         metadata=dict(
             description="A callable that returns the default value of the field."
         ),
     )
-    const: bool = field(
-        default=False,
-        metadata=dict(
-            description="If True, this argument must be the same as the field's "
-            "default value if present"
-        ),
-    )
-    enum: Optional[List[Any]] = field(
+    # NOTE: this does not have an analog in JSON Schema
+    nullable: bool | None = field(
         default=None,
         metadata=dict(
-            description="A list of valid values for this field. Prefer a python enum.",
-            aliases=["choices"],
+            description="Whether the field is nullable. In JSON, this is equivalent to "
+            "`type: [<type>, 'null']`"
         ),
     )
 
-    # ### From magicgui ###
-    bind: Union[Callable[[ValueWidget], Any], Any, None] = field(
-        default=None,
+    # Keywords for Any Instance Type
+    # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-any
+    type: Any = field(
+        default=None, metadata=dict(description="The type annotation of the field.")
+    )
+    enum: list[Any] | None = field(
+        default=None, metadata=dict(description="A list of allowed values.")
+    )
+    const: Any = field(
+        default=Undefined,
         metadata=dict(
-            description="A value or callable bind to the value of the field. If a "
-            "callable, it will be called (with one argument, the ValueWidget), whenever"
-            " the value of the field is requested."
-        ),
-    )
-    # nullable: bool  # for stuff like combo boxes and value widgets
-
-    # ### From JSON Schema ###
-    # any_of
-
-    # ### From Pydantic ###
-    # allow_mutation
-
-
-@dataclass(frozen=True)
-class FieldInfo:
-    title: Optional[str] = field(
-        default=None,
-        metadata=dict(
-            description="The title of the field. (If not provided the name of the "
-            "field variable is used.)",
-            aliases=["label", "text"],
-        ),
-    )
-    description: Optional[str] = field(
-        default=None,
-        metadata=dict(
-            description="The description of the field",
-            aliases=["tooltip"],
-        ),
-    )
-    # TODO: can we remove this?
-    button_text: Optional[str] = field(
-        default=None,
-        metadata=dict(description="The text of a button", aliases=["text"]),
-    )
-    # mode: str | FileDialogMode
-
-
-@dataclass(frozen=True)
-class NumericContraints:
-    multiple_of: Optional[float] = field(
-        default=None,
-        metadata=dict(
-            description="Restrict number to a multiple of a given number. "
-            "May be any positive number.",
-            aliases=["multipleOf", "step"],
-        ),
-    )
-    minimum: Optional[float] = field(
-        default=None,
-        metadata=dict(description="(Inclusive) Minimum value", aliases=["min", "ge"]),
-    )
-    maximum: Optional[float] = field(
-        default=None,
-        metadata=dict(description="(Inclusive) Maximum value", aliases=["max", "le"]),
-    )
-    # note, in JSON schema, these used to be bools, in which
-    # case the implication is that the value for min/max should
-    # be used here, and removed in min/max.
-    exclusive_minimum: Optional[float] = field(
-        default=None,
-        metadata=dict(
-            description="Exclusive minimum value",
-            aliases=["exclusiveMinimum", "gt"],
-        ),
-    )
-    exclusive_maximum: Optional[float] = field(
-        default=None,
-        metadata=dict(
-            description="Exclusive maximum value",
-            aliases=["exclusiveMaximum", "lt"],
+            description="A single allowed value. functionally equivalent to an 'enum' "
+            "with a single value.",
         ),
     )
 
-    # not in json schema, for Decimal types
-    max_digits: Optional[int] = field(
-        default=None,
-        metadata=dict(
-            description="Maximum number of digits within the decimal. It does not "
-            "include a zero before the decimal point or trailing decimal zeroes."
-        ),
+    # Keywords for Numeric Instances (number and integer)
+    # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-num
+    minimum: float | None = field(
+        default=None, metadata=dict(description="The inclusive minimum allowed value.")
     )
-    decimal_places: Optional[int] = field(
-        default=None,
-        metadata=dict(
-            descripion="Maximum number of decimal places within the decimal. It does "
-            "not include trailing decimal zeroes."
-        ),
+    maximum: float | None = field(
+        default=None, metadata=dict(description="The inclusive maximum allowed value.")
     )
-
-    # SLIDER WIDGET STUFF
-    # readout
-    # tracking
-
-
-@dataclass(frozen=True)
-class StringContraints:
-    min_length: Optional[int] = field(
-        default=None,
-        metadata=dict(
-            description="Minimum string length. Must be a non-negative number",
-            aliases=["minLength"],
-        ),
+    exclusive_minimum: float | None = field(
+        default=None, metadata=dict(description="The exclusive minimum allowed value.")
     )
-    max_length: Optional[int] = field(
-        default=None,
-        metadata=dict(
-            description="Maximum string length. Must be a non-negative number",
-            aliases=["maxLength"],
-        ),
+    exclusive_maximum: float | None = field(
+        default=None, metadata=dict(description="The exclusive maximum allowed value.")
     )
-    pattern: Optional[str] = field(
+    multiple_of: float | None = field(
         default=None,
         metadata=dict(
-            description="Regular expression pattern. For file dialogs, this is used "
-            "to filter the files shown, and will be interpreted as a glob pattern. "
-            "For other strings, it is a regex pattern.",
-            aliases=["regex", "filter"],
-        ),
-    )
-    format: Optional[JsonStringFormats] = field(
-        default=None,
-        metadata=dict(
-            description="Allows for basic semantic identification of certain kinds of "
-            "string values that are commonly used. This is primarily used for "
-            "JSON Schema conversion; python types should be preferred when possible.",
+            description="The allowed step size. Value is valid if (value / multiple_of)"
+            " is an integer."
         ),
     )
 
+    # Keywords for String Instances
+    # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-str
+    min_length: int | None = field(
+        default=None,
+        metadata=dict(description="The minimum allowed length. Must be >= 0."),
+    )
+    max_length: int | None = field(
+        default=None,
+        metadata=dict(description="The maximum allowed length. Must be >= 0."),
+    )
+    pattern: str | None = field(
+        default=None, metadata=dict(description="A regex pattern for the value.")
+    )
+    # NOTE: format is listed in this section, but needn't strictly apply to strings.
+    format: JsonStringFormats | None = field(
+        default=None, metadata=dict(description="The format of the field.")
+    )
 
-@dataclass(frozen=True)
-class ArrayContraints:
-    min_items: Optional[int] = field(
+    # Keywords for Sequence (Array) Instances
+    # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-arr
+    min_items: int | None = field(
+        default=None,
+        metadata=dict(description="The minimum allowed number of items. Must be >= 0."),
+    )
+    max_items: int | None = field(
+        default=None,
+        metadata=dict(description="The maximum allowed number of items. Must be >= 0."),
+    )
+    unique_items: bool | None = field(
+        default=None,
+        metadata=dict(description="Whether the items in the list must be unique."),
+    )
+
+    # # Keywords for Mapping (Object) Instances
+    # # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-obj
+    # max_properties: int | None = field(
+    #     default=None,
+    #     metadata=dict(description="The maximum allowed number of keys. Must be >= 0."),
+    # )
+    # min_properties: int | None = field(
+    #     default=None,
+    #     metadata=dict(description="The minimum allowed number of keys. Must be >= 0."),
+    # )
+    # required: list[str] | None = field(
+    #     default=None,
+    #     metadata=dict(
+    #         description="A list of required keys that must be present in a mapping/object."
+    #     ),
+    # )
+
+    read_only: bool | None = field(
         default=None,
         metadata=dict(
-            description="Minimum length of the list. Must be a non-negative number.",
-            aliases=["minItems"],
+            description="Whether the field is read-only. If True, the value of the "
+            "instance is managed exclusively by the owning authority, and attempts by "
+            "an application to modify the value of this property are expected to be "
+            "ignored or rejected by that owning authority"
         ),
     )
-    max_items: Optional[int] = field(
+
+    # UI Specific
+    widget: str | None = field(
         default=None,
         metadata=dict(
-            description="Maximum length of the list. Must be a non-negative number.",
-            aliases=["maxItems"],
+            description="The name of the widget to use for this field. "
+            "If not provided, the widget will be inferred from the type annotation."
         ),
     )
-    unique_items: Optional[bool] = field(
+    disabled: bool | None = field(
         default=None,
         metadata=dict(
-            description="Declares that each of the items in an array must be unique. "
-            "In python, this is best implemented as a set.",
-            aliases=["uniqueItems"],
+            description="Whether the widget should be disabled. Marking a field as "
+            "read-only will render it greyed out, but its text value will be "
+            "selectable. Disabling it will prevent its value to be selected at all."
         ),
     )
-
-
-@dataclass(frozen=True)
-class WidgetConstraints:
-    widget_type: Optional[WidgetRef] = field(
+    enum_disabled: list[Any] | None = field(
         default=None,
         metadata=dict(
-            description="(Override) the type of widget to use for this field.",
+            description="A list of values that should be disabled in a combobox widget."
         ),
     )
-    visible: bool = field(
-        default=True,
-        metadata=dict(description="Whether the widget is visible"),
-    )
-    enabled: bool = field(
-        default=True,
-        metadata=dict(description="Whether the widget is enabled"),
-    )
-    orientation: Optional[Literal["horizontal", "vertical"]] = field(
+    help: str | None = field(
         default=None,
-        metadata=dict(description="Orientation of the widget."),
+        metadata=dict(
+            description="text next to a field to guide the end user filling it."
+        ),
     )
-    # gui_only: bool
-    # tooltip: str  # alias for FieldInfo.description?
-
-
-@dataclass(frozen=True)
-class ContainerOptions:
-    layout: str  # for things like containers
-
-
-@dataclass(frozen=True)
-class UiFieldInfo(
-    WidgetConstraints,
-    ArrayContraints,
-    StringContraints,
-    NumericContraints,
-    FieldInfo,
-    ValueConstraints,
-):
-    extra: dict = field(
-        default_factory=dict,
-        metadata=dict(description="Extra info passed to the UiField constructor"),
+    placeholder: str | None = field(
+        default=None,
+        metadata=dict(
+            description="A placeholder string to display when the field is empty."
+        ),
     )
-
-
-FIELDS: Set[str] = set()
-ALIASES: Dict[str, str] = {}
-
-for field_info in fields(UiFieldInfo):
-    FIELDS.add(field_info.name)
-    for alias in field_info.metadata.get("aliases", []):
-        ALIASES[alias] = field_info.name
-
-
-def UiField(
-    *,
-    default: Any = Undefined,
-    default_factory: Optional[Callable[[], Any]] = None,
-    const: bool = False,
-    enum: Optional[List[Any]] = None,
-    bind: Union[Callable[[ValueWidget], Any], Any, None] = None,
-    #
-    title: Optional[str] = None,
-    description: Optional[str] = None,
-    button_text: Optional[str] = None,
-    #
-    multiple_of: Optional[float] = None,
-    minimum: Optional[float] = None,
-    maximum: Optional[float] = None,
-    exclusive_minimum: Optional[float] = None,
-    exclusive_maximum: Optional[float] = None,
-    max_digits: Optional[int] = None,
-    decimal_places: Optional[int] = None,
-    #
-    min_length: Optional[int] = None,
-    max_length: Optional[int] = None,
-    pattern: Optional[str] = None,
-    format: Optional[JsonStringFormats] = None,
-    #
-    min_items: Optional[int] = None,
-    max_items: Optional[int] = None,
-    unique_items: Optional[bool] = None,
-    #
-    widget_type: Optional[WidgetRef] = None,
-    visible: bool = True,
-    enabled: bool = True,
-    orientation: Optional[Literal["horizontal", "vertical"]] = None,
-    **extra,
-) -> UiFieldInfo:
-
-    _extra = dict(extra)
-    for key in list(_extra):
-        if key not in FIELDS:
-            if key in ALIASES:
-                # if locals()[ALIASES[key]] is None:  # which takes precendence ?
-                locals()[ALIASES[key]] = _extra.pop(key)
-            elif key == "allow_multiple":
-                _extra.pop(key)
-                widget_type = "Select"
-                # TODO: add a warning
-            elif key in ("options", "readout", "tracking", "mode"):
-                # TODO
-                # _extra.pop(key)
-                ...
-            else:
-                raise ValueError(f"{key} is not a valid field")
-
-    return UiFieldInfo(
-        default=default,
-        default_factory=default_factory,
-        const=const,
-        enum=enum,
-        bind=bind,
-        #
-        title=title,
-        description=description,
-        button_text=button_text,
-        #
-        multiple_of=multiple_of,
-        minimum=minimum,
-        maximum=maximum,
-        exclusive_minimum=exclusive_minimum,
-        exclusive_maximum=exclusive_maximum,
-        max_digits=max_digits,
-        decimal_places=decimal_places,
-        #
-        min_length=min_length,
-        max_length=max_length,
-        pattern=pattern,
-        format=format,
-        #
-        min_items=min_items,
-        max_items=max_items,
-        unique_items=unique_items,
-        #
-        widget_type=widget_type,
-        visible=visible,
-        enabled=enabled,
-        orientation=orientation,
-        extra=_extra,
+    visible: bool | None = field(
+        default=None,
+        metadata=dict(
+            description="Whether the field should be visible in the GUI. "
+            "This is useful for hiding fields that are only used for validation."
+        ),
+    )
+    orientation: Literal["horizontal", "vertical"] | None = field(
+        default=None,
+        metadata=dict(
+            description="Orientation of the widget, for things like sliders."
+        ),
     )
 
-
-class GUIField:
-    __slots__ = (
-        "name",
-        "type_",
-        "default",
-        "default_factory",
-        "required",
-        "field_info",
+    _native_field: Any | None = field(
+        default=None,
+        compare=False,
+        hash=False,
+        repr=False,
+        metadata=dict(
+            description="Internal use only. If this field is derived from a native "
+            "dataclasses.Field, or attrs.Attribute, or pydantic.fields.ModelField this "
+            "will be a reference to that object."
+        ),
     )
-
-    def __init__(
-        self,
-        *,
-        name: str,
-        type_: Type[Any],
-        default: Any = None,
-        default_factory: Optional[Callable[[], Any]] = None,
-        required: Union[bool, _Undefined] = Undefined,
-        field_info: Optional[UiFieldInfo] = None,
-    ) -> None:
-        self.name = name
-        self.type_ = type_
-        self.default = default
-        self.default_factory = default_factory
-        self.required = required
-        self.field_info: UiFieldInfo = field_info or UiFieldInfo(default=default)
-
-    def __repr__(self):
-        name = self.__class__.__name__
-        args = ((k, getattr(self, k)) for k in self.__slots__)
-        args = ", ".join(f"{k}={v}" for k, v in args)
-        return f"{name}({args})>"
+    _original_annotation: Any | None = field(
+        default=None,
+        compare=False,
+        hash=False,
+        repr=False,
+        metadata=dict(
+            description="Internal use only. If this field is derived from a "
+            "typing.Annotated[...] annotation, this will be a reference to the origin "
+            "annotation."
+        ),
+    )
 
     def get_default(self) -> Any:
+        """Return the default value for this field."""
         return (
-            _smart_deepcopy(self.default)
+            self.default  # TODO: deepcopy mutable defaults?
             if self.default_factory is None
             else self.default_factory()
         )
 
-    @classmethod
-    def infer(cls, *, name: str, value: Any, annotation: Any) -> "GUIField":
-        """Infer a `GUIField` from a variable name, annotation, and value
+    def dict(self, include_unset: bool = True) -> dict[str, Any]:
+        """Return the field as a dictionary.
 
-        ...as would be provided in either a function signature or a class definition
-
-            def foo(name: annotation = value): ...
-
-            class Foo:
-                name: annotation = value
-
-            class Bar:
-                name: int = UiField(default=42, description="the answer")
-
-            class Bar:
-                name: Annotated[int, UiField(description="the answer")] = 42
-
-        Parameters
-        ----------
-        name : str
-            name of the variable
-        value : Any
-            default value of the variable, (might be an instance of `UiFieldInfo`)
-        annotation : Any
-            type annotation of the variable, (might be an instance of `typing.Annotated`
-            with a UiFieldInfo as the annotation)
+        If `include_unset` is `False`, only fields that have been set will be included.
         """
+        d = dc.asdict(self)
+        if not include_unset:
+            d = {
+                k: v
+                for k, v in d.items()
+                if (v is not Undefined if k in ("default", "const") else v is not None)
+            }
+        return d
 
-        field_info, value = cls._get_field_info(name, annotation, value)
-        required: Union[bool, _Undefined] = Undefined
-        if value is Ellipsis:
-            required = True
-            value = None
-        elif value is not Undefined:
-            required = False
+    @property
+    def is_annotated_type(self) -> bool:
+        """Whether the field is an Annotated type."""
+        return get_origin(self.type) is Annotated
 
-        if annotation in (Undefined, None) and value is not Undefined:
-            type_ = type(value)
-        elif isinstance(annotation, (str, ForwardRef)):
-            try:
-                type_ = resolve_single_type(annotation)
-            except (NameError, ImportError) as e:
-                raise type(e)(f"Magicgui could not resolve {annotation}: {e}") from e
-        else:
-            type_ = annotation
+    def parse_annotated(self) -> UiField:
+        """Extract info from Annotated type if present, and return new field.
 
-        return cls(
-            name=name,
-            type_=type_,
-            default=value,
-            default_factory=field_info.default_factory,
-            required=required,
-            field_info=field_info,
+        If self.type is not an Annotated type, return self.
+        """
+        if not self.is_annotated_type:
+            return self
+
+        annotated_types = sys.modules.get("annotated_types")
+        _base_metas: list["BaseMetadata"] = []
+
+        origin, *metadata = get_args(self.type)
+        kwargs = {}
+        for item in metadata:
+            if isinstance(item, UiField):
+                kwargs.update(item.dict(include_unset=False))
+            elif annotated_types is not None:
+                if isinstance(item, annotated_types.BaseMetadata):
+                    _base_metas.append(item)
+                elif isinstance(item, annotated_types.GroupedMetadata):
+                    _base_metas.extend(item)
+            # TODO: support pydantic.fields.FieldInfo?
+            # TODO: support re.Pattern?
+
+        if _base_metas:
+            # TODO
+
+
+        if (
+            self.default is not Undefined
+            and kwargs.get("default", Undefined) is not Undefined
+        ):
+            warnings.warn(
+                "Cannot set default value in both type annotation and field. Overriding"
+                f" default {kwargs['default']} with {self.default} in field {self.name}"
+            )
+            kwargs.pop("default", None)
+        if self.name is not None and kwargs.get("name") is not None:
+            warnings.warn(
+                "Cannot set name in both type annotation and field. Overriding"
+                f" name {kwargs['name']} with {self.name} in field {self.name}"
+            )
+            kwargs.pop("name", None)
+        return dc.replace(self, type=origin, **kwargs, _original_annotation=self.type)
+
+
+_UI_FIELD_NAMES = {f.name for f in dc.fields(UiField)}
+
+
+def _uifield_from_dataclass(field: dc.Field) -> UiField:
+    """Create a UiField from a dataclass field."""
+    default = field.default if field.default is not dc.MISSING else Undefined
+    dfactory = (
+        field.default_factory if field.default_factory is not dc.MISSING else None
+    )
+    extra = {k: v for k, v in field.metadata.items() if k in _UI_FIELD_NAMES}
+
+    return UiField(
+        name=field.name,
+        type=field.type,
+        default=default,
+        default_factory=dfactory,
+        _native_field=field,
+        **extra,
+    )
+
+
+def _uifield_from_attrs(field: Attribute) -> UiField:
+    """Create a UiField from an attrs field."""
+    from attrs import NOTHING, Factory
+
+    default = field.default if field.default is not NOTHING else Undefined
+    default_factory = None
+    if isinstance(default, Factory):  # type: ignore
+        default_factory = default.factory  # type: ignore
+        default = Undefined
+
+    extra = {k: v for k, v in field.metadata.items() if k in _UI_FIELD_NAMES}
+
+    return UiField(
+        name=field.name,
+        type=field.type,
+        default=default,
+        default_factory=default_factory,
+        _native_field=field,
+        **extra,
+    )
+
+
+def _uifield_from_pydantic(model_field: ModelField) -> UiField:
+    from pydantic.fields import Undefined as PydanticUndefined, SHAPE_SINGLETON
+
+    finfo = model_field.field_info
+
+    extra = {k: v for k, v in finfo.extra.items() if k in _UI_FIELD_NAMES}
+    const = finfo.const if finfo.const not in (None, PydanticUndefined) else Undefined
+    default = (
+        Undefined if finfo.default in (PydanticUndefined, Ellipsis) else finfo.default
+    )
+
+    nullable = None
+    if model_field.allow_none and (
+        model_field.shape != SHAPE_SINGLETON or not model_field.sub_fields
+    ):
+        nullable = True
+
+    return UiField(
+        name=model_field.name,
+        title=finfo.title,
+        description=finfo.description,
+        default=default,
+        default_factory=model_field.default_factory,
+        type=model_field.outer_type_,
+        nullable=nullable,
+        const=const,
+        minimum=finfo.ge,
+        maximum=finfo.le,
+        exclusive_minimum=finfo.gt,
+        exclusive_maximum=finfo.lt,
+        multiple_of=finfo.multiple_of,
+        min_length=finfo.min_length,
+        max_length=finfo.max_length,
+        pattern=finfo.regex,
+        # format=finfo.format,
+        min_items=finfo.min_items,
+        max_items=finfo.max_items,
+        unique_items=finfo.unique_items,
+        _native_field=model_field,
+        **extra,
+    )
+
+
+class _ContainerFields:
+    autofocus: str | None = field(
+        default=None,
+        metadata=dict(description="Name of a field that should be autofocused on."),
+    )
+    labels: list[str] | bool | None = field(
+        default=None,
+        metadata=dict(
+            description="If True, all fields will be labeled. If False, no fields will "
+            "be labeled. If a list, only the fields in the list will be labeled."
+        ),
+    )
+
+
+def _is_attrs_model(obj: Any) -> TypeGuard[HasAttrs]:
+    return getattr(obj, "__attrs_attrs__", None) is not None
+
+
+def _get_pydantic_model(cls: type) -> type[pydantic.BaseModel] | None:
+    pydantic = sys.modules.get("pydantic")
+    if pydantic is not None:
+        if isinstance(cls, type) and issubclass(cls, pydantic.BaseModel):
+            return cls
+        elif isinstance(cls, pydantic.BaseModel):
+            return type(cls)
+        elif hasattr(cls, "__pydantic_model__"):
+            return _get_pydantic_model(cls.__pydantic_model__)  # type: ignore
+    return None
+
+
+def _get_function_defaults(func: FunctionType) -> Dict[str, Any]:
+    """Return a dict of the default values for a function's parameters."""
+    # extracted bit from inspect.signature... ~20x faster
+    pos_count = func.__code__.co_argcount
+    arg_names = func.__code__.co_varnames
+
+    defaults = func.__defaults__ or ()
+
+    non_default_count = pos_count - len(defaults)
+    positional_args = arg_names[:pos_count]
+
+    output = {
+        name: defaults[offset]
+        for offset, name in enumerate(positional_args[non_default_count:])
+    }
+    if func.__kwdefaults__:
+        output.update(func.__kwdefaults__)
+    return output
+
+
+def _ui_fields_from_annotation(cls) -> Iterator[UiField]:
+    """Iterate UiFields extracted from object __annotations__."""
+    # fallback for typed dict, named tuples, & functions
+
+    annotations: dict = getattr(cls, "__annotations__", {})
+    if not annotations and isinstance(annotations, dict):  # pragma: no cover
+        raise TypeError(
+            f"Cannot create  from object {type(cls)} without `__annotations__`"
         )
 
-    @staticmethod
-    def _get_field_info(
-        field_name: str, annotation: Any, value: Any
-    ) -> Tuple[UiFieldInfo, Any]:
-        field_info: Optional[UiFieldInfo] = None
-        if get_origin(annotation) is Annotated:
-            field_infos: List[UiFieldInfo] = [
-                arg for arg in get_args(annotation)[1:] if isinstance(arg, UiFieldInfo)
-            ]
-            if len(field_infos) > 1:
-                raise ValueError(
-                    f"cannot specify multiple `Annotated` `UiField`s for {field_name!r}"
-                )
+    # named tuples have _fields and _field_defaults
+    field_names = cls._fields if hasattr(cls, "_fields") else annotations
+    if isinstance(cls, FunctionType):
+        defaults = _get_function_defaults(cls)
+    else:
+        defaults = getattr(cls, "_field_defaults", {})
 
-            field_info = field_infos[0] if field_infos else None
-            if field_info is not None:
-                field_info = copy(field_info)
-                if field_info.default not in (Undefined, Ellipsis):
-                    raise ValueError(
-                        "`UiField` default cannot be set in `Annotated` "
-                        f"for {field_name!r}"
-                    )
-                if value is not Undefined and value is not Ellipsis:
-                    # check also `Required` because of `validate_arguments`
-                    # that sets `...` as default value
-                    field_info = replace(field_info, default=value)
-
-        if isinstance(value, UiFieldInfo):
-            if field_info is not None:
-                raise ValueError(
-                    "cannot specify `Annotated` and value `UiField`s together "
-                    f"for {field_name!r}"
-                )
-            field_info = value
-        elif field_info is None:
-            field_info = UiFieldInfo(default=value)
-        value = None if field_info.default_factory is not None else field_info.default
-        return field_info, value
-
-    # def build(self):
-    # return self.widget_type(self.widget_kwargs)
+    for name in field_names:
+        field = UiField(
+            name=name,
+            type=annotations.get(name),
+            default=defaults.get(name, Undefined),
+        )
+        yield field.parse_annotated()
 
 
-# these are types that are returned unchanged by deepcopy
-IMMUTABLE_NON_COLLECTIONS_TYPES: Set[Type] = {
-    int,
-    float,
-    complex,
-    str,
-    bool,
-    bytes,
-    type,
-    type(None),
-    types.FunctionType,
-    types.BuiltinFunctionType,
-    types.LambdaType,
-    weakref.ref,
-    types.CodeType,
-    types.ModuleType,
-    type(NotImplemented),
-    type(Ellipsis),
-}
+def iter_ui_fields(object: Any) -> Iterator[UiField]:
+    """Iterate UiFields extracted from object.
 
-# these are types that if empty, might be copied with simple copy() instead of deepcopy()
-BUILTIN_COLLECTIONS: Set[Type] = {
-    list,
-    set,
-    tuple,
-    frozenset,
-    dict,
-    OrderedDict,
-    defaultdict,
-    deque,
-}
-
-T = TypeVar("T")
-
-
-def _smart_deepcopy(obj: T) -> T:
-    """Return type as is for immutable built-in types
-
-    Use obj.copy() for built-in empty collections
-    Use copy.deepcopy() for non-empty collections and unknown objects
+    Parameters
+    ----------
+    object : Any
+        Object to extract fields from.  Could be a dataclass or dataclass instance,
+        an attrs class or instance, a pydantic model or instance, a named tuple,
+        typed dict, or a function.
     """
-    from copy import deepcopy
+    # check if it's a (non-pydantic) dataclass
+    if dc.is_dataclass(object) and not hasattr(object, "__pydantic_model__"):
+        for df in dc.fields(object):
+            yield _uifield_from_dataclass(df)
+        return
 
-    obj_type = type(obj)
-    if obj_type in IMMUTABLE_NON_COLLECTIONS_TYPES:
-        return obj  # fastest case: obj is immutable
-    with contextlib.suppress(TypeError, ValueError, RuntimeError):
-        if obj_type in BUILTIN_COLLECTIONS and not obj:
-            # faster way for empty collections, no need to copy its members
-            return obj if isinstance(obj, tuple) else obj.copy()
-    return deepcopy(obj)  # slowest way when we actually might need a deepcopy
+    # check if it's an attrs class
+    if _is_attrs_model(object):
+        for af in object.__attrs_attrs__:
+            yield _uifield_from_attrs(af)
+        return
+
+    # check if it's a pydantic model
+    model = _get_pydantic_model(object)
+    if model is not None:
+        for pf in model.__fields__.values():
+            yield _uifield_from_pydantic(pf)
+        return
+
+    # fallback to looking at __annotations__ (named tuple, typed dict, function)
+    if hasattr(object, "__annotations__"):
+        yield from _ui_fields_from_annotation(object)
+        return
+
+    raise TypeError(
+        f"{object} is not a dataclass, attrs, or pydantic, model"
+    )  # pragma: no cover
