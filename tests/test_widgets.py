@@ -1078,7 +1078,7 @@ def test_literal():
 
     from typing_extensions import Literal, get_args
 
-    Lit = Literal["a", 1, True, None, b'bytes']
+    Lit = Literal["a", 1, True, None, b"bytes"]
 
     @magicgui
     def f(x: Lit):
