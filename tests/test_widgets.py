@@ -1076,20 +1076,22 @@ def test_request_values(monkeypatch):
 def test_literal():
     from typing import Set
 
-    from typing_extensions import Literal
+    from typing_extensions import Literal, get_args
+
+    Lit = Literal["a", 1, True, None, b'bytes']
 
     @magicgui
-    def f(x: Literal["a", "b", "c"]):
+    def f(x: Lit):
         ...
 
     cbox = f.x
     assert type(cbox) is widgets.ComboBox
-    assert cbox.choices == ("a", "b", "c")
+    assert cbox.choices == get_args(Lit)
 
     @magicgui
-    def f(x: Set[Literal["a", "b", "c"]]):
+    def f(x: Set[Lit]):
         ...
 
     sel = f.x
     assert type(sel) is widgets.Select
-    assert cbox.choices == ("a", "b", "c")
+    assert sel.choices == get_args(Lit)
