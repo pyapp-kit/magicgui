@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import dataclasses as dc
 import sys
 import warnings
 from dataclasses import dataclass, field
-import dataclasses as dc
 from types import FunctionType
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Union
 
@@ -16,11 +16,13 @@ if TYPE_CHECKING:
 
     import attrs
     import pydantic
+    from annotated_types import BaseMetadata
     from attrs import Attribute
     from pydantic.fields import ModelField
-    from annotated_types import BaseMetadata
 
     class HasAttrs(Protocol):
+        """Protocol for objects that have an ``attrs`` attribute."""
+
         __attrs_attrs__: tuple[attrs.Attribute, ...]
 
 
@@ -57,14 +59,19 @@ class UiField:
         default=None,
         metadata=dict(
             description="A short title for the field.  If not provided, "
-            "the `name` will be used."
+            "the `name` will be used.",
+            aliases=["label", "text", "button_text"],
         ),
     )
     description: str | None = field(
-        default=None, metadata=dict(description="A description of the field.")
+        default=None,
+        metadata=dict(description="A description of the field.", aliases=["tooltip"]),
     )
     default: Any = field(
-        default=Undefined, metadata=dict(description="The default value for the field.")
+        default=Undefined,
+        metadata=dict(
+            description="The default value for the field.", aliases=["value"]
+        ),
     )
     # NOTE: this does not have an analog in JSON Schema
     default_factory: Callable[[], Any] | None = field(
@@ -88,7 +95,8 @@ class UiField:
         default=None, metadata=dict(description="The type annotation of the field.")
     )
     enum: list[Any] | None = field(
-        default=None, metadata=dict(description="A list of allowed values.")
+        default=None,
+        metadata=dict(description="A list of allowed values.", aliases=["choices"]),
     )
     const: Any = field(
         default=Undefined,
@@ -101,22 +109,46 @@ class UiField:
     # Keywords for Numeric Instances (number and integer)
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-num
     minimum: float | None = field(
-        default=None, metadata=dict(description="The inclusive minimum allowed value.")
+        default=None,
+        metadata=dict(
+            description="The inclusive minimum allowed value.", aliases=["min", "ge"]
+        ),
     )
     maximum: float | None = field(
-        default=None, metadata=dict(description="The inclusive maximum allowed value.")
+        default=None,
+        metadata=dict(
+            description="The inclusive maximum allowed value.",
+            aliases=["max", "le"],
+        ),
     )
     exclusive_minimum: float | None = field(
-        default=None, metadata=dict(description="The exclusive minimum allowed value.")
+        default=None,
+        metadata=dict(
+            description="The exclusive minimum allowed value.",
+            aliases=["exclusiveMinimum", "gt"],
+        ),
     )
     exclusive_maximum: float | None = field(
-        default=None, metadata=dict(description="The exclusive maximum allowed value.")
+        default=None,
+        metadata=dict(
+            description="The exclusive maximum allowed value.",
+            aliases=["exclusiveMaximum", "lt"],
+        ),
     )
     multiple_of: float | None = field(
         default=None,
         metadata=dict(
             description="The allowed step size. Value is valid if (value / multiple_of)"
-            " is an integer."
+            " is an integer.",
+            aliases=["multipleOf", "step"],
+        ),
+    )
+    # not in json schema, for Decimal types.  Also in pydantic.
+    decimal_places: int | None = field(
+        default=None,
+        metadata=dict(
+            descripion="Maximum number of digits within the decimal. It does "
+            "not include trailing decimal zeroes."
         ),
     )
 
@@ -124,14 +156,24 @@ class UiField:
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-str
     min_length: int | None = field(
         default=None,
-        metadata=dict(description="The minimum allowed length. Must be >= 0."),
+        metadata=dict(
+            description="The minimum allowed length. Must be >= 0.",
+            aliases=["minLength"],
+        ),
     )
     max_length: int | None = field(
         default=None,
-        metadata=dict(description="The maximum allowed length. Must be >= 0."),
+        metadata=dict(
+            description="The maximum allowed length. Must be >= 0.",
+            aliases=["maxLength"],
+        ),
     )
     pattern: str | None = field(
-        default=None, metadata=dict(description="A regex pattern for the value.")
+        default=None,
+        metadata=dict(
+            description="A regex pattern for the value.",
+            aliases=["regex", "filter"],  # regex in pydantic, filter for FileEdit
+        ),
     )
     # NOTE: format is listed in this section, but needn't strictly apply to strings.
     format: JsonStringFormats | None = field(
@@ -142,31 +184,41 @@ class UiField:
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-arr
     min_items: int | None = field(
         default=None,
-        metadata=dict(description="The minimum allowed number of items. Must be >= 0."),
+        metadata=dict(
+            description="The (inclusive) minimum allowed number of items. Must be >= 0",
+            # min_length/min_inclusive are from annotated_types
+            aliases=["minItems", "min_length", "min_inclusive"],
+        ),
     )
     max_items: int | None = field(
         default=None,
-        metadata=dict(description="The maximum allowed number of items. Must be >= 0."),
+        metadata=dict(
+            description="The (inclusive) maximum allowed number of items. Must be >= 0",
+            aliases=["maxItems", "max_length"],  # max_length in annotated_types
+        ),
     )
     unique_items: bool | None = field(
         default=None,
-        metadata=dict(description="Whether the items in the list must be unique."),
+        metadata=dict(
+            description="Whether the items in the list must be unique.",
+            aliases=["uniqueItems"],
+        ),
     )
 
     # # Keywords for Mapping (Object) Instances
-    # # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-obj
+    # # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-obj  # noqa
     # max_properties: int | None = field(
     #     default=None,
-    #     metadata=dict(description="The maximum allowed number of keys. Must be >= 0."),
+    #     metadata=dict(description="The maximum allowed number of keys. Must be >= 0.")
     # )
     # min_properties: int | None = field(
     #     default=None,
-    #     metadata=dict(description="The minimum allowed number of keys. Must be >= 0."),
+    #     metadata=dict(description="The minimum allowed number of keys. Must be >= 0.")
     # )
     # required: list[str] | None = field(
     #     default=None,
     #     metadata=dict(
-    #         description="A list of required keys that must be present in a mapping/object."
+    #         description="A list of required keys that must be present in a mapping/object." # noqa
     #     ),
     # )
 
@@ -274,6 +326,16 @@ class UiField:
         return d
 
     @property
+    def resolved_type(self) -> Any:
+        """Return field type, resolving any forward references.
+
+        Note that this will also return the origin type for Annotated types.
+        """
+        from ._type_resolution import _try_cached_resolve
+
+        return _try_cached_resolve(self.type)
+
+    @property
     def is_annotated_type(self) -> bool:
         """Whether the field is an Annotated type."""
         return get_origin(self.type) is Annotated
@@ -286,25 +348,7 @@ class UiField:
         if not self.is_annotated_type:
             return self
 
-        annotated_types = sys.modules.get("annotated_types")
-        _base_metas: list["BaseMetadata"] = []
-
-        origin, *metadata = get_args(self.type)
-        kwargs = {}
-        for item in metadata:
-            if isinstance(item, UiField):
-                kwargs.update(item.dict(include_unset=False))
-            elif annotated_types is not None:
-                if isinstance(item, annotated_types.BaseMetadata):
-                    _base_metas.append(item)
-                elif isinstance(item, annotated_types.GroupedMetadata):
-                    _base_metas.extend(item)
-            # TODO: support pydantic.fields.FieldInfo?
-            # TODO: support re.Pattern?
-
-        if _base_metas:
-            # TODO
-
+        kwargs = _uikwargs_from_annotated_type(self.type)
 
         if (
             self.default is not Undefined
@@ -312,19 +356,63 @@ class UiField:
         ):
             warnings.warn(
                 "Cannot set default value in both type annotation and field. Overriding"
-                f" default {kwargs['default']} with {self.default} in field {self.name}"
+                f" default {kwargs['default']} with {self.default} in field "
+                f"{self.name!r}"
             )
             kwargs.pop("default", None)
         if self.name is not None and kwargs.get("name") is not None:
             warnings.warn(
                 "Cannot set name in both type annotation and field. Overriding"
-                f" name {kwargs['name']} with {self.name} in field {self.name}"
+                f" name {kwargs['name']!r} with {self.name!r} in field {self.name!r}"
             )
             kwargs.pop("name", None)
-        return dc.replace(self, type=origin, **kwargs, _original_annotation=self.type)
+        return dc.replace(self, **kwargs)
 
 
-_UI_FIELD_NAMES = {f.name for f in dc.fields(UiField)}
+_UI_FIELD_NAMES: set[str] = set()
+_UI_FIELD_ALIASES: Dict[str, str] = {}
+
+for field_info in dc.fields(UiField):
+    _UI_FIELD_NAMES.add(field_info.name)
+    for alias in field_info.metadata.get("aliases", []):
+        _UI_FIELD_ALIASES[alias] = field_info.name
+
+
+def _rename_aliases(input: dict[str, Any]) -> dict[str, Any]:
+    """Rename any aliases in the input dict."""
+    return {_UI_FIELD_ALIASES.get(k, k): v for k, v in input.items()}
+
+
+def _uikwargs_from_annotated_type(hint: Any) -> Dict[str, Any]:
+    # hint must be an Annotated[...] type
+
+    annotated_types = sys.modules.get("annotated_types")
+    base_metas: list[BaseMetadata] = []
+
+    origin, *metadata = get_args(hint)
+    kwargs = {}
+    for item in metadata:
+        if isinstance(item, UiField):
+            kwargs.update(item.dict(include_unset=False))
+        elif annotated_types is not None:
+            # annotated_types >= 0.3.0 is supported
+            if isinstance(item, annotated_types.BaseMetadata):
+                base_metas.append(item)
+            elif isinstance(item, annotated_types.GroupedMetadata):
+                base_metas.extend(item)
+        # TODO: support pydantic.fields.FieldInfo?
+        # TODO: support re.Pattern?
+
+    if base_metas:
+        _annotated_kwargs = {}
+        for i in base_metas:
+            _annotated_kwargs.update(dc.asdict(i))
+        if "max_exclusive" in _annotated_kwargs:
+            _annotated_kwargs["max_items"] = _annotated_kwargs.pop("max_exclusive") - 1
+        kwargs.update(_rename_aliases(_annotated_kwargs))
+
+    kwargs.update({"type": origin, "_original_annotation": hint})
+    return kwargs
 
 
 def _uifield_from_dataclass(field: dc.Field) -> UiField:
@@ -351,8 +439,8 @@ def _uifield_from_attrs(field: Attribute) -> UiField:
 
     default = field.default if field.default is not NOTHING else Undefined
     default_factory = None
-    if isinstance(default, Factory):  # type: ignore
-        default_factory = default.factory  # type: ignore
+    if isinstance(default, Factory):
+        default_factory = default.factory
         default = Undefined
 
     extra = {k: v for k, v in field.metadata.items() if k in _UI_FIELD_NAMES}
@@ -368,7 +456,8 @@ def _uifield_from_attrs(field: Attribute) -> UiField:
 
 
 def _uifield_from_pydantic(model_field: ModelField) -> UiField:
-    from pydantic.fields import Undefined as PydanticUndefined, SHAPE_SINGLETON
+    from pydantic.fields import SHAPE_SINGLETON
+    from pydantic.fields import Undefined as PydanticUndefined
 
     finfo = model_field.field_info
 

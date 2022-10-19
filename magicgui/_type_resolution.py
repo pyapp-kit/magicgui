@@ -106,7 +106,7 @@ def resolve_single_type(
     return hints["obj"]
 
 
-_cached_resolve = lru_cache(maxsize=1)(resolve_single_type)
+_cached_resolve = lru_cache(maxsize=None)(resolve_single_type)
 
 
 def _try_cached_resolve(v):

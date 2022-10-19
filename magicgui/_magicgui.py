@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable
-from magicgui.types import Undefined
 
 from magicgui.widgets import FunctionGui, MainFunctionGui
 
@@ -236,8 +235,6 @@ def _magicgui(
         if not callable(func):
             raise TypeError("the first argument must be callable")
 
-        return _infer_model(func, kwargs.get("param_options", {}))
-
         magic_class = MainFunctionGui if main_window else FunctionGui
 
         if factory:
@@ -252,31 +249,3 @@ def _magicgui(
         return inner_func
     else:
         return inner_func(function)
-
-
-def _infer_model(obj, param_options: dict = {}) -> None:
-    from dataclasses import replace
-    from inspect import signature
-
-    from rich import print
-
-    from ._schema import GUIField, UiField, UiFieldInfo
-
-    _fields = {}
-    sig = signature(obj)
-    for name, param in sig.parameters.items():
-        options = param_options.get(name)
-        if options:
-            if isinstance(param.default, UiFieldInfo):
-                value = replace(param.default, **options)
-            else:
-                if param.default is not param.empty:
-                    options["default"] = param.default
-                value = UiField(**options)
-        else:
-            value = param.default
-        
-        annotation = Undefined if param.annotation is param.empty else param.annotation
-        field = GUIField.infer(name=name, value=value, annotation=annotation)
-        _fields[name] = field
-    return _fields

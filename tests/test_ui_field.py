@@ -1,8 +1,10 @@
-from typing import Optional, NamedTuple, TypedDict
+from typing import NamedTuple, Optional
+
 import attrs
 import pydantic
-from typing_extensions import Annotated
 import pytest
+from typing_extensions import Annotated, TypedDict
+
 from magicgui._schema import UiField, iter_ui_fields
 
 EXPECTED = (
@@ -108,3 +110,44 @@ def test_annotated():
     ):
         fields = tuple(iter_ui_fields(Foo2))
         assert fields[0].name == "x"
+
+
+def test_annotated_types_lib():
+    from annotated_types import Ge, Gt, Interval, Le, Len, Lt, MultipleOf, __version__
+
+    from magicgui._schema import _uikwargs_from_annotated_type as uikwargs
+
+    at_ver = tuple(int(v) for v in __version__.split("."))
+
+    def assert_eq(annotated_type, expected):
+        result = uikwargs(annotated_type)
+        assert result.pop("type") == int
+        result.pop("_original_annotation")
+        assert result == expected
+
+    assert_eq(Annotated[int, Ge(0)], {"minimum": 0})
+    assert_eq(Annotated[int, Gt(0)], {"exclusive_minimum": 0})
+    assert_eq(Annotated[int, Le(0)], {"maximum": 0})
+    assert_eq(Annotated[int, Lt(0)], {"exclusive_maximum": 0})
+    L = Len(2, max_exclusive=5) if at_ver < (0, 4) else Len(2, max_length=4)
+    assert_eq(Annotated[int, L], {"min_items": 2, "max_items": 4})
+    assert_eq(Annotated[int, MultipleOf(2)], {"multiple_of": 2})
+    assert_eq(
+        Annotated[int, Interval(gt=0, lt=2)],
+        {"exclusive_minimum": 0, "exclusive_maximum": 2},
+    )
+    assert_eq(Annotated[int, Interval(ge=1, le=3)], {"minimum": 1, "maximum": 3})
+
+    if at_ver >= (0, 4):
+        from annotated_types import MaxLen, MinLen
+
+        assert_eq(Annotated[int, MinLen(2)], {"min_items": 2})
+        assert_eq(Annotated[int, MaxLen(4)], {"max_items": 4})
+
+
+def test_resolved_type():
+    f = UiField(type=Annotated["int", UiField(minimum=0)])
+    assert f.resolved_type is int
+
+    f = UiField(type="int")
+    assert f.resolved_type is int
