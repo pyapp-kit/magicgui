@@ -14,6 +14,7 @@ from typing import (
     DefaultDict,
     ForwardRef,
     Sequence,
+    Set,
     Type,
     TypeVar,
     cast,
@@ -94,6 +95,16 @@ def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
         return widgets.FunctionGui, {"function": default}  # type: ignore
 
     origin = get_origin(type_) or type_
+    if origin is Literal:
+        choices = []
+        nullable = False
+        for choice in get_args(type_):
+            if choice is None:
+                nullable = True
+            else:
+                choices.append(choice)
+        return widgets.ComboBox, {"choices": choices, "nullable": nullable}
+
     # sequence of paths
     if _is_subclass(origin, Sequence):
         args = get_args(type_)
@@ -103,6 +114,12 @@ def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
             return widgets.ListEdit, {}
         elif _is_subclass(origin, tuple):
             return widgets.TupleEdit, {}
+
+    if _is_subclass(origin, Set):
+        for arg in get_args(type_):
+            if get_origin(arg) is Literal:
+                return widgets.Select, {"choices": get_args(arg)}
+
     return None
 
 
