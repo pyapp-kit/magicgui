@@ -10,7 +10,17 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Any, Callable, Iterable, Iterator, Sequence, Tuple, TypeVar, overload
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    Iterable,
+    Iterator,
+    Sequence,
+    Tuple,
+    TypeVar,
+    overload,
+)
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
@@ -618,7 +628,7 @@ class SliceEdit(RangeEdit):
     """
 
     @property  # type: ignore
-    def value(self) -> slice:  # type: ignore
+    def value(self) -> slice:
         """Return current value of the widget.  This may be interpreted by backends."""
         return slice(self.start.value, self.stop.value, self.step.value)
 
@@ -772,7 +782,7 @@ class ListEdit(Container):
             self._append_value(v)
 
     @property
-    def data(self) -> ListDataView:
+    def data(self) -> ListDataView[_V]:
         """Return a data view of current value."""
         return ListDataView(self)
 
@@ -783,7 +793,7 @@ class ListEdit(Container):
             self._append_value(v)
 
 
-class ListDataView:
+class ListDataView(Generic[_V]):
     """Data view of ListEdit."""
 
     def __init__(self, obj: ListEdit):
@@ -791,7 +801,7 @@ class ListDataView:
         self._widgets: list[ValueWidget] = list(obj[:-2])  # type: ignore
 
     def __repr__(self):
-        """A list-like representation."""
+        """Return list-like representation."""
         return f"{self.__class__.__name__}({list(self)!r})"
 
     def __len__(self):

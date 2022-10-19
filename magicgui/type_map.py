@@ -14,6 +14,7 @@ from typing import (
     DefaultDict,
     ForwardRef,
     Sequence,
+    Set,
     Type,
     TypeVar,
     cast,
@@ -103,6 +104,14 @@ def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
             return widgets.ListEdit, {}
         elif _is_subclass(origin, tuple):
             return widgets.TupleEdit, {}
+
+    if _is_subclass(origin, Set):
+        for arg in get_args(type_):
+            if get_origin(arg) is Literal:
+                return widgets.Select, {"choices": get_args(arg)}
+
+    if origin is Literal:
+        return widgets.ComboBox, {"choices": get_args(type_)}
     return None
 
 
