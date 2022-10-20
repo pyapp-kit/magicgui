@@ -353,6 +353,10 @@ class ComboBox(_IPyCategoricalWidget):
     _ipywidget: ipywidgets.Dropdown
 
 
+class Select(_IPyCategoricalWidget):
+    _ipywidget: ipywidgets.SelectMultiple
+
+
 # CONTAINER ----------------------------------------------------------------------
 
 

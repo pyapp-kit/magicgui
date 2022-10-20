@@ -1082,3 +1082,27 @@ def test_range_slider():
     assert isinstance(func.range_value, widgets.RangeSlider)
     assert func.range_value.max == 500
     assert func.range_value.value == (20, 380)
+
+
+def test_literal():
+    from typing import Set
+
+    from typing_extensions import Literal, get_args
+
+    Lit = Literal["a", 1, True, None, b"bytes"]
+
+    @magicgui
+    def f(x: Lit):
+        ...
+
+    cbox = f.x
+    assert type(cbox) is widgets.ComboBox
+    assert cbox.choices == get_args(Lit)
+
+    @magicgui
+    def f(x: Set[Lit]):
+        ...
+
+    sel = f.x
+    assert type(sel) is widgets.Select
+    assert sel.choices == get_args(Lit)
