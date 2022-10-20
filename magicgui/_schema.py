@@ -5,7 +5,7 @@ import sys
 import warnings
 from dataclasses import dataclass, field
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Sequence, Union
 
 from typing_extensions import Annotated, Literal, TypeGuard, get_args, get_origin
 
@@ -13,6 +13,7 @@ from .types import JsonStringFormats, Undefined
 
 if TYPE_CHECKING:
     from typing import Protocol
+    from .widgets._bases import ValueWidget
 
     import attrs
     import pydantic
@@ -302,6 +303,15 @@ class UiField:
             "annotation."
         ),
     )
+
+    def create(self) -> ValueWidget:
+        from .type_map import get_widget_class
+
+        widget_class, _widget_kwargs = get_widget_class(
+            annotation=self.type, options=...
+        )
+        widget_kwargs = dict(_widget_kwargs)
+
 
     def get_default(self) -> Any:
         """Return the default value for this field."""
@@ -612,3 +622,68 @@ def iter_ui_fields(object: Any) -> Iterator[UiField]:
     raise TypeError(
         f"{object} is not a dataclass, attrs, or pydantic, model"
     )  # pragma: no cover
+
+
+def _build_fields():
+
+    if instance is not None:
+        _values = instance.dict()
+    else:
+        _values = {
+            k: f.get_default() for k, f in cls.__fields__.items() if not f.required
+        }
+
+    if values:
+        _values.update(values)
+
+    wdg = _build_widget(cls.__ui_info__, _values)
+    if instance is not None:
+        config = getattr(instance, "__config__", None)
+        if bind_changes is None:
+            bind_changes = not getattr(config, "frozen", False) and getattr(
+                config, "allow_mutation", True
+            )
+        if bind_changes:
+            bind_gui_changes_to_model(gui=wdg, model=instance)
+        else:
+            breakpoint()
+    return wdg
+
+
+def _build_widget(
+    ui_info: Sequence[UiField],
+    values: Union[Mapping[str, Any], None] = None,
+) -> ContainerWidget[ValueWidget]:
+    """Build a widget for a mapping of field names to UI metadata.
+
+    Parameters
+    ----------
+    ui_info : Dict[str, ResolvedUIMetadata]
+        keys are field names, values are ResolvedUIMetadata instances.
+        (a named tuple containing `(widget_class, kwargs)`)
+    values : Union[Mapping[str, Any], None], optional
+        Optionally values to initialize the widget, by default None
+
+    Returns
+    -------
+    ValueWidgetContainer
+        A magicgui Container instance with widgets representing each field.
+    """
+    from magicgui import widgets
+
+    values = values or {}
+
+    wdgs = []
+    for ui_metadata in ui_info:
+        new_widget = ui_metadata.create()
+
+        # field_name = ui_metadata.name
+        # wdg_kwargs = dict(ui_metadata.options)
+        # wdg_kwargs.setdefault("name", field_name)
+        # value = values.get(field_name, Undefined)
+        # if value is not Undefined:
+        #     wdg_kwargs["value"] = value
+        # new_widget = ui_metadata.widget(**wdg_kwargs)
+        # wdgs.append(new_widget)
+
+    return widgets.Container(widgets=wdgs)
