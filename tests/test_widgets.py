@@ -1084,6 +1084,16 @@ def test_range_slider():
     assert func.range_value.value == (20, 380)
 
 
+def test_float_range_slider():
+    @magicgui(auto_call=True, range_value=dict(widget_type="FloatRangeSlider", max=1))
+    def func(range_value: Tuple[float, float] = (0.2, 0.8)):
+        print(range_value)
+
+    assert isinstance(func.range_value, widgets.FloatRangeSlider)
+    assert func.range_value.max == 1
+    assert func.range_value.value == (0.2, 0.8)
+
+
 def test_literal():
     from typing import Set
 

@@ -747,6 +747,16 @@ class RangeSlider(_Slider):
         return value
 
 
+class FloatRangeSlider(RangeSlider):
+    _qwidget: superqt.QLabeledDoubleRangeSlider
+
+    def __init__(self, **kwargs):
+        _Slider.__init__(self, superqt.QLabeledDoubleRangeSlider, **kwargs)
+        if hasattr(self._qwidget, "applyMacStylePatch"):
+            # >= magicgui v0.5.2
+            self._qwidget.applyMacStylePatch()
+
+
 class ProgressBar(_Slider):
     _qwidget: QtW.QProgressBar
 
