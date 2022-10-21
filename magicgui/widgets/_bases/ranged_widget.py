@@ -1,12 +1,15 @@
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import Tuple, Union, cast
+from typing import Iterable, Tuple, Union, cast
 from warnings import warn
 
 from magicgui.widgets import _protocols
 
 from .value_widget import UNSET, ValueWidget, _Unset
+
+DEFAULT_MIN = 0.0
+DEFAULT_MAX = 1000.0
 
 
 class RangedWidget(ValueWidget):
@@ -47,24 +50,42 @@ class RangedWidget(ValueWidget):
         val = kwargs.pop("value", UNSET)
         super().__init__(**kwargs)
 
-        tmp_val = float(val if val not in (UNSET, None) else 1)
-
         if step is UNSET or step is None:
             self.step = None
             self._widget._mgui_set_step(1)
         else:
             self.step = cast(float, step)
 
-        self.min: float = (
-            cast(float, min) if min is not UNSET else builtins.min(0, tmp_val)
-        )
-        self.max: float = (
-            cast(float, max)
-            if max is not UNSET
-            else builtins.max(1000, 10 ** ceil(log10(builtins.max(1, tmp_val + 1)))) - 1
-        )
+        self.min, self.max = self._init_range(val, min, max)
         if val not in (UNSET, None):
             self.value = val
+
+    def _init_range(
+        self,
+        value: Union[float, Tuple[float, ...]],
+        min: Union[float, _Unset],
+        max: Union[float, _Unset],
+    ) -> Tuple[float, float]:
+        """Return min and max based on given value and arguments.
+
+        If min or max are unset, constrain so the given value is within the range.
+        """
+        val = value if isinstance(value, tuple) else (value,)
+        tmp_val = tuple(float(v) if v not in (UNSET, None) else 1 for v in val)
+
+        new_min: float = (
+            cast("float", min)
+            if min is not UNSET
+            else builtins.min(DEFAULT_MIN, *tmp_val)
+        )
+
+        if max is UNSET:
+            t = 10.0 ** ceil(log10(builtins.max(0, *tmp_val) + 1))
+            new_max = builtins.max(DEFAULT_MAX, t) - 1
+        else:
+            new_max = cast("float", max)
+
+        return new_min, new_max
 
     @property
     def options(self) -> dict:
@@ -230,3 +251,25 @@ class TransformedRangedWidget(RangedWidget, ABC):
         prev = self.value
         self._max = value
         self.value = prev
+
+
+class MultiValueRangedWidget(RangedWidget):
+    """Widget with a constrained *iterable* value, like a tuple."""
+
+    @ValueWidget.value.setter  # type: ignore
+    def value(self, value: Tuple[float, ...]):
+        """Set widget value, will raise Value error if not within min/max."""
+        if not isinstance(value, Iterable):
+            raise ValueError(
+                f"value {value!r} is not iterable, and must be for a "
+                "MultiValueRangedWidget"
+            )
+
+        value = tuple(value)
+        for v in value:
+            if not (self.min <= float(v) <= self.max):
+                raise ValueError(
+                    f"value {v} is outside of the allowed range: "
+                    f"({self.min}, {self.max})"
+                )
+        ValueWidget.value.fset(self, value)  # type: ignore

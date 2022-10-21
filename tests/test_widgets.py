@@ -2,6 +2,7 @@ import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
+from typing import Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -1071,6 +1072,26 @@ def test_request_values(monkeypatch):
     )
     assert vals == dict(age=0, name="")
     mock.assert_called_once()
+
+
+def test_range_slider():
+    @magicgui(auto_call=True, range_value=dict(widget_type="RangeSlider", max=500))
+    def func(range_value: Tuple[int, int] = (20, 380)):
+        print(range_value)
+
+    assert isinstance(func.range_value, widgets.RangeSlider)
+    assert func.range_value.max == 500
+    assert func.range_value.value == (20, 380)
+
+
+def test_float_range_slider():
+    @magicgui(auto_call=True, range_value=dict(widget_type="FloatRangeSlider", max=1))
+    def func(range_value: Tuple[float, float] = (0.2, 0.8)):
+        print(range_value)
+
+    assert isinstance(func.range_value, widgets.FloatRangeSlider)
+    assert func.range_value.max == 1
+    assert func.range_value.value == (0.2, 0.8)
 
 
 def test_literal():
