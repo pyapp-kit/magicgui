@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - Support `Literal` type [\#458](https://github.com/napari/magicgui/pull/458) ([hanjinliu](https://github.com/hanjinliu))
+- feat: add range slider \(take 2\) [\#455](https://github.com/napari/magicgui/pull/455) ([tlambert03](https://github.com/tlambert03))
 - feat: Pass parent to backend widget [\#440](https://github.com/napari/magicgui/pull/440) ([tlambert03](https://github.com/tlambert03))
 - Add ipywidgets backend [\#87](https://github.com/napari/magicgui/pull/87) ([tlambert03](https://github.com/tlambert03))
 
