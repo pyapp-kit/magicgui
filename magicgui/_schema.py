@@ -12,14 +12,15 @@ from typing_extensions import Annotated, Literal, TypeGuard, get_args, get_origi
 from .types import JsonStringFormats, Undefined
 
 if TYPE_CHECKING:
-    from typing import Protocol
-    from .widgets._bases import ValueWidget
+    from typing import Mapping, Protocol
 
     import attrs
     import pydantic
     from annotated_types import BaseMetadata
     from attrs import Attribute
     from pydantic.fields import ModelField
+
+    from .widgets._bases import ContainerWidget, ValueWidget
 
     class HasAttrs(Protocol):
         """Protocol for objects that have an ``attrs`` attribute."""
@@ -304,14 +305,37 @@ class UiField:
         ),
     )
 
-    def create(self) -> ValueWidget:
+    def create(self, value=Undefined) -> ValueWidget:
         from .type_map import get_widget_class
 
-        widget_class, _widget_kwargs = get_widget_class(
-            annotation=self.type, options=...
-        )
-        widget_kwargs = dict(_widget_kwargs)
+        # field_name = ui_metadata.name
+        # wdg_kwargs = dict(ui_metadata.options)
+        # wdg_kwargs.setdefault("name", field_name)
+        # value = values.get(field_name, Undefined)
+        # new_widget = ui_metadata.widget(**wdg_kwargs)
+        # wdgs.append(new_widget)
+        # if value is not Undefined:
+        #     wdg_kwargs["value"] = value
+        value = value if value is not Undefined else self.get_default()
+        opts = {}
+        if self.enum:
+            opts["choices"] = self.enum
+        if self.widget:
+            opts["widget_type"] = self.widget
+        if self.nullable:
+            opts["nullable"] = True
+        # allow_multiple ?
 
+        cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
+
+        # widget kwargs:  FIXME: this is a mess
+        d = self.replace(_native_field=None).asdict(include_unset=False)
+        for k in ("default", "default_factory", "widget", "_original_annotation"):
+            d.pop(k, None)
+
+        d["annotation"] = d.pop("type")
+        kwargs.update(d)
+        return cls(**kwargs)
 
     def get_default(self) -> Any:
         """Return the default value for this field."""
@@ -321,7 +345,7 @@ class UiField:
             else self.default_factory()
         )
 
-    def dict(self, include_unset: bool = True) -> dict[str, Any]:
+    def asdict(self, include_unset: bool = True) -> dict[str, Any]:
         """Return the field as a dictionary.
 
         If `include_unset` is `False`, only fields that have been set will be included.
@@ -334,6 +358,10 @@ class UiField:
                 if (v is not Undefined if k in ("default", "const") else v is not None)
             }
         return d
+
+    def replace(self, **kwargs: Any) -> UiField:
+        """Return a new Field with the given values replaced."""
+        return dc.replace(self, **kwargs)
 
     @property
     def resolved_type(self) -> Any:
@@ -403,7 +431,7 @@ def _uikwargs_from_annotated_type(hint: Any) -> Dict[str, Any]:
     kwargs = {}
     for item in metadata:
         if isinstance(item, UiField):
-            kwargs.update(item.dict(include_unset=False))
+            kwargs.update(item.asdict(include_unset=False))
         elif annotated_types is not None:
             # annotated_types >= 0.3.0 is supported
             if isinstance(item, annotated_types.BaseMetadata):
@@ -624,66 +652,14 @@ def iter_ui_fields(object: Any) -> Iterator[UiField]:
     )  # pragma: no cover
 
 
-def _build_fields():
-
-    if instance is not None:
-        _values = instance.dict()
-    else:
-        _values = {
-            k: f.get_default() for k, f in cls.__fields__.items() if not f.required
-        }
-
-    if values:
-        _values.update(values)
-
-    wdg = _build_widget(cls.__ui_info__, _values)
-    if instance is not None:
-        config = getattr(instance, "__config__", None)
-        if bind_changes is None:
-            bind_changes = not getattr(config, "frozen", False) and getattr(
-                config, "allow_mutation", True
-            )
-        if bind_changes:
-            bind_gui_changes_to_model(gui=wdg, model=instance)
-        else:
-            breakpoint()
-    return wdg
-
-
 def _build_widget(
-    ui_info: Sequence[UiField],
+    ui_fields: Sequence[UiField],
     values: Union[Mapping[str, Any], None] = None,
 ) -> ContainerWidget[ValueWidget]:
-    """Build a widget for a mapping of field names to UI metadata.
 
-    Parameters
-    ----------
-    ui_info : Dict[str, ResolvedUIMetadata]
-        keys are field names, values are ResolvedUIMetadata instances.
-        (a named tuple containing `(widget_class, kwargs)`)
-    values : Union[Mapping[str, Any], None], optional
-        Optionally values to initialize the widget, by default None
-
-    Returns
-    -------
-    ValueWidgetContainer
-        A magicgui Container instance with widgets representing each field.
-    """
     from magicgui import widgets
 
     values = values or {}
 
-    wdgs = []
-    for ui_metadata in ui_info:
-        new_widget = ui_metadata.create()
-
-        # field_name = ui_metadata.name
-        # wdg_kwargs = dict(ui_metadata.options)
-        # wdg_kwargs.setdefault("name", field_name)
-        # value = values.get(field_name, Undefined)
-        # if value is not Undefined:
-        #     wdg_kwargs["value"] = value
-        # new_widget = ui_metadata.widget(**wdg_kwargs)
-        # wdgs.append(new_widget)
-
+    wdgs = [field.create() for field in ui_fields]
     return widgets.Container(widgets=wdgs)

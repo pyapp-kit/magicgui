@@ -5,7 +5,7 @@ import pydantic
 import pytest
 from typing_extensions import Annotated, TypedDict
 
-from magicgui._schema import UiField, iter_ui_fields
+from magicgui._schema import UiField, _build_widget, iter_ui_fields
 
 EXPECTED = (
     UiField(name="a", type=int, nullable=True),
@@ -17,6 +17,7 @@ EXPECTED = (
 def _assert_uifields(cls, instantiate=True):
     fields = tuple(iter_ui_fields(cls))
     assert fields == EXPECTED
+    _build_widget(fields)
     if instantiate:
         fields2 = tuple(iter_ui_fields(cls(a=1, b="hi")))
         assert fields2 == EXPECTED
