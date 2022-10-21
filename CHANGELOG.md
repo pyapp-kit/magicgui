@@ -1,12 +1,48 @@
 # Changelog
 
-## [0.5.1](https://github.com/napari/magicgui/tree/0.5.1) (2022-06-14)
+## [v0.6.0](https://github.com/napari/magicgui/tree/v0.6.0) (2022-10-21)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.5.0...0.5.1)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.5.1...v0.6.0)
+
+**Implemented enhancements:**
+
+- Support `Literal` type [\#458](https://github.com/napari/magicgui/pull/458) ([hanjinliu](https://github.com/hanjinliu))
+- feat: Pass parent to backend widget [\#440](https://github.com/napari/magicgui/pull/440) ([tlambert03](https://github.com/tlambert03))
+- Add ipywidgets backend [\#87](https://github.com/napari/magicgui/pull/87) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix: fix deprecation warning from matplotib about accessing colormaps from mpl.cm [\#451](https://github.com/napari/magicgui/pull/451) ([tlambert03](https://github.com/tlambert03))
+- Fix FunctionGui behavior as a class method [\#443](https://github.com/napari/magicgui/pull/443) ([hanjinliu](https://github.com/hanjinliu))
+- Expose QScrollArea as native widget [\#429](https://github.com/napari/magicgui/pull/429) ([dstansby](https://github.com/dstansby))
+- Turn off adaptive step if "step" option is given [\#425](https://github.com/napari/magicgui/pull/425) ([hanjinliu](https://github.com/hanjinliu))
+
+**Tests & CI:**
+
+- tests: add test for magic-class [\#447](https://github.com/napari/magicgui/pull/447) ([tlambert03](https://github.com/tlambert03))
+- test: change pytest testing plugin [\#438](https://github.com/napari/magicgui/pull/438) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- Fix links in documentation [\#433](https://github.com/napari/magicgui/pull/433) ([Czaki](https://github.com/Czaki))
+- fix docs build [\#428](https://github.com/napari/magicgui/pull/428) ([tlambert03](https://github.com/tlambert03))
+- Bump jupyter-book to 0.12.x [\#427](https://github.com/napari/magicgui/pull/427) ([dstansby](https://github.com/dstansby))
+
+**Merged pull requests:**
+
+- build: pin pyside6 extra [\#460](https://github.com/napari/magicgui/pull/460) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.5.1](https://github.com/napari/magicgui/tree/v0.5.1) (2022-06-14)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.5.0...v0.5.1)
 
 **Fixed bugs:**
 
 - Emit signal only if value of caterogical widget changed [\#422](https://github.com/napari/magicgui/pull/422) ([Czaki](https://github.com/Czaki))
+
+**Merged pull requests:**
+
+- add changelog for v0.5.1 [\#423](https://github.com/napari/magicgui/pull/423) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.5.0](https://github.com/napari/magicgui/tree/v0.5.0) (2022-06-13)
 
@@ -294,7 +330,7 @@
 
 ## [v0.2.9](https://github.com/napari/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.9)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -320,13 +356,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/napari/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.8)
-
 ## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8rc0)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.8rc0)
+
+## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8)
 
 **Implemented enhancements:**
 
@@ -357,7 +393,7 @@
 
 ## [v0.2.7](https://github.com/napari/magicgui/tree/v0.2.7) (2021-02-28)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6rc0...v0.2.7)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6...v0.2.7)
 
 **Implemented enhancements:**
 
@@ -391,13 +427,13 @@
 - update changelog [\#137](https://github.com/napari/magicgui/pull/137) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#136](https://github.com/napari/magicgui/pull/136) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.6rc0](https://github.com/napari/magicgui/tree/v0.2.6rc0) (2021-01-25)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6...v0.2.6rc0)
-
 ## [v0.2.6](https://github.com/napari/magicgui/tree/v0.2.6) (2021-01-25)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.6rc0...v0.2.6)
+
+## [v0.2.6rc0](https://github.com/napari/magicgui/tree/v0.2.6rc0) (2021-01-25)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.5...v0.2.6rc0)
 
 **Merged pull requests:**
 
