@@ -32,6 +32,8 @@ Value Widgets
    DateTimeEdit
    DateEdit
    TimeEdit
+   EmptyWidget
+
 
 Button Widgets
 --------------
@@ -65,6 +67,8 @@ Slider Widgets
    FloatSlider
    LogSlider
    ProgressBar
+   RangeSlider
+   FloatRangeSlider
 
 Categorical Widgets
 -------------------
@@ -86,6 +90,9 @@ Container Widgets
 
    Container
    FunctionGui
-
+   Dialog
+   TupleEdit
+   ListEdit
+   MainWindow
 
 ```

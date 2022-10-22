@@ -3,11 +3,14 @@ from __future__ import annotations
 
 import math
 import re
+import warnings
 from contextlib import contextmanager
 from functools import partial
+from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence
 
 import qtpy
+import superqt
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, Qt, Signal
 from qtpy.QtGui import (
@@ -56,7 +59,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
     def __init__(
         self, qwidg: type[QtW.QWidget], parent: Optional[QtW.QWidget] = None, **kwargs
     ):
-        self._qwidget = qwidg(parent)
+        self._qwidget = qwidg(parent=parent)
         self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
@@ -95,7 +98,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_width(self, value: int) -> None:
         """Set the current width of the widget."""
-        self._qwidget.resize(value, self._qwidget.height())
+        self._qwidget.resize(int(value), self._qwidget.height())
 
     def _mgui_get_min_width(self) -> int:
         """Get the minimum allowable width of the widget."""
@@ -103,7 +106,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_min_width(self, value: int) -> None:
         """Set the minimum allowable width of the widget."""
-        self._qwidget.setMinimumWidth(value)
+        self._qwidget.setMinimumWidth(int(value))
         self._qwidget.resize(self._qwidget.sizeHint())
 
     def _mgui_get_max_width(self) -> int:
@@ -112,7 +115,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_max_width(self, value: int) -> None:
         """Set the maximum allowable width of the widget."""
-        self._qwidget.setMaximumWidth(value)
+        self._qwidget.setMaximumWidth(int(value))
         self._qwidget.resize(self._qwidget.sizeHint())
 
     def _mgui_get_height(self) -> int:
@@ -121,7 +124,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_height(self, value: int) -> None:
         """Set the current height of the widget."""
-        self._qwidget.resize(self._qwidget.width(), value)
+        self._qwidget.resize(self._qwidget.width(), int(value))
 
     def _mgui_get_min_height(self) -> int:
         """Get the minimum allowable height of the widget."""
@@ -129,7 +132,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_min_height(self, value: int) -> None:
         """Set the minimum allowable height of the widget."""
-        self._qwidget.setMinimumHeight(value)
+        self._qwidget.setMinimumHeight(int(value))
         self._qwidget.resize(self._qwidget.sizeHint())
 
     def _mgui_get_max_height(self) -> int:
@@ -138,7 +141,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_max_height(self, value: int) -> None:
         """Set the maximum allowable height of the widget."""
-        self._qwidget.setMaximumHeight(value)
+        self._qwidget.setMaximumHeight(int(value))
         self._qwidget.resize(self._qwidget.sizeHint())
 
     def _mgui_get_tooltip(self) -> str:
@@ -312,7 +315,7 @@ class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
 class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
-    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QSlider
+    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QAbstractSlider
     _precision: float = 1
 
     def __init__(self, qwidg, **kwargs):
@@ -390,6 +393,8 @@ class PushButton(QBaseButtonWidget):
         QBaseValueWidget.__init__(
             self, QtW.QPushButton, "isChecked", "setChecked", "clicked", **kwargs
         )
+        # make enter/return "click" the button when focused.
+        self._qwidget.setAutoDefault(True)
 
 
 class CheckBox(QBaseButtonWidget):
@@ -640,17 +645,17 @@ class Slider(_Slider):
     def _mgui_set_min(self, value: float):
         """Set the minimum possible value."""
         super()._mgui_set_min(value)
-        self._readout_widget.setMinimum(value)
+        self._readout_widget.setMinimum(self._pre_set_hook(value))
 
     def _mgui_set_max(self, value: float):
         """Set the maximum possible value."""
         super()._mgui_set_max(value)
-        self._readout_widget.setMaximum(value)
+        self._readout_widget.setMaximum(self._pre_set_hook(value))
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
         super()._mgui_set_step(value)
-        self._readout_widget.setSingleStep(value)
+        self._readout_widget.setSingleStep(self._pre_set_hook(value))
 
     def _mgui_get_adaptive_step(self) -> bool:
         return (
@@ -712,6 +717,46 @@ class FloatSlider(Slider):
             callback(self._post_get_hook(value))
 
         self._qwidget.valueChanged.connect(_converted_value)
+
+
+class RangeSlider(_Slider):
+    _qwidget: superqt.QLabeledRangeSlider
+
+    def __init__(self, **kwargs):
+        super().__init__(superqt.QLabeledRangeSlider, **kwargs)
+        if hasattr(self._qwidget, "applyMacStylePatch"):
+            # >= magicgui v0.5.2
+            self._qwidget.applyMacStylePatch()
+
+    def _mgui_set_readout_visibility(self, value: bool):
+        method = "show" if value else "hide"
+        try:
+            for label in chain(
+                self._qwidget._handle_labels,
+                [self._qwidget._min_label, self._qwidget._max_label],
+            ):
+                getattr(label, method)()
+        except AttributeError as e:
+            warnings.warn(str(e))
+
+    def _mgui_set_adaptive_step(self, value: bool):
+        pass
+
+    def _mgui_get_adaptive_step(self) -> bool:
+        return False
+
+    def _pre_set_hook(self, value):
+        return value
+
+
+class FloatRangeSlider(RangeSlider):
+    _qwidget: superqt.QLabeledDoubleRangeSlider
+
+    def __init__(self, **kwargs):
+        _Slider.__init__(self, superqt.QLabeledDoubleRangeSlider, **kwargs)
+        if hasattr(self._qwidget, "applyMacStylePatch"):
+            # >= magicgui v0.5.2
+            self._qwidget.applyMacStylePatch()
 
 
 class ProgressBar(_Slider):
@@ -1138,7 +1183,7 @@ def get_text_width(text: str) -> int:
     if _might_be_rich_text(text):
         doc = QTextDocument()
         doc.setHtml(text)
-        return doc.size().width()
+        return math.ceil(doc.size().width())
     else:
         fm = QFontMetrics(QFont("", 0))
         return fm.boundingRect(text).width() + 5

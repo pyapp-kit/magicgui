@@ -153,6 +153,7 @@ class FunctionGui(Container, Generic[_R]):
 
         sig = magic_signature(function, gui_options=param_options)
         self._return_annotation = resolve_single_type(sig.return_annotation)
+        self._tooltips = tooltips
         if tooltips:
             _inject_tooltips_from_docstrings(function.__doc__, sig)
 
@@ -164,7 +165,7 @@ class FunctionGui(Container, Generic[_R]):
         # access attributes (like `__name__` that only function objects have).
         # Mypy doesn't seem catch this at this point:
         # https://github.com/python/mypy/issues/9934
-        name = getattr(function, "__name__", None)
+        name = name or getattr(function, "__name__", None)
         if not name:
             if hasattr(function, "func"):  # partials:
                 f = getattr(function, "func", None)
@@ -368,6 +369,11 @@ class FunctionGui(Container, Generic[_R]):
             auto_call=self._auto_call,
             result_widget=bool(self._result_widget),
             app=None,
+            persist=self.persist,
+            visible=self.visible,
+            tooltips=self._tooltips,
+            scrollable=self._scrollable,
+            name=self.name,
         )
 
     def __get__(self, obj, objtype=None) -> FunctionGui:

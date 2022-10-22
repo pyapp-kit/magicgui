@@ -47,7 +47,7 @@ from .categorical_widget import CategoricalWidget
 from .container_widget import ContainerWidget, MainWindowWidget
 from .create_widget import create_widget
 from .ranged_widget import RangedWidget, TransformedRangedWidget
-from .slider_widget import SliderWidget
+from .slider_widget import MultiValuedSliderWidget, SliderWidget
 from .value_widget import ValueWidget
 from .widget import Widget
 
@@ -58,6 +58,7 @@ __all__ = [
     "MainWindowWidget",
     "RangedWidget",
     "SliderWidget",
+    "MultiValuedSliderWidget",
     "TransformedRangedWidget",
     "ValueWidget",
     "Widget",
