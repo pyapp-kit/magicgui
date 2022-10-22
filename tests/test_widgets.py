@@ -203,8 +203,12 @@ def test_basic_widget_attributes():
     widget.label = "A different label"
     assert widget.label == "A different label"
     assert widget.width < 100
-    widget.width = 150
+    widget.width = 150.01
     assert widget.width == 150
+    widget.min_width = 100.01
+    assert widget.min_width == 100
+    widget.max_width = 200.01
+    assert widget.max_width == 200
 
     assert widget.param_kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
     widget.param_kind = inspect.Parameter.KEYWORD_ONLY
