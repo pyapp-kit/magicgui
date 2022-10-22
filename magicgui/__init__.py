@@ -10,13 +10,14 @@ __email__ = "talley.lambert@gmail.com"
 
 from ._magicgui import magic_factory, magicgui
 from .application import event_loop, use_app
-from .type_map import register_type
+from .type_map import register_type, type_registered
 
 __all__ = [
     "event_loop",
-    "magicgui",
     "magic_factory",
+    "magicgui",
     "register_type",
+    "type_registered",
     "use_app",
 ]
 

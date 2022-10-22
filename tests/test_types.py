@@ -1,9 +1,10 @@
 from enum import Enum
+from pathlib import Path
 from typing import Optional, Union
 
 import pytest
 
-from magicgui import magicgui, register_type, type_map, types, widgets
+from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 
 
 def test_forward_refs():
@@ -103,3 +104,10 @@ def test_widget_options():
     choice3 = widgets.create_widget(annotation=E)
     assert choice1._nullable is choice3._nullable is False
     assert choice2._nullable is True
+
+
+def test_type_registered():
+    assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
+    with type_registered(types.PathLike, widget_type=widgets.LineEdit):
+        assert isinstance(widgets.create_widget(annotation=Path), widgets.LineEdit)
+    assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
