@@ -393,6 +393,8 @@ class PushButton(QBaseButtonWidget):
         QBaseValueWidget.__init__(
             self, QtW.QPushButton, "isChecked", "setChecked", "clicked", **kwargs
         )
+        # make enter/return "click" the button when focused.
+        self._qwidget.setAutoDefault(True)
 
 
 class CheckBox(QBaseButtonWidget):
