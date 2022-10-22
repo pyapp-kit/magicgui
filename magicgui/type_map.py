@@ -414,6 +414,9 @@ def type_registered(
     tw.resolve()
     _type_ = tw.outer_type_
 
+    # check if return_callback is already registered
+    rc_was_present = return_callback in _RETURN_CALLBACKS.get(_type_, [])
+    # store any previous widget_type and options for this type
     prev_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
     _type_ = register_type(
         type_, widget_type=widget_type, return_callback=return_callback, **options
@@ -422,8 +425,8 @@ def type_registered(
     try:
         yield
     finally:
-
-        if return_callback is not None:
+        # restore things to before the context
+        if return_callback is not None and not rc_was_present:
             _RETURN_CALLBACKS[_type_].remove(return_callback)
 
         if _TYPE_DEFS.get(_type_, None) is not new_type_def:
