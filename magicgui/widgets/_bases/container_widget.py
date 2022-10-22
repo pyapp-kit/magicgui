@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
 
@@ -318,16 +319,24 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         from pathlib import Path
 
         path = Path(path)
-        if not path.exists() and quiet:
-            return
-        for key, val in pickle.loads(path.read_bytes()).items():
+        if not path.exists():
+            if quiet:
+                return
+            raise FileNotFoundError(f"Widget state file does not exist: {path}")
+
+        try:
+            data: dict = pickle.loads(path.read_bytes())
+        except Exception:
+            if quiet:
+                path.unlink(missing_ok=True)
+                return
+            raise
+
+        for key, val in data.items():
             val = pickle.loads(val)
-            if val == self.NO_VALUE:
-                continue
-            try:
-                getattr(self, key).value = val
-            except (ValueError, AttributeError):
-                pass
+            if val != self.NO_VALUE:
+                with contextlib.suppress(ValueError, AttributeError):
+                    getattr(self, key).value = val
 
 
 class MainWindowWidget(ContainerWidget):
