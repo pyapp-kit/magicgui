@@ -7,8 +7,20 @@ import pathlib
 import types
 import warnings
 from collections import defaultdict
+from contextlib import contextmanager
 from enum import EnumMeta
-from typing import Any, Callable, DefaultDict, ForwardRef, Type, TypeVar, cast, overload
+from typing import (
+    Any,
+    Callable,
+    DefaultDict,
+    ForwardRef,
+    Iterator,
+    Optional,
+    Type,
+    TypeVar,
+    cast,
+    overload,
+)
 
 from typing_extensions import Literal, get_origin
 
@@ -367,6 +379,63 @@ def register_type(
         return _type_
 
     return _deco if type_ is None else _deco(type_)
+
+
+@contextmanager
+def type_registered(
+    type_: _T,
+    *,
+    widget_type: WidgetRef | None = None,
+    return_callback: ReturnCallback | None = None,
+    **options,
+) -> Iterator[None]:
+    """Context manager that temporarily registers a widget type for a given `type_`.
+
+    When the context is exited, the previous widget type associations for `type_` is
+    restored.
+
+    Parameters
+    ----------
+    type_ : _T
+        The type for which a widget class or return callback will be provided.
+    widget_type : Optional[WidgetRef]
+        A widget class from the current backend that should be used whenever ``type_``
+        is used as the type annotation for an argument in a decorated function,
+        by default None
+    return_callback: Optional[callable]
+        If provided, whenever ``type_`` is declared as the return type of a decorated
+        function, ``return_callback(widget, value, return_type)`` will be called
+        whenever the decorated function is called... where ``widget`` is the Widget
+        instance, and ``value`` is the return value of the decorated function.
+    **options
+        key value pairs where the keys are valid `WidgetOptions`
+    """
+    tw = TypeWrapper(type_)
+    tw.resolve()
+    _type_ = tw.outer_type_
+
+    # check if return_callback is already registered
+    rc_was_present = return_callback in _RETURN_CALLBACKS.get(_type_, [])
+    # store any previous widget_type and options for this type
+    prev_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
+    _type_ = register_type(
+        type_, widget_type=widget_type, return_callback=return_callback, **options
+    )
+    new_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
+    try:
+        yield
+    finally:
+        # restore things to before the context
+        if return_callback is not None and not rc_was_present:
+            _RETURN_CALLBACKS[_type_].remove(return_callback)
+
+        if _TYPE_DEFS.get(_type_, None) is not new_type_def:
+            warnings.warn("Type definition changed during context", stacklevel=2)
+
+        if prev_type_def is not None:
+            _TYPE_DEFS[_type_] = prev_type_def
+        else:
+            _TYPE_DEFS.pop(_type_, None)
 
 
 def _type2callback(type_: type) -> list[ReturnCallback]:
