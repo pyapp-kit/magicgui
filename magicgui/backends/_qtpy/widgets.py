@@ -1181,7 +1181,7 @@ def get_text_width(text: str) -> int:
     if _might_be_rich_text(text):
         doc = QTextDocument()
         doc.setHtml(text)
-        return doc.size().width()
+        return math.ceil(doc.size().width())
     else:
         fm = QFontMetrics(QFont("", 0))
         return fm.boundingRect(text).width() + 5
