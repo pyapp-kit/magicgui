@@ -202,9 +202,6 @@ def test_basic_widget_attributes():
     assert widget.label == "my name"
     widget.label = "A different label"
     assert widget.label == "A different label"
-    assert widget.width < 100
-    widget.width = 150
-    assert widget.width == 150
 
     assert widget.param_kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
     widget.param_kind = inspect.Parameter.KEYWORD_ONLY
@@ -224,6 +221,27 @@ def test_basic_widget_attributes():
         "visible": False,
     }
     widget.close()
+
+
+def test_width_height():
+    widget = widgets.create_widget(value=1, name="my_name")
+    widget.show()
+    assert widget.visible
+    assert widget.width < 100
+
+    widget.width = 150.01
+    assert widget.width == 150
+    widget.min_width = 100.01
+    assert widget.min_width == 100
+    widget.max_width = 200.01
+    assert widget.max_width == 200
+
+    widget.height = 150.01
+    assert widget.height == 150
+    widget.min_height = 100.01
+    assert widget.min_height == 100
+    widget.max_height = 200.01
+    assert widget.max_height == 200
 
 
 def test_tooltip():
