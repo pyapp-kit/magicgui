@@ -15,6 +15,7 @@ from typing import (
     DefaultDict,
     ForwardRef,
     Iterator,
+    Optional,
     Type,
     TypeVar,
     cast,
@@ -412,24 +413,26 @@ def type_registered(
     tw = TypeWrapper(type_)
     tw.resolve()
     _type_ = tw.outer_type_
-    null = object()
 
-    prev_return_callback = _RETURN_CALLBACKS.get(_type_, null)
-    prev_type_def = _TYPE_DEFS.get(_type_, null)
+    prev_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
+    _type_ = register_type(
+        type_, widget_type=widget_type, return_callback=return_callback, **options
+    )
+    new_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
     try:
-        register_type(
-            type_, widget_type=widget_type, return_callback=return_callback, **options
-        )
         yield
     finally:
-        if prev_return_callback is null:
-            _RETURN_CALLBACKS.pop(_type_, None)
+
+        if return_callback is not None:
+            _RETURN_CALLBACKS[_type_].remove(return_callback)
+
+        if _TYPE_DEFS.get(_type_, None) is not new_type_def:
+            warnings.warn("Type definition changed during context", stacklevel=2)
+
+        if prev_type_def is not None:
+            _TYPE_DEFS[_type_] = prev_type_def
         else:
-            _RETURN_CALLBACKS[_type_] = prev_return_callback  # type: ignore
-        if prev_type_def is null:
             _TYPE_DEFS.pop(_type_, None)
-        else:
-            _TYPE_DEFS[_type_] = prev_type_def  # type: ignore
 
 
 def _type2callback(type_: type) -> list[ReturnCallback]:
