@@ -74,6 +74,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self._list: list[Widget] = []
         self._labels = labels
         self._layout = layout
+        self._scrollable = scrollable
         kwargs.setdefault("backend_kwargs", {})
         kwargs["backend_kwargs"].update({"layout": layout, "scrollable": scrollable})
         super().__init__(**kwargs)
@@ -333,9 +334,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
             raise
 
         for key, val in data.items():
-            val = pickle.loads(val)
-            if val != self.NO_VALUE:
-                with contextlib.suppress(ValueError, AttributeError):
+            with contextlib.suppress(ValueError, AttributeError):
+                val = pickle.loads(val)
+                if val != self.NO_VALUE:
                     getattr(self, key).value = val
 
 
