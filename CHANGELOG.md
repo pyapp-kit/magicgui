@@ -1,8 +1,24 @@
 # Changelog
 
-## [v0.6.0](https://github.com/napari/magicgui/tree/v0.6.0) (2022-10-21)
+## [0.6.0rc1](https://github.com/napari/magicgui/tree/0.6.0rc1) (2022-10-22)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.5.1...v0.6.0)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.6.0rc0...0.6.0rc1)
+
+**Implemented enhancements:**
+
+- feat: add context manager for register\_type [\#470](https://github.com/napari/magicgui/pull/470) ([tlambert03](https://github.com/tlambert03))
+- feat: click on button return [\#468](https://github.com/napari/magicgui/pull/468) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix: Fix persist on magicgui method decorator [\#469](https://github.com/napari/magicgui/pull/469) ([tlambert03](https://github.com/tlambert03))
+- fix: handle case of bad parameter cache file read [\#467](https://github.com/napari/magicgui/pull/467) ([tlambert03](https://github.com/tlambert03))
+- use math.ceil to ensure get\_text\_width returns int [\#465](https://github.com/napari/magicgui/pull/465) ([psobolewskiPhD](https://github.com/psobolewskiPhD))
+- Fix ipynb PushButton [\#464](https://github.com/napari/magicgui/pull/464) ([hanjinliu](https://github.com/hanjinliu))
+
+## [v0.6.0rc0](https://github.com/napari/magicgui/tree/v0.6.0rc0) (2022-10-21)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.5.1...v0.6.0rc0)
 
 **Implemented enhancements:**
 
@@ -25,6 +41,7 @@
 
 **Documentation:**
 
+- docs: changelog v0.6.0 [\#462](https://github.com/napari/magicgui/pull/462) ([tlambert03](https://github.com/tlambert03))
 - Fix links in documentation [\#433](https://github.com/napari/magicgui/pull/433) ([Czaki](https://github.com/Czaki))
 - fix docs build [\#428](https://github.com/napari/magicgui/pull/428) ([tlambert03](https://github.com/tlambert03))
 - Bump jupyter-book to 0.12.x [\#427](https://github.com/napari/magicgui/pull/427) ([dstansby](https://github.com/dstansby))
@@ -331,7 +348,7 @@
 
 ## [v0.2.9](https://github.com/napari/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.9)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -357,13 +374,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/napari/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
-
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8...v0.2.8rc0)
-
 ## [v0.2.8](https://github.com/napari/magicgui/tree/v0.2.8) (2021-03-24)
 
-[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8)
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.8rc0...v0.2.8)
+
+## [v0.2.8rc0](https://github.com/napari/magicgui/tree/v0.2.8rc0) (2021-03-24)
+
+[Full Changelog](https://github.com/napari/magicgui/compare/v0.2.7...v0.2.8rc0)
 
 **Implemented enhancements:**
 
