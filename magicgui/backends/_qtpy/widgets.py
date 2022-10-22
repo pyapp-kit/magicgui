@@ -124,7 +124,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
 
     def _mgui_set_height(self, value: int) -> None:
         """Set the current height of the widget."""
-        self._qwidget.resize(self._qwidget.width(), value)
+        self._qwidget.resize(self._qwidget.width(), int(value))
 
     def _mgui_get_min_height(self) -> int:
         """Get the minimum allowable height of the widget."""
