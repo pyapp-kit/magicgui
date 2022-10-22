@@ -322,7 +322,14 @@ class PushButton(_IPyButtonWidget):
     _ipywidget: ipywdg.Button
 
     def _mgui_bind_change_callback(self, callback):
-        self._ipywidget.on_click(lambda e: callback())
+        self._ipywidget.on_click(lambda e: callback(False))
+
+    # ipywdg.Button does not have any value. Return False for compatibility with Qt.
+    def _mgui_get_value(self) -> float:
+        return False
+
+    def _mgui_set_value(self, value: Any) -> None:
+        pass
 
 
 class CheckBox(_IPyButtonWidget):
