@@ -842,3 +842,31 @@ def test_scrollable():
 
     assert test_nonscrollable.native is test_nonscrollable.root_native_widget
     assert not isinstance(test_nonscrollable.native, QScrollArea)
+
+
+def test_unknown_exception_magicgui():
+    """Test that an unknown type is raised as a RuntimeError."""
+
+    class A:
+        pass
+
+    with pytest.raises(ValueError, match="No widget found for type"):
+
+        @magicgui(raise_on_unknown=True)
+        def func(a: A):
+            print(a)
+
+
+def test_unknown_exception_create_widget():
+    """Test that an unknown type is raised as a RuntimeError."""
+
+    class A:
+        pass
+
+    with pytest.raises(ValueError, match="No widget found for type"):
+        widgets.create_widget(A, raise_on_unknown=True)
+    with pytest.raises(ValueError, match="No widget found for type"):
+        widgets.create_widget(A)
+    assert isinstance(
+        widgets.create_widget(A, raise_on_unknown=False), widgets.EmptyWidget
+    )
