@@ -155,6 +155,7 @@ def pick_widget_type(
     annotation: type[Any] | None = None,
     options: WidgetOptions | None = None,
     is_result: bool = False,
+    raise_on_unknown: bool = True,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
     if is_result and annotation is inspect.Parameter.empty:
@@ -208,6 +209,11 @@ def pick_widget_type(
         _cls, opts = _widget_type
         return _cls, {**options, **opts}  # type: ignore
 
+    if raise_on_unknown:
+        raise ValueError(
+            f"No widget found for type {_type} and annotation {annotation}"
+        )
+
     return widgets.EmptyWidget, {"visible": False}
 
 
@@ -216,6 +222,7 @@ def get_widget_class(
     annotation: type[Any] | None = None,
     options: WidgetOptions | None = None,
     is_result: bool = False,
+    raise_on_unknown: bool = True,
 ) -> tuple[WidgetClass, WidgetOptions]:
     """Return a WidgetClass appropriate for the given parameters.
 
@@ -231,6 +238,8 @@ def get_widget_class(
     is_result : bool, optional
         Identifies whether the returned widget should be tailored to
         an input or to an output.
+    raise_on_unknown : bool, optional
+        Raise exception if no widget is found for the given type, by default True
 
     Returns
     -------
@@ -240,7 +249,9 @@ def get_widget_class(
     """
     _options = cast(WidgetOptions, options)
 
-    widget_type, _options = pick_widget_type(value, annotation, _options, is_result)
+    widget_type, _options = pick_widget_type(
+        value, annotation, _options, is_result, raise_on_unknown
+    )
 
     if isinstance(widget_type, str):
         widget_class: WidgetClass = _import_class(widget_type)

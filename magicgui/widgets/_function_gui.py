@@ -136,6 +136,7 @@ class FunctionGui(Container, Generic[_R]):
         param_options: dict[str, dict] | None = None,
         name: str = None,
         persist: bool = False,
+        raise_on_unknown=False,
         **kwargs,
     ):
         if not callable(function):
@@ -151,7 +152,9 @@ class FunctionGui(Container, Generic[_R]):
         elif not isinstance(param_options, dict):
             raise TypeError("'param_options' must be a dict of dicts")
 
-        sig = magic_signature(function, gui_options=param_options)
+        sig = magic_signature(
+            function, gui_options=param_options, raise_on_unknown=raise_on_unknown
+        )
         self.return_annotation = sig.return_annotation
         self._tooltips = tooltips
         if tooltips:
@@ -221,6 +224,7 @@ class FunctionGui(Container, Generic[_R]):
                 annotation=self._return_annotation,
                 gui_only=True,
                 is_result=True,
+                raise_on_unknown=raise_on_unknown,
             )
             self.append(self._result_widget)
 
