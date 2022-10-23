@@ -2,6 +2,7 @@ import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
+from typing import Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -201,9 +202,6 @@ def test_basic_widget_attributes():
     assert widget.label == "my name"
     widget.label = "A different label"
     assert widget.label == "A different label"
-    assert widget.width < 100
-    widget.width = 150
-    assert widget.width == 150
 
     assert widget.param_kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
     widget.param_kind = inspect.Parameter.KEYWORD_ONLY
@@ -223,6 +221,27 @@ def test_basic_widget_attributes():
         "visible": False,
     }
     widget.close()
+
+
+def test_width_height():
+    widget = widgets.create_widget(value=1, name="my_name")
+    widget.show()
+    assert widget.visible
+    assert widget.width < 100
+
+    widget.width = 150.01
+    assert widget.width == 150
+    widget.min_width = 100.01
+    assert widget.min_width == 100
+    widget.max_width = 200.01
+    assert widget.max_width == 200
+
+    widget.height = 150.01
+    assert widget.height == 150
+    widget.min_height = 100.01
+    assert widget.min_height == 100
+    widget.max_height = 200.01
+    assert widget.max_height == 200
 
 
 def test_tooltip():
@@ -1071,6 +1090,26 @@ def test_request_values(monkeypatch):
     )
     assert vals == dict(age=0, name="")
     mock.assert_called_once()
+
+
+def test_range_slider():
+    @magicgui(auto_call=True, range_value=dict(widget_type="RangeSlider", max=500))
+    def func(range_value: Tuple[int, int] = (20, 380)):
+        print(range_value)
+
+    assert isinstance(func.range_value, widgets.RangeSlider)
+    assert func.range_value.max == 500
+    assert func.range_value.value == (20, 380)
+
+
+def test_float_range_slider():
+    @magicgui(auto_call=True, range_value=dict(widget_type="FloatRangeSlider", max=1))
+    def func(range_value: Tuple[float, float] = (0.2, 0.8)):
+        print(range_value)
+
+    assert isinstance(func.range_value, widgets.FloatRangeSlider)
+    assert func.range_value.max == 1
+    assert func.range_value.value == (0.2, 0.8)
 
 
 def test_literal():

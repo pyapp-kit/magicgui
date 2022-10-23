@@ -1,10 +1,13 @@
 from enum import Enum
+from pathlib import Path
 from typing import Optional, Union
+from unittest.mock import Mock
 
 import pytest
 
-from magicgui import magicgui, register_type, type_map, types, widgets
+from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui._type_resolution import resolve_single_type
+from magicgui.type_map import _RETURN_CALLBACKS
 
 
 def test_forward_refs():
@@ -115,3 +118,47 @@ def test_nested_forward_refs():
     import numpy as np
 
     assert resolved == Optional[List[np.ndarray]]
+
+
+def test_type_registered():
+    assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
+    with type_registered(Path, widget_type=widgets.LineEdit):
+        assert isinstance(widgets.create_widget(annotation=Path), widgets.LineEdit)
+    assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
+
+
+def test_type_registered_callbacks():
+    @magicgui
+    def func(a: int) -> int:
+        return a
+
+    assert not _RETURN_CALLBACKS[int]
+    mock = Mock()
+    func(1)
+    mock.assert_not_called()
+
+    cb = lambda g, v, r: mock(v)  # noqa
+    cb2 = lambda g, v, r: None  # noqa
+
+    with type_registered(int, return_callback=cb):
+        func(2)
+        mock.assert_called_once_with(2)
+        mock.reset_mock()
+        assert _RETURN_CALLBACKS[int] == [cb]
+        register_type(int, return_callback=cb2)
+        assert _RETURN_CALLBACKS[int] == [cb, cb2]
+
+    func(3)
+    mock.assert_not_called()
+    assert _RETURN_CALLBACKS[int] == [cb2]
+
+
+def test_type_registered_warns():
+    """Test that type_registered warns if the type was changed during context."""
+    assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
+    with pytest.warns(UserWarning, match="Type definition changed during context"):
+        with type_registered(Path, widget_type=widgets.LineEdit):
+            assert isinstance(widgets.create_widget(annotation=Path), widgets.LineEdit)
+            register_type(Path, widget_type=widgets.TextEdit)
+            assert isinstance(widgets.create_widget(annotation=Path), widgets.TextEdit)
+    assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
