@@ -630,7 +630,7 @@ class RangeEdit(Container):
 
 
 class SliceEdit(RangeEdit):
-    """A widget to represent range objects, with start/stop/step.
+    """A widget to represent `slice` objects, with start/stop/step.
 
     slice(stop)
     slice(start, stop[, step])
