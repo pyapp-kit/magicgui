@@ -112,6 +112,7 @@ def magic_factory(
     app: AppRef = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ):
     """Return a :class:`MagicFactory` for ``function``."""
