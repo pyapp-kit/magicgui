@@ -25,6 +25,7 @@ def magicgui(
     main_window: bool = False,
     app: AppRef = None,
     persist: bool = False,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ):
     """Return a :class:`FunctionGui` for ``function``.
@@ -65,6 +66,9 @@ def magicgui(
         disk and restored when the widget is loaded again with ``persist = True``.
         Call ``magicgui._util.user_cache_dir()`` to get the default cache location.
         By default False.
+    raise_on_unknown : bool, optional
+        If ``True``, raise an error if magicgui cannot determine widget for function
+        argument or return type. If ``False``, ignore unknown types. By default False.
 
     **param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
@@ -108,6 +112,7 @@ def magic_factory(
     app: AppRef = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ):
     """Return a :class:`MagicFactory` for ``function``."""
