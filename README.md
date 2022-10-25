@@ -1,15 +1,22 @@
+<span style='text-align: center'>
+
 # ![icon](https://raw.githubusercontent.com/napari/magicgui/main/resources/logo_long.png)
 
 [![License](https://img.shields.io/github/license/napari/magicgui)](LICENSE)
 [![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/magicgui)](https://anaconda.org/conda-forge/magicgui)
-[![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
+
 [![Build Status](https://img.shields.io/travis/napari/magicgui.svg)](https://travis-ci.com/napari/magicgui)
 [![codecov](https://codecov.io/gh/napari/magicgui/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
+[![DOI](https://zenodo.org/badge/238805437.svg)](https://zenodo.org/badge/latestdoi/238805437)
 
-**magicgui**: build GUIs from functions, using magic.
+*build GUIs from type annotations, using magic.*
 
-## 📖 [Docs](https://napari.org/magicgui)
+</span>
+
+## 📖 Docs
+
+[https://napari.org/magicgui](https://napari.org/magicgui)
 
 ## Installation
 
