@@ -1,15 +1,38 @@
-# ![icon](https://raw.githubusercontent.com/napari/magicgui/main/resources/logo_long.png)
+<h1 align="center">
+    <img src="https://raw.githubusercontent.com/napari/magicgui/main/resources/logo_long.png" alt="magicgui" />
+</h1>
 
-[![License](https://img.shields.io/github/license/napari/magicgui)](LICENSE)
-[![Version](https://img.shields.io/pypi/v/magicgui.svg)](https://pypi.python.org/pypi/magicgui)
-[![conda-forge](https://img.shields.io/conda/vn/conda-forge/magicgui)](https://anaconda.org/conda-forge/magicgui)
-[![Python Version](https://img.shields.io/pypi/pyversions/magicgui.svg)](https://python.org)
-[![Build Status](https://img.shields.io/travis/napari/magicgui.svg)](https://travis-ci.com/napari/magicgui)
-[![codecov](https://codecov.io/gh/napari/magicgui/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/magicgui)
+<p align="center">
+  <a href="https://github.com/napari/magicgui/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/napari/magicgui" alt="magicgui is released under the MIT license." />
+  </a>
+  <a href="https://pypi.python.org/pypi/magicgui">
+    <img src="https://img.shields.io/pypi/v/magicgui.svg" alt="magicgui on PyPI" />
+  </a>
+  <a href="https://anaconda.org/conda-forge/magicgui">
+    <img src="https://img.shields.io/conda/vn/conda-forge/magicgui" alt="magicgui on conda-forge" />
+  </a>
+  </p>
+  <p align="center">
+  <a href="https://github.com/napari/magicgui/actions/workflows/test_and_deploy.yml">
+    <img src="https://github.com/napari/magicgui/actions/workflows/test_and_deploy.yml/badge.svg" alt="magicgui build status" />
+  </a>
+  <a href="https://codecov.io/gh/napari/magicgui">
+    <img src="https://codecov.io/gh/napari/magicgui/branch/main/graph/badge.svg" alt="magicgui code coverage" />
+  </a>
+  <a href="https://zenodo.org/badge/latestdoi/238805437">
+    <img src="https://zenodo.org/badge/238805437.svg" alt="cite magicgui" />
+  </a>
+</p>
 
-**magicgui**: build GUIs from functions, using magic.
+<p align="center">
+ <em>build GUIs from type annotations, using magic.</em>
+</p>
 
-## 📖 [Docs](https://napari.org/magicgui)
+
+## 📖 Docs
+
+[https://napari.org/magicgui](https://napari.org/magicgui)
 
 ## Installation
 
