@@ -1113,10 +1113,9 @@ def test_float_range_slider():
 
 
 def test_literal():
-    from typing import Set
+    from typing import Literal, Set
 
     from typing_extensions import get_args
-    from typing import Literal
 
     Lit = Literal["a", 1, True, None, b"bytes"]
 

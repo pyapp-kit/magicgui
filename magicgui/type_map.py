@@ -15,6 +15,7 @@ from typing import (
     DefaultDict,
     ForwardRef,
     Iterator,
+    Literal,
     Optional,
     Type,
     TypeVar,
@@ -23,7 +24,6 @@ from typing import (
 )
 
 from typing_extensions import get_origin
-from typing import Literal
 
 from magicgui import widgets
 from magicgui.types import (

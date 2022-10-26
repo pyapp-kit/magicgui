@@ -42,6 +42,7 @@ from typing import (
     FrozenSet,
     Iterable,
     List,
+    Literal,
     Mapping,
     NewType,
     Optional,
@@ -54,7 +55,6 @@ from typing import (
 )
 
 from typing_extensions import Annotated, get_args, get_origin
-from typing import Literal
 
 __all__ = ["TypeWrapper"]
 
