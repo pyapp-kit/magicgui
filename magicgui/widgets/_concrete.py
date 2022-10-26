@@ -24,7 +24,8 @@ from typing import (
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
-from typing_extensions import Literal, get_args, get_origin
+from typing_extensions import get_args, get_origin
+from typing import Literal
 
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike, WidgetOptions

@@ -20,7 +20,7 @@ from typing import (
 )
 from warnings import warn
 
-from typing_extensions import Literal
+from typing import Literal
 
 from magicgui.application import use_app
 from magicgui.widgets._bases.mixins import _ReadOnlyMixin

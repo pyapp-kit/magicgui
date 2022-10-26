@@ -22,7 +22,8 @@ from typing import (
     overload,
 )
 
-from typing_extensions import Literal, get_origin
+from typing_extensions import get_origin
+from typing import Literal
 
 from magicgui import widgets
 from magicgui.types import (

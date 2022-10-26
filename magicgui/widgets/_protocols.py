@@ -11,7 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Sequence
 
-from typing_extensions import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     import numpy as np

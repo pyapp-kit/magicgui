@@ -53,7 +53,8 @@ from typing import (
     Union,
 )
 
-from typing_extensions import Annotated, Literal, get_args, get_origin
+from typing_extensions import Annotated, get_args, get_origin
+from typing import Literal
 
 __all__ = ["TypeWrapper"]
 
