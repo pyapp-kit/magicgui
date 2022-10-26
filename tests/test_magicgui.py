@@ -752,7 +752,7 @@ def test_boolean_label():
 
 def test_none_defaults():
     """Make sure that an unannotated parameter with default=None is ok."""
-    assert widgets.create_widget(value=None).value is None
+    assert widgets.create_widget(value=None, raise_on_unknown=False).value is None
 
     def func(arg=None):
         return 1
