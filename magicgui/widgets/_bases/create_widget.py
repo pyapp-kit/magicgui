@@ -4,6 +4,7 @@ import inspect
 from typing import TYPE_CHECKING, Any
 
 from magicgui.application import use_app
+from magicgui.types import Undefined
 from magicgui.widgets import _bases, _protocols
 
 from .widget import Widget
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def create_widget(
-    value: Any = _bases.value_widget.UNSET,
+    value: Any = Undefined,
     annotation: Any = None,
     name: str = "",
     param_kind: str | inspect._ParameterKind = "POSITIONAL_OR_KEYWORD",

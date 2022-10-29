@@ -5,17 +5,15 @@ from typing import Any, Union
 from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
+from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import _protocols
 
 from .widget import Widget
 
-
-class _Unset:
-    def __repr__(self) -> str:
-        return "UNSET"
-
-
-UNSET = _Unset()
+# legacy import for backwards compatibility
+# shouldn't be used externally, but magic-class still uses it
+UNSET = Undefined
+_Unset = _Undefined
 
 
 class ValueWidget(Widget):
@@ -36,14 +34,16 @@ class ValueWidget(Widget):
     changed = Signal(object)
     null_value = None
 
-    def __init__(self, value: Any = UNSET, bind: Any = UNSET, nullable=False, **kwargs):
+    def __init__(
+        self, value: Any = Undefined, bind: Any = Undefined, nullable=False, **kwargs
+    ):
         self._nullable = nullable
         self._bound_value: Any = bind
         self._call_bound: bool = True
         super().__init__(**kwargs)
-        if value is not UNSET:
+        if value is not Undefined:
             self.value = value
-        if self._bound_value is not UNSET and "visible" not in kwargs:
+        if self._bound_value is not Undefined and "visible" not in kwargs:
             self.hide()
 
     def _post_init(self):
@@ -68,7 +68,7 @@ class ValueWidget(Widget):
     @property
     def value(self):
         """Return current value of the widget.  This may be interpreted by backends."""
-        if self._bound_value is not UNSET:
+        if self._bound_value is not Undefined:
             if callable(self._bound_value) and self._call_bound:
                 try:
                     return self._bound_value(self)
@@ -89,7 +89,7 @@ class ValueWidget(Widget):
     def __repr__(self) -> str:
         """Return representation of widget of instsance."""
         try:
-            val = self.value if self._bound_value is UNSET else self._bound_value
+            val = self.value if self._bound_value is Undefined else self._bound_value
             return (
                 f"{self.widget_type}(value={val!r}, "
                 f"annotation={self.annotation!r}, name={self.name!r})"
@@ -127,7 +127,7 @@ class ValueWidget(Widget):
 
     def unbind(self) -> None:
         """Unbinds any bound values. (see ``ValueWidget.bind``)."""
-        self._bound_value = UNSET
+        self._bound_value = Undefined
 
     @property
     def annotation(self):

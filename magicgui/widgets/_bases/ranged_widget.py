@@ -4,9 +4,10 @@ from math import ceil, log10
 from typing import Iterable, Tuple, Union, cast
 from warnings import warn
 
+from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import _protocols
 
-from .value_widget import UNSET, ValueWidget, _Unset
+from .value_widget import ValueWidget
 
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
@@ -30,9 +31,9 @@ class RangedWidget(ValueWidget):
 
     def __init__(
         self,
-        min: Union[float, _Unset] = UNSET,
-        max: Union[float, _Unset] = UNSET,
-        step: Union[float, _Unset, None] = UNSET,
+        min: Union[float, _Undefined] = Undefined,
+        max: Union[float, _Undefined] = Undefined,
+        step: Union[float, _Undefined, None] = Undefined,
         **kwargs,
     ):  # sourcery skip: avoid-builtin-shadow
         for key in ("maximum", "minimum"):
@@ -47,39 +48,39 @@ class RangedWidget(ValueWidget):
                 else:
                     min = kwargs.pop(key)
         # value should be set *after* min max is set
-        val = kwargs.pop("value", UNSET)
+        val = kwargs.pop("value", Undefined)
         super().__init__(**kwargs)
 
-        if step is UNSET or step is None:
+        if step is Undefined or step is None:
             self.step = None
             self._widget._mgui_set_step(1)
         else:
             self.step = cast(float, step)
 
         self.min, self.max = self._init_range(val, min, max)
-        if val not in (UNSET, None):
+        if val not in (Undefined, None):
             self.value = val
 
     def _init_range(
         self,
         value: Union[float, Tuple[float, ...]],
-        min: Union[float, _Unset],
-        max: Union[float, _Unset],
+        min: Union[float, _Undefined],
+        max: Union[float, _Undefined],
     ) -> Tuple[float, float]:
         """Return min and max based on given value and arguments.
 
         If min or max are unset, constrain so the given value is within the range.
         """
         val = value if isinstance(value, tuple) else (value,)
-        tmp_val = tuple(float(v) if v not in (UNSET, None) else 1 for v in val)
+        tmp_val = tuple(float(v) if v not in (Undefined, None) else 1 for v in val)
 
         new_min: float = (
             cast("float", min)
-            if min is not UNSET
+            if min is not Undefined
             else builtins.min(DEFAULT_MIN, *tmp_val)
         )
 
-        if max is UNSET:
+        if max is Undefined:
             t = 10.0 ** ceil(log10(builtins.max(0, *tmp_val) + 1))
             new_max = builtins.max(DEFAULT_MAX, t) - 1
         else:
