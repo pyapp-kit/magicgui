@@ -5,7 +5,8 @@ from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type, Union
 
-from typing_extensions import Literal, TypedDict
+from typing_extensions import TypedDict
+from typing import Literal
 
 if TYPE_CHECKING:
     from magicgui._type_wrapper import TypeWrapper

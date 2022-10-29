@@ -7,7 +7,8 @@ from dataclasses import dataclass, field
 from types import FunctionType
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Sequence, Union
 
-from typing_extensions import Annotated, Literal, TypeGuard, get_args, get_origin
+from typing_extensions import Annotated, TypeGuard, get_args, get_origin
+from typing import Literal
 
 from .types import JsonStringFormats, Undefined
 
