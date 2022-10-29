@@ -14,7 +14,6 @@ from typing import (
     Literal,
     Sequence,
     Union,
-    no_type_check,
 )
 
 from typing_extensions import Annotated, TypeGuard, get_args, get_origin
@@ -313,40 +312,6 @@ class UiField:
         ),
     )
 
-    @no_type_check
-    def create_widget(self, value=Undefined) -> ValueWidget:
-        """Create a new Widget for this field."""
-        from .type_map import get_widget_class
-
-        # field_name = ui_metadata.name
-        # wdg_kwargs = dict(ui_metadata.options)
-        # wdg_kwargs.setdefault("name", field_name)
-        # value = values.get(field_name, Undefined)
-        # new_widget = ui_metadata.widget(**wdg_kwargs)
-        # wdgs.append(new_widget)
-        # if value is not Undefined:
-        #     wdg_kwargs["value"] = value
-        value = value if value is not Undefined else self.get_default()
-        opts = {}
-        if self.enum:
-            opts["choices"] = self.enum
-        if self.widget:
-            opts["widget_type"] = self.widget
-        if self.nullable:
-            opts["nullable"] = True
-        # allow_multiple ?
-
-        cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
-
-        # widget kwargs:  FIXME: this is a mess
-        d = self.replace(_native_field=None).asdict(include_unset=False)
-        for k in ("default", "default_factory", "widget", "_original_annotation"):
-            d.pop(k, None)
-
-        d["annotation"] = d.pop("type")
-        kwargs.update(d)
-        return cls(**kwargs)
-
     def get_default(self) -> Any:
         """Return the default value for this field."""
         return (
@@ -415,6 +380,43 @@ class UiField:
             )
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)
+
+    def create_widget(self, value=Undefined) -> ValueWidget:
+        """Create a new Widget for this field."""
+        from .type_map import get_widget_class
+
+        # FIXME: this part needs a lot of work.
+        # This is the biggest challenge for integrating this new UiField idea
+        # (which tries to map nicely to existing schemas like JSON Schema)
+        # with the rest of the codebase, which used less "general" naming schemes.
+        _name_map = {
+            "name": "name",
+            "visible": "visible",
+            "nullable": "nullable",
+            "orientation": "orientation",
+            "type": "annotation",
+            "enum": "choices",
+            "title": "label",
+            "description": "tooltip",
+            "maximum": "max",
+            "minimum": "min",
+            # "title": "text",  # PushButton only
+            # "exclusive_maximum": "stop",  # RangeEdit only
+            # "minimum": "start", # RangeEdit only
+            "multiple_of": "step",
+            "widget": "widget_type",
+        }
+
+        d = self.replace(_native_field=None).asdict(include_unset=False)
+        opts = {_name_map[k]: v for k, v in d.items() if k in _name_map}
+        if "disabled" in d:
+            opts["enabled"] = not d["disabled"]
+
+        value = value if value is not Undefined else self.get_default()
+        cls, kwargs = get_widget_class(
+            value=value, annotation=self.type, options=opts  # type: ignore
+        )
+        return cls(**kwargs)  # type: ignore
 
 
 _UI_FIELD_NAMES: set[str] = set()
@@ -669,11 +671,17 @@ def iter_ui_fields(object: Any) -> Iterator[UiField]:
 def _build_widget(
     ui_fields: Sequence[UiField],
     values: Union[Mapping[str, Any], None] = None,
+    *,
+    container_kwargs: Union[Mapping, None] = None,
 ) -> ContainerWidget[ValueWidget]:
-
     from magicgui import widgets
 
-    values = values or {}
+    _v: dict = dict(values) if values is not None else {}
 
-    wdgs = [field.create_widget() for field in ui_fields]
-    return widgets.Container(widgets=wdgs)
+    return widgets.Container(
+        widgets=[
+            field.create_widget(value=_v.get(field.name, Undefined))
+            for field in ui_fields
+        ],
+        **(container_kwargs or {}),
+    )
