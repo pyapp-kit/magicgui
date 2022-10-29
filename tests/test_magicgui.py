@@ -380,7 +380,7 @@ def test_add_at_position(labels):
 
     gui = magicgui(func, labels=labels)
     assert get_layout_items(gui) == ["a", "b", "c", "call_button"]
-    gui.insert(1, widgets.create_widget(name="new"))
+    gui.insert(1, widgets.create_widget(name="new", raise_on_unknown=False))
     assert get_layout_items(gui) == ["a", "new", "b", "c", "call_button"]
 
 
@@ -752,7 +752,7 @@ def test_boolean_label():
 
 def test_none_defaults():
     """Make sure that an unannotated parameter with default=None is ok."""
-    assert widgets.create_widget(value=None).value is None
+    assert widgets.create_widget(value=None, raise_on_unknown=False).value is None
 
     def func(arg=None):
         return 1
@@ -849,3 +849,31 @@ def test_scrollable():
 
     assert test_nonscrollable.native is test_nonscrollable.root_native_widget
     assert not isinstance(test_nonscrollable.native, QScrollArea)
+
+
+def test_unknown_exception_magicgui():
+    """Test that an unknown type is raised as a RuntimeError."""
+
+    class A:
+        pass
+
+    with pytest.raises(ValueError, match="No widget found for type"):
+
+        @magicgui(raise_on_unknown=True)
+        def func(a: A):
+            print(a)
+
+
+def test_unknown_exception_create_widget():
+    """Test that an unknown type is raised as a RuntimeError."""
+
+    class A:
+        pass
+
+    with pytest.raises(ValueError, match="No widget found for type"):
+        widgets.create_widget(A, raise_on_unknown=True)
+    with pytest.raises(ValueError, match="No widget found for type"):
+        widgets.create_widget(A)
+    assert isinstance(
+        widgets.create_widget(A, raise_on_unknown=False), widgets.EmptyWidget
+    )

@@ -35,6 +35,7 @@ def magicgui(  # noqa
     main_window: Literal[False] = False,
     app: AppRef = None,
     persist: bool = False,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> FunctionGui[_R]: ...
 @overload  # noqa: E302
@@ -51,6 +52,7 @@ def magicgui(  # noqa
     main_window: Literal[False] = False,
     app: AppRef = None,
     persist: bool = False,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], FunctionGui[_R]]: ...
 @overload  # noqa: E302
@@ -67,6 +69,7 @@ def magicgui(  # noqa
     main_window: Literal[True],
     app: AppRef = None,
     persist: bool = False,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> MainFunctionGui[_R]: ...
 @overload  # noqa: E302
@@ -83,6 +86,7 @@ def magicgui(  # noqa
     main_window: Literal[True],
     app: AppRef = None,
     persist: bool = False,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MainFunctionGui[_R]]: ...
 @overload  # noqa: E302
@@ -100,6 +104,7 @@ def magic_factory(  # noqa
     app: AppRef = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> MagicFactory[FunctionGui[_R]]: ...
 @overload  # noqa: E302
@@ -117,6 +122,7 @@ def magic_factory(  # noqa
     app: AppRef = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MagicFactory[FunctionGui[_R]]]: ...
 @overload  # noqa: E302
@@ -134,6 +140,7 @@ def magic_factory(  # noqa
     app: AppRef = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> MagicFactory[MainFunctionGui[_R]]: ...
 @overload  # noqa: E302
@@ -151,5 +158,6 @@ def magic_factory(  # noqa
     app: AppRef = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MagicFactory[MainFunctionGui[_R]]]: ...

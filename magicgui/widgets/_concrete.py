@@ -770,7 +770,7 @@ class ListEdit(Container):
         # Value must be set after new widget is inserted because it could be
         # valid only after same parent is shared between widgets.
         if value is Undefined and i > 0:
-            value = self[i - 1].value  # type: ignore
+            value = self[i - 1].value
         if value is not Undefined:
             widget.value = value
 
@@ -809,7 +809,7 @@ class ListDataView(Generic[_V]):
 
     def __init__(self, obj: ListEdit):
         self._obj = obj
-        self._widgets: list[ValueWidget] = list(obj[:-2])  # type: ignore
+        self._widgets: list[ValueWidget] = list(obj[:-2])
 
     def __repr__(self):
         """Return list-like representation."""
@@ -937,7 +937,7 @@ class TupleEdit(Container):
 
     def __iter__(self) -> Iterator[ValueWidget]:
         """Just for typing."""
-        return super().__iter__()  # type: ignore
+        return super().__iter__()
 
     @property
     def annotation(self):
@@ -983,7 +983,7 @@ class TupleEdit(Container):
             raise ValueError("Length of tuple does not match.")
 
         for w, v in zip(self, vals):
-            w.value = v  # type: ignore
+            w.value = v
 
 
 class _LabeledWidget(Container):

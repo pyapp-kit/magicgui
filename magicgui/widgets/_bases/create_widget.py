@@ -24,6 +24,7 @@ def create_widget(
     widget_type: str | type[_protocols.WidgetProtocol] | None = None,
     options: WidgetOptions = dict(),
     is_result: bool = False,
+    raise_on_unknown: bool = True,
 ):
     """Create and return appropriate widget subclass.
 
@@ -63,6 +64,8 @@ def create_widget(
     is_result : boolean, optional
         Whether the widget belongs to an input or an output. By defult, an input
         is assumed.
+     raise_on_unknown : bool, optional
+        Raise exception if no widget is found for the given type, by default True
 
     Returns
     -------
@@ -78,6 +81,7 @@ def create_widget(
     options = options.copy()
     kwargs = locals().copy()
     _kind = kwargs.pop("param_kind", None)
+    kwargs.pop("raise_on_unknown")
     _is_result = kwargs.pop("is_result", None)
     _app = use_app(kwargs.pop("app"))
     assert _app.native
@@ -88,7 +92,9 @@ def create_widget(
 
         if widget_type:
             options["widget_type"] = widget_type
-        wdg_class, opts = get_widget_class(value, annotation, options, is_result)
+        wdg_class, opts = get_widget_class(
+            value, annotation, options, is_result, raise_on_unknown
+        )
 
         if issubclass(wdg_class, Widget):
             opts.update(kwargs.pop("options"))

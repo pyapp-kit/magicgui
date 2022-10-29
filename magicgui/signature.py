@@ -107,9 +107,11 @@ class MagicParameter(inspect.Parameter):
         default: Any = inspect.Parameter.empty,
         annotation: Any = inspect.Parameter.empty,
         gui_options: dict = None,
+        raise_on_unknown: bool = False,
     ):
         _annotation = make_annotated(annotation, gui_options)
         super().__init__(name, kind, default=default, annotation=_annotation)
+        self.raise_on_unknown = raise_on_unknown
 
     @property
     def options(self) -> WidgetOptions:
@@ -118,7 +120,7 @@ class MagicParameter(inspect.Parameter):
 
     def __repr__(self) -> str:
         """Return __repr__, replacing NoneType if present."""
-        rep = super().__repr__()[:-1] + f" {self.options}>"
+        rep = f"{super().__repr__()[:-1]} {self.options}>"
         rep = rep.replace(": NoneType = ", "=")
         return rep
 
@@ -143,6 +145,7 @@ class MagicParameter(inspect.Parameter):
             annotation=annotation,
             app=app,
             options=options,
+            raise_on_unknown=self.raise_on_unknown,
         )
         widget.param_kind = self.kind
         return widget
@@ -160,7 +163,10 @@ class MagicParameter(inspect.Parameter):
 
     @classmethod
     def from_parameter(
-        cls, param: inspect.Parameter, gui_options: dict = None
+        cls,
+        param: inspect.Parameter,
+        gui_options: dict = None,
+        raise_on_unknown: bool = False,
     ) -> MagicParameter:
         """Create MagicParameter from an inspect.Parameter."""
         if isinstance(param, MagicParameter):
@@ -171,6 +177,7 @@ class MagicParameter(inspect.Parameter):
             default=param.default,
             annotation=param.annotation,
             gui_options=gui_options,
+            raise_on_unknown=raise_on_unknown,
         )
 
 
@@ -197,15 +204,20 @@ class MagicSignature(inspect.Signature):
         *,
         return_annotation=inspect.Signature.empty,
         gui_options: dict[str, dict] = None,
+        raise_on_unknown: bool = False,
     ):
         params = [
-            MagicParameter.from_parameter(p, (gui_options or {}).get(p.name))
+            MagicParameter.from_parameter(
+                p, (gui_options or {}).get(p.name), raise_on_unknown
+            )
             for p in parameters or []
         ]
         super().__init__(params, return_annotation=return_annotation)
 
     @classmethod
-    def from_signature(cls, sig: inspect.Signature, gui_options=None) -> MagicSignature:
+    def from_signature(
+        cls, sig: inspect.Signature, gui_options=None, raise_on_unknown=False
+    ) -> MagicSignature:
         """Convert regular inspect.Signature to MagicSignature."""
         if type(sig) is cls:
             return cast(MagicSignature, sig)
@@ -215,6 +227,7 @@ class MagicSignature(inspect.Signature):
             list(sig.parameters.values()),
             return_annotation=sig.return_annotation,
             gui_options=gui_options,
+            raise_on_unknown=raise_on_unknown,
         )
 
     def widgets(self, app: AppRef = None) -> MappingProxyType:
@@ -253,7 +266,11 @@ class MagicSignature(inspect.Signature):
 
 
 def magic_signature(
-    obj: Callable, *, gui_options: dict[str, dict] = None, follow_wrapped: bool = True
+    obj: Callable,
+    *,
+    gui_options: dict[str, dict] = None,
+    follow_wrapped: bool = True,
+    raise_on_unknown: bool = False,
 ) -> MagicSignature:
     """Create a MagicSignature from a callable object.
 
@@ -269,6 +286,8 @@ def magic_signature(
         Will be passed to `MagicSignature.from_signature` by default None
     follow_wrapped : bool, optional
         passed to inspect.signature, by default True
+    raise_on_unknown : bool, optional
+        If True, raise an error if a parameter annotation is not recognized.
 
     Returns
     -------
@@ -296,4 +315,6 @@ def magic_signature(
             s = "s" if len(bad) > 1 else ""
             raise TypeError(f"Value for parameter{s} {bad} must be a dict")
 
-    return MagicSignature.from_signature(sig, gui_options=gui_options)
+    return MagicSignature.from_signature(
+        sig, gui_options=gui_options, raise_on_unknown=raise_on_unknown
+    )
