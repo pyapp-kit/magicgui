@@ -10,6 +10,7 @@ from typing import (
     ItemsView,
     Iterator,
     KeysView,
+    Literal,
     Mapping,
     MutableMapping,
     Sequence,
@@ -19,8 +20,6 @@ from typing import (
     overload,
 )
 from warnings import warn
-
-from typing_extensions import Literal
 
 from magicgui.application import use_app
 from magicgui.widgets._bases.mixins import _ReadOnlyMixin
