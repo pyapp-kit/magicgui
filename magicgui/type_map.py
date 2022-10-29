@@ -17,26 +17,30 @@ from typing import (
     Iterator,
     Literal,
     Optional,
+    Sequence,
+    Set,
     Type,
     TypeVar,
     cast,
     overload,
 )
 
-from typing_extensions import get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui import widgets
 from magicgui.types import (
     PathLike,
     ReturnCallback,
+    Undefined,
     WidgetClass,
     WidgetOptions,
     WidgetRef,
     WidgetTuple,
+    _Undefined,
 )
 from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
-from ._type_wrapper import TypeWrapper, resolve_annotation
+from ._type_resolution import resolve_single_type
 
 __all__: list[str] = ["register_type", "get_widget_class"]
 
@@ -77,42 +81,49 @@ _SIMPLE_TYPES = {
 }
 
 
-def match_type(tw: TypeWrapper) -> WidgetTuple | None:
+def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
     """Check simple type mappings."""
-    _type = tw.outer_type_
+    if type_ in _SIMPLE_ANNOTATIONS:
+        return _SIMPLE_ANNOTATIONS[type_], {}
 
-    if _type in _SIMPLE_ANNOTATIONS:
-        return _SIMPLE_ANNOTATIONS[_type], {}
-
-    if _type is widgets.ProgressBar:
+    if type_ is widgets.ProgressBar:
         return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
 
-    if _type in _SIMPLE_TYPES:
-        return _SIMPLE_TYPES[_type], {}
+    if type_ in _SIMPLE_TYPES:
+        return _SIMPLE_TYPES[type_], {}
     for key in _SIMPLE_TYPES.keys():
-        if tw.is_subclass(key):
+        if _is_subclass(type_, key):
             return _SIMPLE_TYPES[key], {}
 
-    if _type in (types.FunctionType,):
-        return widgets.FunctionGui, {"function": tw.default}  # type: ignore
+    if type_ in (types.FunctionType,):
+        return widgets.FunctionGui, {"function": default}  # type: ignore
 
-    if tw.shape in tw.SHAPE.SEQUENCE_LIKE:
-        if _is_subclass(tw.type_, pathlib.Path):
-            # sequence of paths
+    origin = get_origin(type_) or type_
+    if origin is Literal:
+        choices = []
+        nullable = False
+        for choice in get_args(type_):
+            if choice is None:
+                nullable = True
+            else:
+                choices.append(choice)
+        return widgets.ComboBox, {"choices": choices, "nullable": nullable}
+
+    # sequence of paths
+    if _is_subclass(origin, Sequence):
+        args = get_args(type_)
+        if len(args) == 1 and _is_subclass(args[0], pathlib.Path):
             return widgets.FileEdit, {"mode": "rm"}
-        elif tw.shape == tw.SHAPE.LIST:
+        elif _is_subclass(origin, list):
             return widgets.ListEdit, {}
-        elif tw.shape == tw.SHAPE.TUPLE:
+        elif _is_subclass(origin, tuple):
             return widgets.TupleEdit, {}
 
-    if tw.shape == tw.SHAPE.SET:
-        if len(_type.__args__) > 0:
-            arg = _type.__args__[0]
+    if _is_subclass(origin, Set):
+        for arg in get_args(type_):
             if get_origin(arg) is Literal:
-                return widgets.Select, {"choices": arg.__args__}
+                return widgets.Select, {"choices": get_args(arg)}
 
-    if get_origin(_type) is Literal:
-        return widgets.ComboBox, {"choices": _type.__args__}
     return None
 
 
@@ -130,48 +141,83 @@ _SIMPLE_RETURN_TYPES = [
 ]
 
 
-def match_return_type(tw: TypeWrapper) -> WidgetTuple | None:
+def match_return_type(type_: Any) -> WidgetTuple | None:
     """Check simple type mappings for result widgets."""
-    import sys
-
-    if tw.outer_type_ in _SIMPLE_TYPES:
+    if type_ in _SIMPLE_TYPES:
         return widgets.LineEdit, {"gui_only": True}
 
-    if tw.outer_type_ is widgets.Table:
+    if type_ is widgets.Table:
         return widgets.Table, {}
 
     table_types = [
-        resolve_annotation(x, sys.modules)
-        for x in ("pandas.DataFrame", "numpy.ndarray")
+        resolve_single_type(x) for x in ("pandas.DataFrame", "numpy.ndarray")
     ]
 
-    if any(tw.is_subclass(tt) for tt in table_types if not isinstance(tt, ForwardRef)):
+    if any(
+        _is_subclass(type_, tt) for tt in table_types if not isinstance(tt, ForwardRef)
+    ):
         return widgets.Table, {}
 
     return None
 
 
+def _is_none_type(type_: Any) -> bool:
+    return any(type_ is x for x in {None, type(None), Literal[None]})
+
+
+def _type_optional(
+    default: Any = Undefined,
+    annotation: type[Any] | _Undefined = Undefined,
+) -> tuple[Any, bool]:
+    type_ = annotation
+    if annotation in (Undefined, None, inspect.Parameter.empty):
+        if default is not Undefined:
+            type_ = type(default)
+    else:
+        try:
+            type_ = resolve_single_type(annotation)
+        except (NameError, ImportError) as e:
+            raise type(e)(f"Magicgui could not resolve {annotation}: {e}") from e
+
+    # look for Optional[Type], which manifests as Union[Type, None]
+    nullable = default is None
+    if type_ is not Undefined:
+        args = get_args(type_)
+        for arg in args:
+            if _is_none_type(arg) or arg is Any or arg is object:
+                nullable = True
+                if len(args) == 2:
+                    type_ = next(i for i in args if i is not arg)
+                break
+
+    return type_, nullable
+
+
 def pick_widget_type(
-    value: Any = None,
-    annotation: type[Any] | None = None,
+    value: Any = Undefined,
+    annotation: Any = Undefined,
     options: WidgetOptions | None = None,
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
+    options = options or {}
+    choices = options.get("choices")
+
     if is_result and annotation is inspect.Parameter.empty:
         annotation = str
-    try:
-        tw = TypeWrapper(annotation, value)
-    except ValueError:
-        if value is None:
-            return widgets.EmptyWidget, {"visible": False}
-        raise
-    tw.resolve()
-    _type = tw.outer_type_
-    options = options or {}
-    options.setdefault("nullable", not tw.required)
-    choices = options.get("choices") or (isinstance(_type, EnumMeta) and _type)
+
+    if (
+        value is Undefined
+        and annotation in (Undefined, inspect.Parameter.empty)
+        and not choices
+        and "widget_type" not in options
+    ):
+        return widgets.EmptyWidget, {"visible": False, **options}  # type: ignore
+
+    _type, optional = _type_optional(value, annotation)
+    options.setdefault("nullable", optional)
+    choices = choices or (isinstance(_type, EnumMeta) and _type)  # type: ignore
 
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
@@ -179,7 +225,7 @@ def pick_widget_type(
             if widget_type == "RadioButton":
                 widget_type = "RadioButtons"
                 warnings.warn(
-                    f"widget_type of 'RadioButton' (with dtype {tw._type_display()}) is"
+                    f"widget_type of 'RadioButton' (with dtype {_type}) is"
                     " being coerced to 'RadioButtons' due to choices or Enum type.",
                     stacklevel=2,
                 )
@@ -188,12 +234,12 @@ def pick_widget_type(
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
-        if _type == registered_type or tw.is_subclass(registered_type):
+        if _type == registered_type or _is_subclass(_type, registered_type):
             _cls, opts = _TYPE_DEFS[registered_type]
             return _cls, {**options, **opts}  # type: ignore
 
     if is_result:
-        _widget_type = match_return_type(tw)
+        _widget_type = match_return_type(_type)
         if _widget_type:
             _cls, opts = _widget_type
             return _cls, {**options, **opts}  # type: ignore
@@ -205,7 +251,7 @@ def pick_widget_type(
         wdg = widgets.Select if options.get("allow_multiple") else widgets.ComboBox
         return wdg, options
 
-    _widget_type = match_type(tw)
+    _widget_type = match_type(_type, value)
     if _widget_type:
         _cls, opts = _widget_type
         return _cls, {**options, **opts}  # type: ignore
@@ -219,8 +265,8 @@ def pick_widget_type(
 
 
 def get_widget_class(
-    value: Any = None,
-    annotation: type[Any] | None = None,
+    value: Any = Undefined,
+    annotation: Any = Undefined,
     options: WidgetOptions | None = None,
     is_result: bool = False,
     raise_on_unknown: bool = True,
@@ -356,9 +402,7 @@ def register_type(
         )
 
     def _deco(type_):
-        tw = TypeWrapper(type_)
-        tw.resolve()
-        _type_ = tw.outer_type_
+        _type_ = resolve_single_type(type_)
 
         if return_callback is not None:
             _validate_return_callback(return_callback)
@@ -422,16 +466,14 @@ def type_registered(
     **options
         key value pairs where the keys are valid `WidgetOptions`
     """
-    tw = TypeWrapper(type_)
-    tw.resolve()
-    _type_ = tw.outer_type_
+    _type_ = resolve_single_type(type_)
 
     # check if return_callback is already registered
     rc_was_present = return_callback in _RETURN_CALLBACKS.get(_type_, [])
     # store any previous widget_type and options for this type
     prev_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
     _type_ = register_type(
-        type_, widget_type=widget_type, return_callback=return_callback, **options
+        _type_, widget_type=widget_type, return_callback=return_callback, **options
     )
     new_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
     try:
@@ -467,13 +509,12 @@ def _type2callback(type_: type) -> list[ReturnCallback]:
         return []
 
     # look for direct hits
-    tw = TypeWrapper(type_)
-    tw.resolve()
-    if tw.outer_type_ in _RETURN_CALLBACKS:
-        return _RETURN_CALLBACKS[tw.outer_type_]
+    type_ = resolve_single_type(type_)
+    if type_ in _RETURN_CALLBACKS:
+        return _RETURN_CALLBACKS[type_]
 
     # look for subclasses
     for registered_type in _RETURN_CALLBACKS:
-        if tw.is_subclass(registered_type):
+        if _is_subclass(type_, registered_type):
             return _RETURN_CALLBACKS[registered_type]
     return []

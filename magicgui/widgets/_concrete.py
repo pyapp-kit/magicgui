@@ -27,12 +27,14 @@ from weakref import ref
 from docstring_parser import DocstringParam, parse
 from typing_extensions import get_args, get_origin
 
+from magicgui._type_resolution import resolve_single_type
 from magicgui.application import use_app
 from magicgui.types import FileDialogMode, PathLike, WidgetOptions
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases.container_widget import DialogWidget
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
 
+from ..types import Undefined, _Undefined
 from ._bases import (
     ButtonWidget,
     CategoricalWidget,
@@ -46,7 +48,6 @@ from ._bases import (
     Widget,
     create_widget,
 )
-from ._bases.value_widget import UNSET, _Unset
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
@@ -583,7 +584,7 @@ class RangeEdit(Container):
         **kwargs,
     ):
         value = kwargs.pop("value", None)
-        if value is not None and value is not UNSET:
+        if value is not None and value is not Undefined:
             if not all(hasattr(value, x) for x in ("start", "stop", "step")):
                 raise TypeError(f"Invalid value type for {type(self)}: {type(value)}")
             start, stop, step = value.start, value.stop, value.step
@@ -672,7 +673,7 @@ class ListEdit(Container):
 
     def __init__(
         self,
-        value: Iterable[_V] | _Unset = UNSET,
+        value: Iterable[_V] | _Undefined = Undefined,
         layout: str = "horizontal",
         nullable: bool = False,
         options: WidgetOptions = None,
@@ -683,7 +684,7 @@ class ListEdit(Container):
         super().__init__(layout=layout, labels=False, **kwargs)
         self.margins = (0, 0, 0, 0)
 
-        if not isinstance(value, _Unset):
+        if not isinstance(value, _Undefined):
             # check type consistency
             types = {type(a) for a in value}
             if len(types) <= 1:
@@ -732,9 +733,7 @@ class ListEdit(Container):
             self._args_type = None
             return
 
-        from .._type_wrapper import resolve_annotation
-
-        value = resolve_annotation(value)
+        value = resolve_single_type(value)
         arg: type | None = None
 
         if value and value is not inspect.Parameter.empty:
@@ -754,7 +753,7 @@ class ListEdit(Container):
         self._annotation = value
         self._args_type = arg
 
-    def _append_value(self, value=UNSET):
+    def _append_value(self, value=Undefined):
         """Create a new child value widget and append it."""
         i = len(self) - 2
 
@@ -771,9 +770,9 @@ class ListEdit(Container):
 
         # Value must be set after new widget is inserted because it could be
         # valid only after same parent is shared between widgets.
-        if value is UNSET and i > 0:
+        if value is Undefined and i > 0:
             value = self[i - 1].value  # type: ignore
-        if value is not UNSET:
+        if value is not Undefined:
             widget.value = value
 
     def _pop_value(self):
@@ -903,7 +902,7 @@ class TupleEdit(Container):
 
     def __init__(
         self,
-        value: Iterable[_V] | _Unset = UNSET,
+        value: Iterable[_V] | _Undefined = Undefined,
         layout: str = "horizontal",
         nullable: bool = False,
         options: WidgetOptions = None,
@@ -915,12 +914,12 @@ class TupleEdit(Container):
         self._child_options = options or {}
         self.margins = (0, 0, 0, 0)
 
-        if not isinstance(value, _Unset):
+        if not isinstance(value, _Undefined):
             if self._args_types is None:
                 self._args_types = tuple(type(a) for a in value)
             _value: Iterable[Any] = value
         elif self._args_types is not None:
-            _value = (UNSET,) * len(self._args_types)
+            _value = (Undefined,) * len(self._args_types)
         else:
             raise ValueError(
                 "Either 'value' or 'annotation' must be specified in "
@@ -956,9 +955,8 @@ class TupleEdit(Container):
             self._annotation = None
             self._args_types = None
             return
-        from .._type_wrapper import resolve_annotation
 
-        value = resolve_annotation(value)
+        value = resolve_single_type(value)
         args: tuple[type, ...] | None = None
 
         if value and value is not inspect.Parameter.empty:

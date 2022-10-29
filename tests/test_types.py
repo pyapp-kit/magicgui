@@ -6,6 +6,7 @@ from unittest.mock import Mock
 import pytest
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
+from magicgui._type_resolution import resolve_single_type
 from magicgui.type_map import _RETURN_CALLBACKS
 
 
@@ -106,6 +107,17 @@ def test_widget_options():
     choice3 = widgets.create_widget(annotation=E)
     assert choice1._nullable is choice3._nullable is False
     assert choice2._nullable is True
+
+
+def test_nested_forward_refs():
+
+    resolved = resolve_single_type(Optional['List["numpy.ndarray"]'])  # noqa
+
+    from typing import List
+
+    import numpy as np
+
+    assert resolved == Optional[List[np.ndarray]]
 
 
 def test_type_registered():

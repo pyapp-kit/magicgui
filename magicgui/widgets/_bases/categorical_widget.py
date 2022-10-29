@@ -93,7 +93,9 @@ class CategoricalWidget(ValueWidget):
     def choices(self):
         """Available value choices for this widget."""
         _choices = tuple(i[1] for i in self._widget._mgui_get_choices())
-        return _choices + (None,) if self._nullable else _choices
+        if self._nullable and None not in _choices:
+            return _choices + (None,)
+        return _choices
 
     @choices.setter
     def choices(self, choices: ChoicesType):

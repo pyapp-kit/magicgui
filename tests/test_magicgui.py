@@ -78,6 +78,13 @@ def test_overriding_widget_type():
     assert isinstance(func.a, widgets.LineEdit)
     assert func.a.value == "1"
 
+    # also without type annotation
+    @magicgui(a={"widget_type": "LogSlider"})
+    def g(a):
+        ...
+
+    assert isinstance(g.a, widgets.LogSlider)
+
 
 def test_unrecognized_types():
     """Test that arg with an unrecognized type is hidden."""
@@ -745,7 +752,7 @@ def test_boolean_label():
 
 def test_none_defaults():
     """Make sure that an unannotated parameter with default=None is ok."""
-    assert widgets.create_widget(value=None).value is None
+    assert widgets.create_widget(value=None, raise_on_unknown=False).value is None
 
     def func(arg=None):
         return 1
