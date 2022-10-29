@@ -16,6 +16,7 @@ from typing import (
     Generic,
     Iterable,
     Iterator,
+    Literal,
     Sequence,
     Tuple,
     TypeVar,
@@ -24,7 +25,7 @@ from typing import (
 from weakref import ref
 
 from docstring_parser import DocstringParam, parse
-from typing_extensions import Literal, get_args, get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import use_app

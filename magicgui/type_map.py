@@ -15,6 +15,7 @@ from typing import (
     DefaultDict,
     ForwardRef,
     Iterator,
+    Literal,
     Optional,
     Sequence,
     Set,
@@ -24,7 +25,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import Literal, get_args, get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui import widgets
 from magicgui.types import (
