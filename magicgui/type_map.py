@@ -33,7 +33,6 @@ from magicgui.types import (
     ReturnCallback,
     Undefined,
     WidgetClass,
-    WidgetOptions,
     WidgetRef,
     WidgetTuple,
     _Undefined,
@@ -96,7 +95,7 @@ def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
             return _SIMPLE_TYPES[key], {}
 
     if type_ in (types.FunctionType,):
-        return widgets.FunctionGui, {"function": default}  # type: ignore
+        return widgets.FunctionGui, {"function": default}
 
     origin = get_origin(type_) or type_
     if origin is Literal:
@@ -196,7 +195,7 @@ def _type_optional(
 def pick_widget_type(
     value: Any = Undefined,
     annotation: Any = Undefined,
-    options: WidgetOptions | None = None,
+    options: dict | None = None,
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ) -> WidgetTuple:
@@ -213,11 +212,11 @@ def pick_widget_type(
         and not choices
         and "widget_type" not in options
     ):
-        return widgets.EmptyWidget, {"visible": False, **options}  # type: ignore
+        return widgets.EmptyWidget, {"visible": False, **options}
 
     _type, optional = _type_optional(value, annotation)
     options.setdefault("nullable", optional)
-    choices = choices or (isinstance(_type, EnumMeta) and _type)  # type: ignore
+    choices = choices or (isinstance(_type, EnumMeta) and _type)
 
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
@@ -236,13 +235,13 @@ def pick_widget_type(
     for registered_type in _TYPE_DEFS:
         if _type == registered_type or _is_subclass(_type, registered_type):
             _cls, opts = _TYPE_DEFS[registered_type]
-            return _cls, {**options, **opts}  # type: ignore
+            return _cls, {**options, **opts}
 
     if is_result:
         _widget_type = match_return_type(_type)
         if _widget_type:
             _cls, opts = _widget_type
-            return _cls, {**options, **opts}  # type: ignore
+            return _cls, {**options, **opts}
         # Chosen for backwards/test compatibility
         return widgets.LineEdit, {"gui_only": True}
 
@@ -254,7 +253,7 @@ def pick_widget_type(
     _widget_type = match_type(_type, value)
     if _widget_type:
         _cls, opts = _widget_type
-        return _cls, {**options, **opts}  # type: ignore
+        return _cls, {**options, **opts}
 
     if raise_on_unknown:
         raise ValueError(
@@ -267,10 +266,10 @@ def pick_widget_type(
 def get_widget_class(
     value: Any = Undefined,
     annotation: Any = Undefined,
-    options: WidgetOptions | None = None,
+    options: dict | None = None,
     is_result: bool = False,
     raise_on_unknown: bool = True,
-) -> tuple[WidgetClass, WidgetOptions]:
+) -> tuple[WidgetClass, dict]:
     """Return a WidgetClass appropriate for the given parameters.
 
     Parameters
@@ -280,7 +279,7 @@ def get_widget_class(
         is not explicitly provided by default None
     annotation : Optional[Type], optional
         A type annotation, by default None
-    options : WidgetOptions, optional
+    options : dict, optional
         Options to pass when constructing the widget, by default {}
     is_result : bool, optional
         Identifies whether the returned widget should be tailored to
@@ -290,14 +289,12 @@ def get_widget_class(
 
     Returns
     -------
-    Tuple[WidgetClass, WidgetOptions]
-        The WidgetClass, and WidgetOptions that can be used for params. WidgetOptions
+    Tuple[WidgetClass, dict]
+        The WidgetClass, and dict that can be used for params. dict
         may be different than the options passed in.
     """
-    _options = cast(WidgetOptions, options)
-
     widget_type, _options = pick_widget_type(
-        value, annotation, _options, is_result, raise_on_unknown
+        value, annotation, options, is_result, raise_on_unknown
     )
 
     if isinstance(widget_type, str):
@@ -380,7 +377,7 @@ def register_type(
         whenever the decorated function is called... where ``widget`` is the Widget
         instance, and ``value`` is the return value of the decorated function.
     **options
-        key value pairs where the keys are valid `WidgetOptions`
+        key value pairs where the keys are valid `dict`
 
     Raises
     ------
@@ -408,7 +405,7 @@ def register_type(
             _validate_return_callback(return_callback)
             _RETURN_CALLBACKS[_type_].append(return_callback)
 
-        _options = cast(WidgetOptions, options)
+        _options = cast(dict, options)
 
         if "choices" in _options:
             _TYPE_DEFS[_type_] = (widgets.ComboBox, _options)
@@ -464,7 +461,7 @@ def type_registered(
         whenever the decorated function is called... where ``widget`` is the Widget
         instance, and ``value`` is the return value of the decorated function.
     **options
-        key value pairs where the keys are valid `WidgetOptions`
+        key value pairs where the keys are valid `dict`
     """
     _type_ = resolve_single_type(type_)
 
