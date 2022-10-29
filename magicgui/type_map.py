@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime
 import inspect
 import pathlib
+import sys
 import types
 import warnings
 from collections import defaultdict
@@ -112,6 +113,11 @@ def match_type(tw: TypeWrapper) -> WidgetTuple | None:
 
     if get_origin(_type) is Literal:
         return widgets.ComboBox, {"choices": _type.__args__}
+
+    pint = sys.modules.get("pint")
+    if pint and tw.is_subclass(pint.Quantity):
+        return widgets.QuantityEdit, {}
+
     return None
 
 
