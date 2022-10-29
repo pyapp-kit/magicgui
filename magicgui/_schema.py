@@ -5,10 +5,19 @@ import sys
 import warnings
 from dataclasses import dataclass, field
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, Sequence, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    Literal,
+    Sequence,
+    Union,
+    no_type_check,
+)
 
 from typing_extensions import Annotated, TypeGuard, get_args, get_origin
-from typing import Literal
 
 from .types import JsonStringFormats, Undefined
 
@@ -29,12 +38,10 @@ if TYPE_CHECKING:
         __attrs_attrs__: tuple[attrs.Attribute, ...]
 
 
-_dc_kwargs = {"frozen": True}
-if sys.version_info >= (3, 10):
-    _dc_kwargs["slots"] = True
+SLOTS = {"slots": True} if sys.version_info >= (3, 10) else {}
 
 
-@dataclass(**_dc_kwargs)
+@dataclass(frozen=True, **SLOTS)
 class UiField:
     """Metadata about a specific widget in a GUI."""
 
@@ -306,7 +313,9 @@ class UiField:
         ),
     )
 
-    def create(self, value=Undefined) -> ValueWidget:
+    @no_type_check
+    def create_widget(self, value=Undefined) -> ValueWidget:
+        """Create a new Widget for this field."""
         from .type_map import get_widget_class
 
         # field_name = ui_metadata.name
@@ -411,6 +420,8 @@ class UiField:
 _UI_FIELD_NAMES: set[str] = set()
 _UI_FIELD_ALIASES: Dict[str, str] = {}
 
+# gather up all the aliases for the UiField fields
+# so we can use them in _rename_aliases
 for field_info in dc.fields(UiField):
     _UI_FIELD_NAMES.add(field_info.name)
     for alias in field_info.metadata.get("aliases", []):
@@ -418,11 +429,12 @@ for field_info in dc.fields(UiField):
 
 
 def _rename_aliases(input: dict[str, Any]) -> dict[str, Any]:
-    """Rename any aliases in the input dict."""
+    """Rename any aliases in the input dict to their accepted names."""
     return {_UI_FIELD_ALIASES.get(k, k): v for k, v in input.items()}
 
 
 def _uikwargs_from_annotated_type(hint: Any) -> Dict[str, Any]:
+    """Convert an Annotated type to a dict of UiField kwargs."""
     # hint must be an Annotated[...] type
 
     annotated_types = sys.modules.get("annotated_types")
@@ -495,6 +507,7 @@ def _uifield_from_attrs(field: Attribute) -> UiField:
 
 
 def _uifield_from_pydantic(model_field: ModelField) -> UiField:
+    """Create a UiField from a pydantic ModelField."""
     from pydantic.fields import SHAPE_SINGLETON
     from pydantic.fields import Undefined as PydanticUndefined
 
@@ -662,5 +675,5 @@ def _build_widget(
 
     values = values or {}
 
-    wdgs = [field.create() for field in ui_fields]
+    wdgs = [field.create_widget() for field in ui_fields]
     return widgets.Container(widgets=wdgs)

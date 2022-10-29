@@ -1,7 +1,6 @@
+from dataclasses import dataclass, field
 from typing import NamedTuple, Optional
 
-import attrs
-import pydantic
 import pytest
 from typing_extensions import Annotated, TypedDict
 
@@ -24,6 +23,9 @@ def _assert_uifields(cls, instantiate=True):
 
 
 def test_attrs_descriptor():
+
+    attrs = pytest.importorskip("attrs")
+
     @attrs.define
     class Foo:
         a: Optional[int]
@@ -34,8 +36,6 @@ def test_attrs_descriptor():
 
 
 def test_dataclass():
-    from dataclasses import dataclass, field
-
     @dataclass
     class Foo:
         a: Optional[int]
@@ -46,6 +46,8 @@ def test_dataclass():
 
 
 def test_pydantic():
+    pydantic = pytest.importorskip("pydantic")
+
     class Foo(pydantic.BaseModel):
         a: Optional[int]
         b: str = pydantic.Field(description="the b")
@@ -55,6 +57,8 @@ def test_pydantic():
 
 
 def test_pydantic_dataclass():
+    pydantic = pytest.importorskip("pydantic")
+
     @pydantic.dataclasses.dataclass
     class Foo:
         a: Optional[int]
@@ -114,6 +118,8 @@ def test_annotated():
 
 
 def test_annotated_types_lib():
+    pytest.importorskip("annotated_types")
+
     from annotated_types import Ge, Gt, Interval, Le, Len, Lt, MultipleOf, __version__
 
     from magicgui._schema import _uikwargs_from_annotated_type as uikwargs
