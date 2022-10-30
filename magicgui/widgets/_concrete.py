@@ -29,7 +29,7 @@ from typing_extensions import get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import use_app
-from magicgui.types import FileDialogMode, PathLike, WidgetOptions
+from magicgui.types import FileDialogMode, PathLike
 from magicgui.widgets import _protocols
 from magicgui.widgets._bases.container_widget import DialogWidget
 from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
@@ -667,7 +667,7 @@ class ListEdit(Container):
 
     Parameters
     ----------
-    options: WidgetOptions, optional
+    options: dict, optional
         Widget options of child widgets.
     """
 
@@ -676,7 +676,7 @@ class ListEdit(Container):
         value: Iterable[_V] | _Undefined = Undefined,
         layout: str = "horizontal",
         nullable: bool = False,
-        options: WidgetOptions = None,
+        options: dict | None = None,
         **kwargs,
     ):
         self._args_type: type | None = None
@@ -687,11 +687,10 @@ class ListEdit(Container):
         if not isinstance(value, _Undefined):
             # check type consistency
             types = {type(a) for a in value}
-            if len(types) <= 1:
-                if self._args_type is None:
-                    self._args_type = types.pop()
-            else:
+            if len(types) > 1:
                 raise TypeError("values have inconsistent types.")
+            if self._args_type is None:
+                self._args_type = types.pop()
             _value: Iterable[_V] = value
         else:
             _value = []
@@ -896,7 +895,7 @@ class TupleEdit(Container):
 
     Parameters
     ----------
-    options: WidgetOptions, optional
+    options: dict, optional
         Widget options of child widgets.
     """
 
@@ -905,7 +904,7 @@ class TupleEdit(Container):
         value: Iterable[_V] | _Undefined = Undefined,
         layout: str = "horizontal",
         nullable: bool = False,
-        options: WidgetOptions = None,
+        options: dict | None = None,
         **kwargs,
     ):
         self._nullable = nullable
