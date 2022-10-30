@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 import inspect
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from magicgui.application import use_app
 from magicgui.types import Undefined
 from magicgui.widgets import _bases, _protocols
 
 from .widget import Widget
-
-if TYPE_CHECKING:
-    from magicgui.types import WidgetOptions
 
 
 def create_widget(
@@ -22,7 +19,7 @@ def create_widget(
     gui_only=False,
     app=None,
     widget_type: str | type[_protocols.WidgetProtocol] | None = None,
-    options: WidgetOptions = dict(),
+    options: dict = dict(),
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ):
@@ -59,7 +56,7 @@ def create_widget(
         magicgui widget type (e.g. "Label", "PushButton", etc...).
         If provided, this widget type will be used instead of the type
         autodetermined from ``value`` and/or ``annotation`` above.
-    options : WidgetOptions, optional
+    options : dict, optional
         Dict of options to pass to the Widget constructor, by default dict()
     is_result : boolean, optional
         Whether the widget belongs to an input or an output. By defult, an input
