@@ -494,13 +494,18 @@ def test_progressbar():
 
     @magicgui(pbar={"min": 20, "max": 40, "step": 2, "value": 30})
     def t(pbar: widgets.ProgressBar):
-        assert pbar.get_value() == 32
-        pbar.decrement()
         assert pbar.get_value() == 30
+        pbar.decrement()
+        assert pbar.get_value() == 28
         pbar.step = 5
-        assert pbar.get_value() == 35
+        assert pbar.get_value() == 28
+        pbar.increment()
+        assert pbar.get_value() == 33
         pbar.decrement(10)
-        assert pbar.get_value() == 25
+        assert pbar.get_value() == 23
+        return pbar.get_value()
+
+    assert t() == 23
 
 
 def test_container_indexing_with_native_mucking():
