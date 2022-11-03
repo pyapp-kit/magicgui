@@ -15,13 +15,11 @@ EXPECTED = (
 
 
 def _assert_uifields(cls, instantiate=True):
-    fields = tuple(iter_ui_fields(cls))
-    assert fields == EXPECTED
+    assert tuple(iter_ui_fields(cls)) == EXPECTED
     assert isinstance(build_widget(cls), Container)
     if instantiate:
         instance = cls(a=1, b="hi")
-        fields2 = tuple(iter_ui_fields(instance))
-        assert fields2 == EXPECTED
+        assert tuple(iter_ui_fields(instance)) == EXPECTED
         assert isinstance(build_widget(instance), Container)
 
 
