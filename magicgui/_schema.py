@@ -11,11 +11,10 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    Iterable,
     Iterator,
     Literal,
     Optional,
-    Sequence,
-    Type,
     TypeVar,
     Union,
 )
@@ -105,7 +104,7 @@ class UiField(Generic[T]):
 
     # Keywords for Any Instance Type
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-any
-    type: Type[T] = field(  # type: ignore
+    type: object = field(
         default=None, metadata=dict(description="The type annotation of the field.")
     )
     enum: list[T] | None = field(
@@ -390,6 +389,7 @@ class UiField(Generic[T]):
         """Create a new Widget for this field."""
         from .type_map import get_widget_class
 
+        # Map uifield names to widget kwargs
         # FIXME: this part needs a lot of work.
         # This is the biggest challenge for integrating this new UiField idea
         # (which tries to map nicely to existing schemas like JSON Schema)
@@ -626,7 +626,7 @@ def _ui_fields_from_annotation(cls) -> Iterator[UiField]:
     for name in field_names:
         field = UiField(
             name=name,
-            type=annotations.get(name),  # type: ignore
+            type=annotations.get(name),
             default=defaults.get(name, Undefined),
         )
         yield field.parse_annotated()
@@ -671,8 +671,8 @@ def iter_ui_fields(object: Any) -> Iterator[UiField]:
     )  # pragma: no cover
 
 
-def _build_widget(
-    ui_fields: Sequence[UiField],
+def _uifields_to_container(
+    ui_fields: Iterable[UiField],
     values: Union[Mapping[str, Any], None] = None,
     *,
     container_kwargs: Union[Mapping, None] = None,
@@ -688,3 +688,8 @@ def _build_widget(
         ],
         **(container_kwargs or {}),
     )
+
+
+def build_widget(cls_or_instance) -> ContainerWidget[ValueWidget]:
+    """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
+    return _uifields_to_container(iter_ui_fields(cls_or_instance))

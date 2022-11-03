@@ -4,7 +4,8 @@ from typing import NamedTuple, Optional
 import pytest
 from typing_extensions import Annotated, TypedDict
 
-from magicgui._schema import UiField, _build_widget, iter_ui_fields
+from magicgui._schema import UiField, build_widget, iter_ui_fields
+from magicgui.widgets import Container
 
 EXPECTED = (
     UiField(name="a", type=int, nullable=True),
@@ -16,10 +17,12 @@ EXPECTED = (
 def _assert_uifields(cls, instantiate=True):
     fields = tuple(iter_ui_fields(cls))
     assert fields == EXPECTED
-    _build_widget(fields)
+    assert isinstance(build_widget(cls), Container)
     if instantiate:
-        fields2 = tuple(iter_ui_fields(cls(a=1, b="hi")))
+        instance = cls(a=1, b="hi")
+        fields2 = tuple(iter_ui_fields(instance))
         assert fields2 == EXPECTED
+        assert isinstance(build_widget(instance), Container)
 
 
 def test_attrs_descriptor():
@@ -83,6 +86,7 @@ def test_typed_dict():
         b: Annotated[str, UiField(description="the b")]
         c: Annotated[float, UiField(default=0.0, widget="FloatSlider")]
 
+    # instantiaed TypedDicts are plain dicts that don't remember their annotations
     _assert_uifields(Foo, instantiate=False)
 
 
@@ -94,6 +98,7 @@ def test_function():
     ):
         ...
 
+    # makes to sense to instantiate a function
     _assert_uifields(foo, instantiate=False)
 
 
@@ -153,7 +158,7 @@ def test_annotated_types_lib():
 
 
 def test_resolved_type():
-    f = UiField(type=Annotated["int", UiField(minimum=0)])
+    f: UiField[int] = UiField(type=Annotated["int", UiField(minimum=0)])
     assert f.resolved_type is int
 
     f = UiField(type="int")
