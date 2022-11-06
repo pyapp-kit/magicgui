@@ -738,16 +738,13 @@ class ListEdit(Container):
         if value and value is not inspect.Parameter.empty:
             from magicgui.type_map import _is_subclass
 
-            orig = get_origin(value)
+            orig = get_origin(value) or value
             if not (_is_subclass(orig, list) or isinstance(orig, list)):
                 raise TypeError(
                     f"cannot set annotation {value} to {type(self).__name__}."
                 )
             args = get_args(value)
-            if len(args) > 0:
-                arg = args[0]
-            else:
-                arg = None
+            arg = args[0] if len(args) > 0 else None
 
         self._annotation = value
         self._args_type = arg

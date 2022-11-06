@@ -10,17 +10,7 @@ from collections import deque
 from contextlib import contextmanager
 from pathlib import Path
 from types import FunctionType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Deque,
-    Generic,
-    Iterable,
-    Mapping,
-    TypeVar,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Deque, Generic, TypeVar, cast
 
 from psygnal import Signal
 
@@ -336,21 +326,6 @@ class FunctionGui(Container, Generic[_R]):
     def __repr__(self) -> str:
         """Return string representation of instance."""
         return f"<{type(self).__name__} {self._callable_name}{self.__signature__}>"
-
-    def update(
-        self,
-        mapping: Mapping | Iterable[tuple[str, Any]] | None = None,
-        **kwargs: Any,
-    ):
-        """Update the parameters in the widget from a mapping, iterable, or kwargs."""
-        with self.changed.blocked():
-            if mapping:
-                items = mapping.items() if isinstance(mapping, Mapping) else mapping
-                for key, value in items:
-                    getattr(self, key).value = value
-            for key, value in kwargs.items():
-                getattr(self, key).value = value
-        self.changed.emit()
 
     @property
     def result_name(self) -> str:

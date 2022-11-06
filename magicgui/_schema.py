@@ -4,6 +4,7 @@ import dataclasses as dc
 import sys
 import warnings
 from dataclasses import dataclass, field
+from functools import lru_cache
 from types import FunctionType
 from typing import (
     TYPE_CHECKING,
@@ -389,6 +390,7 @@ class UiField(Generic[T]):
         """Create a new Widget for this field."""
         from .type_map import get_widget_class
 
+        # TODO: this should be cached in some way
         # Map uifield names to widget kwargs
         # FIXME: this part needs a lot of work.
         # This is the biggest challenge for integrating this new UiField idea
@@ -412,10 +414,23 @@ class UiField(Generic[T]):
             "widget": "widget_type",
         }
 
-        d = self.replace(_native_field=None).asdict(include_unset=False)
+        d = (
+            self.parse_annotated()
+            .replace(_native_field=None)
+            .asdict(include_unset=False)
+        )
         opts = {_name_map[k]: v for k, v in d.items() if k in _name_map}
         if "disabled" in d:
             opts["enabled"] = not d["disabled"]
+
+        # TODO: very hacky... but we don't have the concept of exclusive min/max
+        # for float values.
+        if "exclusive_maximum" in d:
+            m = 1 if d.get("type") is int else 0.00000000001
+            opts["max"] = d["exclusive_maximum"] - m
+        if "exclusive_minimum" in d:
+            m = 1 if d.get("type") is int else 0.00000000001
+            opts["min"] = d["exclusive_minimum"] + m
 
         value = value if value is not Undefined else self.get_default()
         cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
@@ -632,16 +647,7 @@ def _ui_fields_from_annotation(cls) -> Iterator[UiField]:
         yield field.parse_annotated()
 
 
-def iter_ui_fields(object: Any) -> Iterator[UiField]:
-    """Iterate UiFields extracted from object.
-
-    Parameters
-    ----------
-    object : Any
-        Object to extract fields from.  Could be a dataclass or dataclass instance,
-        an attrs class or instance, a pydantic model or instance, a named tuple,
-        typed dict, or a function.
-    """
+def _iter_ui_fields(object: Any) -> Iterator[UiField]:
     # check if it's a (non-pydantic) dataclass
     if dc.is_dataclass(object) and not hasattr(object, "__pydantic_model__"):
         for df in dc.fields(object):
@@ -671,25 +677,93 @@ def iter_ui_fields(object: Any) -> Iterator[UiField]:
     )  # pragma: no cover
 
 
+@lru_cache(maxsize=None)
+def _cached_iter_ui_fields(cls: type) -> tuple[UiField, ...]:
+    return tuple(_iter_ui_fields(cls))
+
+
+def get_ui_fields(cls_or_instance: object) -> tuple[UiField, ...]:
+    """Derive UIFields from an object.
+
+    Parameters
+    ----------
+    object : Any
+        Object to extract fields from.  Could be a dataclass or dataclass instance,
+        an attrs class or instance, a pydantic model or instance, a named tuple,
+        typed dict, or a function.
+    """
+    try:
+        if isinstance(cls_or_instance, (type, FunctionType)):
+            return _cached_iter_ui_fields(cls_or_instance)
+        return _cached_iter_ui_fields(type(cls_or_instance))  # type: ignore
+    except TypeError:
+        return tuple(_iter_ui_fields(cls_or_instance))
+
+
 def _uifields_to_container(
     ui_fields: Iterable[UiField],
     values: Union[Mapping[str, Any], None] = None,
     *,
     container_kwargs: Union[Mapping, None] = None,
 ) -> ContainerWidget[ValueWidget]:
+    """Create a container widget from a sequence of UiFields.
+
+    This function is the heart of build_widget.
+
+    Parameters
+    ----------
+    ui_fields : Iterable[UiField]
+        A sequence of UiFields to use to create the container.
+    values : Mapping[str, Any], optional
+        A mapping of field name to values to use to initialize each widget the
+        container, by default None.
+    container_kwargs : Mapping, optional
+        A mapping of keyword arguments to pass to the container constructor,
+        by default None.
+
+    Returns
+    -------
+    ContainerWidget[ValueWidget]
+        A container widget with a widget for each UiField.
+    """
     from magicgui import widgets
 
-    _v: dict = dict(values) if values is not None else {}
-
-    return widgets.Container(
-        widgets=[
-            field.create_widget(value=_v.get(field.name, Undefined))
-            for field in ui_fields
-        ],
+    container = widgets.Container(
+        widgets=[field.create_widget() for field in ui_fields],
         **(container_kwargs or {}),
     )
+    if values is not None:
+        container.update(values)
+    return container
+
+
+def _get_values(obj: Any) -> dict | None:
+    """Return a dict of values from an object.
+
+    The object can be a dataclass, attrs, pydantic object or named tuple.
+    """
+    if isinstance(obj, dict):
+        return obj
+
+    # named tuple
+    if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
+        return obj._asdict()  # type: ignore
+
+    # dataclass
+    if dc.is_dataclass(type(obj)):
+        return dc.asdict(obj)
+
+    # attrs
+    attr = sys.modules.get("attr")
+    if attr is not None and attr.has(obj):
+        return attr.asdict(obj)
+
+    # pydantic models
+    dict_method = getattr(obj, "dict", None)
+    return dict_method() if callable(dict_method) else None
 
 
 def build_widget(cls_or_instance) -> ContainerWidget[ValueWidget]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
-    return _uifields_to_container(iter_ui_fields(cls_or_instance))
+    values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
+    return _uifields_to_container(get_ui_fields(cls_or_instance), values=values)

@@ -4,7 +4,7 @@ from typing import NamedTuple, Optional
 import pytest
 from typing_extensions import Annotated, TypedDict
 
-from magicgui._schema import UiField, build_widget, iter_ui_fields
+from magicgui._schema import UiField, build_widget, get_ui_fields
 from magicgui.widgets import Container
 
 EXPECTED = (
@@ -15,12 +15,24 @@ EXPECTED = (
 
 
 def _assert_uifields(cls, instantiate=True):
-    assert tuple(iter_ui_fields(cls)) == EXPECTED
-    assert isinstance(build_widget(cls), Container)
+    assert tuple(get_ui_fields(cls)) == EXPECTED
+    wdg = build_widget(cls)
+    assert isinstance(wdg, Container)
+    assert wdg.asdict() == {
+        "a": 0,
+        "b": "",
+        "c": 0.0,
+    }
     if instantiate:
         instance = cls(a=1, b="hi")
-        assert tuple(iter_ui_fields(instance)) == EXPECTED
-        assert isinstance(build_widget(instance), Container)
+        assert tuple(get_ui_fields(instance)) == EXPECTED
+        wdg2 = build_widget(instance)
+        assert isinstance(wdg2, Container)
+        assert wdg2.asdict() == {
+            "a": 1,
+            "b": "hi",
+            "c": 0.0,
+        }
 
 
 def test_attrs_descriptor():
@@ -107,7 +119,7 @@ def test_annotated():
     with pytest.warns(
         UserWarning, match="Cannot set default value in both type annotation and field"
     ):
-        fields = tuple(iter_ui_fields(Foo))
+        fields = get_ui_fields(Foo)
         assert fields[0].default == 0
 
     class Foo2(NamedTuple):
@@ -116,7 +128,7 @@ def test_annotated():
     with pytest.warns(
         UserWarning, match="Cannot set name in both type annotation and field"
     ):
-        fields = tuple(iter_ui_fields(Foo2))
+        fields = get_ui_fields(Foo2)
         assert fields[0].name == "x"
 
 
@@ -153,6 +165,33 @@ def test_annotated_types_lib():
 
         assert_eq(Annotated[int, MinLen(2)], {"min_items": 2})
         assert_eq(Annotated[int, MaxLen(4)], {"max_items": 4})
+
+
+def test_annotated_types_lib_dataclass():
+    pytest.importorskip("annotated_types")
+
+    from annotated_types import Ge, Gt, Interval, Le, Len, Lt, MultipleOf
+
+    @dataclass
+    class Foo:
+        a: Annotated[int, Ge(1)]
+        b: Annotated[int, Gt(1)]
+        c: Annotated[int, Le(10)]
+        d: Annotated[int, Lt(10)]
+        e: Annotated[int, MultipleOf(2)]
+        f: Annotated[int, Interval(ge=1, le=5)]
+        g: Annotated[list, Len(2, 5)]
+
+    wdg = build_widget(Foo)
+    assert wdg.a.min == 1
+    assert wdg.b.min == 2
+    assert wdg.c.max == 10
+    assert wdg.d.max == 9
+    assert wdg.e.step == 2
+    assert wdg.f.min == 1
+    assert wdg.f.max == 5
+    # assert wdg.g.min_items == 2  # TODO
+    # assert wdg.g.max_items == 5  # TODO
 
 
 def test_resolved_type():

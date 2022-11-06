@@ -6,6 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Iterable,
     MutableSequence,
     Sequence,
     TypeVar,
@@ -13,6 +14,7 @@ from typing import (
 )
 
 from psygnal import Signal
+from pyparsing import Mapping
 
 from magicgui._util import debounce
 from magicgui.application import use_app
@@ -303,6 +305,21 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         return {
             w.name: getattr(w, "value", None) for w in self if w.name and not w.gui_only
         }
+
+    def update(
+        self,
+        mapping: Mapping | Iterable[tuple[str, Any]] | None = None,
+        **kwargs: Any,
+    ):
+        """Update the parameters in the widget from a mapping, iterable, or kwargs."""
+        with self.changed.blocked():
+            if mapping:
+                items = mapping.items() if isinstance(mapping, Mapping) else mapping
+                for key, value in items:
+                    getattr(self, key).value = value
+            for key, value in kwargs.items():
+                getattr(self, key).value = value
+        self.changed.emit()
 
     @debounce
     def _dump(self, path):
