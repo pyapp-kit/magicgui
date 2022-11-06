@@ -10,9 +10,12 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generic,
+    Iterable,
     Iterator,
     Literal,
-    Sequence,
+    Optional,
+    TypeVar,
     Union,
 )
 
@@ -38,10 +41,11 @@ if TYPE_CHECKING:
 
 
 SLOTS = {"slots": True} if sys.version_info >= (3, 10) else {}
+T = TypeVar("T")
 
 
 @dataclass(frozen=True, **SLOTS)
-class UiField:
+class UiField(Generic[T]):
     """Metadata about a specific widget in a GUI."""
 
     def __post_init__(self):
@@ -76,14 +80,14 @@ class UiField:
         default=None,
         metadata=dict(description="A description of the field.", aliases=["tooltip"]),
     )
-    default: Any = field(
+    default: T = field(  # type: ignore
         default=Undefined,
         metadata=dict(
             description="The default value for the field.", aliases=["value"]
         ),
     )
     # NOTE: this does not have an analog in JSON Schema
-    default_factory: Callable[[], Any] | None = field(
+    default_factory: Callable[[], T] | None = field(
         default=None,
         metadata=dict(
             description="A callable that returns the default value of the field."
@@ -100,14 +104,14 @@ class UiField:
 
     # Keywords for Any Instance Type
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-any
-    type: Any = field(
+    type: object = field(
         default=None, metadata=dict(description="The type annotation of the field.")
     )
-    enum: list[Any] | None = field(
+    enum: list[T] | None = field(
         default=None,
         metadata=dict(description="A list of allowed values.", aliases=["choices"]),
     )
-    const: Any = field(
+    const: T = field(  # type: ignore
         default=Undefined,
         metadata=dict(
             description="A single allowed value. functionally equivalent to an 'enum' "
@@ -257,7 +261,7 @@ class UiField:
             "selectable. Disabling it will prevent its value to be selected at all."
         ),
     )
-    enum_disabled: list[Any] | None = field(
+    enum_disabled: list[T] | None = field(
         default=None,
         metadata=dict(
             description="A list of values that should be disabled in a combobox widget."
@@ -312,7 +316,7 @@ class UiField:
         ),
     )
 
-    def get_default(self) -> Any:
+    def get_default(self) -> Optional[T]:
         """Return the default value for this field."""
         return (
             self.default  # TODO: deepcopy mutable defaults?
@@ -353,7 +357,7 @@ class UiField:
         """Whether the field is an Annotated type."""
         return get_origin(self.type) is Annotated
 
-    def parse_annotated(self) -> UiField:
+    def parse_annotated(self) -> UiField[T]:
         """Extract info from Annotated type if present, and return new field.
 
         If self.type is not an Annotated type, return self.
@@ -385,6 +389,7 @@ class UiField:
         """Create a new Widget for this field."""
         from .type_map import get_widget_class
 
+        # Map uifield names to widget kwargs
         # FIXME: this part needs a lot of work.
         # This is the biggest challenge for integrating this new UiField idea
         # (which tries to map nicely to existing schemas like JSON Schema)
@@ -413,9 +418,7 @@ class UiField:
             opts["enabled"] = not d["disabled"]
 
         value = value if value is not Undefined else self.get_default()
-        cls, kwargs = get_widget_class(
-            value=value, annotation=self.type, options=opts  # type: ignore
-        )
+        cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
         return cls(**kwargs)  # type: ignore
 
 
@@ -668,8 +671,8 @@ def iter_ui_fields(object: Any) -> Iterator[UiField]:
     )  # pragma: no cover
 
 
-def _build_widget(
-    ui_fields: Sequence[UiField],
+def _uifields_to_container(
+    ui_fields: Iterable[UiField],
     values: Union[Mapping[str, Any], None] = None,
     *,
     container_kwargs: Union[Mapping, None] = None,
@@ -685,3 +688,8 @@ def _build_widget(
         ],
         **(container_kwargs or {}),
     )
+
+
+def build_widget(cls_or_instance) -> ContainerWidget[ValueWidget]:
+    """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
+    return _uifields_to_container(iter_ui_fields(cls_or_instance))
