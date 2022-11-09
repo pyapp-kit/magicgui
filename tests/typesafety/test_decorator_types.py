@@ -10,7 +10,7 @@ def magicgui_return_types() -> None:
     from magicgui import magicgui
 
     def f(a) -> str:
-        return 'hi'
+        return "hi"
 
     reveal_type(magicgui())  # R: def [_R] (def (*Any, **Any) -> _R`-1) -> magicgui.widgets._function_gui.FunctionGui[_R`-1]
     reveal_type(magicgui(f))  # R: magicgui.widgets._function_gui.FunctionGui[builtins.str]
@@ -25,7 +25,7 @@ def magic_factory_return_types() -> None:
     from magicgui import magic_factory
 
     def f(a) -> str:
-        return 'hi'
+        return "hi"
 
     reveal_type(magic_factory())  # R: def [_R] (def (*Any, **Any) -> _R`-1) -> magicgui._magicgui.MagicFactory[magicgui.widgets._function_gui.FunctionGui[_R`-1]]
     reveal_type(magic_factory(f))  # R: magicgui._magicgui.MagicFactory[magicgui.widgets._function_gui.FunctionGui[builtins.str]]
