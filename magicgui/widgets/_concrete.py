@@ -1041,3 +1041,8 @@ class _LabeledWidget(Container):
     @label_width.setter
     def label_width(self, width):
         self._label_widget.min_width = width
+
+
+@backend_widget
+class QuantityEdit(ValueWidget):
+    """A combined LineEdit and ComboBox to edit a pint.Quantity."""
