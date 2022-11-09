@@ -84,6 +84,10 @@ To add a new widget, you will need to:
    important, as that is where the `@backend_widget` decorator will look.
 1. Add a test for your new widget.
 
+> *For an example of a minimal PR adding a new widget, see
+> [\#483](https://github.com/napari/magicgui/pull/483/files), which added a
+> `QuantityWidget` to be used with `pint.Quantity` objects.*
+
 ### Associating a widget with a type
 
 To associate your new widget with a specific type such that it will be used when
