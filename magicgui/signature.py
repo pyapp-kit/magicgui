@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 from typing_extensions import Annotated, _AnnotatedAlias
 
 from magicgui.application import AppRef
-from magicgui.types import WidgetOptions
+from magicgui.types import Undefined
 
 if TYPE_CHECKING:
     from magicgui.widgets import Container
@@ -62,16 +62,17 @@ def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
     return Annotated[annotation, _options]
 
 
-def split_annotated_type(annotation: _AnnotatedAlias) -> tuple[Any, WidgetOptions]:
+def split_annotated_type(annotation: _AnnotatedAlias) -> tuple[Any, dict]:
     """Split an Annotated type into its base type and options dict."""
     if not isinstance(annotation, _AnnotatedAlias):
         raise TypeError("Type hint must be an 'Annotated' type.")
-    if not isinstance(annotation.__metadata__[0], dict):
+
+    meta = annotation.__metadata__[0]
+    if not isinstance(meta, dict):
         raise TypeError(
             "Invalid Annotated format for magicgui. First arg must be a dict"
         )
 
-    meta = cast(WidgetOptions, annotation.__metadata__[0])
     return annotation.__args__[0], meta
 
 
@@ -114,7 +115,7 @@ class MagicParameter(inspect.Parameter):
         self.raise_on_unknown = raise_on_unknown
 
     @property
-    def options(self) -> WidgetOptions:
+    def options(self) -> dict:
         """Return just this options part of the annotation."""
         return split_annotated_type(self.annotation)[1]
 
@@ -136,9 +137,8 @@ class MagicParameter(inspect.Parameter):
     def to_widget(self, app: AppRef = None) -> Widget:
         """Create and return a widget for this object."""
         from magicgui.widgets._bases import create_widget
-        from magicgui.widgets._bases.value_widget import UNSET
 
-        value = UNSET if self.default in (self.empty, TZ_EMPTY) else self.default
+        value = Undefined if self.default in (self.empty, TZ_EMPTY) else self.default
         annotation, options = split_annotated_type(self.annotation)
         widget = create_widget(
             name=self.name,

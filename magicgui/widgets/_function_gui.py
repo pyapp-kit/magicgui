@@ -24,7 +24,7 @@ from typing import (
 
 from psygnal import Signal
 
-from magicgui._type_wrapper import resolve_forward_refs
+from magicgui._type_resolution import resolve_single_type
 from magicgui.application import AppRef
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
@@ -155,7 +155,7 @@ class FunctionGui(Container, Generic[_R]):
         sig = magic_signature(
             function, gui_options=param_options, raise_on_unknown=raise_on_unknown
         )
-        self.return_annotation = sig.return_annotation
+        self._return_annotation = resolve_single_type(sig.return_annotation)
         self._tooltips = tooltips
         if tooltips:
             _inject_tooltips_from_docstrings(function.__doc__, sig)
@@ -261,10 +261,6 @@ class FunctionGui(Container, Generic[_R]):
         ForwardRefs will be resolve when setting the annotation.
         """
         return self._return_annotation
-
-    @return_annotation.setter
-    def return_annotation(self, value):
-        self._return_annotation = resolve_forward_refs(value)
 
     @property
     def __signature__(self) -> MagicSignature:
@@ -476,9 +472,6 @@ def _docstring_to_html(docs: str) -> str:
     short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
     long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
     return re.sub(r"``?([^`]+)``?", r"<code>\1</code>", f"{short}{long}{params}")
-
-
-_UNSET = object()
 
 
 @contextmanager

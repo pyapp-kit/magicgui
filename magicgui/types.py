@@ -3,12 +3,11 @@ from __future__ import annotations
 
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Type, Union
 
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from magicgui._type_wrapper import TypeWrapper
     from magicgui.widgets import FunctionGui
     from magicgui.widgets._bases import CategoricalWidget, Widget
     from magicgui.widgets._protocols import WidgetProtocol
@@ -18,15 +17,8 @@ if TYPE_CHECKING:
 WidgetClass = Union[Type["Widget"], Type["WidgetProtocol"]]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
-#: A :attr:`WidgetClass` (or a string representation of one) and a dict of appropriate
-#: :class:`WidgetOptions`.
-WidgetTuple = Tuple[WidgetRef, "WidgetOptions"]
-#: A function that takes a ``(value, annotation)`` argument and returns an optional
-#: :attr:`WidgetTuple`
-TypeMatcher = Callable[["TypeWrapper"], Optional[WidgetTuple]]
-#: A function that takes a ``(value, annotation)`` argument and returns an optional
-#: :attr:`WidgetTuple`
-ReturnMatcher = Callable[["TypeWrapper"], Optional[WidgetTuple]]
+#: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
+WidgetTuple = Tuple[WidgetRef, dict]
 #: An iterable that can be used as a valid argument for widget ``choices``
 ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes
@@ -64,27 +56,24 @@ class ChoicesDict(TypedDict):
     key: Callable[[Any], str]
 
 
-class WidgetOptions(TypedDict, total=False):
-    """Recognized options when instantiating a Widget.
+class _Undefined:
+    """Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
-    .. note::
-
-       this should be improved to be widget-type specific.
+    ``_Undefined`` is a singleton.
     """
 
-    widget_type: WidgetRef
-    choices: ChoicesType
-    gui_only: bool
-    visible: bool
-    enabled: bool
-    text: str
-    min: float
-    max: float
-    step: float
-    layout: str  # for things like containers
-    orientation: str  # for things like sliders
-    mode: str | FileDialogMode
-    tooltip: str
-    bind: Any
-    nullable: bool
-    allow_multiple: bool
+    _singleton = None
+
+    def __new__(cls):
+        if _Undefined._singleton is None:
+            _Undefined._singleton = super().__new__(cls)
+        return _Undefined._singleton
+
+    def __repr__(self):
+        return "<Undefined>"
+
+    def __bool__(self):
+        return False
+
+
+Undefined = _Undefined()

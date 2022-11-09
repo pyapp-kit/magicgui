@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from psygnal import Signal
 
-from magicgui._type_wrapper import resolve_forward_refs
+from magicgui._type_resolution import resolve_single_type
 from magicgui.application import use_app
 from magicgui.widgets import _protocols
 
@@ -145,7 +145,7 @@ class Widget:
 
     @annotation.setter
     def annotation(self, value):
-        self._annotation = resolve_forward_refs(value)
+        self._annotation = resolve_single_type(value)
 
     @property
     def param_kind(self) -> inspect._ParameterKind:
@@ -375,7 +375,7 @@ class Widget:
         from io import BytesIO
 
         try:
-            from imageio import imsave
+            from imageio import imwrite
         except ImportError:
             print(
                 "(For a nicer magicgui widget representation in "
@@ -386,7 +386,7 @@ class Widget:
         rendered = self.render()
         if rendered is not None:
             with BytesIO() as file_obj:
-                imsave(file_obj, rendered, format="png")
+                imwrite(file_obj, rendered, format="png")
                 file_obj.seek(0)
                 return file_obj.read()
         return None
