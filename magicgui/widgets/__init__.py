@@ -91,16 +91,14 @@ __all__ = [
     "LogSlider",
     "MainFunctionGui",
     "MainWindow",
-    "ProgressBar",
     "PushButton",
+    "ProgressBar",
     "QuantityEdit",
     "RadioButton",
     "RadioButtons",
     "RangeEdit",
     "RangeSlider",
-    "request_values",
     "Select",
-    "show_file_dialog",
     "SliceEdit",
     "Slider",
     "SpinBox",
@@ -109,6 +107,8 @@ __all__ = [
     "TimeEdit",
     "TupleEdit",
     "Widget",
+    "show_file_dialog",
+    "request_values",
 ]
 
 del partial
