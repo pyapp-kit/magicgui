@@ -131,6 +131,8 @@ following `ValueWidgets` track some `value`:
    DateTimeEdit
    DateEdit
    TimeEdit
+   Table
+   QuantityEdit
 ```
 
 ```{list-table}

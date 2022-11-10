@@ -1045,4 +1045,4 @@ class _LabeledWidget(Container):
 
 @backend_widget
 class QuantityEdit(ValueWidget):
-    """A combined LineEdit and ComboBox to edit a pint.Quantity."""
+    """A combined `LineEdit` and `ComboBox` to edit a `pint.Quantity`."""
