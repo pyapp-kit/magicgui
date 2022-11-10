@@ -32,6 +32,7 @@ Value Widgets
    DateTimeEdit
    DateEdit
    TimeEdit
+   Table
    EmptyWidget
 
 
