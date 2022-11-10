@@ -88,7 +88,7 @@ jobs:
       - name: Test napari magicgui
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: pytest test_napari.py -v --color=yes
+          run: pytest -W ignore test_napari.py -v --color=yes
 
   test_magicclass:
     name: magic-class tests
