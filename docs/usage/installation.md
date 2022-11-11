@@ -16,7 +16,7 @@ conda install -c conda-forge magicgui
 You will need to have a supported GUI backend also installed in your environment.
 Currently, the only supported backend is [Qt](https://www.qt.io/), via
 [qtpy](https://github.com/spyder-ide/qtpy) (but [open an
-issue](https://github.com/napari/magicgui/issues) if you would like to see a
+issue](https://github.com/pyapp-kit/magicgui/issues) if you would like to see a
 different backend supported).
 
 To use with Qt, you will also need to have either
