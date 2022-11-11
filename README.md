@@ -1,10 +1,10 @@
 <h1 align="center">
-    <img src="https://raw.githubusercontent.com/napari/magicgui/main/resources/logo_long.png" alt="magicgui" />
+    <img src="https://raw.githubusercontent.com/pyapp-kit/magicgui/main/resources/logo_long.png" alt="magicgui" />
 </h1>
 
 <p align="center">
-  <a href="https://github.com/napari/magicgui/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/napari/magicgui" alt="magicgui is released under the MIT license." />
+  <a href="https://github.com/pyapp-kit/magicgui/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/pyapp-kit/magicgui" alt="magicgui is released under the MIT license." />
   </a>
   <a href="https://pypi.python.org/pypi/magicgui">
     <img src="https://img.shields.io/pypi/v/magicgui.svg" alt="magicgui on PyPI" />
@@ -14,11 +14,11 @@
   </a>
   </p>
   <p align="center">
-  <a href="https://github.com/napari/magicgui/actions/workflows/test_and_deploy.yml">
-    <img src="https://github.com/napari/magicgui/actions/workflows/test_and_deploy.yml/badge.svg" alt="magicgui build status" />
+  <a href="https://github.com/pyapp-kit/magicgui/actions/workflows/test_and_deploy.yml">
+    <img src="https://github.com/pyapp-kit/magicgui/actions/workflows/test_and_deploy.yml/badge.svg" alt="magicgui build status" />
   </a>
-  <a href="https://codecov.io/gh/napari/magicgui">
-    <img src="https://codecov.io/gh/napari/magicgui/branch/main/graph/badge.svg" alt="magicgui code coverage" />
+  <a href="https://codecov.io/gh/pyapp-kit/magicgui">
+    <img src="https://codecov.io/gh/pyapp-kit/magicgui/branch/main/graph/badge.svg" alt="magicgui code coverage" />
   </a>
   <a href="https://zenodo.org/badge/latestdoi/238805437">
     <img src="https://zenodo.org/badge/238805437.svg" alt="cite magicgui" />
@@ -32,7 +32,7 @@
 
 ## 📖 Docs
 
-[https://napari.org/magicgui](https://napari.org/magicgui)
+[https://pyapp-kit.github.io/magicgui/](https://pyapp-kit.github.io/magicgui/)
 
 ## Installation
 
@@ -54,7 +54,7 @@ conda install -c conda-forge magicgui pyqt  # or pyside2 instead of pyqt
 ```
 
 > :information_source: If you'd like to help us extend support to a different backend,
-> please open an [issue](https://github.com/napari/magicgui/issues).
+> please open an [issue](https://github.com/pyapp-kit/magicgui/issues).
 
 ## Basic usage
 
@@ -84,9 +84,9 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
 snells_law.show(run=True)
 ```
 
-![snells](https://raw.githubusercontent.com/napari/magicgui/main/resources/snells.png)
+![snells](https://raw.githubusercontent.com/pyapp-kit/magicgui/main/resources/snells.png)
 
-But that's just the beginning!  Please see [Documentation](https://napari.org/magicgui) for many more details
+But that's just the beginning!  Please see [Documentation](https://pyapp-kit.github.io/magicgui/) for many more details
 and usage examples.
 
 ## Contributing

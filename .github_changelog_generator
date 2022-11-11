@@ -1,4 +1,4 @@
-user=napari
+user=pyapp-kit
 project=magicgui
 issues=false
 exclude-labels=duplicate,question,invalid,wontfix,hide
