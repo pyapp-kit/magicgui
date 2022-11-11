@@ -10,7 +10,7 @@ execute:
   execute_notebooks: cache  # or 'force'
 
 repository:
-  url: https://github.com/napari/magicgui
+  url: https://github.com/pyapp-kit/magicgui
   branch: main
   path_to_book: docs
 
@@ -55,9 +55,9 @@ sphinx:
     html_favicon: "images/favicon.ico"
     html_theme: "sphinx_material"
     html_theme_options:
-      base_url: "https://napari.org/magicgui"  # Specify a base_url used to generate sitemap.xml links
-      repo_url: "https://github.com/napari/magicgui/"
-      repo_name: "napari/magicgui"
+      base_url: "https://pyapp-kit.github.io/magicgui/"  # Specify a base_url used to generate sitemap.xml links
+      repo_url: "https://github.com/pyapp-kit/magicgui/"
+      repo_name: "pyapp-kit/magicgui"
       # google_analytics_account: "UA-XXXXX"
       # html_prettify: True
       html_minify: True
