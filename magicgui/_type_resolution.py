@@ -4,7 +4,10 @@ import typing
 from copy import copy
 from functools import lru_cache, partial
 from importlib import import_module
-from typing import Any, Callable, Dict, Optional, Tuple, Type, Union, get_type_hints
+from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
+
+# required for python 3.8 to strip annotations
+from typing_extensions import get_type_hints
 
 try:
     from toolz import curry
@@ -53,7 +56,7 @@ def resolve_types(
     obj = _unwrap_partial(obj)
 
     try:
-        hints = get_type_hints(obj, globalns=globalns, localns=localns)
+        hints = get_type_hints(obj, globalns=globalns, localns=localns)  # type: ignore
     except NameError as e:
         if do_imports:
             # try to import the top level name and try again
@@ -106,7 +109,7 @@ def resolve_single_type(
     return hints["obj"]
 
 
-_cached_resolve = lru_cache(maxsize=1)(resolve_single_type)
+_cached_resolve = lru_cache(maxsize=None)(resolve_single_type)
 
 
 def _try_cached_resolve(v):

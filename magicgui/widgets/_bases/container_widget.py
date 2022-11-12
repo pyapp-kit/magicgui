@@ -2,9 +2,19 @@ from __future__ import annotations
 
 import contextlib
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, MutableSequence, Sequence, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    MutableSequence,
+    Sequence,
+    TypeVar,
+    overload,
+)
 
 from psygnal import Signal
+from pyparsing import Mapping
 
 from magicgui._util import debounce
 from magicgui.application import use_app
@@ -19,8 +29,10 @@ from .widget import Widget
 if TYPE_CHECKING:
     from magicgui.widgets import Container
 
+WidgetVar = TypeVar("WidgetVar", bound=Widget)
 
-class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
+
+class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
@@ -67,7 +79,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         self,
         layout: str = "vertical",
         scrollable: bool = False,
-        widgets: Sequence[Widget] = (),
+        widgets: Sequence[WidgetVar] = (),
         labels=True,
         **kwargs,
     ):
@@ -103,11 +115,11 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         object.__setattr__(self, name, value)
 
     @overload
-    def __getitem__(self, key: int | str) -> Widget:  # noqa: D105
+    def __getitem__(self, key: int | str) -> WidgetVar:  # noqa: D105
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> MutableSequence[Widget]:  # noqa: F811, D105
+    def __getitem__(self, key: slice) -> MutableSequence[WidgetVar]:  # noqa: F811, D105
         ...
 
     def __getitem__(self, key):  # noqa: F811
@@ -167,7 +179,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         d.extend([w.name for w in self if not w.gui_only])
         return d
 
-    def insert(self, key: int, widget: Widget):
+    def insert(self, key: int, widget: WidgetVar):
         """Insert widget at ``key``."""
         if isinstance(widget, (ValueWidget, ContainerWidget)):
             widget.changed.connect(lambda: self.changed.emit(self))
@@ -293,6 +305,21 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[Widget]):
         return {
             w.name: getattr(w, "value", None) for w in self if w.name and not w.gui_only
         }
+
+    def update(
+        self,
+        mapping: Mapping | Iterable[tuple[str, Any]] | None = None,
+        **kwargs: Any,
+    ):
+        """Update the parameters in the widget from a mapping, iterable, or kwargs."""
+        with self.changed.blocked():
+            if mapping:
+                items = mapping.items() if isinstance(mapping, Mapping) else mapping
+                for key, value in items:
+                    getattr(self, key).value = value
+            for key, value in kwargs.items():
+                getattr(self, key).value = value
+        self.changed.emit()
 
     @debounce
     def _dump(self, path):
