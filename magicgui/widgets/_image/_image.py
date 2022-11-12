@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
-from ._bases import ValueWidget
-from ._concrete import backend_widget
+from .._bases import ValueWidget
+from .._concrete import backend_widget
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -12,10 +12,9 @@ if TYPE_CHECKING:
     import numpy as np
     import PIL.Image
 
-    from magicgui import _mpl_image
-    from magicgui._mpl_image import Colormap, Normalize
-
-    from ._protocols import ValueWidgetProtocol
+    from .._protocols import ValueWidgetProtocol
+    from . import _mpl_image
+    from ._mpl_image import Colormap, Normalize
 
 
 @backend_widget
@@ -84,7 +83,7 @@ class Image(ValueWidget):
             image mode.
         """
         if self._image is None:
-            from magicgui import _mpl_image
+            from magicgui.widgets._image import _mpl_image
 
             self._image = _mpl_image.Image()
 

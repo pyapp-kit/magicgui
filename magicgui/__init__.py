@@ -1,7 +1,9 @@
 """magicgui is a utility for generating a GUI from a python function."""
+from importlib.metadata import PackageNotFoundError, version
+
 try:
-    from ._version import version as __version__
-except ImportError:
+    __version__ = version("magicgui")
+except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
 
 __author__ = """Talley Lambert"""
