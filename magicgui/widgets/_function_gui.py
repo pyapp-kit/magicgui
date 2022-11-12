@@ -316,9 +316,9 @@ class FunctionGui(Container, Generic[_R]):
 
         return_type = sig.return_annotation
         if return_type:
-            from magicgui.type_map import _type2callback
+            from magicgui.type_map import type2callback
 
-            for callback in _type2callback(return_type):
+            for callback in type2callback(return_type):
                 callback(self, value, return_type)
         self.called.emit(value)
         return value

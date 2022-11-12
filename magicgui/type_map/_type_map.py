@@ -29,6 +29,8 @@ from typing import (
 from typing_extensions import get_args, get_origin
 
 from magicgui import widgets
+from magicgui._type_resolution import resolve_single_type
+from magicgui._util import safe_issubclass
 from magicgui.types import (
     PathLike,
     ReturnCallback,
@@ -40,8 +42,6 @@ from magicgui.types import (
 )
 from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
 
-from ._type_resolution import resolve_single_type
-
 __all__: list[str] = ["register_type", "get_widget_class"]
 
 
@@ -51,14 +51,6 @@ class MissingWidget(RuntimeError):
 
 _RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
 _TYPE_DEFS: dict[type, WidgetTuple] = dict()
-
-
-def _is_subclass(obj, superclass):
-    """Safely check if obj is a subclass of superclass."""
-    try:
-        return issubclass(obj, superclass)
-    except Exception:
-        return False
 
 
 _SIMPLE_ANNOTATIONS = {
@@ -92,7 +84,7 @@ def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
     if type_ in _SIMPLE_TYPES:
         return _SIMPLE_TYPES[type_], {}
     for key in _SIMPLE_TYPES.keys():
-        if _is_subclass(type_, key):
+        if safe_issubclass(type_, key):
             return _SIMPLE_TYPES[key], {}
 
     if type_ in (types.FunctionType,):
@@ -110,22 +102,22 @@ def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
         return widgets.ComboBox, {"choices": choices, "nullable": nullable}
 
     # sequence of paths
-    if _is_subclass(origin, Sequence):
+    if safe_issubclass(origin, Sequence):
         args = get_args(type_)
-        if len(args) == 1 and _is_subclass(args[0], pathlib.Path):
+        if len(args) == 1 and safe_issubclass(args[0], pathlib.Path):
             return widgets.FileEdit, {"mode": "rm"}
-        elif _is_subclass(origin, list):
+        elif safe_issubclass(origin, list):
             return widgets.ListEdit, {}
-        elif _is_subclass(origin, tuple):
+        elif safe_issubclass(origin, tuple):
             return widgets.TupleEdit, {}
 
-    if _is_subclass(origin, Set):
+    if safe_issubclass(origin, Set):
         for arg in get_args(type_):
             if get_origin(arg) is Literal:
                 return widgets.Select, {"choices": get_args(arg)}
 
     pint = sys.modules.get("pint")
-    if pint and _is_subclass(origin, pint.Quantity):
+    if pint and safe_issubclass(origin, pint.Quantity):
         return widgets.QuantityEdit, {}
 
     return None
@@ -158,7 +150,9 @@ def match_return_type(type_: Any) -> WidgetTuple | None:
     ]
 
     if any(
-        _is_subclass(type_, tt) for tt in table_types if not isinstance(tt, ForwardRef)
+        safe_issubclass(type_, tt)
+        for tt in table_types
+        if not isinstance(tt, ForwardRef)
     ):
         return widgets.Table, {}
 
@@ -238,7 +232,7 @@ def pick_widget_type(
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
-        if _type == registered_type or _is_subclass(_type, registered_type):
+        if _type == registered_type or safe_issubclass(_type, registered_type):
             _cls, opts = _TYPE_DEFS[registered_type]
             return _cls, {**options, **opts}
 
@@ -307,7 +301,7 @@ def get_widget_class(
     else:
         widget_class = widget_type
 
-    if not _is_subclass(widget_class, widgets._bases.Widget):
+    if not safe_issubclass(widget_class, widgets._bases.Widget):
         assert_protocol(widget_class, WidgetProtocol)
 
     return widget_class, _options
@@ -494,8 +488,8 @@ def type_registered(
             _TYPE_DEFS.pop(_type_, None)
 
 
-def _type2callback(type_: type) -> list[ReturnCallback]:
-    """Check if return callbacks have been registered for ``type_`` and return if so.
+def type2callback(type_: type) -> list[ReturnCallback]:
+    """Return any callbacks that have been registered for ``type_``.
 
     Parameters
     ----------
@@ -516,7 +510,7 @@ def _type2callback(type_: type) -> list[ReturnCallback]:
         return _RETURN_CALLBACKS[type_]
 
     # look for subclasses
-    for registered_type in _RETURN_CALLBACKS:
-        if _is_subclass(type_, registered_type):
+    for registered_type in _RETURN_CALLBACKS:  # sourcery skip: use-next
+        if safe_issubclass(type_, registered_type):
             return _RETURN_CALLBACKS[registered_type]
     return []

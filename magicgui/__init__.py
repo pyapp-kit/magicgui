@@ -8,9 +8,8 @@ __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"
 
 
-from ._magicgui import magic_factory, magicgui
 from .application import event_loop, use_app
-from .type_map import register_type, type_registered
+from .type_map import magic_factory, magicgui, register_type, type_registered
 
 __all__ = [
     "event_loop",
