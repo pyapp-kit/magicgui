@@ -1,7 +1,13 @@
 """Functions that map python types to widgets."""
 
 from ._magicgui import MagicFactory, magic_factory, magicgui
-from ._type_map import get_widget_class, register_type, type2callback, type_registered
+from ._type_map import (
+    get_widget_class,
+    pick_widget_type,
+    register_type,
+    type2callback,
+    type_registered,
+)
 
 __all__ = [
     "get_widget_class",
@@ -10,6 +16,7 @@ __all__ = [
     "type2callback",
     "MagicFactory",
     "magicgui",
+    "pick_widget_type",
     "magic_factory",
 ]
 
