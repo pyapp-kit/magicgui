@@ -4,7 +4,7 @@ from importlib.metadata import PackageNotFoundError, version
 try:
     __version__ = version("magicgui")
 except PackageNotFoundError:  # pragma: no cover
-    __version__ = "unknown"
+    __version__ = "uninstalled"
 
 __author__ = """Talley Lambert"""
 __email__ = "talley.lambert@gmail.com"
