@@ -41,6 +41,8 @@ if TYPE_CHECKING:
         __attrs_attrs__: tuple[attrs.Attribute, ...]
 
 
+__all__ = ["build_widget", "get_ui_fields", "UiField"]
+
 SLOTS = {"slots": True} if sys.version_info >= (3, 10) else {}
 T = TypeVar("T")
 
@@ -55,6 +57,8 @@ class UiField(Generic[T]):
             args = get_args(self.type)
             nonnull = tuple(a for a in args if a is not type(None))  # noqa: E721
             if len(nonnull) < len(args):
+                # object.__setattr__ because we are using a frozen dataclass
+                object.__setattr__(self, "_original_annotation", self.type)
                 object.__setattr__(self, "type", Union[nonnull])
                 object.__setattr__(self, "nullable", True)
 
@@ -571,6 +575,7 @@ def _uifield_from_pydantic(model_field: ModelField) -> UiField:
     )
 
 
+# TODO:
 class _ContainerFields:
     autofocus: str | None = field(
         default=None,
@@ -763,7 +768,7 @@ def _get_values(obj: Any) -> dict | None:
     return dict_method() if callable(dict_method) else None
 
 
-def build_widget(cls_or_instance) -> ContainerWidget[ValueWidget]:
+def build_widget(cls_or_instance: Any) -> ContainerWidget[ValueWidget]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
     values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
     return _uifields_to_container(get_ui_fields(cls_or_instance), values=values)

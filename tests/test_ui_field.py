@@ -4,7 +4,7 @@ from typing import NamedTuple, Optional
 import pytest
 from typing_extensions import Annotated, TypedDict
 
-from magicgui._schema import UiField, build_widget, get_ui_fields
+from magicgui._ui_field import UiField, build_widget, get_ui_fields
 from magicgui.widgets import Container
 
 EXPECTED = (
@@ -137,7 +137,7 @@ def test_annotated_types_lib():
 
     from annotated_types import Ge, Gt, Interval, Le, Len, Lt, MultipleOf, __version__
 
-    from magicgui._schema import _uikwargs_from_annotated_type as uikwargs
+    from magicgui._ui_field import _uikwargs_from_annotated_type as uikwargs
 
     at_ver = tuple(int(v) for v in __version__.split("."))
 
