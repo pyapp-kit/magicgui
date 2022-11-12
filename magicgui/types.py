@@ -108,3 +108,9 @@ JsonStringFormats = Literal[
     # regular expressions
     "regex",  # draft 7
 ]
+
+
+def __getattr__(name: str):
+    if name == "WidgetOptions":
+        return dict
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

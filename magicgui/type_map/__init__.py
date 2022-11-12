@@ -12,3 +12,18 @@ __all__ = [
     "magicgui",
     "magic_factory",
 ]
+
+
+def __getattr__(name: str):
+    """Import from magicgui.types if not found in magicgui.schema."""
+    if name == "_type2callback":
+        import warnings
+
+        warnings.warn(
+            "magicgui.type_map._type2callback is now public, "
+            "use magicgui.type_map.type2callback",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return type2callback
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
