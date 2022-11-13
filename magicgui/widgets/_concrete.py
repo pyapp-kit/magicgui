@@ -3,8 +3,10 @@
 All of these widgets should provide the `widget_type` argument to their
 super().__init__ calls.
 """
+
 from __future__ import annotations
 
+import contextlib
 import inspect
 import math
 import os
@@ -50,6 +52,9 @@ from ._bases import (
 )
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
+WidgetVar = TypeVar("WidgetVar", bound=Widget)
+C = TypeVar("C", bound=type)
+_V = TypeVar("_V")
 
 
 def _param_list_to_str(param_list: list[DocstringParam]) -> str:
@@ -71,7 +76,9 @@ def _param_list_to_str(param_list: list[DocstringParam]) -> str:
     return "\n".join(out)
 
 
-def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "extra")):
+def merge_super_sigs(
+    cls: C, exclude=("widget_type", "kwargs", "args", "kwds", "extra")
+) -> C:
     """Merge the signature and kwarg docs from all superclasses, for clearer docs.
 
     Parameters
@@ -109,7 +116,7 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
             k: v.replace(annotation=inspect.Parameter.empty) for k, v in params.items()
         }
 
-    cls.__init__.__signature__ = inspect.Signature(
+    cls.__init__.__signature__ = inspect.Signature(  # type: ignore
         sorted(params.values(), key=lambda x: x.kind)
     )
     param_docs = [p for p in param_docs if p.arg_name not in exclude]
@@ -120,15 +127,12 @@ def merge_super_sigs(cls, exclude=("widget_type", "kwargs", "args", "kwds", "ext
     return cls
 
 
-C = TypeVar("C")
-
-
 @overload
 def backend_widget(  # noqa
-    cls: type[C],
+    cls: C,
     widget_name: str = None,
     transform: Callable[[type], type] = None,
-) -> type[C]:
+) -> C:
     ...
 
 
@@ -137,15 +141,15 @@ def backend_widget(  # noqa
     cls: Literal[None] = None,
     widget_name: str = None,
     transform: Callable[[type], type] = None,
-) -> Callable[..., type[C]]:
+) -> Callable[..., C]:
     ...
 
 
 def backend_widget(
-    cls: type[C] = None,
+    cls: C = None,
     widget_name: str = None,
     transform: Callable[[type], type] = None,
-) -> Callable | type[C]:
+) -> Callable | C:
     """Decorate cls to inject the backend widget of the same name.
 
     The purpose of this decorator is to "inject" the appropriate backend
@@ -434,7 +438,7 @@ class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
 
 
 @backend_widget
-class Container(ContainerWidget):
+class Container(ContainerWidget[WidgetVar]):
     """A Widget to contain other widgets."""
 
 
@@ -555,7 +559,7 @@ class FileEdit(Container):
 
 
 @merge_super_sigs
-class RangeEdit(Container):
+class RangeEdit(Container[SpinBox]):
     """A widget to represent a python range object, with start/stop/step.
 
     A range object produces a sequence of integers from start (inclusive)
@@ -652,11 +656,8 @@ class SliceEdit(RangeEdit):
         self.step.value = value.step
 
 
-_V = TypeVar("_V")
-
-
 @merge_super_sigs
-class ListEdit(Container):
+class ListEdit(Container[ValueWidget]):
     """A widget to represent a list of values.
 
     A ListEdit container can create a list with multiple objects of same type. It
@@ -750,20 +751,12 @@ class ListEdit(Container):
         self._annotation = value
         self._args_type = arg
 
-    def __iter__(self) -> Iterator[ValueWidget]:
-        """Just for typing."""
-        return super().__iter__()
-
-    def __getitem__(self, key: int) -> ValueWidget:  # type: ignore[override]
-        """Just for typing."""
-        return super().__getitem__(key)
-
-    def __delitem__(self, key: int | slice):
+    def __delitem__(self, key: int | slice) -> None:
         """Delete child widget(s)."""
         super().__delitem__(key)
         self.changed.emit(self.value)
 
-    def _append_value(self, value=Undefined):
+    def _append_value(self, value: _V | _Undefined = Undefined) -> None:
         """Create a new child value widget and append it."""
         i = len(self) - 2
 
@@ -787,12 +780,10 @@ class ListEdit(Container):
         widget.changed.connect(lambda: self.changed.emit(self.value))
         self.changed.emit(self.value)
 
-    def _pop_value(self):
+    def _pop_value(self) -> None:
         """Delete last child value widget."""
-        try:
+        with contextlib.suppress(IndexError):
             self.pop(-3)
-        except IndexError:
-            pass
 
     @property
     def value(self) -> list[_V]:
@@ -822,7 +813,7 @@ class ListDataView(Generic[_V]):
 
     def __init__(self, obj: ListEdit):
         self._obj = obj
-        self._widgets: list[ValueWidget] = list(obj[:-2])  # type: ignore
+        self._widgets = list(obj[:-2])
 
     def __repr__(self):
         """Return list-like representation."""
@@ -837,11 +828,11 @@ class ListDataView(Generic[_V]):
         return list(self) == other
 
     @overload
-    def __getitem__(self, i: int) -> _V:  # noqa
+    def __getitem__(self, i: int) -> _V:  # noqa: D105
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> list[_V]:  # noqa
+    def __getitem__(self, key: slice) -> list[_V]:  # noqa: D105
         ...
 
     def __getitem__(self, key):
@@ -856,11 +847,11 @@ class ListDataView(Generic[_V]):
             )
 
     @overload
-    def __setitem__(self, key: int, value: _V) -> None:  # noqa
+    def __setitem__(self, key: int, value: _V) -> None:  # noqa: D105
         ...
 
     @overload
-    def __setitem__(self, key: slice, value: _V | Iterable[_V]) -> None:  # noqa
+    def __setitem__(self, key: slice, value: _V | Iterable[_V]) -> None:  # noqa: D105
         ...
 
     def __setitem__(self, key, value):
@@ -882,11 +873,11 @@ class ListDataView(Generic[_V]):
             )
 
     @overload
-    def __delitem__(self, key: int) -> None:  # noqa
+    def __delitem__(self, key: int) -> None:  # noqa: D105
         ...
 
     @overload
-    def __delitem__(self, key: slice) -> None:  # noqa
+    def __delitem__(self, key: slice) -> None:  # noqa: D105
         ...
 
     def __delitem__(self, key):
@@ -900,7 +891,7 @@ class ListDataView(Generic[_V]):
 
 
 @merge_super_sigs
-class TupleEdit(Container):
+class TupleEdit(Container[ValueWidget]):
     """A widget to represent a tuple of values.
 
     A TupleEdit container has several child widgets of different type. Their value is
@@ -951,14 +942,6 @@ class TupleEdit(Container):
             self.insert(i, widget)
             widget.changed.disconnect()
             widget.changed.connect(lambda: self.changed.emit(self.value))
-
-    def __iter__(self) -> Iterator[ValueWidget]:
-        """Just for typing."""
-        return super().__iter__()
-
-    def __getitem__(self, key: int) -> ValueWidget:  # type: ignore[override]
-        """Just for typing."""
-        return super().__getitem__(key)
 
     @property
     def annotation(self):
