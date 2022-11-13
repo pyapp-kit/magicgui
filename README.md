@@ -93,20 +93,4 @@ and usage examples.
 
 Contributions are welcome!
 
-Please note: `magicgui` attempts to adhere to strict coding rules and employs the
-following static analysis tools to prevent errors from being introduced into the
-codebase:
-
-- [black](https://github.com/psf/black) - code formatting
-- [flake8](https://github.com/PyCQA/flake8) - linting
-- [pydocstyle](https://github.com/PyCQA/pydocstyle/) - docstring conventions
-- [mypy](http://mypy-lang.org/) - static type anaylsis
-- [codecov](https://codecov.io/) - test coverage
-
-To prevent continuous integration failures when contributing, please consider installing
-[pre-commit](https://pre-commit.com/) in your environment to run all of these checks
-prior to checking in new code.
-
-```shell
-pre-commit install
-```
+See contributing guide [here](https://github.com/pyapp-kit/magicgui/blob/main/CONTRIBUTING.md).
