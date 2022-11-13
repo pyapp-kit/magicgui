@@ -969,29 +969,56 @@ def test_list_edit():
     """Test ListEdit."""
     from typing import List
 
+    mock = MagicMock()
+
     list_edit = widgets.ListEdit(value=[1, 2, 3])
+    list_edit.changed.connect(mock)
     assert list_edit.value == [1, 2, 3]
     assert list_edit.data == [1, 2, 3]
+    assert mock.call_count == 0
 
     list_edit.btn_plus.changed()
     assert list_edit.value == [1, 2, 3, 3]
     assert list_edit.data == [1, 2, 3, 3]
+    assert mock.call_count == 1
+    mock.assert_called_with([1, 2, 3, 3])
 
     list_edit.btn_minus.changed()
     assert list_edit.value == [1, 2, 3]
     assert list_edit.data == [1, 2, 3]
+    assert mock.call_count == 2
+    mock.assert_called_with([1, 2, 3])
 
     list_edit.data[0] = 0
     assert list_edit.value == [0, 2, 3]
     assert list_edit.data == [0, 2, 3]
+    assert mock.call_count == 3
+    mock.assert_called_with([0, 2, 3])
+
+    list_edit[0].value = 10
+    assert list_edit.value == [10, 2, 3]
+    assert list_edit.data == [10, 2, 3]
+    assert mock.call_count == 4
+    mock.assert_called_with([10, 2, 3])
 
     list_edit.data[0:2] = [6, 5]  # type: ignore
     assert list_edit.value == [6, 5, 3]
     assert list_edit.data == [6, 5, 3]
+    assert mock.call_count == 5
+    mock.assert_called_with([6, 5, 3])
 
     del list_edit.data[0]
     assert list_edit.value == [5, 3]
     assert list_edit.data == [5, 3]
+    assert mock.call_count == 6
+    mock.assert_called_with([5, 3])
+
+    list_edit.value = [2, 1]
+    assert list_edit.value == [2, 1]
+    assert list_edit.data == [2, 1]
+    # NOTE: changed.blocked() does not restore
+    assert mock.call_count == 7
+    mock.assert_called_with([2, 1])
 
     @magicgui
     def f1(x=[2, 4, 6]):
@@ -1041,10 +1068,22 @@ def test_tuple_edit():
     """Test TupleEdit."""
     from typing import Tuple
 
+    mock = MagicMock()
+
     tuple_edit = widgets.TupleEdit(value=(1, "a", 2.5))
+    tuple_edit.changed.connect(mock)
     assert tuple_edit.value == (1, "a", 2.5)
+    assert mock.call_count == 0
+
+    tuple_edit[0].value = 2
+    assert tuple_edit.value == (2, "a", 2.5)
+    assert mock.call_count == 1
+    mock.assert_called_with((2, "a", 2.5))
+
     tuple_edit.value = (2, "xyz", 1.0)
     assert tuple_edit.value == (2, "xyz", 1.0)
+    assert mock.call_count == 2
+    mock.assert_called_with((2, "xyz", 1.0))
 
     with pytest.raises(ValueError):
         tuple_edit.value = (2, "x")
