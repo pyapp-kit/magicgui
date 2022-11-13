@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     # fmt: on
 
 
-__all__ = ["guiclass", "button"]
+__all__ = ["guiclass", "button", "is_guiclass", "unbind_gui_from_instance"]
 _BUTTON_ATTR = "_magicgui_button"
 _GUICLASS_FLAG = "__magicgui_guiclass__"
 
