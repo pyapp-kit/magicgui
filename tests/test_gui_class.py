@@ -1,7 +1,7 @@
 import contextlib
 import sys
-from dataclasses import asdict
-from typing import TYPE_CHECKING
+from dataclasses import asdict, dataclass
+from typing import TYPE_CHECKING, ClassVar
 from unittest.mock import Mock
 
 import psygnal
@@ -29,9 +29,10 @@ def test_guiclass():
         def func(self):
             mock(asdict(self))
 
+        # example recommended for type checking
         if TYPE_CHECKING:
-            gui: Container
-            events: psygnal.SignalGroup
+            gui: ClassVar[Container]
+            events: ClassVar[psygnal.SignalGroup]
 
     foo = Foo()
 
@@ -63,6 +64,21 @@ def test_frozen_guiclass():
         class Foo:
             a: int = 1
             b: str = "bar"
+
+
+def test_on_existing_dataclass():
+    """Test that the guiclass decorator works on pre-existing dataclasses."""
+
+    @guiclass
+    @dataclass
+    class Foo:
+        a: int = 1
+        b: str = "bar"
+
+    foo = Foo()
+    assert foo.a == 1
+    assert foo.b == "bar"
+    assert isinstance(foo.gui, Container)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="slots are python3.10 or higher")

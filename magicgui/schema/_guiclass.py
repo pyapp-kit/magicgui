@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import contextlib
 import warnings
-from dataclasses import dataclass, is_dataclass
+from dataclasses import dataclass, field, is_dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -50,8 +50,46 @@ __all__ = ["guiclass", "button"]
 _BUTTON_ATTR = "_magicgui_button"
 _GUICLASS_FLAG = "__magicgui_guiclass__"
 
+_T = TypeVar("_T")
 T = TypeVar("T", bound=Type[Any])
 F = TypeVar("F", bound=Callable)
+
+
+# https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
+def __dataclass_transform__(
+    *,
+    eq_default: bool = True,
+    order_default: bool = False,
+    kw_only_default: bool = False,
+    field_specifiers: tuple[type | Callable[..., Any], ...] = (()),
+) -> Callable[[_T], _T]:
+    return lambda a: a
+
+
+@__dataclass_transform__(field_specifiers=(field,))
+@overload
+def guiclass(
+    cls: T,
+    *,
+    gui_name: str = "gui",
+    events_namespace: str = "events",
+    follow_changes: bool = True,
+    **dataclass_kwargs: Any,
+) -> T:
+    ...
+
+
+@__dataclass_transform__(field_specifiers=(field,))
+@overload
+def guiclass(
+    cls: Literal[None] = None,
+    *,
+    gui_name: str = "gui",
+    events_namespace: str = "events",
+    follow_changes: bool = True,
+    **dataclass_kwargs: Any,
+) -> Callable[[T], T]:
+    ...
 
 
 def guiclass(
@@ -61,7 +99,7 @@ def guiclass(
     events_namespace: str = "events",
     follow_changes: bool = True,
     **dataclass_kwargs: Any,
-) -> T:
+) -> Union[T, Callable[[T], T]]:
     """Turn class into a dataclass with a property (`gui_name`) that returns a gui.
 
     This decorator is similar to `dataclasses.dataclass`, but it will also add an
@@ -125,13 +163,15 @@ def guiclass(
             )
 
         setattr(cls, gui_name, _gui_descriptor(gui_name, follow_changes=follow_changes))
-        cls = dataclass(cls, **dataclass_kwargs)  # type: ignore
+
+        if not is_dataclass(cls):
+            cls = dataclass(cls, **dataclass_kwargs)  # type: ignore
         cls = evented(cls, events_namespace=events_namespace)
 
         setattr(cls, _GUICLASS_FLAG, True)
         return cls
 
-    return _deco(cls) if cls is not None else _deco  # type: ignore
+    return _deco(cls) if cls is not None else _deco
 
 
 def is_guiclass(obj: object) -> TypeGuard[Guiclass]:
