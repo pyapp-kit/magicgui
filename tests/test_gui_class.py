@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from unittest.mock import Mock
 
-from magicgui._guiclass import button, guiclass
+from magicgui.schema._guiclass import button, guiclass
 
 
 def test_guiclass():
