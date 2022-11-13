@@ -13,7 +13,7 @@ from typing import Any, Callable, Literal, Optional, Type, TypeVar, Union, overl
 from psygnal import SignalGroup, evented
 
 from magicgui.widgets import PushButton
-from magicgui.widgets._bases import ContainerWidget, ValueWidget
+from magicgui.widgets.bases import ContainerWidget, ValueWidget
 
 from ._ui_field import build_widget
 
