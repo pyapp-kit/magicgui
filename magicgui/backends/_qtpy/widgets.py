@@ -24,8 +24,7 @@ from qtpy.QtGui import (
 )
 
 from magicgui.types import FileDialogMode
-from magicgui.widgets import _protocols
-from magicgui.widgets._bases import Widget
+from magicgui.widgets import Widget, protocols
 
 
 @contextmanager
@@ -51,7 +50,7 @@ class EventFilter(QObject):
         return False
 
 
-class QBaseWidget(_protocols.WidgetProtocol):
+class QBaseWidget(protocols.WidgetProtocol):
     """Implements show/hide/native."""
 
     _qwidget: QtW.QWidget
@@ -174,7 +173,7 @@ class QBaseWidget(_protocols.WidgetProtocol):
         return arr[:, :, [2, 1, 0, 3]]
 
 
-class QBaseValueWidget(QBaseWidget, _protocols.ValueWidgetProtocol):
+class QBaseValueWidget(QBaseWidget, protocols.ValueWidgetProtocol):
     """Implements get/set/bind_change."""
 
     def __init__(
@@ -305,7 +304,7 @@ class LiteralEvalLineEdit(QBaseStringWidget):
         return literal_eval(value)
 
 
-class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
+class TextEdit(QBaseStringWidget, protocols.SupportsReadOnly):
     def __init__(self, **kwargs):
         super().__init__(
             QtW.QTextEdit, "toPlainText", "setText", "textChanged", **kwargs
@@ -321,7 +320,7 @@ class TextEdit(QBaseStringWidget, _protocols.SupportsReadOnly):
 # NUMBERS
 
 
-class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
+class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
     _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QAbstractSlider
@@ -382,7 +381,7 @@ class QBaseRangedWidget(QBaseValueWidget, _protocols.RangedWidgetProtocol):
 # BUTTONS
 
 
-class QBaseButtonWidget(QBaseValueWidget, _protocols.SupportsText):
+class QBaseButtonWidget(QBaseValueWidget, protocols.SupportsText):
     _qwidget: QtW.QCheckBox | QtW.QPushButton | QtW.QRadioButton | QtW.QToolButton
 
     def __init__(self, qwidg, **kwargs):
@@ -422,7 +421,7 @@ class RadioButton(QBaseButtonWidget):
 
 
 class Container(
-    QBaseWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
+    QBaseWidget, protocols.ContainerProtocol, protocols.SupportsOrientation
 ):
     def __init__(self, layout="vertical", scrollable: bool = False, **kwargs):
         QBaseWidget.__init__(self, QtW.QWidget, **kwargs)
@@ -554,7 +553,7 @@ class FloatSpinBox(QBaseRangedWidget):
         self._qwidget.setSingleStep(value)
 
 
-class _Slider(QBaseRangedWidget, _protocols.SupportsOrientation):
+class _Slider(QBaseRangedWidget, protocols.SupportsOrientation):
     _qwidget: QtW.QSlider
 
     def __init__(
@@ -791,7 +790,7 @@ class ProgressBar(_Slider):
         self._qwidget.setTextVisible(value)
 
 
-class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
+class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
     _qwidget: QtW.QComboBox
 
     def __init__(self, **kwargs):
@@ -880,7 +879,7 @@ class ComboBox(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
         )
 
 
-class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
+class Select(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
     _qwidget: QtW.QListWidget
 
     def __init__(self, **kwargs):
@@ -976,8 +975,8 @@ class Select(QBaseValueWidget, _protocols.CategoricalWidgetProtocol):
 
 class RadioButtons(
     QBaseValueWidget,
-    _protocols.CategoricalWidgetProtocol,
-    _protocols.SupportsOrientation,
+    protocols.CategoricalWidgetProtocol,
+    protocols.SupportsOrientation,
 ):
     _qwidget: QtW.QGroupBox
 
@@ -1114,7 +1113,7 @@ class TimeEdit(QBaseValueWidget):
             return self._qwidget.time().toPyTime()
 
 
-class Dialog(QBaseWidget, _protocols.ContainerProtocol):
+class Dialog(QBaseWidget, protocols.ContainerProtocol):
     def __init__(self, layout="vertical", scrollable: bool = False, **kwargs):
         QBaseWidget.__init__(self, QtW.QDialog, **kwargs)
         if layout == "horizontal":
@@ -1293,7 +1292,7 @@ class _QTableExtended(QtW.QTableWidget):
         return super().keyPressEvent(e)
 
 
-class Table(QBaseWidget, _protocols.TableWidgetProtocol):
+class Table(QBaseWidget, protocols.TableWidgetProtocol):
     _qwidget: _QTableExtended
     _DATA_ROLE: int = 255
     _EDITABLE = QtW.QTableWidget.EditKeyPressed | QtW.QTableWidget.DoubleClicked

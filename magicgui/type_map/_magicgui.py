@@ -185,7 +185,7 @@ class MagicFactory(partial):
                 raise TypeError(
                     f"'widget_init' must be a callable, not {type(widget_init)}"
                 )
-            if not len(inspect.signature(widget_init).parameters) == 1:
+            if len(inspect.signature(widget_init).parameters) != 1:
                 raise TypeError(
                     "'widget_init' must be a callable that accepts a single argument"
                 )
@@ -250,7 +250,4 @@ def _magicgui(
         # so we shortcut that and just return the FunctionGui here.
         return magic_class(func, **kwargs)
 
-    if function is None:
-        return inner_func
-    else:
-        return inner_func(function)
+    return inner_func if function is None else inner_func(function)

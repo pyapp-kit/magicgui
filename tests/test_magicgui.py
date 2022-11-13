@@ -433,8 +433,8 @@ def test_register_types_by_string():
     assert isinstance(func.c, widgets.ComboBox)
     assert isinstance(func.d, widgets.LineEdit)
 
-    del type_map._TYPE_DEFS[str]
-    del type_map._TYPE_DEFS[int]
+    del type_map._type_map._TYPE_DEFS[str]
+    del type_map._type_map._TYPE_DEFS[int]
 
 
 def test_register_types_by_class():
@@ -480,7 +480,7 @@ def test_register_return_callback():
 
         func2()
     finally:
-        from magicgui.type_map import _RETURN_CALLBACKS
+        from magicgui.type_map._type_map import _RETURN_CALLBACKS
 
         _RETURN_CALLBACKS.pop(int)
         _RETURN_CALLBACKS.pop(Base)

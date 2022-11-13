@@ -1,4 +1,4 @@
-"""Most code in this module is vendored from matplotlib
+"""Most code in this module is vendored from matplotlib.
 
 License agreement for matplotlib versions 1.3.0 and later
 =========================================================

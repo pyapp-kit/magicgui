@@ -2,9 +2,9 @@ from typing import Optional
 
 from psygnal import Signal, SignalInstance
 
-from magicgui.widgets import _protocols
+from magicgui.widgets import protocols
 
-from .value_widget import ValueWidget
+from ._value_widget import ValueWidget
 
 
 class ButtonWidget(ValueWidget):
@@ -16,7 +16,7 @@ class ButtonWidget(ValueWidget):
         The text to display on the button. If not provided, will use ``name``.
     """
 
-    _widget: _protocols.ButtonWidgetProtocol
+    _widget: protocols.ButtonWidgetProtocol
     changed = Signal(object)
 
     def __init__(self, text: Optional[str] = None, **kwargs):
