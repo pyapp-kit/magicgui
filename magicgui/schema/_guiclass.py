@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import contextlib
 import warnings
-from dataclasses import dataclass, field, is_dataclass
+from dataclasses import Field, dataclass, field, is_dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -66,7 +66,7 @@ def __dataclass_transform__(
     return lambda a: a
 
 
-@__dataclass_transform__(field_specifiers=(field,))
+@__dataclass_transform__(field_specifiers=(Field, field))
 @overload
 def guiclass(
     cls: T,
@@ -79,7 +79,7 @@ def guiclass(
     ...
 
 
-@__dataclass_transform__(field_specifiers=(field,))
+@__dataclass_transform__(field_specifiers=(Field, field))
 @overload
 def guiclass(
     cls: Literal[None] = None,
