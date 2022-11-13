@@ -1,11 +1,21 @@
+"""`guiclass` decorator.
+
+1. Turns a class into a dataclass
+2. Uses `psygnal.evented` to make it an [evented
+   dataclass](https://psygnal.readthedocs.io/en/latest/dataclasses/)
+2. Adds a `gui` property to the class that will return a `magicgui` widget, bound to
+   the values of the dataclass instance.
+"""
+
 from dataclasses import dataclass
 from typing import Any, Callable, Literal, Optional, Type, TypeVar, Union, overload
 
 from psygnal import SignalGroup, evented
 
-from magicgui._ui_field import build_widget
 from magicgui.widgets import PushButton
 from magicgui.widgets._bases import ContainerWidget, ValueWidget
+
+from ._ui_field import build_widget
 
 __all__ = ["guiclass", "button"]
 _BUTTON_ATTR = "_magicgui_button"
