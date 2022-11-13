@@ -7,6 +7,7 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    Mapping,
     MutableSequence,
     Sequence,
     TypeVar,
@@ -14,7 +15,6 @@ from typing import (
 )
 
 from psygnal import Signal
-from pyparsing import Mapping
 
 from magicgui._util import debounce
 from magicgui.application import use_app
