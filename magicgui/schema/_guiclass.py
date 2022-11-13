@@ -6,7 +6,7 @@
 2. Adds a `gui` property to the class that will return a `magicgui` widget, bound to
    the values of the dataclass instance.
 """
-
+from __future__ import annotations
 
 import contextlib
 import warnings
@@ -31,14 +31,19 @@ from magicgui.widgets.bases import ContainerWidget, ValueWidget
 from ._ui_field import build_widget
 
 if TYPE_CHECKING:
-    from typing import Protocol, runtime_checkable
+    from typing import Protocol
 
-    @runtime_checkable
-    class GuiclassProtocol(Protocol):
-        """Protocol for a class that has been decorated with `guiclass`."""
+    from typing_extensions import TypeGuard
 
-        gui: ContainerWidget
-        events: SignalGroup
+    # fmt: off
+    class Guiclass(Protocol):
+        """Protocol for a guiclass."""
+
+        @property
+        def gui(self) -> ContainerWidget: ...  # noqa: E704
+        @property
+        def events(self) -> SignalGroup: ...  # noqa: E704
+    # fmt: on
 
 
 __all__ = ["guiclass", "button"]
@@ -129,8 +134,8 @@ def guiclass(
     return _deco(cls) if cls is not None else _deco  # type: ignore
 
 
-def is_guiclass(obj: object) -> bool:
-    """Returns True if obj is a dataclass or an instance of a dataclass."""
+def is_guiclass(obj: object) -> TypeGuard[Guiclass]:
+    """Return `True` if obj is a guiclass or an instance of a guiclass."""
     return is_dataclass(obj) and hasattr(obj, _GUICLASS_FLAG)
 
 
