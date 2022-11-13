@@ -65,9 +65,17 @@ def _bind_gui_changes_to_instance(
                 signals[widget.name].connect_setattr(widget, "value")
 
 
-def guiclass(cls: T, gui_name: str = "gui", follow_changes: bool = True) -> T:
+def guiclass(
+    cls: T,
+    *,
+    gui_name: str = "gui",
+    events_namespace: str = "events",
+    follow_changes: bool = True,
+    **dataclass_kwargs: Any,
+) -> T:
     """Turn class into a dataclass with a property (`gui_name`) that returns a gui."""
-    cls = evented(dataclass(cls))
+    cls = dataclass(cls, **dataclass_kwargs)  # type: ignore
+    cls = evented(cls, events_namespace=events_namespace)
     setattr(cls, gui_name, _gui_descriptor(gui_name, follow_changes=follow_changes))
     return cls
 
@@ -82,12 +90,14 @@ def button(func: Literal[None] = None, **kwargs: Any) -> Callable[[F], F]:
     ...
 
 
-def button(func: Optional[F] = None, **kwargs: Any) -> Union[F, Callable[[F], F]]:
+def button(
+    func: Optional[F] = None, **button_kwargs: Any
+) -> Union[F, Callable[[F], F]]:
     """Decorate a method as a button."""
 
     def _deco(func):
-        kwargs.setdefault("label", func.__name__)
-        setattr(func, _BUTTON_ATTR, kwargs)
+        button_kwargs.setdefault("label", func.__name__)
+        setattr(func, _BUTTON_ATTR, button_kwargs)
         return func
 
     return _deco(func) if func else _deco
