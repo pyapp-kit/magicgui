@@ -1,4 +1,5 @@
 """A wrapper around the tqdm.tqdm iterator that adds a ProgressBar to a magicgui."""
+import contextlib
 import inspect
 from typing import Iterable, Optional, cast
 
@@ -12,7 +13,7 @@ except ImportError as e:  # pragma: no cover
         f"{e}. To use magicgui with tqdm please `pip install tqdm`, "
         "or use the tqdm extra: `pip install magicgui[tqdm]`"
     )
-    raise type(e)(msg)
+    raise type(e)(msg) from e
 
 
 def _find_calling_function_gui(max_depth=6) -> Optional[FunctionGui]:
@@ -26,10 +27,7 @@ def _find_calling_function_gui(max_depth=6) -> Optional[FunctionGui]:
         # have the ``FunctionGui`` instance as ``self`` in its locals namespace.
         if finfo.function == "__call__" and finfo.filename.endswith("function_gui.py"):
             obj = finfo.frame.f_locals.get("self")
-            if isinstance(obj, FunctionGui):
-                return obj
-            return None  # pragma: no cover
-
+            return obj if isinstance(obj, FunctionGui) else None
     return None
 
 
@@ -149,11 +147,8 @@ class tqdm(_tqdm_std):
 
         # remove from tqdm instance set
         with self._lock:
-            try:
+            with contextlib.suppress(KeyError):
                 self._instances.remove(self)
-            except KeyError:  # pragma: no cover
-                pass
-
             if not self.leave:
                 self._app.process_events()
                 self.progressbar.hide()

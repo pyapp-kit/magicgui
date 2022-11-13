@@ -30,17 +30,15 @@ from docstring_parser import DocstringParam, parse
 from typing_extensions import get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
+from magicgui._util import safe_issubclass
 from magicgui.application import use_app
-from magicgui.types import FileDialogMode, PathLike
-from magicgui.widgets import _protocols
-from magicgui.widgets._bases.container_widget import DialogWidget
-from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
-
-from ..types import Undefined, _Undefined
-from ._bases import (
+from magicgui.types import FileDialogMode, PathLike, Undefined, _Undefined
+from magicgui.widgets import protocols
+from magicgui.widgets.bases import (
     ButtonWidget,
     CategoricalWidget,
     ContainerWidget,
+    DialogWidget,
     MainWindowWidget,
     MultiValuedSliderWidget,
     RangedWidget,
@@ -50,6 +48,7 @@ from ._bases import (
     Widget,
     create_widget,
 )
+from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
@@ -335,7 +334,7 @@ class LogSlider(TransformedRangedWidget):
         The base to use for the log, by default math.e.
     """
 
-    _widget: _protocols.SliderWidgetProtocol
+    _widget: protocols.SliderWidgetProtocol
 
     def __init__(
         self,
@@ -738,10 +737,9 @@ class ListEdit(Container[ValueWidget]):
         arg: type | None = None
 
         if value and value is not inspect.Parameter.empty:
-            from magicgui.type_map import _is_subclass
 
             orig = get_origin(value) or value
-            if not (_is_subclass(orig, list) or isinstance(orig, list)):
+            if not (safe_issubclass(orig, list) or isinstance(orig, list)):
                 raise TypeError(
                     f"cannot set annotation {value} to {type(self).__name__}."
                 )
@@ -963,10 +961,8 @@ class TupleEdit(Container[ValueWidget]):
         args: tuple[type, ...] | None = None
 
         if value and value is not inspect.Parameter.empty:
-            from magicgui.type_map import _is_subclass
-
             orig = get_origin(value)
-            if not (_is_subclass(orig, tuple) or isinstance(orig, tuple)):
+            if not (safe_issubclass(orig, tuple) or isinstance(orig, tuple)):
                 raise TypeError(
                     f"cannot set annotation {value} to {type(self).__name__}."
                 )

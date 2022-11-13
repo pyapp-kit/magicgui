@@ -4,7 +4,7 @@ from qtpy.QtCore import QCoreApplication, Qt, QTimer
 from qtpy.QtWidgets import QApplication
 
 from magicgui.application import APPLICATION_NAME
-from magicgui.widgets._protocols import BaseApplicationBackend
+from magicgui.widgets.protocols import BaseApplicationBackend
 
 
 class ApplicationBackend(BaseApplicationBackend):

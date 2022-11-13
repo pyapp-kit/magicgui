@@ -9,8 +9,8 @@ from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from magicgui.widgets import FunctionGui
-    from magicgui.widgets._bases import CategoricalWidget, Widget
-    from magicgui.widgets._protocols import WidgetProtocol
+    from magicgui.widgets.bases import CategoricalWidget, Widget
+    from magicgui.widgets.protocols import WidgetProtocol
 
 #: A :class:`~magicgui.widgets._bases.Widget` class or a
 #: :class:`~magicgui.widgets._protocols.WidgetProtocol`
@@ -108,3 +108,16 @@ JsonStringFormats = Literal[
     # regular expressions
     "regex",  # draft 7
 ]
+
+
+def __getattr__(name: str):
+    if name == "WidgetOptions":
+        import warnings
+
+        warnings.warn(
+            "magicgui.types.WidgetOptions is being removed. Use `dict` instead, "
+            "and restrict import to a TYPE_CHECKING clause.",
+            DeprecationWarning,
+        )
+        return dict
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

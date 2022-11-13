@@ -7,7 +7,7 @@ import pytest
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui._type_resolution import resolve_single_type
-from magicgui.type_map import _RETURN_CALLBACKS
+from magicgui.type_map._type_map import _RETURN_CALLBACKS
 
 
 def test_forward_refs():
@@ -39,7 +39,7 @@ def test_forward_refs():
     "cls, string", [("LineEdit", "str"), ("SpinBox", "int"), ("FloatSpinBox", "float")]
 )
 def test_pick_widget_builtins_forward_refs(cls, string):
-    wdg = type_map.pick_widget_type(annotation=string)[0]
+    wdg = type_map.get_widget_class(annotation=string)[0]
     assert getattr(wdg, "__name__") == cls
 
 

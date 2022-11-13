@@ -132,5 +132,4 @@ dmypy.json
 
 .vscode
 .DS_Store
-magicgui/_version.py
 examples/_wip

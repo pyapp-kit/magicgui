@@ -5,9 +5,9 @@ from typing import Any
 
 from magicgui.application import use_app
 from magicgui.types import Undefined
-from magicgui.widgets import _bases, _protocols
+from magicgui.widgets import bases, protocols
 
-from .widget import Widget
+from ._widget import Widget
 
 
 def create_widget(
@@ -18,7 +18,7 @@ def create_widget(
     label=None,
     gui_only=False,
     app=None,
-    widget_type: str | type[_protocols.WidgetProtocol] | None = None,
+    widget_type: str | type[protocols.WidgetProtocol] | None = None,
     options: dict = dict(),
     is_result: bool = False,
     raise_on_unknown: bool = True,
@@ -82,7 +82,7 @@ def create_widget(
     _is_result = kwargs.pop("is_result", None)
     _app = use_app(kwargs.pop("app"))
     assert _app.native
-    if isinstance(widget_type, _protocols.WidgetProtocol):
+    if isinstance(widget_type, protocols.WidgetProtocol):
         wdg_class = kwargs.pop("widget_type")
     else:
         from magicgui.type_map import get_widget_class
@@ -105,11 +105,11 @@ def create_widget(
     # pick the appropriate subclass for the given protocol
     # order matters
     for p in ("Categorical", "Ranged", "Button", "Value", ""):
-        prot = getattr(_protocols, f"{p}WidgetProtocol")
+        prot = getattr(protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
 
             options = kwargs.pop("options", {})
-            cls = getattr(_bases, f"{p}Widget")
+            cls = getattr(bases, f"{p}Widget")
             widget = cls(**{**kwargs, **options, "widget_type": wdg_class})
             if _kind:
                 widget.param_kind = _kind

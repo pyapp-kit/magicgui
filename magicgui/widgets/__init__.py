@@ -11,7 +11,6 @@ to the function.
 
 from functools import partial
 
-from ._bases import Widget, create_widget
 from ._concrete import (
     CheckBox,
     ComboBox,
@@ -49,6 +48,7 @@ from ._dialogs import request_values, show_file_dialog
 from ._function_gui import FunctionGui, MainFunctionGui
 from ._image import Image
 from ._table import Table
+from .bases import Widget, create_widget
 
 #: Aliases for compatibility with ipywidgets.  (WIP)
 IntSlider = Slider

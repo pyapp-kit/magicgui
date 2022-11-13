@@ -1,7 +1,7 @@
 import pytest
 
 from magicgui import magic_factory
-from magicgui._magicgui import MagicFactory
+from magicgui.type_map._magicgui import MagicFactory
 from magicgui.widgets import ComboBox, FunctionGui, Slider
 
 
