@@ -698,10 +698,7 @@ class ListEdit(Container):
         self._child_options = options or {}
 
         button_plus = PushButton(text="+", name="plus")
-        button_plus.changed.connect(lambda: self._append_value())
-
         button_minus = PushButton(text="-", name="minus")
-        button_minus.changed.connect(self._pop_value)
 
         if layout == "horizontal":
             button_plus.max_width = 40
@@ -709,6 +706,10 @@ class ListEdit(Container):
 
         self.append(button_plus)
         self.append(button_minus)
+        button_plus.changed.disconnect()
+        button_minus.changed.disconnect()
+        button_plus.changed.connect(lambda: self._append_value())
+        button_minus.changed.connect(self._pop_value)
 
         for a in _value:
             self._append_value(a)
@@ -749,27 +750,44 @@ class ListEdit(Container):
         self._annotation = value
         self._args_type = arg
 
+    def __iter__(self) -> Iterator[ValueWidget]:
+        """Just for typing."""
+        return super().__iter__()
+
+    def __getitem__(self, key: int) -> ValueWidget:  # type: ignore[override]
+        """Just for typing."""
+        return super().__getitem__(key)
+
+    def __delitem__(self, key: int | slice):
+        """Delete child widget(s)."""
+        super().__delitem__(key)
+        self.changed.emit(self.value)
+
     def _append_value(self, value=Undefined):
         """Create a new child value widget and append it."""
         i = len(self) - 2
 
-        widget = create_widget(
+        widget: ValueWidget = create_widget(
             annotation=self._args_type,
             name=f"value_{i}",
             options=self._child_options,
         )
 
-        if isinstance(widget, EmptyWidget):
-            raise TypeError("could not determine the type of child widget.")
+        with self.changed.blocked():
+            # signal will be emitted in the last
+            self.insert(i, widget)
 
-        self.insert(i, widget)
+            widget.changed.disconnect()
 
-        # Value must be set after new widget is inserted because it could be
-        # valid only after same parent is shared between widgets.
-        if value is Undefined and i > 0:
-            value = self[i - 1].value
-        if value is not Undefined:
-            widget.value = value
+            # Value must be set after new widget is inserted because it could be
+            # valid only after same parent is shared between widgets.
+            if value is Undefined and i > 0:
+                value = self[i - 1].value
+            if value is not Undefined:
+                widget.value = value
+
+        widget.changed.connect(lambda: self.changed.emit(self.value))
+        self.changed.emit(self.value)
 
     def _pop_value(self):
         """Delete last child value widget."""
@@ -806,7 +824,7 @@ class ListDataView(Generic[_V]):
 
     def __init__(self, obj: ListEdit):
         self._obj = obj
-        self._widgets: list[ValueWidget] = list(obj[:-2])
+        self._widgets: list[ValueWidget] = list(obj[:-2])  # type: ignore
 
     def __repr__(self):
         """Return list-like representation."""
@@ -852,12 +870,14 @@ class ListDataView(Generic[_V]):
         if isinstance(key, int):
             self._widgets[key].value = value
         elif isinstance(key, slice):
-            if isinstance(value, type(self._widgets[0].value)):
-                for w in self._widgets[key]:
-                    w.value = value
-            else:
-                for w, v in zip(self._widgets[key], value):
-                    w.value = v
+            with self._obj.changed.blocked():
+                if isinstance(value, type(self._widgets[0].value)):
+                    for w in self._widgets[key]:
+                        w.value = value
+                else:
+                    for w, v in zip(self._widgets[key], value):
+                        w.value = v
+            self._obj.changed.emit(self._obj.value)
         else:
             raise TypeError(
                 f"list indices must be integers or slices, not {type(key).__name__}"
@@ -924,17 +944,23 @@ class TupleEdit(Container):
 
         for i, a in enumerate(_value):
             i = len(self)
-            widget = create_widget(
+            widget: ValueWidget = create_widget(
                 value=a,
                 annotation=self._args_types[i],
                 name=f"value_{i}",
                 options=self._child_options,
             )
             self.insert(i, widget)
+            widget.changed.disconnect()
+            widget.changed.connect(lambda: self.changed.emit(self.value))
 
     def __iter__(self) -> Iterator[ValueWidget]:
         """Just for typing."""
         return super().__iter__()
+
+    def __getitem__(self, key: int) -> ValueWidget:  # type: ignore[override]
+        """Just for typing."""
+        return super().__getitem__(key)
 
     @property
     def annotation(self):
