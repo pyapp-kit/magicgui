@@ -37,7 +37,7 @@ argument
 ## code
 
 *Code follows, with explanation below... You can also [get this example at
-github](https://github.com/napari/magicgui/blob/main/examples/napari_param_sweep.py).*
+github](https://github.com/pyapp-kit/magicgui/blob/main/examples/napari_param_sweep.py).*
 
 ```{code-block} python
 ---

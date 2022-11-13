@@ -3,14 +3,14 @@ from __future__ import annotations
 
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Literal, Tuple, Type, Union
 
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from magicgui.widgets import FunctionGui
-    from magicgui.widgets._bases import CategoricalWidget, Widget
-    from magicgui.widgets._protocols import WidgetProtocol
+    from magicgui.widgets.bases import CategoricalWidget, Widget
+    from magicgui.widgets.protocols import WidgetProtocol
 
 #: A :class:`~magicgui.widgets._bases.Widget` class or a
 #: :class:`~magicgui.widgets._protocols.WidgetProtocol`
@@ -77,3 +77,47 @@ class _Undefined:
 
 
 Undefined = _Undefined()
+
+JsonStringFormats = Literal[
+    # ISO 8601 format.
+    # https://www.iso.org/iso-8601-date-and-time-format.html
+    "date-time",  # 2018-11-13T20:20:39+00:00
+    "time",  # 20:20:39+00:00, Draft 7
+    "date",  # 2018-11-13, Draft 7
+    "duration",  # P1Y2M3DT4H5M6S, Draft 2019-09
+    # email addresses
+    "email",
+    "idn-email",  # Draft 7
+    # hostnames
+    "hostname",  # internet host name, RFC 1123
+    "idn-hostname",
+    # ip addresses
+    "ipv4",
+    "ipv6",
+    # resource identifiers
+    "uuid",  # 3e4666bf-d5e5-4aa7-b8ce-cefe41c7568a, draft 2019-09
+    "uri",  # RFC3986
+    "uri-reference",  # RFC3986, section 4.1., draft 6
+    "iri",  # draft 7
+    "iri-reference",  # draft 7
+    # uri template
+    "uri-template",  # RFC6570, draft 6
+    # json pointer
+    "json-pointer",  # RFC6901, draft 6
+    "relative-json-pointer",  # draft 7
+    # regular expressions
+    "regex",  # draft 7
+]
+
+
+def __getattr__(name: str):
+    if name == "WidgetOptions":
+        import warnings
+
+        warnings.warn(
+            "magicgui.types.WidgetOptions is being removed. Use `dict` instead, "
+            "and restrict import to a TYPE_CHECKING clause.",
+            DeprecationWarning,
+        )
+        return dict
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

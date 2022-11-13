@@ -23,8 +23,7 @@ from magicgui.application import AppRef
 from magicgui.types import Undefined
 
 if TYPE_CHECKING:
-    from magicgui.widgets import Container
-    from magicgui.widgets._bases import Widget
+    from magicgui.widgets import Container, Widget
 
 TZ_EMPTY = "__no__default__"
 
@@ -136,7 +135,7 @@ class MagicParameter(inspect.Parameter):
 
     def to_widget(self, app: AppRef = None) -> Widget:
         """Create and return a widget for this object."""
-        from magicgui.widgets._bases import create_widget
+        from magicgui.widgets import create_widget
 
         value = Undefined if self.default in (self.empty, TZ_EMPTY) else self.default
         annotation, options = split_annotated_type(self.annotation)

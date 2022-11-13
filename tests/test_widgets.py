@@ -9,7 +9,8 @@ import pytest
 from tests import MyInt
 
 from magicgui import magicgui, types, use_app, widgets
-from magicgui.widgets._bases import ValueWidget
+from magicgui.widgets import Container, request_values
+from magicgui.widgets.bases import DialogWidget, ValueWidget
 
 
 # it's important that "qt" be last here, so that it's used for
@@ -296,7 +297,7 @@ def test_container_label_widths(scrollable):
         return max(
             measure(w.label)
             for w in container
-            if not isinstance(w, widgets._bases.ButtonWidget)
+            if not isinstance(w, widgets.bases.ButtonWidget)
         )
 
     container.append(labela)
@@ -772,7 +773,7 @@ def test_categorical_widgets(Cls):
 
     mock = MagicMock()
     wdg.changed.connect(mock)
-    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert isinstance(wdg, widgets.bases.CategoricalWidget)
     assert wdg.value == 1
     assert wdg.current_choice == "first option"
     mock.assert_not_called()
@@ -853,7 +854,7 @@ def test_categorical_widgets_with_enums(Cls):
 
     mock = MagicMock()
     wdg.changed.connect(mock)
-    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert isinstance(wdg, widgets.bases.CategoricalWidget)
     assert wdg.value == MyEnum.A
     assert wdg.current_choice == "A"
     mock.assert_not_called()
@@ -968,29 +969,56 @@ def test_list_edit():
     """Test ListEdit."""
     from typing import List
 
+    mock = MagicMock()
+
     list_edit = widgets.ListEdit(value=[1, 2, 3])
+    list_edit.changed.connect(mock)
     assert list_edit.value == [1, 2, 3]
     assert list_edit.data == [1, 2, 3]
+    assert mock.call_count == 0
 
     list_edit.btn_plus.changed()
     assert list_edit.value == [1, 2, 3, 3]
     assert list_edit.data == [1, 2, 3, 3]
+    assert mock.call_count == 1
+    mock.assert_called_with([1, 2, 3, 3])
 
     list_edit.btn_minus.changed()
     assert list_edit.value == [1, 2, 3]
     assert list_edit.data == [1, 2, 3]
+    assert mock.call_count == 2
+    mock.assert_called_with([1, 2, 3])
 
     list_edit.data[0] = 0
     assert list_edit.value == [0, 2, 3]
     assert list_edit.data == [0, 2, 3]
+    assert mock.call_count == 3
+    mock.assert_called_with([0, 2, 3])
+
+    list_edit[0].value = 10
+    assert list_edit.value == [10, 2, 3]
+    assert list_edit.data == [10, 2, 3]
+    assert mock.call_count == 4
+    mock.assert_called_with([10, 2, 3])
 
     list_edit.data[0:2] = [6, 5]  # type: ignore
     assert list_edit.value == [6, 5, 3]
     assert list_edit.data == [6, 5, 3]
+    assert mock.call_count == 5
+    mock.assert_called_with([6, 5, 3])
 
     del list_edit.data[0]
     assert list_edit.value == [5, 3]
     assert list_edit.data == [5, 3]
+    assert mock.call_count == 6
+    mock.assert_called_with([5, 3])
+
+    list_edit.value = [2, 1]
+    assert list_edit.value == [2, 1]
+    assert list_edit.data == [2, 1]
+    # NOTE: changed.blocked() does not restore
+    assert mock.call_count == 7
+    mock.assert_called_with([2, 1])
 
     @magicgui
     def f1(x=[2, 4, 6]):
@@ -1040,10 +1068,22 @@ def test_tuple_edit():
     """Test TupleEdit."""
     from typing import Tuple
 
+    mock = MagicMock()
+
     tuple_edit = widgets.TupleEdit(value=(1, "a", 2.5))
+    tuple_edit.changed.connect(mock)
     assert tuple_edit.value == (1, "a", 2.5)
+    assert mock.call_count == 0
+
+    tuple_edit[0].value = 2
+    assert tuple_edit.value == (2, "a", 2.5)
+    assert mock.call_count == 1
+    mock.assert_called_with((2, "a", 2.5))
+
     tuple_edit.value = (2, "xyz", 1.0)
     assert tuple_edit.value == (2, "xyz", 1.0)
+    assert mock.call_count == 2
+    mock.assert_called_with((2, "xyz", 1.0))
 
     with pytest.raises(ValueError):
         tuple_edit.value = (2, "x")
@@ -1066,9 +1106,6 @@ def test_tuple_edit():
 
 def test_request_values(monkeypatch):
     from unittest.mock import Mock
-
-    from magicgui.widgets import Container, request_values
-    from magicgui.widgets._bases.container_widget import DialogWidget
 
     container = Container()
 

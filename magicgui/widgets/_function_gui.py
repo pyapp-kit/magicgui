@@ -10,17 +10,7 @@ from collections import deque
 from contextlib import contextmanager
 from pathlib import Path
 from types import FunctionType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Deque,
-    Generic,
-    Iterable,
-    Mapping,
-    TypeVar,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Deque, Generic, TypeVar, cast
 
 from psygnal import Signal
 
@@ -28,8 +18,8 @@ from magicgui._type_resolution import resolve_single_type
 from magicgui.application import AppRef
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
-from magicgui.widgets._bases.value_widget import ValueWidget
-from magicgui.widgets._protocols import ContainerProtocol, MainWindowProtocol
+from magicgui.widgets.bases import ValueWidget
+from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
     from magicgui.widgets import TextEdit
@@ -217,7 +207,7 @@ class FunctionGui(Container, Generic[_R]):
 
         self._result_widget: ValueWidget | None = None
         if result_widget:
-            from magicgui.widgets._bases import create_widget
+            from magicgui.widgets.bases import create_widget
 
             self._result_widget = create_widget(
                 value=None,
@@ -326,9 +316,9 @@ class FunctionGui(Container, Generic[_R]):
 
         return_type = sig.return_annotation
         if return_type:
-            from magicgui.type_map import _type2callback
+            from magicgui.type_map import type2callback
 
-            for callback in _type2callback(return_type):
+            for callback in type2callback(return_type):
                 callback(self, value, return_type)
         self.called.emit(value)
         return value
@@ -336,21 +326,6 @@ class FunctionGui(Container, Generic[_R]):
     def __repr__(self) -> str:
         """Return string representation of instance."""
         return f"<{type(self).__name__} {self._callable_name}{self.__signature__}>"
-
-    def update(
-        self,
-        mapping: Mapping | Iterable[tuple[str, Any]] | None = None,
-        **kwargs: Any,
-    ):
-        """Update the parameters in the widget from a mapping, iterable, or kwargs."""
-        with self.changed.blocked():
-            if mapping:
-                items = mapping.items() if isinstance(mapping, Mapping) else mapping
-                for key, value in items:
-                    getattr(self, key).value = value
-            for key, value in kwargs.items():
-                getattr(self, key).value = value
-        self.changed.emit()
 
     @property
     def result_name(self) -> str:
@@ -423,7 +398,7 @@ class FunctionGui(Container, Generic[_R]):
 
     @property
     def _dump_path(self) -> Path:
-        from .._util import user_cache_dir
+        from magicgui._util import user_cache_dir
 
         name = getattr(self._function, "__qualname__", self._callable_name)
         name = name.replace("<", "-").replace(">", "-")  # e.g. <locals>

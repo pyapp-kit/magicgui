@@ -121,3 +121,11 @@ def user_cache_dir(
     if appname and version:
         path = path / version
     return path
+
+
+def safe_issubclass(obj, superclass):
+    """Safely check if obj is a subclass of superclass."""
+    try:
+        return issubclass(obj, superclass)
+    except Exception:
+        return False

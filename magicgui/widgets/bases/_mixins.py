@@ -1,10 +1,10 @@
-from magicgui.widgets import _protocols
+from magicgui.widgets import protocols
 
 
 class _OrientationMixin:
     """Properties for classes wrapping widgets that support orientation."""
 
-    _widget: _protocols.SupportsOrientation
+    _widget: protocols.SupportsOrientation
 
     @property
     def orientation(self) -> str:
@@ -23,7 +23,7 @@ class _OrientationMixin:
 class _ReadOnlyMixin:
     """Properties for classes wrapping widgets that support read-only."""
 
-    _widget: _protocols.SupportsReadOnly
+    _widget: protocols.SupportsReadOnly
 
     @property
     def read_only(self) -> bool:

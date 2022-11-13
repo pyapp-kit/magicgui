@@ -23,7 +23,7 @@ from typing import (
 if TYPE_CHECKING:
     import numpy as np
 
-    from magicgui.widgets._bases import Widget
+    from magicgui.widgets.bases import Widget
 
 
 def assert_protocol(widget_class: type, protocol: type):

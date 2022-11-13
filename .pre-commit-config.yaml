@@ -34,6 +34,6 @@ repos:
     hooks:
       - id: mypy
         files: magicgui
-        exclude: magicgui/_magicgui.py
+        exclude: magicgui/type_map/_magicgui.py
         additional_dependencies:
           - numpy

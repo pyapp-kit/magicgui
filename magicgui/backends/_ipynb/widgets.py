@@ -9,8 +9,8 @@ except ImportError as e:
         "Please run `pip install ipywidgets`"
     ) from e
 
-from magicgui.widgets import _protocols
-from magicgui.widgets._bases import Widget
+from magicgui.widgets import protocols
+from magicgui.widgets.bases import Widget
 
 
 def _pxstr2int(pxstr: Union[int, str]) -> int:
@@ -25,7 +25,7 @@ def _int2pxstr(pxint: Union[int, str]) -> str:
     return f"{pxint}px" if isinstance(pxint, int) else pxint
 
 
-class _IPyWidget(_protocols.WidgetProtocol):
+class _IPyWidget(protocols.WidgetProtocol):
     _ipywidget: ipywdg.Widget
 
     def __init__(
@@ -145,7 +145,7 @@ class EmptyWidget(_IPyWidget):
         pass
 
 
-class _IPyValueWidget(_IPyWidget, _protocols.ValueWidgetProtocol):
+class _IPyValueWidget(_IPyWidget, protocols.ValueWidgetProtocol):
     def _mgui_get_value(self) -> float:
         return self._ipywidget.value
 
@@ -164,7 +164,7 @@ class _IPyStringWidget(_IPyValueWidget):
         super()._mgui_set_value(str(value))
 
 
-class _IPyRangedWidget(_IPyValueWidget, _protocols.RangedWidgetProtocol):
+class _IPyRangedWidget(_IPyValueWidget, protocols.RangedWidgetProtocol):
     def _mgui_get_min(self) -> float:
         return self._ipywidget.min
 
@@ -192,7 +192,7 @@ class _IPyRangedWidget(_IPyValueWidget, _protocols.RangedWidgetProtocol):
         # raise NotImplementedError('adaptive step not implemented for ipywidgets')
 
 
-class _IPySupportsOrientation(_protocols.SupportsOrientation):
+class _IPySupportsOrientation(protocols.SupportsOrientation):
     _ipywidget: ipywdg.Widget
 
     def _mgui_set_orientation(self, value) -> None:
@@ -202,7 +202,7 @@ class _IPySupportsOrientation(_protocols.SupportsOrientation):
         return self._ipywidget.orientation
 
 
-class _IPySupportsChoices(_protocols.SupportsChoices):
+class _IPySupportsChoices(protocols.SupportsChoices):
     _ipywidget: ipywdg.Widget
 
     def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
@@ -243,7 +243,7 @@ class _IPySupportsChoices(_protocols.SupportsChoices):
         self._ipywidget.options = self._ipywidget.options + ((choice_name, data),)
 
 
-class _IPySupportsText(_protocols.SupportsText):
+class _IPySupportsText(protocols.SupportsText):
     """Widget that have text (in addition to value)... like buttons."""
 
     _ipywidget: ipywdg.Widget
@@ -367,9 +367,7 @@ class Select(_IPyCategoricalWidget):
 # CONTAINER ----------------------------------------------------------------------
 
 
-class Container(
-    _IPyWidget, _protocols.ContainerProtocol, _protocols.SupportsOrientation
-):
+class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrientation):
     def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
         wdg_class = ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox
         super().__init__(wdg_class, **kwargs)

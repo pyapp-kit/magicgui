@@ -2,9 +2,9 @@ from enum import EnumMeta
 from typing import Any, Callable, List, Tuple
 
 from magicgui.types import ChoicesType
-from magicgui.widgets import _protocols
+from magicgui.widgets import protocols
 
-from .value_widget import ValueWidget
+from ._value_widget import ValueWidget
 
 
 class CategoricalWidget(ValueWidget):
@@ -16,7 +16,7 @@ class CategoricalWidget(ValueWidget):
         Available choices displayed in the combo box.
     """
 
-    _widget: _protocols.CategoricalWidgetProtocol
+    _widget: protocols.CategoricalWidgetProtocol
     null_string: str = "-----"
     _allow_multiple = False
 
