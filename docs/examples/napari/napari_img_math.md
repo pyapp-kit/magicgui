@@ -29,7 +29,7 @@ create interactivity.
 ## code
 
 *Code follows, with explanation below... You can also [get this example at
-github](https://github.com/napari/magicgui/blob/main/examples/napari_image_arithmetic.py).*
+github](https://github.com/pyapp-kit/magicgui/blob/main/examples/napari_image_arithmetic.py).*
 
 ```{code-block} python
 ---

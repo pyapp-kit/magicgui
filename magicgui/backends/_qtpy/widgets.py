@@ -277,6 +277,15 @@ class Image(QBaseValueWidget):
         self._rescale()
 
 
+class QuantityEdit(QBaseValueWidget):
+    _qwidget: superqt.QQuantity
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            superqt.QQuantity, "value", "setValue", "valueChanged", **kwargs
+        )
+
+
 class LineEdit(QBaseStringWidget):
     _qwidget: QtW.QLineEdit
 

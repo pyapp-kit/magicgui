@@ -128,7 +128,7 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
 
 
 class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
-    """A table widget representing columnar or 2D data with headers.
+    """A widget to represent columnar or 2D data with headers.
 
     Tables behave like plain `dicts`, where the keys are column headers and the
     (list-like) values are column data.
