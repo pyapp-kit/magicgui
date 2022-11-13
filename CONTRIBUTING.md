@@ -61,7 +61,7 @@ To add a new widget, you will need to:
 
     > *In some (complex) cases, you may need to extend one of the base classes.
     > If so, it is likely that you will also need to extend one of the
-    > `Protocols` found in `magicgui.widgets._protocols`.  This is where all of
+    > `Protocols` found in `magicgui.widgets.protocols`.  This is where all of
     > protocols that backend classes need to implement to work with a given
     > widget type. (Don't hesitate to open an issue if you're confused).*
 
@@ -92,13 +92,14 @@ To add a new widget, you will need to:
 
 To associate your new widget with a specific type such that it will be used when
 someone annotates a parameter with that type, you will need to update code in
-`magicgui.type_map`.
+`magicgui.type_map._type_map`.
 
 In the simplest of cases, this will mean adding a new entry to the
-`magicgui.type_map._SIMPLE_TYPES` dict.  This is a mapping from a python type to
-a widget class.  (Note that all subclasses of the type will also be matched.)
+`magicgui.type_map._type_map._SIMPLE_TYPES` dict.  This is a mapping from a
+python type to a widget class.  (Note that all subclasses of the type will also
+be matched.)
 
 For more complex cases, you can add a new conditional to the body of the
-`match_type` function.  That function should always return a tuple of
-widget type, and kwargs that will be passed to the widget constructor.
-For example: `return widgets.MyNewWidget, {}`.
+`match_type` function.  That function should always return a tuple of widget
+type, and kwargs that will be passed to the widget constructor. For example:
+`return widgets.MyNewWidget, {}`.
