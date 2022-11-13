@@ -19,12 +19,12 @@ from pyparsing import Mapping
 from magicgui._util import debounce
 from magicgui.application import use_app
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
-from magicgui.widgets import _protocols
-from magicgui.widgets._bases.mixins import _OrientationMixin
+from magicgui.widgets import protocols
+from magicgui.widgets.bases._mixins import _OrientationMixin
 
-from .button_widget import ButtonWidget
-from .value_widget import ValueWidget
-from .widget import Widget
+from ._button_widget import ButtonWidget
+from ._value_widget import ValueWidget
+from ._widget import Widget
 
 if TYPE_CHECKING:
     from magicgui.widgets import Container
@@ -72,7 +72,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     """
 
     changed = Signal(object)
-    _widget: _protocols.ContainerProtocol
+    _widget: protocols.ContainerProtocol
     _initialized = False
 
     def __init__(
@@ -370,7 +370,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 class MainWindowWidget(ContainerWidget):
     """Top level Application widget that can contain other widgets."""
 
-    _widget: _protocols.MainWindowProtocol
+    _widget: protocols.MainWindowProtocol
 
     def create_menu_item(
         self, menu_name: str, item_name: str, callback=None, shortcut=None
@@ -385,7 +385,7 @@ class MainWindowWidget(ContainerWidget):
 class DialogWidget(ContainerWidget):
     """Modal Container."""
 
-    _widget: _protocols.DialogProtocol
+    _widget: protocols.DialogProtocol
 
     def exec(self) -> bool:
         """Show the dialog, and block.

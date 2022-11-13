@@ -1,7 +1,7 @@
-from magicgui.widgets import _protocols
+from magicgui.widgets import protocols
 
-from .mixins import _OrientationMixin
-from .ranged_widget import MultiValueRangedWidget, RangedWidget
+from ._mixins import _OrientationMixin
+from ._ranged_widget import MultiValueRangedWidget, RangedWidget
 
 
 class SliderWidget(RangedWidget, _OrientationMixin):
@@ -20,7 +20,7 @@ class SliderWidget(RangedWidget, _OrientationMixin):
         the slider.
     """
 
-    _widget: _protocols.SliderWidgetProtocol
+    _widget: protocols.SliderWidgetProtocol
 
     def __init__(
         self,
@@ -72,4 +72,4 @@ class SliderWidget(RangedWidget, _OrientationMixin):
 class MultiValuedSliderWidget(MultiValueRangedWidget, SliderWidget):
     """Slider widget that expects a iterable value."""
 
-    _widget: _protocols.SliderWidgetProtocol
+    _widget: protocols.SliderWidgetProtocol

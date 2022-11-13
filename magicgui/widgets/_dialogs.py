@@ -1,9 +1,9 @@
 from typing import Any, Dict, Hashable, Iterable, Mapping, Optional, Tuple, Type, Union
 
 from magicgui.types import FileDialogMode
-from magicgui.widgets._bases.create_widget import create_widget
 
 from ._concrete import Dialog
+from .bases import create_widget
 
 
 def show_file_dialog(

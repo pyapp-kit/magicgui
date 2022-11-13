@@ -1,4 +1,4 @@
-from magicgui.widgets._protocols import BaseApplicationBackend
+from magicgui.widgets.protocols import BaseApplicationBackend
 
 
 class ApplicationBackend(BaseApplicationBackend):

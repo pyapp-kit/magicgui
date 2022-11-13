@@ -5,9 +5,9 @@ from typing import Iterable, Tuple, Union, cast
 from warnings import warn
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import _protocols
+from magicgui.widgets import protocols
 
-from .value_widget import ValueWidget
+from ._value_widget import ValueWidget
 
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
@@ -27,7 +27,7 @@ class RangedWidget(ValueWidget):
         The step size for incrementing the value, by default adaptive step is used
     """
 
-    _widget: _protocols.RangedWidgetProtocol
+    _widget: protocols.RangedWidgetProtocol
 
     def __init__(
         self,
@@ -181,7 +181,7 @@ class TransformedRangedWidget(RangedWidget, ABC):
         The step size for incrementing the value, by default 1
     """
 
-    _widget: _protocols.RangedWidgetProtocol
+    _widget: protocols.RangedWidgetProtocol
 
     def __init__(
         self,

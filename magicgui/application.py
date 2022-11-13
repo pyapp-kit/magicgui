@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Callable, Iterator, Union
 from magicgui.backends import BACKENDS
 
 if TYPE_CHECKING:
-    from magicgui.widgets._protocols import BaseApplicationBackend
+    from magicgui.widgets.protocols import BaseApplicationBackend
 
 DEFAULT_BACKEND = "qt"
 APPLICATION_NAME = "magicgui"

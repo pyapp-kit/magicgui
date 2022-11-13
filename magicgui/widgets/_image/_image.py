@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
-from .._bases import ValueWidget
 from .._concrete import backend_widget
+from ..bases import ValueWidget
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     import numpy as np
     import PIL.Image
 
-    from .._protocols import ValueWidgetProtocol
+    from ..protocols import ValueWidgetProtocol
     from . import _mpl_image
     from ._mpl_image import Colormap, Normalize
 

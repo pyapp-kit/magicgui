@@ -22,9 +22,9 @@ from typing import (
 from warnings import warn
 
 from magicgui.application import use_app
-from magicgui.widgets._bases.mixins import _ReadOnlyMixin
-from magicgui.widgets._bases.value_widget import ValueWidget
-from magicgui.widgets._protocols import TableWidgetProtocol
+from magicgui.widgets.bases._mixins import _ReadOnlyMixin
+from magicgui.widgets.bases._value_widget import ValueWidget
+from magicgui.widgets.protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
     import numpy

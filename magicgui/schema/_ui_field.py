@@ -22,7 +22,7 @@ from typing import (
 
 from typing_extensions import Annotated, TypeGuard, get_args, get_origin
 
-from ..types import JsonStringFormats, Undefined
+from magicgui.types import JsonStringFormats, Undefined
 
 if TYPE_CHECKING:
     from typing import Mapping, Protocol
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from attrs import Attribute
     from pydantic.fields import ModelField
 
-    from ..widgets._bases import ContainerWidget, ValueWidget
+    from magicgui.widgets.bases import ContainerWidget, ValueWidget
 
     class HasAttrs(Protocol):
         """Protocol for objects that have an ``attrs`` attribute."""
@@ -353,7 +353,7 @@ class UiField(Generic[T]):
 
         Note that this will also return the origin type for Annotated types.
         """
-        from .._type_resolution import _try_cached_resolve
+        from magicgui._type_resolution import _try_cached_resolve
 
         return _try_cached_resolve(self.type)
 
@@ -392,7 +392,7 @@ class UiField(Generic[T]):
 
     def create_widget(self, value=Undefined) -> ValueWidget:
         """Create a new Widget for this field."""
-        from ..type_map import get_widget_class
+        from magicgui.type_map import get_widget_class
 
         # TODO: this should be cached in some way
         # Map uifield names to widget kwargs

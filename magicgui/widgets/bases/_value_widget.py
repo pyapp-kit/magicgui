@@ -6,9 +6,9 @@ from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import _protocols
+from magicgui.widgets import protocols
 
-from .widget import Widget
+from ._widget import Widget
 
 # legacy import for backwards compatibility
 # shouldn't be used externally, but magic-class still uses it
@@ -30,7 +30,7 @@ class ValueWidget(Widget):
         must accept a single parameter, which is this widget instance.).
     """
 
-    _widget: _protocols.ValueWidgetProtocol
+    _widget: protocols.ValueWidgetProtocol
     changed = Signal(object)
     null_value = None
 

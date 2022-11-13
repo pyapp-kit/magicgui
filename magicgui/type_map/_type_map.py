@@ -40,7 +40,7 @@ from magicgui.types import (
     WidgetTuple,
     _Undefined,
 )
-from magicgui.widgets._protocols import WidgetProtocol, assert_protocol
+from magicgui.widgets.protocols import WidgetProtocol, assert_protocol
 
 __all__: list[str] = ["register_type", "get_widget_class"]
 
@@ -191,7 +191,7 @@ def _type_optional(
     return type_, nullable
 
 
-def pick_widget_type(
+def _pick_widget_type(
     value: Any = Undefined,
     annotation: Any = Undefined,
     options: dict | None = None,
@@ -292,7 +292,7 @@ def get_widget_class(
         The WidgetClass, and dict that can be used for params. dict
         may be different than the options passed in.
     """
-    widget_type, _options = pick_widget_type(
+    widget_type, _options = _pick_widget_type(
         value, annotation, options, is_result, raise_on_unknown
     )
 
@@ -301,7 +301,7 @@ def get_widget_class(
     else:
         widget_class = widget_type
 
-    if not safe_issubclass(widget_class, widgets._bases.Widget):
+    if not safe_issubclass(widget_class, widgets.bases.Widget):
         assert_protocol(widget_class, WidgetProtocol)
 
     return widget_class, _options

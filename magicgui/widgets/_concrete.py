@@ -30,16 +30,13 @@ from typing_extensions import get_args, get_origin
 from magicgui._type_resolution import resolve_single_type
 from magicgui._util import safe_issubclass
 from magicgui.application import use_app
-from magicgui.types import FileDialogMode, PathLike
-from magicgui.widgets import _protocols
-from magicgui.widgets._bases.container_widget import DialogWidget
-from magicgui.widgets._bases.mixins import _OrientationMixin, _ReadOnlyMixin
-
-from ..types import Undefined, _Undefined
-from ._bases import (
+from magicgui.types import FileDialogMode, PathLike, Undefined, _Undefined
+from magicgui.widgets import protocols
+from magicgui.widgets.bases import (
     ButtonWidget,
     CategoricalWidget,
     ContainerWidget,
+    DialogWidget,
     MainWindowWidget,
     MultiValuedSliderWidget,
     RangedWidget,
@@ -49,6 +46,7 @@ from ._bases import (
     Widget,
     create_widget,
 )
+from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 
@@ -332,7 +330,7 @@ class LogSlider(TransformedRangedWidget):
         The base to use for the log, by default math.e.
     """
 
-    _widget: _protocols.SliderWidgetProtocol
+    _widget: protocols.SliderWidgetProtocol
 
     def __init__(
         self,

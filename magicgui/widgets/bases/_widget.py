@@ -10,7 +10,7 @@ from psygnal import Signal
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import use_app
-from magicgui.widgets import _protocols
+from magicgui.widgets import protocols
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 if BUILDING_DOCS:
@@ -59,7 +59,7 @@ class Widget:
         keyword argument to pass to the backend widget constructor.
     """
 
-    _widget: _protocols.WidgetProtocol
+    _widget: protocols.WidgetProtocol
     # if this widget becomes owned by a labeled widget
     _labeled_widget_ref: ReferenceType[_LabeledWidget] | None = None
 
@@ -68,7 +68,7 @@ class Widget:
 
     def __init__(
         self,
-        widget_type: type[_protocols.WidgetProtocol],
+        widget_type: type[protocols.WidgetProtocol],
         name: str = "",
         annotation: Any = None,
         label: str = None,
@@ -97,8 +97,8 @@ class Widget:
             )
         if not isinstance(_prot, str):
             _prot = _prot.__name__
-        prot = getattr(_protocols, _prot.replace("_protocols.", ""))
-        _protocols.assert_protocol(widget_type, prot)
+        prot = getattr(protocols, _prot.replace("protocols.", ""))
+        protocols.assert_protocol(widget_type, prot)
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
         if isinstance(parent, Widget):

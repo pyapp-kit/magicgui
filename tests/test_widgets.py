@@ -9,7 +9,8 @@ import pytest
 from tests import MyInt
 
 from magicgui import magicgui, types, use_app, widgets
-from magicgui.widgets._bases import ValueWidget
+from magicgui.widgets import Container, request_values
+from magicgui.widgets.bases import DialogWidget, ValueWidget
 
 
 # it's important that "qt" be last here, so that it's used for
@@ -296,7 +297,7 @@ def test_container_label_widths(scrollable):
         return max(
             measure(w.label)
             for w in container
-            if not isinstance(w, widgets._bases.ButtonWidget)
+            if not isinstance(w, widgets.bases.ButtonWidget)
         )
 
     container.append(labela)
@@ -772,7 +773,7 @@ def test_categorical_widgets(Cls):
 
     mock = MagicMock()
     wdg.changed.connect(mock)
-    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert isinstance(wdg, widgets.bases.CategoricalWidget)
     assert wdg.value == 1
     assert wdg.current_choice == "first option"
     mock.assert_not_called()
@@ -853,7 +854,7 @@ def test_categorical_widgets_with_enums(Cls):
 
     mock = MagicMock()
     wdg.changed.connect(mock)
-    assert isinstance(wdg, widgets._bases.CategoricalWidget)
+    assert isinstance(wdg, widgets.bases.CategoricalWidget)
     assert wdg.value == MyEnum.A
     assert wdg.current_choice == "A"
     mock.assert_not_called()
@@ -1066,9 +1067,6 @@ def test_tuple_edit():
 
 def test_request_values(monkeypatch):
     from unittest.mock import Mock
-
-    from magicgui.widgets import Container, request_values
-    from magicgui.widgets._bases.container_widget import DialogWidget
 
     container = Container()
 
