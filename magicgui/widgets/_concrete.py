@@ -773,18 +773,16 @@ class ListEdit(Container):
             options=self._child_options,
         )
 
-        with self.changed.blocked():
-            # signal will be emitted in the last
-            self.insert(i, widget)
+        self.insert(i, widget)
 
-            widget.changed.disconnect()
+        widget.changed.disconnect()
 
-            # Value must be set after new widget is inserted because it could be
-            # valid only after same parent is shared between widgets.
-            if value is Undefined and i > 0:
-                value = self[i - 1].value
-            if value is not Undefined:
-                widget.value = value
+        # Value must be set after new widget is inserted because it could be
+        # valid only after same parent is shared between widgets.
+        if value is Undefined and i > 0:
+            value = self[i - 1].value
+        if value is not Undefined:
+            widget.value = value
 
         widget.changed.connect(lambda: self.changed.emit(self.value))
         self.changed.emit(self.value)
@@ -797,15 +795,17 @@ class ListEdit(Container):
             pass
 
     @property
-    def value(self) -> list:
+    def value(self) -> list[_V]:
         """Return current value as a list object."""
         return list(ListDataView(self))
 
     @value.setter
     def value(self, vals: Iterable[_V]):
-        del self[:-2]
-        for v in vals:
-            self._append_value(v)
+        with self.changed.blocked():
+            del self[:-2]
+            for v in vals:
+                self._append_value(v)
+        self.changed.emit(self.value)
 
     @property
     def data(self) -> ListDataView[_V]:
@@ -814,9 +814,7 @@ class ListEdit(Container):
 
     @data.setter
     def data(self, vals: Iterable[_V]):
-        del self[:-2]
-        for v in vals:
-            self._append_value(v)
+        self.value = vals  # type: ignore[assignment]
 
 
 class ListDataView(Generic[_V]):
@@ -942,7 +940,7 @@ class TupleEdit(Container):
                 f"{type(self).__name__}."
             )
 
-        for i, a in enumerate(_value):
+        for a in _value:
             i = len(self)
             widget: ValueWidget = create_widget(
                 value=a,
@@ -1005,8 +1003,10 @@ class TupleEdit(Container):
         if len(vals) != len(self):
             raise ValueError("Length of tuple does not match.")
 
-        for w, v in zip(self, vals):
-            w.value = v
+        with self.changed.blocked():
+            for w, v in zip(self, vals):
+                w.value = v
+        self.changed.emit(self.value)
 
 
 class _LabeledWidget(Container):
