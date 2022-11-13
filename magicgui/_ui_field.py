@@ -768,6 +768,7 @@ def _get_values(obj: Any) -> dict | None:
     return dict_method() if callable(dict_method) else None
 
 
+# TODO: unify this with magicgui
 def build_widget(cls_or_instance: Any) -> ContainerWidget[ValueWidget]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
     values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
