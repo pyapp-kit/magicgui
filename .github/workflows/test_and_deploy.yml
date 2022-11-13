@@ -138,11 +138,11 @@ jobs:
           python -m pip install -e .[testing]
           python -m pip install ./stardist-napari[test]
 
-      - name: Test magicclass
+      - name: Run stardist tests
         uses: GabrielBB/xvfb-action@v1
         with:
           working-directory: stardist-napari
-          run: python -m pytest -v --color=yes -W ignore stardist_napari -k 'not 3d'
+          run: python -m pytest -v --color=yes -W ignore stardist_napari
         env:
           STARDIST_NAPARI_NOTHREADS: true
           STARDIST_NAPARI_NOPERSIST: true
