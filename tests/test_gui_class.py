@@ -8,12 +8,13 @@ import psygnal
 import pytest
 
 from magicgui.schema._guiclass import (
+    GuiClass,
     button,
     guiclass,
     is_guiclass,
     unbind_gui_from_instance,
 )
-from magicgui.widgets import Container
+from magicgui.widgets import Container, PushButton
 
 
 def test_guiclass():
@@ -40,6 +41,7 @@ def test_guiclass():
     assert foo.b == "bar"
 
     assert isinstance(foo.gui, Container)
+    assert isinstance(foo.gui.func, PushButton)
     assert foo.gui.a.value == 1
     assert foo.gui.b.value == "bar"
 
@@ -121,3 +123,27 @@ def test_slots_guiclass():
     unbind_gui_from_instance(gui, foo)
     assert len(gui.a.changed._slots) == 2
     del foo
+
+
+def test_guiclass_as_class():
+
+    # variant on @guiclass, using class instead of decorator
+    class T2(GuiClass):
+        x: int
+        y: str = "hi"
+
+        @button
+        def foo(self):
+            return asdict(self)
+
+    t2 = T2(1)
+    assert t2.x == 1
+    assert t2.y == "hi"
+    assert t2.gui.x.value == 1
+    assert t2.gui.y.value == "hi"
+    t2.gui.x.value = 3
+    assert t2.x == 3
+    t2.y = "baz"
+    assert t2.gui.y.value == "baz"
+    assert isinstance(t2.gui.foo, PushButton)
+    assert t2.foo() == {"x": 3, "y": "baz"}

@@ -15,7 +15,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Literal,
+    ClassVar,
     Optional,
     Type,
     TypeVar,
@@ -25,10 +25,9 @@ from typing import (
 
 from psygnal import SignalGroup, evented
 
+from magicgui.schema._ui_field import build_widget
 from magicgui.widgets import PushButton
 from magicgui.widgets.bases import ContainerWidget, ValueWidget
-
-from ._ui_field import build_widget
 
 if TYPE_CHECKING:
     from typing import Protocol
@@ -36,7 +35,7 @@ if TYPE_CHECKING:
     from typing_extensions import TypeGuard
 
     # fmt: off
-    class Guiclass(Protocol):
+    class GuiClassProtocol(Protocol):
         """Protocol for a guiclass."""
 
         @property
@@ -68,21 +67,13 @@ def __dataclass_transform__(
 
 @__dataclass_transform__(field_specifiers=(Field, field))
 @overload
-def guiclass(
-    cls: T,
-    *,
-    gui_name: str = "gui",
-    events_namespace: str = "events",
-    follow_changes: bool = True,
-    **dataclass_kwargs: Any,
-) -> T:
+def guiclass(cls: T) -> T:
     ...
 
 
 @__dataclass_transform__(field_specifiers=(Field, field))
 @overload
 def guiclass(
-    cls: Literal[None] = None,
     *,
     gui_name: str = "gui",
     events_namespace: str = "events",
@@ -162,7 +153,7 @@ def guiclass(
                 "https://github.com/pyapp-kit/magicgui/issues."
             )
 
-        setattr(cls, gui_name, _gui_descriptor(gui_name, follow_changes=follow_changes))
+        setattr(cls, gui_name, GuiBuilder(gui_name, follow_changes=follow_changes))
 
         if not is_dataclass(cls):
             cls = dataclass(cls, **dataclass_kwargs)  # type: ignore
@@ -174,18 +165,18 @@ def guiclass(
     return _deco(cls) if cls is not None else _deco
 
 
-def is_guiclass(obj: object) -> TypeGuard[Guiclass]:
+def is_guiclass(obj: object) -> TypeGuard[GuiClassProtocol]:
     """Return `True` if obj is a guiclass or an instance of a guiclass."""
     return is_dataclass(obj) and hasattr(obj, _GUICLASS_FLAG)
 
 
 @overload
-def button(func: F, **kwargs: Any) -> F:
+def button(func: F) -> F:
     ...
 
 
 @overload
-def button(func: Literal[None] = None, **kwargs: Any) -> Callable[[F], F]:
+def button(**kwargs: Any) -> Callable[[F], F]:
     ...
 
 
@@ -203,15 +194,15 @@ def button(
         Additional keyword arguments to pass to `magicgui.widgets.PushButton`.
     """
 
-    def _deco(func):
-        button_kwargs.setdefault("label", func.__name__)
+    def _deco(func: F) -> F:
+        button_kwargs.setdefault("name", func.__name__)
         setattr(func, _BUTTON_ATTR, button_kwargs)
         return func
 
     return _deco(func) if func else _deco
 
 
-class _gui_descriptor:
+class GuiBuilder:
     """Descriptor that builds a widget for a dataclass or instance."""
 
     def __init__(self, name: str = "", follow_changes: bool = True):
@@ -276,7 +267,10 @@ def bind_gui_to_instance(
         warnings.simplefilter("ignore", category=RuntimeWarning)
 
         for widget in gui:
-            if isinstance(widget, ValueWidget):
+            # we skip PushButton here, otherwise we will set the value of the
+            # button (a boolean) to some attribute on the instance, which is probably
+            # not what we want.
+            if isinstance(widget, ValueWidget) and not isinstance(widget, PushButton):
                 # connect changes in the widget to the instance
                 if hasattr(instance, widget.name):
                     try:
@@ -311,3 +305,31 @@ def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:
     for widget in gui:
         if isinstance(widget, ValueWidget):
             widget.changed.disconnect_setattr(instance, widget.name, missing_ok=True)
+
+
+# Class-based form ... which provides subclassing and inheritance (unlike @guiclass)
+
+
+@__dataclass_transform__(field_specifiers=(Field, field))
+class GuiClassMeta(type):
+    def __new__(cls, name, bases, attrs):
+        attrs[_GUICLASS_FLAG] = True
+        obj = type.__new__(cls, name, bases, attrs)
+        return evented(dataclass(obj))  # type: ignore
+
+
+# evented will warn "No mutable fields found in class <class '__main__.GuiClass'>"
+# no events will be emitted... but it will work fine for subclasses.
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=UserWarning)
+
+    class GuiClass(metaclass=GuiClassMeta):
+        gui = GuiBuilder()
+        if TYPE_CHECKING:
+            events: ClassVar[SignalGroup]
+
+            # the mypy dataclass magic doesn't work without the literal decorator
+            # it WILL work with pyright due to the __dataclass_transform__ above
+            # here we just avoid a false error in mypy
+            def __init__(self, *args, **kwargs) -> None:
+                ...
