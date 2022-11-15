@@ -19,7 +19,7 @@ if BUILDING_DOCS:
 if TYPE_CHECKING:
     from weakref import ReferenceType
 
-    import numpy as np  # noqa
+    import numpy as np
 
     from magicgui.widgets._concrete import _LabeledWidget
 

@@ -495,9 +495,9 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     @overload
     def to_dict(self, orient: Literal['dict']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
     @overload
-    def to_dict(self, orient: Literal['list']) -> dict[TblKey, list]: ...  # noqa
+    def to_dict(self, orient: Literal['list']) -> dict[TblKey, list]: ...
     @overload
-    def to_dict(self, orient: Literal['split']) -> dict[TblKey, Collection]: ...  # noqa
+    def to_dict(self, orient: Literal['split']) -> dict[TblKey, Collection]: ...
     @overload
     def to_dict(self, orient: Literal['records']) -> list[dict[TblKey, Any]]: ...  # noqa
     @overload
@@ -582,17 +582,17 @@ class DataView:
 
     # fmt: off
     @overload
-    def __getitem__(self, arg: int) -> list: ...  # noqa
+    def __getitem__(self, arg: int) -> list: ...
     @overload
-    def __getitem__(self, arg: slice) -> list[list]: ...  # noqa
+    def __getitem__(self, arg: slice) -> list[list]: ...
     @overload
-    def __getitem__(self, arg: tuple[int, int]) -> Any: ...  # noqa
+    def __getitem__(self, arg: tuple[int, int]) -> Any: ...
     @overload
-    def __getitem__(self, arg: tuple[int, slice]) -> list: ...  # noqa
+    def __getitem__(self, arg: tuple[int, slice]) -> list: ...
     @overload
-    def __getitem__(self, arg: tuple[slice, int]) -> list: ...  # noqa
+    def __getitem__(self, arg: tuple[slice, int]) -> list: ...
     @overload
-    def __getitem__(self, arg: tuple[slice, slice]) -> list[list]: ...  # noqa
+    def __getitem__(self, arg: tuple[slice, slice]) -> list[list]: ...
     # fmt: on
 
     def __getitem__(self, idx: IndexKey | tuple[IndexKey, IndexKey]) -> Any:

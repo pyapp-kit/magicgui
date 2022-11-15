@@ -19,7 +19,7 @@ except ImportError:  # pragma: no cover
 
 @lru_cache(maxsize=1)
 def _typing_names() -> Dict[str, Any]:
-    return {**typing.__dict__, **types.__dict__}  # noqa: TYP006
+    return {**typing.__dict__, **types.__dict__}
 
 
 def _unwrap_partial(func: Any) -> Any:

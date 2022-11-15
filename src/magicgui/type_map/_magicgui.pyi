@@ -22,7 +22,7 @@ class MagicFactory(partial, Generic[_T]):
     def __name__(self) -> str: ...
 
 @overload
-def magicgui(  # noqa
+def magicgui(
     function: Callable[..., _R],
     *,
     layout: str = "horizontal",
@@ -38,8 +38,8 @@ def magicgui(  # noqa
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> FunctionGui[_R]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
+@overload
+def magicgui(
     function: Literal[None] = None,
     *,
     layout: str = "horizontal",
@@ -55,8 +55,8 @@ def magicgui(  # noqa
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], FunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
+@overload
+def magicgui(
     function: Callable[..., _R],
     *,
     layout: str = "horizontal",
@@ -72,8 +72,8 @@ def magicgui(  # noqa
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> MainFunctionGui[_R]: ...
-@overload  # noqa: E302
-def magicgui(  # noqa
+@overload
+def magicgui(
     function=None,
     *,
     layout: str = "horizontal",
@@ -89,8 +89,8 @@ def magicgui(  # noqa
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MainFunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
+@overload
+def magic_factory(
     function: Callable[..., _R],
     *,
     layout: str = "horizontal",
@@ -107,8 +107,8 @@ def magic_factory(  # noqa
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> MagicFactory[FunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
+@overload
+def magic_factory(
     function: Literal[None] = None,
     *,
     layout: str = "horizontal",
@@ -125,8 +125,8 @@ def magic_factory(  # noqa
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable[[Callable[..., _R]], MagicFactory[FunctionGui[_R]]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
+@overload
+def magic_factory(
     function: Callable[..., _R],
     *,
     layout: str = "horizontal",
@@ -143,8 +143,8 @@ def magic_factory(  # noqa
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> MagicFactory[MainFunctionGui[_R]]: ...
-@overload  # noqa: E302
-def magic_factory(  # noqa
+@overload
+def magic_factory(
     function: Literal[None] = None,
     *,
     layout: str = "horizontal",

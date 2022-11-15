@@ -219,7 +219,7 @@ class _IPySupportsChoices(protocols.SupportsChoices):
             item
             for item in self._ipywidget.options
             if (not isinstance(item, tuple) or item[0] != choice_name)
-            and item != choice_name  # noqa: W503
+            and item != choice_name
         ]
         self._ipywidget.options = options
 

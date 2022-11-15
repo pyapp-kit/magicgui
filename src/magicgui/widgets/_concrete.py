@@ -127,7 +127,7 @@ def merge_super_sigs(
 
 
 @overload
-def backend_widget(  # noqa
+def backend_widget(
     cls: C,
     widget_name: str = None,
     transform: Callable[[type], type] = None,
@@ -136,7 +136,7 @@ def backend_widget(  # noqa
 
 
 @overload
-def backend_widget(  # noqa
+def backend_widget(
     cls: Literal[None] = None,
     widget_name: str = None,
     transform: Callable[[type], type] = None,
@@ -826,11 +826,11 @@ class ListDataView(Generic[_V]):
         return list(self) == other
 
     @overload
-    def __getitem__(self, i: int) -> _V:  # noqa: D105
+    def __getitem__(self, i: int) -> _V:
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> list[_V]:  # noqa: D105
+    def __getitem__(self, key: slice) -> list[_V]:
         ...
 
     def __getitem__(self, key):
@@ -845,11 +845,11 @@ class ListDataView(Generic[_V]):
             )
 
     @overload
-    def __setitem__(self, key: int, value: _V) -> None:  # noqa: D105
+    def __setitem__(self, key: int, value: _V) -> None:
         ...
 
     @overload
-    def __setitem__(self, key: slice, value: _V | Iterable[_V]) -> None:  # noqa: D105
+    def __setitem__(self, key: slice, value: _V | Iterable[_V]) -> None:
         ...
 
     def __setitem__(self, key, value):
@@ -871,11 +871,11 @@ class ListDataView(Generic[_V]):
             )
 
     @overload
-    def __delitem__(self, key: int) -> None:  # noqa: D105
+    def __delitem__(self, key: int) -> None:
         ...
 
     @overload
-    def __delitem__(self, key: slice) -> None:  # noqa: D105
+    def __delitem__(self, key: slice) -> None:
         ...
 
     def __delitem__(self, key):

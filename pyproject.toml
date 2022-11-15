@@ -127,7 +127,7 @@ src_paths = ["src/magicgui", "tests"]
 [tool.ruff]
 target-version = "py38"
 line-length = 88
-extend-select = ["D"]
+extend-select = ["D", "M001"]
 extend-ignore = [
     "D100",
     "D107",

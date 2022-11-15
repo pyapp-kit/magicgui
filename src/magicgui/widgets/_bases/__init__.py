@@ -1,6 +1,6 @@
 import warnings
 
-from ..bases import *  # noqa: F401, F403
+from ..bases import *  # noqa: F403
 
 warnings.warn(
     "magicgui.widgets._bases has been made public. "

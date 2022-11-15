@@ -115,14 +115,14 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         object.__setattr__(self, name, value)
 
     @overload
-    def __getitem__(self, key: int | str) -> WidgetVar:  # noqa: D105
+    def __getitem__(self, key: int | str) -> WidgetVar:
         ...
 
     @overload
-    def __getitem__(self, key: slice) -> MutableSequence[WidgetVar]:  # noqa: F811, D105
+    def __getitem__(self, key: slice) -> MutableSequence[WidgetVar]:
         ...
 
-    def __getitem__(self, key):  # noqa: F811
+    def __getitem__(self, key):
         """Get item by integer, str, or slice."""
         if isinstance(key, str):
             return self.__getattr__(key)
