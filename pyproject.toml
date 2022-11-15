@@ -121,24 +121,6 @@ changelog = "https://github.com/pyapp-kit/magicgui/blob/main/CHANGELOG.md"
 issues = "https://github.com/pyapp-kit/magicgui/issues"
 documentation = "https://pyapp-kit.github.io/magicgui/"
 
-# same as console_scripts entry point
-# [project.scripts]
-# spam-cli = "spam:main_cli"
-
-# Entry points
-# https://peps.python.org/pep-0621/#entry-points
-# [project.entry-points."spam.magical"]
-# tomatoes = "spam:main_tomatoes"
-
-# # https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
-# [tool.setuptools]
-# zip-safe = false
-# include-package-data = true
-# packages = { find = { where = ["src"], exclude = [] } }
-
-# [tool.setuptools.package-data]
-# "*" = ["py.typed", "*.pyi"]
-
 
 # https://pycqa.github.io/isort/docs/configuration/options.html
 [tool.isort]
@@ -148,34 +130,35 @@ src_paths = ["src/magicgui", "tests"]
 # # https://flake8.pycqa.org/en/latest/user/options.html
 # # https://gitlab.com/durko/flake8-pyprojecttoml
 # [tool.flake8]
-# exclude = "docs,.eggs,examples,_version.py"
-# max-line-length = 88
-# ignore = "E203"
-# min-python-version = "3.8.0"
 # docstring-convention = "all" # use numpy convention, while allowing D417
 # extend-ignore = """
 # E203  # whitespace before ':'
 # D107,D203,D212,D213,D402,D413,D415,D416  # numpy
 # D100  # missing docstring in public module
-# D401  # imperative mood
-# W503  # line break before binary operator
 # """
 
 [tool.ruff]
+target-version = "py38"
 line-length = 88
+extend-select = ["D"]
+extend-ignore = [
+    "D100",
+    "D107",
+    "D203",
+    "D212",
+    "D213",
+    "D402",
+    "D413",
+    "D415",
+    "D416",
+    "D417",
+]
 
 [tool.ruff.per-file-ignores]
-"magicgui/events.py" = ["D"]
 "tests/*.py" = ["D", "E501"]
+"examples/*.py" = ["D"]
+"src/magicgui/widgets/_image/*.py" = ["D"]
 
-# per-file-ignores = { "magicgui/events.py,tests/*.py,magicgui/backends/*/*.py,magicgui/_type_wrapper.py" = ["D"] }
-
-# http://www.pydocstyle.org/en/stable/usage.html
-[tool.pydocstyle]
-match_dir = "src/magicgui"
-convention = "numpy"
-add_select = "D402,D415,D417"
-ignore = "D100,D213,D401,D413,D107"
 
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
@@ -228,12 +211,5 @@ ignore = [
     "tox.ini",
     ".github_changelog_generator",
     "codecov.yml",
+    ".ruff_cache/**/*",
 ]
-
-# https://python-semantic-release.readthedocs.io/en/latest/configuration.html
-[tool.semantic_release]
-version_source = "tag_only"
-branch = "main"
-changelog_sections = "feature,fix,breaking,documentation,performance,chore,:boom:,:sparkles:,:children_crossing:,:lipstick:,:iphone:,:egg:,:chart_with_upwards_trend:,:ambulance:,:lock:,:bug:,:zap:,:goal_net:,:alien:,:wheelchair:,:speech_balloon:,:mag:,:apple:,:penguin:,:checkered_flag:,:robot:,:green_apple:,Other"
-# commit_parser=semantic_release.history.angular_parser
-build_command = "pip install build && python -m build"

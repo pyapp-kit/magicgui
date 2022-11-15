@@ -1,10 +1,11 @@
 """Widget implementations (adaptors) for the Qt backend."""
+
 from __future__ import annotations
 
 import math
 import re
 import warnings
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence
@@ -781,7 +782,7 @@ class ProgressBar(_Slider):
         """Set the step size."""
 
     def _mgui_set_adaptive_step(self, value: bool):
-        """Set is step is adaptive"""
+        """Set is step is adaptive."""
 
     def _mgui_get_adaptive_step(self) -> bool:
         return False
@@ -1274,10 +1275,8 @@ class _QTableExtended(QtW.QTableWidget):
             return
 
         for item in self.selectedItems():
-            try:
+            with suppress(AttributeError):
                 item.setText("")
-            except AttributeError:
-                pass
 
     def keyPressEvent(self, e: QKeyEvent):
         if e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_C:
@@ -1437,7 +1436,7 @@ class _ItemDelegate(QtW.QStyledItemDelegate):
 
 
 def _format_number(text: str, ndigits: int = 4) -> str:
-    """convert string to int or float if possible"""
+    """Convert string to int or float if possible."""
     try:
         value: int | float | None = int(text)
     except ValueError:
