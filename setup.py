@@ -19,7 +19,7 @@ sys.exit(1)
 # To be removed once GitHub catches up.
 
 setup(
-    name='magicgui',
+    name="magicgui",
     install_requires=[
         "docstring_parser>=0.7",
         "psygnal>=0.3.1",

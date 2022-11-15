@@ -63,15 +63,15 @@ def test_examples(fname, monkeypatch):
 def test_setuppy():
     """Ensure that setup.py is not used to install magicgui."""
     import ast
-    
+
     setup = Path(__file__).parent.parent / "setup.py"
     pyproject = Path(__file__).parent.parent / "pyproject.toml"
     settxt = setup.read_text(encoding="utf-8")
-    deps = ast.literal_eval(settxt.split("install_requires=")[-1].split(']')[0] + ']')
+    deps = ast.literal_eval(settxt.split("install_requires=")[-1].split("]")[0] + "]")
     breakpoint()
 
     import tomli
 
-    with open(pyproject, 'rb') as f:
+    with open(pyproject, "rb") as f:
         pyproject = tomli.load(f)
     assert False
