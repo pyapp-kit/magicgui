@@ -169,7 +169,6 @@ implicit_reexport = false
 show_column_numbers = false
 show_error_codes = true
 ignore_missing_imports = true
-implicit_optional = true
 
 [[tool.mypy.overrides]]
 module = [
