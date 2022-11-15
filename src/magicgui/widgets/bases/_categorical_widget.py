@@ -1,4 +1,4 @@
-from enum import EnumMeta
+from enum import Enum, EnumMeta
 from typing import Any, Callable, List, Tuple
 
 from magicgui.types import ChoicesType
@@ -99,7 +99,7 @@ class CategoricalWidget(ValueWidget):
 
     @choices.setter
     def choices(self, choices: ChoicesType):
-        str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str
+        str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str  # type: ignore  # noqa: E501
         if isinstance(choices, dict):
             if "choices" not in choices or "key" not in choices:
                 raise ValueError(
@@ -123,5 +123,5 @@ class CategoricalWidget(ValueWidget):
         return self._widget._mgui_set_choices(_normed)
 
 
-def _get_name(obj: Any) -> str:
+def _get_name(obj: Enum) -> str:
     return str(obj.name)

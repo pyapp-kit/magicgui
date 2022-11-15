@@ -23,7 +23,7 @@ def event_loop(backend=None) -> Iterator:
         try:
             yield app
         except Exception as e:
-            print("An error was encountered in the event loop:\n", str(e))
+            print("An error was encountered in the event loop:\n", e)
 
 
 class Application:

@@ -602,7 +602,7 @@ def _get_pydantic_model(cls: type) -> type[pydantic.BaseModel] | None:
         elif isinstance(cls, pydantic.BaseModel):
             return type(cls)
         elif hasattr(cls, "__pydantic_model__"):
-            return _get_pydantic_model(cls.__pydantic_model__)  # type: ignore
+            return _get_pydantic_model(cls.__pydantic_model__)
     return None
 
 
@@ -752,7 +752,7 @@ def _get_values(obj: Any) -> dict | None:
 
     # named tuple
     if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        return obj._asdict()  # type: ignore
+        return obj._asdict()
 
     # dataclass
     if dc.is_dataclass(type(obj)):

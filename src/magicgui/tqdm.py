@@ -1,4 +1,6 @@
 """A wrapper around the tqdm.tqdm iterator that adds a ProgressBar to a magicgui."""
+from __future__ import annotations
+
 import contextlib
 import inspect
 from typing import Iterable, Optional, cast
@@ -68,7 +70,7 @@ class tqdm(_tqdm_std):
 
     disable: bool
 
-    def __init__(self, iterable: Iterable = None, *args, **kwargs) -> None:
+    def __init__(self, iterable: Iterable | None = None, *args, **kwargs) -> None:
         kwargs = kwargs.copy()
         pbar_kwargs = {k: kwargs.pop(k) for k in set(kwargs) - _tqdm_kwargs}
         self._mgui = _find_calling_function_gui()
@@ -126,7 +128,7 @@ class tqdm(_tqdm_std):
         self._mgui._tqdm_depth += 1
         return pbar
 
-    def display(self, msg: str = None, pos: int = None) -> None:
+    def display(self, msg: str | None = None, pos: int = None) -> None:
         """Update the display."""
         if not self._in_visible_gui:
             return super().display(msg=msg, pos=pos)

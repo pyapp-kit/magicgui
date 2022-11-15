@@ -34,10 +34,7 @@ def debounce(function=None, wait: float = 0.2):
 
         return debounced
 
-    if function is None:
-        return decorator
-    else:
-        return decorator(function)
+    return decorator if function is None else decorator(function)
 
 
 def throttle(t):

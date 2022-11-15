@@ -295,7 +295,7 @@ class ProgressBar(SliderWidget):
 
     # overriding because at least some backends don't have a step value for ProgressBar
     @property
-    def step(self) -> float:
+    def step(self) -> float | None:
         """Step size for widget values."""
         return self._step
 
@@ -1023,7 +1023,7 @@ class _LabeledWidget(Container):
     @value.setter
     def value(self, value):
         if hasattr(self._inner_widget, "value"):
-            self._inner_widget.value = value  # type: ignore
+            self._inner_widget.value = value
 
     @property
     def label(self):

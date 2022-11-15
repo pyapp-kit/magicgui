@@ -40,11 +40,11 @@ repos:
     hooks:
       - id: validate-pyproject
 
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v0.991
-  #   hooks:
-  #     - id: mypy
-  #       files: magicgui
-  #       exclude: magicgui/type_map/_magicgui.py
-  #       additional_dependencies:
-  #         - numpy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.991
+    hooks:
+      - id: mypy
+        files: src/magicgui
+        exclude: src/magicgui/type_map/_magicgui.py
+        additional_dependencies:
+          - numpy

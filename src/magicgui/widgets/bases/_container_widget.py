@@ -244,7 +244,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         """
         for widget in self:
             if hasattr(widget, "reset_choices"):
-                widget.reset_choices()  # type: ignore
+                widget.reset_choices()
 
     @property
     def __signature__(self) -> MagicSignature:
