@@ -194,9 +194,9 @@ exclude_lines = [
     "pass",
 ]
 omit = [
-    "magicgui/events.py",
-    "magicgui/widgets/_image/_mpl_image.py",
-    "magicgui/widgets/_bases/*",
+    "src/magicgui/events.py",
+    "src/magicgui/widgets/_image/_mpl_image.py",
+    "src/magicgui/widgets/_bases/*",
     "tests/*",
 ]
 
