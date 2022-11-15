@@ -29,8 +29,7 @@ pytest
 static analysis tools to prevent errors from being introduced into the codebase:
 
 - [black](https://github.com/psf/black) - code formatting
-- [flake8](https://github.com/PyCQA/flake8) - linting
-- [pydocstyle](https://github.com/PyCQA/pydocstyle/) - docstring conventions
+- [ruff](https://github.com/charliermarsh/ruff) - linting
 - [mypy](http://mypy-lang.org/) - static type anaylsis
 - [codecov](https://codecov.io/) - test coverage
 
