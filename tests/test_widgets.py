@@ -6,11 +6,11 @@ from typing import Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
-from tests import MyInt
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
 from magicgui.widgets.bases import DialogWidget, ValueWidget
+from tests import MyInt
 
 
 # it's important that "qt" be last here, so that it's used for
