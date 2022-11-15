@@ -79,7 +79,8 @@ class tqdm(_tqdm_std):
         if not self._in_visible_gui:
             return
 
-        self.sp = lambda x: None  # no-op status printer, required for older tqdm compat
+        # no-op status printer, required for older tqdm compat
+        self.sp = lambda x: None  # noqa: E731
         if self.disable:
             return
 

@@ -99,10 +99,7 @@ class CategoricalWidget(ValueWidget):
 
     @choices.setter
     def choices(self, choices: ChoicesType):
-        if isinstance(choices, EnumMeta):
-            str_func: Callable = lambda x: str(x.name)
-        else:
-            str_func = str
+        str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str
         if isinstance(choices, dict):
             if "choices" not in choices or "key" not in choices:
                 raise ValueError(
@@ -124,3 +121,7 @@ class CategoricalWidget(ValueWidget):
         if self._nullable:
             _normed.insert(0, (self.null_string, self.null_value))
         return self._widget._mgui_set_choices(_normed)
+
+
+def _get_name(obj: Any) -> str:
+    return str(obj.name)

@@ -27,7 +27,7 @@ from magicgui.widgets.bases._value_widget import ValueWidget
 from magicgui.widgets.protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
-    import numpy
+    import numpy  # noqa: F401
     import pandas
 
 

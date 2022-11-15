@@ -86,7 +86,7 @@ def user_cache_dir(
     -------
     str
         Full path to the user-specific cache dir for this application.
-    """
+    """  # noqa: E501
     if sys.platform.startswith("java"):
         import platform
 

@@ -1,4 +1,3 @@
-# flake8: noqa
 import pytest
 from typing_extensions import reveal_type
 

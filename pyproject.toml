@@ -163,7 +163,12 @@ src_paths = ["src/magicgui", "tests"]
 
 [tool.ruff]
 line-length = 88
-per-file-ignores = { "magicgui/events.py,tests/*.py,magicgui/backends/*/*.py,magicgui/_type_wrapper.py" = ["D"] }
+
+[tool.ruff.per-file-ignores]
+"magicgui/events.py" = ["D"]
+"tests/*.py" = ["D", "E501"]
+
+# per-file-ignores = { "magicgui/events.py,tests/*.py,magicgui/backends/*/*.py,magicgui/_type_wrapper.py" = ["D"] }
 
 # http://www.pydocstyle.org/en/stable/usage.html
 [tool.pydocstyle]

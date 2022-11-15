@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Literal, Tuple, Type,
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from magicgui.widgets import FunctionGui
-    from magicgui.widgets.bases import CategoricalWidget, Widget
+    from magicgui.widgets import FunctionGui  # noqa: F401
+    from magicgui.widgets.bases import CategoricalWidget, Widget  # noqa: F401
     from magicgui.widgets.protocols import WidgetProtocol
 
 #: A :class:`~magicgui.widgets._bases.Widget` class or a
