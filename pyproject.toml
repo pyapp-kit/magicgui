@@ -144,6 +144,7 @@ extend-ignore = [
 "tests/*.py" = ["D", "E501"]
 "examples/*.py" = ["D"]
 "src/magicgui/widgets/_image/*.py" = ["D"]
+"setup.py" = ["F821"]
 
 
 # https://docs.pytest.org/en/6.2.x/customize.html
