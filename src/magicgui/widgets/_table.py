@@ -13,6 +13,7 @@ from typing import (
     Literal,
     Mapping,
     MutableMapping,
+    Optional,
     Sequence,
     TypeVar,
     Union,
@@ -211,8 +212,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         cls,
         value: TableData | None = None,
         *,
-        index: Collection = None,
-        columns: Collection = None,
+        index: Optional[Collection] = None,
+        columns: Optional[Collection] = None,
         **kwargs,
     ):
         """Just for the signature."""
@@ -222,8 +223,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         self,
         value: TableData | None = None,
         *,
-        index: Collection = None,
-        columns: Collection = None,
+        index: Optional[Collection] = None,
+        columns: Optional[Collection] = None,
         **kwargs,
     ) -> None:
         super().__init__(widget_type=use_app().get_obj("Table"), **kwargs)

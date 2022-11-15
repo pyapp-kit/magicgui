@@ -19,6 +19,7 @@ from typing import (
     Iterable,
     Iterator,
     Literal,
+    Optional,
     Sequence,
     Tuple,
     TypeVar,
@@ -129,8 +130,8 @@ def merge_super_sigs(
 @overload
 def backend_widget(
     cls: C,
-    widget_name: str = None,
-    transform: Callable[[type], type] = None,
+    widget_name: Optional[str] = None,
+    transform: Optional[Callable[[type], type]] = None,
 ) -> C:
     ...
 
@@ -138,16 +139,16 @@ def backend_widget(
 @overload
 def backend_widget(
     cls: Literal[None] = None,
-    widget_name: str = None,
-    transform: Callable[[type], type] = None,
+    widget_name: Optional[str] = None,
+    transform: Optional[Callable[[type], type]] = None,
 ) -> Callable[..., C]:
     ...
 
 
 def backend_widget(
-    cls: C = None,
-    widget_name: str = None,
-    transform: Callable[[type], type] = None,
+    cls: Optional[C] = None,
+    widget_name: Optional[str] = None,
+    transform: Optional[Callable[[type], type]] = None,
 ) -> Callable | C:
     """Decorate cls to inject the backend widget of the same name.
 
@@ -994,7 +995,7 @@ class _LabeledWidget(Container):
     def __init__(
         self,
         widget: Widget,
-        label: str = None,
+        label: Optional[str] = None,
         position: str = "left",
         **kwargs,
     ):

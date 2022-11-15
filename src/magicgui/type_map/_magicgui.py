@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from magicgui.widgets import FunctionGui, MainFunctionGui
 
@@ -23,7 +23,7 @@ def magicgui(
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
-    app: AppRef = None,
+    app: Optional[AppRef] = None,
     persist: bool = False,
     raise_on_unknown: bool = False,
     **param_options: dict,
@@ -108,7 +108,7 @@ def magic_factory(
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
-    app: AppRef = None,
+    app: Optional[AppRef] = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
     raise_on_unknown: bool = False,

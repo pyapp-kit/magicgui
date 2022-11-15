@@ -10,7 +10,7 @@ from collections import deque
 from contextlib import contextmanager
 from pathlib import Path
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Callable, Deque, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Callable, Deque, Generic, Optional, TypeVar, cast
 
 from psygnal import Signal
 
@@ -119,12 +119,12 @@ class FunctionGui(Container, Generic[_R]):
         scrollable: bool = False,
         labels: bool = True,
         tooltips: bool = True,
-        app: AppRef = None,
-        visible: bool = None,
+        app: Optional[AppRef] = None,
+        visible: Optional[bool] = None,
         auto_call: bool = False,
         result_widget: bool = False,
         param_options: dict[str, dict] | None = None,
-        name: str = None,
+        name: Optional[str] = None,
         persist: bool = False,
         raise_on_unknown=False,
         **kwargs,

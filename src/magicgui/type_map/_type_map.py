@@ -73,7 +73,7 @@ _SIMPLE_TYPES = {
 }
 
 
-def match_type(type_: Any, default: Any = None) -> WidgetTuple | None:
+def match_type(type_: Any, default: Optional[Any] = None) -> WidgetTuple | None:
     """Check simple type mappings."""
     if type_ in _SIMPLE_ANNOTATIONS:
         return _SIMPLE_ANNOTATIONS[type_], {}

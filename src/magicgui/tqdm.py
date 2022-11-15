@@ -128,7 +128,7 @@ class tqdm(_tqdm_std):
         self._mgui._tqdm_depth += 1
         return pbar
 
-    def display(self, msg: str | None = None, pos: int = None) -> None:
+    def display(self, msg: str | None = None, pos: Optional[int] = None) -> None:
         """Update the display."""
         if not self._in_visible_gui:
             return super().display(msg=msg, pos=pos)

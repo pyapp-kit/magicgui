@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import Any
+from typing import Any, Optional
 
 from magicgui.application import use_app
 from magicgui.types import Undefined
@@ -12,7 +12,7 @@ from ._widget import Widget
 
 def create_widget(
     value: Any = Undefined,
-    annotation: Any = None,
+    annotation: Optional[Any] = None,
     name: str = "",
     param_kind: str | inspect._ParameterKind = "POSITIONAL_OR_KEYWORD",
     label=None,

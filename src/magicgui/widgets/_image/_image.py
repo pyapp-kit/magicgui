@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Optional
 
 from .._concrete import backend_widget
 from ..bases import ValueWidget
@@ -37,13 +37,13 @@ class Image(ValueWidget):
     def set_data(
         self,
         val: str | Path | np.ndarray | PIL.Image.Image,
-        cmap: str | Colormap | matplotlib.colors.Colormap = None,
-        norm: _mpl_image.Normalize | matplotlib.colors.Normalize = None,
-        vmin: float = None,
-        vmax: float = None,
+        cmap: Optional[str | Colormap | matplotlib.colors.Colormap] = None,
+        norm: Optional[_mpl_image.Normalize | matplotlib.colors.Normalize] = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
         width: int | Literal["auto"] | None = None,
         height: int | Literal["auto"] | None = None,
-        format: str = None,
+        format: Optional[str] = None,
     ):
         """Set image data with various optional display parameters.
 
@@ -125,7 +125,7 @@ class Image(ValueWidget):
         """Get contrast limits (for monochromatic images)."""
         return self._image.get_clim() if self._image is not None else (None, None)
 
-    def set_clim(self, vmin: float = None, vmax: float = None):
+    def set_clim(self, vmin: Optional[float] = None, vmax: Optional[float] = None):
         """Set contrast limits (for monochromatic images).
 
         Parameters

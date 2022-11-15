@@ -8,9 +8,9 @@ from .bases import create_widget
 
 def show_file_dialog(
     mode: Union[str, FileDialogMode] = FileDialogMode.EXISTING_FILE,
-    caption: str = None,
-    start_path: str = None,
-    filter: str = None,
+    caption: Optional[str] = None,
+    start_path: Optional[str] = None,
+    filter: Optional[str] = None,
     parent=None,
 ) -> Optional[str]:
     """Immediately show an 'open file' dialog and block.
@@ -50,7 +50,7 @@ def request_values(
     values: Union[Mapping, Iterable[Tuple[Hashable, Any]]] = (),
     *,
     title: str = "",
-    parent: Any = None,
+    parent: Optional[Any] = None,
     **kwargs: Union[Type, Dict]
 ) -> Optional[Dict[str, Any]]:
     """Show a dialog with a set of values and request the user to enter them.

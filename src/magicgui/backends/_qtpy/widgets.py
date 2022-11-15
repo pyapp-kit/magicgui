@@ -1036,7 +1036,7 @@ class RadioButtons(
                 return btn._data
         return None
 
-    def _add_button(self, label: str, data: Any = None):
+    def _add_button(self, label: str, data: Optional[Any] = None):
         btn = QtW.QRadioButton(label, self._qwidget)
         btn._data = data
         self._btn_group.addButton(btn)
@@ -1170,9 +1170,9 @@ QFILE_DIALOG_MODES = {
 
 def show_file_dialog(
     mode: str | FileDialogMode = FileDialogMode.EXISTING_FILE,
-    caption: str = None,
-    start_path: str = None,
-    filter: str = None,
+    caption: Optional[str] = None,
+    start_path: Optional[str] = None,
+    filter: Optional[str] = None,
     parent=None,
 ) -> str | None:
     show_dialog = QFILE_DIALOG_MODES[FileDialogMode(mode)]

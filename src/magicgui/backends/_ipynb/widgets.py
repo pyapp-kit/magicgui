@@ -30,7 +30,7 @@ class _IPyWidget(protocols.WidgetProtocol):
 
     def __init__(
         self,
-        wdg_class: Type[ipywdg.Widget] = None,
+        wdg_class: Optional[Type[ipywdg.Widget]] = None,
         parent: Optional[ipywdg.Widget] = None,
     ):
         if wdg_class is None:

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import inspect
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, cast
 
 from typing_extensions import Annotated, _AnnotatedAlias
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 TZ_EMPTY = "__no__default__"
 
 
-def make_annotated(annotation=Any, options: dict = None) -> _AnnotatedAlias:
+def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
     """Merge a annotation and an options dict into an Annotated type.
 
     Parameters
@@ -106,7 +106,7 @@ class MagicParameter(inspect.Parameter):
         *,
         default: Any = inspect.Parameter.empty,
         annotation: Any = inspect.Parameter.empty,
-        gui_options: dict = None,
+        gui_options: Optional[dict] = None,
         raise_on_unknown: bool = False,
     ):
         _annotation = make_annotated(annotation, gui_options)
@@ -133,7 +133,7 @@ class MagicParameter(inspect.Parameter):
             )
         )
 
-    def to_widget(self, app: AppRef = None) -> Widget:
+    def to_widget(self, app: Optional[AppRef] = None) -> Widget:
         """Create and return a widget for this object."""
         from magicgui.widgets import create_widget
 
@@ -165,7 +165,7 @@ class MagicParameter(inspect.Parameter):
     def from_parameter(
         cls,
         param: inspect.Parameter,
-        gui_options: dict = None,
+        gui_options: Optional[dict] = None,
         raise_on_unknown: bool = False,
     ) -> MagicParameter:
         """Create MagicParameter from an inspect.Parameter."""
@@ -200,10 +200,10 @@ class MagicSignature(inspect.Signature):
 
     def __init__(
         self,
-        parameters: Sequence[inspect.Parameter] = None,
+        parameters: Optional[Sequence[inspect.Parameter]] = None,
         *,
         return_annotation=inspect.Signature.empty,
-        gui_options: dict[str, dict] = None,
+        gui_options: Optional[dict[str, dict]] = None,
         raise_on_unknown: bool = False,
     ):
         params = [
@@ -230,7 +230,7 @@ class MagicSignature(inspect.Signature):
             raise_on_unknown=raise_on_unknown,
         )
 
-    def widgets(self, app: AppRef = None) -> MappingProxyType:
+    def widgets(self, app: Optional[AppRef] = None) -> MappingProxyType:
         """Return mapping from parameters to widgets for all params in Signature."""
         return MappingProxyType(
             {n: p.to_widget(app) for n, p in self.parameters.items()}
@@ -268,7 +268,7 @@ class MagicSignature(inspect.Signature):
 def magic_signature(
     obj: Callable,
     *,
-    gui_options: dict[str, dict] = None,
+    gui_options: Optional[dict[str, dict]] = None,
     follow_wrapped: bool = True,
     raise_on_unknown: bool = False,
 ) -> MagicSignature:

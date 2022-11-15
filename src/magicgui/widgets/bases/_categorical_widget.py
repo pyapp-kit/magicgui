@@ -1,5 +1,5 @@
 from enum import Enum, EnumMeta
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 from magicgui.types import ChoicesType
 from magicgui.widgets import protocols
@@ -78,7 +78,7 @@ class CategoricalWidget(ValueWidget):
         """Get data for the provided ``choice_name``."""
         self._widget._mgui_get_choice(choice_name)
 
-    def set_choice(self, choice_name: str, data: Any = None):
+    def set_choice(self, choice_name: str, data: Optional[Any] = None):
         """Set data for the provided ``choice_name``."""
         data = data if data is not None else choice_name
         self._widget._mgui_set_choice(choice_name, data)

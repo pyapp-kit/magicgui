@@ -5,7 +5,7 @@ import signal
 from contextlib import contextmanager
 from importlib import import_module
 from types import ModuleType
-from typing import TYPE_CHECKING, Callable, Iterator, Union
+from typing import TYPE_CHECKING, Callable, Iterator, Optional, Union
 
 from magicgui.backends import BACKENDS
 
@@ -124,7 +124,7 @@ class Application:
         self._backend._mgui_start_timer(interval, on_timeout, single=single_shot)
 
 
-def _use_app(backend_name: str = None):
+def _use_app(backend_name: Optional[str] = None):
     """Get/create the default Application object.
 
     It is safe to call this function multiple times, as long as
@@ -158,7 +158,7 @@ def _use_app(backend_name: str = None):
 AppRef = Union[Application, str, None]
 
 
-def use_app(app: AppRef = None) -> Application:
+def use_app(app: Optional[AppRef] = None) -> Application:
     """Get/create the default Application object.  See _use_app docstring."""
     if app is None:
         return _use_app()
