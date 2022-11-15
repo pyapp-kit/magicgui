@@ -1,5 +1,6 @@
 import re
 import runpy
+import sys
 from glob import glob
 from pathlib import Path
 
@@ -60,6 +61,7 @@ def test_examples(fname, monkeypatch):
             type_map._type_map._TYPE_DEFS.pop(float, None)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="requires python3.11")
 def test_setuppy():
     """Ensure that setup.py matches pyproject deps.
 
@@ -67,7 +69,7 @@ def test_setuppy():
     """
     import ast
 
-    import tomli
+    import tomllib
 
     setup = Path(__file__).parent.parent / "setup.py"
     pyproject = Path(__file__).parent.parent / "pyproject.toml"
@@ -75,4 +77,4 @@ def test_setuppy():
     deps = ast.literal_eval(settxt.split("install_requires=")[-1].split("]")[0] + "]")
 
     with open(pyproject, "rb") as f:
-        assert set(tomli.load(f)["project"]["dependencies"]) == set(deps)
+        assert set(tomllib.load(f)["project"]["dependencies"]) == set(deps)
