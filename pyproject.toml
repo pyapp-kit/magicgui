@@ -82,11 +82,7 @@ dev = [
     "annotated_types",
     "attrs",
     "black",
-    "flake8-bugbear",
-    "flake8-docstrings",
-    "flake8-pyprojecttoml",
-    "flake8-typing-imports",
-    "flake8",
+    "ruff",
     "ipython",
     "ipywidgets",
     "isort",
@@ -127,16 +123,7 @@ documentation = "https://pyapp-kit.github.io/magicgui/"
 profile = "black"
 src_paths = ["src/magicgui", "tests"]
 
-# # https://flake8.pycqa.org/en/latest/user/options.html
-# # https://gitlab.com/durko/flake8-pyprojecttoml
-# [tool.flake8]
-# docstring-convention = "all" # use numpy convention, while allowing D417
-# extend-ignore = """
-# E203  # whitespace before ':'
-# D107,D203,D212,D213,D402,D413,D415,D416  # numpy
-# D100  # missing docstring in public module
-# """
-
+# https://github.com/charliermarsh/ruff
 [tool.ruff]
 target-version = "py38"
 line-length = 88
