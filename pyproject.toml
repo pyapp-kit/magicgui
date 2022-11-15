@@ -65,7 +65,7 @@ testing = [
     "pytest",
     "pytest-qt",
     "pytest-cov",
-    "pytest-mypy-testing",
+    "pytest-mypy-plugins",
     "numpy",
     "pandas",
     "tqdm>=4.30.0",
@@ -99,7 +99,7 @@ dev = [
     "pyqt5>=5.12.0",
     "pytest-cov",
     "pytest-cov",
-    "pytest-mypy-testing",
+    "pytest-mypy-plugins",
     "pytest-qt",
     "pytest",
     "pytest",
@@ -176,14 +176,10 @@ module = [
     "magicgui.widgets._image.*",
     ".examples/",
     "magicgui.backends._qtpy.widgets.*",
-    "numpy.*",
     "_pytest.*",
 ]
 ignore_errors = true
 
-
-#  [mypy-.examples,numpy.*,_pytest.*,packaging.*,importlib_metadata.*,docstring_parser.*,psygnal.*,qtpy.*,imageio.*,ipywidgets.*]
-#  ignore_errors = True
 
 
 

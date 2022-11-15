@@ -273,15 +273,16 @@ class _IPySliderWidget(_IPyRangedWidget, _IPySupportsOrientation):
 
     def _mgui_set_readout_visibility(self, visible: bool) -> None:
         """Set visibility of readout widget."""
-        raise NotImplementedError
+        # TODO
 
     def _mgui_get_tracking(self) -> bool:
         """If tracking is False, changed is only emitted when released."""
-        raise NotImplementedError
+        # TODO
+        return True
 
     def _mgui_set_tracking(self, tracking: bool) -> None:
         """If tracking is False, changed is only emitted when released."""
-        raise NotImplementedError
+        # TODO
 
 
 class Label(_IPyStringWidget):
