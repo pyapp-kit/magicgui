@@ -375,7 +375,7 @@ def register_type(
         function, ``return_callback(widget, value, return_type)`` will be called
         whenever the decorated function is called... where ``widget`` is the Widget
         instance, and ``value`` is the return value of the decorated function.
-    **options
+    options
         key value pairs where the keys are valid `dict`
 
     Raises
@@ -459,7 +459,7 @@ def type_registered(
         function, ``return_callback(widget, value, return_type)`` will be called
         whenever the decorated function is called... where ``widget`` is the Widget
         instance, and ``value`` is the return value of the decorated function.
-    **options
+    options
         key value pairs where the keys are valid `dict`
     """
     _type_ = resolve_single_type(type_)

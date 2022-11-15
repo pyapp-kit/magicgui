@@ -69,8 +69,7 @@ def magicgui(
     raise_on_unknown : bool, optional
         If ``True``, raise an error if magicgui cannot determine widget for function
         argument or return type. If ``False``, ignore unknown types. By default False.
-
-    **param_options : dict of dict
+    param_options : dict of dict
         Any additional keyword arguments will be used as parameter-specific options.
         Keywords MUST match the name of one of the arguments in the function
         signature, and the value MUST be a dict.

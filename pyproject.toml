@@ -151,7 +151,6 @@ extend-ignore = [
     "D413",
     "D415",
     "D416",
-    "D417",
 ]
 
 [tool.ruff.per-file-ignores]

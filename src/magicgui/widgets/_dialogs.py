@@ -75,8 +75,7 @@ def request_values(
         The dialog will inherit style from the parent object.
         CAREFUL: if a parent is set, and subsequently deleted, this widget will likely
         be deleted as well (depending on the backend), and will no longer be usable.
-
-    **kwargs : Union[Type, Dict]
+    kwargs : Union[Type, Dict]
         Additional keyword arguments are used as name -> annotation arguments to
         `create_widget`.
 

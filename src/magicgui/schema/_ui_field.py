@@ -692,7 +692,7 @@ def get_ui_fields(cls_or_instance: object) -> tuple[UiField, ...]:
 
     Parameters
     ----------
-    object : Any
+    cls_or_instance : Any
         Object to extract fields from.  Could be a dataclass or dataclass instance,
         an attrs class or instance, a pydantic model or instance, a named tuple,
         typed dict, or a function.
