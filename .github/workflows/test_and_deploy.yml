@@ -50,7 +50,7 @@ jobs:
       - name: Test with tox
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: hatch run +py=${{ matrix.py }} +backend=${{ matrix.backend }} test:run
+          run: hatch run +backend=${{ matrix.backend }} test:run
 
       - name: Coverage
         uses: codecov/codecov-action@v3

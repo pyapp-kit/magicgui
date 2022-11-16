@@ -117,7 +117,6 @@ features = ["testing"]
 [tool.hatch.envs.test.scripts]
 run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov=magicgui --cov-report=xml --cov-report=term-missing"
 [[tool.hatch.envs.test.matrix]]
-python = ["38", "39", "310", "311"]
 backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
 [tool.hatch.envs.test.overrides]
 matrix.backend.features = [
