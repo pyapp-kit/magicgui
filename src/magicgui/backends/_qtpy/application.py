@@ -3,6 +3,11 @@ import sys
 from qtpy.QtCore import QCoreApplication, Qt, QTimer
 from qtpy.QtWidgets import QApplication
 
+try:
+    from qtpy import QT6
+except ImportError:
+    QT6 = False
+
 from magicgui.application import APPLICATION_NAME
 from magicgui.widgets.protocols import BaseApplicationBackend
 
@@ -30,8 +35,9 @@ class ApplicationBackend(BaseApplicationBackend):
         # Get native app
         self._app = QApplication.instance()
         if not self._app:
-            if hasattr(Qt, "AA_EnableHighDpiScaling"):
-                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+            if not QT6:
+                high_dpi = Qt.ApplicationAttribute.AA_EnableHighDpiScaling
+                QApplication.setAttribute(high_dpi)
             self._app = QApplication(sys.argv)
             self._app.setApplicationName(APPLICATION_NAME)
         return self._app
