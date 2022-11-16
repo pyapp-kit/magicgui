@@ -77,4 +77,10 @@ def test_setuppy():
     deps = ast.literal_eval(settxt.split("install_requires=")[-1].split("]")[0] + "]")
 
     with open(pyproject, "rb") as f:
-        assert set(tomllib.load(f)["project"]["dependencies"]) == set(deps)
+        data = tomllib.load(f)
+
+    projdeps = set(data["project"]["dependencies"])
+    assert projdeps == set(deps)
+
+    min_req = data["project"]["optional-dependencies"]["min-req"]
+    assert {k.replace(">=", "==") for k in projdeps} == set(min_req)

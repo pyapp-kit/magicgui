@@ -3,11 +3,6 @@
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
-[tool.hatch]
-
-[tool.hatch.version]
-source = "vcs"
-
 # https://peps.python.org/pep-0621/
 [project]
 name = "magicgui"
@@ -49,19 +44,26 @@ dependencies = [
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
+min-req = [
+    "docstring_parser==0.7",
+    "psygnal==0.3.1",
+    "qtpy==1.7.0",
+    "superqt==0.4.0",
+    "typing_extensions",
+]
+
+pyqt5 = ["pyqt5>=5.12.0"]
+pyqt6 = ["pyqt6"]
 pyside2 = [
     "pyside2>=5.14 ; python_version=='3.8'",
     "pyside2>=5.15 ; python_version>='3.9'",
 ]
-pyqt5 = ["pyqt5>=5.12.0"]
-pyqt6 = ["pyqt6"]
-pyside6 = ["pyside6<6.4.0"]
+pyside6 = ["pyside6"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=7.5.0"]
 image = ["pillow>=4.0"]
 quantity = ["pint>=0.13.0"]
 testing = [
-    "tox",
     "pytest",
     "pytest-qt",
     "pytest-cov",
@@ -105,8 +107,6 @@ dev = [
     "pytest",
     "rich",
     "toolz",
-    "tox-conda",
-    "tox",
     "tqdm>=4.30.0",
 ]
 
@@ -116,6 +116,26 @@ repository = "https://github.com/pyapp-kit/magicgui"
 changelog = "https://github.com/pyapp-kit/magicgui/blob/main/CHANGELOG.md"
 issues = "https://github.com/pyapp-kit/magicgui/issues"
 documentation = "https://pyapp-kit.github.io/magicgui/"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.envs.test]
+features = ["testing"]
+[tool.hatch.envs.test.scripts]
+run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov=magicgui --cov-report=xml --cov-report=term-missing"
+[[tool.hatch.envs.test.matrix]]
+backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
+[tool.hatch.envs.test.overrides]
+# matrix.deps.features = [
+#     { value = "min-req", if = ["min-req"] },
+# ]
+matrix.backend.features = [
+    { value = "pyqt5", if = ["pyqt5"] },
+    { value = "pyside2", if = ["pyside2"] },
+    { value = "pyqt6", if = ["pyqt6"] },
+    { value = "pyside6", if = ["pyside6"] },
+]
 
 
 # https://pycqa.github.io/isort/docs/configuration/options.html
@@ -157,7 +177,7 @@ filterwarnings = [
     "ignore:distutils Version classes are deprecated",
     "ignore:path is deprecated:DeprecationWarning",
     "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
-
+    "ignore:Enum value:DeprecationWarning:matplotlib",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
@@ -205,7 +225,6 @@ omit = [
 ignore = [
     ".pre-commit-config.yaml",
     "tests/**/*",
-    "tox.ini",
     ".github_changelog_generator",
     "codecov.yml",
     ".ruff_cache/**/*",

@@ -606,7 +606,8 @@ class Slider(_Slider):
         self._readout_widget = self._readout()
         super().__init__(qwidg, **kwargs)
 
-        self._readout_widget.setButtonSymbols(self._readout_widget.NoButtons)
+        no_buttons = QtW.QAbstractSpinBox.ButtonSymbols.NoButtons
+        self._readout_widget.setButtonSymbols(no_buttons)
         self._readout_widget.setStyleSheet("background:transparent; border: 0;")
 
         self._qwidget.valueChanged.connect(self._on_slider_change)
