@@ -34,10 +34,10 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "docstring_parser >=0.7",
-    "psygnal >=0.3.1",
-    "qtpy >=1.7.0",
-    "superqt >=0.4.0",
+    "docstring_parser>=0.7",
+    "psygnal>=0.3.1",
+    "qtpy>=1.7.0",
+    "superqt>=0.4.0",
     "typing_extensions",
 ]
 
@@ -45,11 +45,11 @@ dependencies = [
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 min-req = [
-    "docstring_parser ==0.7",
-    "psygnal ==0.3.1",
-    "qtpy ==1.7.0",
-    "superqt ==0.4.0",
-    "typing_extensions ==3.10.0.0",
+    "docstring_parser==0.7",
+    "psygnal==0.3.1",
+    "qtpy==1.7.0",
+    "superqt==0.4.0",
+    "typing_extensions",
 ]
 
 pyqt5 = ["pyqt5>=5.12.0"]
