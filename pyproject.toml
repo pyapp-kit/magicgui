@@ -34,23 +34,31 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "docstring_parser>=0.7",
-    "psygnal>=0.3.1",
-    "qtpy>=1.7.0",
-    "superqt>=0.4.0",
+    "docstring_parser >=0.7",
+    "psygnal >=0.3.0",
+    "qtpy >=1.7.0",
+    "superqt >=0.4.0",
     "typing_extensions",
 ]
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
+min-req = [
+    "docstring_parser ==0.7",
+    "psygnal ==0.3.0",
+    "qtpy ==1.7.0",
+    "superqt ==0.4.0",
+    "typing_extensions ==3.10.0.0",
+]
+
 pyqt5 = ["pyqt5>=5.12.0"]
 pyqt6 = ["pyqt6"]
 pyside2 = [
     "pyside2>=5.14 ; python_version=='3.8'",
     "pyside2>=5.15 ; python_version>='3.9'",
 ]
-pyside6 = ["pyside6<6.4.0"]
+pyside6 = ["pyside6"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=7.5.0"]
 image = ["pillow>=4.0"]
@@ -119,6 +127,9 @@ run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov=magicgui --cov-r
 [[tool.hatch.envs.test.matrix]]
 backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
 [tool.hatch.envs.test.overrides]
+# matrix.deps.features = [
+#     { value = "min-req", if = ["min-req"] },
+# ]
 matrix.backend.features = [
     { value = "pyqt5", if = ["pyqt5"] },
     { value = "pyside2", if = ["pyside2"] },
