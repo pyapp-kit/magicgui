@@ -35,7 +35,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "docstring_parser >=0.7",
-    "psygnal >=0.3.0",
+    "psygnal >=0.3.1",
     "qtpy >=1.7.0",
     "superqt >=0.4.0",
     "typing_extensions",
@@ -46,7 +46,7 @@ dependencies = [
 [project.optional-dependencies]
 min-req = [
     "docstring_parser ==0.7",
-    "psygnal ==0.3.0",
+    "psygnal ==0.3.1",
     "qtpy ==1.7.0",
     "superqt ==0.4.0",
     "typing_extensions ==3.10.0.0",
