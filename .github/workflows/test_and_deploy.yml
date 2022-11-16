@@ -141,6 +141,31 @@ jobs:
           STARDIST_NAPARI_NOTHREADS: true
           STARDIST_NAPARI_NOPERSIST: true
 
+  test_partseg:
+    name: partseg tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          repository: 4DNucleome/PartSeg
+          path: PartSeg
+      - uses: tlambert03/setup-qt-libs@v1.4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install
+        run: |
+          python -m pip install -e .[testing]
+          python -m pip install ./PartSeg[test,pyqt5]
+
+      - name: Run PartSeg tests
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          working-directory: PartSeg
+          run: python -m pytest -v --color=yes -W ignore package/tests/test_PartSeg/test_napari_widgets.py
+
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
