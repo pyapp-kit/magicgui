@@ -7,7 +7,7 @@ Contributions are welcome!
 To install `magicgui` for development, first clone the repository:
 
 ```bash
-git clone https://github.com/napari/magicgui
+git clone https://github.com/pyapp-kit/magicgui
 cd magicgui
 ```
 
@@ -29,8 +29,7 @@ pytest
 static analysis tools to prevent errors from being introduced into the codebase:
 
 - [black](https://github.com/psf/black) - code formatting
-- [flake8](https://github.com/PyCQA/flake8) - linting
-- [pydocstyle](https://github.com/PyCQA/pydocstyle/) - docstring conventions
+- [ruff](https://github.com/charliermarsh/ruff) - linting
 - [mypy](http://mypy-lang.org/) - static type anaylsis
 - [codecov](https://codecov.io/) - test coverage
 
@@ -85,7 +84,7 @@ To add a new widget, you will need to:
 1. Add a test for your new widget.
 
 > *For an example of a minimal PR adding a new widget, see
-> [\#483](https://github.com/napari/magicgui/pull/483/files), which added a
+> [\#483](https://github.com/pyapp-kit/magicgui/pull/483/files), which added a
 > `QuantityWidget` to be used with `pint.Quantity` objects.*
 
 ### Associating a widget with a type

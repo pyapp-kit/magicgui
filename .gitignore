@@ -133,3 +133,4 @@ dmypy.json
 .vscode
 .DS_Store
 examples/_wip
+.ruff_cache

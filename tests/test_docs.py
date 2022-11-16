@@ -1,5 +1,6 @@
 import re
 import runpy
+import sys
 from glob import glob
 from pathlib import Path
 
@@ -58,3 +59,28 @@ def test_examples(fname, monkeypatch):
         if "waveform" in fname:
             type_map._type_map._TYPE_DEFS.pop(int, None)
             type_map._type_map._TYPE_DEFS.pop(float, None)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="requires python3.11")
+def test_setuppy():
+    """Ensure that setup.py matches pyproject deps.
+
+    (setup.py is only there for github)
+    """
+    import ast
+
+    import tomllib
+
+    setup = Path(__file__).parent.parent / "setup.py"
+    pyproject = Path(__file__).parent.parent / "pyproject.toml"
+    settxt = setup.read_text(encoding="utf-8")
+    deps = ast.literal_eval(settxt.split("install_requires=")[-1].split("]")[0] + "]")
+
+    with open(pyproject, "rb") as f:
+        data = tomllib.load(f)
+
+    projdeps = set(data["project"]["dependencies"])
+    assert projdeps == set(deps)
+
+    min_req = data["project"]["optional-dependencies"]["min-req"]
+    assert {k.replace(">=", "==") for k in projdeps} == set(min_req)
