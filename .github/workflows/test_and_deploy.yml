@@ -47,15 +47,15 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade hatch
 
-      - name: Test with tox
+      - name: Test
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: hatch run +backend=${{ matrix.backend }} test:run
+          run: hatch -v run +backend=${{ matrix.backend }} test:run
 
       - name: Coverage
         uses: codecov/codecov-action@v3
         with:
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
   test_napari:
     name: napari tests
