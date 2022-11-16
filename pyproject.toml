@@ -177,7 +177,7 @@ filterwarnings = [
     "ignore:distutils Version classes are deprecated",
     "ignore:path is deprecated:DeprecationWarning",
     "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
-
+    "ignore:Enum value:DeprecationWarning:matplotlib",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
