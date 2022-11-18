@@ -1134,3 +1134,11 @@ def test_literal():
     sel = f.x
     assert type(sel) is widgets.Select
     assert sel.choices == get_args(Lit)
+
+
+def test_float_slider_readout():
+    sld = widgets.FloatSlider(value=4, min=0.5, max=10.5)
+    assert sld.value == 4
+    assert sld._widget._readout_widget.value() == 4
+    assert sld._widget._readout_widget.minimum() == 0.5
+    assert sld._widget._readout_widget.maximum() == 10.5
