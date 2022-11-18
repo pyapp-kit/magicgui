@@ -20,7 +20,10 @@ def _mock_widget(WidgetType: type[W], **kwargs) -> W:
     elif isinstance(_proto, (ForwardRef, str)):
         if isinstance(_proto, str):
             _proto = ForwardRef(_proto)
-        _proto = _proto._evaluate({"protocols": protocols}, None, frozenset())
+        try:
+            _proto = _proto._evaluate({"protocols": protocols}, None, frozenset())
+        except TypeError:
+            _proto = _proto._evaluate({"protocols": protocols}, None)
     backend_mock = create_autospec(_proto, spec_set=True)
     widget = WidgetType(widget_type=backend_mock, **kwargs)
     backend_mock.assert_called_once_with(parent=None)
@@ -136,7 +139,7 @@ def test_categorical_widget_events(mock_app):
         b = 2
 
     widget = _mock_widget(widgets.bases.CategoricalWidget, choices=E)
-    widget._widget._mgui_get_choices.return_value = ("a", "b")
+    widget._widget._mgui_get_choices.return_value = (("a", E.a), ("b", E.b))
     widget._widget._mgui_set_value.side_effect = widget._on_value_change
 
     change_mock = Mock()
