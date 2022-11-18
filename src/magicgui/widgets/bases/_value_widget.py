@@ -43,6 +43,7 @@ class ValueWidget(Widget):
 
     def _post_init(self):
         super()._post_init()
+        # Note that it is the responsibility of the backend to emit the changed signal
         self._widget._mgui_bind_change_callback(self._on_value_change)
 
     def _on_value_change(self, value=None):
@@ -79,6 +80,8 @@ class ValueWidget(Widget):
 
     @value.setter
     def value(self, value):
+        # value_changed will be emitted indirectly by the backend calling our
+        # _on_value_change method, which we connected in _post_init
         return self._widget._mgui_set_value(value)
 
     def __repr__(self) -> str:
