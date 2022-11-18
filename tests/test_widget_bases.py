@@ -1,6 +1,7 @@
 # type: ignore
 from __future__ import annotations
 
+import enum
 from typing import ForwardRef, TypeVar
 from unittest.mock import Mock, create_autospec
 
@@ -108,9 +109,10 @@ def test_value_widget_protocol(mock_app):
 
 
 def test_value_widget_bind(mock_app):
+    widget = _mock_widget(widgets.bases.ValueWidget)
+
     mock = Mock()
     mock.return_value = 3
-    widget = _mock_widget(widgets.bases.ValueWidget)
     widget.bind(mock)
     mock.assert_not_called()
     assert widget.value == 3
@@ -126,3 +128,19 @@ def test_value_widget_events(mock_app):
 
     widget.value = 2
     change_mock.assert_called_with(2)
+
+
+def test_categorical_widget_events(mock_app):
+    class E(enum.Enum):
+        a = 1
+        b = 2
+
+    widget = _mock_widget(widgets.bases.CategoricalWidget, choices=E)
+    widget._widget._mgui_get_choices.return_value = ("a", "b")
+    widget._widget._mgui_set_value.side_effect = widget._on_value_change
+
+    change_mock = Mock()
+    widget.changed.connect(change_mock)
+
+    widget.value = E.b
+    change_mock.assert_called_with(E.b)
