@@ -594,6 +594,9 @@ class _Slider(QBaseRangedWidget, protocols.SupportsOrientation):
             self._qwidget.setTracking(value)
 
     def _pre_set_hook(self, value):
+        return self._cast(value)
+
+    def _cast(self, value: Any) -> Any:
         return int(value)
 
 
@@ -655,17 +658,17 @@ class Slider(_Slider):
     def _mgui_set_min(self, value: float):
         """Set the minimum possible value."""
         super()._mgui_set_min(value)
-        self._readout_widget.setMinimum(self._pre_set_hook(value))
+        self._readout_widget.setMinimum(self._cast(value))
 
     def _mgui_set_max(self, value: float):
         """Set the maximum possible value."""
         super()._mgui_set_max(value)
-        self._readout_widget.setMaximum(self._pre_set_hook(value))
+        self._readout_widget.setMaximum(self._cast(value))
 
     def _mgui_set_step(self, value: float):
         """Set the step size."""
         super()._mgui_set_step(value)
-        self._readout_widget.setSingleStep(self._pre_set_hook(value))
+        self._readout_widget.setSingleStep(self._cast(value))
 
     def _mgui_get_adaptive_step(self) -> bool:
         return (
@@ -715,6 +718,9 @@ class FloatSlider(Slider):
                 self._mgui_set_max(self._mgui_get_max() * ratio)
                 self._mgui_set_min(self._mgui_get_min() * ratio)
             # self._mgui_set_step(self._mgui_get_step() * ratio)
+
+    def _cast(self, value: Any) -> Any:
+        return float(value)
 
     def _post_get_hook(self, value):
         return value / self._precision
