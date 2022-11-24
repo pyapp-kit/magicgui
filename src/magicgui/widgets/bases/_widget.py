@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from psygnal import Signal
 
 from magicgui._type_resolution import resolve_single_type
-from magicgui.application import use_app
+from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
@@ -99,7 +99,7 @@ class Widget:
             _prot = _prot.__name__
         prot = getattr(protocols, _prot.replace("protocols.", ""))
         protocols.assert_protocol(widget_type, prot)
-        self.__magicgui_app__ = use_app()
+        self.__magicgui_app__: Application = use_app()
         assert self.__magicgui_app__.native
         if isinstance(parent, Widget):
             parent = parent.native
@@ -212,7 +212,14 @@ class Widget:
 
     @parent.setter
     def parent(self, value: Widget):
+        # note that it's up to the backend to actually set the parent
+        # which should trigger a call to _emit_parent because of the
+        # self._widget._mgui_bind_parent_change_callback(self._emit_parent)
+        # in the constructor.
         self._widget._mgui_set_parent(value)
+
+    def _emit_parent(self, *_):
+        self.parent_changed.emit(self.parent)
 
     @property
     def widget_type(self) -> str:
@@ -390,9 +397,6 @@ class Widget:
                 file_obj.seek(0)
                 return file_obj.read()
         return None
-
-    def _emit_parent(self, *_):
-        self.parent_changed.emit(self.parent)
 
     def _ipython_display_(self, *args, **kwargs):
         if hasattr(self.native, "_ipython_display_"):

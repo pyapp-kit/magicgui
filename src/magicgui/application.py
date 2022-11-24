@@ -33,8 +33,12 @@ class Application:
     _backend: BaseApplicationBackend
     _instance: Application | None = None
 
-    def __init__(self, backend_name: str | None = None):
-        self._use(backend_name)
+    def __init__(self, backend_name: str | BaseApplicationBackend | None = None):
+        if isinstance(backend_name, str) or not backend_name:
+            self._use(backend_name)
+        else:
+            self._backend = backend_name
+            self._backend_module = import_module(backend_name.__module__)
 
     @property
     def backend_name(self) -> str:
@@ -140,16 +144,13 @@ def _use_app(backend_name: Optional[str] = None):
     # If we already have a default_app, raise error or return
     current = Application._instance
     if current is not None:
-        if backend_name:
-            names = current.backend_name.lower().replace("(", " ").strip(") ")
-            _nm = [n for n in names.split(" ") if n]
-            if backend_name.lower() not in _nm:
-                raise RuntimeError(
-                    f"Can only select a backend once, already using {_nm}."
-                )
-        else:
+        if not backend_name:
             return current  # Current backend matches backend_name
 
+        names = current.backend_name.lower().replace("(", " ").strip(") ")
+        _nm = [n for n in names.split(" ") if n]
+        if backend_name.lower() not in _nm:
+            raise RuntimeError(f"Can only select a backend once, already using {_nm}.")
     # Create default app
     Application._instance = Application(backend_name)
     return Application._instance
