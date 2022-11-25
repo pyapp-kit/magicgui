@@ -233,6 +233,11 @@ class LineEdit(ValueWidget):
 
 
 @backend_widget
+class Password(ValueWidget):
+    """A one-line text editor that obscures input."""
+
+
+@backend_widget
 class LiteralEvalLineEdit(ValueWidget):
     """A one-line text editor that evaluates strings as python literals."""
 

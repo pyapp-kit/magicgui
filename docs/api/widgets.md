@@ -25,6 +25,7 @@ Value Widgets
    Label
    LineEdit
    LiteralEvalLineEdit
+   Password
    TextEdit
    FileEdit
    RangeEdit

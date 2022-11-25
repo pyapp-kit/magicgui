@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from magicgui.widgets.protocols import WidgetProtocol
 
 #: A :class:`~magicgui.widgets._bases.Widget` class or a
-#: :class:`~magicgui.widgets._protocols.WidgetProtocol`
+#: :class:`~magicgui.widgets.protocols.WidgetProtocol`
 WidgetClass = Union[Type["Widget"], Type["WidgetProtocol"]]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
