@@ -1,4 +1,5 @@
 import pytest
+from psygnal import EmitLoopError
 
 from magicgui import magic_factory
 from magicgui.type_map._magicgui import MagicFactory
@@ -113,7 +114,7 @@ def test_factory_init():
 
     widget = factory()
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(EmitLoopError):
         widget()
 
 
