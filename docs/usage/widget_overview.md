@@ -181,7 +181,7 @@ wdg_list = [
     ),
     widgets.DateEdit(value=datetime.date(81, 2, 18), label="DateEdit:"),
     widgets.TimeEdit(value=datetime.time(12, 20), label="TimeEdit:"),
-    widgets.QuantityEdit(value='12 seconds')
+    widgets.QuantityEdit(value='12 seconds', label="Quantity:")
 ]
 container = widgets.Container(widgets=wdg_list)
 container.max_height = 300

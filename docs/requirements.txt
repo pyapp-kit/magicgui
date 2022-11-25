@@ -4,3 +4,4 @@ jupytext==1.13.8
 numpy
 imageio
 sphinx-autodoc-typehints==1.18.3
+pint
