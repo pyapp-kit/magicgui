@@ -1,9 +1,6 @@
 format: jb-book
 root: index
 parts:
-- caption: How it Works
-  chapters:
-  - file: how_works/
 - caption: Usage
   chapters:
   - file: usage/installation
