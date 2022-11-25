@@ -293,6 +293,12 @@ class LineEdit(QBaseStringWidget):
         super().__init__(QtW.QLineEdit, "text", "setText", "textChanged", **kwargs)
 
 
+class Password(LineEdit):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._qwidget.setEchoMode(QtW.QLineEdit.Password)
+
+
 class LiteralEvalLineEdit(QBaseStringWidget):
     _qwidget: QtW.QLineEdit
 

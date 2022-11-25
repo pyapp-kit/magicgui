@@ -293,6 +293,10 @@ class LineEdit(_IPyStringWidget):
     _ipywidget: ipywdg.Text
 
 
+class Password(_IPyStringWidget):
+    _ipywidget: ipywdg.Password
+
+
 class LiteralEvalLineEdit(_IPyStringWidget):
     _ipywidget: ipywdg.Text
 

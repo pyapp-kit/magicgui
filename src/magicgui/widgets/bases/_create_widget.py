@@ -89,6 +89,14 @@ def create_widget(
 
         if widget_type:
             options["widget_type"] = widget_type
+        # special case parameters named "password" with annotation of str
+        if (
+            not options.get("widget_type")
+            and (name or "").lower() == "password"
+            and annotation is str
+        ):
+            options["widget_type"] = "Password"
+
         wdg_class, opts = get_widget_class(
             value, annotation, options, is_result, raise_on_unknown
         )
