@@ -124,6 +124,7 @@ following `ValueWidgets` track some `value`:
    Label
    LineEdit
    LiteralEvalLineEdit
+   Password
    TextEdit
    FileEdit
    RangeEdit
@@ -170,6 +171,7 @@ import datetime
 wdg_list = [
     widgets.Label(value="label value", label="Label:"),
     widgets.LineEdit(value="line edit value", label="LineEdit:"),
+    widgets.Password(value="super-secret!", label="Password:"),
     widgets.TextEdit(value="text edit value...", label="TextEdit:"),
     widgets.FileEdit(value="/home", label="FileEdit:"),
     widgets.RangeEdit(value=range(0, 10, 2), label="RangeEdit:"),
@@ -179,6 +181,7 @@ wdg_list = [
     ),
     widgets.DateEdit(value=datetime.date(81, 2, 18), label="DateEdit:"),
     widgets.TimeEdit(value=datetime.time(12, 20), label="TimeEdit:"),
+    widgets.QuantityEdit(value='12 seconds')
 ]
 container = widgets.Container(widgets=wdg_list)
 container.max_height = 300
