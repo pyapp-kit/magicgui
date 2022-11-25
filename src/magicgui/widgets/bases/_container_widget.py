@@ -36,7 +36,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
-    :class:`~magicgui.widgets._protocols.ContainerProtocol`.
+    :class:`~magicgui.widgets.protocols.ContainerProtocol`.
 
     A ``ContainerWidget`` behaves like a python list of :class:`Widget` objects.
     Subwidgets can be accessed using integer or slice-based indexing (``container[0]``),

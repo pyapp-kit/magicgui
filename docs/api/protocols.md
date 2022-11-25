@@ -1,7 +1,7 @@
-# magicgui.widgets._protocols
+# magicgui.widgets.protocols
 
 ```{eval-rst}
-.. automodule:: magicgui.widgets._protocols
+.. automodule:: magicgui.widgets.protocols
 
 .. autosummary::
    :nosignatures:

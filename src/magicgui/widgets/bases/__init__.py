@@ -4,7 +4,7 @@ These will rarely be used directly by end-users, instead see the "concrete" widg
 exported in :mod:`magicgui.widgets`.
 
 All magicgui :class:`Widget` bases comprise a backend widget that implements one of the
-widget protocols defined in :mod:`magicgui.widgets._protocols`.  The basic composition
+widget protocols defined in :mod:`magicgui.widgets.protocols`.  The basic composition
 pattern is as follows:
 
 .. code-block:: python
