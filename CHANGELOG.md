@@ -1,21 +1,79 @@
 # Changelog
 
-## [0.6.0](https://github.com/pyapp-kit/magicgui/tree/0.6.0) (2022-10-26)
+## [0.7.0.rc0](https://github.com/pyapp-kit/magicgui/tree/0.7.0.rc0) (2022-11-26)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.6.0rc2...0.6.0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.6.1...0.7.0.rc0)
+
+**Implemented enhancements:**
+
+- feat: add password field [\#515](https://github.com/pyapp-kit/magicgui/pull/515) ([tlambert03](https://github.com/tlambert03))
+- feat: add guiclass decorator [\#498](https://github.com/pyapp-kit/magicgui/pull/498) ([tlambert03](https://github.com/tlambert03))
+- feat: add quantity widget [\#483](https://github.com/pyapp-kit/magicgui/pull/483) ([tlambert03](https://github.com/tlambert03))
+- build: drop python 3.7, support 3.11 [\#482](https://github.com/pyapp-kit/magicgui/pull/482) ([tlambert03](https://github.com/tlambert03))
+- feature: add `UiField` as the new intermediate object representing widget parameters [\#475](https://github.com/pyapp-kit/magicgui/pull/475) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix bug in show\_file\_dialog [\#513](https://github.com/pyapp-kit/magicgui/pull/513) ([MBPhys](https://github.com/MBPhys))
+- fix: fix float slider readout widget for qt [\#511](https://github.com/pyapp-kit/magicgui/pull/511) ([tlambert03](https://github.com/tlambert03))
+- More reasonable signal emission of `ListEdit` and `TupleEdit` [\#499](https://github.com/pyapp-kit/magicgui/pull/499) ([hanjinliu](https://github.com/hanjinliu))
+
+**Tests & CI:**
+
+- test: change exception test slightly [\#516](https://github.com/pyapp-kit/magicgui/pull/516) ([tlambert03](https://github.com/tlambert03))
+- test: add partseg test [\#509](https://github.com/pyapp-kit/magicgui/pull/509) ([tlambert03](https://github.com/tlambert03))
+- test: replace tox with hatch envs [\#507](https://github.com/pyapp-kit/magicgui/pull/507) ([tlambert03](https://github.com/tlambert03))
+- tests: add test for stardist [\#501](https://github.com/pyapp-kit/magicgui/pull/501) ([tlambert03](https://github.com/tlambert03))
+- test: ignore warning in napari tests [\#494](https://github.com/pyapp-kit/magicgui/pull/494) ([tlambert03](https://github.com/tlambert03))
+- tests: fix tests, ignore Jupyter deprecation warning, bump psygnal  [\#492](https://github.com/pyapp-kit/magicgui/pull/492) ([tlambert03](https://github.com/tlambert03))
+- test: fix progressbar test [\#486](https://github.com/pyapp-kit/magicgui/pull/486) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: remove more napari links from readme [\#503](https://github.com/pyapp-kit/magicgui/pull/503) ([tlambert03](https://github.com/tlambert03))
+- docs: Fix readme contributing link [\#502](https://github.com/pyapp-kit/magicgui/pull/502) ([tlambert03](https://github.com/tlambert03))
+- Add Table and Quantity to API docs [\#493](https://github.com/pyapp-kit/magicgui/pull/493) ([dstansby](https://github.com/dstansby))
+- docs: add contributing widget guide [\#491](https://github.com/pyapp-kit/magicgui/pull/491) ([tlambert03](https://github.com/tlambert03))
 
 **Merged pull requests:**
 
+- build: move to all pyproject and use hatch for build [\#506](https://github.com/pyapp-kit/magicgui/pull/506) ([tlambert03](https://github.com/tlambert03))
+- refactor: Use parametrized generics for ListEdit and TupleEdit [\#500](https://github.com/pyapp-kit/magicgui/pull/500) ([tlambert03](https://github.com/tlambert03))
+- refactor: repo reorganization and return removed names [\#497](https://github.com/pyapp-kit/magicgui/pull/497) ([tlambert03](https://github.com/tlambert03))
+- chore: rename napari org to pyapp-kit [\#495](https://github.com/pyapp-kit/magicgui/pull/495) ([tlambert03](https://github.com/tlambert03))
+- refactor: remove WidgetOptions type [\#485](https://github.com/pyapp-kit/magicgui/pull/485) ([tlambert03](https://github.com/tlambert03))
+- remove type wrapper, preparing for improved type-map resolution [\#448](https://github.com/pyapp-kit/magicgui/pull/448) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.6.1](https://github.com/pyapp-kit/magicgui/tree/v0.6.1) (2022-11-18)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.6.0...v0.6.1)
+
+## [v0.6.0](https://github.com/pyapp-kit/magicgui/tree/v0.6.0) (2022-10-26)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.6.0rc2...v0.6.0)
+
+**Tests & CI:**
+
+- tests: skip mypy tests on all but linux [\#481](https://github.com/pyapp-kit/magicgui/pull/481) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
 - docs: add doi to readme [\#479](https://github.com/pyapp-kit/magicgui/pull/479) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- chore: changelog v0.6.0 [\#480](https://github.com/pyapp-kit/magicgui/pull/480) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.6.0rc2](https://github.com/pyapp-kit/magicgui/tree/v0.6.0rc2) (2022-10-25)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.6.0rc1...v0.6.0rc2)
 
-**Merged pull requests:**
+**Implemented enhancements:**
 
-- \[pre-commit.ci\] pre-commit autoupdate [\#477](https://github.com/pyapp-kit/magicgui/pull/477) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 - Enable option to raise excpetion if magicgui cannot determine widget for provided value/annotation [\#476](https://github.com/pyapp-kit/magicgui/pull/476) ([Czaki](https://github.com/Czaki))
+
+**Documentation:**
+
 - docs: fix word in slice edit docs [\#472](https://github.com/pyapp-kit/magicgui/pull/472) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.6.0rc1](https://github.com/pyapp-kit/magicgui/tree/v0.6.0rc1) (2022-10-22)
@@ -34,7 +92,7 @@
 - use math.ceil to ensure get\_text\_width returns int [\#465](https://github.com/pyapp-kit/magicgui/pull/465) ([psobolewskiPhD](https://github.com/psobolewskiPhD))
 - Fix ipynb PushButton [\#464](https://github.com/pyapp-kit/magicgui/pull/464) ([hanjinliu](https://github.com/hanjinliu))
 
-**Merged pull requests:**
+**Documentation:**
 
 - docs: changelog v0.6.0rc1 [\#471](https://github.com/pyapp-kit/magicgui/pull/471) ([tlambert03](https://github.com/tlambert03))
 
@@ -370,7 +428,7 @@
 
 ## [v0.2.9](https://github.com/pyapp-kit/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.9)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -396,13 +454,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/pyapp-kit/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.8)
-
 ## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8rc0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.8rc0)
+
+## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8)
 
 **Implemented enhancements:**
 
