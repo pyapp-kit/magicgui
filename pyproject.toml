@@ -210,7 +210,6 @@ module = [
     ".examples/",
     "magicgui.backends.*",
     "magicgui.widgets._image.*",
-    "magicgui.widgets._table.*",
 ]
 ignore_errors = true
 
