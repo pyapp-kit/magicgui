@@ -1,14 +1,15 @@
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import Any, Iterable, Tuple, Union, cast
+from typing import Any, Callable, Iterable, Tuple, TypeVar, Union, cast
 from warnings import warn
 
 from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import protocols
 
-from ._value_widget import T, ValueWidget
+from ._value_widget import ValueWidget
 
+T = TypeVar("T", int, float, Tuple[int | float, ...])
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 
@@ -18,6 +19,8 @@ class RangedWidget(ValueWidget[T]):
 
     Parameters
     ----------
+    value : Any, optional
+        The starting value for the widget.
     min : float, optional
         The minimum allowable value, by default 0 (or `value` if `value` is less than 0)
     max : float, optional
@@ -25,31 +28,46 @@ class RangedWidget(ValueWidget[T]):
         than 999)
     step : float, optional
         The step size for incrementing the value, by default adaptive step is used
+    bind : Any, optional
+        A value or callback to bind this widget, then whenever `widget.value` is
+        accessed, the value provided here will be returned.  ``value`` can be a
+        callable, in which case ``value(self)`` will be returned (i.e. your callback
+        must accept a single parameter, which is this widget instance.).
+    nullable : bool, optional
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
+    **base_widget_kwargs : Any
+        All additional keyword arguments are passed to the base `Widget` constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol
 
     def __init__(
         self,
+        value: T | _Undefined = Undefined,
         min: Union[float, _Undefined] = Undefined,
         max: Union[float, _Undefined] = Undefined,
         step: Union[float, _Undefined, None] = Undefined,
-        **kwargs: Any,
+        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        nullable: bool = False,
+        **base_widget_kwargs: Any,
     ) -> None:  # sourcery skip: avoid-builtin-shadow
         for key in ("maximum", "minimum"):
-            if key in kwargs:
+            if key in base_widget_kwargs:
                 warn(
                     f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
                     "In the future this will raise an exception\n",
                     FutureWarning,
                 )
                 if key == "maximum":
-                    max = kwargs.pop(key)  # noqa: A001
+                    max = base_widget_kwargs.pop(key)  # noqa: A001
                 else:
-                    min = kwargs.pop(key)  # noqa: A001
+                    min = base_widget_kwargs.pop(key)  # noqa: A001
         # value should be set *after* min max is set
-        val = kwargs.pop("value", Undefined)
-        super().__init__(**kwargs)
+        super().__init__(
+            bind=bind,  # type: ignore
+            nullable=nullable,
+            **base_widget_kwargs,
+        )
 
         if step is Undefined or step is None:
             self.step = None
@@ -57,13 +75,13 @@ class RangedWidget(ValueWidget[T]):
         else:
             self.step = cast(float, step)
 
-        self.min, self.max = self._init_range(val, min, max)
-        if val not in (Undefined, None):
-            self.value = val
+        self.min, self.max = self._init_range(value, min, max)
+        if value not in (Undefined, None):
+            self.value = value
 
     def _init_range(
         self,
-        value: Union[float, Tuple[float, ...]],
+        value: T | _Undefined,
         min: Union[float, _Undefined],
         max: Union[float, _Undefined],
     ) -> Tuple[float, float]:
@@ -71,8 +89,13 @@ class RangedWidget(ValueWidget[T]):
 
         If min or max are unset, constrain so the given value is within the range.
         """
-        val: tuple[float, ...] = value if isinstance(value, tuple) else (value,)
-        tmp_val = tuple((float(v) if v not in (Undefined, None) else 1) for v in val)  # type: ignore # noqa
+        tmp_val: tuple[float | int, ...]
+        if value is None or isinstance(value, _Undefined):
+            tmp_val = (1,)
+        elif isinstance(value, (tuple, list)):
+            tmp_val = tuple(1 if v is None else float(v) for v in value)
+        else:
+            tmp_val = (float(value),)
 
         new_min: float = (
             cast("float", min)
@@ -96,9 +119,10 @@ class RangedWidget(ValueWidget[T]):
         return d
 
     @ValueWidget.value.setter  # type: ignore
-    def value(self, value):
+    def value(self, value: T) -> None:
         """Set widget value, will raise Value error if not within min/max."""
-        if not (self.min <= float(value) <= self.max):
+        val: tuple[float, ...] = value if isinstance(value, tuple) else (value,)
+        if any(float(v) < self.min or float(v) > self.max for v in val):
             raise ValueError(
                 f"value {value} is outside of the allowed range: "
                 f"({self.min}, {self.max})"
@@ -166,6 +190,8 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
 
     Parameters
     ----------
+    value : Any, optional
+        The starting value for the widget.
     min : float, optional
         The minimum allowable value, by default 0
     max : float, optional
@@ -176,24 +202,38 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         The maximum value for the *internal* (widget) position, by default 0.
     step : float, optional
         The step size for incrementing the value, by default 1
+    bind : Any, optional
+        A value or callback to bind this widget, then whenever `widget.value` is
+        accessed, the value provided here will be returned.  ``value`` can be a
+        callable, in which case ``value(self)`` will be returned (i.e. your callback
+        must accept a single parameter, which is this widget instance.).
+    nullable : bool, optional
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
+    **base_widget_kwargs : Any
+        All additional keyword arguments are passed to the base `Widget` constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol
 
     def __init__(
         self,
+        value: T | _Undefined = Undefined,
         min: float = 0,
         max: float = 100,
         min_pos: int = 0,
         max_pos: int = 100,
         step: int = 1,
-        **kwargs: Any,
+        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        nullable: bool = False,
+        **base_widget_kwargs: Any,
     ) -> None:
         self._min = min
         self._max = max
         self._min_pos = min_pos
         self._max_pos = max_pos
-        ValueWidget.__init__(self, **kwargs)
+        ValueWidget.__init__(  # type: ignore
+            self, value=value, bind=bind, nullable=nullable, **base_widget_kwargs
+        )
 
         self._widget._mgui_set_min(self._min_pos)
         self._widget._mgui_set_max(self._max_pos)
@@ -255,7 +295,7 @@ class MultiValueRangedWidget(RangedWidget[T]):
     """Widget with a constrained *iterable* value, like a tuple."""
 
     @ValueWidget.value.setter  # type: ignore
-    def value(self, value: Tuple[float, ...]):
+    def value(self, value: Tuple[float, ...]) -> None:
         """Set widget value, will raise Value error if not within min/max."""
         if not isinstance(value, Iterable):
             raise ValueError(
