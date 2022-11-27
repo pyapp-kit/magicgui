@@ -4,12 +4,12 @@ import inspect
 import sys
 import warnings
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Iterator
 
 from psygnal import Signal
 
 from magicgui._type_resolution import resolve_single_type
-from magicgui.application import use_app
+from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
@@ -70,15 +70,15 @@ class Widget:
         self,
         widget_type: type[protocols.WidgetProtocol],
         name: str = "",
-        annotation: Optional[Any] = None,
-        label: Optional[str] = None,
+        annotation: Any | None = None,
+        label: str | None = None,
         tooltip: str | None = None,
         visible: bool | None = None,
         enabled: bool = True,
         gui_only: bool = False,
-        parent: Optional[Any] = None,
+        parent: Any | None = None,
         backend_kwargs: dict | None = None,
-        **extra,
+        **extra: Any,
     ):
         # for ipywidgets API compatibility
         if backend_kwargs is None:
@@ -138,7 +138,7 @@ class Widget:
             self.visible = visible
 
     @property
-    def annotation(self):
+    def annotation(self) -> Any:
         """Return type annotation for the parameter represented by the widget.
 
         ForwardRefs will be resolve when setting the annotation.
@@ -146,7 +146,7 @@ class Widget:
         return self._annotation
 
     @annotation.setter
-    def annotation(self, value):
+    def annotation(self, value: Any) -> None:
         self._annotation = resolve_single_type(value)
 
     @property
@@ -159,7 +159,7 @@ class Widget:
         return self._param_kind
 
     @param_kind.setter
-    def param_kind(self, kind: str | inspect._ParameterKind):
+    def param_kind(self, kind: str | inspect._ParameterKind) -> None:
         if isinstance(kind, str):
             kind = inspect._ParameterKind[kind.upper()]
         if not isinstance(kind, inspect._ParameterKind):
@@ -168,7 +168,7 @@ class Widget:
             )
         self._param_kind: inspect._ParameterKind = kind
 
-    def _post_init(self):
+    def _post_init(self) -> None:
         pass
 
     @property
@@ -177,7 +177,7 @@ class Widget:
         return {"enabled": self.enabled, "visible": self.visible}
 
     @property
-    def native(self):
+    def native(self) -> Any:
         """
         Return native backend widget.
 
@@ -188,7 +188,7 @@ class Widget:
         return self._widget._mgui_get_native_widget()
 
     @property
-    def root_native_widget(self):
+    def root_native_widget(self) -> Any:
         """
         Return the root native backend widget.
 
@@ -204,7 +204,7 @@ class Widget:
         return self._widget._mgui_get_enabled()
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._widget._mgui_set_enabled(value)
 
     @property
@@ -213,7 +213,7 @@ class Widget:
         return self._widget._mgui_get_parent()
 
     @parent.setter
-    def parent(self, value: Widget):
+    def parent(self, value: Widget) -> None:
         self._widget._mgui_set_parent(value)
 
     @property
@@ -222,14 +222,12 @@ class Widget:
         return self.__class__.__name__
 
     @property
-    def label(self):
+    def label(self) -> str:
         """Return a label to use for this widget when present in Containers."""
-        if self._label is None:
-            return self.name.replace("_", " ")
-        return self._label
+        return self.name.replace("_", " ") if self._label is None else self._label
 
     @label.setter
-    def label(self, value):
+    def label(self, value: str) -> None:
         self._label = value
         self.label_changed.emit(value)
 
@@ -313,7 +311,7 @@ class Widget:
         return self._widget._mgui_get_visible()
 
     @visible.setter
-    def visible(self, value: bool):
+    def visible(self, value: bool) -> None:
         """Set widget visibility.
 
         ``widget.show()`` is an alias for ``widget.visible = True``
@@ -329,7 +327,7 @@ class Widget:
         if labeled_widget is not None:
             labeled_widget.visible = value
 
-    def show(self, run=False):
+    def show(self, run: bool = False) -> Widget:
         """Show widget.
 
         alias for ``widget.visible = True``
@@ -345,7 +343,7 @@ class Widget:
         return self  # useful for generating repr in sphinx
 
     @contextmanager
-    def shown(self):
+    def shown(self) -> Iterator[Application]:
         """Context manager to show the widget."""
         try:
             self.show()
@@ -353,7 +351,7 @@ class Widget:
         finally:
             self.__magicgui_app__.__exit__()
 
-    def hide(self):
+    def hide(self) -> None:
         """Hide widget.
 
         alias for ``widget.visible = False``
@@ -372,7 +370,7 @@ class Widget:
         """Return representation of widget of instsance."""
         return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
 
-    def _repr_png_(self) -> Optional[bytes]:
+    def _repr_png_(self) -> bytes | None:
         """Return PNG representation of the widget for QtConsole."""
         from io import BytesIO
 
@@ -393,15 +391,15 @@ class Widget:
                 return file_obj.read()
         return None
 
-    def _emit_parent(self, *_):
+    def _emit_parent(self, *_: Any) -> None:
         self.parent_changed.emit(self.parent)
 
-    def _ipython_display_(self, *args, **kwargs):
+    def _ipython_display_(self, *args: Any, **kwargs: Any) -> Any:
         if hasattr(self.native, "_ipython_display_"):
             return self.native._ipython_display_(*args, **kwargs)
         raise NotImplementedError()
 
-    def _repr_mimebundle_(self, *args, **kwargs):
+    def _repr_mimebundle_(self, *args: Any, **kwargs: Any) -> dict:
         if hasattr(self.native, "_repr_mimebundle_"):
-            return self.native._repr_mimebundle_(*args, **kwargs)
+            return self.native._repr_mimebundle_(*args, **kwargs)  # type: ignore
         raise NotImplementedError()

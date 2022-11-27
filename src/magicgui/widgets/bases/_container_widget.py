@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import inspect
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -322,7 +323,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         self.changed.emit()
 
     @debounce
-    def _dump(self, path):
+    def _dump(self, path: str | Path) -> None:
         """Dump the state of the widget to `path`."""
         import pickle
         from pathlib import Path
@@ -341,7 +342,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
         path.write_bytes(pickle.dumps(_dict))
 
-    def _load(self, path, quiet=False):
+    def _load(self, path: str | Path, quiet: bool = False) -> None:
         """Restore the state of the widget from previously saved file at `path`."""
         import pickle
         from pathlib import Path
@@ -373,8 +374,12 @@ class MainWindowWidget(ContainerWidget):
     _widget: protocols.MainWindowProtocol
 
     def create_menu_item(
-        self, menu_name: str, item_name: str, callback=None, shortcut=None
-    ):
+        self,
+        menu_name: str,
+        item_name: str,
+        callback: Callable | None = None,
+        shortcut: str | None = None,
+    ) -> None:
         """Create a menu item ``item_name`` under menu ``menu_name``.
 
         ``menu_name`` will be created if it does not already exist.

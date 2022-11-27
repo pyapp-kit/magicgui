@@ -8,7 +8,7 @@ import warnings
 from contextlib import contextmanager, suppress
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Sequence
 
 import qtpy
 import superqt
@@ -522,7 +522,11 @@ class MainWindow(Container):
         return self._main_window
 
     def _mgui_create_menu_item(
-        self, menu_name: str, action_name: str, callback=None, shortcut=None
+        self,
+        menu_name: str,
+        action_name: str,
+        callback: Callable | None = None,
+        shortcut: str | None = None,
     ):
         menu = self._menus.setdefault(
             menu_name, self._main_window.menuBar().addMenu(f"&{menu_name}")

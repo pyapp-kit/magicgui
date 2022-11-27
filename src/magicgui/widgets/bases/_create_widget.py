@@ -82,15 +82,11 @@ def create_widget(
         "name": name,
         "label": label,
         "gui_only": gui_only,
-        "widget_type": widget_type,
-        "options": _options,
     }
 
-    _is_result = is_result
-    _app = use_app(app)
-    assert _app.native
+    assert use_app(app).native
     if isinstance(widget_type, protocols.WidgetProtocol):
-        wdg_class = kwargs.pop("widget_type")
+        wdg_class = widget_type
     else:
         from magicgui.type_map import get_widget_class
 
@@ -109,12 +105,9 @@ def create_widget(
         )
 
         if issubclass(wdg_class, Widget):
-            opts.update(kwargs.pop("options"))
-            kwargs.update(opts)
-            kwargs.pop("widget_type", None)
-            widget = wdg_class(**kwargs)
+            widget = wdg_class(**{**kwargs, **opts, **_options})
             if param_kind:
-                widget.param_kind = param_kind
+                widget.param_kind = param_kind  # type: ignore
             return widget
 
     # pick the appropriate subclass for the given protocol
@@ -127,7 +120,7 @@ def create_widget(
             cls = getattr(bases, f"{p}Widget")
             widget = cls(**{**kwargs, **(_options or {}), "widget_type": wdg_class})
             if param_kind:
-                widget.param_kind = param_kind
+                widget.param_kind = param_kind  # type: ignore
             return widget
 
     raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")

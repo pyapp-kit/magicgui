@@ -206,11 +206,12 @@ pretty = true
 
 [[tool.mypy.overrides]]
 module = [
-    "magicgui.widgets._image.*",
-    ".examples/",
-    "magicgui.widgets._table.*",
-    "magicgui.backends._qtpy.widgets.*",
     "_pytest.*",
+    ".examples/",
+    "magicgui.backends.*",
+    "magicgui.tqdm",
+    "magicgui.widgets._image.*",
+    "magicgui.widgets._table.*",
 ]
 ignore_errors = true
 

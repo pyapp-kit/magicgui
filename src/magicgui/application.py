@@ -5,7 +5,7 @@ import signal
 from contextlib import contextmanager
 from importlib import import_module
 from types import ModuleType
-from typing import TYPE_CHECKING, Callable, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Union
 
 from magicgui.backends import BACKENDS
 
@@ -72,7 +72,7 @@ class Application:
                 f"Could not import object {name!r} from backend {self.backend_module}"
             ) from e
 
-    def run(self):
+    def run(self) -> None:
         """Enter the native GUI event loop."""
         return self._backend._mgui_run()
 
@@ -101,12 +101,12 @@ class Application:
         else:
             return f"<magicgui app, wrapping the {self.backend_name} GUI toolkit>"
 
-    def __enter__(self):
+    def __enter__(self) -> Application:
         """Context manager to start this application."""
         self.create()
         return self
 
-    def __exit__(self, *exc_details):
+    def __exit__(self, *exc_details: Any) -> None:
         """Exit context manager for this application."""
         # enable ctrl-C
         signal.signal(signal.SIGINT, lambda *a: self.quit())

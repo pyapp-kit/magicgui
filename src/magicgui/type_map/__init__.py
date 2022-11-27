@@ -1,5 +1,7 @@
 """Functions that map python types to widgets."""
 
+from typing import Any
+
 from ._type_map import get_widget_class, register_type, type2callback, type_registered
 
 __all__ = [
@@ -10,7 +12,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Import from magicgui.types if not found in magicgui.schema."""
     import warnings
 

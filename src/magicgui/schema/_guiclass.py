@@ -209,10 +209,12 @@ class GuiBuilder:
         self._name = name
         self._follow_changes = follow_changes
 
-    def __set_name__(self, owner, name):
+    def __set_name__(self, owner: type, name: str) -> None:
         self._name = name
 
-    def __get__(self, instance, owner):
+    def __get__(
+        self, instance: object | None, owner: type
+    ) -> ContainerWidget[ValueWidget]:
         wdg = build_widget(owner if instance is None else instance)
 
         # look for @button-decorated methods
@@ -312,10 +314,10 @@ def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:
 
 @__dataclass_transform__(field_specifiers=(Field, field))
 class GuiClassMeta(type):
-    def __new__(cls, name, bases, attrs):
+    def __new__(cls: type, name: str, bases: tuple, attrs: dict) -> type:
         attrs[_GUICLASS_FLAG] = True
-        obj = type.__new__(cls, name, bases, attrs)
-        return evented(dataclass(obj))  # type: ignore
+        obj: type = type.__new__(cls, name, bases, attrs)
+        return evented(dataclass(obj))
 
 
 # evented will warn "No mutable fields found in class <class '__main__.GuiClass'>"
@@ -331,5 +333,5 @@ with warnings.catch_warnings():
             # the mypy dataclass magic doesn't work without the literal decorator
             # it WILL work with pyright due to the __dataclass_transform__ above
             # here we just avoid a false error in mypy
-            def __init__(self, *args, **kwargs) -> None:
+            def __init__(self, *args: Any, **kwargs: Any) -> None:
                 ...

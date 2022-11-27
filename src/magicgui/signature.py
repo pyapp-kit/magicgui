@@ -144,7 +144,7 @@ class MagicParameter(inspect.Parameter):
             value=value,
             annotation=annotation,
             app=app,
-            _options=options,
+            options=options,
             raise_on_unknown=self.raise_on_unknown,
         )
         widget.param_kind = self.kind

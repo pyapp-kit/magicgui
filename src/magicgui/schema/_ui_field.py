@@ -18,11 +18,12 @@ from typing import (
     Optional,
     TypeVar,
     Union,
+    cast,
 )
 
 from typing_extensions import Annotated, TypeGuard, get_args, get_origin
 
-from magicgui.types import JsonStringFormats, Undefined
+from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
 if TYPE_CHECKING:
     from typing import Mapping, Protocol
@@ -51,7 +52,7 @@ T = TypeVar("T")
 class UiField(Generic[T]):
     """Metadata about a specific widget in a GUI."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Coerce Optional[...] to nullable and remove it from the type."""
         if get_origin(self.type) is Union:
             args = get_args(self.type)
@@ -393,7 +394,7 @@ class UiField(Generic[T]):
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)
 
-    def create_widget(self, value=Undefined) -> ValueWidget:
+    def create_widget(self, value: T | _Undefined = Undefined) -> ValueWidget[T]:
         """Create a new Widget for this field."""
         from magicgui.type_map import get_widget_class
 
@@ -439,7 +440,7 @@ class UiField(Generic[T]):
             m = 1 if d.get("type") is int else 0.00000000001
             opts["min"] = d["exclusive_minimum"] + m
 
-        value = value if value is not Undefined else self.get_default()
+        value = value if value is not Undefined else self.get_default()  # type: ignore
         cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
         return cls(**kwargs)  # type: ignore
 
@@ -517,8 +518,8 @@ def _uifield_from_attrs(field: Attribute) -> UiField:
 
     default = field.default if field.default is not NOTHING else Undefined
     default_factory = None
-    if isinstance(default, Factory):
-        default_factory = default.factory
+    if isinstance(default, Factory):  # type: ignore
+        default_factory = default.factory  # type: ignore
         default = Undefined
 
     extra = {k: v for k, v in field.metadata.items() if k in _UI_FIELD_NAMES}
@@ -629,7 +630,7 @@ def _get_function_defaults(func: FunctionType) -> Dict[str, Any]:
     return output
 
 
-def _ui_fields_from_annotation(cls) -> Iterator[UiField]:
+def _ui_fields_from_annotation(cls: type) -> Iterator[UiField]:
     """Iterate UiFields extracted from object __annotations__."""
     # fallback for typed dict, named tuples, & functions
 
@@ -755,7 +756,7 @@ def _get_values(obj: Any) -> dict | None:
 
     # named tuple
     if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        return obj._asdict()
+        return cast(dict, obj._asdict())
 
     # dataclass
     if dc.is_dataclass(type(obj)):
@@ -764,7 +765,7 @@ def _get_values(obj: Any) -> dict | None:
     # attrs
     attr = sys.modules.get("attr")
     if attr is not None and attr.has(obj):
-        return attr.asdict(obj)
+        return cast(dict, attr.asdict(obj))
 
     # pydantic models
     dict_method = getattr(obj, "dict", None)
