@@ -5,7 +5,6 @@
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
    get_widget_class
    register_type

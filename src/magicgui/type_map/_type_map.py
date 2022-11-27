@@ -14,14 +14,17 @@ from typing import (
     Any,
     Callable,
     DefaultDict,
+    Dict,
     ForwardRef,
     Iterator,
     Literal,
     Optional,
     Sequence,
     Set,
+    Tuple,
     Type,
     TypeVar,
+    Union,
     cast,
     overload,
 )
@@ -31,18 +34,16 @@ from typing_extensions import get_args, get_origin
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
 from magicgui._util import safe_issubclass
-from magicgui.types import (
-    PathLike,
-    ReturnCallback,
-    Undefined,
-    WidgetClass,
-    WidgetRef,
-    WidgetTuple,
-    _Undefined,
-)
+from magicgui.types import PathLike, ReturnCallback, Undefined, _Undefined
 from magicgui.widgets.protocols import WidgetProtocol, assert_protocol
 
 __all__: list[str] = ["register_type", "get_widget_class"]
+
+
+# redefining these here for the sake of sphinx autodoc forward refs
+WidgetClass = Union[Type[widgets.Widget], Type[WidgetProtocol]]
+WidgetRef = Union[str, WidgetClass]
+WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
 
 
 class MissingWidget(RuntimeError):

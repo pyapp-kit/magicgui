@@ -8,7 +8,6 @@ Functions
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
    create_widget
 
@@ -20,22 +19,21 @@ Value Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
-   Label
-   LineEdit
-   LiteralEvalLineEdit
-   Password
-   TextEdit
-   FileEdit
-   RangeEdit
-   SliceEdit
-   DateTimeEdit
-   DateEdit
-   TimeEdit
-   Table
-   QuantityEdit
-   EmptyWidget
+   magicgui.widgets.Label
+   magicgui.widgets.LineEdit
+   magicgui.widgets.LiteralEvalLineEdit
+   magicgui.widgets.Password
+   magicgui.widgets.TextEdit
+   magicgui.widgets.FileEdit
+   magicgui.widgets.RangeEdit
+   magicgui.widgets.SliceEdit
+   magicgui.widgets.DateTimeEdit
+   magicgui.widgets.DateEdit
+   magicgui.widgets.TimeEdit
+   magicgui.widgets.Table
+   magicgui.widgets.QuantityEdit
+   magicgui.widgets.EmptyWidget
 
 
 Button Widgets
@@ -43,7 +41,6 @@ Button Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
    PushButton
    CheckBox
@@ -54,7 +51,6 @@ Ranged Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
    SpinBox
    FloatSpinBox
@@ -64,7 +60,6 @@ Slider Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
    Slider
    FloatSlider
@@ -78,7 +73,6 @@ Categorical Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
    ComboBox
    Select
@@ -89,7 +83,6 @@ Container Widgets
 
 .. autosummary::
    :nosignatures:
-   :toctree: _autosummary
 
    Container
    FunctionGui

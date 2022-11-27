@@ -3,19 +3,31 @@ from __future__ import annotations
 from enum import Enum, EnumMeta
 from typing import Any, Callable, cast
 
-from magicgui.types import ChoicesType
+from magicgui.types import ChoicesType, Undefined, _Undefined
 from magicgui.widgets import protocols
 
 from ._value_widget import T, ValueWidget
 
 
 class CategoricalWidget(ValueWidget[T]):
-    """Widget with a value and choices, Wraps CategoricalWidgetProtocol.
+    """Widget with a value and choices.  Wraps CategoricalWidgetProtocol.
 
     Parameters
     ----------
+    value : Any, optional
+        The initially selected choice.
     choices : Enum, Iterable, or Callable
         Available choices displayed in the combo box.
+    bind : Any, optional
+        A value or callback to bind this widget, then whenever `widget.value` is
+        accessed, the value provided here will be returned.  ``value`` can be a
+        callable, in which case ``value(self)`` will be returned (i.e. your callback
+        must accept a single parameter, which is this widget instance.).
+    nullable : bool, optional
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
+    **base_widget_kwargs : Any
+        All additional keyword arguments are passed to the base
+        :class:`~magicgui.widgets.Widget` constructor.
     """
 
     _widget: protocols.CategoricalWidgetProtocol
@@ -24,14 +36,20 @@ class CategoricalWidget(ValueWidget[T]):
 
     def __init__(
         self,
+        value: T | _Undefined = Undefined,
         choices: ChoicesType = (),
+        *,
         allow_multiple: bool | None = None,
-        **kwargs: Any,
+        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        nullable: bool = False,
+        **base_widget_kwargs: Any,
     ) -> None:
         if allow_multiple is not None:
             self._allow_multiple = allow_multiple
         self._default_choices = choices
-        super().__init__(**kwargs)
+        super().__init__(
+            value=value, bind=bind, nullable=nullable, **base_widget_kwargs
+        )
 
     def _post_init(self) -> None:
         super()._post_init()
