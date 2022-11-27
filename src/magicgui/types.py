@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from magicgui.widgets.bases import CategoricalWidget, Widget  # noqa: F401
     from magicgui.widgets.protocols import WidgetProtocol
 
-#: A :class:`~magicgui.widgets._bases.Widget` class or a
-#: :class:`~magicgui.widgets.protocols.WidgetProtocol`
+#: A [`Widget`][magicgui.widgets.Widget] class or a
+#: [~magicgui.widgets.protocols.WidgetProtocol][]
 WidgetClass = Union[Type["Widget"], Type["WidgetProtocol"]]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
@@ -27,7 +27,7 @@ ChoicesCallback = Callable[["CategoricalWidget"], ChoicesIterable]
 #: The set of all valid types for widget ``choices``.
 ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, "ChoicesDict"]
 #: A callback that may be registered for a given return annotation. When called, it will
-#: be provided an instance of a :class:`~magicgui.widgets.FunctionGui`, the result
+#: be provided an instance of a [~magicgui.widgets.FunctionGui][], the result
 #: of the function that was called, and the return annotation itself.
 ReturnCallback = Callable[["FunctionGui", Any, Type], None]
 #: A valid file path type

@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 
 def _inject_tooltips_from_docstrings(docstring: str | None, sig: MagicSignature):
-    """Update ``sig`` gui options with tooltips extracted from ``docstring``."""
+    """Update `sig` gui options with tooltips extracted from `docstring`."""
     from docstring_parser import parse
 
     if not docstring:
@@ -67,9 +67,9 @@ class FunctionGui(Container, Generic[_R]):
         A callable to turn into a GUI
     call_button : bool, str, or None, optional
         If True, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False when
+        clicked.  If a `str`, set the button text. by default False when
         auto_call is True, and True otherwise.
-        The button can be accessed from the ``.call_button`` property.
+        The button can be accessed from the `.call_button` property.
     layout : str, optional
         The type of layout to use. Must be one of {'horizontal', 'vertical'}.
         by default "horizontal".
@@ -81,10 +81,10 @@ class FunctionGui(Container, Generic[_R]):
     tooltips : bool, optional
         Whether tooltips are shown when hovering over widgets. by default True
     app : magicgui.Application or str, optional
-        A backend to use, by default ``None`` (use the default backend.)
+        A backend to use, by default `None` (use the default backend.)
     visible : bool, optional
-        Whether to immediately show the widget.  If ``False``, widget is explicitly
-        hidden.  If ``None``, widget is not shown, but will be shown if a parent
+        Whether to immediately show the widget.  If `False`, widget is explicitly
+        hidden.  If `None`, widget is not shown, but will be shown if a parent
         container is shown, by default None.
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
@@ -94,13 +94,13 @@ class FunctionGui(Container, Generic[_R]):
         by default False
     param_options : dict, optional
         A dict of name: widget_options dict for each parameter in the function.
-        Will be passed to `magic_signature` by default ``None``
+        Will be passed to `magic_signature` by default `None`
     name : str, optional
         A name to assign to the Container widget, by default `function.__name__`
     persist : bool, optional
         If `True`, when parameter values change in the widget, they will be stored to
         disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
-        again with ``persist = True``.  By default, `False`.
+        again with `persist = True`.  By default, `False`.
 
     Raises
     ------
@@ -246,7 +246,7 @@ class FunctionGui(Container, Generic[_R]):
 
     @property
     def return_annotation(self):
-        """Return annotation to use when converting to :class:`inspect.Signature`.
+        """Return annotation to use when converting to [inspect.Signature][].
 
         ForwardRefs will be resolve when setting the annotation.
         """
@@ -446,7 +446,7 @@ def _docstring_to_html(docs: str) -> str:
     params = "<h3>Parameters</h3><ul>{}</ul>".format("".join(plist))
     short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
     long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
-    return re.sub(r"``?([^`]+)``?", r"<code>\1</code>", f"{short}{long}{params}")
+    return re.sub(r"`?([^`]+)`?", r"<code>\1</code>", f"{short}{long}{params}")
 
 
 @contextmanager
@@ -455,10 +455,10 @@ def _function_name_pointing_to_widget(function_gui: FunctionGui):
 
     When calling the function provided to FunctionGui, we make sure that the name
     of the function points to the FunctionGui object itself.
-    In standard ``@magicgui`` usage, this will have been the case anyway.
-    Doing this here allows the function name in a ``@magic_factory``-decorated function
+    In standard `@magicgui` usage, this will have been the case anyway.
+    Doing this here allows the function name in a `@magic_factory`-decorated function
     to *also* refer to the function gui instance created by the factory, (rather than
-    to the :class:`~magicgui._magicgui.MagicFactory` object).
+    to the [~magicgui._magicgui.MagicFactory][] object).
 
     Examples
     --------

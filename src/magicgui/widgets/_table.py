@@ -158,7 +158,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         ``tuple(range(len(data[0])))``.  Values provided here override any implied in
         ``value``.
     **kwargs
-        Additional kwargs will be passed to the :class:`magicgui.widgets.Widget`
+        Additional kwargs will be passed to the [magicgui.widgets.Widget][]
         constructor.
 
     Attributes
@@ -167,8 +167,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         Returns a dict with the keys `data`, `index`, and `columns` ... representing the
         2D (list of lists) tabular data, row headers, and column headers, respectively.
         If set, will clear and update the table using the new data.
-    data : :class:`DataView`
-        A :class:`DataView` instance that provides numpy-like indexing (with
+    data : [DataView][]
+        A [DataView][] instance that provides numpy-like indexing (with
         get/set/delete) onto the 2D data array,  For example `table.data[0,2]` gets the
         data in the cell of the first row, 3rd column.  Works with numpy slice syntax.
     column_headers : tuple
@@ -183,10 +183,10 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     Methods
     -------
     keys(axis='column')
-        Return a :class:`TableHeadersView`, providing a view on this table's headers.
+        Return a [TableHeadersView][], providing a view on this table's headers.
         Use ``axis='row'`` for row headers.
     items(axis='column')
-        Return a :class:`TableItemsView`, providing a view on this table's items, as
+        Return a [TableItemsView][], providing a view on this table's items, as
         2-tuples of ``(header, data)``. Use ``axis='row'`` for
         ``(row_header, row_data)``
     clear()

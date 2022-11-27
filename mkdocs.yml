@@ -1,0 +1,38 @@
+site_name: magicgui
+# strict: true
+
+theme:
+  name: material
+
+nav:
+  - Overview: index.md
+  - Widgets: widgets/
+
+hooks:
+  - docs/_hooks.py
+
+watch:
+  - src
+
+plugins:
+  - search
+  - literate-nav
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        widget_handler:
+          import:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: numpy
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+            show_bases: false
+            docstring_section_style: list
+  - gen-files:
+      scripts:
+        - docs/_gen_widgets.py
+
+extra_css:
+  - stylesheets/extra.css

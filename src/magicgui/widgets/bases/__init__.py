@@ -3,7 +3,7 @@
 These will rarely be used directly by end-users, instead see the "concrete" widgets
 exported in :mod:`magicgui.widgets`.
 
-All magicgui :class:`Widget` bases comprise a backend widget that implements one of the
+All magicgui [Widget][] bases comprise a backend widget that implements one of the
 widget protocols defined in :mod:`magicgui.widgets.protocols`.  The basic composition
 pattern is as follows:
 

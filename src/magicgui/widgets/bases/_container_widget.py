@@ -36,23 +36,23 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
-    :class:`~magicgui.widgets.protocols.ContainerProtocol`.
+    [~magicgui.widgets.protocols.ContainerProtocol][].
 
-    A ``ContainerWidget`` behaves like a python list of :class:`Widget` objects.
+    A ``ContainerWidget`` behaves like a python list of [Widget][] objects.
     Subwidgets can be accessed using integer or slice-based indexing (``container[0]``),
     as well as by widget name (``container.<widget_name>``). Widgets can be
     added with ``append`` or ``insert``, and removed with ``del`` or ``pop``, etc...
 
     There is a tight connection between a ``ContainerWidget`` and an
-    :class:`inspect.Signature` object, just as there is a tight connection between
-    individual :class:`Widget` objects an an :class:`inspect.Parameter` object.
+    [inspect.Signature][] object, just as there is a tight connection between
+    individual [Widget` objects an an :class:`inspect.Parameter][] object.
     The signature representation of a ``ContainerWidget`` (with the current settings
     as default values) is accessible with the :meth:`~ContainerWidget.__signature__`
     method (or by using :func:`inspect.signature` from the standard library)
 
     For a ``ContainerWidget`` sublcass that is tightly coupled to a specific function
     signature (as in the "classic" magicgui decorator), see
-    :class:`~magicgui.widgets.FunctionGui`.
+    [~magicgui.widgets.FunctionGui][].
 
     Parameters
     ----------

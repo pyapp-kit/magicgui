@@ -1,6 +1,6 @@
 """Protocols (interfaces) for backends to implement.
 
-Each class in this module is a :class:`typing.Protocol` that specifies a set of
+Each class in this module is a [typing.Protocol][] that specifies a set of
 :func:`~abc.abstractmethod` that a backend widget must implement to be compatible with
 the magicgui API.  All magicgui-specific abstract methods are prefaced with ``_mgui_*``.
 

@@ -42,7 +42,7 @@ def create_widget(
         signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
     label : str
         A string to use for an associated Label widget (if this widget is being
-        shown in a :class:`~magicgui.widgets.Container` widget, and labels are on).
+        shown in a [`Container`][magicgui.widgets.Container] widget, and labels are on).
         By default, ``name`` will be used. Note: ``name`` refers the name of the
         parameter, as might be used in a signature, whereas label is just the label
         for that widget in the GUI.

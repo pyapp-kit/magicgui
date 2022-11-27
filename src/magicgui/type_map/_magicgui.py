@@ -28,7 +28,7 @@ def magicgui(
     raise_on_unknown: bool = False,
     **param_options: dict,
 ):
-    """Return a :class:`FunctionGui` for ``function``.
+    """Return a [FunctionGui` for ``function`][].
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ def magic_factory(
     raise_on_unknown: bool = False,
     **param_options: dict,
 ):
-    """Return a :class:`MagicFactory` for ``function``."""
+    """Return a [MagicFactory` for ``function`][]."""
     return _magicgui(factory=True, **locals())
 
 
