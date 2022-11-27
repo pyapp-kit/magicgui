@@ -138,7 +138,6 @@ matrix.backend.features = [
 ]
 
 
-
 # https://pycqa.github.io/isort/docs/configuration/options.html
 [tool.isort]
 profile = "black"
@@ -205,18 +204,12 @@ show_error_codes = true
 pretty = true
 
 [[tool.mypy.overrides]]
-module = [
-    "_pytest.*",
-    ".examples/",
-    "magicgui.backends.*",
-    "magicgui.widgets._image.*",
-]
+module = ["_pytest.*", ".examples/", "magicgui.widgets._image.*", "magicgui.backends.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = ["ipywidgets.*", "toolz.*"]
 ignore_missing_imports = true
-
 
 
 # https://coverage.readthedocs.io/en/6.4/config.html
