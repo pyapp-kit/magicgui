@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 from typing import Any, Optional
 
-from magicgui.application import use_app
+from magicgui.application import AppRef, use_app
 from magicgui.types import Undefined
 from magicgui.widgets import bases, protocols
 
@@ -15,14 +15,14 @@ def create_widget(
     annotation: Optional[Any] = None,
     name: str = "",
     param_kind: str | inspect._ParameterKind = "POSITIONAL_OR_KEYWORD",
-    label=None,
-    gui_only=False,
-    app=None,
+    label: str | None = None,
+    gui_only: bool = False,
+    app: AppRef = None,
     widget_type: str | type[protocols.WidgetProtocol] | None = None,
     options: dict = dict(),
     is_result: bool = False,
     raise_on_unknown: bool = True,
-):
+) -> Widget:
     """Create and return appropriate widget subclass.
 
     This factory function can be used to create a widget appropriate for the

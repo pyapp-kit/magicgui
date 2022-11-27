@@ -7,13 +7,13 @@ from warnings import warn
 from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import protocols
 
-from ._value_widget import ValueWidget
+from ._value_widget import T, ValueWidget
 
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 
 
-class RangedWidget(ValueWidget):
+class RangedWidget(ValueWidget[T]):
     """Widget with a constrained value. Wraps RangedWidgetProtocol.
 
     Parameters
@@ -160,7 +160,7 @@ class RangedWidget(ValueWidget):
         self.min, self.max = value
 
 
-class TransformedRangedWidget(RangedWidget, ABC):
+class TransformedRangedWidget(RangedWidget[T], ABC):
     """Widget with a contstrained value. Wraps RangedWidgetProtocol.
 
     This can be used to map one domain of numbers onto another, useful for creating
@@ -254,7 +254,7 @@ class TransformedRangedWidget(RangedWidget, ABC):
         self.value = prev
 
 
-class MultiValueRangedWidget(RangedWidget):
+class MultiValueRangedWidget(RangedWidget[T]):
     """Widget with a constrained *iterable* value, like a tuple."""
 
     @ValueWidget.value.setter  # type: ignore

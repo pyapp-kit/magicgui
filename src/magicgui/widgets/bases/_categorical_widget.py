@@ -4,10 +4,10 @@ from typing import Any, Callable, List, Optional, Tuple
 from magicgui.types import ChoicesType
 from magicgui.widgets import protocols
 
-from ._value_widget import ValueWidget
+from ._value_widget import T, ValueWidget
 
 
-class CategoricalWidget(ValueWidget):
+class CategoricalWidget(ValueWidget[T]):
     """Widget with a value and choices, Wraps CategoricalWidgetProtocol.
 
     Parameters
@@ -32,12 +32,12 @@ class CategoricalWidget(ValueWidget):
         self.parent_changed.connect(self.reset_choices)
 
     @property
-    def value(self):
+    def value(self) -> T:
         """Return current value of the widget."""
         return ValueWidget.value.fget(self)  # type: ignore
 
     @value.setter
-    def value(self, value):
+    def value(self, value: T) -> None:
         if isinstance(value, (list, tuple)) and self._allow_multiple:
             if any(v not in self.choices for v in value):
                 raise ValueError(

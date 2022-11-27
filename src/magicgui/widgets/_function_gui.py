@@ -209,12 +209,15 @@ class FunctionGui(Container, Generic[_R]):
         if result_widget:
             from magicgui.widgets.bases import create_widget
 
-            self._result_widget = create_widget(
-                value=None,
-                annotation=self._return_annotation,
-                gui_only=True,
-                is_result=True,
-                raise_on_unknown=raise_on_unknown,
+            self._result_widget = cast(
+                ValueWidget,
+                create_widget(
+                    value=None,
+                    annotation=self._return_annotation,
+                    gui_only=True,
+                    is_result=True,
+                    raise_on_unknown=raise_on_unknown,
+                ),
             )
             self.append(self._result_widget)
 
