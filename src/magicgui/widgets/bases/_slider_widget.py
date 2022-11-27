@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Union
+from typing import Any, Callable, Tuple, Union
 
 from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import protocols
@@ -50,9 +50,9 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         self,
         value: T | _Undefined = Undefined,
         *,
-        min: Union[float, _Undefined] = Undefined,
-        max: Union[float, _Undefined] = Undefined,
-        step: Union[float, _Undefined, None] = Undefined,
+        min: float | _Undefined = Undefined,
+        max: float | _Undefined = Undefined,
+        step: float | _Undefined | None = Undefined,
         orientation: str = "horizontal",
         readout: bool = True,
         tracking: bool = True,
@@ -112,7 +112,7 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
 
 
 class MultiValuedSliderWidget(
-    MultiValueRangedWidget[tuple[int | float, ...]], SliderWidget
+    MultiValueRangedWidget[Tuple[Union[int, float], ...]], SliderWidget
 ):
     """Slider widget that expects a iterable value."""
 
