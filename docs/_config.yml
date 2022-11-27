@@ -5,7 +5,7 @@ logo: images/logo.svg # A path to the book logo
 author: Talley Lambert # The author of the book
 email: talley.lambert@gmail.com
 copyright: "2020" # Copyright year to be placed in the footer
-only_build_toc_files: true
+only_build_toc_files: false
 execute:
   execute_notebooks: cache  # or 'force'
 

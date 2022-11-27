@@ -1,9 +1,9 @@
-# magicgui.widgets._bases
+# magicgui.widgets.bases
 
 ```{eval-rst}
-.. currentmodule:: magicgui.widgets._bases
+.. currentmodule:: magicgui.widgets.bases
 
-.. automodule:: magicgui.widgets._bases
+.. automodule:: magicgui.widgets.bases
 
 .. autosummary::
    :nosignatures:

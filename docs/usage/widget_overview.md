@@ -158,7 +158,7 @@ following `ValueWidgets` track some `value`:
     accessed, the value provided here will be returned.  The bound value can be a
     callable, in which case `bound_value(self)` will be returned (i.e. your callback
     must accept a single parameter, which is this widget instance.). see
-    {meth}`ValueWidget.bind <magicgui.widgets._bases.value_widget.ValueWidget.bind>`
+    {meth}`ValueWidget.bind <magicgui.widgets.bases.value_widget.ValueWidget.bind>`
     for details.
 ```
 

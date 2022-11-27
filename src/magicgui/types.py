@@ -81,7 +81,7 @@ class _Undefined:
         return _Undefined._singleton
 
     def __repr__(self) -> str:
-        return "<Undefined>"
+        return "..."
 
     def __bool__(self) -> bool:
         return False
