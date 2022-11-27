@@ -1,25 +1,45 @@
+from __future__ import annotations
+
 import os
 import sys
 import time
 from functools import wraps
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Callable, overload
+
+if TYPE_CHECKING:
+    from typing import TypeVar
+
+    from typing_extensions import ParamSpec
+
+    T = TypeVar("T")
+    P = ParamSpec("P")
 
 
-def debounce(function=None, wait: float = 0.2):
+@overload
+def debounce(function: Callable[P, T]) -> Callable[P, T | None]:
+    ...
+
+
+@overload
+def debounce(*, wait: float = 0.2) -> Callable[[Callable[P, T]], Callable[P, T | None]]:
+    ...
+
+
+def debounce(function: Callable[P, T] | None = None, wait: float = 0.2) -> Callable:
     """Postpone function call until `wait` seconds since last invokation."""
 
-    def decorator(fn):
+    def decorator(fn: Callable[P, T]) -> Callable[P, T | None]:
         from threading import Timer
 
         _store: dict = {"timer": None, "last_call": 0.0, "args": (), "kwargs": {}}
 
         @wraps(fn)
-        def debounced(*args, **kwargs):
+        def debounced(*args: P.args, **kwargs: P.kwargs) -> T | None:
             _store["args"] = args
             _store["kwargs"] = kwargs
 
-            def call_it():
+            def call_it() -> T:
                 _store["timer"] = None
                 _store["last_call"] = time.time()
                 return fn(*_store["args"], **_store["kwargs"])
@@ -31,22 +51,23 @@ def debounce(function=None, wait: float = 0.2):
                 time_since_last_call = time.time() - _store["last_call"]
                 _store["timer"] = Timer(wait - time_since_last_call, call_it)
                 _store["timer"].start()  # type: ignore
+            return None
 
         return debounced
 
-    return decorator if function is None else decorator(function)
+    return decorator if function is None else decorator(function)  # type: ignore
 
 
-def throttle(t):
+def throttle(t: float) -> Callable[[Callable[P, T]], Callable[P, T | None]]:
     """Prevent a function from being called more than once in `t` seconds."""
 
-    def decorator(f):
+    def decorator(f: Callable[P, T]) -> Callable[P, T | None]:
         last = [0.0]
 
         @wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | None:
             if last[0] and (time.time() - last[0] < t):
-                return
+                return None
             last[0] = time.time()
             return f(*args, **kwargs)
 
@@ -58,7 +79,7 @@ def throttle(t):
 # modified from appdirs: https://github.com/ActiveState/appdirs
 # License: MIT
 def user_cache_dir(
-    appname: Optional[str] = "magicgui", version: Optional[str] = None
+    appname: str | None = "magicgui", version: str | None = None
 ) -> Path:
     r"""Return full path to the user-specific cache dir for this application.
 
@@ -120,9 +141,9 @@ def user_cache_dir(
     return path
 
 
-def safe_issubclass(obj, superclass):
+def safe_issubclass(obj: object, superclass: object) -> bool:
     """Safely check if obj is a subclass of superclass."""
     try:
-        return issubclass(obj, superclass)
+        return issubclass(obj, superclass)  # type: ignore
     except Exception:
         return False

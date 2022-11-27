@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import operator
+import sys
 from itertools import zip_longest
 from typing import (
     TYPE_CHECKING,
@@ -8,12 +9,13 @@ from typing import (
     Collection,
     Generic,
     ItemsView,
+    Iterable,
     Iterator,
     KeysView,
     Literal,
     Mapping,
     MutableMapping,
-    Optional,
+    NoReturn,
     Sequence,
     TypeVar,
     Union,
@@ -28,8 +30,9 @@ from magicgui.widgets.bases._value_widget import ValueWidget
 from magicgui.widgets.protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
-    import numpy  # noqa: F401
+    import numpy
     import pandas
+    from typing_extensions import TypeGuard
 
 
 TblKey = Any
@@ -38,6 +41,7 @@ _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
 _VT_co = TypeVar("_VT_co", covariant=True)  # Value type covariant containers.
 TableData = Union[dict, "pandas.DataFrame", list, "numpy.ndarray", tuple, None]
 IndexKey = Union[int, slice]
+SliceNone = slice(None)
 
 
 def normalize_table_data(data: TableData) -> tuple[Collection[Collection], list, list]:
@@ -70,7 +74,6 @@ def normalize_table_data(data: TableData) -> tuple[Collection[Collection], list,
         _columns = data[2] if data_len > 2 else []
         return _data, _index, _columns
     if _is_dataframe(data):
-        data = cast("pandas.DataFrame", data)
         return data.values, data.index, data.columns
     if isinstance(data, list):
         if data:
@@ -212,10 +215,10 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         cls,
         value: TableData | None = None,
         *,
-        index: Optional[Collection] = None,
-        columns: Optional[Collection] = None,
-        **kwargs,
-    ):
+        index: Collection | None = None,
+        columns: Collection | None = None,
+        **kwargs: Any,
+    ) -> Table:
         """Just for the signature."""
         return super().__new__(cls)
 
@@ -223,9 +226,9 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         self,
         value: TableData | None = None,
         *,
-        index: Optional[Collection] = None,
-        columns: Optional[Collection] = None,
-        **kwargs,
+        index: Collection | None = None,
+        columns: Collection | None = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(widget_type=use_app().get_obj("Table"), **kwargs)
         self._data = DataView(self)
@@ -242,7 +245,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         return self.to_dict("split")
 
     @value.setter
-    def value(self, value: TableData):
+    def value(self, value: TableData) -> None:
         """Set table data from dict, dataframe, list, or array.
 
         Parameters
@@ -260,8 +263,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             nc = 0
         self.column_headers = tuple(columns) or range(nc)  # type:ignore
         self.row_headers = tuple(index) or range(len(data))  # type: ignore
-        for row, data in enumerate(data):
-            self._set_rowi(row, data)
+        for row, d in enumerate(data):
+            self._set_rowi(row, d)
 
     @property
     def data(self) -> DataView:
@@ -269,7 +272,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         return self._data
 
     @data.setter
-    def data(self, value):
+    def data(self, value: TableData) -> None:
         """Set 2D table data."""
         self._data.__setitem__(slice(None), value)
 
@@ -322,7 +325,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     @property
     def size(self) -> int:
         """Return shape of table widget (rows, cols)."""
-        return operator.mul(*self.shape)
+        return cast(int, operator.mul(*self.shape))
 
     def keys(self, axis: str = "column") -> HeadersView[TblKey]:
         """Return a set-like object providing a view on this table's headers."""
@@ -332,7 +335,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         """Return a set-like object providing a view on this table's items."""
         return TableItemsView(self, axis)
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear the table."""
         self._widget._mgui_set_row_count(0)
         self._widget._mgui_set_column_count(0)
@@ -357,7 +360,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         """Return number of columns."""
         return self._widget._mgui_get_column_count()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Make table hashable."""
         return id(self)
 
@@ -366,7 +369,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         name = f"name={self.name!r}, " if self.name else ""
         return f"Table({name}shape={self.shape} at {hex(id(self))})"
 
-    def _check_new_headers(self, headers, *, axis="column"):
+    def _check_new_headers(self, headers: Sequence, *, axis: str = "column") -> None:
         current_headers = getattr(self._widget, f"_mgui_get_{axis}_headers")()
         if current_headers:
             if len(headers) != len(current_headers):
@@ -377,23 +380,25 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         elif len(headers):
             getattr(self._widget, f"_mgui_set_{axis}_count")(len(headers))
 
-    def _iter_slice(self, slc, axis):
+    def _iter_slice(self, slc: slice, axis: int) -> Iterator[int]:
         yield from range(*slc.indices(self.shape[axis]))
 
     def _get_cell(self, row: int, col: int) -> Any:
         return self._widget._mgui_get_cell(row, col)
 
-    def _set_cell(self, row: int, col: int, value: Any):
+    def _set_cell(self, row: int, col: int, value: Any) -> None:
         return self._widget._mgui_set_cell(row, col, value)
 
-    def _get_column(self, col: TblKey, rows: slice = slice(None)) -> list:
+    def _get_column(self, col: TblKey, rows: slice = SliceNone) -> list:
         try:
             col_idx = self.column_headers.index(col)
-        except ValueError:
-            raise KeyError(f"{col!r} is not a valid column header")
+        except ValueError as err:
+            raise KeyError(f"{col!r} is not a valid column header") from err
         return [self._get_cell(r, col_idx) for r in self._iter_slice(rows, 0)]
 
-    def _set_column(self, col: TblKey, value: Collection, rows: slice = slice(None)):
+    def _set_column(
+        self, col: TblKey, value: Collection, rows: slice = SliceNone
+    ) -> None:
         if not isinstance(value, Collection):
             raise TypeError(
                 f"value to set column data must be collection. got {type(value)}"
@@ -420,48 +425,48 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     def _del_column(self, col: TblKey) -> None:
         try:
             col_idx = self.column_headers.index(col)
-        except ValueError:
-            raise KeyError(f"{col!r} is not a valid column header")
+        except ValueError as e:
+            raise KeyError(f"{col!r} is not a valid column header") from e
         return self._widget._mgui_remove_column(col_idx)
 
     def _del_row(self, row: TblKey) -> None:
         try:
             row_idx = self.row_headers.index(row)
-        except ValueError:
-            raise KeyError(f"{row!r} is not a valid row header")
+        except ValueError as e:
+            raise KeyError(f"{row!r} is not a valid row header") from e
         self._del_rowi(row_idx)
 
     def _del_rowi(self, row: int) -> None:
         self._widget._mgui_remove_row(row)
 
-    def _get_row(self, row: TblKey, cols: slice = slice(None)) -> list:
+    def _get_row(self, row: TblKey, cols: slice = SliceNone) -> list:
         """Get row by row header."""
         try:
             row_idx = self.row_headers.index(row)
-        except ValueError:
-            raise KeyError(f"{row!r} is not a valid row header")
+        except ValueError as e:
+            raise KeyError(f"{row!r} is not a valid row header") from e
         return self._get_rowi(row_idx, cols)
 
-    def _get_rowi(self, row: int, cols: slice = slice(None)) -> list:
+    def _get_rowi(self, row: int, cols: slice = SliceNone) -> list:
         """Get row by row index."""
         self._assert_row(row)
         return [self._get_cell(row, c) for c in self._iter_slice(cols, 1)]
 
-    def _set_row(self, row: TblKey, value: Collection, cols: slice = slice(None)):
+    def _set_row(self, row: TblKey, value: Collection, cols: slice = SliceNone) -> None:
         """Set row by row header."""
         try:
             row_idx = self.row_headers.index(row)
-        except ValueError:
-            raise KeyError(f"{row!r} is not a valid row header")
+        except ValueError as e:
+            raise KeyError(f"{row!r} is not a valid row header") from e
         self._set_rowi(row_idx, value, cols)
 
-    def _set_rowi(self, row: int, value: Collection, cols: slice = slice(None)):
+    def _set_rowi(self, row: int, value: Collection, cols: slice = SliceNone) -> None:
         """Set row by row index."""
         self._assert_row(row)
         for v, col in zip(value, self._iter_slice(cols, 1)):
             self._set_cell(row, col, v)
 
-    def _assert_row(self, row):
+    def _assert_row(self, row: int) -> int:
         nrows = self._widget._mgui_get_row_count()
         if row >= nrows:
             raise IndexError(
@@ -469,7 +474,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             )
         return row
 
-    def _assert_col(self, col):
+    def _assert_col(self, col: int) -> int:
         ncols = self._widget._mgui_get_column_count()
         if col >= ncols:
             raise IndexError(
@@ -494,17 +499,17 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
 
     # fmt: off
     @overload
-    def to_dict(self, orient: Literal['dict']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
+    def to_dict(self, orient: Literal['dict']) -> dict[TblKey, dict[TblKey, list]]: ...
     @overload
     def to_dict(self, orient: Literal['list']) -> dict[TblKey, list]: ...
     @overload
     def to_dict(self, orient: Literal['split']) -> dict[TblKey, Collection]: ...
     @overload
-    def to_dict(self, orient: Literal['records']) -> list[dict[TblKey, Any]]: ...  # noqa
+    def to_dict(self, orient: Literal['records']) -> list[dict[TblKey, Any]]: ...
     @overload
-    def to_dict(self, orient: Literal['index']) -> dict[TblKey, dict[TblKey, list]]: ...  # noqa
+    def to_dict(self, orient: Literal['index']) -> dict[TblKey, dict[TblKey, list]]: ...
     @overload
-    def to_dict(self, orient: Literal['series']) -> dict[TblKey, pandas.Series]: ...  # noqa
+    def to_dict(self, orient: Literal['series']) -> dict[TblKey, pandas.Series]: ...
     # fmt: on
 
     def to_dict(self, orient: str = "dict") -> list | dict:
@@ -623,10 +628,10 @@ class DataView:
         # TODO: deal with bad shapes
         if isinstance(idx, (int, slice)):
             return self.__setitem__((idx, slice(None)), value)
-        obj = self._obj
         if isinstance(idx, tuple):
             assert len(idx) == 2, "Table Widget only accepts 2 arguments to __setitem__"
             r_idx, c_idx = idx
+            obj = self._obj
             if isinstance(r_idx, int):
                 if isinstance(c_idx, int):
                     return obj._set_cell(r_idx, c_idx, value)
@@ -649,31 +654,30 @@ class DataView:
                     return
         raise ValueError(f"Not a valid idx for __setitem__ {idx!r}")
 
-    def __delitem__(self, idx: IndexKey | tuple[IndexKey, IndexKey]):
+    def __delitem__(self, idx: IndexKey | tuple[IndexKey, IndexKey]) -> None:
         """Get index."""
         if isinstance(idx, (int, slice)):
             return self.__delitem__((idx, slice(None)))
-        obj = self._obj
         if isinstance(idx, tuple):
             assert len(idx) == 2, "Table Widget only accepts 2 arguments to __delitem__"
             r_idx, c_idx = idx
             for i in idx:
-                if not (isinstance(i, int) or i == slice(None)):
+                if not isinstance(i, int) and i != SliceNone:
                     raise ValueError(f"Can only delete full rows/columns, not {idx!r}")
+            obj = self._obj
             if isinstance(r_idx, int):
-                if c_idx == slice(None):
+                if c_idx == SliceNone:
                     return obj._del_rowi(r_idx)
                 raise ValueError("Can only delete full rows/columns, not cells")
             elif isinstance(r_idx, slice):
                 if isinstance(c_idx, int):
                     return obj._del_column(obj.column_headers[c_idx])
-                else:
-                    for r in obj._iter_slice(r_idx, 0):
-                        obj._del_rowi(r)
-                    return
+                for r in obj._iter_slice(r_idx, 0):
+                    obj._del_rowi(r)
+                return
         raise ValueError(f"Not a valid idx for __getitem__ {idx!r}")
 
-    def _assert_extended_slice(self, slc: slice, value_len, axis=0):
+    def _assert_extended_slice(self, slc: slice, value_len: int, axis: int = 0) -> None:
         slc_len = _range_len(*slc.indices(self._obj.shape[axis]))
         if slc_len != value_len:
             raise ValueError(
@@ -681,7 +685,7 @@ class DataView:
                 f"extended slice of size {slc_len} along axis {axis}"
             )
 
-    def to_numpy(self):
+    def to_numpy(self) -> numpy.ndarray:
         """Return a Numpy representation of the Table.
 
         Only the values in the Table will be returned, the axes labels will be removed.
@@ -693,40 +697,29 @@ class DataView:
         except ImportError as e:
             raise ImportError("Cannot convert to numpy without numpy installed") from e
 
-    def to_list(self):
+    def to_list(self) -> list[list]:
         """Return table data as a list of lists."""
         return self[:]
 
 
-def _range_len(start, stop, step):
+def _range_len(start: int, stop: int, step: int) -> int:
     return (stop - start - 1) // step + 1
 
 
-def _contains_duplicates(X):
-    seen = set()  # type: ignore
+def _contains_duplicates(X: Iterable[Any]) -> bool:
+    seen: set[Any] = set()
     seen_add = seen.add
-    for x in X:
-        if x in seen or seen_add(x):
-            return True
-    return False
+    return any(x in seen or seen_add(x) for x in X)
 
 
-def _is_dataframe(obj) -> bool:
-    try:
-        import pandas
-
-        return isinstance(obj, pandas.DataFrame)
-    except ImportError:
-        return False
+def _is_dataframe(obj: object) -> TypeGuard[pandas.DataFrame]:
+    pandas = sys.modules.get("pandas")
+    return isinstance(obj, pandas.DataFrame) if pandas is not None else False
 
 
-def _is_numpy_array(obj) -> bool:
-    try:
-        import numpy
-
-        return isinstance(obj, numpy.ndarray)
-    except ImportError:
-        return False
+def _is_numpy_array(obj: object) -> TypeGuard[numpy.ndarray]:
+    numpy = sys.modules.get("numpy")
+    return isinstance(obj, numpy.ndarray) if numpy is not None else False
 
 
 def _from_nested_column_dict(data: dict) -> tuple[list[list], list]:
@@ -738,24 +731,22 @@ def _from_nested_column_dict(data: dict) -> tuple[list[list], list]:
 
             df = pandas.DataFrame(data)
             return df.values, df.index
-        except ImportError:
+        except ImportError as err:
             raise ValueError(
                 "All row-dicts must have the same keys. "
                 "Install pandas for better table-from-dict support."
-            )
+            ) from err
     # preserve order of keys
     index = []
     for v in data.values():
         index = list(v)
         break
 
-    new_data = []
-    for col, s in data.items():
-        new_data.append([s[i] for i in index])
-    return list(list(x) for x in zip(*new_data)), index
+    new_data = [[s[i] for i in index] for s in data.values()]
+    return [list(x) for x in zip(*new_data)], index
 
 
-def _from_dict(data: dict, dtype=None) -> tuple[list[list], list, list]:
+def _from_dict(data: dict) -> tuple[list[list], list, list]:
     """Return normalized data from dict of array-like or row-dicts.
 
     logic from pandas.DataFrame.from_dict
@@ -767,9 +758,11 @@ def _from_dict(data: dict, dtype=None) -> tuple[list[list], list, list]:
         _data, index = _from_nested_column_dict(data)
     else:
         try:
-            _data = list(list(x) for x in zip(*data.values()))
-        except TypeError:
-            raise ValueError("All values in the dict must be iterable (e.g. a list).")
+            _data = [list(x) for x in zip(*data.values())]
+        except TypeError as err:
+            raise ValueError(
+                "All values in the dict must be iterable (e.g. a list)."
+            ) from err
         index = []
     return _data, index, columns
 
@@ -785,32 +778,36 @@ def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list
 
             df = pandas.DataFrame(data)
             return df.values, df.index, df.columns
-        except ImportError:
+        except ImportError as err:
             raise ValueError(
                 "All column-dicts must have the same keys. "
                 "Install pandas for better table-from-dict support."
-            )
+            ) from err
     columns = list(data[0])
     _data = [list(d.values()) for d in data]
     return _data, [], columns
 
 
-def _validate_table_data(data, index, column):
+def _validate_table_data(
+    data: Collection, index: Sequence | None, column: Sequence | None
+) -> None | NoReturn:
     """Make sure data matches shape of index and column."""
     nr = len(data)
     if not nr:
-        return
+        return None
     try:
-        nc = len(data[0])
+        nc = len(data[0])  # type: ignore
     except (TypeError, IndexError):
         nc = 1
     if index is not None and len(index) and len(index) != nr:
         raise ValueError(
             f"Shape of passed values is ({nr}, {nc}), "
-            f"headers imply ({len(index)}, {len(column)})"
+            f"headers imply ({len(index)}, {len(column) if column else 1})"
         )
     if column is not None and len(column) and len(column) != nc:
         warn(
             f"Shape of passed values is ({nr}, {nc}), "
-            f"headers imply ({len(index)}, {len(column)}). Data will be truncated."
+            f"headers imply ({len(index) if index else 1}, {len(column)}). "
+            "Data will be truncated."
         )
+    return None

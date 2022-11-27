@@ -14,6 +14,7 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    NoReturn,
     Optional,
     Protocol,
     Sequence,
@@ -26,13 +27,14 @@ if TYPE_CHECKING:
     from magicgui.widgets.bases import Widget
 
 
-def assert_protocol(widget_class: type, protocol: type):
+def assert_protocol(widget_class: type, protocol: type) -> None | NoReturn:
     """Ensure that widget_class implements protocol, or raise helpful error."""
     if not isinstance(widget_class, protocol):
         _raise_protocol_error(widget_class, protocol)
+    return None
 
 
-def _raise_protocol_error(widget_class: type, protocol: type):
+def _raise_protocol_error(widget_class: type, protocol: type) -> NoReturn:
     """Raise a more helpful error when required protocol members are missing."""
     missing = {
         i
@@ -50,7 +52,7 @@ def _raise_protocol_error(widget_class: type, protocol: type):
 class WidgetProtocol(Protocol):
     """Base Widget Protocol: specifies methods that all widgets must provide."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         pass
 
     @abstractmethod
@@ -199,7 +201,7 @@ class ValueWidgetProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_value(self, value) -> None:
+    def _mgui_set_value(self, value: Any) -> None:
         """Set current value of the widget."""
         raise NotImplementedError()
 
@@ -476,7 +478,7 @@ class DialogProtocol(ContainerProtocol, Protocol):
     """Protocol for modal (blocking) containers."""
 
     @abstractmethod
-    def _mgui_exec(self):
+    def _mgui_exec(self) -> None:
         """Show the dialog and block."""
         raise NotImplementedError()
 
@@ -486,8 +488,12 @@ class MainWindowProtocol(ContainerProtocol, Protocol):
 
     @abstractmethod
     def _mgui_create_menu_item(
-        self, menu_name: str, action_name: str, callback=None, shortcut=None
-    ):
+        self,
+        menu_name: str,
+        action_name: str,
+        callback: Callable | None = None,
+        shortcut: str | None = None,
+    ) -> None:
         raise NotImplementedError()
 
 

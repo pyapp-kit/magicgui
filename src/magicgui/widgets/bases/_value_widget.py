@@ -31,15 +31,15 @@ class ValueWidget(Widget, Generic[T]):
 
     _widget: protocols.ValueWidgetProtocol
     changed = Signal(object)
-    null_value = None
+    null_value: Any = None
 
     def __init__(
         self,
         value: T | _Undefined = Undefined,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
-        **base_widget_kwargs,
-    ):
+        **base_widget_kwargs: Any,
+    ) -> None:
         self._nullable = nullable
         self._bound_value = bind
         self._call_bound: bool = True
@@ -66,7 +66,7 @@ class ValueWidget(Widget, Generic[T]):
         an escape hatch if trying to access the widget's value inside of a callback
         bound to self._bound_value.
         """
-        return self._widget._mgui_get_value()
+        return cast(T, self._widget._mgui_get_value())
 
     @property
     def value(self) -> T:
@@ -86,7 +86,7 @@ class ValueWidget(Widget, Generic[T]):
         return self.get_value()
 
     @value.setter
-    def value(self, value: T):
+    def value(self, value: T) -> None:
         return self._widget._mgui_set_value(value)
 
     def __repr__(self) -> str:

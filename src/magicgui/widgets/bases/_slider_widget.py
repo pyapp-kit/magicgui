@@ -1,4 +1,4 @@
-from typing import Sequence, TypeVar
+from typing import Any, Sequence, TypeVar
 
 from magicgui.widgets import protocols
 
@@ -30,8 +30,8 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         orientation: str = "horizontal",
         readout: bool = True,
         tracking: bool = True,
-        **kwargs
-    ):
+        **kwargs: Any,
+    ) -> None:
         kwargs["backend_kwargs"] = {"readout": readout, "orientation": orientation}
         super().__init__(**kwargs)
         self.readout = readout
@@ -66,7 +66,7 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         return self._readout
 
     @readout.setter
-    def readout(self, value: bool):
+    def readout(self, value: bool) -> None:
         """Set visibility state of readout widget."""
         self._readout = value
         self._widget._mgui_set_readout_visibility(value)

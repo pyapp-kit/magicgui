@@ -1,7 +1,7 @@
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import Iterable, Tuple, Union, cast
+from typing import Any, Iterable, Tuple, Union, cast
 from warnings import warn
 
 from magicgui.types import Undefined, _Undefined
@@ -34,8 +34,8 @@ class RangedWidget(ValueWidget[T]):
         min: Union[float, _Undefined] = Undefined,
         max: Union[float, _Undefined] = Undefined,
         step: Union[float, _Undefined, None] = Undefined,
-        **kwargs,
-    ):  # sourcery skip: avoid-builtin-shadow
+        **kwargs: Any,
+    ) -> None:  # sourcery skip: avoid-builtin-shadow
         for key in ("maximum", "minimum"):
             if key in kwargs:
                 warn(
@@ -44,9 +44,9 @@ class RangedWidget(ValueWidget[T]):
                     FutureWarning,
                 )
                 if key == "maximum":
-                    max = kwargs.pop(key)
+                    max = kwargs.pop(key)  # noqa: A001
                 else:
-                    min = kwargs.pop(key)
+                    min = kwargs.pop(key)  # noqa: A001
         # value should be set *after* min max is set
         val = kwargs.pop("value", Undefined)
         super().__init__(**kwargs)
@@ -71,8 +71,8 @@ class RangedWidget(ValueWidget[T]):
 
         If min or max are unset, constrain so the given value is within the range.
         """
-        val = value if isinstance(value, tuple) else (value,)
-        tmp_val = tuple(float(v) if v not in (Undefined, None) else 1 for v in val)
+        val: tuple[float, ...] = value if isinstance(value, tuple) else (value,)
+        tmp_val = tuple((float(v) if v not in (Undefined, None) else 1) for v in val)  # type: ignore # noqa
 
         new_min: float = (
             cast("float", min)
@@ -111,7 +111,7 @@ class RangedWidget(ValueWidget[T]):
         return self._widget._mgui_get_min()
 
     @min.setter
-    def min(self, value: float):
+    def min(self, value: float) -> None:
         self._widget._mgui_set_min(value)
 
     @property
@@ -120,7 +120,7 @@ class RangedWidget(ValueWidget[T]):
         return self._widget._mgui_get_max()
 
     @max.setter
-    def max(self, value: float):
+    def max(self, value: float) -> None:
         self._widget._mgui_set_max(value)
 
     @property
@@ -131,7 +131,7 @@ class RangedWidget(ValueWidget[T]):
         return self._widget._mgui_get_step()
 
     @step.setter
-    def step(self, value: Union[float, None]):
+    def step(self, value: Union[float, None]) -> None:
         if value is None:
             self._widget._mgui_set_adaptive_step(True)
         else:
@@ -139,16 +139,13 @@ class RangedWidget(ValueWidget[T]):
             self._widget._mgui_set_step(value)
 
     @property
-    def adaptive_step(self):
+    def adaptive_step(self) -> bool:
         """Whether the step size is adaptive."""
         return self.step is None
 
     @adaptive_step.setter
-    def adaptive_step(self, value: bool):
-        if value:
-            self.step = None
-        else:
-            self.step = self._widget._mgui_get_step()
+    def adaptive_step(self, value: bool) -> None:
+        self.step = None if value else self._widget._mgui_get_step()
 
     @property
     def range(self) -> Tuple[float, float]:
@@ -156,11 +153,11 @@ class RangedWidget(ValueWidget[T]):
         return self.min, self.max
 
     @range.setter
-    def range(self, value: Tuple[float, float]):
+    def range(self, value: Tuple[float, float]) -> None:
         self.min, self.max = value
 
 
-class TransformedRangedWidget(RangedWidget[T], ABC):
+class TransformedRangedWidget(RangedWidget[float], ABC):
     """Widget with a contstrained value. Wraps RangedWidgetProtocol.
 
     This can be used to map one domain of numbers onto another, useful for creating
@@ -190,8 +187,8 @@ class TransformedRangedWidget(RangedWidget[T], ABC):
         min_pos: int = 0,
         max_pos: int = 100,
         step: int = 1,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         self._min = min
         self._max = max
         self._min_pos = min_pos
@@ -206,29 +203,29 @@ class TransformedRangedWidget(RangedWidget[T], ABC):
     # Replace _value_from_position, and _position_from_value in subclasses
     # to implement more complex value->position lookups
     @property
-    def _scale(self):
+    def _scale(self) -> float:
         """Slope of a linear map.  Just used as an example."""
         return (self.max - self.min) / (self._max_pos - self._min_pos)
 
     @abstractmethod
-    def _value_from_position(self, position):
+    def _value_from_position(self, position: float) -> float:
         """Return 'real' value given internal widget position."""
         return self.min + self._scale * (position - self._min_pos)
 
     @abstractmethod
-    def _position_from_value(self, value):
+    def _position_from_value(self, value: float) -> float:
         """Return internal widget position given 'real' value."""
         return (value - self.min) / self._scale + self._min_pos
 
     #########
 
     @property
-    def value(self):
+    def value(self) -> float:
         """Return current value of the widget."""
         return self._value_from_position(self._widget._mgui_get_value())
 
     @value.setter
-    def value(self, value):
+    def value(self, value: float) -> None:
         return self._widget._mgui_set_value(self._position_from_value(value))
 
     @property
@@ -237,7 +234,7 @@ class TransformedRangedWidget(RangedWidget[T], ABC):
         return self._min
 
     @min.setter
-    def min(self, value: float):
+    def min(self, value: float) -> None:
         prev = self.value
         self._min = value
         self.value = prev
@@ -248,7 +245,7 @@ class TransformedRangedWidget(RangedWidget[T], ABC):
         return self._max
 
     @max.setter
-    def max(self, value: float):
+    def max(self, value: float) -> None:
         prev = self.value
         self._max = value
         self.value = prev

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import contextlib
 import inspect
-from typing import Iterable, Optional, cast
+from typing import Any, Iterable, cast
 
 from magicgui.application import use_app
 from magicgui.widgets import FunctionGui, ProgressBar
@@ -18,7 +18,7 @@ except ImportError as e:  # pragma: no cover
     raise type(e)(msg) from e
 
 
-def _find_calling_function_gui(max_depth=6) -> Optional[FunctionGui]:
+def _find_calling_function_gui(max_depth: int = 6) -> FunctionGui | None:
     """Traverse calling stack looking for a magicgui FunctionGui."""
     for finfo in inspect.stack()[2:max_depth]:
 
@@ -70,7 +70,9 @@ class tqdm(_tqdm_std):
 
     disable: bool
 
-    def __init__(self, iterable: Iterable | None = None, *args, **kwargs) -> None:
+    def __init__(
+        self, iterable: Iterable | None = None, *args: Any, **kwargs: Any
+    ) -> None:
         kwargs = kwargs.copy()
         pbar_kwargs = {k: kwargs.pop(k) for k in set(kwargs) - _tqdm_kwargs}
         self._mgui = _find_calling_function_gui()
@@ -82,7 +84,7 @@ class tqdm(_tqdm_std):
             return
 
         # no-op status printer, required for older tqdm compat
-        self.sp = lambda x: None  # noqa: E731
+        self.sp = lambda x: None
         if self.disable:
             return
 
@@ -106,7 +108,7 @@ class tqdm(_tqdm_std):
         except RuntimeError:
             return False
 
-    def _get_progressbar(self, **kwargs) -> ProgressBar:
+    def _get_progressbar(self, **kwargs: Any) -> ProgressBar:
         """Create ProgressBar or get from the parent gui `_tqdm_pbars` deque.
 
         The deque allows us to create nested iterables inside of a magigui, while
@@ -128,10 +130,11 @@ class tqdm(_tqdm_std):
         self._mgui._tqdm_depth += 1
         return pbar
 
-    def display(self, msg: str | None = None, pos: Optional[int] = None) -> None:
+    def display(self, msg: str | None = None, pos: int | None = None) -> None:
         """Update the display."""
         if not self._in_visible_gui:
-            return super().display(msg=msg, pos=pos)
+            super().display(msg=msg, pos=pos)
+            return
 
         self.progressbar.value = self.n
         self._app.process_events()
@@ -139,7 +142,8 @@ class tqdm(_tqdm_std):
     def close(self) -> None:
         """Cleanup and (if leave=False) close the progressbar."""
         if not self._in_visible_gui:
-            return super().close()
+            super().close()
+            return
         self._mgui = cast(FunctionGui, self._mgui)
 
         if self.disable:
@@ -149,7 +153,7 @@ class tqdm(_tqdm_std):
         self.disable = True
 
         # remove from tqdm instance set
-        with self._lock:
+        with self.get_lock():
             with contextlib.suppress(KeyError):
                 self._instances.remove(self)
             if not self.leave:
@@ -159,6 +163,6 @@ class tqdm(_tqdm_std):
         self._mgui._tqdm_depth -= 1
 
 
-def trange(*args, **kwargs) -> tqdm:
+def trange(*args: Any, **kwargs: Any) -> tqdm:
     """Shortcut for tqdm(range(*args), **kwargs)."""
     return tqdm(range(*args), **kwargs)

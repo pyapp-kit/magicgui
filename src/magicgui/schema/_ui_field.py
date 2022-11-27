@@ -18,11 +18,12 @@ from typing import (
     Optional,
     TypeVar,
     Union,
+    cast,
 )
 
 from typing_extensions import Annotated, TypeGuard, get_args, get_origin
 
-from magicgui.types import JsonStringFormats, Undefined
+from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
 if TYPE_CHECKING:
     from typing import Mapping, Protocol
@@ -51,7 +52,7 @@ T = TypeVar("T")
 class UiField(Generic[T]):
     """Metadata about a specific widget in a GUI."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Coerce Optional[...] to nullable and remove it from the type."""
         if get_origin(self.type) is Union:
             args = get_args(self.type)
@@ -64,163 +65,167 @@ class UiField(Generic[T]):
 
     name: str | None = field(
         default=None,
-        metadata=dict(
-            description="The name of the field.  This differs from `title` in that "
+        metadata={
+            "description": "The name of the field.  This differs from `title` in that "
             "refers to the python name used to refer to this value. e.g. the parameter "
             "name, or field name in a dataclass"
-        ),
+        },
     )
 
     # Basic Meta-Data Annotations vocabulary
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-a-vocabulary-for-basic-meta
     title: str | None = field(
         default=None,
-        metadata=dict(
-            description="A short title for the field.  If not provided, "
+        metadata={
+            "description": "A short title for the field.  If not provided, "
             "the `name` will be used.",
-            aliases=["label", "text", "button_text"],
-        ),
+            "aliases": ["label", "text", "button_text"],
+        },
     )
     description: str | None = field(
         default=None,
-        metadata=dict(description="A description of the field.", aliases=["tooltip"]),
+        metadata={"description": "A description of the field.", "aliases": ["tooltip"]},
     )
     default: T = field(  # type: ignore
         default=Undefined,
-        metadata=dict(
-            description="The default value for the field.", aliases=["value"]
-        ),
+        metadata={
+            "description": "The default value for the field.",
+            "aliases": ["value"],
+        },
     )
     # NOTE: this does not have an analog in JSON Schema
     default_factory: Callable[[], T] | None = field(
         default=None,
-        metadata=dict(
-            description="A callable that returns the default value of the field."
-        ),
+        metadata={
+            "description": "A callable that returns the default value of the field."
+        },
     )
     # NOTE: this does not have an analog in JSON Schema
     nullable: bool | None = field(
         default=None,
-        metadata=dict(
-            description="Whether the field is nullable. In JSON, this is equivalent to "
-            "`type: [<type>, 'null']`"
-        ),
+        metadata={
+            "description": "Whether the field is nullable. In JSON, this is equivalent "
+            "to `type: [<type>, 'null']`"
+        },
     )
 
     # Keywords for Any Instance Type
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-any
     type: object = field(
-        default=None, metadata=dict(description="The type annotation of the field.")
+        default=None, metadata={"description": "The type annotation of the field."}
     )
     enum: list[T] | None = field(
         default=None,
-        metadata=dict(description="A list of allowed values.", aliases=["choices"]),
+        metadata={"description": "A list of allowed values.", "aliases": ["choices"]},
     )
     const: T = field(  # type: ignore
         default=Undefined,
-        metadata=dict(
-            description="A single allowed value. functionally equivalent to an 'enum' "
-            "with a single value.",
-        ),
+        metadata={
+            "description": "A single allowed value. functionally equivalent to an "
+            "'enum' with a single value.",
+        },
     )
 
     # Keywords for Numeric Instances (number and integer)
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-num
     minimum: float | None = field(
         default=None,
-        metadata=dict(
-            description="The inclusive minimum allowed value.", aliases=["min", "ge"]
-        ),
+        metadata={
+            "description": "The inclusive minimum allowed value.",
+            "aliases": ["min", "ge"],
+        },
     )
     maximum: float | None = field(
         default=None,
-        metadata=dict(
-            description="The inclusive maximum allowed value.",
-            aliases=["max", "le"],
-        ),
+        metadata={
+            "description": "The inclusive maximum allowed value.",
+            "aliases": ["max", "le"],
+        },
     )
     exclusive_minimum: float | None = field(
         default=None,
-        metadata=dict(
-            description="The exclusive minimum allowed value.",
-            aliases=["exclusiveMinimum", "gt"],
-        ),
+        metadata={
+            "description": "The exclusive minimum allowed value.",
+            "aliases": ["exclusiveMinimum", "gt"],
+        },
     )
     exclusive_maximum: float | None = field(
         default=None,
-        metadata=dict(
-            description="The exclusive maximum allowed value.",
-            aliases=["exclusiveMaximum", "lt"],
-        ),
+        metadata={
+            "description": "The exclusive maximum allowed value.",
+            "aliases": ["exclusiveMaximum", "lt"],
+        },
     )
     multiple_of: float | None = field(
         default=None,
-        metadata=dict(
-            description="The allowed step size. Value is valid if (value / multiple_of)"
-            " is an integer.",
-            aliases=["multipleOf", "step"],
-        ),
+        metadata={
+            "description": "The allowed step size. Value is valid if (value / multiple_"
+            "of) is an integer.",
+            "aliases": ["multipleOf", "step"],
+        },
     )
     # not in json schema, for Decimal types.  Also in pydantic.
     decimal_places: int | None = field(
         default=None,
-        metadata=dict(
-            descripion="Maximum number of digits within the decimal. It does "
+        metadata={
+            "descripion": "Maximum number of digits within the decimal. It does "
             "not include trailing decimal zeroes."
-        ),
+        },
     )
 
     # Keywords for String Instances
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-str
     min_length: int | None = field(
         default=None,
-        metadata=dict(
-            description="The minimum allowed length. Must be >= 0.",
-            aliases=["minLength"],
-        ),
+        metadata={
+            "description": "The minimum allowed length. Must be >= 0.",
+            "aliases": ["minLength"],
+        },
     )
     max_length: int | None = field(
         default=None,
-        metadata=dict(
-            description="The maximum allowed length. Must be >= 0.",
-            aliases=["maxLength"],
-        ),
+        metadata={
+            "description": "The maximum allowed length. Must be >= 0.",
+            "aliases": ["maxLength"],
+        },
     )
     pattern: str | None = field(
         default=None,
-        metadata=dict(
-            description="A regex pattern for the value.",
-            aliases=["regex", "filter"],  # regex in pydantic, filter for FileEdit
-        ),
+        metadata={
+            "description": "A regex pattern for the value.",
+            "aliases": ["regex", "filter"],  # regex in pydantic, filter for FileEdit
+        },
     )
     # NOTE: format is listed in this section, but needn't strictly apply to strings.
     format: JsonStringFormats | None = field(
-        default=None, metadata=dict(description="The format of the field.")
+        default=None, metadata={"description": "The format of the field."}
     )
 
     # Keywords for Sequence (Array) Instances
     # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-arr
     min_items: int | None = field(
         default=None,
-        metadata=dict(
-            description="The (inclusive) minimum allowed number of items. Must be >= 0",
+        metadata={
+            "description": "The (inclusive) minimum allowed number of items. "
+            "Must be >= 0",
             # min_length/min_inclusive are from annotated_types
-            aliases=["minItems", "min_length", "min_inclusive"],
-        ),
+            "aliases": ["minItems", "min_length", "min_inclusive"],
+        },
     )
     max_items: int | None = field(
         default=None,
-        metadata=dict(
-            description="The (inclusive) maximum allowed number of items. Must be >= 0",
-            aliases=["maxItems", "max_length"],  # max_length in annotated_types
-        ),
+        metadata={
+            "description": "The (inclusive) maximum allowed number of items. "
+            "Must be >= 0",
+            "aliases": ["maxItems", "max_length"],  # max_length in annotated_types
+        },
     )
     unique_items: bool | None = field(
         default=None,
-        metadata=dict(
-            description="Whether the items in the list must be unique.",
-            aliases=["uniqueItems"],
-        ),
+        metadata={
+            "description": "Whether the items in the list must be unique.",
+            "aliases": ["uniqueItems"],
+        },
     )
 
     # # Keywords for Mapping (Object) Instances
@@ -242,60 +247,59 @@ class UiField(Generic[T]):
 
     read_only: bool | None = field(
         default=None,
-        metadata=dict(
-            description="Whether the field is read-only. If True, the value of the "
+        metadata={
+            "description": "Whether the field is read-only. If True, the value of the "
             "instance is managed exclusively by the owning authority, and attempts by "
             "an application to modify the value of this property are expected to be "
             "ignored or rejected by that owning authority"
-        ),
+        },
     )
 
     # UI Specific
     widget: str | None = field(
         default=None,
-        metadata=dict(
-            description="The name of the widget to use for this field. "
+        metadata={
+            "description": "The name of the widget to use for this field. "
             "If not provided, the widget will be inferred from the type annotation."
-        ),
+        },
     )
     disabled: bool | None = field(
         default=None,
-        metadata=dict(
-            description="Whether the widget should be disabled. Marking a field as "
+        metadata={
+            "description": "Whether the widget should be disabled. Marking a field as "
             "read-only will render it greyed out, but its text value will be "
             "selectable. Disabling it will prevent its value to be selected at all."
-        ),
+        },
     )
     enum_disabled: list[T] | None = field(
         default=None,
-        metadata=dict(
-            description="A list of values that should be disabled in a combobox widget."
-        ),
+        metadata={
+            "description": "A list of values that should be disabled in a combobox "
+            "widget."
+        },
     )
     help: str | None = field(
         default=None,
-        metadata=dict(
-            description="text next to a field to guide the end user filling it."
-        ),
+        metadata={
+            "description": "text next to a field to guide the end user filling it."
+        },
     )
     placeholder: str | None = field(
         default=None,
-        metadata=dict(
-            description="A placeholder string to display when the field is empty."
-        ),
+        metadata={
+            "description": "A placeholder string to display when the field is empty."
+        },
     )
     visible: bool | None = field(
         default=None,
-        metadata=dict(
-            description="Whether the field should be visible in the GUI. "
+        metadata={
+            "description": "Whether the field should be visible in the GUI. "
             "This is useful for hiding fields that are only used for validation."
-        ),
+        },
     )
     orientation: Literal["horizontal", "vertical"] | None = field(
         default=None,
-        metadata=dict(
-            description="Orientation of the widget, for things like sliders."
-        ),
+        metadata={"description": "Orientation of the widget, for things like sliders."},
     )
 
     _native_field: Any | None = field(
@@ -303,22 +307,22 @@ class UiField(Generic[T]):
         compare=False,
         hash=False,
         repr=False,
-        metadata=dict(
-            description="Internal use only. If this field is derived from a native "
+        metadata={
+            "description": "Internal use only. If this field is derived from a native "
             "dataclasses.Field, or attrs.Attribute, or pydantic.fields.ModelField this "
             "will be a reference to that object."
-        ),
+        },
     )
     _original_annotation: Any | None = field(
         default=None,
         compare=False,
         hash=False,
         repr=False,
-        metadata=dict(
-            description="Internal use only. If this field is derived from a "
+        metadata={
+            "description": "Internal use only. If this field is derived from a "
             "typing.Annotated[...] annotation, this will be a reference to the origin "
             "annotation."
-        ),
+        },
     )
 
     def get_default(self) -> Optional[T]:
@@ -390,7 +394,7 @@ class UiField(Generic[T]):
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)
 
-    def create_widget(self, value=Undefined) -> ValueWidget:
+    def create_widget(self, value: T | _Undefined = Undefined) -> ValueWidget[T]:
         """Create a new Widget for this field."""
         from magicgui.type_map import get_widget_class
 
@@ -436,7 +440,7 @@ class UiField(Generic[T]):
             m = 1 if d.get("type") is int else 0.00000000001
             opts["min"] = d["exclusive_minimum"] + m
 
-        value = value if value is not Undefined else self.get_default()
+        value = value if value is not Undefined else self.get_default()  # type: ignore
         cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
         return cls(**kwargs)  # type: ignore
 
@@ -579,14 +583,14 @@ def _uifield_from_pydantic(model_field: ModelField) -> UiField:
 class _ContainerFields:
     autofocus: str | None = field(
         default=None,
-        metadata=dict(description="Name of a field that should be autofocused on."),
+        metadata={"description": "Name of a field that should be autofocused on."},
     )
     labels: list[str] | bool | None = field(
         default=None,
-        metadata=dict(
-            description="If True, all fields will be labeled. If False, no fields will "
-            "be labeled. If a list, only the fields in the list will be labeled."
-        ),
+        metadata={
+            "description": "If True, all fields will be labeled. If False, no fields "
+            "will be labeled. If a list, only the fields in the list will be labeled."
+        },
     )
 
 
@@ -626,7 +630,7 @@ def _get_function_defaults(func: FunctionType) -> Dict[str, Any]:
     return output
 
 
-def _ui_fields_from_annotation(cls) -> Iterator[UiField]:
+def _ui_fields_from_annotation(cls: type) -> Iterator[UiField]:
     """Iterate UiFields extracted from object __annotations__."""
     # fallback for typed dict, named tuples, & functions
 
@@ -752,7 +756,7 @@ def _get_values(obj: Any) -> dict | None:
 
     # named tuple
     if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        return obj._asdict()
+        return cast(dict, obj._asdict())
 
     # dataclass
     if dc.is_dataclass(type(obj)):
@@ -761,7 +765,7 @@ def _get_values(obj: Any) -> dict | None:
     # attrs
     attr = sys.modules.get("attr")
     if attr is not None and attr.has(obj):
-        return attr.asdict(obj)
+        return cast(dict, attr.asdict(obj))
 
     # pydantic models
     dict_method = getattr(obj, "dict", None)

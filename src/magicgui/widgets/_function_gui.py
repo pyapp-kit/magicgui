@@ -10,7 +10,18 @@ from collections import deque
 from contextlib import contextmanager
 from pathlib import Path
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Callable, Deque, Generic, Optional, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Deque,
+    Generic,
+    Iterator,
+    NoReturn,
+    Optional,
+    TypeVar,
+    cast,
+)
 
 from psygnal import Signal
 
@@ -25,7 +36,9 @@ if TYPE_CHECKING:
     from magicgui.widgets import TextEdit
 
 
-def _inject_tooltips_from_docstrings(docstring: str | None, sig: MagicSignature):
+def _inject_tooltips_from_docstrings(
+    docstring: str | None, sig: MagicSignature
+) -> None:
     """Update ``sig`` gui options with tooltips extracted from ``docstring``."""
     from docstring_parser import parse
 
@@ -101,6 +114,9 @@ class FunctionGui(Container, Generic[_R]):
         If `True`, when parameter values change in the widget, they will be stored to
         disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
         again with ``persist = True``.  By default, `False`.
+    raise_on_unknown : bool
+        If True, raise an error if a parameter annotation is not recognized.
+
 
     Raises
     ------
@@ -126,8 +142,8 @@ class FunctionGui(Container, Generic[_R]):
         param_options: dict[str, dict] | None = None,
         name: Optional[str] = None,
         persist: bool = False,
-        raise_on_unknown=False,
-        **kwargs,
+        raise_on_unknown: bool = False,
+        **kwargs: Any,
     ):
         if not callable(function):
             raise TypeError("'function' argument to FunctionGui must be callable.")
@@ -194,7 +210,7 @@ class FunctionGui(Container, Generic[_R]):
             if not auto_call:  # (otherwise it already gets called)
 
                 @self._call_button.changed.connect
-                def _disable_button_and_call():
+                def _disable_button_and_call() -> None:
                     # disable the call button until the function has finished
                     self._call_button = cast(PushButton, self._call_button)
                     self._call_button.enabled = False
@@ -227,7 +243,7 @@ class FunctionGui(Container, Generic[_R]):
         self._auto_call = auto_call
         self.changed.connect(self._on_change)
 
-    def _on_change(self):
+    def _on_change(self) -> None:
         if self.persist:
             self._dump()
         if self._auto_call:
@@ -248,7 +264,7 @@ class FunctionGui(Container, Generic[_R]):
         self._call_count = 0
 
     @property
-    def return_annotation(self):
+    def return_annotation(self) -> Any:
         """Return annotation to use when converting to :class:`inspect.Signature`.
 
         ForwardRefs will be resolve when setting the annotation.
@@ -333,10 +349,10 @@ class FunctionGui(Container, Generic[_R]):
     @property
     def result_name(self) -> str:
         """Return a name that can be used for the result of this magicfunction."""
-        return self._result_name or (self._callable_name + " result")
+        return self._result_name or f"{self._callable_name} result"
 
     @result_name.setter
-    def result_name(self, value: str):
+    def result_name(self, value: str) -> None:
         """Set the result name of this FunctionGui widget."""
         self._result_name = value
 
@@ -358,7 +374,7 @@ class FunctionGui(Container, Generic[_R]):
             name=self.name,
         )
 
-    def __get__(self, obj, objtype=None) -> FunctionGui:
+    def __get__(self, obj: object, objtype: type | None = None) -> FunctionGui:
         """Provide descriptor protocol.
 
         This allows the @magicgui decorator to work on a function as well as a method.
@@ -395,7 +411,7 @@ class FunctionGui(Container, Generic[_R]):
                 self._param_options = prior
         return self._bound_instances[obj_id]
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: Any, value: Any) -> NoReturn:
         """Prevent setting a magicgui attribute."""
         raise AttributeError("Can't set magicgui attribute")
 
@@ -407,10 +423,10 @@ class FunctionGui(Container, Generic[_R]):
         name = name.replace("<", "-").replace(">", "-")  # e.g. <locals>
         return user_cache_dir() / f"{self._function.__module__}.{name}"
 
-    def _dump(self, path=None):
+    def _dump(self, path: str | Path | None = None) -> None:
         super()._dump(path or self._dump_path)
 
-    def _load(self, path=None, quiet=False):
+    def _load(self, path: str | Path | None = None, quiet: bool = False) -> None:
         super()._load(path or self._dump_path, quiet=quiet)
 
 
@@ -419,12 +435,12 @@ class MainFunctionGui(FunctionGui[_R], MainWindow):
 
     _widget: MainWindowProtocol
 
-    def __init__(self, function: Callable, *args, **kwargs):
+    def __init__(self, function: Callable, *args: Any, **kwargs: Any) -> None:
         super().__init__(function, *args, **kwargs)
         self.create_menu_item("Help", "Documentation", callback=self._show_docs)
         self._help_text_edit: TextEdit | None = None
 
-    def _show_docs(self):
+    def _show_docs(self) -> None:
         if not self._help_text_edit:
             from magicgui.widgets import TextEdit
 
@@ -446,14 +462,14 @@ def _docstring_to_html(docs: str) -> str:
 
     ptemp = "<li><p><strong>{}</strong> (<em>{}</em>) - {}</p></li>"
     plist = [ptemp.format(p.arg_name, p.type_name, p.description) for p in ds.params]
-    params = "<h3>Parameters</h3><ul>{}</ul>".format("".join(plist))
+    params = f'<h3>Parameters</h3><ul>{"".join(plist)}</ul>'
     short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
     long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
     return re.sub(r"``?([^`]+)``?", r"<code>\1</code>", f"{short}{long}{params}")
 
 
 @contextmanager
-def _function_name_pointing_to_widget(function_gui: FunctionGui):
+def _function_name_pointing_to_widget(function_gui: FunctionGui) -> Iterator[None]:
     """Context in which the name of the function points to the function_gui instance.
 
     When calling the function provided to FunctionGui, we make sure that the name

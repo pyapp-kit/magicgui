@@ -1,5 +1,6 @@
 """magicgui is a utility for generating a GUI from a python function."""
 from importlib.metadata import PackageNotFoundError, version
+from typing import Any
 
 try:
     __version__ = version("magicgui")
@@ -24,7 +25,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name == "FunctionGui":
         from warnings import warn
 
