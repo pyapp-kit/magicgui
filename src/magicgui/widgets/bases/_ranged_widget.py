@@ -11,7 +11,7 @@ from magicgui.widgets import protocols
 
 from ._value_widget import ValueWidget
 
-T = TypeVar("T", int, float, Tuple[int | float, ...])
+T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 
