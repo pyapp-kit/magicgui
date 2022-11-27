@@ -79,9 +79,10 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
     def __init__(
         self,
+        widgets: Sequence[WidgetVar] = (),
+        *,
         layout: str = "vertical",
         scrollable: bool = False,
-        widgets: Sequence[WidgetVar] = (),
         labels: bool = True,
         **kwargs: Any,
     ) -> None:

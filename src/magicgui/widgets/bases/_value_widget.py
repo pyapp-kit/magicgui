@@ -38,6 +38,7 @@ class ValueWidget(Widget, Generic[T]):
     def __init__(
         self,
         value: T | _Undefined = Undefined,
+        *,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Any,

@@ -46,6 +46,7 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
     def __init__(
         self,
         value: T | _Undefined = Undefined,
+        *,
         min: Union[float, _Undefined] = Undefined,
         max: Union[float, _Undefined] = Undefined,
         step: Union[float, _Undefined, None] = Undefined,

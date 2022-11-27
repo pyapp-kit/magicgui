@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
@@ -44,9 +46,10 @@ class RangedWidget(ValueWidget[T]):
     def __init__(
         self,
         value: T | _Undefined = Undefined,
-        min: Union[float, _Undefined] = Undefined,
-        max: Union[float, _Undefined] = Undefined,
-        step: Union[float, _Undefined, None] = Undefined,
+        *,
+        min: float | _Undefined = Undefined,
+        max: float | _Undefined = Undefined,
+        step: float | _Undefined | None = Undefined,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Any,
@@ -218,6 +221,7 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
     def __init__(
         self,
         value: T | _Undefined = Undefined,
+        *,
         min: float = 0,
         max: float = 100,
         min_pos: int = 0,
