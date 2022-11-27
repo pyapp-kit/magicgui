@@ -10,12 +10,12 @@ from ._value_widget import T, ValueWidget
 
 
 class CategoricalWidget(ValueWidget[T]):
-    """Widget with a value and choices, Wraps CategoricalWidgetProtocol.
+    """Widget with a value and choices.  Wraps CategoricalWidgetProtocol.
 
     Parameters
     ----------
     value : Any, optional
-        The starting value for the widget.
+        The initially selected choice.
     choices : Enum, Iterable, or Callable
         Available choices displayed in the combo box.
     bind : Any, optional
@@ -26,7 +26,8 @@ class CategoricalWidget(ValueWidget[T]):
     nullable : bool, optional
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
-        All additional keyword arguments are passed to the base `Widget` constructor.
+        All additional keyword arguments are passed to the base
+        :class:`~magicgui.widgets.Widget` constructor.
     """
 
     _widget: protocols.CategoricalWidgetProtocol

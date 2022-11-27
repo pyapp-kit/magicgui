@@ -58,19 +58,22 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
     Parameters
     ----------
+    widgets : Sequence[Widget], optional
+        A sequence of widgets with which to intialize the container, by default
+        ``None``.
     layout : str, optional
         The layout for the container.  must be one of ``{'horizontal',
         'vertical'}``. by default "vertical"
     scrollable : bool, optional
         Whether to enable scroll bars or not. If enabled, scroll bars will
         only appear along the layout direction, not in both directions.
-    widgets : Sequence[Widget], optional
-        A sequence of widgets with which to intialize the container, by default
-        ``None``.
     labels : bool, optional
         Whether each widget should be shown with a corresponding Label widget to the
         left, by default ``True``.  Note: the text for each widget defaults to
         ``widget.name``, but can be overriden by setting ``widget.label``.
+    **base_widget_kwargs : Any
+        All additional keyword arguments are passed to the base
+        :class:`~magicgui.widgets.Widget` constructor.
     """
 
     changed = Signal(object)
@@ -84,15 +87,17 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         layout: str = "vertical",
         scrollable: bool = False,
         labels: bool = True,
-        **kwargs: Any,
+        **base_widget_kwargs: Any,
     ) -> None:
         self._list: list[WidgetVar] = []
         self._labels = labels
         self._layout = layout
         self._scrollable = scrollable
-        kwargs.setdefault("backend_kwargs", {})
-        kwargs["backend_kwargs"].update({"layout": layout, "scrollable": scrollable})
-        super().__init__(**kwargs)
+        base_widget_kwargs.setdefault("backend_kwargs", {})
+        base_widget_kwargs["backend_kwargs"].update(
+            {"layout": layout, "scrollable": scrollable}
+        )
+        super().__init__(**base_widget_kwargs)
         self.extend(widgets)
         self.parent_changed.connect(self.reset_choices)
         self._initialized = True

@@ -154,7 +154,7 @@ class EmptyWidget(ValueWidget):
 
 
 @backend_widget
-class Label(ValueWidget):
+class Label(ValueWidget[str]):
     """A non-editable text display."""
 
 
@@ -169,7 +169,7 @@ class Password(ValueWidget[str]):
 
 
 @backend_widget
-class LiteralEvalLineEdit(ValueWidget):
+class LiteralEvalLineEdit(ValueWidget[str]):
     """A one-line text editor that evaluates strings as python literals."""
 
 
@@ -219,7 +219,7 @@ class FloatSpinBox(RangedWidget[float]):
 
 
 @backend_widget
-class ProgressBar(SliderWidget):
+class ProgressBar(SliderWidget[float]):
     """A progress bar widget."""
 
     def increment(self, val: float | None = None) -> None:
@@ -231,8 +231,8 @@ class ProgressBar(SliderWidget):
         self.value = self.get_value() - (val if val is not None else self.step)
 
     # overriding because at least some backends don't have a step value for ProgressBar
-    @property
-    def step(self) -> float | None:
+    @property  # type: ignore
+    def step(self) -> float:
         """Step size for widget values."""
         return self._step
 
@@ -242,12 +242,12 @@ class ProgressBar(SliderWidget):
 
 
 @backend_widget
-class Slider(SliderWidget):
+class Slider(SliderWidget[int]):
     """A slider widget to adjust an integer value within a range."""
 
 
 @backend_widget
-class FloatSlider(SliderWidget):
+class FloatSlider(SliderWidget[float]):
     """A slider widget to adjust an integer value within a range."""
 
 
@@ -609,8 +609,17 @@ class ListEdit(Container[ValueWidget[_V]]):
 
     Parameters
     ----------
+    value : Iterable, optional
+        The starting value for the widget.
+    layout : str, optional
+        The layout for the container.  must be one of ``{'horizontal',
+        'vertical'}``. by default "horizontal"
+    nullable : bool
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
     options: dict, optional
         Widget options of child widgets.
+    **kwargs : Any
+        All additional keyword arguments are passed to `Container` constructor.
     """
 
     def __init__(
@@ -844,13 +853,23 @@ class TupleEdit(Container[ValueWidget]):
 
     Parameters
     ----------
+    value : Iterable, optional
+        The starting value for the widget.
+    layout : str, optional
+        The layout for the container.  must be one of ``{'horizontal',
+        'vertical'}``. by default "horizontal"
+    nullable : bool
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
     options: dict, optional
         Widget options of child widgets.
+    **kwargs : Any
+        All additional keyword arguments are passed to `Container` constructor.
     """
 
     def __init__(
         self,
         value: Iterable[_V] | _Undefined = Undefined,
+        *,
         layout: str = "horizontal",
         nullable: bool = False,
         options: dict | None = None,

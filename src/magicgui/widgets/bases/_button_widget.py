@@ -15,8 +15,8 @@ class ButtonWidget(ValueWidget[bool]):
 
     Parameters
     ----------
-    value : Any, optional
-        The starting value for the widget.
+    value : bool
+        The starting state of the widget.
     text : str, optional
         The text to display on the button. If not provided, will use ``name``.
     bind : Any, optional
@@ -27,7 +27,8 @@ class ButtonWidget(ValueWidget[bool]):
     nullable : bool, optional
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
-        All additional keyword arguments are passed to the base `Widget` constructor.
+        All additional keyword arguments are passed to the base
+        :class:`~magicgui.widgets.Widget` constructor.
     """
 
     _widget: protocols.ButtonWidgetProtocol

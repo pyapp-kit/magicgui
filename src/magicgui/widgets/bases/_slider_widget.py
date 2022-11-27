@@ -38,7 +38,8 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
     nullable : bool, optional
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
-        All additional keyword arguments are passed to the base `Widget` constructor.
+        All additional keyword arguments are passed to the base
+        :class:`~magicgui.widgets.Widget` constructor.
     """
 
     _widget: protocols.SliderWidgetProtocol

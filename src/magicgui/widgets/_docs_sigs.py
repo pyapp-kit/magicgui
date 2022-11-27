@@ -1,13 +1,15 @@
 import inspect
 import sys
-from typing import Sequence, TypeVar
+from typing import Sequence, TypeVar, Union
 
 from docstring_parser import DocstringParam, parse
 
 C = TypeVar("C", bound=type)
 
 
-def _param_list_to_str(param_list: list[DocstringParam]) -> str:
+def _param_list_to_str(
+    param_list: list[DocstringParam], valtype: type | None = None
+) -> str:
     """Format Parameters section for numpy docstring from list of tuples."""
     out = []
     out += ["Parameters", len("Parameters") * "-"]
@@ -15,8 +17,33 @@ def _param_list_to_str(param_list: list[DocstringParam]) -> str:
         parts = []
         if param.arg_name:
             parts.append(param.arg_name)
-        if param.type_name:
+
+        # temporary hacky approach to inject the widget specific type into docstrings
+        if param.arg_name == "value":
+            if valtype is not None and (
+                not param.type_name or param.type_name == "Any"
+            ):
+                if isinstance(valtype, TypeVar):
+                    if valtype.__bound__:
+                        if valtype.__bound__.__origin__ is Union:
+                            c = " | ".join(
+                                [str(c.__name__) for c in valtype.__bound__.__args__]
+                            )
+                            parts.append(c)
+                    elif valtype.__constraints__:
+                        c = " | ".join(
+                            [str(c.__name__) for c in valtype.__constraints__]
+                        )
+                        parts.append(c)
+                    else:
+                        parts.append("Any")
+                else:
+                    parts.append(valtype.__name__)
+            elif param.type_name:
+                parts.append(param.type_name)
+        elif param.type_name:
             parts.append(param.type_name)
+
         if not parts:
             continue
         out += [" : ".join(parts)]
@@ -59,6 +86,7 @@ def merge_super_sigs(
 
         docstring = getattr(sup, "__doc__", "")
         param_docs += parse(docstring).params
+        # we only go up to the first class that defines Parameters
         if "Parameters" in docstring:
             break
 
@@ -74,7 +102,15 @@ def merge_super_sigs(
     )
     param_docs = [p for p in param_docs if p.arg_name not in exclude]
     cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
-    cls.__doc__ += _param_list_to_str(param_docs)
+
+    valtype = None
+    orig_bases = getattr(cls, "__orig_bases__", [])
+    if orig_bases:
+        args = getattr(orig_bases[0], "__args__", None)
+        if args:
+            valtype = args[0]
+
+    cls.__doc__ += _param_list_to_str(param_docs, valtype)
     # this makes docs linking work... but requires that all of these be in __init__
     cls.__module__ = "magicgui.widgets"
     return cls
