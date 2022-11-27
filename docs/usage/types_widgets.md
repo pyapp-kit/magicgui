@@ -52,7 +52,7 @@ def function(arg):
 
 Using the logic defined
 in the {mod}`magicgui.type_map` module, magicgui will select an appropriate
-{class}`~magicgui.widgets._bases.Widget` subclass to display the any given type
+{class}`~magicgui.widgets.Widget` subclass to display the any given type
 or type annotation. To see the default type of widget magicgui will for a given
 value, use the {func}`~magicgui.type_map.get_widget_class` function:
 
