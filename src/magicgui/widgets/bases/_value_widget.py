@@ -1,17 +1,19 @@
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any, Callable, Generic, TypeVar, Union, cast
 
 from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
-from magicgui.types import Undefined
+from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import protocols
 
 from ._widget import Widget
 
+T = TypeVar("T")
 
-class ValueWidget(Widget):
+
+class ValueWidget(Widget, Generic[T]):
     """Widget with a value, Wraps ValueWidgetProtocol.
 
     Parameters
@@ -23,45 +25,51 @@ class ValueWidget(Widget):
         accessed, the value provided here will be returned.  ``value`` can be a
         callable, in which case ``value(self)`` will be returned (i.e. your callback
         must accept a single parameter, which is this widget instance.).
+    nullable : bool, optional
+        If `True`, the widget will accepts `None` as a valid value, by default False.
     """
 
     _widget: protocols.ValueWidgetProtocol
     changed = Signal(object)
-    null_value = None
+    null_value: Any = None
 
     def __init__(
-        self, value: Any = Undefined, bind: Any = Undefined, nullable=False, **kwargs
-    ):
+        self,
+        value: T | _Undefined = Undefined,
+        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        nullable: bool = False,
+        **base_widget_kwargs: Any,
+    ) -> None:
         self._nullable = nullable
-        self._bound_value: Any = bind
+        self._bound_value = bind
         self._call_bound: bool = True
-        super().__init__(**kwargs)
+        super().__init__(**base_widget_kwargs)
         if value is not Undefined:
-            self.value = value
-        if self._bound_value is not Undefined and "visible" not in kwargs:
+            self.value = cast(T, value)
+        if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
             self.hide()
 
-    def _post_init(self):
+    def _post_init(self) -> None:
         super()._post_init()
         self._widget._mgui_bind_change_callback(self._on_value_change)
 
-    def _on_value_change(self, value=None):
+    def _on_value_change(self, value: T | None = None) -> None:
         """Called when the widget value changes."""
         if value is self.null_value and not self._nullable:
             return
         self.changed.emit(value)
 
-    def get_value(self):
+    def get_value(self) -> T:
         """Callable version of `self.value`.
 
         The main API is to use `self.value`, however, this is here in order to provide
         an escape hatch if trying to access the widget's value inside of a callback
         bound to self._bound_value.
         """
-        return self._widget._mgui_get_value()
+        return cast(T, self._widget._mgui_get_value())
 
     @property
-    def value(self):
+    def value(self) -> T:
         """Return current value of the widget.  This may be interpreted by backends."""
         if self._bound_value is not Undefined:
             if callable(self._bound_value) and self._call_bound:
@@ -74,11 +82,11 @@ class ValueWidget(Widget):
                         "access `widget.value` in your bound callback, use "
                         "`widget.get_value()`"
                     ) from e
-            return self._bound_value
+            return cast(T, self._bound_value)
         return self.get_value()
 
     @value.setter
-    def value(self, value):
+    def value(self, value: T) -> None:
         return self._widget._mgui_set_value(value)
 
     def __repr__(self) -> str:
@@ -92,7 +100,7 @@ class ValueWidget(Widget):
         except AttributeError:  # pragma: no cover
             return f"<Uninitialized {self.widget_type}>"
 
-    def bind(self, value: Any, call: bool = True) -> None:
+    def bind(self, value: T | Callable[[ValueWidget], T], call: bool = True) -> None:
         """Binds ``value`` to self.value.
 
         If a value is bound to this widget, then whenever `widget.value` is accessed,
@@ -125,7 +133,7 @@ class ValueWidget(Widget):
         self._bound_value = Undefined
 
     @property
-    def annotation(self):
+    def annotation(self) -> Any:
         """Return type annotation for the parameter represented by the widget.
 
         ForwardRefs will be resolve when setting the annotation.
@@ -138,5 +146,5 @@ class ValueWidget(Widget):
         return annotation
 
     @annotation.setter
-    def annotation(self, value):
+    def annotation(self, value: Any) -> None:
         Widget.annotation.fset(self, value)  # type: ignore

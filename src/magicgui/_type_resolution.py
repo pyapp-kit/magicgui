@@ -112,7 +112,7 @@ def resolve_single_type(
 _cached_resolve = lru_cache(maxsize=None)(resolve_single_type)
 
 
-def _try_cached_resolve(v):
+def _try_cached_resolve(v: Any) -> Any:
     try:
         return _cached_resolve(v)
     except TypeError:

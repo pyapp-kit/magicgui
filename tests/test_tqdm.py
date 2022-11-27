@@ -109,7 +109,7 @@ def test_tqdm_inside_of_magicgui():
 
     @magicgui
     def long_func(steps=2):
-        for i in tqdm([0, 1]):
+        for _i in tqdm([0, 1]):
             sleep(0.02)
 
     # before calling the function, we won't have any progress bars
@@ -128,7 +128,7 @@ def test_trange_inside_of_magicgui():
 
     @magicgui
     def long_func(steps=2):
-        for i in trange(4):
+        for _i in trange(4):
             pass
 
     long_func.show()
@@ -138,7 +138,7 @@ def test_trange_inside_of_magicgui():
 
 
 def _indirectly_decorated(steps=2):
-    for i in trange(4):
+    for _i in trange(4):
         pass
 
 
@@ -156,8 +156,8 @@ def test_tqdm_nested():
 
     @magicgui
     def long_func():
-        for i in trange(4):
-            for x in trange(4):
+        for _i in trange(4):
+            for _x in trange(4):
                 pass
 
     long_func.show()
@@ -170,11 +170,11 @@ def test_tqdm_nested():
     # the depth is all that matters... not the total number of tqdms
     @magicgui
     def long_func2():
-        for i in trange(4):
-            for x in trange(4):
+        for _i in trange(4):
+            for _x in trange(4):
                 pass
 
-        for x in trange(4):
+        for _x in trange(4):
             pass
 
     long_func2.show()

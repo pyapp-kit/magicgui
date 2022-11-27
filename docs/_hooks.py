@@ -1,14 +1,15 @@
-from contextlib import contextmanager
-from importlib.machinery import ModuleSpec
-import sys
 import importlib.abc
-from importlib import import_module
+import sys
 import types
-from typing import Any
-from mkdocstrings_handlers.python.handler import PythonHandler
-from griffe.dataclasses import Alias
+from contextlib import contextmanager
+from importlib import import_module
+from importlib.machinery import ModuleSpec
 from textwrap import dedent
+from typing import Any
+
+from griffe.dataclasses import Alias
 from griffe.docstrings import numpy
+from mkdocstrings_handlers.python.handler import PythonHandler
 
 # TODO: figure out how to do this with options
 @contextmanager
@@ -46,7 +47,7 @@ class MyLoader(importlib.abc.Loader):
         def get_handler(**kwargs):
             return WidgetHandler(handler="python", **kwargs)
 
-        setattr(module, "get_handler", get_handler)
+        module.get_handler = get_handler
 
 
 class Finder(importlib.abc.MetaPathFinder):

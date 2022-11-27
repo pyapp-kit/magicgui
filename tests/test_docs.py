@@ -17,8 +17,9 @@ from magicgui import type_map, use_app
         if "_build" not in f and Path(f).read_text(encoding="utf-8").startswith("-")
     ],
 )
-def test_doc_code_cells(fname, globalns=globals()):
+def test_doc_code_cells(fname):
     """Make sure that all code cells in documentation perform as expected."""
+    globalns = globals()
     text = Path(fname).read_text()
     code_cells = re.findall(r"```{code-cell}[^\n]+\n(.*?)`{3}", text, re.S)
     for cell in code_cells:

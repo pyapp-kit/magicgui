@@ -1,5 +1,7 @@
-import mkdocs_gen_files
 from pathlib import Path
+
+import mkdocs_gen_files
+
 from magicgui import widgets
 from magicgui.widgets import bases
 

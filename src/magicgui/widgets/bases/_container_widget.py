@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import inspect
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -9,6 +10,7 @@ from typing import (
     Iterable,
     Mapping,
     MutableSequence,
+    NoReturn,
     Sequence,
     TypeVar,
     overload,
@@ -80,10 +82,10 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         layout: str = "vertical",
         scrollable: bool = False,
         widgets: Sequence[WidgetVar] = (),
-        labels=True,
-        **kwargs,
-    ):
-        self._list: list[Widget] = []
+        labels: bool = True,
+        **kwargs: Any,
+    ) -> None:
+        self._list: list[WidgetVar] = []
         self._labels = labels
         self._layout = layout
         self._scrollable = scrollable
@@ -95,14 +97,14 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         self._initialized = True
         self._unify_label_widths()
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> WidgetVar:
         """Return attribute ``name``.  Will return a widget if present."""
         for widget in self:
             if name == widget.name:
                 return widget
-        return object.__getattribute__(self, name)
+        return object.__getattribute__(self, name)  # type: ignore
 
-    def __setattr__(self, name: str, value: Any):
+    def __setattr__(self, name: str, value: Any) -> None:
         """Set attribute ``name``.  Prevents changing widget if present, (use del)."""
         if self._initialized:
             for widget in self:
@@ -122,7 +124,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     def __getitem__(self, key: slice) -> MutableSequence[WidgetVar]:
         ...
 
-    def __getitem__(self, key):
+    def __getitem__(
+        self, key: int | str | slice
+    ) -> WidgetVar | MutableSequence[WidgetVar]:
         """Get item by integer, str, or slice."""
         if isinstance(key, str):
             return self.__getattr__(key)
@@ -133,21 +137,21 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
             return getattr(item, "_inner_widget", item)
         raise TypeError(f"list indices must be integers or slices, not {type(key)}")
 
-    def index(self, value: Any, start=0, stop=9223372036854775807) -> int:
+    def index(self, value: Any, start: int = 0, stop: int = 9223372036854775807) -> int:
         """Return index of a specific widget instance (or widget name)."""
         if isinstance(value, str):
             value = getattr(self, value)
         return super().index(value, start, stop)
 
-    def remove(self, value: Widget | str):
+    def remove(self, value: Widget | str) -> None:
         """Remove a widget instance (may also be string name of widget)."""
         super().remove(value)  # type: ignore
 
-    def __delattr__(self, name: str):
+    def __delattr__(self, name: str) -> None:
         """Delete a widget by name."""
         self.remove(name)
 
-    def __delitem__(self, key: int | slice):
+    def __delitem__(self, key: int | slice) -> None:
         """Delete a widget by integer or slice index."""
         if isinstance(key, slice):
             for item in self._list[key]:
@@ -169,7 +173,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         """Return the count of widgets."""
         return len(self._list)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: Any, value: Any) -> NoReturn:
         """Prevent assignment by index."""
         raise NotImplementedError("magicgui.Container does not support item setting.")
 
@@ -179,7 +183,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         d.extend([w.name for w in self if not w.gui_only])
         return d
 
-    def insert(self, key: int, widget: WidgetVar):
+    def insert(self, key: int, widget: WidgetVar) -> None:
         """Insert widget at ``key``."""
         if isinstance(widget, (ValueWidget, ContainerWidget)):
             widget.changed.connect(lambda: self.changed.emit(self))
@@ -201,7 +205,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         self._widget._mgui_insert_widget(key, _widget)
         self._unify_label_widths()
 
-    def _unify_label_widths(self):
+    def _unify_label_widths(self) -> None:
         if not self._initialized:
             return
 
@@ -230,12 +234,12 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         return self._layout
 
     @layout.setter
-    def layout(self, value):
+    def layout(self, value: str) -> NoReturn:
         raise NotImplementedError(
             "It is not yet possible to change layout after instantiation"
         )
 
-    def reset_choices(self, *_: Any):
+    def reset_choices(self, *_: Any) -> None:
         """Reset choices for all Categorical subWidgets to the default state.
 
         If widget._default_choices is a callable, this may NOT be the exact same set of
@@ -265,13 +269,13 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         return MagicSignature(params)
 
     @classmethod
-    def from_signature(cls, sig: inspect.Signature, **kwargs) -> Container:
+    def from_signature(cls, sig: inspect.Signature, **kwargs: Any) -> Container:
         """Create a Container widget from an inspect.Signature object."""
         return MagicSignature.from_signature(sig).to_container(**kwargs)
 
     @classmethod
     def from_callable(
-        cls, obj: Callable, gui_options: dict | None = None, **kwargs
+        cls, obj: Callable, gui_options: dict | None = None, **kwargs: Any
     ) -> Container:
         """Create a Container widget from a callable object.
 
@@ -289,7 +293,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         return self._labels
 
     @labels.setter
-    def labels(self, value: bool):
+    def labels(self, value: bool) -> None:
         if value == self._labels:
             return
         self._labels = value
@@ -310,7 +314,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         self,
         mapping: Mapping | Iterable[tuple[str, Any]] | None = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         """Update the parameters in the widget from a mapping, iterable, or kwargs."""
         with self.changed.blocked():
             if mapping:
@@ -322,7 +326,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         self.changed.emit()
 
     @debounce
-    def _dump(self, path):
+    def _dump(self, path: str | Path) -> None:
         """Dump the state of the widget to `path`."""
         import pickle
         from pathlib import Path
@@ -341,7 +345,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
         path.write_bytes(pickle.dumps(_dict))
 
-    def _load(self, path, quiet=False):
+    def _load(self, path: str | Path, quiet: bool = False) -> None:
         """Restore the state of the widget from previously saved file at `path`."""
         import pickle
         from pathlib import Path
@@ -373,8 +377,12 @@ class MainWindowWidget(ContainerWidget):
     _widget: protocols.MainWindowProtocol
 
     def create_menu_item(
-        self, menu_name: str, item_name: str, callback=None, shortcut=None
-    ):
+        self,
+        menu_name: str,
+        item_name: str,
+        callback: Callable | None = None,
+        shortcut: str | None = None,
+    ) -> None:
         """Create a menu item ``item_name`` under menu ``menu_name``.
 
         ``menu_name`` will be created if it does not already exist.

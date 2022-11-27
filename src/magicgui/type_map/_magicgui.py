@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import inspect
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, cast, overload
+
+from typing_extensions import Literal
 
 from magicgui.widgets import FunctionGui, MainFunctionGui
 
@@ -10,6 +12,89 @@ if TYPE_CHECKING:
     from magicgui.application import AppRef
 
 __all__ = ["magicgui", "magic_factory", "MagicFactory"]
+
+
+_R = TypeVar("_R")
+
+
+@overload
+def magicgui(
+    function: Callable[..., _R],
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[False] = False,
+    app: AppRef | None = None,
+    persist: bool = False,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> FunctionGui[_R]:
+    ...
+
+
+@overload
+def magicgui(
+    function: Literal[None] = None,
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[False] = False,
+    app: AppRef | None = None,
+    persist: bool = False,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> Callable[[Callable[..., _R]], FunctionGui[_R]]:
+    ...
+
+
+@overload
+def magicgui(
+    function: Callable[..., _R],
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef | None = None,
+    persist: bool = False,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> MainFunctionGui[_R]:
+    ...
+
+
+@overload
+def magicgui(
+    function: Literal[None] = None,
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef | None = None,
+    persist: bool = False,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> Callable[[Callable[..., _R]], MainFunctionGui[_R]]:
+    ...
 
 
 def magicgui(
@@ -23,12 +108,12 @@ def magicgui(
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
-    app: Optional[AppRef] = None,
+    app: AppRef | None = None,
     persist: bool = False,
     raise_on_unknown: bool = False,
     **param_options: dict,
-):
-    """Return a [FunctionGui` for ``function`][].
+) -> Callable | FunctionGui:
+    """Return a [`FunctionGui`][magicgui.widgets.FunctionGui] for `function`.
 
     Parameters
     ----------
@@ -97,6 +182,90 @@ def magicgui(
     return _magicgui(**locals())
 
 
+@overload
+def magic_factory(
+    function: Callable[..., _R],
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[False] = False,
+    app: AppRef | None = None,
+    persist: bool = False,
+    widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> MagicFactory[_R, FunctionGui]:
+    ...
+
+
+@overload
+def magic_factory(
+    function: Literal[None] = None,
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[False] = False,
+    app: AppRef | None = None,
+    persist: bool = False,
+    widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> Callable[[Callable[..., _R]], MagicFactory[_R, FunctionGui]]:
+    ...
+
+
+@overload
+def magic_factory(
+    function: Callable[..., _R],
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef | None = None,
+    persist: bool = False,
+    widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> MagicFactory[_R, MainFunctionGui]:
+    ...
+
+
+@overload
+def magic_factory(
+    function: Literal[None] = None,
+    *,
+    layout: str = "horizontal",
+    scrollable: bool = False,
+    labels: bool = True,
+    tooltips: bool = True,
+    call_button: bool | str | None = None,
+    auto_call: bool = False,
+    result_widget: bool = False,
+    main_window: Literal[True],
+    app: AppRef | None = None,
+    persist: bool = False,
+    widget_init: Callable[[FunctionGui], None] | None = None,
+    raise_on_unknown: bool = False,
+    **param_options: dict,
+) -> Callable[[Callable[..., _R]], MagicFactory[_R, MainFunctionGui]]:
+    ...
+
+
 def magic_factory(
     function: Callable | None = None,
     *,
@@ -108,13 +277,13 @@ def magic_factory(
     auto_call: bool = False,
     result_widget: bool = False,
     main_window: bool = False,
-    app: Optional[AppRef] = None,
+    app: AppRef | None = None,
     persist: bool = False,
     widget_init: Callable[[FunctionGui], None] | None = None,
     raise_on_unknown: bool = False,
     **param_options: dict,
-):
-    """Return a [MagicFactory` for ``function`][]."""
+) -> Callable | MagicFactory:
+    """Return a `MagicFactory` for `function`."""
     return _magicgui(factory=True, **locals())
 
 
@@ -144,8 +313,12 @@ _factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
 
 magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
 
+_T = TypeVar("_T", bound=FunctionGui)
 
-class MagicFactory(partial):
+
+# _R is the return type of the decorated function
+# _T is the type of the FunctionGui instance (FunctionGui or MainFunctionGui)
+class MagicFactory(partial, Generic[_R, _T]):
     """Factory function that returns a FunctionGui instance.
 
     While this can be used directly, (see example below) the preferred usage is
@@ -163,16 +336,19 @@ class MagicFactory(partial):
     >>> widget2 = factory(auto_call=True, labels=True)
     """
 
+    _widget_init: Callable[[_T], None] | None = None
+    func: Callable[..., _T]
+
     def __new__(
         cls,
-        function,
-        *args,
-        magic_class=FunctionGui,
-        widget_init: Callable[[FunctionGui], None] | None = None,
-        **keywords,
-    ):
+        function: Callable[..., _R],
+        *args: Any,
+        magic_class: type[_T] = FunctionGui,  # type: ignore
+        widget_init: Callable[[_T], None] | None = None,
+        **keywords: Any,
+    ) -> MagicFactory:
         """Create new MagicFactory."""
-        if not function:
+        if function is None:
             raise TypeError(
                 "MagicFactory missing required positional argument 'function'"
             )
@@ -202,7 +378,7 @@ class MagicFactory(partial):
         ]
         return f"MagicFactory({', '.join(args)})"
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> _T:
         """Call the wrapped _magicgui and return a FunctionGui."""
         if args:
             raise ValueError("MagicFactory instance only accept keyword arguments")
@@ -215,9 +391,8 @@ class MagicFactory(partial):
             self._widget_init(widget)
         return widget
 
-    def __getattr__(self, name) -> Any:
+    def __getattr__(self, name: str) -> Any:
         """Allow accessing FunctionGui attributes without mypy error."""
-        pass  # pragma: no cover
 
     @property
     def __name__(self) -> str:
@@ -226,8 +401,12 @@ class MagicFactory(partial):
 
 
 def _magicgui(
-    function=None, factory=False, widget_init=None, main_window=False, **kwargs
-):
+    function: Callable | None = None,
+    factory: bool = False,
+    widget_init: Callable | None = None,
+    main_window: bool = False,
+    **kwargs: Any,
+) -> Callable:
     """Actual private magicui decorator.
 
     if factory is `True` will return a MagicFactory instance, that can be called
@@ -247,6 +426,6 @@ def _magicgui(
             )
         # MagicFactory is unnecessary if we are immediately instantiating the widget,
         # so we shortcut that and just return the FunctionGui here.
-        return magic_class(func, **kwargs)
+        return cast(FunctionGui, magic_class(func, **kwargs))
 
     return inner_func if function is None else inner_func(function)

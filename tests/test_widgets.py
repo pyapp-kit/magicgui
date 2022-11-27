@@ -6,11 +6,11 @@ from typing import Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
+from tests import MyInt
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
 from magicgui.widgets.bases import DialogWidget, ValueWidget
-from tests import MyInt
 
 
 # it's important that "qt" be last here, so that it's used for
@@ -359,7 +359,7 @@ def test_delete_widget():
     # we can delete widgets
     del container.a
     with pytest.raises(AttributeError):
-        getattr(container, "a")
+        container.a
 
     # they disappear from the layout
     with pytest.raises(ValueError):
@@ -598,7 +598,7 @@ def test_range_value_none():
     """Test that arg: int = None defaults to 0"""
 
     @magicgui
-    def f(x: int = None):
+    def f(x: int = None):  # type: ignore
         ...
 
     assert f.x.value == 0
@@ -611,14 +611,14 @@ def test_range_value_none():
 )
 def test_range_big_value(value, maksimum):
     rw = widgets.SpinBox(value=value)
-    rw.value == value
+    assert rw.value == (value if value is not None else 0)
     rw.max = maksimum
 
 
 def test_range_negative_value():
     rw = widgets.SpinBox(value=-10)
-    rw.value == -10
-    rw.min == -10
+    assert rw.value == -10
+    assert rw.min == -10
 
 
 def test_adaptive():
@@ -711,7 +711,7 @@ def test_file_edit_values():
     assert fe.value is None
 
     fe = widgets.FileEdit(mode=types.FileDialogMode.EXISTING_FILES)
-    assert fe.value == tuple()
+    assert fe.value == ()
 
     fe.value = Path("hi")
     assert fe.value == (cwd / "hi",)
@@ -719,8 +719,8 @@ def test_file_edit_values():
     fe.value = (Path("hi"), Path("world"))
     assert fe.value == (cwd / "hi", cwd / "world")
 
-    fe.value = tuple()
-    assert fe.value == tuple()
+    fe.value = ()
+    assert fe.value == ()
 
 
 def test_null_events():
@@ -1001,7 +1001,7 @@ def test_list_edit():
     assert mock.call_count == 4
     mock.assert_called_with([10, 2, 3])
 
-    list_edit.data[0:2] = [6, 5]  # type: ignore
+    list_edit.data[:2] = [6, 5]  # type: ignore
     assert list_edit.value == [6, 5, 3]
     assert list_edit.data == [6, 5, 3]
     assert mock.call_count == 5
@@ -1021,7 +1021,7 @@ def test_list_edit():
     mock.assert_called_with([2, 1])
 
     @magicgui
-    def f1(x=[2, 4, 6]):
+    def f1(x=[2, 4, 6]):  # noqa: B006
         pass
 
     assert type(f1.x) is widgets.ListEdit
@@ -1042,7 +1042,7 @@ def test_list_edit():
     @magicgui(
         x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
     )
-    def f3(x: List[int] = [0]):
+    def f3(x: List[int] = [0]):  # noqa: B006
         pass
 
     assert type(f3.x) is widgets.ListEdit
@@ -1118,24 +1118,24 @@ def test_request_values(monkeypatch):
 
     monkeypatch.setattr(DialogWidget, "exec", _exec)
     vals = request_values(
-        age=dict(value=40),
-        name=dict(annotation=str, label="Enter your name:"),
+        age={"value": 40},
+        name={"annotation": str, "label": "Enter your name:"},
         title="Hi! Who are you?",
         parent=container,
     )
-    assert vals == dict(age=40, name="")
+    assert vals == {"age": 40, "name": ""}
     mock.assert_called_once()
 
     mock.reset_mock()
     vals = request_values(
         values={"age": int, "name": str}, title="Hi! Who are you?", parent=container
     )
-    assert vals == dict(age=0, name="")
+    assert vals == {"age": 0, "name": ""}
     mock.assert_called_once()
 
 
 def test_range_slider():
-    @magicgui(auto_call=True, range_value=dict(widget_type="RangeSlider", max=500))
+    @magicgui(auto_call=True, range_value={"widget_type": "RangeSlider", "max": 500})
     def func(range_value: Tuple[int, int] = (20, 380)):
         print(range_value)
 
@@ -1145,7 +1145,7 @@ def test_range_slider():
 
 
 def test_float_range_slider():
-    @magicgui(auto_call=True, range_value=dict(widget_type="FloatRangeSlider", max=1))
+    @magicgui(auto_call=True, range_value={"widget_type": "FloatRangeSlider", "max": 1})
     def func(range_value: Tuple[float, float] = (0.2, 0.8)):
         print(range_value)
 

@@ -1,10 +1,13 @@
+from typing import Any, Sequence, TypeVar
+
 from magicgui.widgets import protocols
 
 from ._mixins import _OrientationMixin
 from ._ranged_widget import MultiValueRangedWidget, RangedWidget
+from ._value_widget import T
 
 
-class SliderWidget(RangedWidget, _OrientationMixin):
+class SliderWidget(RangedWidget[T], _OrientationMixin):
     """Widget with a contstrained value and orientation. Wraps SliderWidgetProtocol.
 
     Parameters
@@ -27,8 +30,8 @@ class SliderWidget(RangedWidget, _OrientationMixin):
         orientation: str = "horizontal",
         readout: bool = True,
         tracking: bool = True,
-        **kwargs
-    ):
+        **kwargs: Any,
+    ) -> None:
         kwargs["backend_kwargs"] = {"readout": readout, "orientation": orientation}
         super().__init__(**kwargs)
         self.readout = readout
@@ -63,13 +66,16 @@ class SliderWidget(RangedWidget, _OrientationMixin):
         return self._readout
 
     @readout.setter
-    def readout(self, value: bool):
+    def readout(self, value: bool) -> None:
         """Set visibility state of readout widget."""
         self._readout = value
         self._widget._mgui_set_readout_visibility(value)
 
 
-class MultiValuedSliderWidget(MultiValueRangedWidget, SliderWidget):
+TupleT = TypeVar("TupleT", bound=Sequence)
+
+
+class MultiValuedSliderWidget(MultiValueRangedWidget[TupleT], SliderWidget):
     """Slider widget that expects a iterable value."""
 
     _widget: protocols.SliderWidgetProtocol
