@@ -38,6 +38,7 @@ _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
 _VT_co = TypeVar("_VT_co", covariant=True)  # Value type covariant containers.
 TableData = Union[dict, "pandas.DataFrame", list, "numpy.ndarray", tuple, None]
 IndexKey = Union[int, slice]
+SliceNone = slice(None)
 
 
 def normalize_table_data(data: TableData) -> tuple[Collection[Collection], list, list]:
@@ -260,8 +261,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             nc = 0
         self.column_headers = tuple(columns) or range(nc)  # type:ignore
         self.row_headers = tuple(index) or range(len(data))  # type: ignore
-        for row, data in enumerate(data):
-            self._set_rowi(row, data)
+        for row, d in enumerate(data):
+            self._set_rowi(row, d)
 
     @property
     def data(self) -> DataView:
@@ -386,14 +387,14 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     def _set_cell(self, row: int, col: int, value: Any):
         return self._widget._mgui_set_cell(row, col, value)
 
-    def _get_column(self, col: TblKey, rows: slice = slice(None)) -> list:
+    def _get_column(self, col: TblKey, rows: slice = SliceNone) -> list:
         try:
             col_idx = self.column_headers.index(col)
-        except ValueError:
-            raise KeyError(f"{col!r} is not a valid column header")
+        except ValueError as err:
+            raise KeyError(f"{col!r} is not a valid column header") from err
         return [self._get_cell(r, col_idx) for r in self._iter_slice(rows, 0)]
 
-    def _set_column(self, col: TblKey, value: Collection, rows: slice = slice(None)):
+    def _set_column(self, col: TblKey, value: Collection, rows: slice = SliceNone):
         if not isinstance(value, Collection):
             raise TypeError(
                 f"value to set column data must be collection. got {type(value)}"
@@ -420,42 +421,42 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     def _del_column(self, col: TblKey) -> None:
         try:
             col_idx = self.column_headers.index(col)
-        except ValueError:
-            raise KeyError(f"{col!r} is not a valid column header")
+        except ValueError as e:
+            raise KeyError(f"{col!r} is not a valid column header") from e
         return self._widget._mgui_remove_column(col_idx)
 
     def _del_row(self, row: TblKey) -> None:
         try:
             row_idx = self.row_headers.index(row)
-        except ValueError:
-            raise KeyError(f"{row!r} is not a valid row header")
+        except ValueError as e:
+            raise KeyError(f"{row!r} is not a valid row header") from e
         self._del_rowi(row_idx)
 
     def _del_rowi(self, row: int) -> None:
         self._widget._mgui_remove_row(row)
 
-    def _get_row(self, row: TblKey, cols: slice = slice(None)) -> list:
+    def _get_row(self, row: TblKey, cols: slice = SliceNone) -> list:
         """Get row by row header."""
         try:
             row_idx = self.row_headers.index(row)
-        except ValueError:
-            raise KeyError(f"{row!r} is not a valid row header")
+        except ValueError as e:
+            raise KeyError(f"{row!r} is not a valid row header") from e
         return self._get_rowi(row_idx, cols)
 
-    def _get_rowi(self, row: int, cols: slice = slice(None)) -> list:
+    def _get_rowi(self, row: int, cols: slice = SliceNone) -> list:
         """Get row by row index."""
         self._assert_row(row)
         return [self._get_cell(row, c) for c in self._iter_slice(cols, 1)]
 
-    def _set_row(self, row: TblKey, value: Collection, cols: slice = slice(None)):
+    def _set_row(self, row: TblKey, value: Collection, cols: slice = SliceNone):
         """Set row by row header."""
         try:
             row_idx = self.row_headers.index(row)
-        except ValueError:
-            raise KeyError(f"{row!r} is not a valid row header")
+        except ValueError as e:
+            raise KeyError(f"{row!r} is not a valid row header") from e
         self._set_rowi(row_idx, value, cols)
 
-    def _set_rowi(self, row: int, value: Collection, cols: slice = slice(None)):
+    def _set_rowi(self, row: int, value: Collection, cols: slice = SliceNone):
         """Set row by row index."""
         self._assert_row(row)
         for v, col in zip(value, self._iter_slice(cols, 1)):
@@ -658,10 +659,10 @@ class DataView:
             assert len(idx) == 2, "Table Widget only accepts 2 arguments to __delitem__"
             r_idx, c_idx = idx
             for i in idx:
-                if not (isinstance(i, int) or i == slice(None)):
+                if not (isinstance(i, int) or i == SliceNone):
                     raise ValueError(f"Can only delete full rows/columns, not {idx!r}")
             if isinstance(r_idx, int):
-                if c_idx == slice(None):
+                if c_idx == SliceNone:
                     return obj._del_rowi(r_idx)
                 raise ValueError("Can only delete full rows/columns, not cells")
             elif isinstance(r_idx, slice):
@@ -738,21 +739,19 @@ def _from_nested_column_dict(data: dict) -> tuple[list[list], list]:
 
             df = pandas.DataFrame(data)
             return df.values, df.index
-        except ImportError:
+        except ImportError as err:
             raise ValueError(
                 "All row-dicts must have the same keys. "
                 "Install pandas for better table-from-dict support."
-            )
+            ) from err
     # preserve order of keys
     index = []
     for v in data.values():
         index = list(v)
         break
 
-    new_data = []
-    for col, s in data.items():
-        new_data.append([s[i] for i in index])
-    return list(list(x) for x in zip(*new_data)), index
+    new_data = [[s[i] for i in index] for s in data.values()]
+    return [list(x) for x in zip(*new_data)], index
 
 
 def _from_dict(data: dict, dtype=None) -> tuple[list[list], list, list]:
@@ -767,9 +766,11 @@ def _from_dict(data: dict, dtype=None) -> tuple[list[list], list, list]:
         _data, index = _from_nested_column_dict(data)
     else:
         try:
-            _data = list(list(x) for x in zip(*data.values()))
-        except TypeError:
-            raise ValueError("All values in the dict must be iterable (e.g. a list).")
+            _data = [list(x) for x in zip(*data.values())]
+        except TypeError as err:
+            raise ValueError(
+                "All values in the dict must be iterable (e.g. a list)."
+            ) from err
         index = []
     return _data, index, columns
 
@@ -785,11 +786,11 @@ def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list
 
             df = pandas.DataFrame(data)
             return df.values, df.index, df.columns
-        except ImportError:
+        except ImportError as err:
             raise ValueError(
                 "All column-dicts must have the same keys. "
                 "Install pandas for better table-from-dict support."
-            )
+            ) from err
     columns = list(data[0])
     _data = [list(d.values()) for d in data]
     return _data, [], columns

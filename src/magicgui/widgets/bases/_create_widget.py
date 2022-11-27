@@ -19,7 +19,7 @@ def create_widget(
     gui_only=False,
     app=None,
     widget_type: str | type[protocols.WidgetProtocol] | None = None,
-    options: dict = dict(),
+    _options: dict | None = None,
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ):
@@ -75,7 +75,7 @@ def create_widget(
         If the provided or autodetected ``widget_type`` does not implement any known
         widget protocols from widgets._protocols.
     """
-    options = options.copy()
+    _options = _options.copy() if _options is not None else {}
     kwargs = locals().copy()
     _kind = kwargs.pop("param_kind", None)
     kwargs.pop("raise_on_unknown")
@@ -88,17 +88,17 @@ def create_widget(
         from magicgui.type_map import get_widget_class
 
         if widget_type:
-            options["widget_type"] = widget_type
+            _options["widget_type"] = widget_type
         # special case parameters named "password" with annotation of str
         if (
-            not options.get("widget_type")
+            not _options.get("widget_type")
             and (name or "").lower() == "password"
             and annotation is str
         ):
-            options["widget_type"] = "Password"
+            _options["widget_type"] = "Password"
 
         wdg_class, opts = get_widget_class(
-            value, annotation, options, is_result, raise_on_unknown
+            value, annotation, _options, is_result, raise_on_unknown
         )
 
         if issubclass(wdg_class, Widget):
@@ -116,9 +116,9 @@ def create_widget(
         prot = getattr(protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
 
-            options = kwargs.pop("options", {})
+            _options = kwargs.pop("options", None)
             cls = getattr(bases, f"{p}Widget")
-            widget = cls(**{**kwargs, **options, "widget_type": wdg_class})
+            widget = cls(**{**kwargs, **(_options or {}), "widget_type": wdg_class})
             if _kind:
                 widget.param_kind = _kind
             return widget

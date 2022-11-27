@@ -40,7 +40,7 @@ def test_forward_refs():
 )
 def test_pick_widget_builtins_forward_refs(cls, string):
     wdg = type_map.get_widget_class(annotation=string)[0]
-    assert getattr(wdg, "__name__") == cls
+    assert wdg.__name__ == cls
 
 
 def test_forward_refs_return_annotation():
@@ -90,7 +90,7 @@ def test_pathlike_annotation():
 
 
 def test_optional_type():
-    @magicgui(x=dict(choices=["a", "b"]))
+    @magicgui(x={"choices": ["a", "b"]})
     def widget(x: Optional[str] = None):
         ...
 
@@ -111,7 +111,7 @@ def test_widget_options():
 
 def test_nested_forward_refs():
 
-    resolved = resolve_single_type(Optional['List["numpy.ndarray"]'])  # noqa
+    resolved = resolve_single_type(Optional['List["numpy.ndarray"]'])
 
     from typing import List
 

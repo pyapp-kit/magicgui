@@ -51,7 +51,7 @@ def test_magicgui(magic_func):
     # we can delete widgets
     del magic_func.a
     with pytest.raises(AttributeError):
-        getattr(magic_func, "a")
+        magic_func.a
 
     # they disappear from the layout
     with pytest.raises(ValueError):

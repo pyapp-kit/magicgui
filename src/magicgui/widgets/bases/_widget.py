@@ -77,10 +77,12 @@ class Widget:
         enabled: bool = True,
         gui_only: bool = False,
         parent: Optional[Any] = None,
-        backend_kwargs=dict(),
+        backend_kwargs: dict | None = None,
         **extra,
     ):
         # for ipywidgets API compatibility
+        if backend_kwargs is None:
+            backend_kwargs = {}
         label = label or extra.pop("description", None)
         if extra:
             raise TypeError(

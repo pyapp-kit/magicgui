@@ -17,7 +17,7 @@ def long_function(
     """Long running computation with nested iterators."""
     # trange and tqdm accept all the kwargs from tqdm itself, as well as any
     # valid kwargs for magicgui.widgets.ProgressBar, (such as "label")
-    for r in trange(repeats, label="repeats"):
+    for _r in trange(repeats, label="repeats"):
         letters = [random.choice(choices) for _ in range(steps)]
         # `tqdm`, like `tqdm`, accepts any iterable
         # this progress bar is nested and will be run & reset multiple times

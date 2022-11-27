@@ -98,7 +98,7 @@ def merge_super_sigs(
     param_docs: list[DocstringParam] = []
     for sup in reversed(inspect.getmro(cls)):
         try:
-            sig = inspect.signature(getattr(sup, "__init__"))
+            sig = inspect.signature(sup.__init__)  # type: ignore
         # in some environments `object` or `abc.ABC` will raise ValueError here
         except ValueError:
             continue
@@ -361,9 +361,9 @@ class LogSlider(TransformedRangedWidget):
                     stacklevel=2,
                 )
                 if key == "maximum":
-                    max = kwargs.pop(key)
+                    max = kwargs.pop(key)  # noqa: A001
                 else:
-                    min = kwargs.pop(key)
+                    min = kwargs.pop(key)  # noqa: A001
         self._base = base
         app = use_app()
         assert app.native
@@ -767,7 +767,7 @@ class ListEdit(Container[ValueWidget]):
         widget: ValueWidget = create_widget(
             annotation=self._args_type,
             name=f"value_{i}",
-            options=self._child_options,
+            _options=self._child_options,
         )
 
         self.insert(i, widget)
@@ -941,7 +941,7 @@ class TupleEdit(Container[ValueWidget]):
                 value=a,
                 annotation=self._args_types[i],
                 name=f"value_{i}",
-                options=self._child_options,
+                _options=self._child_options,
             )
             self.insert(i, widget)
             widget.changed.disconnect()

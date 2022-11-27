@@ -52,7 +52,7 @@ def make_annotated(annotation=Any, options: Optional[dict] = None) -> _Annotated
     """
     if options and not isinstance(options, dict):
         raise TypeError("'options' must be a dict")
-    _options = (options or dict()).copy()
+    _options = (options or {}).copy()
 
     if isinstance(annotation, _AnnotatedAlias):
         hint, anno_options = split_annotated_type(annotation)
@@ -144,7 +144,7 @@ class MagicParameter(inspect.Parameter):
             value=value,
             annotation=annotation,
             app=app,
-            options=options,
+            _options=options,
             raise_on_unknown=self.raise_on_unknown,
         )
         widget.param_kind = self.kind

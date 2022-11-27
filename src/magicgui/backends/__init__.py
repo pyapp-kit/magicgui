@@ -2,6 +2,6 @@
 
 BACKENDS = {"Qt": ("_qtpy", "qtpy"), "ipynb": ("_ipynb", "ipynb")}
 
-for key, value in list(BACKENDS.items()):
+for key, _value in list(BACKENDS.items()):
     if not key.islower():
         BACKENDS[key.lower()] = BACKENDS.pop(key)

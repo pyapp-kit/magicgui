@@ -138,6 +138,7 @@ matrix.backend.features = [
 ]
 
 
+
 # https://pycqa.github.io/isort/docs/configuration/options.html
 [tool.isort]
 profile = "black"
@@ -145,24 +146,38 @@ src_paths = ["src/magicgui", "tests"]
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
-target-version = "py38"
 line-length = 88
-extend-select = ["D", "M001"]
+target-version = "py38"
+src = ["src", "tests"]
+extend-select = [
+    "E",    # style errors
+    "F",    # flakes
+    "D",    # pydocstyle
+    "I001", # isort
+    "U",    # pyupgrade
+    # "N",  # pep8-naming
+    # "S",  # bandit
+    "C",    # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "A001", # flake8-builtins
+    "RUF",  # ruff-specific rules
+    "RUF",  # ruff-specific rules
+    "M001", # Unused noqa directive
+]
 extend-ignore = [
-    "D100",
-    "D107",
-    "D203",
-    "D212",
-    "D213",
-    "D402",
-    "D413",
-    "D415",
-    "D416",
+    "D100", # Missing docstring in public module
+    "D107", # Missing docstring in __init__
+    "D203", # 1 blank line required before class docstring
+    "D212", # Multi-line docstring summary should start at the first line
+    "D213", # Multi-line docstring summary should start at the second line
+    "D413", # Missing blank line after last section
+    "D416", # Section name should end with a colon
+    "C901", # Function is too complex
 ]
 
 [tool.ruff.per-file-ignores]
 "tests/*.py" = ["D", "E501"]
-"examples/*.py" = ["D"]
+"examples/*.py" = ["D", "B"]
 "src/magicgui/widgets/_image/*.py" = ["D"]
 "setup.py" = ["F821"]
 

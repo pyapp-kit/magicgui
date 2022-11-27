@@ -44,9 +44,9 @@ class RangedWidget(ValueWidget):
                     FutureWarning,
                 )
                 if key == "maximum":
-                    max = kwargs.pop(key)
+                    max = kwargs.pop(key)  # noqa: A001
                 else:
-                    min = kwargs.pop(key)
+                    min = kwargs.pop(key)  # noqa: A001
         # value should be set *after* min max is set
         val = kwargs.pop("value", Undefined)
         super().__init__(**kwargs)

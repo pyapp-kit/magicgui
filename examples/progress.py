@@ -12,7 +12,7 @@ from magicgui.tqdm import trange
 def long_running(steps=10, delay=0.1):
     """Long running computation with range iterator."""
     # trange(steps) is a shortcut for `tqdm(range(steps))`
-    for i in trange(steps):
+    for _i in trange(steps):
         sleep(delay)
 
 

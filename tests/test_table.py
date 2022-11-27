@@ -40,13 +40,13 @@ _TABLE_DATA = {
 @pytest.mark.parametrize("key", _TABLE_DATA)
 def test_table(key):
     """Test a few ways to input tables."""
-    input = _TABLE_DATA[key]
-    table = Table(value=input)
+    _input = _TABLE_DATA[key]
+    table = Table(value=_input)
     if key == "split":
-        assert table.value == input
+        assert table.value == _input
     if key not in ("tuple", "data"):
         # make sure the output is the same as the input
-        assert table.to_dict(key) == input
+        assert table.to_dict(key) == _input
         # can also test equality of table widgets
         assert Table(value=table.to_dict(key)) == table
         table.row_headers = ("x", "x")
@@ -214,14 +214,14 @@ def test_dataview_setitem(index, value):
 
 def test_dataview_delitem():
     """Test that table.data can be indexed like a numpy array."""
-    input = _TABLE_DATA["dict"]
-    table = Table(value=input)
+    _input = _TABLE_DATA["dict"]
+    table = Table(value=_input)
     row_keys = table.keys("row")  # also demoing keys views
     col_keys = table.keys("column")  # also demoing keys views
     assert list(row_keys) == ["r1", "r2"]
     assert list(col_keys) == ["col_1", "col_2", "col_3"]
     del table.data[1]
-    assert not table.to_dict("dict") == input
+    assert table.to_dict("dict") != _input
     assert list(row_keys) == ["r1"]
     assert list(col_keys) == ["col_1", "col_2", "col_3"]
     del table.data[:, 2]
@@ -247,7 +247,7 @@ def test_table_from_pandas():
     pd = pytest.importorskip("pandas", reason="Pandas required for some tables tests")
     df = pd.DataFrame.from_dict(_TABLE_DATA["dict"])
     table = Table(value=df)
-    table.to_dataframe() == df
+    assert pd.DataFrame.equals(table.to_dataframe(), df)
 
 
 @attr_xfail

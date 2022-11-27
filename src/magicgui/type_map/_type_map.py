@@ -50,7 +50,7 @@ class MissingWidget(RuntimeError):
 
 
 _RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
-_TYPE_DEFS: dict[type, WidgetTuple] = dict()
+_TYPE_DEFS: dict[type, WidgetTuple] = {}
 
 
 _SIMPLE_ANNOTATIONS = {
@@ -325,7 +325,7 @@ def _validate_return_callback(func):
         # the signature must accept three arguments
         sig.bind(1, 2, 3)  # (gui, result, return_type)
     except TypeError as e:
-        raise TypeError(f"object {func!r} is not a valid return callback: {e}")
+        raise TypeError(f"object {func!r} is not a valid return callback: {e}") from e
 
 
 _T = TypeVar("_T", bound=Type)

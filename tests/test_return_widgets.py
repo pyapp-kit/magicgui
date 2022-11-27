@@ -80,7 +80,7 @@ def generate_magicgui(data):
         return data
 
     sig = signature(func)
-    setattr(func, "__signature__", sig.replace(return_annotation=type(data)))
+    func.__signature__ = sig.replace(return_annotation=type(data))
 
     return magicgui.magicgui(func, result_widget=True)
 

@@ -120,7 +120,7 @@ class Colormap:
     def __init__(
         self,
         colors: Collection = [[0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
-        controls: Collection = np.zeros((0, 4)),
+        controls: Collection = np.zeros((0, 4)),  # noqa: B008
         interpolation: str = "linear",
     ) -> None:
         self.interpolation = interpolation
@@ -167,8 +167,10 @@ def get_cmap(name):
         try:
             import matplotlib
             import matplotlib.cm
-        except ImportError:
-            raise ImportError("must install matplotlib to specify colormaps by name")
+        except ImportError as e:
+            raise ImportError(
+                "must install matplotlib to specify colormaps by name"
+            ) from e
         else:
             try:
                 return matplotlib.colormaps[name]
@@ -688,7 +690,7 @@ def imread(fname, format=None):
             f"{e}. To load images from files or urls `pip install pillow`, "
             "or use the image extra: `pip install magicgui[image]`"
         )
-        raise type(e)(msg)
+        raise type(e)(msg) from e
 
     if format is None:
         if isinstance(fname, str):

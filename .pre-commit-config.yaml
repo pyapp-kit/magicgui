@@ -1,28 +1,16 @@
 ci:
   autoupdate_schedule: monthly
-  autofix_commit_msg: "style: [pre-commit.ci] auto fixes [...]"
-  autoupdate_commit_msg: "ci: [pre-commit.ci] autoupdate"
-
+  autofix_commit_msg: "style(pre-commit.ci): auto fixes [...]"
+  autoupdate_commit_msg: "ci(pre-commit.ci): autoupdate"
 
 repos:
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-docstring-first
       - id: end-of-file-fixer
       - id: trailing-whitespace
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.2
-    hooks:
-      - id: pyupgrade
-        args: ["--py38-plus", "--keep-runtime-typing"]
 
   - repo: https://github.com/psf/black
     rev: 22.10.0
@@ -30,7 +18,7 @@ repos:
       - id: black
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.118
+    rev: v0.0.141
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -44,7 +32,7 @@ repos:
     rev: v0.991
     hooks:
       - id: mypy
-        files: src/magicgui
+        files: "^src/"
         exclude: src/magicgui/type_map/_magicgui.py
         additional_dependencies:
           - numpy

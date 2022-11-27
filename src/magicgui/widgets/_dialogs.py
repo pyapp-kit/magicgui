@@ -108,7 +108,7 @@ def request_values(
         widgets.append(Label(value=title))
 
     for key, val in dict(values, **kwargs).items():
-        kwargs = val if isinstance(val, dict) else dict(annotation=val)
+        kwargs = val if isinstance(val, dict) else {"annotation": val}
         kwargs.setdefault("name", key)
         widgets.append(create_widget(**kwargs))  # type: ignore
 
