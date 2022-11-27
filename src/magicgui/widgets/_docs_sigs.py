@@ -20,31 +20,23 @@ def _param_list_to_str(
         if param.arg_name:
             parts.append(param.arg_name)
 
+        type_name = param.type_name or "Any"
         # temporary hacky approach to inject the widget specific type into docstrings
-        if param.arg_name == "value":
-            if valtype is not None and (
-                not param.type_name or param.type_name == "Any"
-            ):
-                if isinstance(valtype, TypeVar):
-                    if valtype.__bound__:
-                        if valtype.__bound__.__origin__ is Union:
-                            c = " | ".join(
-                                [str(c.__name__) for c in valtype.__bound__.__args__]
-                            )
-                            parts.append(c)
-                    elif valtype.__constraints__:
-                        c = " | ".join(
-                            [str(c.__name__) for c in valtype.__constraints__]
+        if param.arg_name == "value" and valtype is not None and (type_name == "Any"):
+            if isinstance(valtype, TypeVar):
+                if getattr(valtype, "__bound__", None):
+                    if valtype.__bound__.__origin__ is Union:
+                        type_name = " | ".join(
+                            [str(c.__name__) for c in valtype.__bound__.__args__]
                         )
-                        parts.append(c)
-                    else:
-                        parts.append("Any")
-                else:
-                    parts.append(valtype.__name__)
-            elif param.type_name:
-                parts.append(param.type_name)
-        elif param.type_name:
-            parts.append(param.type_name)
+                elif getattr(valtype, "__constraints__", None):
+                    type_name = " | ".join(
+                        [str(c.__name__) for c in valtype.__constraints__]
+                    )
+            elif hasattr(valtype, "__name__"):
+                type_name = valtype.__name__
+        if type_name:
+            parts.append(type_name)
 
         if not parts:
             continue
