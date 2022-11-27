@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from enum import Enum, EnumMeta
-from typing import Any, Callable, List, Optional, Tuple, cast
+from typing import Any, Callable, cast
 
 from magicgui.types import ChoicesType
 from magicgui.widgets import protocols
@@ -83,7 +85,7 @@ class CategoricalWidget(ValueWidget[T]):
         """Get data for the provided ``choice_name``."""
         return cast(T, self._widget._mgui_get_choice(choice_name))
 
-    def set_choice(self, choice_name: str, data: Optional[Any] = None) -> None:
+    def set_choice(self, choice_name: str, data: Any | None = None) -> None:
         """Set data for the provided ``choice_name``."""
         data = data if data is not None else choice_name
         self._widget._mgui_set_choice(choice_name, data)
@@ -95,7 +97,7 @@ class CategoricalWidget(ValueWidget[T]):
         self._widget._mgui_del_choice(choice_name)
 
     @property
-    def choices(self) -> Tuple[T, ...]:
+    def choices(self) -> tuple[T, ...]:
         """Available value choices for this widget."""
         _choices = tuple(i[1] for i in self._widget._mgui_get_choices())
         if self._nullable and None not in _choices:
@@ -120,7 +122,7 @@ class CategoricalWidget(ValueWidget[T]):
         else:
             _choices = choices
 
-        _normed: List[Tuple[str, Any]] = list(_choices)
+        _normed: list[tuple[str, Any]] = list(_choices)
         if not all(isinstance(i, tuple) and len(i) == 2 for i in _normed):
             _normed = [(str_func(i), i) for i in _choices]
         if self._nullable:
