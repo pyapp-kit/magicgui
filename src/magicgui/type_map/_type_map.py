@@ -297,7 +297,7 @@ def get_widget_class(
     )
 
     if isinstance(widget_type, str):
-        widget_class: WidgetClass = _import_class(widget_type)
+        widget_class = _import_wdg_class(widget_type)
     else:
         widget_class = widget_type
 
@@ -307,19 +307,19 @@ def get_widget_class(
     return widget_class, _options
 
 
-def _import_class(class_name: str) -> WidgetClass:
+def _import_wdg_class(class_name: str) -> WidgetClass:
     import importlib
 
     # import from magicgui widgets if not explicitly namespaced
     if "." not in class_name:
-        class_name = "magicgui.widgets." + class_name
+        class_name = f"magicgui.widgets.{class_name}"
 
     mod_name, name = class_name.rsplit(".", 1)
     mod = importlib.import_module(mod_name)
-    return getattr(mod, name)
+    return cast(WidgetClass, getattr(mod, name))
 
 
-def _validate_return_callback(func):
+def _validate_return_callback(func: Callable) -> None:
     try:
         sig = inspect.signature(func)
         # the signature must accept three arguments
@@ -337,7 +337,7 @@ def register_type(
     *,
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
-    **options,
+    **options: Any,
 ) -> _T:
     ...
 
@@ -348,7 +348,7 @@ def register_type(
     *,
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
-    **options,
+    **options: Any,
 ) -> Callable[[_T], _T]:
     ...
 
@@ -358,7 +358,7 @@ def register_type(
     *,
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
-    **options,
+    **options: Any,
 ) -> _T | Callable[[_T], _T]:
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
 
@@ -397,7 +397,7 @@ def register_type(
             "must be provided."
         )
 
-    def _deco(type_):
+    def _deco(type_: _T) -> _T:
         _type_ = resolve_single_type(type_)
 
         if return_callback is not None:
@@ -428,7 +428,7 @@ def register_type(
             # if we're binding a value to this parameter, it doesn't matter what type
             # of ValueWidget is used... it usually won't be shown
             _TYPE_DEFS[_type_] = (widgets.EmptyWidget, _options)
-        return _type_
+        return type_
 
     return _deco if type_ is None else _deco(type_)
 
@@ -439,7 +439,7 @@ def type_registered(
     *,
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
-    **options,
+    **options: Any,
 ) -> Iterator[None]:
     """Context manager that temporarily registers a widget type for a given `type_`.
 

@@ -163,6 +163,8 @@ class MagicFactory(partial):
     >>> widget2 = factory(auto_call=True, labels=True)
     """
 
+    _widget_init: Callable[[FunctionGui], None] | None = None
+
     def __new__(
         cls,
         function,
@@ -188,7 +190,7 @@ class MagicFactory(partial):
                 raise TypeError(
                     "'widget_init' must be a callable that accepts a single argument"
                 )
-        obj = super().__new__(cls, magic_class, *args, **keywords)  # type: ignore
+        obj = super().__new__(cls, magic_class, *args, **keywords)
         obj._widget_init = widget_init
         return obj
 

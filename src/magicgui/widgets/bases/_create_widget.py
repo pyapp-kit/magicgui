@@ -19,7 +19,7 @@ def create_widget(
     gui_only=False,
     app=None,
     widget_type: str | type[protocols.WidgetProtocol] | None = None,
-    _options: dict | None = None,
+    options: dict | None = None,
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ):
@@ -75,12 +75,19 @@ def create_widget(
         If the provided or autodetected ``widget_type`` does not implement any known
         widget protocols from widgets._protocols.
     """
-    _options = _options.copy() if _options is not None else {}
-    kwargs = locals().copy()
-    _kind = kwargs.pop("param_kind", None)
-    kwargs.pop("raise_on_unknown")
-    _is_result = kwargs.pop("is_result", None)
-    _app = use_app(kwargs.pop("app"))
+    _options = options.copy() if options is not None else {}
+    kwargs = {
+        'value': value,
+        'annotation': annotation,
+        'name': name,
+        'label': label,
+        'gui_only': gui_only,
+        'widget_type': widget_type,
+        'options': _options,
+    }
+    
+    _is_result = is_result
+    _app = use_app(app)
     assert _app.native
     if isinstance(widget_type, protocols.WidgetProtocol):
         wdg_class = kwargs.pop("widget_type")
@@ -106,8 +113,8 @@ def create_widget(
             kwargs.update(opts)
             kwargs.pop("widget_type", None)
             widget = wdg_class(**kwargs)
-            if _kind:
-                widget.param_kind = _kind
+            if param_kind:
+                widget.param_kind = param_kind
             return widget
 
     # pick the appropriate subclass for the given protocol
@@ -119,8 +126,8 @@ def create_widget(
             _options = kwargs.pop("options", None)
             cls = getattr(bases, f"{p}Widget")
             widget = cls(**{**kwargs, **(_options or {}), "widget_type": wdg_class})
-            if _kind:
-                widget.param_kind = _kind
+            if param_kind:
+                widget.param_kind = param_kind
             return widget
 
     raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")

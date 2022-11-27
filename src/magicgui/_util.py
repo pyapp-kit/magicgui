@@ -120,9 +120,9 @@ def user_cache_dir(
     return path
 
 
-def safe_issubclass(obj, superclass):
+def safe_issubclass(obj: object, superclass: object) -> bool:
     """Safely check if obj is a subclass of superclass."""
     try:
-        return issubclass(obj, superclass)
+        return issubclass(obj, superclass)  # type: ignore
     except Exception:
         return False

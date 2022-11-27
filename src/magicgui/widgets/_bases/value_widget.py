@@ -1,3 +1,4 @@
+from typing import Any
 import warnings
 
 from ..bases._value_widget import ValueWidget  # noqa: F401
@@ -10,7 +11,7 @@ warnings.warn(
 )
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
 
     if name == "_Unset":
         from magicgui.types import _Undefined

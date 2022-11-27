@@ -198,22 +198,25 @@ filterwarnings = [
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
 files = "src/**/*.py"
-warn_unused_configs = true
-warn_unused_ignores = true
-check_untyped_defs = true
-implicit_reexport = false
-show_column_numbers = false
+strict = true
+disallow_any_generics = false
+disallow_subclassing_any = false
 show_error_codes = true
-ignore_missing_imports = true
+pretty = true
 
 [[tool.mypy.overrides]]
 module = [
     "magicgui.widgets._image.*",
     ".examples/",
+    "magicgui.widgets._table.*",
     "magicgui.backends._qtpy.widgets.*",
     "_pytest.*",
 ]
 ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["ipywidgets.*"]
+ignore_missing_imports = true
 
 
 # https://coverage.readthedocs.io/en/6.4/config.html
@@ -226,6 +229,7 @@ exclude_lines = [
     "except ImportError*",
     "raise NotImplementedError()",
     "pass",
+    "\\.\\.\\.",
 ]
 omit = [
     "src/magicgui/events.py",
