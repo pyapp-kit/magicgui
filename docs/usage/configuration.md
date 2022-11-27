@@ -128,7 +128,10 @@ example, the `a_string` paremeter would be turned into a
 argument "`min`":
 ```
 
-```python
+```{code-cell} python
+---
+:tags: [raises-exception]
+---
 @magicgui(a_string={'min': 10})
 def whoops(a_string: str = 'Hi there'):
     ...

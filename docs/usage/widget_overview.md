@@ -119,6 +119,7 @@ following `ValueWidgets` track some `value`:
 
 .. autosummary::
    :nosignatures:
+   :toctree: _autosummary
 
    Label
    LineEdit
@@ -157,7 +158,7 @@ following `ValueWidgets` track some `value`:
     accessed, the value provided here will be returned.  The bound value can be a
     callable, in which case `bound_value(self)` will be returned (i.e. your callback
     must accept a single parameter, which is this widget instance.). see
-    {meth}`ValueWidget.bind <magicgui.widgets.bases.ValueWidget.bind>`
+    {meth}`ValueWidget.bind <magicgui.widgets._bases.value_widget.ValueWidget.bind>`
     for details.
 ```
 
@@ -198,6 +199,7 @@ values, and a step size.  `RangedWidgets` include:
 
 .. autosummary::
    :nosignatures:
+   :toctree: _autosummary
 
    SpinBox
    FloatSpinBox
@@ -246,6 +248,7 @@ that additionally have an `orientation`, and a `readout`.
 
 .. autosummary::
    :nosignatures:
+   :toctree: _autosummary
 
    Slider
    FloatSlider
@@ -289,6 +292,7 @@ container.show()
 
 .. autosummary::
    :nosignatures:
+   :toctree: _autosummary
 
    PushButton
    CheckBox
@@ -329,6 +333,7 @@ of valid choices.  They can be created from:
 
 .. autosummary::
    :nosignatures:
+   :toctree: _autosummary
 
    ComboBox
    RadioButtons
@@ -379,6 +384,7 @@ notable example of a `Container` is {class}`magicgui.widgets.FunctionGui`)
 
 .. autosummary::
    :nosignatures:
+   :toctree: _autosummary
 
    Container
    MainWindow
