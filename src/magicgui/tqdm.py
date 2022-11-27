@@ -130,18 +130,20 @@ class tqdm(_tqdm_std):
         self._mgui._tqdm_depth += 1
         return pbar
 
-    def display(self, msg: str | None = None, pos: int | None = None) -> Any:
+    def display(self, msg: str | None = None, pos: int | None = None) -> None:
         """Update the display."""
         if not self._in_visible_gui:
-            return super().display(msg=msg, pos=pos)
+            super().display(msg=msg, pos=pos)
+            return
 
         self.progressbar.value = self.n
         self._app.process_events()
 
-    def close(self) -> Any:
+    def close(self) -> None:
         """Cleanup and (if leave=False) close the progressbar."""
         if not self._in_visible_gui:
-            return super().close()
+            super().close()
+            return
         self._mgui = cast(FunctionGui, self._mgui)
 
         if self.disable:
