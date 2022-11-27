@@ -28,15 +28,17 @@ if TYPE_CHECKING:
 TZ_EMPTY = "__no__default__"
 
 
-def make_annotated(annotation=Any, options: Optional[dict] = None) -> _AnnotatedAlias:
+def make_annotated(
+    annotation: Any = Any, options: dict | None = None
+) -> _AnnotatedAlias:
     """Merge a annotation and an options dict into an Annotated type.
 
     Parameters
     ----------
-    annotation : [type], optional
-        [description], by default Any
-    options : Optional[dict], optional
-        [description], by default None
+    annotation : Any, optional
+        Type Annotation, by default Any
+    options : dict, optional
+        widget options, by default None
 
     Returns
     -------
@@ -200,12 +202,12 @@ class MagicSignature(inspect.Signature):
 
     def __init__(
         self,
-        parameters: Optional[Sequence[inspect.Parameter]] = None,
+        parameters: Sequence[inspect.Parameter] | None = None,
         *,
-        return_annotation=inspect.Signature.empty,
-        gui_options: Optional[dict[str, dict]] = None,
+        return_annotation: Any = inspect.Signature.empty,
+        gui_options: dict[str, dict] | None = None,
         raise_on_unknown: bool = False,
-    ):
+    ) -> None:
         params = [
             MagicParameter.from_parameter(
                 p, (gui_options or {}).get(p.name), raise_on_unknown
@@ -216,11 +218,14 @@ class MagicSignature(inspect.Signature):
 
     @classmethod
     def from_signature(
-        cls, sig: inspect.Signature, gui_options=None, raise_on_unknown=False
+        cls,
+        sig: inspect.Signature,
+        gui_options: dict | None = None,
+        raise_on_unknown: bool = False,
     ) -> MagicSignature:
         """Convert regular inspect.Signature to MagicSignature."""
         if type(sig) is cls:
-            return cast(MagicSignature, sig)
+            return sig
         elif not isinstance(sig, inspect.Signature):
             raise TypeError("'sig' must be an instance of 'inspect.Signature'")
         return cls(
@@ -236,7 +241,7 @@ class MagicSignature(inspect.Signature):
             {n: p.to_widget(app) for n, p in self.parameters.items()}
         )
 
-    def to_container(self, **kwargs) -> Container:
+    def to_container(self, **kwargs: Any) -> Container:
         """Return a ``magicgui.widgets.Container`` for this MagicSignature."""
         from magicgui.widgets import Container
 
@@ -245,10 +250,10 @@ class MagicSignature(inspect.Signature):
             **kwargs,
         )
 
-    def replace(
+    def replace(  # type: ignore[override]
         self,
         *,
-        parameters=_void,
+        parameters: Sequence[inspect.Parameter] | type[_void] = _void,
         return_annotation: Any = _void,
     ) -> MagicSignature:
         """Create a customized copy of the Signature.
@@ -257,12 +262,15 @@ class MagicSignature(inspect.Signature):
         to override them in the new copy.
         """
         if parameters is _void:
-            parameters = self.parameters.values()
+            parameters = list(self.parameters.values())
 
         if return_annotation is _void:
             return_annotation = self.return_annotation
 
-        return type(self)(parameters, return_annotation=return_annotation)
+        return type(self)(
+            cast(Sequence[inspect.Parameter], parameters),
+            return_annotation=return_annotation,
+        )
 
 
 def magic_signature(

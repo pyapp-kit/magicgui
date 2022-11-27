@@ -18,18 +18,18 @@ WidgetClass = Union[Type["Widget"], Type["WidgetProtocol"]]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
 #: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
-WidgetTuple = Tuple[WidgetRef, dict]
+WidgetTuple = Tuple[WidgetRef, dict[str, Any]]
 #: An iterable that can be used as a valid argument for widget ``choices``
 ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes
 #: a categorical widget and returns a :attr:`ChoicesIterable`.
-ChoicesCallback = Callable[["CategoricalWidget"], ChoicesIterable]
+ChoicesCallback = Callable[["CategoricalWidget[Any]"], ChoicesIterable]
 #: The set of all valid types for widget ``choices``.
 ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, "ChoicesDict"]
 #: A callback that may be registered for a given return annotation. When called, it will
 #: be provided an instance of a :class:`~magicgui.widgets.FunctionGui`, the result
 #: of the function that was called, and the return annotation itself.
-ReturnCallback = Callable[["FunctionGui", Any, Type], None]
+ReturnCallback = Callable[["FunctionGui[Any]", Any, type], None]
 #: A valid file path type
 PathLike = Union[Path, str, bytes]
 
@@ -62,17 +62,17 @@ class _Undefined:
     ``_Undefined`` is a singleton.
     """
 
-    _singleton = None
+    _singleton: _Undefined | None = None
 
-    def __new__(cls):
+    def __new__(cls) -> _Undefined:
         if _Undefined._singleton is None:
             _Undefined._singleton = super().__new__(cls)
         return _Undefined._singleton
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Undefined>"
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return False
 
 
@@ -110,7 +110,7 @@ JsonStringFormats = Literal[
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name == "WidgetOptions":
         import warnings
 

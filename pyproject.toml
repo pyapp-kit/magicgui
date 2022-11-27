@@ -216,8 +216,9 @@ module = [
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["ipywidgets.*"]
+module = ["ipywidgets.*", "toolz.*"]
 ignore_missing_imports = true
+
 
 
 # https://coverage.readthedocs.io/en/6.4/config.html

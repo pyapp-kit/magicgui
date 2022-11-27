@@ -336,7 +336,7 @@ class FloatRangeSlider(MultiValuedSliderWidget[Tuple[float, float]]):
 
 
 @merge_super_sigs
-class LogSlider(TransformedRangedWidget[float]):
+class LogSlider(TransformedRangedWidget):
     """A slider widget to adjust a numerical value logarithmically within a range.
 
     Parameters

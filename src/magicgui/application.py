@@ -17,7 +17,7 @@ APPLICATION_NAME = "magicgui"
 
 
 @contextmanager
-def event_loop(backend=None) -> Iterator:
+def event_loop(backend: str | None = None) -> Iterator[Application]:
     """Start an event loop in which to run the application."""
     with Application(backend) as app:
         try:
@@ -33,23 +33,20 @@ class Application:
     _backend: BaseApplicationBackend
     _instance: Application | None = None
 
-    def __init__(self, backend_name: str | None = None):
+    def __init__(self, backend_name: str | None = None) -> None:
         self._use(backend_name)
 
     @property
     def backend_name(self) -> str:
         """Return name of the GUI backend that this app wraps."""
-        if self._backend is not None:
-            return self._backend._mgui_get_backend_name()
-        else:
-            return ""
+        return "" if self._backend is None else self._backend._mgui_get_backend_name()
 
     @property
     def backend_module(self) -> ModuleType:
         """Return module object that defines the backend."""
         return self._backend_module
 
-    def _use(self, backend_name=None):
+    def _use(self, backend_name: str | None = None) -> None:
         """Select a backend by name."""
         if not backend_name:
             backend_name = DEFAULT_BACKEND
@@ -59,11 +56,11 @@ class Application:
                 f"not {backend_name!r}"
             )
 
-        module_name, native_module_name = BACKENDS[backend_name]
+        module_name, _ = BACKENDS[backend_name]
         self._backend_module = import_module(f"magicgui.backends.{module_name}")
         self._backend = self.get_obj("ApplicationBackend")()
 
-    def get_obj(self, name: str):
+    def get_obj(self, name: str) -> Any:
         """Get the backend object for the given ``name`` (such as a widget)."""
         try:
             return getattr(self.backend_module, name)
@@ -77,24 +74,24 @@ class Application:
         return self._backend._mgui_run()
 
     @property
-    def native(self):
+    def native(self) -> Any:
         """Return the native GUI application instance."""
         return self._backend._mgui_get_native_app()
 
-    def quit(self):
+    def quit(self) -> None:
         """Quit the native GUI event loop."""
         return self._backend._mgui_quit()
 
-    def create(self):
+    def create(self) -> None:
         """Create the native application."""
         # Ensure that the native app exists
         self.native
 
-    def process_events(self):
+    def process_events(self) -> None:
         """Process all pending GUI events."""
         return self._backend._mgui_process_events()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return repr for this instance."""
         if not self.backend_name:
             return "<magicgui app with no backend>"
@@ -119,12 +116,12 @@ class Application:
         interval: int = 1000,
         on_timeout: Callable[[], None] | None = None,
         single_shot: bool = False,
-    ):
+    ) -> None:
         """Start a timer with a given interval, optional callback, and single_shot."""
         self._backend._mgui_start_timer(interval, on_timeout, single=single_shot)
 
 
-def _use_app(backend_name: Optional[str] = None):
+def _use_app(backend_name: str | None = None) -> Application:
     """Get/create the default Application object.
 
     It is safe to call this function multiple times, as long as

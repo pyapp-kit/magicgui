@@ -1,4 +1,6 @@
-from typing import Any, Dict, Hashable, Iterable, Mapping, Optional, Tuple, Type, Union
+from __future__ import annotations
+
+from typing import Any, Callable, Hashable, Iterable, Mapping
 
 from magicgui.types import FileDialogMode
 
@@ -7,12 +9,12 @@ from .bases import create_widget
 
 
 def show_file_dialog(
-    mode: Union[str, FileDialogMode] = FileDialogMode.EXISTING_FILE,
-    caption: Optional[str] = None,
-    start_path: Optional[str] = None,
-    filter: Optional[str] = None,
-    parent=None,
-) -> Optional[str]:
+    mode: str | FileDialogMode = FileDialogMode.EXISTING_FILE,
+    caption: str | None = None,
+    start_path: str | None = None,
+    filter: str | None = None,
+    parent: Any = None,
+) -> str | None:
     """Immediately show an 'open file' dialog and block.
 
     Parameters
@@ -32,7 +34,7 @@ def show_file_dialog(
         It should be a glob-style string, like ``'*.png'`` (this may be
         backend-specific), by default None
     parent : widget, optional
-        The parent widget, by default None
+        The backend parent widget, by default None
 
     Returns
     -------
@@ -43,16 +45,17 @@ def show_file_dialog(
 
     app = use_app()
     assert app.native
-    return app.get_obj("show_file_dialog")(mode, caption, start_path, filter, parent)
+    func: Callable[..., str | None] = app.get_obj("show_file_dialog")
+    return func(mode, caption, start_path, filter, parent)
 
 
 def request_values(
-    values: Union[Mapping, Iterable[Tuple[Hashable, Any]]] = (),
+    values: Mapping | Iterable[tuple[Hashable, Any]] = (),
     *,
     title: str = "",
-    parent: Optional[Any] = None,
-    **kwargs: Union[Type, Dict]
-) -> Optional[Dict[str, Any]]:
+    parent: Any | None = None,
+    **kwargs: type | dict,
+) -> dict[str, Any] | None:
     """Show a dialog with a set of values and request the user to enter them.
 
     Dialog is modal and immediately blocks execution until user closes it.
@@ -113,6 +116,4 @@ def request_values(
         widgets.append(create_widget(**kwargs))  # type: ignore
 
     d = Dialog(widgets=widgets, parent=parent)
-    if d.exec():
-        return d.asdict()
-    return None
+    return d.asdict() if d.exec() else None

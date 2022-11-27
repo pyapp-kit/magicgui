@@ -1,5 +1,5 @@
 from enum import Enum, EnumMeta
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, cast
 
 from magicgui.types import ChoicesType
 from magicgui.widgets import protocols
@@ -20,13 +20,18 @@ class CategoricalWidget(ValueWidget[T]):
     null_string: str = "-----"
     _allow_multiple = False
 
-    def __init__(self, choices: ChoicesType = (), allow_multiple=None, **kwargs):
+    def __init__(
+        self,
+        choices: ChoicesType = (),
+        allow_multiple: bool | None = None,
+        **kwargs: Any,
+    ) -> None:
         if allow_multiple is not None:
             self._allow_multiple = allow_multiple
         self._default_choices = choices
         super().__init__(**kwargs)
 
-    def _post_init(self):
+    def _post_init(self) -> None:
         super()._post_init()
         self.reset_choices()
         self.parent_changed.connect(self.reset_choices)
@@ -56,14 +61,14 @@ class CategoricalWidget(ValueWidget[T]):
         d.update({"choices": self._default_choices})
         return d
 
-    def reset_choices(self, *_: Any):
+    def reset_choices(self, *_: Any) -> None:
         """Reset choices to the default state.
 
         If self._default_choices is a callable, this may NOT be the exact same set of
         choices as when the widget was instantiated, if the callable relies on external
         state.
         """
-        self.choices = self._default_choices
+        self.choices = self._default_choices  # type: ignore
 
     @property
     def current_choice(self) -> str:
@@ -74,23 +79,23 @@ class CategoricalWidget(ValueWidget[T]):
         """Return the number of choices."""
         return self._widget._mgui_get_count()
 
-    def get_choice(self, choice_name: str):
+    def get_choice(self, choice_name: str) -> T:
         """Get data for the provided ``choice_name``."""
-        self._widget._mgui_get_choice(choice_name)
+        return cast(T, self._widget._mgui_get_choice(choice_name))
 
-    def set_choice(self, choice_name: str, data: Optional[Any] = None):
+    def set_choice(self, choice_name: str, data: Optional[Any] = None) -> None:
         """Set data for the provided ``choice_name``."""
         data = data if data is not None else choice_name
         self._widget._mgui_set_choice(choice_name, data)
         if choice_name == self.current_choice:
             self.changed.emit(self.value)
 
-    def del_choice(self, choice_name: str):
+    def del_choice(self, choice_name: str) -> None:
         """Delete the provided ``choice_name`` and associated data."""
         self._widget._mgui_del_choice(choice_name)
 
     @property
-    def choices(self):
+    def choices(self) -> Tuple[T, ...]:
         """Available value choices for this widget."""
         _choices = tuple(i[1] for i in self._widget._mgui_get_choices())
         if self._nullable and None not in _choices:
@@ -98,7 +103,7 @@ class CategoricalWidget(ValueWidget[T]):
         return _choices
 
     @choices.setter
-    def choices(self, choices: ChoicesType):
+    def choices(self, choices: ChoicesType) -> None:
         str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str  # type: ignore  # noqa: E501
         if isinstance(choices, dict):
             if "choices" not in choices or "key" not in choices:

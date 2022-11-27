@@ -36,3 +36,4 @@ repos:
         exclude: src/magicgui/type_map/_magicgui.py
         additional_dependencies:
           - numpy
+          - psygnal

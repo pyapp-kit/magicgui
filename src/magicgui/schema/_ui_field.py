@@ -518,8 +518,8 @@ def _uifield_from_attrs(field: Attribute) -> UiField:
 
     default = field.default if field.default is not NOTHING else Undefined
     default_factory = None
-    if isinstance(default, Factory):  # type: ignore
-        default_factory = default.factory  # type: ignore
+    if isinstance(default, Factory):
+        default_factory = default.factory
         default = Undefined
 
     extra = {k: v for k, v in field.metadata.items() if k in _UI_FIELD_NAMES}

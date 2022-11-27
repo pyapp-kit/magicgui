@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from psygnal import Signal, SignalInstance
 
@@ -19,7 +19,7 @@ class ButtonWidget(ValueWidget[bool]):
     _widget: protocols.ButtonWidgetProtocol
     changed = Signal(object)
 
-    def __init__(self, text: Optional[str] = None, **value_widget_kwargs):
+    def __init__(self, text: Optional[str] = None, **value_widget_kwargs: Any) -> None:
         if text and value_widget_kwargs.get("label"):
             from warnings import warn
 
