@@ -7,7 +7,7 @@ from magicgui.widgets import protocols
 from ._value_widget import ValueWidget
 
 
-class ButtonWidget(ValueWidget):
+class ButtonWidget(ValueWidget[bool]):
     """Widget with a value, Wraps ButtonWidgetProtocol.
 
     Parameters
@@ -19,19 +19,19 @@ class ButtonWidget(ValueWidget):
     _widget: protocols.ButtonWidgetProtocol
     changed = Signal(object)
 
-    def __init__(self, text: Optional[str] = None, **kwargs):
-        if text and kwargs.get("label"):
+    def __init__(self, text: Optional[str] = None, **value_widget_kwargs):
+        if text and value_widget_kwargs.get("label"):
             from warnings import warn
 
             warn(
                 "'text' and 'label' are synonymous for button widgets. To suppress this"
                 " warning, only provide one of the two kwargs."
             )
-        text = text or kwargs.get("label")
+        text = text or value_widget_kwargs.get("label")
         # TODO: make a backend hook that lets backends inject their optional API
         # ipywidgets button texts are called descriptions
-        text = text or kwargs.pop("description", None)
-        super().__init__(**kwargs)
+        text = text or value_widget_kwargs.pop("description", None)
+        super().__init__(**value_widget_kwargs)
         self.text = (text or self.name).replace("_", " ")
 
     @property
@@ -42,12 +42,12 @@ class ButtonWidget(ValueWidget):
         return d
 
     @property
-    def text(self):
+    def text(self) -> str:
         """Text of the widget."""
         return self._widget._mgui_get_text()
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str) -> None:
         self._widget._mgui_set_text(value)
 
     @property
