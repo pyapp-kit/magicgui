@@ -209,7 +209,6 @@ module = [
     "_pytest.*",
     ".examples/",
     "magicgui.backends.*",
-    "magicgui.tqdm",
     "magicgui.widgets._image.*",
     "magicgui.widgets._table.*",
 ]
