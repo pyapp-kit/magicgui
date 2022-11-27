@@ -6,6 +6,7 @@ theme:
 
 nav:
   - Overview: index.md
+  - compare.md
   - Widgets: widgets/
 
 hooks:
@@ -21,8 +22,6 @@ plugins:
   - mkdocstrings:
       handlers:
         widget_handler:
-          import:
-            - https://docs.python.org/3/objects.inv
           options:
             docstring_style: numpy
             show_root_heading: true
@@ -30,6 +29,16 @@ plugins:
             show_source: false
             show_bases: false
             docstring_section_style: list
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: numpy
+            # show_root_heading: true
+            # show_root_full_path: false
+            # show_source: false
+            # show_bases: false
+            # docstring_section_style: list
   - gen-files:
       scripts:
         - docs/_gen_widgets.py

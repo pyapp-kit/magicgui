@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Callable, Iterable, TypeVar, overload
 
 from docstring_parser import DocstringParam, parse
 
-
 if TYPE_CHECKING:
     from typing import TypeVar
 
@@ -154,7 +153,9 @@ def safe_issubclass(obj: object, superclass: object) -> bool:
         return False
 
 
-def _param_list_to_str(param_list: list[DocstringParam]) -> str:
+def _param_list_to_str(
+    param_list: list[DocstringParam], other_params: list[DocstringParam]
+) -> str:
     """Format Parameters section for numpy docstring from list of tuples."""
     out = []
     out += ["Parameters", len("Parameters") * "-"]
@@ -207,6 +208,7 @@ def merge_super_sigs(
     """
     params = {}
     param_docs: list[DocstringParam] = []
+    other_params: list[DocstringParam] = []
     for sup in inspect.getmro(cls):
         try:
             sig = inspect.signature(sup.__init__)  # type: ignore
@@ -218,7 +220,10 @@ def merge_super_sigs(
                 continue
             params[name] = param
 
-        param_docs += parse(getattr(sup, "__doc__", "")).params
+        docstring = getattr(sup, "__doc__", "")
+        param_docs += parse(docstring).params
+        if "Parameters" in docstring:
+            break
 
     # sphinx_autodoc_typehints isn't removing the type annotations from the signature
     # so we do it manually when building documentation.
@@ -232,7 +237,46 @@ def merge_super_sigs(
     )
     param_docs = [p for p in param_docs if p.arg_name not in exclude]
     cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
-    cls.__doc__ += _param_list_to_str(param_docs)
+    cls.__doc__ += _param_list_to_str(param_docs, other_params)
     # this makes docs linking work... but requires that all of these be in __init__
     cls.__module__ = module
     return cls
+
+
+# def mergedoc(
+#     cls: type,
+#     exclude: Iterable[str] = (
+#         "widget_type",
+#         "kwargs",
+#         "args",
+#         "kwds",
+#         "extra",
+#         "backend_kwargs",
+#     ),
+# ):
+#     from textwrap import indent
+
+#     from griffe.dataclasses import Docstring
+#     from griffe.docstrings.dataclasses import DocstringParameter, DocstringSection
+#     from griffe.docstrings.numpy import parse
+
+#     super_docs: dict[str, list[DocstringSection]] = {}
+#     for sup in cls.__mro__:
+#         docstring = getattr(sup, "__doc__", None)
+#         if docstring:
+#             super_docs[sup.__name__] = parse(Docstring(docstring))
+
+#     seen = set(exclude)
+#     for base, sections in super_docs.items():
+#         print(">>", base)
+#         for section in sections:
+#             if section.kind.name == "parameters":
+#                 for p in section.value:
+#                     if p.name in seen:
+#                         # continue
+#                         ...
+#                     p = cast(DocstringParameter, p)
+#                     desc = indent(p.description, ' ' * 4)
+#                     line = f"{p.name} : {p.annotation}\n{desc}"
+#                     seen.add(p.name)
+#                     print(line)

@@ -40,3 +40,42 @@ def __getattr__(name: str) -> Any:
 
         return FunctionGui
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def compare(this: str, other: str = "other", *x: str) -> int:
+    """Compare two version strings.
+
+    Return negative if this < other, 0 if this == other, positive if this > other.
+
+    Parameters
+    ----------
+    this : str
+        Version string to compare.
+    other : str
+        Version string to compare.
+    x: str
+        Additional version strings to compare.
+
+    Other Parameters
+    ----------------
+    version : str
+        Version string to compare.
+
+    Returns
+    -------
+    int
+        Negative if this < other, 0 if this == other, positive if this > other.
+
+    Examples
+    --------
+    >>> compare('0.1.0', '0.1.0')
+    0
+    >>> compare('0.1.0', '0.1.1')
+    -1
+    """
+    this = this.split(".")
+    other = other.split(".")
+    for _i, (a, b) in enumerate(zip(this, other)):
+        if a != b:
+            return int(a) - int(b)
+    return len(this) - len(other)

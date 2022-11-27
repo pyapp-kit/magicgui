@@ -27,6 +27,9 @@ class ValueWidget(Widget, Generic[T]):
         must accept a single parameter, which is this widget instance.).
     nullable : bool, optional
         If `True`, the widget will accepts `None` as a valid value, by default False.
+    **base_widget_kwargs : Any
+        All additional keyword arguments will be passed to the base
+        [`Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.ValueWidgetProtocol

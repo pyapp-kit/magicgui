@@ -13,7 +13,7 @@ from mkdocstrings_handlers.python.handler import PythonHandler
 
 # TODO: figure out how to do this with options
 @contextmanager
-def _hidewarn():
+def _hide_numpy_warn():
     before, numpy._warn = numpy._warn, lambda *x, **k: None
     yield
     numpy._warn = before
@@ -32,10 +32,12 @@ class WidgetHandler(PythonHandler):
         item = super().collect(identifier, config)
         if isinstance(item, Alias):
             inject_dynamic_docstring(item, identifier)
+        # to edit default in the parameter table
+        # item.parameters["something"].default = ...
         return item
 
     def render(self, data: Any, config: dict) -> str:
-        with _hidewarn():
+        with _hide_numpy_warn():
             return super().render(data, config)
 
 

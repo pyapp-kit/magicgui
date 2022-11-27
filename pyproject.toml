@@ -204,7 +204,7 @@ show_error_codes = true
 pretty = true
 
 [[tool.mypy.overrides]]
-module = ["_pytest.*", ".examples/", "magicgui.widgets._image.*", "magicgui.backends.*"]
+module = ["_pytest.*", ".examples/", ".docs/", "magicgui.widgets._image.*", "magicgui.backends.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
