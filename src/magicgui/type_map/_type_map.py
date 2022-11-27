@@ -64,6 +64,7 @@ _SIMPLE_TYPES = {
     str: widgets.LineEdit,
     pathlib.Path: widgets.FileEdit,
     datetime.time: widgets.TimeEdit,
+    datetime.timedelta: widgets.TimeEdit,
     datetime.date: widgets.DateEdit,
     datetime.datetime: widgets.DateTimeEdit,
     range: widgets.RangeEdit,

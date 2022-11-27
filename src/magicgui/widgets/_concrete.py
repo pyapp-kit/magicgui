@@ -3,10 +3,10 @@
 All of these widgets should provide the `widget_type` argument to their
 super().__init__ calls.
 """
-
 from __future__ import annotations
 
 import contextlib
+import datetime
 import inspect
 import math
 import os
@@ -23,6 +23,8 @@ from typing import (
     Sequence,
     Tuple,
     TypeVar,
+    Union,
+    cast,
     overload,
 )
 from weakref import ref
@@ -228,12 +230,12 @@ class Label(ValueWidget):
 
 
 @backend_widget
-class LineEdit(ValueWidget):
+class LineEdit(ValueWidget[str]):
     """A one-line text editor."""
 
 
 @backend_widget
-class Password(ValueWidget):
+class Password(ValueWidget[str]):
     """A one-line text editor that obscures input."""
 
 
@@ -243,22 +245,25 @@ class LiteralEvalLineEdit(ValueWidget):
 
 
 @backend_widget
-class TextEdit(ValueWidget, _ReadOnlyMixin):  # type: ignore
+class TextEdit(ValueWidget[str], _ReadOnlyMixin):  # type: ignore
     """A widget to edit and display both plain and rich text."""
 
 
 @backend_widget
-class DateTimeEdit(ValueWidget):
+class DateTimeEdit(ValueWidget[datetime.datetime]):
     """A widget for editing dates and times."""
 
 
 @backend_widget
-class DateEdit(ValueWidget):
+class DateEdit(ValueWidget[datetime.date]):
     """A widget for editing dates."""
 
 
+TV = TypeVar("TV", bound=Union[datetime.time, datetime.timedelta])
+
+
 @backend_widget
-class TimeEdit(ValueWidget):
+class TimeEdit(ValueWidget[TV]):
     """A widget for editing times."""
 
 
@@ -278,12 +283,12 @@ class RadioButton(ButtonWidget):
 
 
 @backend_widget
-class SpinBox(RangedWidget):
+class SpinBox(RangedWidget[int]):
     """A widget to edit an integer with clickable up/down arrows."""
 
 
 @backend_widget
-class FloatSpinBox(RangedWidget):
+class FloatSpinBox(RangedWidget[float]):
     """A widget to edit a float with clickable up/down arrows."""
 
 
@@ -321,17 +326,17 @@ class FloatSlider(SliderWidget):
 
 
 @backend_widget
-class RangeSlider(MultiValuedSliderWidget):
+class RangeSlider(MultiValuedSliderWidget[Tuple[int, int]]):
     """A slider widget to adjust a range between two integer values within a range."""
 
 
 @backend_widget
-class FloatRangeSlider(MultiValuedSliderWidget):
+class FloatRangeSlider(MultiValuedSliderWidget[Tuple[float, float]]):
     """A slider widget to adjust a range defined by two float values within a range."""
 
 
 @merge_super_sigs
-class LogSlider(TransformedRangedWidget):
+class LogSlider(TransformedRangedWidget[float]):
     """A slider widget to adjust a numerical value logarithmically within a range.
 
     Parameters
@@ -764,10 +769,13 @@ class ListEdit(Container[ValueWidget]):
         """Create a new child value widget and append it."""
         i = len(self) - 2
 
-        widget: ValueWidget = create_widget(
-            annotation=self._args_type,
-            name=f"value_{i}",
-            _options=self._child_options,
+        widget = cast(
+            ValueWidget,
+            create_widget(
+                annotation=self._args_type,
+                name=f"value_{i}",
+                options=self._child_options,
+            ),
         )
 
         self.insert(i, widget)
@@ -937,11 +945,14 @@ class TupleEdit(Container[ValueWidget]):
 
         for a in _value:
             i = len(self)
-            widget: ValueWidget = create_widget(
-                value=a,
-                annotation=self._args_types[i],
-                name=f"value_{i}",
-                _options=self._child_options,
+            widget = cast(
+                ValueWidget,
+                create_widget(
+                    value=a,
+                    annotation=self._args_types[i],
+                    name=f"value_{i}",
+                    options=self._child_options,
+                ),
             )
             self.insert(i, widget)
             widget.changed.disconnect()
