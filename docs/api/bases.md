@@ -7,6 +7,7 @@
 
 .. autosummary::
    :nosignatures:
+   :toctree: _autosummary
 
    Widget
    ValueWidget
