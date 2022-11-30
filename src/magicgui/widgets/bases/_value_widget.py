@@ -26,10 +26,10 @@ class ValueWidget(Widget, Generic[T]):
         callable, in which case ``value(self)`` will be returned (i.e. your callback
         must accept a single parameter, which is this widget instance.).
     nullable : bool, optional
-        If `True`, the widget will accepts `None` as a valid value, by default False.
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
-        All additional keyword arguments will be passed to the base
-        [`Widget`][magicgui.widgets.Widget] constructor.
+        All additional keyword arguments are passed to the base
+        :class:`~magicgui.widgets.Widget` constructor.
     """
 
     _widget: protocols.ValueWidgetProtocol
@@ -39,6 +39,7 @@ class ValueWidget(Widget, Generic[T]):
     def __init__(
         self,
         value: T | _Undefined = Undefined,
+        *,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Any,

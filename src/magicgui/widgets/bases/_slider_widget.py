@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, TypeVar, Union
+from typing import Any, Callable, Tuple, Union
 
 from magicgui.types import Undefined, _Undefined
 from magicgui.widgets import protocols
@@ -23,13 +23,6 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         than 999)
     step : float, optional
         The step size for incrementing the value, by default adaptive step is used
-    bind : Any, optional
-        A value or callback to bind this widget, then whenever `widget.value` is
-        accessed, the value provided here will be returned.  ``value`` can be a
-        callable, in which case ``value(self)`` will be returned (i.e. your callback
-        must accept a single parameter, which is this widget instance.).
-    nullable : bool, optional
-        If `True`, the widget will accepts `None` as a valid value, by default False.
     orientation : str, {'horizontal', 'vertical'}
         The orientation for the slider, by default "horizontal"
     readout : bool, optional
@@ -39,9 +32,16 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         signal while the slider is being dragged. If tracking is disabled,
         the slider emits the `changed` signal only after the user releases
         the slider.
+    bind : Any, optional
+        A value or callback to bind this widget, then whenever `widget.value` is
+        accessed, the value provided here will be returned.  ``value`` can be a
+        callable, in which case ``value(self)`` will be returned (i.e. your callback
+        must accept a single parameter, which is this widget instance.).
+    nullable : bool, optional
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
-        All additional keyword arguments will be passed to the base
-        [`Widget`][magicgui.widgets.Widget] constructor.
+        All additional keyword arguments are passed to the base
+        :class:`~magicgui.widgets.Widget` constructor.
     """
 
     _widget: protocols.SliderWidgetProtocol
@@ -49,15 +49,15 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
     def __init__(
         self,
         value: T | _Undefined = Undefined,
-        min: Union[float, _Undefined] = Undefined,
-        max: Union[float, _Undefined] = Undefined,
         *,
-        step: Union[float, _Undefined, None] = Undefined,
-        bind: T | Callable[[SliderWidget], T] | _Undefined = Undefined,
-        nullable: bool,
+        min: float | _Undefined = Undefined,
+        max: float | _Undefined = Undefined,
+        step: float | _Undefined | None = Undefined,
         orientation: str = "horizontal",
         readout: bool = True,
         tracking: bool = True,
+        bind: T | Callable[[protocols.ValueWidgetProtocol], T] | _Undefined = Undefined,
+        nullable: bool = False,
         **base_widget_kwargs: Any,
     ) -> None:
         base_widget_kwargs["backend_kwargs"] = {
@@ -111,10 +111,9 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         self._widget._mgui_set_readout_visibility(value)
 
 
-TupleT = TypeVar("TupleT", bound=Sequence)
-
-
-class MultiValuedSliderWidget(MultiValueRangedWidget[TupleT], SliderWidget):
+class MultiValuedSliderWidget(
+    MultiValueRangedWidget[Tuple[Union[int, float], ...]], SliderWidget
+):
     """Slider widget that expects a iterable value."""
 
     _widget: protocols.SliderWidgetProtocol

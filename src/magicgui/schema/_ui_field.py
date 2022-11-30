@@ -10,12 +10,10 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Generic,
     Iterable,
     Iterator,
     Literal,
-    Optional,
     TypeVar,
     Union,
     cast,
@@ -325,7 +323,7 @@ class UiField(Generic[T]):
         },
     )
 
-    def get_default(self) -> Optional[T]:
+    def get_default(self) -> T | None:
         """Return the default value for this field."""
         return (
             self.default  # TODO: deepcopy mutable defaults?
@@ -446,7 +444,7 @@ class UiField(Generic[T]):
 
 
 _UI_FIELD_NAMES: set[str] = set()
-_UI_FIELD_ALIASES: Dict[str, str] = {}
+_UI_FIELD_ALIASES: dict[str, str] = {}
 
 # gather up all the aliases for the UiField fields
 # so we can use them in _rename_aliases
@@ -461,7 +459,7 @@ def _rename_aliases(input: dict[str, Any]) -> dict[str, Any]:
     return {_UI_FIELD_ALIASES.get(k, k): v for k, v in input.items()}
 
 
-def _uikwargs_from_annotated_type(hint: Any) -> Dict[str, Any]:
+def _uikwargs_from_annotated_type(hint: Any) -> dict[str, Any]:
     """Convert an Annotated type to a dict of UiField kwargs."""
     # hint must be an Annotated[...] type
 
@@ -610,7 +608,7 @@ def _get_pydantic_model(cls: type) -> type[pydantic.BaseModel] | None:
     return None
 
 
-def _get_function_defaults(func: FunctionType) -> Dict[str, Any]:
+def _get_function_defaults(func: FunctionType) -> dict[str, Any]:
     """Return a dict of the default values for a function's parameters."""
     # extracted bit from inspect.signature... ~20x faster
     pos_count = func.__code__.co_argcount
@@ -711,9 +709,9 @@ def get_ui_fields(cls_or_instance: object) -> tuple[UiField, ...]:
 
 def _uifields_to_container(
     ui_fields: Iterable[UiField],
-    values: Union[Mapping[str, Any], None] = None,
+    values: Mapping[str, Any] | None = None,
     *,
-    container_kwargs: Union[Mapping, None] = None,
+    container_kwargs: Mapping | None = None,
 ) -> ContainerWidget[ValueWidget]:
     """Create a container widget from a sequence of UiFields.
 

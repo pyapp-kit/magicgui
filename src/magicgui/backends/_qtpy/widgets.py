@@ -466,11 +466,11 @@ class Container(
             # Allow widget to resize when window is larger than min widget size
             self._scroll.setWidgetResizable(True)
             if layout == "horizontal":
-                horiz_policy = Qt.ScrollBarAsNeeded
-                vert_policy = Qt.ScrollBarAlwaysOff
+                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
+                vert_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             else:
-                horiz_policy = Qt.ScrollBarAlwaysOff
-                vert_policy = Qt.ScrollBarAsNeeded
+                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+                vert_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
             self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
             self._scroll.setVerticalScrollBarPolicy(vert_policy)
             self._scroll.setWidget(self._qwidget)
@@ -662,9 +662,11 @@ class Slider(_Slider):
         if value == "vertical":
             layout = QtW.QVBoxLayout()
             self._qwidget.setOrientation(Qt.Vertical)
-            layout.addWidget(self._qwidget, alignment=Qt.AlignHCenter)
-            layout.addWidget(self._readout_widget, alignment=Qt.AlignHCenter)
-            self._readout_widget.setAlignment(Qt.AlignCenter)
+            layout.addWidget(self._qwidget, alignment=Qt.AlignmentFlag.AlignHCenter)
+            layout.addWidget(
+                self._readout_widget, alignment=Qt.AlignmentFlag.AlignHCenter
+            )
+            self._readout_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(1)
         else:
@@ -672,7 +674,7 @@ class Slider(_Slider):
             self._qwidget.setOrientation(Qt.Horizontal)
             layout.addWidget(self._qwidget)
             layout.addWidget(self._readout_widget)
-            self._readout_widget.setAlignment(Qt.AlignRight)
+            self._readout_widget.setAlignment(Qt.AlignmentFlag.AlignRight)
             right_margin = 0 if self._readout_widget.isVisible() else 4
             layout.setContentsMargins(0, 0, right_margin, 0)
             layout.setSpacing(4)
@@ -708,14 +710,14 @@ class Slider(_Slider):
     def _mgui_get_adaptive_step(self) -> bool:
         return (
             self._readout_widget.stepType()
-            == QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+            == QtW.QAbstractSpinBox.StepType.AdaptiveDecimalStepType
         )
 
     def _mgui_set_adaptive_step(self, value: bool):
         self._readout_widget.setStepType(
-            QtW.QAbstractSpinBox.AdaptiveDecimalStepType
+            QtW.QAbstractSpinBox.StepType.AdaptiveDecimalStepType
             if value
-            else QtW.QAbstractSpinBox.DefaultStepType
+            else QtW.QAbstractSpinBox.StepType.DefaultStepType
         )
 
     def _mgui_set_readout_visibility(self, value: bool):
@@ -928,7 +930,9 @@ class Select(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(QtW.QListWidget, "isChecked", "setCurrentIndex", "", **kwargs)
         self._qwidget.itemSelectionChanged.connect(self._emit_data)
-        self._qwidget.setSelectionMode(QtW.QAbstractItemView.ExtendedSelection)
+        self._qwidget.setSelectionMode(
+            QtW.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
 
     def _emit_data(self):
         data = self._qwidget.selectedItems()
@@ -967,7 +971,7 @@ class Select(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
-        items = self._qwidget.findItems(choice_name, Qt.MatchExactly)
+        items = self._qwidget.findItems(choice_name, Qt.MatchFlag.MatchExactly)
         # if it's not in the list, add a new item
         if not items:
             item = QtW.QListWidgetItem(choice_name)
@@ -1335,36 +1339,41 @@ class _QTableExtended(QtW.QTableWidget):
         return super().keyPressEvent(e)
 
 
+_READ_ONLY = QtW.QTableWidget.EditTrigger.NoEditTriggers
+_EDITABLE = (
+    QtW.QTableWidget.EditTrigger.EditKeyPressed
+    | QtW.QTableWidget.EditTrigger.DoubleClicked
+)
+_DATA_ROLE: int = 255
+
+
 class Table(QBaseWidget, protocols.TableWidgetProtocol):
     _qwidget: _QTableExtended
-    _DATA_ROLE: int = 255
-    _EDITABLE = QtW.QTableWidget.EditKeyPressed | QtW.QTableWidget.DoubleClicked
-    _READ_ONLY = QtW.QTableWidget.NoEditTriggers
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(_QTableExtended, **kwargs)
         header = self._qwidget.horizontalHeader()
         # avoid strange AttributeError on CI
         if hasattr(header, "setSectionResizeMode"):
-            header.setSectionResizeMode(QtW.QHeaderView.Stretch)
+            header.setSectionResizeMode(QtW.QHeaderView.ResizeMode.Stretch)
         # self._qwidget.horizontalHeader().setSectionsMovable(True)  # tricky!!
-        header.setSectionResizeMode(QtW.QHeaderView.Interactive)
+        header.setSectionResizeMode(QtW.QHeaderView.ResizeMode.Interactive)
         self._qwidget.itemChanged.connect(self._update_item_data_with_text)
 
     def _mgui_set_read_only(self, value: bool) -> None:
         value = bool(value)
         self._qwidget._read_only = value
         if value:
-            self._qwidget.setEditTriggers(self._READ_ONLY)
+            self._qwidget.setEditTriggers(_READ_ONLY)
         else:
-            self._qwidget.setEditTriggers(self._EDITABLE)
+            self._qwidget.setEditTriggers(_EDITABLE)
 
     def _mgui_get_read_only(self) -> bool:
         return self._qwidget._read_only
 
     def _update_item_data_with_text(self, item: QtW.QTableWidgetItem):
         with _signals_blocked(self._qwidget):
-            item.setData(self._DATA_ROLE, _maybefloat(item.text()))
+            item.setData(_DATA_ROLE, _maybefloat(item.text()))
 
     def _mgui_set_row_count(self, nrows: int) -> None:
         """Set the number of rows in the table. (Create/delete as needed)."""
@@ -1390,7 +1399,7 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
         """Get current value of the widget."""
         item = self._qwidget.item(row, col)
         if item:
-            return item.data(self._DATA_ROLE)
+            return item.data(_DATA_ROLE)
         widget = self._qwidget.cellWidget(row, col)
         if widget:
             return getattr(widget, "_magic_widget", widget)
@@ -1405,7 +1414,7 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
             self._qwidget.setCellWidget(row, col, value.native)
             return
         item = QtW.QTableWidgetItem(str(value))
-        item.setData(self._DATA_ROLE, value)
+        item.setData(_DATA_ROLE, value)
         self._qwidget.setItem(row, col, item)
 
     def _mgui_get_row_headers(self) -> tuple:
@@ -1454,7 +1463,7 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
         row_head = item.tableWidget().verticalHeaderItem(item.row())
         row_head = row_head.text() if row_head is not None else ""
         data = {
-            "data": item.data(self._DATA_ROLE),
+            "data": item.data(_DATA_ROLE),
             "row": item.row(),
             "column": item.column(),
             "column_header": col_head,

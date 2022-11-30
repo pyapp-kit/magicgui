@@ -73,9 +73,10 @@ def compare(this: str, other: str = "other", *x: str) -> int:
     >>> compare('0.1.0', '0.1.1')
     -1
     """
-    this = this.split(".")
-    other = other.split(".")
-    for _i, (a, b) in enumerate(zip(this, other)):
+    # sourcery skip: use-next
+    _this = this.split(".")
+    _other = other.split(".")
+    for (a, b) in zip(_this, _other):
         if a != b:
             return int(a) - int(b)
-    return len(this) - len(other)
+    return len(_this) - len(_other)
