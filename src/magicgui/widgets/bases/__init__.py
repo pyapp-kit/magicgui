@@ -3,9 +3,9 @@
 These will rarely be used directly by end-users, instead see the "concrete" widgets
 exported in :mod:`magicgui.widgets`.
 
-All magicgui [Widget][] bases comprise a backend widget that implements one of the
-widget protocols defined in :mod:`magicgui.widgets.protocols`.  The basic composition
-pattern is as follows:
+All magicgui [Widget][magicgui.widgets.Widget] bases comprise a backend widget that
+implements one of the widget protocols defined in
+[`magicgui.widgets.protocols`](protocols). The basic composition pattern is as follows:
 
 .. code-block:: python
 

@@ -25,13 +25,13 @@ from typing import (
 from psygnal import Signal
 
 from magicgui._type_resolution import resolve_single_type
-from magicgui.application import AppRef
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
 from magicgui.widgets.bases import ValueWidget
 from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
+    from magicgui.application import Application, AppRef  # noqa: F401
     from magicgui.widgets import TextEdit
 
 
@@ -77,13 +77,13 @@ class FunctionGui(Container, Generic[_R]):
     ----------
     function : Callable
         A callable to turn into a GUI
-    call_button : bool, str, or None, optional
+    call_button : bool | str | None, optional
         If True, create an additional button that calls the original function when
         clicked.  If a `str`, set the button text. by default False when
         auto_call is True, and True otherwise.
         The button can be accessed from the `.call_button` property.
     layout : str, optional
-        The type of layout to use. Must be one of {'horizontal', 'vertical'}.
+        The type of layout to use. Must be `horizontal` or `vertical`
         by default "horizontal".
     scrollable : bool, optional
         Whether to enable scroll bars or not. If enabled, scroll bars will
@@ -92,7 +92,7 @@ class FunctionGui(Container, Generic[_R]):
         Whether labels are shown in the widget. by default True
     tooltips : bool, optional
         Whether tooltips are shown when hovering over widgets. by default True
-    app : magicgui.Application or str, optional
+    app : Application | str | None, optional
         A backend to use, by default `None` (use the default backend.)
     visible : bool, optional
         Whether to immediately show the widget.  If `False`, widget is explicitly
@@ -383,6 +383,7 @@ class FunctionGui(Container, Generic[_R]):
 
         Example
         -------
+        ```python
         >>> class MyClass:
         ...     @magicgui
         ...     def my_method(self, x=1):
@@ -390,8 +391,11 @@ class FunctionGui(Container, Generic[_R]):
         ...
         >>> c = MyClass()
         >>> c.my_method  # the FunctionGui that can be used as a widget
-        >>> c.my_method(x=34)  # calling it works as usual, with `c` provided as `self`
+
+        # calling it works as usual, with `c` provided as `self`
+        >>> c.my_method(x=34)
         {'self': <__main__.MyClass object at 0x7fb610e455e0>, 'x': 34}
+        ```
         """
         if obj is None:
             return self

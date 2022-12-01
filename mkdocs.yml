@@ -6,14 +6,21 @@ theme:
 
 nav:
   - Overview: index.md
-  - compare.md
   - Widgets: widgets/
+  - Bases: bases/
+  - protocols.md
+  - app.md
 
 hooks:
   - docs/_hooks.py
 
 watch:
   - src
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
 
 plugins:
   - search
@@ -26,19 +33,22 @@ plugins:
             docstring_style: numpy
             show_root_heading: true
             show_root_full_path: false
+            show_signature_annotations: true
             show_source: false
-            show_bases: false
+            show_bases: true
             docstring_section_style: list
         python:
           import:
             - https://docs.python.org/3/objects.inv
           options:
             docstring_style: numpy
-            # show_root_heading: true
-            # show_root_full_path: false
+            show_source: false
+            show_signature_annotations: true
+            show_root_heading: true
+            show_root_full_path: false
             # show_source: false
-            # show_bases: false
-            # docstring_section_style: list
+            show_bases: true
+            docstring_section_style: list
   - gen-files:
       scripts:
         - docs/_gen_widgets.py

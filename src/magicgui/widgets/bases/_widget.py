@@ -11,6 +11,7 @@ from psygnal import Signal
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
+from magicgui.widgets.protocols import WidgetProtocol
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 if BUILDING_DOCS:
@@ -29,7 +30,7 @@ class Widget:
 
     Parameters
     ----------
-    widget_type : Type[WidgetProtocol]
+    widget_type : type[WidgetProtocol]
         A class implementing a widget protocol.  Will be instantiated during __init__.
     name : str, optional
         The name of the parameter represented by this widget. by default ""
@@ -51,7 +52,7 @@ class Widget:
     gui_only : bool, optional
         If ``True``, widget is excluded from any function signature representation.
         by default ``False``.  (This will likely be deprecated.)
-    parent : Widget, optional
+    parent : Any, optional
         Optional parent widget of this widget.  CAREFUL: if a parent is set, and
         subsequently deleted, this widget will likely be deleted as well (depending on
         the backend), and will no longer be usable.
@@ -59,7 +60,7 @@ class Widget:
         keyword argument to pass to the backend widget constructor.
     """
 
-    _widget: protocols.WidgetProtocol
+    _widget: WidgetProtocol
     # if this widget becomes owned by a labeled widget
     _labeled_widget_ref: ReferenceType[_LabeledWidget] | None = None
 
@@ -68,7 +69,7 @@ class Widget:
 
     def __init__(
         self,
-        widget_type: type[protocols.WidgetProtocol],
+        widget_type: type[WidgetProtocol],
         name: str = "",
         annotation: Any | None = None,
         label: str | None = None,

@@ -1,3 +1,0 @@
-# compare
-
-::: magicgui.compare

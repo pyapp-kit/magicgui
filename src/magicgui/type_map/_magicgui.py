@@ -121,7 +121,7 @@ def magicgui(
         The function to decorate.  Optional to allow bare decorator with optional
         arguments. by default ``None``
     layout : str, optional
-        The type of layout to use. Must be one of {'horizontal', 'vertical'}.
+        The type of layout to use. Must be `horizontal` or `vertical`
         by default "vertical".
     scrollable : bool, optional
         Whether to enable scroll bars or not. If enabled, scroll bars will
