@@ -30,7 +30,7 @@ static analysis tools to prevent errors from being introduced into the codebase:
 
 - [black](https://github.com/psf/black) - code formatting
 - [ruff](https://github.com/charliermarsh/ruff) - linting
-- [mypy](http://mypy-lang.org/) - static type anaylsis
+- [mypy](http://mypy-lang.org/) - static type analysis
 - [codecov](https://codecov.io/) - test coverage
 
 To prevent continuous integration failures when contributing, please consider

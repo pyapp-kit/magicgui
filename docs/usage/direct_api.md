@@ -45,7 +45,7 @@ container.show()
 
 Note, {class}`~magicgui.widgets.Container` widgets are subclassed from python's
 {class}`collections.abc.MutableSequence`, so they behave like a basic python
-list.  You can `append`, `instert`, `pop` widgets as you would with a regular
+list.  You can `append`, `insert`, `pop` widgets as you would with a regular
 list:
 
 ```python

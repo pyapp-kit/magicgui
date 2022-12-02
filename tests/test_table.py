@@ -71,11 +71,11 @@ def test_constructor():
     assert Table([1, 2]).shape == (2, 1)  # single list is interpreted as column
     assert Table([[1, 2]]).shape == (1, 2)  # nested lists are rows
 
-    # aruments to constructor override those in a dict value
+    # arguments to constructor override those in a dict value
     t = Table(_TABLE_DATA["dict"], columns=("x", "y", "z"))
     assert t.column_headers == ("x", "y", "z")
 
-    # data and headers can be provided seperately
+    # data and headers can be provided separately
     t = Table([[1, 2, 3], [4, 5, 6]], columns=["col_1", "col_2", "col_3"])
     assert dict(t) == _TABLE_DATA["list"]
     # or together
