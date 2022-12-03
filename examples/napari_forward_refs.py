@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 def subtract_background(
     data: "napari.types.ImageData", background: int = 50
 ) -> "napari.types.ImageData":
-    """Subtract a contstant from the data."""
+    """Subtract a constant from the data."""
     if data:
         return data - background
 

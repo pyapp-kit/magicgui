@@ -37,3 +37,13 @@ repos:
         additional_dependencies:
           - numpy
           - psygnal
+
+  # manual hooks
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.2
+    hooks:
+      - id: codespell
+        exclude: CHANGELOG.md
+        stages:
+          - "manual"

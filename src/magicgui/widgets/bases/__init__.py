@@ -35,7 +35,7 @@ pattern is as follows:
 These widgets are unlikely to be instantiated directly, (unless you're creating a custom
 widget that implements one of the WidgetProtocols... as the backed widgets do).
 Instead, one will usually instantiate the widgets in :mod:`magicgui.widgets._concrete`
-which are all available direcly in the :mod:`magicgui.widgets` namespace.
+which are all available directly in the :mod:`magicgui.widgets` namespace.
 
 The :func:`~magicgui.widgets.create_widget` factory function may be used to
 create a widget subclass appropriate for the arguments passed (such as "value" or

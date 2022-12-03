@@ -123,7 +123,7 @@ add.show()
 ```{caution}
 The keys in the parameter-specific options dict must be valid arguments
 for the corresponding widget type from {mod}`magicgui.widgets`.  In this
-example, the `a_string` paremeter would be turned into a
+example, the `a_string` parameter would be turned into a
 {class}`~magicgui.widgets.LineEdit` widget, which does not take an
 argument "`min`":
 ```

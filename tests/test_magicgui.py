@@ -366,7 +366,7 @@ def test_get_choices_raises():
     ids=["with-labels", "no-labels"],
 )
 def test_add_at_position(labels):
-    """Test that adding widghet with position option puts widget in the right place."""
+    """Test that adding widget with position option puts widget in the right place."""
 
     def func(a=1, b=2, c=3):
         pass
@@ -674,7 +674,7 @@ def test_no_tooltips_from_numpydoc():
 
 def test_only_some_tooltips_from_numpydoc():
     """Test that we can still show some tooltips with ``tooltips=False``."""
-    # tooltips=False, means docstrings wont be parsed at all, but tooltips
+    # tooltips=False, means docstrings won't be parsed at all, but tooltips
     # can still be manually provided.
     @magicgui(tooltips=False, y={"tooltip": "Still want a tooltip"})
     def func(x: int, y: str = "hi"):

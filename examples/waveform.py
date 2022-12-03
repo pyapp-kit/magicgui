@@ -23,8 +23,8 @@ Time = Annotated[float, {"min": 0.01, "max": 100.0}]
 class Signal:
     """Constructs a 1D signal
 
-    As is, this class is not very usefull, but one could add callbacks
-    or more functionnality here
+    As is, this class is not very useful, but one could add callbacks
+    or more functionality here
 
     Parameters
     ----------

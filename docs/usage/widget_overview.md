@@ -15,7 +15,7 @@ kernelspec:
 
 # Widget Overview
 
-All indiviual graphical elements in `magicgui` are "widgets", and all widgets
+All individual graphical elements in `magicgui` are "widgets", and all widgets
 are instances of {class}`magicgui.widgets.Widget`.  Widgets may be created
 directly:
 
@@ -410,7 +410,7 @@ notable example of a `Container` is {class}`magicgui.widgets.FunctionGui`)
   - *bool, optional**
   - Whether each widget should be shown with a corresponding `Label` widget to the
     left, by default `True`.  Note: the text for each widget defaults to
-    `widget.name`, but can be overriden by setting `widget.label`.
+    `widget.name`, but can be overridden by setting `widget.label`.
 ```
 
 ## `@magicgui`
