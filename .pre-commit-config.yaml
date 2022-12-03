@@ -16,6 +16,9 @@ repos:
     rev: v2.2.2
     hooks:
       - id: codespell
+        exclude: CHANGELOG.md
+        stages:
+          - "manual"
 
   - repo: https://github.com/psf/black
     rev: 22.10.0

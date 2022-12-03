@@ -70,7 +70,7 @@
 
 **Implemented enhancements:**
 
-- Enable option to raise exception if magicgui cannot determine widget for provided value/annotation [\#476](https://github.com/pyapp-kit/magicgui/pull/476) ([Czaki](https://github.com/Czaki))
+- Enable option to raise excpetion if magicgui cannot determine widget for provided value/annotation [\#476](https://github.com/pyapp-kit/magicgui/pull/476) ([Czaki](https://github.com/Czaki))
 
 **Documentation:**
 
@@ -273,7 +273,7 @@
 
 **Documentation:**
 
-- adds waveform generator example [\#322](https://github.com/pyapp-kit/magicgui/pull/322) ([glyg](https://github.com/glyg))
+- adds waveform generator exemple [\#322](https://github.com/pyapp-kit/magicgui/pull/322) ([glyg](https://github.com/glyg))
 - add example of adding mpl FigureCanvas  to widget [\#321](https://github.com/pyapp-kit/magicgui/pull/321) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.3.3](https://github.com/pyapp-kit/magicgui/tree/v0.3.3) (2021-11-08)
