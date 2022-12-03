@@ -59,7 +59,7 @@ def create_widget(
     options : dict, optional
         Dict of options to pass to the Widget constructor, by default dict()
     is_result : boolean, optional
-        Whether the widget belongs to an input or an output. By defult, an input
+        Whether the widget belongs to an input or an output. By default, an input
         is assumed.
     raise_on_unknown : bool, optional
         Raise exception if no widget is found for the given type, by default True

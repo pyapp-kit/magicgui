@@ -31,7 +31,7 @@ def debounce(*, wait: float = 0.2) -> Callable[[Callable[P, T]], Callable[P, T |
 
 
 def debounce(function: Callable[P, T] | None = None, wait: float = 0.2) -> Callable:
-    """Postpone function call until `wait` seconds since last invokation."""
+    """Postpone function call until `wait` seconds since last invocation."""
 
     def decorator(fn: Callable[P, T]) -> Callable[P, T | None]:
         from threading import Timer

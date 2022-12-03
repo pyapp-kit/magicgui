@@ -52,14 +52,14 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     the :meth:`~ContainerWidget.__signature__` method (or by using
     :func:`inspect.signature` from the standard library)
 
-    For a `ContainerWidget` sublcass that is tightly coupled to a specific function
+    For a `ContainerWidget` subclass that is tightly coupled to a specific function
     signature (as in the "classic" magicgui decorator), see
     [magicgui.widgets.FunctionGui][].
 
     Parameters
     ----------
     widgets : Sequence[Widget], optional
-        A sequence of widgets with which to intialize the container, by default
+        A sequence of widgets with which to initialize the container, by default
         `None`.
     layout : str, optional
         The layout for the container.  must be one of `{'horizontal',
@@ -70,7 +70,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     labels : bool, optional
         Whether each widget should be shown with a corresponding Label widget to the
         left, by default `True`.  Note: the text for each widget defaults to
-        `widget.name`, but can be overriden by setting `widget.label`.
+        `widget.name`, but can be overridden by setting `widget.label`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
         [`magicgui.widgets.Widget`][] constructor.
