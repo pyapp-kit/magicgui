@@ -10,6 +10,7 @@ nav:
   - Bases: bases/
   - protocols.md
   - app.md
+  - widget_overview.md
 
 hooks:
   - docs/_hooks.py
@@ -21,6 +22,10 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.extra
+  - attr_list
+  - md_in_html
 
 plugins:
   - search

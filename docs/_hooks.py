@@ -1,9 +1,12 @@
+"""https://www.mkdocs.org/dev-guide/plugins/#events ."""
 import importlib.abc
 import sys
 import types
 from contextlib import contextmanager
 from importlib import import_module
 from importlib.machinery import ModuleSpec
+from itertools import count
+from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
@@ -61,3 +64,42 @@ class Finder(importlib.abc.MetaPathFinder):
 
 def on_startup(**kwargs):
     sys.meta_path.append(Finder())
+
+
+def on_page_markdown(md, page, **kwargs):
+    import re
+
+    w_iter = count()
+    ns: dict = {}
+
+    def _sub(matchobj: re.Match) -> str:
+        src = matchobj.group(1)
+        _md = "```python\n" + src + "\n```"
+        if ".show()" in src:
+            dest = f"_images/{page.file.name}_{next(w_iter)}.png"
+            if _write_markdown_result_image(src, ns, dest):
+                _md += f"\n![](../{dest})\n\n"
+
+        return _md
+
+    return re.sub(r"```python\n([^`]*)```", _sub, md, re.DOTALL)
+
+
+def _write_markdown_result_image(src: str, ns: dict, dest: str) -> bool:
+    import mkdocs_gen_files
+    from qtpy.QtWidgets import QApplication
+
+    Path(dest).parent.mkdir(exist_ok=True, parents=True)
+    wdg = set(QApplication.topLevelWidgets())
+    exec(src, ns, ns)
+    new_wdg = set(QApplication.topLevelWidgets()) - wdg
+    if new_wdg:
+        for w in new_wdg:
+            w.setMinimumWidth(200)
+            w.show()
+
+            with mkdocs_gen_files.open(dest, "wb") as f:
+                success = w.grab().save(f.name)
+            w.close()
+            w.deleteLater()
+    return success
