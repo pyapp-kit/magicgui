@@ -18,7 +18,6 @@ from typing import (
     Iterable,
     Iterator,
     Literal,
-    Optional,
     Sequence,
     Tuple,
     Type,
@@ -69,17 +68,17 @@ def backend_widget(cls: WidgetTypeVar) -> WidgetTypeVar:
 def backend_widget(
     cls: Literal[None] = ...,
     *,
-    widget_name: Optional[str] = ...,
-    transform: Optional[Callable[[type], type]] = ...,
+    widget_name: str | None = ...,
+    transform: Callable[[type], type] | None = ...,
 ) -> Callable[[WidgetTypeVar], WidgetTypeVar]:
     ...
 
 
 def backend_widget(
-    cls: Optional[WidgetTypeVar] = None,
+    cls: WidgetTypeVar | None = None,
     *,
-    widget_name: Optional[str] = None,
-    transform: Optional[Callable[[type], type]] = None,
+    widget_name: str | None = None,
+    transform: Callable[[type], type] | None = None,
 ) -> WidgetTypeVar | Callable[[WidgetTypeVar], WidgetTypeVar]:
     """Decorate cls to inject the backend widget of the same name.
 

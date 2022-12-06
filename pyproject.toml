@@ -152,7 +152,7 @@ extend-select = [
     "E",    # style errors
     "F",    # flakes
     "D",    # pydocstyle
-    "I001", # isort
+    "I", # isort
     "U",    # pyupgrade
     # "N",  # pep8-naming
     # "S",  # bandit
@@ -160,8 +160,6 @@ extend-select = [
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
     "RUF",  # ruff-specific rules
-    "RUF",  # ruff-specific rules
-    "M001", # Unused noqa directive
 ]
 extend-ignore = [
     "D100", # Missing docstring in public module

@@ -18,7 +18,6 @@ from typing import (
     ForwardRef,
     Iterator,
     Literal,
-    Optional,
     Sequence,
     Set,
     Tuple,
@@ -75,7 +74,7 @@ _SIMPLE_TYPES = {
 }
 
 
-def match_type(type_: Any, default: Optional[Any] = None) -> WidgetTuple | None:
+def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
     """Check simple type mappings."""
     if type_ in _SIMPLE_ANNOTATIONS:
         return _SIMPLE_ANNOTATIONS[type_], {}
@@ -330,7 +329,7 @@ def _validate_return_callback(func: Callable) -> None:
         raise TypeError(f"object {func!r} is not a valid return callback: {e}") from e
 
 
-_T = TypeVar("_T", bound=Type)
+_T = TypeVar("_T", bound=type)
 
 
 @overload
@@ -469,11 +468,11 @@ def type_registered(
     # check if return_callback is already registered
     rc_was_present = return_callback in _RETURN_CALLBACKS.get(_type_, [])
     # store any previous widget_type and options for this type
-    prev_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
+    prev_type_def: WidgetTuple | None = _TYPE_DEFS.get(_type_, None)
     _type_ = register_type(
         _type_, widget_type=widget_type, return_callback=return_callback, **options
     )
-    new_type_def: Optional[WidgetTuple] = _TYPE_DEFS.get(_type_, None)
+    new_type_def: WidgetTuple | None = _TYPE_DEFS.get(_type_, None)
     try:
         yield
     finally:

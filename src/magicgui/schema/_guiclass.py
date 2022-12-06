@@ -11,17 +11,7 @@ from __future__ import annotations
 import contextlib
 import warnings
 from dataclasses import Field, dataclass, field, is_dataclass
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
 
 from psygnal import SignalGroup, evented
 
@@ -50,7 +40,7 @@ _BUTTON_ATTR = "_magicgui_button"
 _GUICLASS_FLAG = "__magicgui_guiclass__"
 
 _T = TypeVar("_T")
-T = TypeVar("T", bound=Type[Any])
+T = TypeVar("T", bound="type[Any]")
 F = TypeVar("F", bound=Callable)
 
 
@@ -84,13 +74,13 @@ def guiclass(
 
 
 def guiclass(
-    cls: Optional[T] = None,
+    cls: T | None = None,
     *,
     gui_name: str = "gui",
     events_namespace: str = "events",
     follow_changes: bool = True,
     **dataclass_kwargs: Any,
-) -> Union[T, Callable[[T], T]]:
+) -> T | Callable[[T], T]:
     """Turn class into a dataclass with a property (`gui_name`) that returns a gui.
 
     This decorator is similar to `dataclasses.dataclass`, but it will also add an
@@ -180,9 +170,7 @@ def button(**kwargs: Any) -> Callable[[F], F]:
     ...
 
 
-def button(
-    func: Optional[F] = None, **button_kwargs: Any
-) -> Union[F, Callable[[F], F]]:
+def button(func: F | None = None, **button_kwargs: Any) -> F | Callable[[F], F]:
     """Add a method as a button to a `guiclass`, which calls the decorated method.
 
     Parameters

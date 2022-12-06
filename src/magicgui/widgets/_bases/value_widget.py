@@ -1,7 +1,7 @@
 import warnings
 from typing import Any
 
-from ..bases._value_widget import ValueWidget  # noqa: F401
+from magicgui.widgets.bases._value_widget import ValueWidget  # noqa: F401
 
 warnings.warn(
     "magicgui.widgets._bases is now public. "

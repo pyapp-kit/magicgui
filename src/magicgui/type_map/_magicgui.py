@@ -10,7 +10,6 @@ from magicgui.widgets import FunctionGui, MainFunctionGui
 
 if TYPE_CHECKING:
     from magicgui.application import AppRef
-
 __all__ = ["magicgui", "magic_factory", "MagicFactory"]
 
 

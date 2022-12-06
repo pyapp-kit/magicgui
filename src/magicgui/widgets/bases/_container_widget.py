@@ -30,7 +30,6 @@ from ._widget import Widget
 
 if TYPE_CHECKING:
     from magicgui.widgets import Container
-
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 
 

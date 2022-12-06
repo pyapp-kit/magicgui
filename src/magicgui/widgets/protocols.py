@@ -15,7 +15,6 @@ from typing import (
     Callable,
     Iterable,
     NoReturn,
-    Optional,
     Protocol,
     Sequence,
     runtime_checkable,
@@ -186,7 +185,7 @@ class WidgetProtocol(Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
+    def _mgui_set_tooltip(self, value: str | None) -> None:
         """Set a tooltip for this widget."""
         raise NotImplementedError()
 

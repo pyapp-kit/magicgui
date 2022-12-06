@@ -18,8 +18,8 @@ from typing import (
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from magicgui.widgets import FunctionGui  # noqa: F401
-    from magicgui.widgets.bases import CategoricalWidget, Widget  # noqa: F401
+    from magicgui.widgets import FunctionGui
+    from magicgui.widgets.bases import CategoricalWidget, Widget
     from magicgui.widgets.protocols import WidgetProtocol
 
 
