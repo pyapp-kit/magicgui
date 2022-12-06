@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 import sys
-from typing import Sequence, TypeVar, Union
+from typing import Sequence, TypeVar, Union, get_origin
 
 from docstring_parser import DocstringParam, parse
 
@@ -25,7 +25,7 @@ def _param_list_to_str(
         if param.arg_name == "value" and valtype is not None and (type_name == "Any"):
             if isinstance(valtype, TypeVar):
                 if getattr(valtype, "__bound__", None):
-                    if valtype.__bound__.__origin__ is Union:
+                    if get_origin(valtype.__bound__) is Union:
                         type_name = " | ".join(
                             [str(c.__name__) for c in valtype.__bound__.__args__]
                         )

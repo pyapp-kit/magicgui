@@ -1,6 +1,6 @@
 import warnings
 
-from ..bases._widget import Widget  # noqa: F401
+from magicgui.widgets.bases._widget import Widget  # noqa: F401
 
 warnings.warn(
     "magicgui.widgets._bases._widget is removed. "

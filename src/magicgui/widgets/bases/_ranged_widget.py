@@ -3,7 +3,7 @@ from __future__ import annotations
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import Any, Callable, Iterable, Tuple, TypeVar, Union, cast
+from typing import Any, Callable, Iterable, TypeVar, cast
 from warnings import warn
 
 from magicgui.types import Undefined, _Undefined
@@ -11,7 +11,7 @@ from magicgui.widgets import protocols
 
 from ._value_widget import ValueWidget
 
-T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
+T = TypeVar("T", int, float, tuple[int | float, ...])
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 
@@ -86,9 +86,9 @@ class RangedWidget(ValueWidget[T]):
     def _init_range(
         self,
         value: T | _Undefined,
-        min: Union[float, _Undefined],
-        max: Union[float, _Undefined],
-    ) -> Tuple[float, float]:
+        min: float | _Undefined,
+        max: float | _Undefined,
+    ) -> tuple[float, float]:
         """Return min and max based on given value and arguments.
 
         If min or max are unset, constrain so the given value is within the range.
@@ -152,14 +152,14 @@ class RangedWidget(ValueWidget[T]):
         self._widget._mgui_set_max(value)
 
     @property
-    def step(self) -> Union[float, None]:
+    def step(self) -> float | None:
         """Step size for widget values (None if adaptive step is turned on)."""
         if self._widget._mgui_get_adaptive_step():
             return None
         return self._widget._mgui_get_step()
 
     @step.setter
-    def step(self, value: Union[float, None]) -> None:
+    def step(self, value: float | None) -> None:
         if value is None:
             self._widget._mgui_set_adaptive_step(True)
         else:
@@ -176,12 +176,12 @@ class RangedWidget(ValueWidget[T]):
         self.step = None if value else self._widget._mgui_get_step()
 
     @property
-    def range(self) -> Tuple[float, float]:
+    def range(self) -> tuple[float, float]:
         """Range of allowable values for the widget."""
         return self.min, self.max
 
     @range.setter
-    def range(self, value: Tuple[float, float]) -> None:
+    def range(self, value: tuple[float, float]) -> None:
         self.min, self.max = value
 
 
@@ -301,7 +301,7 @@ class MultiValueRangedWidget(RangedWidget[T]):
     """Widget with a constrained *iterable* value, like a tuple."""
 
     @ValueWidget.value.setter  # type: ignore
-    def value(self, value: Tuple[float, ...]) -> None:
+    def value(self, value: tuple[float, ...]) -> None:
         """Set widget value, will raise Value error if not within min/max."""
         if not isinstance(value, Iterable):
             raise ValueError(

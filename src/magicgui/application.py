@@ -5,13 +5,12 @@ import signal
 from contextlib import contextmanager
 from importlib import import_module
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Union
 
 from magicgui.backends import BACKENDS
 
 if TYPE_CHECKING:
     from magicgui.widgets.protocols import BaseApplicationBackend
-
 DEFAULT_BACKEND = "qt"
 APPLICATION_NAME = "magicgui"
 
@@ -155,7 +154,7 @@ def _use_app(backend_name: str | None = None) -> Application:
 AppRef = Union[Application, str, None]
 
 
-def use_app(app: Optional[AppRef] = None) -> Application:
+def use_app(app: AppRef | None = None) -> Application:
     """Get/create the default Application object.  See _use_app docstring."""
     if app is None:
         return _use_app()

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import inspect
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, cast
+from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 
 from typing_extensions import Annotated, _AnnotatedAlias
 
@@ -24,7 +24,6 @@ from magicgui.types import Undefined
 
 if TYPE_CHECKING:
     from magicgui.widgets import Container, Widget
-
 TZ_EMPTY = "__no__default__"
 
 
@@ -108,7 +107,7 @@ class MagicParameter(inspect.Parameter):
         *,
         default: Any = inspect.Parameter.empty,
         annotation: Any = inspect.Parameter.empty,
-        gui_options: Optional[dict] = None,
+        gui_options: dict | None = None,
         raise_on_unknown: bool = False,
     ):
         _annotation = make_annotated(annotation, gui_options)
@@ -135,7 +134,7 @@ class MagicParameter(inspect.Parameter):
             )
         )
 
-    def to_widget(self, app: Optional[AppRef] = None) -> Widget:
+    def to_widget(self, app: AppRef | None = None) -> Widget:
         """Create and return a widget for this object."""
         from magicgui.widgets import create_widget
 
@@ -167,7 +166,7 @@ class MagicParameter(inspect.Parameter):
     def from_parameter(
         cls,
         param: inspect.Parameter,
-        gui_options: Optional[dict] = None,
+        gui_options: dict | None = None,
         raise_on_unknown: bool = False,
     ) -> MagicParameter:
         """Create MagicParameter from an inspect.Parameter."""
@@ -235,7 +234,7 @@ class MagicSignature(inspect.Signature):
             raise_on_unknown=raise_on_unknown,
         )
 
-    def widgets(self, app: Optional[AppRef] = None) -> MappingProxyType:
+    def widgets(self, app: AppRef | None = None) -> MappingProxyType:
         """Return mapping from parameters to widgets for all params in Signature."""
         return MappingProxyType(
             {n: p.to_widget(app) for n, p in self.parameters.items()}
@@ -276,7 +275,7 @@ class MagicSignature(inspect.Signature):
 def magic_signature(
     obj: Callable,
     *,
-    gui_options: Optional[dict[str, dict]] = None,
+    gui_options: dict[str, dict] | None = None,
     follow_wrapped: bool = True,
     raise_on_unknown: bool = False,
 ) -> MagicSignature:
