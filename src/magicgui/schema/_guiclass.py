@@ -40,7 +40,7 @@ _BUTTON_ATTR = "_magicgui_button"
 _GUICLASS_FLAG = "__magicgui_guiclass__"
 
 _T = TypeVar("_T")
-T = TypeVar("T", bound=type[Any])
+T = TypeVar("T", bound="type[Any]")
 F = TypeVar("F", bound=Callable)
 
 

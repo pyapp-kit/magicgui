@@ -20,7 +20,9 @@ from typing import (
     Literal,
     Sequence,
     Tuple,
+    Type,
     TypeVar,
+    Union,
     cast,
     overload,
 )
@@ -52,9 +54,9 @@ from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 from ._docs_sigs import merge_super_sigs
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
-WidgetTypeVar = TypeVar("WidgetTypeVar", bound=type[Widget])
+WidgetTypeVar = TypeVar("WidgetTypeVar", bound=Type[Widget])
 _V = TypeVar("_V")
-TV = TypeVar("TV", bound=datetime.time | datetime.timedelta)
+TV = TypeVar("TV", bound=Union[datetime.time, datetime.timedelta])
 
 
 @overload

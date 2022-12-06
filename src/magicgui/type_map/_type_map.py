@@ -14,12 +14,14 @@ from typing import (
     Any,
     Callable,
     DefaultDict,
+    Dict,
     ForwardRef,
     Iterator,
     Literal,
     Sequence,
     Set,
     Tuple,
+    Type,
     TypeVar,
     Union,
     cast,
@@ -38,9 +40,9 @@ __all__: list[str] = ["register_type", "get_widget_class"]
 
 
 # redefining these here for the sake of sphinx autodoc forward refs
-WidgetClass = Union[type[widgets.Widget], type[WidgetProtocol]]
+WidgetClass = Union[Type[widgets.Widget], Type[WidgetProtocol]]
 WidgetRef = Union[str, WidgetClass]
-WidgetTuple = Tuple[WidgetRef, dict[str, Any]]
+WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
 
 
 class MissingWidget(RuntimeError):
