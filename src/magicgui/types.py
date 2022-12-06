@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Literal, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Literal, Tuple, Type, Union
 
 from typing_extensions import TypedDict
 
@@ -22,7 +22,7 @@ class ChoicesDict(TypedDict):
 
 #: A :class:`~magicgui.widgets.Widget` class or a
 #: :class:`~magicgui.widgets.protocols.WidgetProtocol`
-WidgetClass = Union[type["Widget"], type["WidgetProtocol"]]
+WidgetClass = Union[Type["Widget"], Type["WidgetProtocol"]]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
 #: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
