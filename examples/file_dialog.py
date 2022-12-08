@@ -22,9 +22,19 @@ def filespicker(filenames: Sequence[Path]):
     return filenames
 
 
+# Select a directory, instead of file(s)
+@magicgui(directory={"mode": "d", "label": "Choose a directory"})
+def directorypicker(directory=Path("~")):
+    """Take a directory name and do something with it."""
+    print("The directory name is:", directory)
+    return directory
+
+
 filepicker.show()
 filespicker.show()
+directorypicker.show()
 filepicker.filename.changed.connect(print)
 filespicker.filenames.changed.connect(print)
+directorypicker.directory.changed.connect(print)
 
 use_app().run()
