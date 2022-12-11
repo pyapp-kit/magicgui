@@ -190,6 +190,7 @@ filterwarnings = [
     "ignore:path is deprecated:DeprecationWarning",
     "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
     "ignore:Enum value:DeprecationWarning:matplotlib",
+    "ignore:Widget([^\\s]+) is deprecated:DeprecationWarning",  # ipywidgets
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
