@@ -11,7 +11,6 @@ from magicgui.backends import BACKENDS
 
 if TYPE_CHECKING:
     from magicgui.widgets.protocols import BaseApplicationBackend
-
 DEFAULT_BACKEND = "qt"
 APPLICATION_NAME = "magicgui"
 

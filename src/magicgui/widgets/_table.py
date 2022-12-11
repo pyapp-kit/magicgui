@@ -33,8 +33,6 @@ if TYPE_CHECKING:
     import numpy
     import pandas
     from typing_extensions import TypeGuard
-
-
 TblKey = Any
 _KT = TypeVar("_KT")  # Key type
 _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.

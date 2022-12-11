@@ -24,7 +24,6 @@ from magicgui.types import Undefined
 
 if TYPE_CHECKING:
     from magicgui.widgets import Container, Widget
-
 TZ_EMPTY = "__no__default__"
 
 

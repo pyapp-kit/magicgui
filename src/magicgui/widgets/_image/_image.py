@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
-from .._concrete import backend_widget
-from ..bases import ValueWidget
+from magicgui.widgets._concrete import backend_widget
+from magicgui.widgets.bases import ValueWidget
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -12,7 +12,8 @@ if TYPE_CHECKING:
     import numpy as np
     import PIL.Image
 
-    from ..protocols import ValueWidgetProtocol
+    from magicgui.widgets.protocols import ValueWidgetProtocol
+
     from . import _mpl_image
     from ._mpl_image import Colormap, Normalize
 
