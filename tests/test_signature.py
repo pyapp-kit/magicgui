@@ -1,7 +1,7 @@
 import pytest
 from typing_extensions import Annotated
 
-from magicgui.signature import magic_signature, make_annotated, split_annotated_type
+from magicgui.signature import magic_signature, make_annotated
 
 
 def test_make_annotated_raises():
@@ -18,15 +18,6 @@ def test_make_annotated_works_with_already_annotated():
         make_annotated(annotated_type, {"min": 1})
         == Annotated[int, {"max": 10, "min": 1}]
     )
-
-
-def test_split_annotated_raises():
-    """Test split_annotated raises on bad input."""
-    with pytest.raises(TypeError):
-        split_annotated_type(int)
-
-    with pytest.raises(TypeError):
-        split_annotated_type(Annotated[int, 1])
 
 
 def _sample_func(a: int, b: str = "hi"):

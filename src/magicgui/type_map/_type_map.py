@@ -28,7 +28,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import get_args, get_origin
+from typing_extensions import Annotated, get_args, get_origin
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
@@ -200,7 +200,8 @@ def _pick_widget_type(
     raise_on_unknown: bool = True,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
-    options = options or {}
+    annotation, _options = _split_annotated_type(annotation)
+    options = {**_options, **(options or {})}
     choices = options.get("choices")
 
     if is_result and annotation is inspect.Parameter.empty:
@@ -261,6 +262,21 @@ def _pick_widget_type(
         )
 
     return widgets.EmptyWidget, {"visible": False}
+
+
+def _split_annotated_type(annotation: Any) -> tuple[Any, dict]:
+    """Split an Annotated type into its base type and options dict."""
+    if get_origin(annotation) is not Annotated:
+        return annotation, {}
+
+    type_, meta_, *_ = get_args(annotation)
+
+    try:
+        meta = dict(meta_)
+    except TypeError:
+        meta = {}
+
+    return type_, meta
 
 
 def get_widget_class(
