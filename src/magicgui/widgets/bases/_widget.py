@@ -15,7 +15,7 @@ from magicgui.widgets.protocols import WidgetProtocol
 
 BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
 if BUILDING_DOCS:
-    import numpy as np
+    pass
 if TYPE_CHECKING:
     from weakref import ReferenceType
 

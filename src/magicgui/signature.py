@@ -17,7 +17,7 @@ import inspect
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 
-from typing_extensions import Annotated, _AnnotatedAlias
+from typing_extensions import Annotated, get_args, get_origin
 
 from magicgui.application import AppRef
 from magicgui.types import Undefined
@@ -27,9 +27,7 @@ if TYPE_CHECKING:
 TZ_EMPTY = "__no__default__"
 
 
-def make_annotated(
-    annotation: Any = Any, options: dict | None = None
-) -> _AnnotatedAlias:
+def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
     """Merge a annotation and an options dict into an Annotated type.
 
     Parameters
@@ -55,25 +53,10 @@ def make_annotated(
         raise TypeError("'options' must be a dict")
     _options = (options or {}).copy()
 
-    if isinstance(annotation, _AnnotatedAlias):
-        hint, anno_options = split_annotated_type(annotation)
+    if get_origin(annotation) is Annotated:
+        annotation, anno_options = get_args(annotation)
         _options.update(anno_options)
-        annotation = hint
     return Annotated[annotation, _options]
-
-
-def split_annotated_type(annotation: _AnnotatedAlias) -> tuple[Any, dict]:
-    """Split an Annotated type into its base type and options dict."""
-    if not isinstance(annotation, _AnnotatedAlias):
-        raise TypeError("Type hint must be an 'Annotated' type.")
-
-    meta = annotation.__metadata__[0]
-    if not isinstance(meta, dict):
-        raise TypeError(
-            "Invalid Annotated format for magicgui. First arg must be a dict"
-        )
-
-    return annotation.__args__[0], meta
 
 
 class _void:
@@ -117,7 +100,7 @@ class MagicParameter(inspect.Parameter):
     @property
     def options(self) -> dict:
         """Return just this options part of the annotation."""
-        return split_annotated_type(self.annotation)[1]
+        return cast(dict, get_args(self.annotation)[1])
 
     def __repr__(self) -> str:
         """Return __repr__, replacing NoneType if present."""
@@ -127,7 +110,7 @@ class MagicParameter(inspect.Parameter):
 
     def __str__(self) -> str:
         """Return string representation of the Parameter in a signature."""
-        hint, _ = split_annotated_type(self.annotation)
+        hint, _ = get_args(self.annotation)
         return str(
             inspect.Parameter(
                 self.name, self.kind, default=self.default, annotation=hint
@@ -139,13 +122,11 @@ class MagicParameter(inspect.Parameter):
         from magicgui.widgets import create_widget
 
         value = Undefined if self.default in (self.empty, TZ_EMPTY) else self.default
-        annotation, options = split_annotated_type(self.annotation)
         widget = create_widget(
             name=self.name,
             value=value,
-            annotation=annotation,
+            annotation=self.annotation,
             app=app,
-            options=options,
             raise_on_unknown=self.raise_on_unknown,
         )
         widget.param_kind = self.kind

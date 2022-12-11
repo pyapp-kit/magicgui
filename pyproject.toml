@@ -153,7 +153,7 @@ extend-select = [
     "F",    # flakes
     "D",    # pydocstyle
     "I", # isort
-    "U",    # pyupgrade
+    "UP",    # pyupgrade
     # "N",  # pep8-naming
     # "S",  # bandit
     "C",    # flake8-comprehensions
@@ -190,6 +190,7 @@ filterwarnings = [
     "ignore:path is deprecated:DeprecationWarning",
     "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
     "ignore:Enum value:DeprecationWarning:matplotlib",
+    "ignore:Widget([^\\s]+) is deprecated:DeprecationWarning",  # ipywidgets
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
