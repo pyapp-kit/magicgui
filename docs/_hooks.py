@@ -14,6 +14,8 @@ from griffe.dataclasses import Alias
 from griffe.docstrings import numpy
 from mkdocstrings_handlers.python.handler import PythonHandler
 
+from magicgui.type_map import get_widget_class
+
 
 # TODO: figure out how to do this with options
 @contextmanager
@@ -67,15 +69,52 @@ def on_startup(**kwargs):
     sys.meta_path.append(Finder())
 
 
-def _build_auto_summary(lines: list[str]):
+def _replace_autosummary(md: str) -> str:
+    lines = md.splitlines()
+    start = lines.index("::: autosummary")
+    last_line = lines.index("", start + 1)
     table = ["| Widget | Description |", "| ---- | ----------- |"]
-    for line in lines:
+    for line in lines[start + 1 : last_line]:
         name = line.strip()
         if name:
             module, _name = name.rsplit(".", 1)
             obj = getattr(import_module(module), _name)
             table.append(f"| [`{_name}`][{name}] | {obj.__doc__.splitlines()[0]} |")
-    return table
+
+    lines[start:last_line] = table
+    return "\n".join(lines)
+
+
+def _replace_type_to_widget(md: str) -> str:
+    lines = md.splitlines()
+    start = lines.index("::: type_to_widget")
+    try:
+        last_line = lines.index("", start + 1)
+    except ValueError:
+        last_line = None
+    table = [
+        "| <div style='width:210px'>Type</div> "
+        "| <div style='width:100px'>Default Widget</div> "
+        "| Additional kwargs",
+        "| ---- | ------ | ------ |",
+    ]
+    for line in lines[start + 1 : last_line]:
+        name = line.strip()
+        if name:
+            wdg_type, kwargs = get_widget_class(annotation=name)
+            kwargs.pop("nullable", None)
+            kwargs = f"`{kwargs}`" if kwargs else ""
+            wdg_name = f"magicgui.widgets.{wdg_type.__name__}"
+            wdg_link = f"[`{wdg_type.__name__}`][{wdg_name}]"
+            if "[" in name:
+                _name = name.split("[")[0]
+                name_link = f"[`{name}`][typing.{_name}]"
+            else:
+                name_link = f"[`{name}`][]"
+            table.append(f"| {name_link}  | {wdg_link} | {kwargs} | ")
+
+    lines[start:last_line] = table
+    return "\n".join(lines)
 
 
 def on_page_markdown(md, page, **kwargs):
@@ -85,11 +124,10 @@ def on_page_markdown(md, page, **kwargs):
     ns: dict = {}
 
     while "::: autosummary" in md:
-        lines = md.splitlines()
-        start = lines.index("::: autosummary")
-        last_line = lines.index("", start + 1)
-        lines[start:last_line] = _build_auto_summary(lines[start + 1 : last_line])
-        md = "\n".join(lines)
+        md = _replace_autosummary(md)
+
+    while "::: type_to_widget" in md:
+        md = _replace_type_to_widget(md)
 
     def _sub(matchobj: re.Match) -> str:
         src = matchobj.group(1)

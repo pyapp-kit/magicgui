@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime
 import inspect
+import os
 import pathlib
 import sys
 import types
@@ -69,6 +70,7 @@ _SIMPLE_TYPES = {
     slice: widgets.SliceEdit,
     list: widgets.ListEdit,
     tuple: widgets.TupleEdit,
+    os.PathLike: widgets.FileEdit,
 }
 
 
@@ -255,7 +257,7 @@ def _pick_widget_type(
 
     if raise_on_unknown:
         raise ValueError(
-            f"No widget found for type {_type} and annotation {annotation}"
+            f"No widget found for type {_type} and annotation {annotation!r}"
         )
 
     return widgets.EmptyWidget, {"visible": False}

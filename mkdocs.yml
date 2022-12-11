@@ -17,6 +17,7 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+
 nav:
   - Overview: index.md
   - Widgets: widgets/
@@ -24,6 +25,7 @@ nav:
   - protocols.md
   - app.md
   - widget_overview.md
+  - type_map.md
 
 hooks:
   - docs/_hooks.py
@@ -59,6 +61,7 @@ plugins:
           import:
             - https://docs.python.org/3/objects.inv
             - https://psygnal.readthedocs.io/en/latest/objects.inv
+            - https://pint.readthedocs.io/en/stable/objects.inv
           options:
             docstring_style: numpy
             show_source: false
