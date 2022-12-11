@@ -1,9 +1,10 @@
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Optional, Union, get_args
+from typing import Optional, Union
 from unittest.mock import Mock
 
 import pytest
+from typing_extensions import Annotated, get_args
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui._type_resolution import resolve_single_type
