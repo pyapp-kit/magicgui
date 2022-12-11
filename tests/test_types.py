@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union
+from typing import Annotated, Optional, Union, get_args
 from unittest.mock import Mock
 
 import pytest
@@ -41,6 +41,24 @@ def test_forward_refs():
 def test_pick_widget_builtins_forward_refs(cls, string):
     wdg = type_map.get_widget_class(annotation=string)[0]
     assert wdg.__name__ == cls
+
+
+@pytest.mark.parametrize(
+    "hint, expected_wdg",
+    [
+        (Annotated[int, {"min": 8, "max": 9}], widgets.SpinBox),
+        (
+            Annotated[float, {"widget_type": "FloatSlider", "step": 9}],
+            widgets.FloatSlider,
+        ),
+    ],
+)
+def test_annotated_types(hint, expected_wdg):
+    wdg, options = type_map.get_widget_class(annotation=hint)
+    assert wdg is expected_wdg
+    for k, v in get_args(hint)[1].items():
+        if k != "widget_type":
+            assert options[k] == v
 
 
 def test_forward_refs_return_annotation():
