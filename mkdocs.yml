@@ -3,7 +3,20 @@ site_name: magicgui
 
 theme:
   name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: teal
+      accent: light-green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 nav:
   - Overview: index.md
   - Widgets: widgets/
@@ -45,6 +58,7 @@ plugins:
         python:
           import:
             - https://docs.python.org/3/objects.inv
+            - https://psygnal.readthedocs.io/en/latest/objects.inv
           options:
             docstring_style: numpy
             show_source: false

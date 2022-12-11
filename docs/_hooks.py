@@ -14,6 +14,7 @@ from griffe.dataclasses import Alias
 from griffe.docstrings import numpy
 from mkdocstrings_handlers.python.handler import PythonHandler
 
+
 # TODO: figure out how to do this with options
 @contextmanager
 def _hide_numpy_warn():
@@ -66,11 +67,29 @@ def on_startup(**kwargs):
     sys.meta_path.append(Finder())
 
 
+def _build_auto_summary(lines: list[str]):
+    table = ["| Widget | Description |", "| ---- | ----------- |"]
+    for line in lines:
+        name = line.strip()
+        if name:
+            module, _name = name.rsplit(".", 1)
+            obj = getattr(import_module(module), _name)
+            table.append(f"| [`{_name}`][{name}] | {obj.__doc__.splitlines()[0]} |")
+    return table
+
+
 def on_page_markdown(md, page, **kwargs):
     import re
 
     w_iter = count()
     ns: dict = {}
+
+    while "::: autosummary" in md:
+        lines = md.splitlines()
+        start = lines.index("::: autosummary")
+        last_line = lines.index("", start + 1)
+        lines[start:last_line] = _build_auto_summary(lines[start + 1 : last_line])
+        md = "\n".join(lines)
 
     def _sub(matchobj: re.Match) -> str:
         src = matchobj.group(1)
@@ -82,7 +101,9 @@ def on_page_markdown(md, page, **kwargs):
 
         return _md
 
-    return re.sub(r"```python\n([^`]*)```", _sub, md, re.DOTALL)
+    md = re.sub(r"```python\n([^`]*)```", _sub, md, re.DOTALL)
+
+    return md
 
 
 def _write_markdown_result_image(src: str, ns: dict, dest: str) -> bool:

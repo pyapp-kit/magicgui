@@ -24,3 +24,11 @@ a.autorefs-external::after {
 a.autorefs-external:hover::after {
   background-color: var(--md-accent-fg-color);
 }
+
+
+/* table styles */
+table thead th {
+  background-color: var(--md-typeset-table-color);
+  color: var(--md-typeset-table-text-color);
+  font-weight: bold;
+}

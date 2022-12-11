@@ -62,90 +62,39 @@ As mentioned above, all magicgui widgets derive from [`magicgui.widgets.Widget`]
 following attributes (this list is not comprehensive, see
 the [`magicgui.widgets.Widget`][] API):
 
-```{list-table}
-:header-rows: 1
-:name: widget-table
-:widths: 6 12 50
-
-* - attribute
-  - type
-  - description
-* - **name**
-  - *str, optional*
-  - The name or "ID" of this widget (such as a function parameter name to
-    which this widget corresponds). by default `""`
-* - **annotation**
-  - *Any, optional*
-  - A type annotation for the value represented by the widget, by default
-    `None`
-* - **label**
-  - *str, optional*
-  - A string to use for an associated Label widget (if this widget is being
-    shown in a [`~magicgui.widgets.Container`][] widget, and
-    `container.labels` is `True`). By default, `name` will be used. Note: `name`
-    refers the name of the parameter, as might be used in a signature, whereas
-    label is just the label for that widget in the GUI.
-* - **tooltip**
-  - *str, optional*
-  - A tooltip to display when hovering over the widget.
-* - **visible**
-  - *bool, optional*
-  - Whether the widget is visible, by default `True`.
-```
+| <div style="width:80px">Attribute</div> | Type | Description |
+|-----------|------|-------------|
+| `name` | `str` | The name or "ID" of this widget (such as a function parameter name to which this widget corresponds). |
+| `annotation` | `Any` | A type annotation for the value represented by the widget. |
+| `label` | `str` | A string to use for an associated Label widget (if this widget is being shown in a [`magicgui.widgets.Container`][] widget, and `container.labels` is `True`). By default, `name` will be used. Note: `name` refers the name of the parameter, as might be used in a signature, whereas label is just the label for that widget in the GUI. |
+| `tooltip` | `str` | A tooltip to display when hovering over the widget. |
+| `visible` | `bool` | Whether the widget is visible. |
 
 ### `ValueWidget`
 
 In addition to the base [`Widget`](#widget) properties mentioned above, the
 following `ValueWidgets` track some `value`:
 
-```{eval-rst}
+::: autosummary
+    magicgui.widgets.Label
+    magicgui.widgets.LineEdit
+    magicgui.widgets.LiteralEvalLineEdit
+    magicgui.widgets.Password
+    magicgui.widgets.TextEdit
+    magicgui.widgets.FileEdit
+    magicgui.widgets.RangeEdit
+    magicgui.widgets.SliceEdit
+    magicgui.widgets.DateTimeEdit
+    magicgui.widgets.DateEdit
+    magicgui.widgets.TimeEdit
+    magicgui.widgets.Table
+    magicgui.widgets.QuantityEdit
 
-.. currentmodule:: magicgui.widgets
-
-.. autosummary::
-   :nosignatures:
-   :toctree: _autosummary
-
-   Label
-   LineEdit
-   LiteralEvalLineEdit
-   Password
-   TextEdit
-   FileEdit
-   RangeEdit
-   SliceEdit
-   DateTimeEdit
-   DateEdit
-   TimeEdit
-   Table
-   QuantityEdit
-```
-
-```{list-table}
-:header-rows: 1
-:name: value-widget-table
-:widths: 6 12 50
-
-* - attribute
-  - type
-  - description
-* - **value**
-  - *Any*
-  - The current value of the widget.
-* - **changed**
-  - *EventEmitter*
-  - An [`magicgui.events.EventEmiter` that will emit an event when the `value`][]
-    has changed.  Connect callbacks to the change event using
-    `widget.changed.connect(callback)`
-* - **bind**
-  - *Any, optional*
-  - A value or callback to bind this widget.  If bound, whenever `widget.value` is
-    accessed, the value provided here will be returned.  The bound value can be a
-    callable, in which case `bound_value(self)` will be returned (i.e. your callback
-    must accept a single parameter, which is this widget instance.). see
-    {meth}`ValueWidget.bind <magicgui.widgets.bases.value_widget.ValueWidget.bind>`
-    for details.
-```
+| <div style="width:80px">Attribute</div> | Type | Description |
+|-----------|------|-------------|
+| `value` | `Any` | The current value of the widget. |
+| `changed` | [`psygnal.SignalInstance`][] | A [`psygnal.SignalInstance`][] that will emit an event when the `value` has changed.  Connect callbacks to the change event using `widget.changed.connect(callback)` |
+| `bind` | `Any, optional` | A value or callback to bind this widget.  If bound, whenever `widget.value` is accessed, the value provided here will be returned.  The bound value can be a callable, in which case `bound_value(self)` will be returned (i.e. your callback must accept a single parameter, which is this widget instance.). see [`ValueWidget.bind`][magicgui.widgets.bases.ValueWidget.bind] for details. |
 
 Here is a demonstration of all these:
 
@@ -178,42 +127,20 @@ container.show()
 `RangedWidgets` are numerical [`ValueWidgets`](#valuewidget) that have a restricted range of valid
 values, and a step size.  `RangedWidgets` include:
 
-```{eval-rst}
-
-.. currentmodule:: magicgui.widgets
-
-.. autosummary::
-   :nosignatures:
-   :toctree: _autosummary
-
-   SpinBox
-   FloatSpinBox
-```
+::: autosummary
+    magicgui.widgets.SpinBox
+    magicgui.widgets.FloatSpinBox
 
 Ranged widgets attributes include:
 
-```{list-table}
-:header-rows: 1
-:name: ranged-widget-table
-:widths: 6 16 70
+| <div style="width:80px">Attribute</div> | Type | Description |
+|-----------|------|-------------|
+| `min` | `float` | The minimum allowable value, by default 0 |
+| `max` | `float` | The maximum allowable value, by default 1000 |
+| `step` | `float` | The step size for incrementing the value, by default 1 |
+| `range` | `tuple of float` | A convenience attribute for getting/setting the (min, max) simultaneously |
 
-* - attribute
-  - type
-  - description
-* - **min**
-  - *float*
-  - The minimum allowable value, by default 0
-* - **min**
-  - *float*
-  - The maximum allowable value, by default 1000
-* - **step**
-  - *float*
-  - The step size for incrementing the value, by default 1
-* - **range**
-  - *tuple of float*
-  - A convenience attribute for getting/setting the (min, max) simultaneously
 
-```
 
 ```python
 w1 = widgets.SpinBox(value=10, max=20, label='SpinBox:')
@@ -227,36 +154,17 @@ container.show()
 `SliderWidgets` are special [`RangedWidgets`](#rangedwidget-valuewidget)
 that additionally have an `orientation`, and a `readout`.
 
-```{eval-rst}
+::: autosummary
+    magicgui.widgets.Slider
+    magicgui.widgets.FloatSlider
+    magicgui.widgets.LogSlider
+    magicgui.widgets.ProgressBar
 
-.. currentmodule:: magicgui.widgets
+| <div style="width:80px">Attribute</div> | Type | Description |
+|-----------|------|-------------|
+| `orientation` | `str` | The orientation for the slider. Must be either `'horizontal'` or `'vertical'`.  by default `'horizontal'` |
+| `readout` | `bool` | Whether to show the value of the slider. By default, `True`. |
 
-.. autosummary::
-   :nosignatures:
-   :toctree: _autosummary
-
-   Slider
-   FloatSlider
-   LogSlider
-   ProgressBar
-```
-
-```{list-table}
-:header-rows: 1
-:name: slider-widget-table
-:widths: 6 12 50
-
-* - attribute
-  - type
-  - description
-* - **orientation**
-  - *str, optional*
-  - The orientation for the slider. Must be either `'horizontal'` or `'vertical'`.
-    by default `'horizontal'`
-* - **readout**
-  - *bool, optional*
-  - Whether to show the value of the slider. By default, `True`.
-```
 
 ```python
 w1 = widgets.Slider(value=10, max=25, label='Slider:')
@@ -271,30 +179,13 @@ container.show()
 `ButtonWidgets` are boolean [`ValueWidgets`](#valuewidget) that also have some
 `text` associated with them.
 
-```{eval-rst}
+::: autosummary
+    magicgui.widgets.PushButton
+    magicgui.widgets.CheckBox
 
-.. currentmodule:: magicgui.widgets
-
-.. autosummary::
-   :nosignatures:
-   :toctree: _autosummary
-
-   PushButton
-   CheckBox
-```
-
-```{list-table}
-:header-rows: 1
-:name: button-widget-table
-:widths: 6 12 50
-
-* - attribute
-  - type
-  - description
-* - **text**
-  - *str*
-  - The text to display on the button. If not provided, will use ``name``.
-```
+| <div style="width:80px">Attribute</div> | Type | Description |
+|-----------------------------------------|------|-------------|
+| `text` | `str` | The text to display on the button. If not provided, will use `name`. |
 
 ```python
 w1 = widgets.PushButton(value=True, text='PushButton.text')
@@ -312,40 +203,17 @@ of valid choices.  They can be created from:
 - an iterable of objects (or an iterable of 2-tuples `(name, object)`)
 - a callable that returns an [`enum.Enum`][] or an iterable
 
-```{eval-rst}
+::: autosummary
+    magicgui.widgets.ComboBox
+    magicgui.widgets.RadioButtons
+    magicgui.widgets.Select
 
-.. currentmodule:: magicgui.widgets
 
-.. autosummary::
-   :nosignatures:
-   :toctree: _autosummary
-
-   ComboBox
-   RadioButtons
-   Select
-```
-
-```{list-table}
-:header-rows: 1
-:name: categorical-widget-table
-:widths: 6 12 50
-
-* - attribute
-  - type
-  - description
-* - **choices**
-  - *Enum, Iterable, or Callable*
-  - Available choices displayed in the widget.
-* - **value**
-  - *Any*
-  - In the case of a `CategoricalWidget` the `value` is the *data* of the currently
-    selected choice (see also: `current_choice` below).
-* - **current_choice**
-  - *str**
-  - The name associated with the current choice.  For instance, if `choices` was provided
-    as `choices=[('one', 1), ('two', 2)]`, then an example `value` would be `1`, and
-    an example `current_choice` would be `'one'`.
-```
+| <div style="width:80px">Attribute</div> | Type | Description |
+|-----------------------------------------|------|-------------|
+| `choices` | `Enum`, `Iterable`, or `Callable` | Available choices displayed in the widget. |
+| `value` | `Any` | In the case of a `CategoricalWidget` the `value` is the *data* of the currently selected choice (see also: `current_choice` below). |
+| `current_choice` | `str` | The name associated with the current choice.  For instance, if `choices` was provided as `choices=[('one', 1), ('two', 2)]`, then an example `value` would be `1`, and an example `current_choice` would be `'one'`. |
 
 ```python
 choices = ['one', 'two', 'three']
@@ -364,39 +232,18 @@ Containers allow you to build more complex widgets from sub-widgets. A
 notable example of a `Container` is [`magicgui.widgets.FunctionGui`][])
 (the product of the [`@magicgui`][magicgui.magicgui] decorator).
 
-```{eval-rst}
-.. currentmodule:: magicgui.widgets
+::: autosummary
+    magicgui.widgets.Container
+    magicgui.widgets.MainWindow
+    magicgui.widgets.FunctionGui
 
-.. autosummary::
-   :nosignatures:
-   :toctree: _autosummary
+| <div style="width:80px">Attribute</div> | Type | Description |
+|-----------------------------------------|------|-------------|
+| `layout` | `str` | The layout for the container.  Must be either `'horizontal'` or `'vertical'`. |
+| `widgets` | `Sequence[Widget]` | The widgets that the container contains. |
+| `labels` | `bool` | Whether each widget should be shown with a corresponding `Label` widget to the left.  Note: the text for each widget defaults to `widget.name`, but can be overridden by setting `widget.label`. |
 
-   Container
-   MainWindow
-   FunctionGui
-```
 
-```{list-table}
-:header-rows: 1
-:name: container-widget-table
-:widths: 6 12 50
-
-* - attribute
-  - type
-  - description
-* - **layout**
-  - *str*
-  - The layout for the container.  must be either `'horizontal'` or `'vertical'`.
-    by default "vertical"
-* - **widgets**
-  - *sequence of widgets*
-  - The widget that the container contains.
-* - **labels**
-  - *bool, optional**
-  - Whether each widget should be shown with a corresponding `Label` widget to the
-    left, by default `True`.  Note: the text for each widget defaults to
-    `widget.name`, but can be overridden by setting `widget.label`.
-```
 
 ## `@magicgui`
 
@@ -414,10 +261,12 @@ def my_function(x='hello', y=400): ...
 my_function.show()
 ```
 
-In terms of simply building widgets, the following code performs a similar
-task to [`@magicgui`][magicgui.magicgui].  Note, however, that the
-[`magicgui.widgets.FunctionGui` widget produced by [`@magicgui`][magicgui.magicgui]][] is actually a *callable* widget that behaves very much like the
-original function, using the parameters from the GUI when calling the function.
+In terms of simply building widgets, the following code performs a similar task
+to [`@magicgui`][magicgui.magicgui].  Note, however, that the
+[`magicgui.widgets.FunctionGui`][] widget produced by
+[`@magicgui`][magicgui.magicgui]][] is actually a *callable* widget that behaves
+very much like the original function, using the parameters from the GUI when
+calling the function.
 
 ```python
 from inspect import signature
