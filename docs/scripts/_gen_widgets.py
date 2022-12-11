@@ -1,3 +1,4 @@
+import subprocess
 from pathlib import Path
 
 import mkdocs_gen_files
@@ -5,10 +6,10 @@ import mkdocs_gen_files
 from magicgui import widgets
 from magicgui.backends import _ipynb, _qtpy
 
-IMAGES = False
+MAKE_IMAGES = False
 BACKENDS = {"qt": _qtpy.widgets, "ipynb": _ipynb.widgets}
-WIDGETS_PATH = Path("widgets")
-BASES_PATH = Path("bases")
+WIDGETS_PATH = Path("api/widgets")
+BASES_PATH = Path("api/widgets/bases")
 WIDGET_PAGE = """
 # {name}
 
@@ -19,6 +20,16 @@ Available in backends: {backends}
 ::: magicgui.widgets.{name}
     handler: widget_handler
 """
+
+
+def _set_dark_mode(dark_mode: bool):
+    """Set the system to dark mode or not."""
+    cmd = ["osascript", "-l", "JavaScript", "-e"]
+    if dark_mode:
+        cmd += ["Application('System Events').appearancePreferences.darkMode = true"]
+    else:
+        cmd += ["Application('System Events').appearancePreferences.darkMode = false"]
+    subprocess.run(cmd)
 
 
 def _snap_image(_obj: type, _name: str) -> str:
@@ -50,7 +61,7 @@ for name in dir(widgets):
             f"`{key}`" for key, module in BACKENDS.items() if hasattr(module, name)
         ]
 
-        img_link = _snap_image(obj, name) if IMAGES else ""
+        img_link = _snap_image(obj, name) if MAKE_IMAGES else ""
         with mkdocs_gen_files.open(WIDGETS_PATH / f"{name}.md", "w") as f:
             md = WIDGET_PAGE.format(
                 name=name, backends=", ".join(backends), img_link=img_link
@@ -62,6 +73,8 @@ BASE_PAGE = """
 # {name}
 
 ::: magicgui.widgets.bases.{name}
+    options:
+        show_signature_annotations: true
 """
 
 for base in [

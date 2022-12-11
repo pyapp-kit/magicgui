@@ -6,7 +6,7 @@ import sys
 import time
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Iterable, TypeVar, overload
+from typing import TYPE_CHECKING, Callable, Iterable, overload
 
 from docstring_parser import DocstringParam, parse
 

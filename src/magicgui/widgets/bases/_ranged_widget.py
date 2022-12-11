@@ -169,7 +169,13 @@ class RangedWidget(ValueWidget[T]):
 
     @property
     def adaptive_step(self) -> bool:
-        """Whether the step size is adaptive."""
+        """Whether the step size is adaptive.
+
+        Adaptive decimal step means that the step size will continuously be adjusted to
+        one power of ten below the current value. So when the value is 1100, the step is
+        set to 100, so stepping up once increases it to 1200. For 1200 stepping up takes
+        it to 1300. For negative values, stepping down from -1100 goes to -1200.
+        """
         return self.step is None
 
     @adaptive_step.setter

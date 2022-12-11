@@ -2,11 +2,12 @@
 import importlib.abc
 import sys
 import types
+import typing
+import warnings
 from contextlib import contextmanager
 from importlib import import_module
 from importlib.machinery import ModuleSpec
 from itertools import count
-from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
@@ -16,6 +17,7 @@ from mkdocstrings_handlers.python.handler import PythonHandler
 
 from magicgui.type_map import get_widget_class
 
+warnings.simplefilter("ignore", DeprecationWarning)
 
 # TODO: figure out how to do this with options
 @contextmanager
@@ -80,7 +82,6 @@ def _replace_autosummary(md: str) -> str:
             module, _name = name.rsplit(".", 1)
             obj = getattr(import_module(module), _name)
             table.append(f"| [`{_name}`][{name}] | {obj.__doc__.splitlines()[0]} |")
-
     lines[start:last_line] = table
     return "\n".join(lines)
 
@@ -94,14 +95,16 @@ def _replace_type_to_widget(md: str) -> str:
         last_line = None
     table = [
         "| <div style='width:210px'>Type</div> "
-        "| <div style='width:100px'>Default Widget</div> "
+        "| <div style='width:100px'>Widget</div> "
         "| Additional kwargs",
         "| ---- | ------ | ------ |",
     ]
     for line in lines[start + 1 : last_line]:
         name = line.strip()
         if name:
-            wdg_type, kwargs = get_widget_class(annotation=name)
+            # eval Annotated types
+            hint = eval(name, typing.__dict__) if "Annotated" in name else name
+            wdg_type, kwargs = get_widget_class(annotation=hint)
             kwargs.pop("nullable", None)
             kwargs = f"`{kwargs}`" if kwargs else ""
             wdg_name = f"magicgui.widgets.{wdg_type.__name__}"
@@ -121,7 +124,6 @@ def on_page_markdown(md, page, **kwargs):
     import re
 
     w_iter = count()
-    ns: dict = {}
 
     while "::: autosummary" in md:
         md = _replace_autosummary(md)
@@ -131,34 +133,16 @@ def on_page_markdown(md, page, **kwargs):
 
     def _sub(matchobj: re.Match) -> str:
         src = matchobj.group(1)
-        _md = "```python\n" + src + "\n```"
+        _md: str = "```python\n" + src + "\n```"
         if ".show()" in src:
             dest = f"_images/{page.file.name}_{next(w_iter)}.png"
-            if _write_markdown_result_image(src, ns, dest):
-                _md += f"\n![](../{dest})\n\n"
-
+            light = dest.replace(".png", "_light.png")
+            _md += f"\n![]({light}#only-light){{: .code-image}}\n\n"
+            # Not working
+            # dark = dest.replace(".png", "_light.png")
+            # _md += f"\n![]({dark}#only-dark){{: .code-image}}\n\n"
         return _md
 
     md = re.sub(r"```python\n([^`]*)```", _sub, md, re.DOTALL)
 
     return md
-
-
-def _write_markdown_result_image(src: str, ns: dict, dest: str) -> bool:
-    import mkdocs_gen_files
-    from qtpy.QtWidgets import QApplication
-
-    Path(dest).parent.mkdir(exist_ok=True, parents=True)
-    wdg = set(QApplication.topLevelWidgets())
-    exec(src, ns, ns)
-    new_wdg = set(QApplication.topLevelWidgets()) - wdg
-    if new_wdg:
-        for w in new_wdg:
-            w.setMinimumWidth(200)
-            w.show()
-
-            with mkdocs_gen_files.open(dest, "wb") as f:
-                success = w.grab().save(f.name)
-            w.close()
-            w.deleteLater()
-    return success

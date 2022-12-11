@@ -282,12 +282,56 @@ def magic_factory(
     raise_on_unknown: bool = False,
     **param_options: dict,
 ) -> Callable | MagicFactory:
-    """Return a `MagicFactory` for `function`."""
-    return _magicgui(factory=True, **locals())
+    """Return a [`MagicFactory`][magicgui.type_map._magicgui.MagicFactory] for function.
 
+    Parameters
+    ----------
+    function : Callable, optional
+        The function to decorate.  Optional to allow bare decorator with optional
+        arguments. by default ``None``
+    layout : str, optional
+        The type of layout to use. Must be `horizontal` or `vertical`
+        by default "vertical".
+    scrollable : bool, optional
+        Whether to enable scroll bars or not. If enabled, scroll bars will
+        only appear along the layout direction, not in both directions.
+    labels : bool, optional
+        Whether labels are shown in the widget. by default True
+    tooltips : bool, optional
+        Whether tooltips are shown when hovering over widgets. by default True
+    call_button : bool or str, optional
+        If ``True``, create an additional button that calls the original
+        function when clicked.  If a ``str``, set the button text. If None (the
+        default), it defaults to True when ``auto_call`` is False, and False
+        otherwise.
+    auto_call : bool, optional
+        If ``True``, changing any parameter in either the GUI or the widget attributes
+        will call the original function with the current settings. by default False
+    result_widget : bool, optional
+        Whether to display a LineEdit widget the output of the function when called,
+        by default False
+    main_window : bool
+        Whether this widget should be treated as the main app window, with menu bar,
+        by default False.
+    app : magicgui.Application or str, optional
+        A backend to use, by default ``None`` (use the default backend.)
+    persist : bool, optional
+        If `True`, when parameter values change in the widget, they will be stored to
+        disk and restored when the widget is loaded again with ``persist = True``.
+        Call ``magicgui._util.user_cache_dir()`` to get the default cache location.
+        By default False.
+    widget_init : callable, optional
+        A function that will be called with the newly created widget instance as its
+        only argument.  This can be used to customize the widget after it is created.
+        by default ``None``.
+    raise_on_unknown : bool, optional
+        If ``True``, raise an error if magicgui cannot determine widget for function
+        argument or return type. If ``False``, ignore unknown types. By default False.
+    param_options : dict of dict
+        Any additional keyword arguments will be used as parameter-specific options.
+        Keywords MUST match the name of one of the arguments in the function
+        signature, and the value MUST be a dict.
 
-_factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
-    """
     Returns
     -------
     result : MagicFactory or Callable[[F], MagicFactory]
@@ -308,7 +352,24 @@ _factory_doc = magicgui.__doc__.split("Returns")[0] + (  # type: ignore
     >>> my_widget.a.value == 1  # Trueq
     >>> my_widget.b.value = 'world'
     """
-)
+    return _magicgui(
+        factory=True,
+        function=function,
+        layout=layout,
+        scrollable=scrollable,
+        labels=labels,
+        tooltips=tooltips,
+        call_button=call_button,
+        auto_call=auto_call,
+        result_widget=result_widget,
+        main_window=main_window,
+        app=app,
+        persist=persist,
+        widget_init=widget_init,
+        raise_on_unknown=raise_on_unknown,
+        param_options=param_options,
+    )
+
 
 magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
 
@@ -321,7 +382,7 @@ class MagicFactory(partial, Generic[_R, _T]):
     """Factory function that returns a FunctionGui instance.
 
     While this can be used directly, (see example below) the preferred usage is
-    via the :func:`magic_factory` decorator.
+    via the [`magicgui.magic_factory`][] decorator.
 
     Examples
     --------

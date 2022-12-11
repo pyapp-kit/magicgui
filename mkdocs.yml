@@ -1,8 +1,15 @@
 site_name: magicgui
+site_url: https://pyapp-kit.github.io/magicgui
+site_description: Type-based GUI creation for Python
+repo_name: pyapp-kit/magicgui
+repo_url: https://github.com/pyapp-kit/magicgui
+edit_uri: edit/main/docs/
 # strict: true
 
 theme:
   name: material
+  favicon: images/favicon.ico
+  logo: images/logo.png
   palette:
     # Palette toggle for light mode
     - scheme: default
@@ -20,15 +27,21 @@ theme:
 
 nav:
   - Overview: index.md
-  - Widgets: widgets/
-  - Bases: bases/
-  - protocols.md
-  - app.md
   - widget_overview.md
   - type_map.md
+  - events.md
+  - decorators.md
+  - API:
+      - api/magicgui.md
+      - api/magic_factory.md
+      - widgets: api/widgets/
+      - widgets.bases: api/widgets/bases/
+      - widgets.protocols: api/protocols.md
+      - type_map: api/type_map.md
+      - application: api/app.md
 
 hooks:
-  - docs/_hooks.py
+  - docs/scripts/_hooks.py
 
 watch:
   - src
@@ -41,6 +54,11 @@ markdown_extensions:
   - pymdownx.extra
   - attr_list
   - md_in_html
+  - codehilite:
+      guess_lang: False
+      use_pygments: True
+      noclasses: True
+      pygments_style: monokai
 
 plugins:
   - search
@@ -65,7 +83,7 @@ plugins:
           options:
             docstring_style: numpy
             show_source: false
-            show_signature_annotations: true
+            show_signature_annotations: false
             show_root_heading: true
             show_root_full_path: false
             # show_source: false
@@ -73,7 +91,9 @@ plugins:
             docstring_section_style: list
   - gen-files:
       scripts:
-        - docs/_gen_widgets.py
+        - docs/scripts/_gen_widgets.py
+        - docs/scripts/_gen_screenshots.py
 
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/pygments.css

@@ -1,6 +1,6 @@
 # Widget Overview
 
-All individual graphical elements in `magicgui` are "widgets", and all widgets
+All individual graphical elements in **magicgui** are "widgets", and all widgets
 are instances of [`magicgui.widgets.Widget`][].  Widgets may be created
 directly:
 
@@ -23,7 +23,7 @@ container = Container(widgets=[line_edit, spin_box])
 container.show()
 ```
 
-`magicgui` provides a way to automatically select a widget given a python value
+**magicgui** provides a way to automatically select a widget given a python value
 or type annotation using [`magicgui.widgets.create_widget`][]. Here is an
 example that yields the same result as the one above:
 
@@ -36,7 +36,7 @@ container = Container(widgets=[create_widget(i) for i in (x, y)])
 container.show()
 ```
 
-!!! note
+!!! tip
 
     Because there are often multiple "valid" widget types for a given python object,
     you may sometimes wish to create widgets directly, or use the `widget_type` argument
@@ -44,17 +44,17 @@ container.show()
 
 ## The widget hierarchy
 
-Many widgets present similar types of information in different ways.  `magicgui` tries
+Many widgets present similar types of information in different ways.  **magicgui** tries
 to maintain a consistent API among all types of widgets that are designed to represent
 similar objects.  The general class of widget you are working with will determine the
 properties and attributes it has.
 
 !!! note
 
-    The "categories" shown below (such as [`ValueWidget`](#valuewidget) and [`RangedWidget`]
-    (#rangedwidget-valuewidget)) are not intended to be instantiated directly.  Instead, you
-    would directly create the widget type you wanted, such as `LineEdit` or `SpinBox`,
-    respectively.
+    The categories shown below are sorted by their base class (such as
+    [`ValueWidget`](#valuewidget) and [`RangedWidget`](#rangedwidget)). The bases are
+    not intended to be instantiated directly.  Instead, you would create the widget
+    type you wanted, such as `LineEdit` or `SpinBox`, respectively.
 
 ### `Widget`
 
@@ -122,7 +122,7 @@ container.max_height = 300
 container.show()
 ```
 
-#### `RangedWidget(ValueWidget)`
+#### `RangedWidget`
 
 `RangedWidgets` are numerical [`ValueWidgets`](#valuewidget) that have a restricted range of valid
 values, and a step size.  `RangedWidgets` include:
@@ -131,7 +131,7 @@ values, and a step size.  `RangedWidgets` include:
     magicgui.widgets.SpinBox
     magicgui.widgets.FloatSpinBox
 
-Ranged widgets attributes include:
+In addition to all of the `ValueWidget` attributes, `RangedWidget` attributes include:
 
 | <div style="width:80px">Attribute</div> | Type | Description |
 |-----------|------|-------------|
@@ -141,7 +141,6 @@ Ranged widgets attributes include:
 | `range` | `tuple of float` | A convenience attribute for getting/setting the (min, max) simultaneously |
 
 
-
 ```python
 w1 = widgets.SpinBox(value=10, max=20, label='SpinBox:')
 w2 = widgets.FloatSpinBox(value=10.5, step=0.5, label='FloatSpinBox:')
@@ -149,9 +148,9 @@ container = widgets.Container(widgets=[w1, w2])
 container.show()
 ```
 
-##### `SliderWidget(RangedWidget)`
+##### `SliderWidget`
 
-`SliderWidgets` are special [`RangedWidgets`](#rangedwidget-valuewidget)
+`SliderWidgets` are special [`RangedWidgets`](#rangedwidget)
 that additionally have an `orientation`, and a `readout`.
 
 ::: autosummary
@@ -159,6 +158,8 @@ that additionally have an `orientation`, and a `readout`.
     magicgui.widgets.FloatSlider
     magicgui.widgets.LogSlider
     magicgui.widgets.ProgressBar
+
+In addition to all of the `RangedWidget` attributes, `SliderWidget` attributes include:
 
 | <div style="width:80px">Attribute</div> | Type | Description |
 |-----------|------|-------------|
@@ -174,7 +175,7 @@ container = widgets.Container(widgets=[w1, w2, w3])
 container.show()
 ```
 
-#### `ButtonWidget(ValueWidget)`
+#### `ButtonWidget`
 
 `ButtonWidgets` are boolean [`ValueWidgets`](#valuewidget) that also have some
 `text` associated with them.
@@ -183,18 +184,20 @@ container.show()
     magicgui.widgets.PushButton
     magicgui.widgets.CheckBox
 
+In addition to all of the `ValueWidget` attributes, `ButtonWidget` attributes include:
+
 | <div style="width:80px">Attribute</div> | Type | Description |
 |-----------------------------------------|------|-------------|
 | `text` | `str` | The text to display on the button. If not provided, will use `name`. |
 
 ```python
-w1 = widgets.PushButton(value=True, text='PushButton.text')
-w2 = widgets.CheckBox(value=False, text='CheckBox.text')
+w1 = widgets.PushButton(value=True, text='PushButton Text')
+w2 = widgets.CheckBox(value=False, text='CheckBox Text')
 container = widgets.Container(widgets=[w1, w2])
 container.show()
 ```
 
-#### `CategoricalWidget(ValueWidget)`
+#### `CategoricalWidget`
 
 `CategoricalWidget` are [`ValueWidgets`](#valuewidget) that provide a set
 of valid choices.  They can be created from:
@@ -208,10 +211,11 @@ of valid choices.  They can be created from:
     magicgui.widgets.RadioButtons
     magicgui.widgets.Select
 
+In addition to all of the `ValueWidget` attributes, `CategoricalWidget` attributes include:
 
-| <div style="width:80px">Attribute</div> | Type | Description |
+| <div style="width:80px">Attribute</div> | <div style="width:100px">Type</div>  | Description |
 |-----------------------------------------|------|-------------|
-| `choices` | `Enum`, `Iterable`, or `Callable` | Available choices displayed in the widget. |
+| `choices` | [`Enum`][enum.Enum], [`Iterable`][typing.Iterable], or [`Callable`][typing.Callable] | Available choices displayed in the widget. |
 | `value` | `Any` | In the case of a `CategoricalWidget` the `value` is the *data* of the currently selected choice (see also: `current_choice` below). |
 | `current_choice` | `str` | The name associated with the current choice.  For instance, if `choices` was provided as `choices=[('one', 1), ('two', 2)]`, then an example `value` would be `1`, and an example `current_choice` would be `'one'`. |
 
@@ -244,13 +248,13 @@ notable example of a `Container` is [`magicgui.widgets.FunctionGui`][])
 | `labels` | `bool` | Whether each widget should be shown with a corresponding `Label` widget to the left.  Note: the text for each widget defaults to `widget.name`, but can be overridden by setting `widget.label`. |
 
 
+#### `@magicgui`
 
-## `@magicgui`
-
-The [`@magicgui`][magicgui.magicgui] decorator is a just convenience
-function that builds a special type of [`magicgui.widgets.Container`][]
-widget (a [`magicgui.widgets.FunctionGui`][]), with a widget representing
-each of the parameters in a decorated function.
+It's worth noting that [`@magicgui`][magicgui.magicgui] and
+[`@magic_factory`][magicgui.magic_factory] decorators are just conveniences
+that build a special type of [`Container`][magicgui.widgets.Container] widget (a
+[`FunctionGui`][magicgui.widgets.FunctionGui]), with a widget representing each of the
+parameters in a decorated function.
 
 ```python
 from magicgui import magicgui
@@ -262,11 +266,7 @@ my_function.show()
 ```
 
 In terms of simply building widgets, the following code performs a similar task
-to [`@magicgui`][magicgui.magicgui].  Note, however, that the
-[`magicgui.widgets.FunctionGui`][] widget produced by
-[`@magicgui`][magicgui.magicgui]][] is actually a *callable* widget that behaves
-very much like the original function, using the parameters from the GUI when
-calling the function.
+to [`@magicgui`][magicgui.magicgui].
 
 ```python
 from inspect import signature
@@ -280,3 +280,10 @@ container = Container(
 )
 container.show()
 ```
+
+!!! tip
+
+    *Note that the [`FunctionGui`][magicgui.widgets.FunctionGui] widget
+    produced by `@magicgui` is actually a **callable** object that behaves very
+    much like the original function, except that it will use current values from
+    the GUI as default parameters when calling the function.*

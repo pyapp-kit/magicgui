@@ -25,16 +25,19 @@
     types.FunctionType
     pint.Quantity
 
-## Overriding the Default Widget
+## Using `typing.Annotated`
+
+### Overriding the Default Widget
 
 ::: type_to_widget
     Annotated[int, {'widget_type': 'Slider'}]
     Annotated[float, {'widget_type': 'FloatSlider'}]
 
-## Overriding the Default Kwargs
+### Overriding the Default Kwargs
 
 ::: type_to_widget
-    Annotated[int, {'step': 10, 'min': 10, 'max': 100}]
+    Annotated[int, {'step': 10, 'max': 50}]
+    Annotated[int, {'choices': [1, 2, 3]}]
 
 ## Return Type Mapping
 

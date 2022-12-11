@@ -1,8 +1,24 @@
 # Protocols
 
+
 !!!note
 
     Most users of magicgui will not need to worry about this section.
+
+
+::: autosummary
+    magicgui.widgets.protocols.WidgetProtocol
+    magicgui.widgets.protocols.ValueWidgetProtocol
+    magicgui.widgets.protocols.ButtonWidgetProtocol
+    magicgui.widgets.protocols.TableWidgetProtocol
+    magicgui.widgets.protocols.RangedWidgetProtocol
+    magicgui.widgets.protocols.SupportsChoices
+    magicgui.widgets.protocols.CategoricalWidgetProtocol
+    magicgui.widgets.protocols.SupportsOrientation
+    magicgui.widgets.protocols.SliderWidgetProtocol
+    magicgui.widgets.protocols.ContainerProtocol
+    magicgui.widgets.protocols.BaseApplicationBackend
+
 
 ::: magicgui.widgets.protocols.WidgetProtocol
     options:
