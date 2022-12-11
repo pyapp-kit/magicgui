@@ -11,7 +11,6 @@ from collections import defaultdict
 from contextlib import contextmanager
 from enum import EnumMeta
 from typing import (
-    Annotated,
     Any,
     Callable,
     DefaultDict,
@@ -29,7 +28,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import get_args, get_origin
+from typing_extensions import Annotated, get_args, get_origin
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
