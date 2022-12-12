@@ -1,4 +1,4 @@
-# Widget Overview
+# Widgets Overview
 
 All individual graphical elements in **magicgui** are "widgets", and all widgets
 are instances of [`magicgui.widgets.Widget`][].  Widgets may be created
@@ -43,6 +43,108 @@ container.show()
     in [`create_widget()`][magicgui.widgets.create_widget]
 
 ## The widget hierarchy
+
+``` mermaid
+graph TB
+    A([Widget])-->B([ValueWidget])
+    A-->C([ContainerWidget])
+    B-->D([RangedWidget])
+    B-->E([ButtonWidget])
+    B-->F([CategoricalWidget])
+    C-->G([FunctionGui])
+    C-->H([MainWindowGui])
+    D-->I([SliderWidget])
+    click B "#valuewidget"
+```
+
+``` mermaid
+classDiagram
+    Widget <|-- ValueWidget
+    Widget <|-- ContainerWidget
+    ValueWidget <|-- RangedWidget
+    ValueWidget <|-- ButtonWidget
+    ValueWidget <|-- CategoricalWidget
+    ContainerWidget <|-- FunctionGui
+    ContainerWidget <|-- MainWindowGui
+    RangedWidget <|-- SliderWidget
+    Widget --* WidgetProtocol : controls a
+    BackendWidget ..|> WidgetProtocol : implements a
+    <<Interface>> WidgetProtocol
+    class WidgetProtocol {
+        _mgui_get_X()
+        _mgui_set_X()
+    }
+    class Widget{
+        name: str
+        annotation: Any
+        label: str
+        tooltip: str
+        visible: bool
+        enabled: bool
+        native: Any
+        height: int
+        width: int
+        min_height: int
+        max_height: int
+        min_width: int
+        max_width: int
+        hide()
+        show()
+        close()
+        render()
+    }
+    class ValueWidget{
+        value: Any
+        changed: SignalInstance
+        bind(value, call) Any
+        unbind()
+    }
+    class RangedWidget{
+        value: float | tuple
+        min: float
+        max: float
+        step: float
+        adaptive_step: bool
+        range: tuple[float, float]
+    }
+    class SliderWidget{
+        orientation: str
+    }
+    class ButtonWidget{
+        value: bool
+        clicked: SignalInstance
+        text: str
+    }
+    class CategoricalWidget{
+        choices: List[Any]
+    }
+    class ContainerWidget{
+        widgets: List[Widget]
+        labels: bool
+        layout: str
+        margins: tuple[int, int, int, int]
+        reset_choices()
+        asdict() Dict[str, Any]
+        update(mapping)
+    }
+    class FunctionGui{
+        result_widget: Widget
+        call_button: ButtonWidget
+    }
+    class MainWindowGui{
+        menu_bar: MenuBar
+        status_bar: StatusBar
+    }
+
+    click Widget href "#widget"
+    click ValueWidget href "#valuewidget"
+    click RangedWidget href "#rangedwidget"
+    click ButtonWidget href "#buttonwidget"
+    click CategoricalWidget href "#categoricalwidget"
+    click ContainerWidget href "#containerwidget"
+    click SliderWidget href "#sliderwidget"
+
+```
 
 Many widgets present similar types of information in different ways.  **magicgui** tries
 to maintain a consistent API among all types of widgets that are designed to represent

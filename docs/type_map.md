@@ -1,4 +1,4 @@
-# Mapping Types to Widgets
+# Type Annotations to Widgets
 
 ## Annotation Mapping
 
@@ -42,3 +42,20 @@
 ## Return Type Mapping
 
 ## Forward References
+
+## Known Third-Party Support for magicgui
+
+Any third-party library may use the [`magicgui.register_type`][] function to
+register its types with magicgui.  When a registered type is used as an
+annotation, the registered widget will be used.
+
+!!! tip "Hi! :wave:"
+
+     Have a library that registers types with magicgui?  [Let us know](https://github.com/pyapp-kit/magicgui/issues/new/choose) and we'll add it to this list!
+
+### napari
+
+[napari](https://napari.org) has registered a number of its types to provide
+access to napari-specific objects using type annotations in magicgui. Details may be found in
+napari's documentation on [using `magicgui` in
+napari](https://napari.org/stable/guides/magicgui.html).

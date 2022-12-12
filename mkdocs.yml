@@ -24,10 +24,12 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+  features:
+    - content.code.annotate
 
 nav:
   - Overview: index.md
-  - widget_overview.md
+  - widgets_overview.md
   - type_map.md
   - events.md
   - decorators.md
@@ -49,16 +51,20 @@ watch:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
   - pymdownx.highlight
   - pymdownx.extra
   - attr_list
   - md_in_html
-  - codehilite:
-      guess_lang: False
-      use_pygments: True
-      noclasses: True
-      pygments_style: monokai
+  - toc:
+      permalink: "#"
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 plugins:
   - search
@@ -80,10 +86,11 @@ plugins:
             - https://docs.python.org/3/objects.inv
             - https://psygnal.readthedocs.io/en/latest/objects.inv
             - https://pint.readthedocs.io/en/stable/objects.inv
+            - https://napari.org/stable/objects.inv
           options:
             docstring_style: numpy
             show_source: false
-            show_signature_annotations: false
+            show_signature_annotations: true
             show_root_heading: true
             show_root_full_path: false
             # show_source: false

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import sys
 import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Iterator
@@ -13,9 +12,6 @@ from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
 from magicgui.widgets.protocols import WidgetProtocol
 
-BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
-if BUILDING_DOCS:
-    pass
 if TYPE_CHECKING:
     from weakref import ReferenceType
 

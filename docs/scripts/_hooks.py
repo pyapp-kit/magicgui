@@ -94,9 +94,9 @@ def _replace_type_to_widget(md: str) -> str:
     except ValueError:
         last_line = None
     table = [
-        "| <div style='width:210px'>Type</div> "
+        "| <div style='width:210px'>Type Hint</div> "
         "| <div style='width:100px'>Widget</div> "
-        "| Additional kwargs",
+        "| `__init__` kwargs",
         "| ---- | ------ | ------ |",
     ]
     for line in lines[start + 1 : last_line]:
