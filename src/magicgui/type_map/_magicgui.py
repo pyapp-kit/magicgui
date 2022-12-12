@@ -14,6 +14,7 @@ __all__ = ["magicgui", "magic_factory", "MagicFactory"]
 
 
 _R = TypeVar("_R")
+_T = TypeVar("_T", bound=FunctionGui)
 
 
 @overload
@@ -178,7 +179,21 @@ def magicgui(
     >>> my_function.a.value == 1  # True
     >>> my_function.b.value = 'world'
     """
-    return _magicgui(**locals())
+    return _magicgui(
+        function=function,
+        layout=layout,
+        scrollable=scrollable,
+        labels=labels,
+        tooltips=tooltips,
+        call_button=call_button,
+        auto_call=auto_call,
+        result_widget=result_widget,
+        main_window=main_window,
+        app=app,
+        persist=persist,
+        raise_on_unknown=raise_on_unknown,
+        param_options=param_options,
+    )
 
 
 @overload
@@ -369,9 +384,6 @@ def magic_factory(
         raise_on_unknown=raise_on_unknown,
         param_options=param_options,
     )
-
-
-_T = TypeVar("_T", bound=FunctionGui)
 
 
 # _R is the return type of the decorated function
