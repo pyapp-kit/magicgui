@@ -1,4 +1,4 @@
-# Widgets Overview
+# Widgets
 
 All individual graphical elements in **magicgui** are "widgets", and all widgets
 are instances of [`magicgui.widgets.Widget`][].  Widgets may be created
@@ -55,95 +55,6 @@ graph TB
     C-->H([MainWindowGui])
     D-->I([SliderWidget])
     click B "#valuewidget"
-```
-
-``` mermaid
-classDiagram
-    Widget <|-- ValueWidget
-    Widget <|-- ContainerWidget
-    ValueWidget <|-- RangedWidget
-    ValueWidget <|-- ButtonWidget
-    ValueWidget <|-- CategoricalWidget
-    ContainerWidget <|-- FunctionGui
-    ContainerWidget <|-- MainWindowGui
-    RangedWidget <|-- SliderWidget
-    Widget --* WidgetProtocol : controls a
-    BackendWidget ..|> WidgetProtocol : implements a
-    <<Interface>> WidgetProtocol
-    class WidgetProtocol {
-        _mgui_get_X()
-        _mgui_set_X()
-    }
-    class Widget{
-        name: str
-        annotation: Any
-        label: str
-        tooltip: str
-        visible: bool
-        enabled: bool
-        native: Any
-        height: int
-        width: int
-        min_height: int
-        max_height: int
-        min_width: int
-        max_width: int
-        hide()
-        show()
-        close()
-        render()
-    }
-    class ValueWidget{
-        value: Any
-        changed: SignalInstance
-        bind(value, call) Any
-        unbind()
-    }
-    class RangedWidget{
-        value: float | tuple
-        min: float
-        max: float
-        step: float
-        adaptive_step: bool
-        range: tuple[float, float]
-    }
-    class SliderWidget{
-        orientation: str
-    }
-    class ButtonWidget{
-        value: bool
-        clicked: SignalInstance
-        text: str
-    }
-    class CategoricalWidget{
-        choices: List[Any]
-    }
-    class ContainerWidget{
-        widgets: List[Widget]
-        labels: bool
-        layout: str
-        margins: tuple[int, int, int, int]
-        reset_choices()
-        asdict() Dict[str, Any]
-        update(mapping)
-    }
-    class FunctionGui{
-        result_widget: Widget
-        call_button: ButtonWidget
-    }
-    class MainWindowGui{
-        menu_bar: MenuBar
-        status_bar: StatusBar
-    }
-
-    click Widget href "#widget"
-    click ValueWidget href "#valuewidget"
-    click RangedWidget href "#rangedwidget"
-    click ButtonWidget href "#buttonwidget"
-    click CategoricalWidget href "#categoricalwidget"
-    click ContainerWidget href "#containerwidget"
-    click SliderWidget href "#sliderwidget"
-
 ```
 
 Many widgets present similar types of information in different ways.  **magicgui** tries
@@ -242,7 +153,6 @@ In addition to all of the `ValueWidget` attributes, `RangedWidget` attributes in
 | `step` | `float` | The step size for incrementing the value, by default 1 |
 | `range` | `tuple of float` | A convenience attribute for getting/setting the (min, max) simultaneously |
 
-
 ```python
 w1 = widgets.SpinBox(value=10, max=20, label='SpinBox:')
 w2 = widgets.FloatSpinBox(value=10.5, step=0.5, label='FloatSpinBox:')
@@ -267,7 +177,6 @@ In addition to all of the `RangedWidget` attributes, `SliderWidget` attributes i
 |-----------|------|-------------|
 | `orientation` | `str` | The orientation for the slider. Must be either `'horizontal'` or `'vertical'`.  by default `'horizontal'` |
 | `readout` | `bool` | Whether to show the value of the slider. By default, `True`. |
-
 
 ```python
 w1 = widgets.Slider(value=10, max=25, label='Slider:')
@@ -307,6 +216,7 @@ of valid choices.  They can be created from:
 - an [`enum.Enum`][]
 - an iterable of objects (or an iterable of 2-tuples `(name, object)`)
 - a callable that returns an [`enum.Enum`][] or an iterable
+- a [`typing.Literal`][] annotation.
 
 ::: autosummary
     magicgui.widgets.ComboBox
@@ -334,9 +244,9 @@ container.show()
 ### `ContainerWidget`
 
 A `ContainerWidget` is a list-like `Widget` that can contain other widgets.
-Containers allow you to build more complex widgets from sub-widgets. A
-notable example of a `Container` is [`magicgui.widgets.FunctionGui`][])
-(the product of the [`@magicgui`][magicgui.magicgui] decorator).
+Containers allow you to build more complex widgets from sub-widgets. A notable
+example of a `Container` is [`magicgui.widgets.FunctionGui`][]) (the product of
+the [`@magicgui`][magicgui.magicgui] decorator).
 
 ::: autosummary
     magicgui.widgets.Container
@@ -349,6 +259,17 @@ notable example of a `Container` is [`magicgui.widgets.FunctionGui`][])
 | `widgets` | `Sequence[Widget]` | The widgets that the container contains. |
 | `labels` | `bool` | Whether each widget should be shown with a corresponding `Label` widget to the left.  Note: the text for each widget defaults to `widget.name`, but can be overridden by setting `widget.label`. |
 
+`Container` implements the full [`collections.abc.MutableSequence`][] interface.  You
+can add and remove widgets from it just as you would add or remove items from a list.
+
+```python
+from magicgui.widgets import Container, Slider, FloatSlider, ProgressBar
+
+container = widgets.Container()
+container.append(widgets.LineEdit(value='Mookie', label='Your Name:'))
+container.append(widgets.FloatSlider(value=10.5, label='FloatSlider:'))
+container.show()
+```
 
 #### `@magicgui`
 

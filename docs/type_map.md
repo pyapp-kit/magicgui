@@ -1,4 +1,4 @@
-# Type Annotations to Widgets
+# Type Hints to Widgets
 
 ## Annotation Mapping
 

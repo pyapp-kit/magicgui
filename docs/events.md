@@ -1,1 +1,1 @@
-# Events in magicgui
+# Responding to events

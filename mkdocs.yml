@@ -5,11 +5,14 @@ repo_name: pyapp-kit/magicgui
 repo_url: https://github.com/pyapp-kit/magicgui
 edit_uri: edit/main/docs/
 # strict: true
+copyright: Copyright &copy; 2020 - 2023 Talley Lambert
 
 theme:
   name: material
   favicon: images/favicon.ico
   logo: images/logo.png
+  icon:
+    repo: fontawesome/brands/github
   palette:
     # Palette toggle for light mode
     - scheme: default
@@ -26,21 +29,40 @@ theme:
         name: Switch to light mode
   features:
     - content.code.annotate
+    - navigation.sections
+    - toc.follow
+    - search.suggest
+    - search.share
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pyapp-kit/magicgui
+      name: magicgui on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/magicgui/
+      name: magicgui on PyPI
 
 nav:
   - Overview: index.md
-  - widgets_overview.md
-  - type_map.md
-  - events.md
-  - decorators.md
+  - Installation: installation.md
+  - Usage:
+    - widgets_overview.md
+    - type_map.md
+    - events.md
+    - decorators.md
+    - dataclasses.md
   - API:
       - api/magicgui.md
       - api/magic_factory.md
-      - widgets: api/widgets/
-      - widgets.bases: api/widgets/bases/
+      - widgets:
+        - api/widgets/index.md
+        - api/widgets/*.md
+      - widgets.bases: api/widgets/bases.md
       - widgets.protocols: api/protocols.md
       - type_map: api/type_map.md
       - application: api/app.md
+      - experimental: api/experimental.md
 
 hooks:
   - docs/scripts/_hooks.py
@@ -68,8 +90,13 @@ markdown_extensions:
 
 plugins:
   - search
-  - literate-nav
   - autorefs
+  - literate-nav
+  - section-index
+  - gen-files:
+      scripts:
+        - docs/scripts/_gen_screenshots.py
+        - docs/scripts/_gen_widgets.py
   - mkdocstrings:
       handlers:
         widget_handler:
@@ -96,10 +123,6 @@ plugins:
             # show_source: false
             show_bases: true
             docstring_section_style: list
-  - gen-files:
-      scripts:
-        - docs/scripts/_gen_widgets.py
-        - docs/scripts/_gen_screenshots.py
 
 extra_css:
   - stylesheets/extra.css

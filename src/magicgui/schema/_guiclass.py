@@ -103,14 +103,15 @@ def guiclass(
     cls : type
         The class to turn into a dataclass.
     gui_name : str, optional
-        The name of the property that will return a `magicgui` widget, by default "gui"
+        The name of the property that will return a `magicgui` widget, by default
+        `"gui"`
     events_namespace : str, optional
         The name of the attribute that will be added to the class, by default "events".
         This attribute will be an instance of `psygnal.SignalGroup` that will be used
         to connect events to the class.
     follow_changes : bool, optional
-        If True, changes to the dataclass instance will be reflected in the gui, and
-        changes to the gui will be reflected in the dataclass instance, by default True
+        If `True` (default), changes to the dataclass instance will be reflected in the
+        gui, and changes to the gui will be reflected in the dataclass instance.
     dataclass_kwargs : dict, optional
         Additional keyword arguments to pass to `dataclasses.dataclass`.
 

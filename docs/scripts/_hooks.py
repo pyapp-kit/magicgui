@@ -74,7 +74,10 @@ def on_startup(**kwargs):
 def _replace_autosummary(md: str) -> str:
     lines = md.splitlines()
     start = lines.index("::: autosummary")
-    last_line = lines.index("", start + 1)
+    try:
+        last_line = lines.index("", start + 1)
+    except ValueError:
+        last_line = None
     table = ["| Widget | Description |", "| ---- | ----------- |"]
     for line in lines[start + 1 : last_line]:
         name = line.strip()
@@ -120,10 +123,40 @@ def _replace_type_to_widget(md: str) -> str:
     return "\n".join(lines)
 
 
+def _replace_widget_autosummary(md: str) -> str:
+    from magicgui import widgets
+
+    lines = md.splitlines()
+    start = lines.index("::: widget_autosummary")
+    try:
+        last_line = lines.index("", start + 1)
+    except ValueError:
+        last_line = None
+
+    autosummary = ["::: autosummary"]
+    for name in dir(widgets):
+        if name.startswith("_"):
+            continue
+        obj = getattr(widgets, name)
+        if (
+            isinstance(obj, type)
+            and issubclass(obj, widgets.Widget)
+            and obj is not widgets.Widget
+            and obj.__name__ == name
+        ):
+            autosummary.append(f"magicgui.widgets.{name}")
+
+    lines[start:last_line] = autosummary
+    return "\n".join(lines)
+
+
 def on_page_markdown(md, page, **kwargs):
     import re
 
     w_iter = count()
+
+    while "::: widget_autosummary" in md:
+        md = _replace_widget_autosummary(md)
 
     while "::: autosummary" in md:
         md = _replace_autosummary(md)
@@ -132,17 +165,18 @@ def on_page_markdown(md, page, **kwargs):
         md = _replace_type_to_widget(md)
 
     def _sub(matchobj: re.Match) -> str:
+        if ".show()" not in matchobj.group(0):
+            return matchobj.group(0)
         src = matchobj.group(1)
         _md: str = "```python\n" + src + "\n```"
-        if ".show()" in src:
-            dest = f"_images/{page.file.name}_{next(w_iter)}.png"
-            light = dest.replace(".png", "_light.png")
-            _md += f"\n![]({light}#only-light){{: .code-image}}\n\n"
-            # Not working
-            # dark = dest.replace(".png", "_light.png")
-            # _md += f"\n![]({dark}#only-dark){{: .code-image}}\n\n"
-        return _md
+        dest = f"_images/{page.file.name}_{next(w_iter)}.png"
+        light = dest.replace(".png", "_light.png")
+        _md += f"\n![]({light}#only-light){{: .code-image}}\n\n"
+        # Not working
+        # dark = dest.replace(".png", "_light.png")
+        # _md += f"\n![]({dark}#only-dark){{: .code-image}}\n\n"
+        return _md.replace(" # leave open", "")
 
-    md = re.sub(r"```python\n([^`]*)```", _sub, md, re.DOTALL)
+    md = re.sub("``` ?python\n([^`]*)```", _sub, md, re.DOTALL)
 
     return md

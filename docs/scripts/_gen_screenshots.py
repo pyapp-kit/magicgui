@@ -7,7 +7,7 @@ import mkdocs_gen_files
 from qtpy.QtWidgets import QApplication
 
 DOCS = Path(__file__).parent.parent
-CODE_BLOCK = re.compile(r"```python\n([^`]*)```", re.DOTALL)
+CODE_BLOCK = re.compile("``` ?python\n([^`]*)```", re.DOTALL)
 
 
 def _set_dark_mode(dark_mode: bool):
@@ -20,41 +20,49 @@ def _set_dark_mode(dark_mode: bool):
     subprocess.run(cmd)
 
 
-def _write_markdown_result_image(src: str, ns: dict, dest: str) -> bool:
+LEFT_OPEN = False
 
-    wdg = set(QApplication.topLevelWidgets())
+
+def _clear_left_open() -> None:
+    global LEFT_OPEN
+    for w in QApplication.topLevelWidgets():
+        w.close()
+        w.deleteLater()
+    QApplication.processEvents()
+    LEFT_OPEN = False
+
+
+def _write_markdown_result_image(src: str, ns: dict, dest: str):
+    global LEFT_OPEN
+    top_widgets = set(QApplication.topLevelWidgets())
     exec(src, ns, ns)
-    new_wdg = set(QApplication.topLevelWidgets()) - wdg
-    if new_wdg:
-        for w in new_wdg:
-            w.setMinimumWidth(200)
-            w.show()
-            w.activateWindow()
-            w.update()
+    if not LEFT_OPEN:
+        top_widgets = set(QApplication.topLevelWidgets()) - top_widgets
+    for w in top_widgets:
+        w.setMinimumWidth(200)
+        w.show()
+        w.activateWindow()
+        w.update()
 
-            QApplication.processEvents()
-            with mkdocs_gen_files.open(dest.replace(".png", "_light.png"), "wb") as f:
-                success = w.grab().save(f.name)
+        with mkdocs_gen_files.open(dest.replace(".png", "_light.png"), "wb") as f:
+            if not w.grab().save(f.name):
+                print("Error saving", dest)
 
-            # Not working
-            # if DO_DARK:
-            #     _set_dark_mode(True)
-            #     with mkdocs_gen_files.open(dest.replace(".png", "_dark.png"), "wb") as f2:  # noqa
-            #         w.grab().save(f2.name)
-            #     _set_dark_mode(False)
-
-            w.close()
-            w.deleteLater()
-    return success
+        if "# leave open" in src:
+            LEFT_OPEN = True
+        else:
+            _clear_left_open()
 
 
-for mdfile in DOCS.rglob("*.md"):
+for mdfile in sorted(DOCS.rglob("*.md"), reverse=True):
+    _clear_left_open()
+
     md = mdfile.read_text()
     w_iter = count()
     namespace: dict = {}
-    for _n, match in enumerate(CODE_BLOCK.finditer(md)):
-        code = match.group(1)
-        if ".show()" not in code:
+    for match in CODE_BLOCK.finditer(md):
+        if ".show()" not in match.group(0):
             continue
+        code = match.group(1)
         dest = f"_images/{mdfile.stem}_{next(w_iter)}.png"
         _write_markdown_result_image(code, namespace, dest)

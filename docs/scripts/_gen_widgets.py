@@ -6,10 +6,10 @@ import mkdocs_gen_files
 from magicgui import widgets
 from magicgui.backends import _ipynb, _qtpy
 
-MAKE_IMAGES = False
+MAKE_IMAGES = True
 BACKENDS = {"qt": _qtpy.widgets, "ipynb": _ipynb.widgets}
 WIDGETS_PATH = Path("api/widgets")
-BASES_PATH = Path("api/widgets/bases")
+IMAGES_PATH = Path("images")
 WIDGET_PAGE = """
 # {name}
 
@@ -38,13 +38,11 @@ def _snap_image(_obj: type, _name: str) -> str:
     except Exception:
         return ""
     else:
-        pth = WIDGETS_PATH / "images" / f"{_name}.png"
+        pth = IMAGES_PATH / f"{_name}.png"
         with mkdocs_gen_files.open(pth, "wb") as f:
             wdg.setMinimumWidth(300)  # turns out this is very important for grab
             wdg.grab().save(f.name)
-        return (
-            f'![{_name} widget](../{pth}){{{{ loading=lazy, class="widget-image" }}}}'
-        )
+        return f'![{_name} widget](../../{pth}){{ loading=lazy, class="widget-image" }}'
 
 
 for name in dir(widgets):
@@ -67,26 +65,3 @@ for name in dir(widgets):
                 name=name, backends=", ".join(backends), img_link=img_link
             )
             f.write(md)
-
-
-BASE_PAGE = """
-# {name}
-
-::: magicgui.widgets.bases.{name}
-    options:
-        show_signature_annotations: true
-"""
-
-for base in [
-    "Widget",
-    "ButtonWidget",
-    "CategoricalWidget",
-    "ContainerWidget",
-    "DialogWidget",
-    "MainWindowWidget",
-    "RangedWidget",
-    "SliderWidget",
-    "ValueWidget",
-]:
-    with mkdocs_gen_files.open(BASES_PATH / f"{base}.md", "w") as f:
-        f.write(BASE_PAGE.format(name=base))

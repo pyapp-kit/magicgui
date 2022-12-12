@@ -109,6 +109,13 @@ dev = [
     "toolz",
     "tqdm>=4.30.0",
 ]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings-python",
+    "mkdocs-gen-files",
+    "mkdocs-literate-nav",
+]
 
 [project.urls]
 homepage = "https://github.com/pyapp-kit/magicgui"
