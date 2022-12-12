@@ -3,7 +3,7 @@ from __future__ import annotations
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import Any, Callable, Iterable, TypeVar, cast
+from typing import Any, Callable, Iterable, TypeVar, Union, cast
 from warnings import warn
 
 from magicgui.types import Undefined, _Undefined
@@ -11,7 +11,7 @@ from magicgui.widgets import protocols
 
 from ._value_widget import ValueWidget
 
-T = TypeVar("T", int, float, tuple[int | float, ...])
+T = TypeVar("T", int, float, tuple[Union[int, float], ...])
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 
