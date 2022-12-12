@@ -371,8 +371,6 @@ def magic_factory(
     )
 
 
-magic_factory.__doc__ += "\n\n    Parameters" + _factory_doc.split("Parameters")[1]  # type: ignore  # noqa
-
 _T = TypeVar("_T", bound=FunctionGui)
 
 
