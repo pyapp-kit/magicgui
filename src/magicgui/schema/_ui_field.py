@@ -54,7 +54,7 @@ class UiField(Generic[T]):
         """Coerce Optional[...] to nullable and remove it from the type."""
         if get_origin(self.type) is Union:
             args = get_args(self.type)
-            nonnull = tuple(a for a in args if a is not type(None))  # noqa: E721
+            nonnull = tuple(a for a in args if a is not type(None))
             if len(nonnull) < len(args):
                 # object.__setattr__ because we are using a frozen dataclass
                 object.__setattr__(self, "_original_annotation", self.type)
