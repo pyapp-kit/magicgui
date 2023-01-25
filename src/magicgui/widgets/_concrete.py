@@ -375,7 +375,10 @@ class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
 
 @backend_widget
 class Container(ContainerWidget[WidgetVar]):
-    """A Widget to contain other widgets."""
+    """A Widget to contain other widgets.
+
+    Note that `Container` implements the [`typing.MutableSequence`][] interface,
+    """
 
 
 @backend_widget
@@ -385,7 +388,7 @@ class Dialog(DialogWidget):
 
 @backend_widget
 class MainWindow(MainWindowWidget):
-    """A Widget to contain other widgets."""
+    """A Widget to contain other widgets, includes a menu bar."""
 
 
 @merge_super_sigs

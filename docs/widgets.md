@@ -51,8 +51,8 @@ graph TB
     B-->D([RangedWidget])
     B-->E([ButtonWidget])
     B-->F([CategoricalWidget])
+    C-->H([MainWindowWidget])
     C-->G([FunctionGui])
-    C-->H([MainWindowGui])
     D-->I([SliderWidget])
     click A "#widget"
     click B "#valuewidget"
@@ -60,8 +60,8 @@ graph TB
     click D "#rangedwidget"
     click E "#buttonwidget"
     click F "#categoricalwidget"
+    click H "#mainwindowwidget"
     click G "#functiongui"
-    click H "#maingui"
     click I "#sliderwidget"
 ```
 
@@ -163,7 +163,7 @@ In addition to all of the `ValueWidget` attributes, `RangedWidget` attributes in
 
 ```python
 w1 = widgets.SpinBox(value=10, max=20, label='SpinBox:')
-w2 = widgets.FloatSpinBox(value=10.5, step=0.5, label='FloatSpinBox:')
+w2 = widgets.FloatSpinBox(value=380, step=0.5, label='FloatSpinBox:')
 container = widgets.Container(widgets=[w1, w2])
 container.show()
 ```
@@ -278,6 +278,11 @@ container.append(widgets.LineEdit(value='Mookie', label='Your Name:'))
 container.append(widgets.FloatSlider(value=10.5, label='FloatSlider:'))
 container.show()
 ```
+
+#### `MainWindowWidget`
+
+A `MainWindowWidget` is a special type of `ContainerWidget` that also includes a menu
+bar.
 
 #### `FunctionGui`
 

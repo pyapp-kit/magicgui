@@ -2,6 +2,10 @@
 
 ## Annotation Mapping
 
+The following python `Type Hint` annotations are mapped by default to the
+corresponding `Widget` class, and parametrized with the corresponding `kwargs`
+(when applicable):
+
 ::: type_to_widget
     bool
     int
@@ -27,13 +31,24 @@
 
 ## Using `typing.Annotated`
 
+Widget options and types may be embedded in the type hint itself using
+`typing.Annotated`.
+
 ### Overriding the Default Widget
+
+To override the widget class used for a given object type, use the `widget_type`
+key in the `Annotated` `kwargs`.  It can be either the string name of one of the
+[built-in widgets](./api/widgets/index.md), or any
+[`Widget`][magicgui.widgets.Widget] subclass object.
 
 ::: type_to_widget
     Annotated[int, {'widget_type': 'Slider'}]
     Annotated[float, {'widget_type': 'FloatSlider'}]
 
 ### Overriding the Default Kwargs
+
+Any additional kwargs will be passed to the widget constructor (and must be
+valid for the corresponding widget type).
 
 ::: type_to_widget
     Annotated[int, {'step': 10, 'max': 50}]
