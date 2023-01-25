@@ -4,7 +4,6 @@ from time import sleep
 from magicgui import magicgui
 from magicgui.tqdm import tqdm, trange
 
-
 # if magicui.tqdm.tqdm or trange are used outside of a @magicgui function, (such as in
 # interactive use in IPython), then they fall back to the standard terminal output
 
