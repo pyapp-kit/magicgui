@@ -47,7 +47,7 @@ nav:
   - Overview: index.md
   - Installation: installation.md
   - Usage:
-    - widgets_overview.md
+    - widgets.md
     - type_map.md
     - events.md
     - decorators.md
@@ -92,7 +92,7 @@ plugins:
   - search
   - autorefs
   - literate-nav
-  - section-index
+  # - section-index
   - gen-files:
       scripts:
         - docs/scripts/_gen_screenshots.py

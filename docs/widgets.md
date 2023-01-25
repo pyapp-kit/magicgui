@@ -54,7 +54,15 @@ graph TB
     C-->G([FunctionGui])
     C-->H([MainWindowGui])
     D-->I([SliderWidget])
+    click A "#widget"
     click B "#valuewidget"
+    click C "#containerwidget"
+    click D "#rangedwidget"
+    click E "#buttonwidget"
+    click F "#categoricalwidget"
+    click G "#functiongui"
+    click H "#maingui"
+    click I "#sliderwidget"
 ```
 
 Many widgets present similar types of information in different ways.  **magicgui** tries
@@ -270,6 +278,13 @@ container.append(widgets.LineEdit(value='Mookie', label='Your Name:'))
 container.append(widgets.FloatSlider(value=10.5, label='FloatSlider:'))
 container.show()
 ```
+
+#### `FunctionGui`
+
+A `FunctionGui` is a special type of [`ContainerWidget`](#containerwidget)
+that is created from a function.  It is the product of the
+[`@magicgui`][magicgui.magicgui] decorator.  It is a container that contains a
+widget for each of the parameters in the function.  See [`magicgui.widgets.FunctionGui`][] for details.
 
 #### `@magicgui`
 

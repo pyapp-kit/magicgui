@@ -4,7 +4,7 @@ The `magicgui.widgets.bases` module contains the base classes for all widgets.
 
 While most users will never instantiate these classes directly, the methods and properties
 of these classes are inherited by all widgets, and define the common API for all
-widgets.  It is worth being aware of the type of widget you are working with.
+widgets.  Therefore, it is worth being aware of the type of widget you are working with.
 
 ## Summary
 

@@ -1,13 +1,16 @@
 # Backend Protocols
 
-!!!note
+!!!warning "Advanced Topic"
 
-    **Most users of magicgui will not need to worry about this section.**
+    ***Most users of magicgui will not need to worry about this section.***
 
     These Protocol classes declare the interface that backend
     adapters must implement in order to be used by magicgui. All magicgui `Widget`
     objects compose a backend widget implementing one of these protocols, and control
     it using the methods defined herein.
+
+    `magicgui` developers may be interested in this page, but end-users
+    needn't worry about it.
 
 ## Summary
 

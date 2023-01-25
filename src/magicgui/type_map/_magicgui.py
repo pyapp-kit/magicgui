@@ -299,6 +299,23 @@ def magic_factory(
 ) -> Callable | MagicFactory:
     """Return a [`MagicFactory`][magicgui.type_map._magicgui.MagicFactory] for function.
 
+    `magic_factory` is nearly identical to the [`magicgui`][magicgui.magicgui] decorator
+    with the following differences:
+
+    1. Whereas `magicgui` returns a `FunctionGui` instance, `magic_factory` returns a
+       callable that returns a `FunctionGui` instance.  (Technically, it returns an
+       instance of [`MagicFactory`][magicgui.type_map._magicgui.MagicFactory] which you
+       behaves exactly like a [`functools.partial`][] for a `FunctionGui` instance.)
+    2. `magic_factory` adds a `widget_init` method: a callable that will be called
+        immediately after the `FunctionGui` instance is created.  This can be used to
+        add additional widgets to the layout, or to connect signals to the widgets.
+
+    !!!important
+        Whereas decorating a function with `magicgui` will **immmediately** create a
+        widget instance, `magic_factory` will **not** create a widget instance until the
+        decorated object is called.  This is often what you want in a library, whereas
+        `magicgui` is useful for rapid, interactive development.
+
     Parameters
     ----------
     function : Callable, optional
@@ -364,7 +381,7 @@ def magic_factory(
     ...
     >>> my_widget = my_function()
     >>> my_widget.show()
-    >>> my_widget.a.value == 1  # Trueq
+    >>> my_widget.a.value == 1  # True
     >>> my_widget.b.value = 'world'
     """
     return _magicgui(

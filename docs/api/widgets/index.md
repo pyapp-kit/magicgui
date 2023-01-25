@@ -1,5 +1,3 @@
-# Widgets
-
-## Summary
+# Widget Index
 
 ::: widget_autosummary
