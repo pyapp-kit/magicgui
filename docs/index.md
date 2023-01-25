@@ -18,6 +18,10 @@ python type hints.
    graphical user interfaces for functions and dataclasses by annotating with
    standard python [type hints](https://peps.python.org/pep-0484/).
 
+While there is some degree of customizeability, the emphasis is on rapid
+development of relatively simple GUIs, with minimal boilerplate.  For highly
+customized GUIs, it may be more appropriate to use a lower-level GUI framework.
+
 The API is organized into multiple levels:
 
 <figure markdown>

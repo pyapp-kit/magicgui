@@ -27,6 +27,8 @@ available:
 !!!important
 
     Note not all widgets are necessarily implemented for all backends.
+    Most widgets in the [widget docs](../api/widgets/) specify which backends
+    are supported.
 
 ## Extras
 
