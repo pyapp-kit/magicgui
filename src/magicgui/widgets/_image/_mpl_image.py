@@ -716,7 +716,6 @@ def imread(fname, format=None):
         ext = format
     img_open = PIL.PngImagePlugin.PngImageFile if ext == "png" else PIL.Image.open
     if isinstance(fname, str):
-
         parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
             # hide imports to speed initial import on systems with slow linkers

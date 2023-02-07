@@ -21,7 +21,6 @@ except ImportError as e:  # pragma: no cover
 def _find_calling_function_gui(max_depth: int = 6) -> FunctionGui | None:
     """Traverse calling stack looking for a magicgui FunctionGui."""
     for finfo in inspect.stack()[2:max_depth]:
-
         # regardless of whether the function was decorated directly in the global module
         # namespace, or if it was renamed on decoration (`new_name = magicgui(func)`),
         # or if it was decorated inside of some local function scope...

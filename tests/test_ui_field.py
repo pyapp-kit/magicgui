@@ -36,7 +36,6 @@ def _assert_uifields(cls, instantiate=True):
 
 
 def test_attrs_descriptor():
-
     attrs = pytest.importorskip("attrs")
 
     @attrs.define

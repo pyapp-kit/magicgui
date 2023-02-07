@@ -2,9 +2,16 @@ from __future__ import annotations
 
 import inspect
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, cast, overload
-
-from typing_extensions import Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Literal,
+    TypeVar,
+    cast,
+    overload,
+)
 
 from magicgui.widgets import FunctionGui, MainFunctionGui
 
