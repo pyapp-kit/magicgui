@@ -115,7 +115,6 @@ def create_widget(
     for p in ("Categorical", "Ranged", "Button", "Value", ""):
         prot = getattr(protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
-
             _options = kwargs.pop("options", None)
             cls = getattr(bases, f"{p}Widget")
             widget = cls(**{**kwargs, **(_options or {}), "widget_type": wdg_class})

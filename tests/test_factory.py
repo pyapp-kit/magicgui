@@ -130,7 +130,6 @@ def test_bad_value_factory_init():
 
 
 def test_bad_type_factory_init():
-
     with pytest.raises(TypeError):
 
         @magic_factory(widget_init=1)  # type: ignore

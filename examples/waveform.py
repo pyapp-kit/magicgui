@@ -156,7 +156,6 @@ def square(
 def on_off(
     duration: Time = 10.0, size: int = 500, t_on: Time = 0.01, t_off: Time = 0.01
 ) -> Signal:
-
     data = np.ones(size)
     data[: int(size * t_on / duration)] = -1
     if t_off > 0:

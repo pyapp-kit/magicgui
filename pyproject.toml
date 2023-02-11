@@ -131,10 +131,18 @@ backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
 #     { value = "min-req", if = ["min-req"] },
 # ]
 matrix.backend.features = [
-    { value = "pyqt5", if = ["pyqt5"] },
-    { value = "pyside2", if = ["pyside2"] },
-    { value = "pyqt6", if = ["pyqt6"] },
-    { value = "pyside6", if = ["pyside6"] },
+    { value = "pyqt5", if = [
+        "pyqt5",
+    ] },
+    { value = "pyside2", if = [
+        "pyside2",
+    ] },
+    { value = "pyqt6", if = [
+        "pyqt6",
+    ] },
+    { value = "pyside6", if = [
+        "pyside6",
+    ] },
 ]
 
 
@@ -149,11 +157,11 @@ line-length = 88
 target-version = "py38"
 src = ["src", "tests"]
 extend-select = [
-    "E",    # style errors
-    "F",    # flakes
-    "D",    # pydocstyle
-    "I", # isort
-    "UP",    # pyupgrade
+    "E",  # style errors
+    "F",  # flakes
+    "D",  # pydocstyle
+    "I",  # isort
+    "UP", # pyupgrade
     # "N",  # pep8-naming
     # "S",  # bandit
     "C",    # flake8-comprehensions
@@ -162,11 +170,13 @@ extend-select = [
     "RUF",  # ruff-specific rules
 ]
 extend-ignore = [
+    "E704", # Multiple statements on one line (def)
     "D100", # Missing docstring in public module
     "D107", # Missing docstring in __init__
     "D203", # 1 blank line required before class docstring
     "D212", # Multi-line docstring summary should start at the first line
     "D213", # Multi-line docstring summary should start at the second line
+    "D401", # First line should be in imperative mood
     "D413", # Missing blank line after last section
     "D416", # Section name should end with a colon
     "C901", # Function is too complex
@@ -190,7 +200,7 @@ filterwarnings = [
     "ignore:path is deprecated:DeprecationWarning",
     "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
     "ignore:Enum value:DeprecationWarning:matplotlib",
-    "ignore:Widget([^\\s]+) is deprecated:DeprecationWarning",  # ipywidgets
+    "ignore:Widget([^\\s]+) is deprecated:DeprecationWarning",                               # ipywidgets
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
@@ -203,7 +213,12 @@ show_error_codes = true
 pretty = true
 
 [[tool.mypy.overrides]]
-module = ["_pytest.*", ".examples/", "magicgui.widgets._image.*", "magicgui.backends.*"]
+module = [
+    "_pytest.*",
+    ".examples/",
+    "magicgui.widgets._image.*",
+    "magicgui.backends.*",
+]
 ignore_errors = true
 
 [[tool.mypy.overrides]]

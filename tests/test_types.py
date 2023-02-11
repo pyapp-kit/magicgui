@@ -129,7 +129,6 @@ def test_widget_options():
 
 
 def test_nested_forward_refs():
-
     resolved = resolve_single_type(Optional['List["numpy.ndarray"]'])
 
     from typing import List
