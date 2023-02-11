@@ -115,7 +115,7 @@ class CategoricalWidget(ValueWidget[T]):
         self._widget._mgui_del_choice(choice_name)
 
     @property
-    def choices(self) -> tuple[T, ...]:
+    def choices(self) -> tuple[T | None, ...]:
         """Available value choices for this widget."""
         _choices = tuple(i[1] for i in self._widget._mgui_get_choices())
         if self._nullable and None not in _choices:

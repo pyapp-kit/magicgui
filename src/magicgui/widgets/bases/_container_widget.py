@@ -199,7 +199,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
             # no labels for button widgets (push buttons, checkboxes, have their own)
             if not isinstance(widget, (_LabeledWidget, ButtonWidget)):
-                _widget = _LabeledWidget(widget)
+                _widget = _LabeledWidget(widget)  # type: ignore
                 widget.label_changed.connect(self._unify_label_widths)
 
         if key < 0:
