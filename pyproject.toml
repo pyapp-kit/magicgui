@@ -35,7 +35,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "docstring_parser>=0.7",
-    "psygnal>=0.3.1",
+    "psygnal>=0.5.0",
     "qtpy>=1.7.0",
     "superqt>=0.4.0",
     "typing_extensions",
@@ -46,7 +46,7 @@ dependencies = [
 [project.optional-dependencies]
 min-req = [
     "docstring_parser==0.7",
-    "psygnal==0.3.1",
+    "psygnal==0.5.0",
     "qtpy==1.7.0",
     "superqt==0.4.0",
     "typing_extensions",
@@ -60,7 +60,7 @@ pyside2 = [
 ]
 pyside6 = ["pyside6"]
 tqdm = ["tqdm>=4.30.0"]
-jupyter = ["ipywidgets>=7.5.0"]
+jupyter = ["ipywidgets>=8.0.0"]
 image = ["pillow>=4.0"]
 quantity = ["pint>=0.13.0"]
 testing = [
@@ -115,6 +115,10 @@ docs = [
     "mkdocstrings-python",
     "mkdocs-gen-files",
     "mkdocs-literate-nav",
+    # extras for all the widgets
+    "pint",
+    "ipywidgets>=8.0.0",
+    "pyside6",
 ]
 
 [project.urls]

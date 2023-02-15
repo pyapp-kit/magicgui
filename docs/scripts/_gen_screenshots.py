@@ -2,6 +2,7 @@ import re
 import subprocess
 from itertools import count
 from pathlib import Path
+from textwrap import dedent
 
 import mkdocs_gen_files
 from qtpy.QtWidgets import QApplication
@@ -20,6 +21,9 @@ def _set_dark_mode(dark_mode: bool):
     subprocess.run(cmd)
 
 
+# internally used trick to leave a window open at the end of a cell
+# add this to the end of a cell to leave it open
+LEAVE_OPEN = "# leave open"
 LEFT_OPEN = False
 
 
@@ -32,12 +36,26 @@ def _clear_left_open() -> None:
     LEFT_OPEN = False
 
 
-def _write_markdown_result_image(src: str, ns: dict, dest: str):
+def _write_markdown_result_image(src: str, ns: dict, dest: str) -> None:
     global LEFT_OPEN
     top_widgets = set(QApplication.topLevelWidgets())
-    exec(src, ns, ns)
+    try:
+        exec(src, ns, ns)
+    except NameError as e:
+        raise NameError(
+            f"Error evaluating code for {dest!r} with namespace {set(ns)!r}:\n\n{src}"
+        ) from e
+
     if not LEFT_OPEN:
         top_widgets = set(QApplication.topLevelWidgets()) - top_widgets
+    if not top_widgets:
+        print("No top level widgets found for", dest)
+    if len(top_widgets) > 1:
+        name = re.search("([^\s\.]+).show\(\)", src, re.DOTALL)[1]
+        try:
+            top_widgets = {ns[name].native}
+        except KeyError:
+            pass  # FIXME... it's probably an attribute
     for w in top_widgets:
         w.setMinimumWidth(200)
         w.show()
@@ -48,7 +66,7 @@ def _write_markdown_result_image(src: str, ns: dict, dest: str):
             if not w.grab().save(f.name):
                 print("Error saving", dest)
 
-        if "# leave open" in src:
+        if LEAVE_OPEN in src:
             LEFT_OPEN = True
         else:
             _clear_left_open()
@@ -60,9 +78,15 @@ for mdfile in sorted(DOCS.rglob("*.md"), reverse=True):
     md = mdfile.read_text()
     w_iter = count()
     namespace: dict = {}
-    for match in CODE_BLOCK.finditer(md):
-        if ".show()" not in match.group(0):
-            continue
-        code = match.group(1)
-        dest = f"_images/{mdfile.stem}_{next(w_iter)}.png"
-        _write_markdown_result_image(code, namespace, dest)
+    code_blocks = list(CODE_BLOCK.finditer(md))
+    has_show = any(".show()" in match.group(0) for match in code_blocks)
+    if has_show:
+        for match in code_blocks:
+            code = dedent(match.group(1))
+            if ".show()" in match.group(0):
+                dest = f"_images/{mdfile.stem}_{next(w_iter)}.png"
+                _write_markdown_result_image(code, namespace, dest)
+            else:
+                # still need to execute the code to populate the namespace
+                # for later code blocks
+                exec(code, namespace, namespace)

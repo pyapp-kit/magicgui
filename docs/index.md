@@ -20,7 +20,8 @@ python type hints.
 
 While there is some degree of customizeability, the emphasis is on rapid
 development of relatively simple GUIs, with minimal boilerplate.  For highly
-customized GUIs, it may be more appropriate to use a lower-level GUI framework.
+customized GUIs with complex layouts, it may be more appropriate to use a
+lower-level GUI framework.
 
 The API is organized into multiple levels:
 
@@ -84,7 +85,7 @@ from magicgui import magicgui
 @magicgui
 def my_function(
     param_a: int,
-    param_b: Annotated[float, {'widget_type': "FloatSlider", 'max': 100}] = 42,
+    param_b: Annotated[float, {'widget_type': "FloatSlider", 'max': 100}] = 42.,
     param_c: Literal["First", "Second", "Third"] = "Second"
 ):
     print("param_a:", param_a)
@@ -145,10 +146,9 @@ Currently, **magicgui** supports the following backends:
 - [Jupyter Widgets](https://ipywidgets.readthedocs.io/en/latest/) (a.k.a.
   "IPyWidgets")
 
-
 You can use `magicgui.widgets` to very quickly build graphical user interfaces.
 To learn more about the available widgets and how to use them, see the
-[Widgets Overview](widgets_overview.md).
+[Widgets Overview](widgets.md).
 
 !!!info "...details"
 
