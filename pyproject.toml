@@ -181,7 +181,6 @@ extend-select = [
     "RUF",  # ruff-specific rules
 ]
 extend-ignore = [
-    "E704", # Multiple statements on one line (def)
     "D100", # Missing docstring in public module
     "D107", # Missing docstring in __init__
     "D203", # 1 blank line required before class docstring

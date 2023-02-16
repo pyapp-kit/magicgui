@@ -20,6 +20,7 @@ from typing import (
     Literal,
     Sequence,
     Tuple,
+    Type,
     TypeVar,
     Union,
     cast,
@@ -51,7 +52,7 @@ from magicgui.widgets.bases import (
 from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
-WidgetTypeVar = TypeVar("WidgetTypeVar", bound=type[Widget])
+WidgetTypeVar = TypeVar("WidgetTypeVar", bound=Type[Widget])
 _V = TypeVar("_V")
 
 

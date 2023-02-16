@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Literal, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Literal, Tuple, Union
 
 from typing_extensions import TypedDict
 
@@ -22,13 +22,13 @@ class ChoicesDict(TypedDict):
 
 #: A [`Widget`][magicgui.widgets.Widget] class or a
 #: [~magicgui.widgets.protocols.WidgetProtocol][]
-WidgetClass = Union[type["Widget"], type["WidgetProtocol"]]
+WidgetClass = Union["type[Widget]", "type[WidgetProtocol]"]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
 #: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
-WidgetTuple = Tuple[WidgetRef, dict[str, Any]]
+WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
 #: An iterable that can be used as a valid argument for widget ``choices``
-ChoicesIterable = Union[Iterable[tuple[str, Any]], Iterable[Any]]
+ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes
 #: a categorical widget and returns a :attr:`ChoicesIterable`.
 ChoicesCallback = Callable[["CategoricalWidget[Any]"], ChoicesIterable]
