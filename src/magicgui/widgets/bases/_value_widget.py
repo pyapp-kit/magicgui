@@ -34,7 +34,7 @@ class ValueWidget(Widget, Generic[T]):
     """
 
     _widget: protocols.ValueWidgetProtocol
-    changed = Signal(object)
+    changed = Signal(object, description="Emitted when the widget value changes.")
     null_value: Any = None
 
     def __init__(

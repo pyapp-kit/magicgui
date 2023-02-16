@@ -2,6 +2,7 @@ import subprocess
 from pathlib import Path
 
 import mkdocs_gen_files
+import psygnal
 
 from magicgui import widgets
 from magicgui.backends import _ipynb, _qtpy
@@ -16,6 +17,9 @@ WIDGET_PAGE = """
 {img_link}
 
 Available in backends: {backends}
+
+## Signals
+{signals}
 
 ::: magicgui.widgets.{name}
     handler: widget_handler
@@ -71,11 +75,11 @@ def _snap_image(_obj: type, _name: str) -> str:
     from qtpy.QtWidgets import QVBoxLayout, QWidget
 
     outer = QWidget()
-    if obj is widgets.Container:
+    if _obj is widgets.Container:
         return ""
-    if issubclass(obj, widgets.FunctionGui):
+    if issubclass(_obj, widgets.FunctionGui):
         return ""
-    if issubclass(obj, (widgets.TupleEdit, widgets.ListEdit)):
+    if issubclass(_obj, (widgets.TupleEdit, widgets.ListEdit)):
         wdg = _obj(value=(1, 2, 3))
     else:
         wdg = _obj()
@@ -89,23 +93,49 @@ def _snap_image(_obj: type, _name: str) -> str:
     return f'![{_name} widget](../../{pth}){{ loading=lazy, class="widget-image" }}'
 
 
-for name in dir(widgets):
-    if name.startswith("_"):
-        continue
-    obj = getattr(widgets, name)
-    if (
-        isinstance(obj, type)
-        and issubclass(obj, widgets.Widget)
-        and obj is not widgets.Widget
-        and obj.__name__ == name
-    ):
-        backends = [
-            f"`{key}`" for key, module in BACKENDS.items() if hasattr(module, name)
-        ]
+def _get_signals(cls: type[widgets.Widget]) -> list[psygnal.Signal]:
+    signals = []
+    for name in dir(cls):
+        if name.startswith("_"):
+            continue
+        attr = getattr(cls, name)
+        if isinstance(attr, psygnal.Signal):
+            signals.append(attr)
+    return signals
 
-        img_link = _snap_image(obj, name) if MAKE_IMAGES else ""
-        with mkdocs_gen_files.open(WIDGETS_PATH / f"{name}.md", "w") as f:
-            md = WIDGET_PAGE.format(
-                name=name, backends=", ".join(backends), img_link=img_link
-            )
-            f.write(md)
+
+def main() -> None:
+    for name in dir(widgets):
+        if name.startswith("_"):
+            continue
+        cls = getattr(widgets, name)
+        if (
+            isinstance(cls, type)
+            and issubclass(cls, widgets.Widget)
+            and cls is not widgets.Widget
+            and cls.__name__ == name
+        ):
+            backends = [
+                f"`{key}`" for key, module in BACKENDS.items() if hasattr(module, name)
+            ]
+
+            img_link = _snap_image(cls, name) if MAKE_IMAGES else ""
+            _signals = _get_signals(cls)
+
+            siglines = []
+            for sig in _signals:
+                param = sig.signature.parameters
+                sigstr = ", ".join([str(p.annotation.__name__) for p in param.values()])
+                siglines.append(f"* **`{sig._name}({sigstr})`** - {sig.description}")
+
+            with mkdocs_gen_files.open(WIDGETS_PATH / f"{name}.md", "w") as f:
+                md = WIDGET_PAGE.format(
+                    name=name,
+                    backends=", ".join(backends),
+                    img_link=img_link,
+                    signals="\n".join(siglines),
+                )
+                f.write(md)
+
+
+main()

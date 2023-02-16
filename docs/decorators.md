@@ -108,7 +108,7 @@ We can invoke the function in a few ways:
 
 * You can still override positional or keyword arguments in the original
   function, just as you would with a regular function.
-  
+
     !!! note
         calling the function with values that differ from the GUI will *not* set
         the values in the GUI... It's just a one-time call.
