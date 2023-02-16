@@ -21,6 +21,7 @@ from typing import (
     Sequence,
     Tuple,
     TypeVar,
+    Union,
     cast,
     overload,
 )
@@ -182,7 +183,7 @@ class DateEdit(ValueWidget[datetime.date]):
     """A widget for editing dates."""
 
 
-TV = TypeVar("TV", bound=datetime.time | datetime.timedelta)
+TV = TypeVar("TV", bound=Union[datetime.time, datetime.timedelta])
 
 
 @backend_widget
