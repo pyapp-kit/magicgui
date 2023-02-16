@@ -134,7 +134,7 @@ source = "vcs"
 [tool.hatch.envs.test]
 features = ["testing"]
 [tool.hatch.envs.test.scripts]
-run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov=magicgui --cov-report=xml --cov-report=term-missing"
+run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov --cov-report=xml --cov-report=term-missing"
 [[tool.hatch.envs.test.matrix]]
 backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
 [tool.hatch.envs.test.overrides]
@@ -254,6 +254,7 @@ omit = [
     "src/magicgui/widgets/_image/_mpl_image.py",
     "src/magicgui/widgets/_bases/*",
     "tests/*",
+    "examples/*",
 ]
 
 
