@@ -12,7 +12,6 @@ warnings.warn(
 
 
 def __getattr__(name: str) -> Any:
-
     if name == "_Unset":
         from magicgui.types import _Undefined
 

@@ -70,6 +70,7 @@ def test_default_call_button_behavior(magic_func_defaults, magic_func_autocall):
 
 def test_overriding_widget_type():
     """Test overriding the widget type of a parameter."""
+
     # a will now be a LineEdit instead of a spinbox
     @magicgui(a={"widget_type": "LineEdit"})
     def func(a: int = 1):
@@ -674,6 +675,7 @@ def test_no_tooltips_from_numpydoc():
 
 def test_only_some_tooltips_from_numpydoc():
     """Test that we can still show some tooltips with ``tooltips=False``."""
+
     # tooltips=False, means docstrings won't be parsed at all, but tooltips
     # can still be manually provided.
     @magicgui(tooltips=False, y={"tooltip": "Still want a tooltip"})
@@ -693,7 +695,6 @@ def test_only_some_tooltips_from_numpydoc():
 
 
 def test_magicgui_type_error():
-
     with pytest.raises(TypeError):
         magicgui("not a function")  # type: ignore
 

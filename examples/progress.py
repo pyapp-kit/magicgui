@@ -6,6 +6,7 @@ from magicgui.tqdm import trange
 # if magicui.tqdm.tqdm or trange are used outside of a @magicgui function, (such as in
 # interactive use in IPython), then they fall back to the standard terminal output
 
+
 # If use inside of a magicgui-decorated function
 # a progress bar widget will be added to the magicgui container
 @magicgui(call_button=True, layout="horizontal")

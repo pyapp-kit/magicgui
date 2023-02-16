@@ -43,7 +43,6 @@ def test_image_widget():
 
 
 def test_clim():
-
     # 2D uint8
     image = Image()
     image.value = np.random.rand(60, 60)
@@ -73,7 +72,6 @@ def test_empty_image():
 
 
 def test_pilImage():
-
     with pilImage.open(Path(__file__).parent / "_test.jpg") as img:
         image = Image(value=img)
     assert isinstance(image._image, _mpl_image.Image)

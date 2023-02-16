@@ -689,7 +689,6 @@ class ListEdit(Container[ValueWidget[_V]]):
         arg: type | None = None
 
         if value and value is not inspect.Parameter.empty:
-
             orig = get_origin(value) or value
             if not (safe_issubclass(orig, list) or isinstance(orig, list)):
                 raise TypeError(

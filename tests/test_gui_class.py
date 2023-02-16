@@ -126,7 +126,6 @@ def test_slots_guiclass():
 
 
 def test_guiclass_as_class():
-
     # variant on @guiclass, using class instead of decorator
     class T2(GuiClass):
         x: int

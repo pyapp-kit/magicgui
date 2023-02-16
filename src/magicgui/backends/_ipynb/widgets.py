@@ -240,7 +240,7 @@ class _IPySupportsChoices(protocols.SupportsChoices):
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set the data associated with a choice."""
-        self._ipywidget.options = self._ipywidget.options + ((choice_name, data),)
+        self._ipywidget.options = (*self._ipywidget.options, (choice_name, data))
 
 
 class _IPySupportsText(protocols.SupportsText):

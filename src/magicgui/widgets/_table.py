@@ -408,7 +408,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             col_idx = ncols
         if col_idx >= ncols:
             # order is important
-            new_headers = self.column_headers + (col,)
+            new_headers = (*self.column_headers, col)
             self._widget._mgui_set_column_count(ncols + 1)
             # not using column_headers.setter to avoid _check_new_headers call
             self._widget._mgui_set_column_headers(new_headers)

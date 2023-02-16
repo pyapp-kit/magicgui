@@ -432,7 +432,6 @@ def register_type(
                     stacklevel=2,
                 )
         elif widget_type is not None:
-
             if not isinstance(widget_type, (str, WidgetProtocol)) and not (
                 inspect.isclass(widget_type) and issubclass(widget_type, widgets.Widget)
             ):
