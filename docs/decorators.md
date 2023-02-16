@@ -257,30 +257,23 @@ from inspect import signature, Parameter
 from magicgui.widgets import create_widget, Container
 from magicgui.types import Undefined
 
-def pseudo_magicgui(func: 'Callable'):
-    widgets = []
-    for param in signature(func).parameters.values():
-        # create a widget for each parameter in the function signature
-        if param.default is Parameter.empty:
-            default = Undefined
-        else:
-            default = param.default
-        sub_widget = create_widget(
-            value=default,
-            annotation=param.annotation,
-            name=param.name,
-        )
-        widgets.append(sub_widget)
-    # return a Container widget with all the widgets we just created
-    return Container(widgets=widgets)
 
-def some_func(x: int, y: str = 'hello'):
+def pseudo_magicgui(func: 'Callable'):
+    return Container(
+        widgets=[
+            create_widget(p.default, annotation=p.annotation, name=p.name)
+            for p in signature(func).parameters.values()
+        ]
+    )
+
+def some_func(x: int = 2, y: str = 'hello'):
     return x, y
 
 my_widget = pseudo_magicgui(some_func)
 my_widget.show()
 ```
 
-In this case, a special subclass of `Container` ([`FunctionGui`][magicgui.widgets.FunctionGui]) is used,
-which additionally adds a `__call__` method that allows the widget to [behave like the
-original function](#its-still-a-function).
+In the case of `magicgui`, a special subclass of `Container`
+([`FunctionGui`][magicgui.widgets.FunctionGui]) is used, which additionally adds
+a `__call__` method that allows the widget to [behave like the original
+function](#its-still-a-function).

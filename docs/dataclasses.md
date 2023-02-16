@@ -75,8 +75,13 @@ that has two additional features:
    [`@evented` dataclass decorator from `psygnal`](https://psygnal.readthedocs.io/en/latest/dataclasses/).)
 
 !!! tip
-
     You can still use all of the standard dataclass features, including [`field`][dataclasses.field] values, [`__post_init__` processing](https://docs.python.org/3/library/dataclasses.html#post-init-processing), and [`ClassVar`](https://docs.python.org/3/library/dataclasses.html#class-variables).
+
+!!! info
+    In the future, we may also support other dataclass-like objects, such as
+    [`pydantic` models](https://pydantic-docs.helpmanual.io/usage/models/),
+    [`attrs` classes](https://www.attrs.org/en/stable/examples.html#classes),
+    and [`traitlets` classes](https://traitlets.readthedocs.io/en/stable/api.html#traitlets.HasTraits).
 
 ``` python
 from magicgui.experimental import guiclass
@@ -88,7 +93,7 @@ class MyDataclass:
     c: bool = True
 
 obj = MyDataclass()
-obj.gui.show()  # leave open
+obj.gui.show()
 ```
 
 The individual widgets in the `Container` may be accessed by the same name as the
@@ -102,26 +107,31 @@ As you interact programmatically with the `obj` instance, the widgets in the
 `obj.gui`, the values of the `obj` instance will be updated.
 
 ``` python
-obj.a = 10
+obj = MyDataclass(a=10)
 obj.b = 'world'
 obj.c = False
 
 obj.gui.show()
 ```
 
-!!! tip
+!!! tip "All magicgui-related stuff is in the `gui` attribute"
 
     The original dataclass instance (`obj`) is essentially untouched.  Just as in a regular
-    dataclass, `obj.a` returns the current value of `a` in the dataclass. `obj.gui.a.value`,
-    by contrast, returns the current value of the *widget*.  Unless you explicitly disconnect
-    the gui, the two will always be in sync.
+    dataclass, `obj.a` returns the current value of `a` in the dataclass.  The *widget* for
+    the class will be at `obj.gui` (or whatever name you specified in the `gui_name` parameter) 
+    So, `obj.gui.a.value`, returns the current value of the *widget*.  Unless you explicitly disconnect the gui from the underlying object/model, the two will always be in sync.
 
 ### Adding buttons and callbacks
 
 Buttons are one of the few widget types that tend not to have an associated
-value, but simply trigger a callback when clicked.  To add a button to a
-`guiclass`, decorate a method with the [`magicgui.experimental.button`][]
+value, but simply trigger a callback when clicked.  That is: it doesn't often
+make sense to add a field to a dataclass representing a button. To add a button
+to a `guiclass`, decorate a method with the [`magicgui.experimental.button`][]
 decorator.
+
+!!! warning "positioning buttons"
+    Currently, all buttons are appended to the end of the widget. The ability
+    to position the button in the layout will be added in the future.
 
 Any additional keyword arguments to the `button` decorator will be passed to the
 [`magicgui.widgets.PushButton`][] constructor (e.g. `label`, `tooltip`, etc.)
@@ -143,7 +153,7 @@ greeter.gui.show()
 
 > :point_up_2: *clicking the "say_hello" button will print "Hello Talley" to the console*
 
-!!! note
+!!! tip
 
     As your widget begins to manage more internal state, the `guiclass` pattern
     becomes much more useful than the `magicgui` decorator pattern -- which was

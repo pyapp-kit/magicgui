@@ -290,11 +290,13 @@ class FunctionGui(Container, Generic[_R]):
 
         Examples
         --------
+        ```python
         gui = FunctionGui(func, show=True)
 
         # then change parameters in the gui, or by setting:  gui.param.value = something
 
         gui()  # calls the original function with the current parameters
+        ```
         """
         sig = self.__signature__
         try:
@@ -383,8 +385,13 @@ class FunctionGui(Container, Generic[_R]):
         in which the first argument of the function is bound to the instance. (Just like
         what you'd expect with the @property decorator.)
 
-        Example
+        Returns
         -------
+        bound : FunctionGui
+            A new FunctionGui instance.
+
+        Examples
+        --------
         ```python
         >>> class MyClass:
         ...     @magicgui
