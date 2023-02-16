@@ -118,7 +118,7 @@ obj.gui.show()
 
     The original dataclass instance (`obj`) is essentially untouched.  Just as in a regular
     dataclass, `obj.a` returns the current value of `a` in the dataclass.  The *widget* for
-    the class will be at `obj.gui` (or whatever name you specified in the `gui_name` parameter) 
+    the class will be at `obj.gui` (or whatever name you specified in the `gui_name` parameter)
     So, `obj.gui.a.value`, returns the current value of the *widget*.  Unless you explicitly disconnect the gui from the underlying object/model, the two will always be in sync.
 
 ### Adding buttons and callbacks

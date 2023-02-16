@@ -137,7 +137,7 @@ class MyDataclass:
     c: bool = True
 
 obj = MyDataclass(a=10, b='foo')
-obj.gui.show() 
+obj.gui.show()
 ```
 
 For more details on using the `guiclass` decorator, see [Dataclasses & guiclass](dataclasses.md).
