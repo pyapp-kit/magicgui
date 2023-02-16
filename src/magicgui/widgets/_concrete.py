@@ -378,6 +378,7 @@ class Container(ContainerWidget[WidgetVar]):
     """A Widget to contain other widgets.
 
     Note that `Container` implements the [`typing.MutableSequence`][] interface,
+    so you can use it like a list to add and remove widgets.
     """
 
 

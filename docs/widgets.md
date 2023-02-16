@@ -38,7 +38,7 @@ container.show()
 
 !!! tip
 
-    Because there are often multiple "valid" widget types for a given python object,
+    Because there are often multiple valid widget types for a given python object,
     you may sometimes wish to create widgets directly, or use the `widget_type` argument
     in [`create_widget()`][magicgui.widgets.create_widget]
 

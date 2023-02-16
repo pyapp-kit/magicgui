@@ -122,7 +122,9 @@ class FunctionGui(Container, Generic[_R]):
         If unexpected keyword arguments are provided
     """
 
-    called = Signal(object)
+    called = Signal(
+        object, description="Emitted with the result after the function is called."
+    )
     _widget: ContainerProtocol
 
     def __init__(

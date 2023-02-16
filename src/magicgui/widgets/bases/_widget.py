@@ -60,7 +60,8 @@ class Widget:
     _labeled_widget_ref: ReferenceType[_LabeledWidget] | None = None
 
     parent_changed = Signal(
-        object, description="Emitted when the widget parent changes."
+        object,
+        description="Emitted with the backend widget when the widget parent changes.",
     )
     label_changed = Signal(str, description="Emitted when the widget label changes.")
 

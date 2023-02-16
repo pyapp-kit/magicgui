@@ -75,7 +75,10 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         [`magicgui.widgets.Widget`][] constructor.
     """
 
-    changed = Signal(object)
+    changed = Signal(
+        object,
+        description="Emitted with `self` when any sub-widget in the container changes.",
+    )
     _widget: protocols.ContainerProtocol
     _initialized = False
 

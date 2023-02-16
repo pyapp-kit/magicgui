@@ -35,7 +35,11 @@ class ButtonWidget(ValueWidget[bool]):
     """
 
     _widget: protocols.ButtonWidgetProtocol
-    changed = Signal(object)
+    changed = Signal(
+        object,
+        description="Emitted when the button is clicked (may also be "
+        "connected at the alias `clicked`).",
+    )
 
     def __init__(
         self,

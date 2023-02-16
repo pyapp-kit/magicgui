@@ -158,7 +158,7 @@ snells_law.n1.value = Medium.Air
     the GUI or via by [directly setting the paramaeter on the gui
     instance](#two-way-data-binding).
 
-## Usage As a Decorator is Optional!
+## Usage As a Decorator is Optional
 
 Remember: the `@decorator` syntax is just [syntactic
 sugar](https://en.wikipedia.org/wiki/Syntactic_sugar).  You don't *have* to use
@@ -194,10 +194,19 @@ widget_instance = magicgui(function)
 
 ## magic_factory
 
-The `magic_factory` function/decorator acts very much like the `magicgui`
-decorator, with one important difference: **unlike `magicgui`, `magic_factory`
-does not return a widget instance immediately**.  Instead, it returns a function
-that can be *called* to create a widget.
+The [`magicgui.magic_factory`][] function/decorator acts very much like the `magicgui`
+decorator, with one important difference:
+
+**Unlike `magicgui`, `magic_factory` does not return a widget instance
+immediately.  Instead, it returns a "factory function" that can be *called*
+to create a widget instance.**
+
+This is an important distinction to understand.  In most cases, the `@magicgui`
+decorator is useful for interactive use or rapid prototyping.  But if you are
+writing a library or package where someone *else* will be instantiating your
+widget (a napari plugin is a good example), you will likely want to use
+`magic_factory` instead, (or create your own [Widget Container](widgets.md#containerwidget)
+subclass).
 
 !!! tip "it's just a partial"
 
@@ -210,3 +219,68 @@ that can be *called* to create a widget.
     def magic_factory(func, *args, **kwargs):
         return partial(magicgui, func, *args, **kwargs)
     ```
+
+### `widget_init`
+
+`magic_factory` gains one additional parameter: `widget_init`.  This accepts
+a callable that will be called with the new widget instance each time the
+factory is called.  This is a convenient place to add additional initialization
+or connect [events](events.md).
+
+```python
+from magicgui import magic_factory
+
+def _on_init(widget):
+    print("widget created!", widget)
+    widget.y.changed.connect(lambda x: print("y changed!", x))
+
+@magic_factory(widget_init=_on_init)
+def my_factory(x: int, y: str): ...
+
+new_widget = my_factory()
+```
+
+
+
+## The (lack of) "magic" in magicgui
+
+Just to demystify the name a bit, there really isn't a whole lot of "magic"
+in the `magicgui` decorator.  It's really just a thin wrapper around the
+[`magicgui.widgets.create_widget`][] function, to create a
+[`Container`][magicgui.widgets.Container] with a sub-widget for each
+parameter in the function signature.
+
+The widget creation is very roughly equivalent to something like this:
+
+```python
+from inspect import signature, Parameter
+from magicgui.widgets import create_widget, Container
+from magicgui.types import Undefined
+
+def pseudo_magicgui(func: 'Callable'):
+    widgets = []
+    for param in signature(func).parameters.values():
+        # create a widget for each parameter in the function signature
+        if param.default is Parameter.empty:
+            default = Undefined
+        else:
+            default = param.default
+        sub_widget = create_widget(
+            value=default,
+            annotation=param.annotation,
+            name=param.name,
+        )
+        widgets.append(sub_widget)
+    # return a Container widget with all the widgets we just created
+    return Container(widgets=widgets)
+
+def some_func(x: int, y: str = 'hello'):
+    return x, y
+
+my_widget = pseudo_magicgui(some_func)
+my_widget.show()
+```
+
+In this case, a special subclass of `Container` ([`FunctionGui`][magicgui.widgets.FunctionGui]) is used,
+which additionally adds a `__call__` method that allows the widget to [behave like the
+original function](#its-still-a-function).
