@@ -1,4 +1,4 @@
-# magicgui
+# `magicgui.magicgui`
 
 ::: magicgui.magicgui
     options:

@@ -72,21 +72,30 @@ def _write_markdown_result_image(src: str, ns: dict, dest: str) -> None:
             _clear_left_open()
 
 
-for mdfile in sorted(DOCS.rglob("*.md"), reverse=True):
-    _clear_left_open()
+EXCLUDE = {"migration.md"}
 
-    md = mdfile.read_text()
-    w_iter = count()
-    namespace: dict = {}
-    code_blocks = list(CODE_BLOCK.finditer(md))
-    has_show = any(".show()" in match.group(0) for match in code_blocks)
-    if has_show:
-        for match in code_blocks:
-            code = dedent(match.group(1))
-            if ".show()" in match.group(0):
-                dest = f"_images/{mdfile.stem}_{next(w_iter)}.png"
-                _write_markdown_result_image(code, namespace, dest)
-            else:
-                # still need to execute the code to populate the namespace
-                # for later code blocks
-                exec(code, namespace, namespace)
+
+def main() -> None:
+    for mdfile in sorted(DOCS.rglob("*.md"), reverse=True):
+        if mdfile.name in EXCLUDE:
+            continue
+        _clear_left_open()
+
+        md = mdfile.read_text()
+        w_iter = count()
+        code_blocks = list(CODE_BLOCK.finditer(md))
+        has_show = any(".show()" in match.group(0) for match in code_blocks)
+        if has_show:
+            namespace: dict = {}
+            for match in code_blocks:
+                code = dedent(match.group(1))
+                if ".show()" in match.group(0):
+                    dest = f"_images/{mdfile.stem}_{next(w_iter)}.png"
+                    _write_markdown_result_image(code, namespace, dest)
+                else:
+                    # still need to execute the code to populate the namespace
+                    # for later code blocks
+                    exec(code, namespace, namespace)
+
+
+main()

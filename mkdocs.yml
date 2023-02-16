@@ -53,8 +53,8 @@ nav:
     - decorators.md
     - dataclasses.md
   - API:
-      - api/magicgui.md
-      - api/magic_factory.md
+      - magicgui: api/magicgui.md
+      - magic_factory: api/magic_factory.md
       - widgets:
         - api/widgets/index.md
         - api/widgets/*.md
@@ -63,6 +63,7 @@ nav:
       - type_map: api/type_map.md
       - application: api/app.md
       - experimental: api/experimental.md
+      - api/migration.md
 
 hooks:
   - docs/scripts/_hooks.py
@@ -101,15 +102,6 @@ plugins:
         - docs/scripts/_gen_widgets.py
   - mkdocstrings:
       handlers:
-        widget_handler:
-          options:
-            docstring_style: numpy
-            show_root_heading: true
-            show_root_full_path: false
-            show_signature_annotations: true
-            show_source: false
-            show_bases: true
-            docstring_section_style: list
         python:
           import:
             - https://docs.python.org/3/objects.inv
@@ -121,11 +113,20 @@ plugins:
             show_source: false
             show_signature_annotations: true
             show_root_heading: true
-            show_root_full_path: false
+            show_root_full_path: true
             # show_source: false
             show_bases: true
             docstring_section_style: list
-
+        # special handler only used in _gen_widgets.py
+        widget_handler:
+          options:
+            docstring_style: numpy
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_source: false
+            show_bases: true
+            docstring_section_style: list
 extra_css:
   - stylesheets/extra.css
   - stylesheets/pygments.css

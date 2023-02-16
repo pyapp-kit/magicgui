@@ -1,4 +1,4 @@
-# create_widget
+# `magicgui.widgets.create_widget`
 
 ::: magicgui.widgets.create_widget
     options:

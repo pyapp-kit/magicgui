@@ -180,6 +180,7 @@ def on_page_markdown(md, page, **kwargs):
         # _md += f"\n![]({dark}#only-dark){{: .code-image}}\n\n"
         return _md.replace(" # leave open", "")
 
-    md = re.sub("``` ?python\n([^`]*)```", _sub, md, re.DOTALL)
+    if page.title != "migration guide":
+        md = re.sub("``` ?python\n([^`]*)```", _sub, md, re.DOTALL)
 
     return md

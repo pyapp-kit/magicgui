@@ -1,4 +1,4 @@
-# magic_factory
+# `magicgui.magic_factory`
 
 ::: magicgui.magic_factory
     options:
