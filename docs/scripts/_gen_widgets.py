@@ -55,7 +55,6 @@ VALS = {
 
 
 def _add_value(obj: widgets.bases.ValueWidget) -> None:
-
     if isinstance(obj, widgets.bases.ButtonWidget):
         obj.text = "Click me!"
 

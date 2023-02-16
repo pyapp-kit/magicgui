@@ -21,6 +21,7 @@ from magicgui.type_map import get_widget_class
 
 warnings.simplefilter("ignore", DeprecationWarning)
 
+
 # TODO: figure out how to do this with options
 @contextmanager
 def _hide_numpy_warn():
