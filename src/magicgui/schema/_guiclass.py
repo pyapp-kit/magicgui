@@ -14,6 +14,7 @@ from dataclasses import Field, dataclass, field, is_dataclass
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
 
 from psygnal import SignalGroup, evented
+from psygnal import __version__ as psygnal_version
 
 from magicgui.schema._ui_field import build_widget
 from magicgui.widgets import PushButton
@@ -34,6 +35,10 @@ if TYPE_CHECKING:
         def events(self) -> SignalGroup: ...
     # fmt: on
 
+if psygnal_version.split(".")[:3] < ["0", "7", "3"]:
+    _IGNORE_REF_ERR = {}
+else:
+    _IGNORE_REF_ERR = {"on_ref_error": "ignore"}
 
 __all__ = ["guiclass", "button", "is_guiclass", "unbind_gui_from_instance"]
 _BUTTON_ATTR = "_magicgui_button"
@@ -264,7 +269,9 @@ def bind_gui_to_instance(
                 # connect changes in the widget to the instance
                 if hasattr(instance, widget.name):
                     try:
-                        widget.changed.connect_setattr(instance, widget.name)
+                        widget.changed.connect_setattr(
+                            instance, widget.name, **_IGNORE_REF_ERR  # type: ignore
+                        )
                     except TypeError:
                         warnings.warn(
                             f"Could not bind {widget.name} to {instance}. "
