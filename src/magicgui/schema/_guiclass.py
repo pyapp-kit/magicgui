@@ -35,11 +35,6 @@ if TYPE_CHECKING:
         def events(self) -> SignalGroup: ...
     # fmt: on
 
-if psygnal_version.split(".")[:3] < ["0", "7", "3"]:
-    _IGNORE_REF_ERR = {}
-else:
-    _IGNORE_REF_ERR = {"on_ref_error": "ignore"}
-
 __all__ = ["guiclass", "button", "is_guiclass", "unbind_gui_from_instance"]
 _BUTTON_ATTR = "_magicgui_button"
 _GUICLASS_FLAG = "__magicgui_guiclass__"
@@ -47,6 +42,12 @@ _GUICLASS_FLAG = "__magicgui_guiclass__"
 _T = TypeVar("_T")
 T = TypeVar("T", bound="type[Any]")
 F = TypeVar("F", bound=Callable)
+
+
+if psygnal_version.split(".")[:3] < ["0", "7", "3"]:
+    _IGNORE_REF_ERR = {}
+else:
+    _IGNORE_REF_ERR = {"on_ref_error": "ignore"}
 
 
 # https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
