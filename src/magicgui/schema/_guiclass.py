@@ -44,7 +44,7 @@ T = TypeVar("T", bound="type[Any]")
 F = TypeVar("F", bound=Callable)
 
 
-if psygnal_version.split(".")[:3] < ["0", "7", "3"]:
+if psygnal_version.split(".")[:2] < ["0", "8"]:
     _IGNORE_REF_ERR = {}
 else:
     _IGNORE_REF_ERR = {"on_ref_error": "ignore"}
