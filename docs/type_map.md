@@ -4,7 +4,7 @@ One of the key offerings of magicgui is the ability to automatically generate
 Widgets from Python type hints.  This page describes how type hints are mapped
 to Widgets, and how to customize that mapping.
 
-## Annotation Mapping
+## Default Type Mapping
 
 By default, The following python `Type Hint` annotations are mapped to the
 corresponding `Widget` class, and parametrized with the corresponding `kwargs`
@@ -33,17 +33,46 @@ corresponding `Widget` class, and parametrized with the corresponding `kwargs`
     types.FunctionType
     pint.Quantity
 
+### Example
+
+```python
+from magicgui import widgets
+import pathlib
+import os
+import datetime
+from typing import Literal, Set, Sequence
+import types
+import pint
+import enum
+
+types = [
+    bool, int, float, str, range, slice, list,
+    pathlib.Path, os.PathLike, Sequence[pathlib.Path],
+    datetime.time, datetime.timedelta, datetime.date, datetime.datetime,
+    Literal['a', 'b'], Set[Literal['a', 'b']], enum.Enum,
+    widgets.ProgressBar, pint.Quantity,
+]
+
+wdg = widgets.Container(
+    widgets=[
+        widgets.create_widget(annotation=t, label=str(t)) for t in types
+    ]
+)
+wdg.show()
+```
+
 ## Customizing Widget Options with `typing.Annotated`
 
 Widget options and types may be embedded in the type hint itself using
-`typing.Annotated`.
+[`typing.Annotated`][].
+
 
 !!! note
-
     This is not the *only* way to customize the widget type or options
     in magicgui.  Some functions (like [`magicgui.magicgui`][]) also accept
     `**param_options` keyword arguments that map parameter names to
     dictionaries of widget options.
+
 
 ### Overriding the Default Type
 
@@ -65,7 +94,105 @@ valid for the corresponding widget type).
     Annotated[int, {'step': 10, 'max': 50}]
     Annotated[int, {'choices': [1, 2, 3]}]
 
+### Examples
+
+Create a widget using standard type map:
+
+=== "create_widget"
+
+    ```python
+    my_widget = widgets.create_widget(value=42, annotation=int)
+    ```
+
+=== "magicgui decorator"
+
+    ```python
+    from magicgui import magicgui
+
+    @magicgui
+    def my_widget(x: int = 42):
+        return x
+    ```
+
+=== "guiclass decorator"
+
+    ```python
+    from magicgui.experimental import guiclass
+
+    @guiclass
+    class MyObject:
+        x: int = 42
+
+    obj = MyObject()
+    my_widget = obj.gui
+    ```
+
+Customize a widget using [`typing.Annotated`][]:
+
+=== "create_widget"
+
+    ```python
+    from typing import Annotated
+
+    Int10_50 = Annotated[int, (('widget_type', 'Slider'),('step', 10),('max', 50))]
+    wdg2 = widgets.create_widget(value=42, annotation=Int10_50)
+    ```
+
+=== "magicgui decorator"
+
+    ```python
+    from magicgui import magicgui
+    from typing import Annotated
+
+    Int10_50 = Annotated[int, (('widget_type', 'Slider'),('step', 10),('max', 50))]
+
+    @magicgui
+    def my_widget(x: Int10_50 = 42):
+        ...
+    ```
+
+=== "guiclass decorator"
+
+    ```python
+    from magicgui.experimental import guiclass
+    from typing import Annotated
+
+    Int10_50 = Annotated[int, (('widget_type', 'Slider'),('step', 10),('max', 50))]
+
+    @guiclass
+    class MyObject:
+        x: Int10_50 = 42
+
+    obj = MyObject()
+    my_widget = obj.gui
+    ```
+
+Note that you may also customize widget creation with kwargs to
+[`create_widget`][magicgui.widgets.create_widget]
+
+```python
+from typing import Annotated
+from magicgui.widgets import Slider
+
+options = {'step': 10, 'max': 50}
+wdg3 = widgets.create_widget(value=42, widget_type=Slider, options=options)
+wdg3.show()
+```
+
+... or to the [`magicgui`][magicgui.magicgui] decorator:
+
+```python
+@magicgui(x={'widget_type': 'Slider', 'step': 10, 'max': 50})
+def my_widget(x: int = 42):
+    ...
+
+my_widget.show()
+```
+
 ## Return Type Mapping
+
+In some cases, magicgui may be able to create a widget for the *return*
+annotation of a function.
 
 ... more to come ...
 

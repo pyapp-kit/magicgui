@@ -43,7 +43,8 @@ def _write_markdown_result_image(src: str, ns: dict, dest: str) -> None:
         exec(src, ns, ns)
     except NameError as e:
         raise NameError(
-            f"Error evaluating code for {dest!r} with namespace {set(ns)!r}:\n\n{src}"
+            f"Error evaluating code for {dest!r} with namespace {set(ns)!r}:\n\n{src}. "
+            f"{e}"
         ) from e
 
     if not LEFT_OPEN:
