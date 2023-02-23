@@ -64,6 +64,7 @@ nav:
       - application: api/app.md
       - experimental: api/experimental.md
       - api/migration.md
+  - Contributing: CONTRIBUTING.md
 
 hooks:
   - docs/scripts/_hooks.py

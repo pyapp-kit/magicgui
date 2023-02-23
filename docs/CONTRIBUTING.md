@@ -102,3 +102,20 @@ For more complex cases, you can add a new conditional to the body of the
 `match_type` function.  That function should always return a tuple of widget
 type, and kwargs that will be passed to the widget constructor. For example:
 `return widgets.MyNewWidget, {}`.
+
+### Building the documentation
+
+To build the documentation locally, you will need to install the `docs` extra:
+
+```bash
+pip install -e .[docs]
+```
+
+Then, from the root of the repository, run:
+
+```bash
+mkdocs serve
+```
+
+This will start a local server at `http://127.0.0.1:8000/` where you can view
+the documentation as you edit it.

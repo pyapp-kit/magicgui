@@ -93,4 +93,4 @@ and usage examples.
 
 Contributions are welcome!
 
-See contributing guide [here](https://github.com/pyapp-kit/magicgui/blob/main/CONTRIBUTING.md).
+See contributing guide [here](https://github.com/pyapp-kit/magicgui/blob/main/docs/CONTRIBUTING.md).
