@@ -87,8 +87,8 @@ def test_on_existing_dataclass():
 def test_slots_guiclass():
     """Test that the guiclass decorator works as expected."""
 
-    psyg_version = tuple(int(x) for x in psygnal.__version__.split(".")[:3])
-    old_psygnal = psyg_version < (0, 6, 1)
+    psyg_v = tuple(int(x.split("r")[0]) for x in psygnal.__version__.split(".")[:3])
+    old_psygnal = psyg_v < (0, 6, 1)
 
     @guiclass(slots=True)
     class Foo:
