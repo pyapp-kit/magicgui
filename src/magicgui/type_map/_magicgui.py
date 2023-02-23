@@ -319,7 +319,7 @@ def magic_factory(
         add additional widgets to the layout, or to connect signals to the widgets.
 
     !!!important
-        Whereas decorating a function with `magicgui` will **immmediately** create a
+        Whereas decorating a function with `magicgui` will **immediately** create a
         widget instance, `magic_factory` will **not** create a widget instance until the
         decorated object is called.  This is often what you want in a library, whereas
         `magicgui` is useful for rapid, interactive development.

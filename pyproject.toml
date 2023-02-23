@@ -115,6 +115,7 @@ docs = [
     "mkdocstrings-python",
     "mkdocs-gen-files",
     "mkdocs-literate-nav",
+    "mkdocs-spellcheck[all]",
     # extras for all the widgets
     "pint",
     "ipywidgets>=8.0.0",

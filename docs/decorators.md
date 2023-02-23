@@ -93,7 +93,7 @@ We can invoke the function in a few ways:
     snells_law(aoi=30)  # 34.7602
     ```
 
-    In essense, your original function now has a "living" signature whose
+    In essence, your original function now has a "living" signature whose
     defaults change as the user interacts with your GUI.
 
     ```python
@@ -183,7 +183,7 @@ def function():
 function = magicgui(function, auto_call=True)
 ```
 
-In many cases, it will actually be desireable *not* to use magicgui as a
+In many cases, it will actually be desirable *not* to use magicgui as a
 decorator if you don't need a widget immediately, but want to create one later
 (see also the [`magic_factory`](#magic_factory) decorator.)
 
