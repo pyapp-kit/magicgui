@@ -2,9 +2,11 @@
 
 All magicgui widgets emit events when certain properties change.  For each event
 there is a corresponding signal attribute on the widget that can be connected to
-a callback function. For example, a `PushButton` emits an event when it is
-clicked, and all [`ValueWidget`][magicgui.widgets.bases.ValueWidget] subclasses
-(like `Slider` or `LineEdit`) emit an event when their value changes.
+a callback function. For example, a [`PushButton`][magicgui.widgets.PushButton]
+emits an event when it is clicked, and all
+[`ValueWidget`][magicgui.widgets.bases.ValueWidget] subclasses (like
+[`Slider`][magicgui.widgets.Slider] or [`LineEdit`][magicgui.widgets.LineEdit])
+emit an event when their value changes.
 
 ## Connecting to events
 
@@ -12,7 +14,6 @@ To connect a callback to an event, use the `connect` method of the signal
 attribute.  The exact signals available on each widget are mostly defined in
 the [base classes](api/widgets/bases.md), and are listed on the [API page
 for each respective widget](api/widgets/index.md).
-
 
 For example, to connect a callback to a [`LineEdit`][magicgui.widgets.LineEdit]
 widget's `changed` event:

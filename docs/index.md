@@ -34,7 +34,7 @@ The API is organized into multiple levels:
 
 ### Python Type Mapping ## {: .rectHeading .yellowRect }
 
-At its highest level, **magicgui** provides a mapping of Python types to widgets.
+At its highest level, magicgui provides a **mapping of Python types to widgets**.
 This API allows you to create graphical user interfaces for your functions and
 dataclasses simply by annotating them with standard python
 [type hints](https://peps.python.org/pep-0484/).
@@ -108,7 +108,7 @@ from magicgui import magicgui
 @magicgui
 def my_function(
     param_a: int,
-    param_b: Annotated[float, {'widget_type': "FloatSlider", 'max': 100}] = 42.,
+    param_b: Annotated[int, {'widget_type': "Slider", 'max': 100}] = 42,
     param_c: Literal["First", "Second", "Third"] = "Second"
 ):
     print("param_a:", param_a)
@@ -127,7 +127,8 @@ decorators](decorators.md) page.
 [`magicgui.experimental.guiclass`][] is a newer experimental feature that provides an object-oriented
 alternative to `magicgui`.  It wraps [`dataclasses.dataclass`][] and adds a
 `gui` attribute to the resulting class, which is a `magicgui`-generated widget
-that can be used to control the dataclass instance.
+that can be used to control the dataclass instance.  (The widget is only created
+when the `gui` attribute is accessed for the first time.)
 
 ```python
 from magicgui.experimental import guiclass
@@ -146,14 +147,14 @@ For more details on using the `guiclass` decorator, see [Dataclasses & guiclass]
 
 ### Widgets ## {: .rectHeading .blueRect }
 
-At the lower level, **magicgui** is a library of widgets (the individual
+At the lower level, magicgui is a **library of widgets** (the individual
 elements that make up a graphical user interface). Each widget is customized to
 display and interact with a specific type of data.  In some cases, it makes more
 sense to create and arrange these widgets manually, rather than using the type-based
 autogeneration features described above.
 
-**magicgui** acts as an abstraction layer for a variety of different GUI
-toolkits, allowing you to use the same API to create UIs that can move between
+Magicgui acts as an **abstraction layer for a variety of different GUI
+toolkits**, allowing you to use the same API to create UIs that can move between
 environments (such as a desktop app, or a Jupyter notebook).
 
 Currently, **magicgui** supports the following backends:
