@@ -52,6 +52,8 @@ library.
   `dataclasses`, including complex validation and type conversions.
 - [`pydantic`](https://pydantic-docs.helpmanual.io/) is a library that provides
   runtime type enforcement and casting, serialization, and other features.
+- [`msgspec`](https://github.com/jcrist/msgspec) is a fast serialization library
+  with a `msgspec.Struct` that is similar to a dataclass.
 
 ## magicgui `guiclass`
 
