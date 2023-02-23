@@ -63,7 +63,7 @@ def _write_markdown_result_image(src: str, ns: dict, dest: str) -> None:
         w.activateWindow()
         w.update()
 
-        with mkdocs_gen_files.open(dest.replace(".png", "_light.png"), "wb") as f:
+        with mkdocs_gen_files.open(dest, "wb") as f:
             if not w.grab().save(f.name):
                 print("Error saving", dest)
 

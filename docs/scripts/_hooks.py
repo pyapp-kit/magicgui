@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.abc
+import os
 import sys
 import types
 import typing
@@ -11,7 +12,7 @@ from importlib import import_module
 from importlib.machinery import ModuleSpec
 from itertools import count
 from textwrap import dedent
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from griffe.dataclasses import Alias
 from griffe.docstrings import numpy
@@ -20,6 +21,9 @@ from mkdocstrings_handlers.python.handler import PythonHandler
 from magicgui.type_map import get_widget_class
 
 warnings.simplefilter("ignore", DeprecationWarning)
+
+if TYPE_CHECKING:
+    from mkdocs.structure.pages import Page
 
 
 # TODO: figure out how to do this with options
@@ -153,7 +157,8 @@ def _replace_widget_autosummary(md: str) -> str:
     return "\n".join(lines)
 
 
-def on_page_markdown(md, page, **kwargs):
+def on_page_markdown(md: str, page: Page, **kwargs: Any) -> str:
+    """Called when mkdocs is building the markdown for a page."""
     import re
 
     w_iter = count()
@@ -167,20 +172,24 @@ def on_page_markdown(md, page, **kwargs):
     while "::: type_to_widget" in md:
         md = _replace_type_to_widget(md)
 
-    def _sub(matchobj: re.Match) -> str:
+    def _add_images(matchobj: re.Match) -> str:
+        # add image links below all code blocks with a `.show()` call
         if ".show()" not in matchobj.group(0):
-            return matchobj.group(0)
-        src = matchobj.group(1)
-        _md: str = "```python\n" + src + "\n```"
-        dest = f"_images/{page.file.name}_{next(w_iter)}.png"
-        light = dest.replace(".png", "_light.png")
-        _md += f"\n![]({light}#only-light){{: .code-image}}\n\n"
-        # Not working
-        # dark = dest.replace(".png", "_light.png")
-        # _md += f"\n![]({dark}#only-dark){{: .code-image}}\n\n"
-        return _md.replace(" # leave open", "")
+            return matchobj.group(0) or ""
 
-    if page.title != "migration guide":
-        md = re.sub("``` ?python\n([^`]*)```", _sub, md, re.DOTALL)
+        src = matchobj.group(1)  # source code
+        reldepth = "../" * page.file.src_path.count(os.sep)  # relative of this file
+        dest = f"{reldepth}_images/{page.file.name}_{next(w_iter)}.png"  # link to img
+        link = f"\n![]({dest}){{: .code-image}}\n\n"  # theme aware link
+
+        # Not working ... theme aware
+        # light = dest.replace(".png", "_light.png")
+        # dark = dest.replace(".png", "_light.png")
+        # new_md += f"\n![]({dark}#only-dark){{: .code-image}}\n\n"
+        new_md: str = "```python\n" + src + "\n```" + link
+        return new_md.replace(" # leave open", "")
+
+    if page.title not in {"migration guide"}:
+        md = re.sub("``` ?python\n([^`]*)```", _add_images, md, re.DOTALL)
 
     return md
