@@ -61,6 +61,7 @@ pyside2 = [
 pyside6 = ["pyside6"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=8.0.0"]
+textual = ["textual"]  # TODO: figure min version
 image = ["pillow>=4.0"]
 quantity = ["pint>=0.13.0"]
 testing = [

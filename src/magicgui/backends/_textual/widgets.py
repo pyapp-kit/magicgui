@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 from textual import widgets as txtwdgs
 from textual.widget import Widget as TxWidget
@@ -10,6 +10,32 @@ from .application import MguiApp
 if TYPE_CHECKING:
     import numpy as np
     from textual.dom import DOMNode
+
+
+# Convert class events to instance events...
+# FIXME: there must be a better pattern, also need weakrefs
+class _Button(txtwdgs.Button):
+    _callbacks: list[Callable[[Any], Any]] = []
+
+    def on_button_pressed(self):
+        for callback in self._callbacks:
+            callback(True)
+
+
+class _Input(txtwdgs.Input):
+    _callbacks: list[Callable[[Any], Any]] = []
+
+    def on_input_changed(self):
+        for callback in self._callbacks:
+            callback(self.value)
+
+
+class _Switch(txtwdgs.Switch):
+    _callbacks: list[Callable[[Any], Any]] = []
+
+    def on_switch_changed(self):
+        for callback in self._callbacks:
+            callback(self.value)
 
 
 class TxtBaseWidget(protocols.WidgetProtocol):
@@ -25,13 +51,14 @@ class TxtBaseWidget(protocols.WidgetProtocol):
         if wdg_class is None:
             raise TypeError("Must provide a valid textual widget type")
         self._txwidget = wdg_class()
-        MguiApp._widgets.append(self._txwidget)  # TODO
+        MguiApp._mgui_widgets.append(self._txwidget)  # TODO
 
         # TODO: assign parent
 
     def _mgui_close_widget(self) -> None:
         """Close widget."""
-        raise NotImplementedError()
+        # not sure there is a textual equivalent of closing?
+        self._mgui_set_visible(False)
 
     def _mgui_get_visible(self) -> bool:
         """Get widget visibility."""
@@ -43,11 +70,11 @@ class TxtBaseWidget(protocols.WidgetProtocol):
 
     def _mgui_get_enabled(self) -> bool:
         """Get the enabled state of the widget."""
-        raise NotImplementedError()
+        return not self._txwidget.disabled
 
     def _mgui_set_enabled(self, enabled: bool) -> None:
         """Set the enabled state of the widget to `enabled`."""
-        print("set enabled", enabled)
+        self._txwidget.disabled = not enabled
 
     def _mgui_get_parent(self) -> "DOMNode | None":
         """Return the parent widget of this widget."""
@@ -76,7 +103,7 @@ class TxtBaseWidget(protocols.WidgetProtocol):
         self, callback: Callable[[Any], None]
     ) -> None:
         """Bind callback to parent change event."""
-        print("bind parent change callback", callback)
+        pass
 
     def _mgui_render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
@@ -146,7 +173,7 @@ class TxtBaseWidget(protocols.WidgetProtocol):
 
     def _mgui_get_tooltip(self) -> str:
         """Get the tooltip for this widget."""
-        raise NotImplementedError()
+        return ""
 
     def _mgui_set_tooltip(self, value: str | None) -> None:
         """Set a tooltip for this widget."""
@@ -166,7 +193,8 @@ class TxtValueWidget(TxtBaseWidget, protocols.ValueWidgetProtocol):
 
     def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
         """Bind callback to value change event."""
-        print("bind change callback", callback)
+        if hasattr(self._txwidget, "_callbacks"):
+            cast("list", self._txwidget._callbacks).append(callback)
 
 
 class TxtStringWidget(TxtValueWidget):
@@ -179,4 +207,24 @@ class Label(TxtStringWidget):
 
 
 class LineEdit(TxtStringWidget):
-    _txwidget: txtwdgs.Input
+    _txwidget: _Input
+
+
+class TxtBaseButtonWidget(TxtValueWidget, protocols.SupportsText):
+    _txwidget: _Button
+
+    def _mgui_set_text(self, value: str) -> None:
+        """Set text."""
+        self._txwidget.label = value
+
+    def _mgui_get_text(self) -> str:
+        """Get text."""
+        return self._txwidget.label
+
+
+class PushButton(TxtBaseButtonWidget):
+    pass
+
+
+class CheckBox(TxtBaseButtonWidget):
+    _txwidget: _Switch

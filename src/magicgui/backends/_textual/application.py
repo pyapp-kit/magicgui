@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, ClassVar, Iterable
 
 from textual.app import App
+from textual.binding import Binding
 from textual.timer import Timer
 from textual.widget import Widget
+from textual.widgets import Footer, Header
 
 from magicgui.widgets.protocols import BaseApplicationBackend
 
@@ -13,10 +15,21 @@ if TYPE_CHECKING:
 
 
 class MguiApp(App):
-    _widgets: ClassVar[list[Widget]] = []
+    BINDINGS = [
+        ("ctrl+t", "app.toggle_dark", "Toggle Dark mode"),
+        ("ctrl+s", "app.screenshot()", "Screenshot"),
+        Binding("ctrl+c,ctrl+q", "app.quit", "Quit", show=True),
+    ]
+
+    HEADER = Header()
+    FOOTER = Footer()
+
+    _mgui_widgets: ClassVar[list[Widget]] = []
 
     def compose(self) -> Iterable[Widget]:
-        return self._widgets
+        yield self.HEADER
+        yield from self._mgui_widgets
+        yield self.FOOTER
 
 
 class ApplicationBackend(BaseApplicationBackend):
