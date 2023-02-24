@@ -55,6 +55,7 @@ nav:
   - Examples:
     - examples/basic.md
     - examples/napari_img_math.md
+    - examples/napari_parameter_sweep.md
   - API:
       - magicgui: api/magicgui.md
       - magic_factory: api/magic_factory.md

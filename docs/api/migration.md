@@ -2,6 +2,8 @@
 
 ## v0.3.0 migration guide
 
+*October, 2021*
+
 Version 0.3.0 of magicgui introduced some changes to the events and callbacks API.
 See https://github.com/pyapp-kit/magicgui/pull/253 for details
 
@@ -58,6 +60,8 @@ widget.changed('whatever')
 ```
 
 ## v0.2.0 migration guide
+
+*December, 2020*
 
 Version 0.2.0 of magicgui was a complete rewrite that introduced a couple
 breaking API changes
