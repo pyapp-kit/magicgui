@@ -1,4 +1,4 @@
-# Overview
+# magicgui 🧙
 
 `magicgui` is a python library for building graphical user interfaces (GUIs).
 
@@ -13,10 +13,10 @@ automatically from python [type hints](https://peps.python.org/pep-0484/).
 
 **magicgui** can be thought of as performing two distinct tasks:
 
-1. Providing an simplified abstraction layer for GUI frameworks, allowing you to
+1. Providing an **simplified abstraction layer for GUI frameworks**, allowing you to
    use the same API to create UIs that can move between environments and
    frameworks (such as a desktop app, or a Jupyter notebook).
-2. Providing a mapping of python types to widgets, allowing you to autogenerate
+2. Providing a **mapping of python types to widgets**, allowing you to autogenerate
    graphical user interfaces for functions and dataclasses by annotating with
    standard python type hints.
 
@@ -25,7 +25,7 @@ development** of relatively simple GUIs, with **minimal boilerplate**.  For high
 customized GUIs with complex layouts, it may be more appropriate to use a
 lower-level GUI framework.
 
-The API is organized into multiple levels:
+The API is organized into 2 main levels:
 
 <figure markdown>
   ![Image title](images/api_levels.png){ width="350",loading=lazy }
@@ -122,7 +122,7 @@ my_function.show()
 For more details on using `magicgui` and `magic_factory`, see the [magicgui
 decorators](decorators.md) page.
 
-#### guiclass
+#### :material-flask-outline: guiclass
 
 [`magicgui.experimental.guiclass`][] is a newer experimental feature that provides an object-oriented
 alternative to `magicgui`.  It wraps [`dataclasses.dataclass`][] and adds a
@@ -131,13 +131,17 @@ that can be used to control the dataclass instance.  (The widget is only created
 when the `gui` attribute is accessed for the first time.)
 
 ```python
-from magicgui.experimental import guiclass
+from magicgui.experimental import guiclass, button
 
 @guiclass
 class MyDataclass:
     a: int = 0
     b: str = 'hello'
     c: bool = True
+
+    @button
+    def compute(self):
+        print(self.a, self.b, self.c)
 
 obj = MyDataclass(a=10, b='foo')
 obj.gui.show()

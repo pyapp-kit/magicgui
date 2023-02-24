@@ -1,5 +1,9 @@
 # Widgets
 
+!!! tip
+    If you're looking for an index of all available widgets, see the
+    [Widget Index](api/widgets/index.md).
+
 All individual graphical elements in **magicgui** are "widgets", and all widgets
 are instances of [`magicgui.widgets.Widget`][].  Widgets may be created
 directly:
