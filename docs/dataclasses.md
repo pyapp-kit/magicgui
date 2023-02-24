@@ -4,7 +4,7 @@
 
 [`dataclasses`](https://docs.python.org/3/library/dataclasses.html) are a
 feature added in Python 3.7
-([PEP557](https://www.python.org/dev/peps/pep-0557/)) that allow you to simply
+([PEP 557](https://www.python.org/dev/peps/pep-0557/)) that allow you to simply
 define classes that store a specific set of data.  They encourage clear,
 type-annotated code, and are a great way to define data structures with minimal
 boilerplate.
