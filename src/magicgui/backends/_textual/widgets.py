@@ -209,6 +209,14 @@ class Label(TxtStringWidget):
 class LineEdit(TxtStringWidget):
     _txwidget: _Input
 
+    def _mgui_get_value(self) -> Any:
+        """Get current value of the widget."""
+        return self._txwidget.value
+
+    def _mgui_set_value(self, value: Any) -> None:
+        """Set current value of the widget."""
+        self._txwidget.value = value
+
 
 class TxtBaseButtonWidget(TxtValueWidget, protocols.SupportsText):
     _txwidget: _Button
