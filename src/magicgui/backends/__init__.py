@@ -4,6 +4,7 @@ from __future__ import annotations
 BACKENDS: dict[str, tuple[str, str]] = {
     "Qt": ("_qtpy", "qtpy"),
     "ipynb": ("_ipynb", "ipynb"),
+    "textual": ("_textual", "textual"),
 }
 
 for key in list(BACKENDS):
