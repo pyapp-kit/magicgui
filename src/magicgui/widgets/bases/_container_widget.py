@@ -37,45 +37,48 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
-    :class:`~magicgui.widgets.protocols.ContainerProtocol`.
+    [`ContainerProtocol`][magicgui.widgets.protocols.ContainerProtocol].
 
-    A ``ContainerWidget`` behaves like a python list of :class:`Widget` objects.
-    Subwidgets can be accessed using integer or slice-based indexing (``container[0]``),
-    as well as by widget name (``container.<widget_name>``). Widgets can be
-    added with ``append`` or ``insert``, and removed with ``del`` or ``pop``, etc...
+    A `ContainerWidget` behaves like a python list of [Widget][magicgui.widgets.Widget]
+    objects. Subwidgets can be accessed using integer or slice-based indexing
+    (`container[0]`), as well as by widget name (`container.<widget_name>`). Widgets can
+    be added with `append` or `insert`, and removed with `del` or `pop`, etc...
 
-    There is a tight connection between a ``ContainerWidget`` and an
-    :class:`inspect.Signature` object, just as there is a tight connection between
-    individual :class:`Widget` objects an an :class:`inspect.Parameter` object.
-    The signature representation of a ``ContainerWidget`` (with the current settings
-    as default values) is accessible with the :meth:`~ContainerWidget.__signature__`
-    method (or by using :func:`inspect.signature` from the standard library)
+    There is a tight connection between a `ContainerWidget` and an [inspect.Signature][]
+    object, just as there is a tight connection between individual [Widget` objects an
+    an :class:`inspect.Parameter][] object. The signature representation of a
+    `ContainerWidget` (with the current settings as default values) is accessible with
+    the :meth:`~ContainerWidget.__signature__` method (or by using
+    :func:`inspect.signature` from the standard library)
 
-    For a ``ContainerWidget`` subclass that is tightly coupled to a specific function
+    For a `ContainerWidget` subclass that is tightly coupled to a specific function
     signature (as in the "classic" magicgui decorator), see
-    :class:`~magicgui.widgets.FunctionGui`.
+    [magicgui.widgets.FunctionGui][].
 
     Parameters
     ----------
     widgets : Sequence[Widget], optional
         A sequence of widgets with which to initialize the container, by default
-        ``None``.
+        `None`.
     layout : str, optional
-        The layout for the container.  must be one of ``{'horizontal',
-        'vertical'}``. by default "vertical"
+        The layout for the container.  must be one of `{'horizontal',
+        'vertical'}`. by default "vertical"
     scrollable : bool, optional
         Whether to enable scroll bars or not. If enabled, scroll bars will
         only appear along the layout direction, not in both directions.
     labels : bool, optional
         Whether each widget should be shown with a corresponding Label widget to the
-        left, by default ``True``.  Note: the text for each widget defaults to
-        ``widget.name``, but can be overridden by setting ``widget.label``.
+        left, by default `True`.  Note: the text for each widget defaults to
+        `widget.name`, but can be overridden by setting `widget.label`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        :class:`~magicgui.widgets.Widget` constructor.
+        [`magicgui.widgets.Widget`][] constructor.
     """
 
-    changed = Signal(object)
+    changed = Signal(
+        object,
+        description="Emitted with `self` when any sub-widget in the container changes.",
+    )
     _widget: protocols.ContainerProtocol
     _initialized = False
 

@@ -134,3 +134,4 @@ dmypy.json
 .DS_Store
 examples/_wip
 .ruff_cache
+docs/_images/

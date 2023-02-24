@@ -1,12 +1,15 @@
 # magicgui.type_map
 
-```{eval-rst}
-.. automodule:: magicgui.type_map
+::: autosummary
+    magicgui.type_map.get_widget_class
+    magicgui.type_map.register_type
+    magicgui.type_map.type_registered
+    magicgui.type_map.type2callback
 
-.. autosummary::
-   :nosignatures:
-   :toctree: _autosummary
+::: magicgui.type_map.get_widget_class
 
-   get_widget_class
-   register_type
-```
+::: magicgui.type_map.register_type
+
+::: magicgui.type_map.type_registered
+
+::: magicgui.type_map.type2callback

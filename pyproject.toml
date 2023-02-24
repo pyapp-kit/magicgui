@@ -35,7 +35,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "docstring_parser>=0.7",
-    "psygnal>=0.3.1",
+    "psygnal>=0.5.0",
     "qtpy>=1.7.0",
     "superqt>=0.4.0",
     "typing_extensions",
@@ -46,7 +46,7 @@ dependencies = [
 [project.optional-dependencies]
 min-req = [
     "docstring_parser==0.7",
-    "psygnal==0.3.1",
+    "psygnal==0.5.0",
     "qtpy==1.7.0",
     "superqt==0.4.0",
     "typing_extensions",
@@ -60,7 +60,7 @@ pyside2 = [
 ]
 pyside6 = ["pyside6"]
 tqdm = ["tqdm>=4.30.0"]
-jupyter = ["ipywidgets>=7.5.0"]
+jupyter = ["ipywidgets>=8.0.0"]
 image = ["pillow>=4.0"]
 quantity = ["pint>=0.13.0"]
 testing = [
@@ -109,6 +109,18 @@ dev = [
     "toolz",
     "tqdm>=4.30.0",
 ]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings-python",
+    "mkdocs-gen-files",
+    "mkdocs-literate-nav",
+    "mkdocs-spellcheck[all]",
+    # extras for all the widgets
+    "pint",
+    "ipywidgets>=8.0.0",
+    "pyside6",
+]
 
 [project.urls]
 homepage = "https://github.com/pyapp-kit/magicgui"
@@ -123,7 +135,7 @@ source = "vcs"
 [tool.hatch.envs.test]
 features = ["testing"]
 [tool.hatch.envs.test.scripts]
-run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov=magicgui --cov-report=xml --cov-report=term-missing"
+run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov --cov-report=xml --cov-report=term-missing"
 [[tool.hatch.envs.test.matrix]]
 backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
 [tool.hatch.envs.test.overrides]
@@ -170,7 +182,6 @@ extend-select = [
     "RUF",  # ruff-specific rules
 ]
 extend-ignore = [
-    "E704", # Multiple statements on one line (def)
     "D100", # Missing docstring in public module
     "D107", # Missing docstring in __init__
     "D203", # 1 blank line required before class docstring
@@ -216,6 +227,7 @@ pretty = true
 module = [
     "_pytest.*",
     ".examples/",
+    ".docs/",
     "magicgui.widgets._image.*",
     "magicgui.backends.*",
 ]
@@ -243,6 +255,7 @@ omit = [
     "src/magicgui/widgets/_image/_mpl_image.py",
     "src/magicgui/widgets/_bases/*",
     "tests/*",
+    "examples/*",
 ]
 
 

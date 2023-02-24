@@ -20,20 +20,21 @@ class ValueWidget(Widget, Generic[T]):
     ----------
     value : Any, optional
         The starting value for the widget.
-    bind : Any, optional
-        A value or callback to bind this widget, then whenever `widget.value` is
-        accessed, the value provided here will be returned.  ``value`` can be a
-        callable, in which case ``value(self)`` will be returned (i.e. your callback
-        must accept a single parameter, which is this widget instance.).
+    bind : Callable[[ValueWidget], Any] | Any, optional
+        A value or callback to bind this widget. If provided, whenever
+        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        accessed, the value provided here will be returned instead. `bind` may be a
+        callable, in which case `bind(self)` will be returned (i.e. your bound callback
+        must accept a single parameter, which is this widget instance).
     nullable : bool, optional
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        :class:`~magicgui.widgets.Widget` constructor.
+        [`magicgui.widgets.Widget`][] constructor.
     """
 
     _widget: protocols.ValueWidgetProtocol
-    changed = Signal(object)
+    changed = Signal(object, description="Emitted when the widget value changes.")
     null_value: Any = None
 
     def __init__(

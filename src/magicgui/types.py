@@ -3,17 +3,7 @@ from __future__ import annotations
 
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Literal,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Literal, Tuple, Union
 
 from typing_extensions import TypedDict
 
@@ -30,9 +20,9 @@ class ChoicesDict(TypedDict):
     key: Callable[[Any], str]
 
 
-#: A :class:`~magicgui.widgets.Widget` class or a
-#: :class:`~magicgui.widgets.protocols.WidgetProtocol`
-WidgetClass = Union[Type["Widget"], Type["WidgetProtocol"]]
+#: A [`Widget`][magicgui.widgets.Widget] class or a
+#: [~magicgui.widgets.protocols.WidgetProtocol][]
+WidgetClass = Union["type[Widget]", "type[WidgetProtocol]"]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
 #: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
@@ -45,7 +35,7 @@ ChoicesCallback = Callable[["CategoricalWidget[Any]"], ChoicesIterable]
 #: The set of all valid types for widget ``choices``.
 ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, ChoicesDict]
 #: A callback that may be registered for a given return annotation. When called, it will
-#: be provided an instance of a :class:`~magicgui.widgets.FunctionGui`, the result
+#: be provided an instance of a [~magicgui.widgets.FunctionGui][], the result
 #: of the function that was called, and the return annotation itself.
 ReturnCallback = Callable[["FunctionGui[Any]", Any, type], None]
 #: A valid file path type

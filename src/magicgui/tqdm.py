@@ -44,7 +44,7 @@ class tqdm(_tqdm_std):
 
     See tqdm.tqdm API for valid args and kwargs: https://tqdm.github.io/docs/tqdm/
 
-    Also, any keyword arguments to the :class:`magicgui.widgets.ProgressBar` widget
+    Also, any keyword arguments to the [magicgui.widgets.ProgressBar][] widget
     are also accepted and will be passed to the ``ProgressBar``.
 
     Examples

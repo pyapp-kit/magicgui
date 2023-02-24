@@ -1,6 +1,6 @@
 """Protocols (interfaces) for backends to implement.
 
-Each class in this module is a :class:`typing.Protocol` that specifies a set of
+Each class in this module is a [typing.Protocol][] that specifies a set of
 :func:`~abc.abstractmethod` that a backend widget must implement to be compatible with
 the magicgui API.  All magicgui-specific abstract methods are prefaced with ``_mgui_*``.
 
@@ -71,26 +71,39 @@ class WidgetProtocol(Protocol):
 
     @abstractmethod
     def _mgui_get_enabled(self) -> bool:
+        """Get the enabled state of the widget."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_set_enabled(self, enabled: bool) -> None:
+        """Set the enabled state of the widget to `enabled`."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_get_parent(self) -> Widget:
+        """Return the parent widget of this widget."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_set_parent(self, widget: Widget) -> None:
+        """Set the parent widget of this widget."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_get_native_widget(self) -> Any:
+        """Return the native backend widget instance.
+
+        This is generally the widget that has the layout.
+        """
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_get_root_native_widget(self) -> Any:
+        """Return the root native backend widget.
+
+        In most cases, this is the same as ``_mgui_get_native_widget``.  However, in
+        cases where the native widget is in a scroll layout, this might be different.
+        """
         raise NotImplementedError()
 
     @abstractmethod
@@ -192,7 +205,11 @@ class WidgetProtocol(Protocol):
 
 @runtime_checkable
 class ValueWidgetProtocol(WidgetProtocol, Protocol):
-    """Widget that has a current value, with getter/setter and on_change callback."""
+    """Widget that has a current value, with getter/setter and on_change callback.
+
+    It is worth noting that the **widget** is the thing that has a value.  Magicgui
+    does not maintain & synchronize an independent model.
+    """
 
     @abstractmethod
     def _mgui_get_value(self) -> Any:
@@ -398,7 +415,10 @@ class SupportsChoices(Protocol):
 
 @runtime_checkable
 class CategoricalWidgetProtocol(ValueWidgetProtocol, SupportsChoices, Protocol):
-    """Categorical widget, that has a set of valid choices, and a current value."""
+    """Categorical widget, that has a set of valid choices, and a current value.
+
+    It adds no additional methods.
+    """
 
 
 @runtime_checkable
@@ -454,22 +474,29 @@ class SliderWidgetProtocol(RangedWidgetProtocol, SupportsOrientation, Protocol):
 
 
 class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
-    """Widget that can contain other widgets."""
+    """Widget that can contain other widgets.
+
+    This generally manages a backend Layout.
+    """
 
     @abstractmethod
     def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
+        """Insert `widget` at the given `position` in the layout."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_remove_widget(self, widget: Widget) -> None:
+        """Remove the specified widget."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_get_margins(self) -> tuple[int, int, int, int]:
+        """Get the margins of the container."""
         raise NotImplementedError()
 
     @abstractmethod
     def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
+        """Set the margins of the container."""
         raise NotImplementedError()
 
 
@@ -493,6 +520,19 @@ class MainWindowProtocol(ContainerProtocol, Protocol):
         callback: Callable | None = None,
         shortcut: str | None = None,
     ) -> None:
+        """Create a new menu item.
+
+        Parameters
+        ----------
+        menu_name : str
+            The name of the menu to add the item to.
+        action_name : str
+            The name of the action to add.
+        callback : Callable | None, optional
+            A callback to be called when the action is triggered, by default None.
+        shortcut : str | None, optional
+            A keyboard shortcut for the action, by default None.
+        """
         raise NotImplementedError()
 
 
@@ -502,9 +542,9 @@ class MainWindowProtocol(ContainerProtocol, Protocol):
 class BaseApplicationBackend(ABC):
     """Backend Application object.
 
-    Abstract class that provides an interface between backends and Application.
-    Each backend must implement a subclass of BaseApplicationBackend, and
-    implement all its _mgui_xxx methods.
+    Abstract class that provides an interface between backends and `Application`.
+    Each backend must implement a subclass of `BaseApplicationBackend`, and
+    implement all of its `_mgui_xxx` methods.
     """
 
     @abstractmethod

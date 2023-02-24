@@ -31,7 +31,7 @@ from weakref import ref
 from typing_extensions import get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
-from magicgui._util import safe_issubclass
+from magicgui._util import merge_super_sigs, safe_issubclass
 from magicgui.application import use_app
 from magicgui.types import ChoicesType, FileDialogMode, PathLike, Undefined, _Undefined
 from magicgui.widgets import protocols
@@ -51,12 +51,9 @@ from magicgui.widgets.bases import (
 )
 from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 
-from ._docs_sigs import merge_super_sigs
-
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 WidgetTypeVar = TypeVar("WidgetTypeVar", bound=Type[Widget])
 _V = TypeVar("_V")
-TV = TypeVar("TV", bound=Union[datetime.time, datetime.timedelta])
 
 
 @overload
@@ -185,6 +182,9 @@ class DateTimeEdit(ValueWidget[datetime.datetime]):
 @backend_widget
 class DateEdit(ValueWidget[datetime.date]):
     """A widget for editing dates."""
+
+
+TV = TypeVar("TV", bound=Union[datetime.time, datetime.timedelta])
 
 
 @backend_widget
@@ -377,7 +377,11 @@ class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
 
 @backend_widget
 class Container(ContainerWidget[WidgetVar]):
-    """A Widget to contain other widgets."""
+    """A Widget to contain other widgets.
+
+    Note that `Container` implements the [`typing.MutableSequence`][] interface,
+    so you can use it like a list to add and remove widgets.
+    """
 
 
 @backend_widget
@@ -387,7 +391,7 @@ class Dialog(DialogWidget):
 
 @backend_widget
 class MainWindow(MainWindowWidget):
-    """A Widget to contain other widgets."""
+    """A Widget to contain other widgets, includes a menu bar."""
 
 
 @merge_super_sigs

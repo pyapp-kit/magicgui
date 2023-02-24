@@ -26,7 +26,9 @@ def create_widget(
     """Create and return appropriate widget subclass.
 
     This factory function can be used to create a widget appropriate for the
-    provided ``value`` and/or ``annotation`` provided.
+    provided ``value`` and/or ``annotation`` provided. See
+    [Type Mapping Docs](../../type_map.md) for details on how the widget type is
+    determined from type annotations.
 
     Parameters
     ----------
@@ -34,7 +36,7 @@ def create_widget(
         The starting value for the widget, by default ``None``
     annotation : Any, optional
         The type annotation for the parameter represented by the widget, by default
-        ``None``
+        ``None``.
     name : str, optional
         The name of the parameter represented by this widget. by default ``""``
     param_kind : str, optional
@@ -42,7 +44,7 @@ def create_widget(
         signatures from multiple widgets, by default "``POSITIONAL_OR_KEYWORD``"
     label : str
         A string to use for an associated Label widget (if this widget is being
-        shown in a :class:`~magicgui.widgets.Container` widget, and labels are on).
+        shown in a [`Container`][magicgui.widgets.Container] widget, and labels are on).
         By default, ``name`` will be used. Note: ``name`` refers the name of the
         parameter, as might be used in a signature, whereas label is just the label
         for that widget in the GUI.
@@ -73,7 +75,21 @@ def create_widget(
     ------
     TypeError
         If the provided or autodetected ``widget_type`` does not implement any known
-        widget protocols from widgets._protocols.
+        [widget protocols](../protocols.md)
+
+    Examples
+    --------
+    ```python
+    from magicgui.widgets import create_widget
+
+    # create a widget from a string value
+    wdg = create_widget(value="hello world")
+    assert wdg.value == "hello world"
+
+    # create a widget from a string annotation
+    wdg = create_widget(annotation=str)
+    assert wdg.value == ""
+    ```
     """
     _options = options.copy() if options is not None else {}
     kwargs = {

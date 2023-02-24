@@ -25,20 +25,20 @@ from typing import (
 from psygnal import Signal
 
 from magicgui._type_resolution import resolve_single_type
-from magicgui.application import AppRef
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
 from magicgui.widgets.bases import ValueWidget
 from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
+    from magicgui.application import Application, AppRef  # noqa: F401
     from magicgui.widgets import TextEdit
 
 
 def _inject_tooltips_from_docstrings(
     docstring: str | None, sig: MagicSignature
 ) -> None:
-    """Update ``sig`` gui options with tooltips extracted from ``docstring``."""
+    """Update `sig` gui options with tooltips extracted from `docstring`."""
     from docstring_parser import parse
 
     if not docstring:
@@ -77,13 +77,13 @@ class FunctionGui(Container, Generic[_R]):
     ----------
     function : Callable
         A callable to turn into a GUI
-    call_button : bool, str, or None, optional
+    call_button : bool | str | None, optional
         If True, create an additional button that calls the original function when
-        clicked.  If a ``str``, set the button text. by default False when
+        clicked.  If a `str`, set the button text. by default False when
         auto_call is True, and True otherwise.
-        The button can be accessed from the ``.call_button`` property.
+        The button can be accessed from the `.call_button` property.
     layout : str, optional
-        The type of layout to use. Must be one of {'horizontal', 'vertical'}.
+        The type of layout to use. Must be `horizontal` or `vertical`
         by default "horizontal".
     scrollable : bool, optional
         Whether to enable scroll bars or not. If enabled, scroll bars will
@@ -92,11 +92,11 @@ class FunctionGui(Container, Generic[_R]):
         Whether labels are shown in the widget. by default True
     tooltips : bool, optional
         Whether tooltips are shown when hovering over widgets. by default True
-    app : magicgui.Application or str, optional
-        A backend to use, by default ``None`` (use the default backend.)
+    app : Application | str | None, optional
+        A backend to use, by default `None` (use the default backend.)
     visible : bool, optional
-        Whether to immediately show the widget.  If ``False``, widget is explicitly
-        hidden.  If ``None``, widget is not shown, but will be shown if a parent
+        Whether to immediately show the widget.  If `False`, widget is explicitly
+        hidden.  If `None`, widget is not shown, but will be shown if a parent
         container is shown, by default None.
     auto_call : bool, optional
         If True, changing any parameter in either the GUI or the widget attributes
@@ -106,16 +106,15 @@ class FunctionGui(Container, Generic[_R]):
         by default False
     param_options : dict, optional
         A dict of name: widget_options dict for each parameter in the function.
-        Will be passed to `magic_signature` by default ``None``
+        Will be passed to `magic_signature` by default `None`
     name : str, optional
         A name to assign to the Container widget, by default `function.__name__`
     persist : bool, optional
         If `True`, when parameter values change in the widget, they will be stored to
         disk (in `~/.config/magicgui/cache`) and restored when the widget is loaded
-        again with ``persist = True``.  By default, `False`.
+        again with `persist = True`.  By default, `False`.
     raise_on_unknown : bool
         If True, raise an error if a parameter annotation is not recognized.
-
 
     Raises
     ------
@@ -123,7 +122,9 @@ class FunctionGui(Container, Generic[_R]):
         If unexpected keyword arguments are provided
     """
 
-    called = Signal(object)
+    called = Signal(
+        object, description="Emitted with the result after the function is called."
+    )
     _widget: ContainerProtocol
 
     def __init__(
@@ -264,7 +265,7 @@ class FunctionGui(Container, Generic[_R]):
 
     @property
     def return_annotation(self) -> Any:
-        """Return annotation to use when converting to :class:`inspect.Signature`.
+        """Return annotation to use when converting to [inspect.Signature][].
 
         ForwardRefs will be resolve when setting the annotation.
         """
@@ -289,11 +290,13 @@ class FunctionGui(Container, Generic[_R]):
 
         Examples
         --------
+        ```python
         gui = FunctionGui(func, show=True)
 
         # then change parameters in the gui, or by setting:  gui.param.value = something
 
         gui()  # calls the original function with the current parameters
+        ```
         """
         sig = self.__signature__
         try:
@@ -382,8 +385,14 @@ class FunctionGui(Container, Generic[_R]):
         in which the first argument of the function is bound to the instance. (Just like
         what you'd expect with the @property decorator.)
 
-        Example
+        Returns
         -------
+        bound : FunctionGui
+            A new FunctionGui instance.
+
+        Examples
+        --------
+        ```python
         >>> class MyClass:
         ...     @magicgui
         ...     def my_method(self, x=1):
@@ -391,8 +400,11 @@ class FunctionGui(Container, Generic[_R]):
         ...
         >>> c = MyClass()
         >>> c.my_method  # the FunctionGui that can be used as a widget
-        >>> c.my_method(x=34)  # calling it works as usual, with `c` provided as `self`
+
+        # calling it works as usual, with `c` provided as `self`
+        >>> c.my_method(x=34)
         {'self': <__main__.MyClass object at 0x7fb610e455e0>, 'x': 34}
+        ```
         """
         if obj is None:
             return self
@@ -464,7 +476,7 @@ def _docstring_to_html(docs: str) -> str:
     params = f'<h3>Parameters</h3><ul>{"".join(plist)}</ul>'
     short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
     long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
-    return re.sub(r"``?([^`]+)``?", r"<code>\1</code>", f"{short}{long}{params}")
+    return re.sub(r"`?([^`]+)`?", r"<code>\1</code>", f"{short}{long}{params}")
 
 
 @contextmanager
@@ -473,10 +485,10 @@ def _function_name_pointing_to_widget(function_gui: FunctionGui) -> Iterator[Non
 
     When calling the function provided to FunctionGui, we make sure that the name
     of the function points to the FunctionGui object itself.
-    In standard ``@magicgui`` usage, this will have been the case anyway.
-    Doing this here allows the function name in a ``@magic_factory``-decorated function
+    In standard `@magicgui` usage, this will have been the case anyway.
+    Doing this here allows the function name in a `@magic_factory`-decorated function
     to *also* refer to the function gui instance created by the factory, (rather than
-    to the :class:`~magicgui._magicgui.MagicFactory` object).
+    to the [~magicgui._magicgui.MagicFactory][] object).
 
     Examples
     --------

@@ -1,0 +1,141 @@
+site_name: magicgui
+site_url: https://pyapp-kit.github.io/magicgui
+site_description: Type-based GUI creation for Python
+repo_name: pyapp-kit/magicgui
+repo_url: https://github.com/pyapp-kit/magicgui
+edit_uri: edit/main/docs/
+# strict: true
+copyright: Copyright &copy; 2020 - 2023 Talley Lambert
+
+theme:
+  name: material
+  favicon: images/favicon.ico
+  logo: images/logo.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: teal
+      accent: light-green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - content.code.annotate
+    - navigation.sections
+    - toc.follow
+    - search.suggest
+    - search.share
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pyapp-kit/magicgui
+      name: magicgui on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/magicgui/
+      name: magicgui on PyPI
+
+nav:
+  - Overview: index.md
+  - Installation: installation.md
+  - Usage:
+    - widgets.md
+    - type_map.md
+    - events.md
+    - decorators.md
+    - dataclasses.md
+  - Examples:
+    - examples/basic.md
+    - examples/napari_img_math.md
+    - examples/napari_parameter_sweep.md
+  - API:
+      - magicgui: api/magicgui.md
+      - magic_factory: api/magic_factory.md
+      - widgets:
+        - api/widgets/index.md
+        - api/widgets/*.md
+      - widgets.bases: api/widgets/bases.md
+      - widgets.protocols: api/protocols.md
+      - type_map: api/type_map.md
+      - application: api/app.md
+      - experimental: api/experimental.md
+      - api/migration.md
+  - Contributing: CONTRIBUTING.md
+
+hooks:
+  - docs/scripts/_hooks.py
+
+watch:
+  - src
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.extra
+  - attr_list
+  - md_in_html
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: "#"
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+plugins:
+  - search
+  - autorefs
+  - literate-nav
+  # - section-index
+  - gen-files:
+      scripts:
+        - docs/scripts/_gen_screenshots.py
+        - docs/scripts/_gen_widgets.py
+  - spellcheck:
+      backends: # the backends you want to use
+        - codespell: # or nested configs
+            dictionaries: [clear, rare]
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+            - https://psygnal.readthedocs.io/en/latest/objects.inv
+            - https://pint.readthedocs.io/en/stable/objects.inv
+            - https://napari.org/stable/objects.inv
+          options:
+            docstring_style: numpy
+            show_source: false
+            show_signature_annotations: true
+            show_root_heading: true
+            show_root_full_path: true
+            # show_source: false
+            show_bases: true
+            docstring_section_style: list
+        # special handler only used in _gen_widgets.py
+        widget_handler:
+          options:
+            docstring_style: numpy
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_source: false
+            show_bases: true
+            docstring_section_style: list
+extra_css:
+  - stylesheets/extra.css
+  - stylesheets/pygments.css

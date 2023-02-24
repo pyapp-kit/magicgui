@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import sys
 import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Iterator
@@ -11,10 +10,8 @@ from psygnal import Signal
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
+from magicgui.widgets.protocols import WidgetProtocol
 
-BUILDING_DOCS = sys.argv[-2:] == ["build", "docs"]
-if BUILDING_DOCS:
-    pass
 if TYPE_CHECKING:
     from weakref import ReferenceType
 
@@ -28,7 +25,7 @@ class Widget:
 
     Parameters
     ----------
-    widget_type : Type[WidgetProtocol]
+    widget_type : type[WidgetProtocol]
         A class implementing a widget protocol.  Will be instantiated during __init__.
     name : str, optional
         The name of the parameter represented by this widget. by default ""
@@ -37,7 +34,7 @@ class Widget:
         ``None``
     label : str
         A string to use for an associated Label widget (if this widget is being
-        shown in a :class:`~magicgui.widgets.Container` widget, and labels are on).
+        shown in a [`Container`][magicgui.widgets.Container] widget, and labels are on).
         By default, ``name`` will be used. Note: ``name`` refers the name of the
         parameter, as might be used in a signature, whereas label is just the label
         for that widget in the GUI.
@@ -50,7 +47,7 @@ class Widget:
     gui_only : bool, optional
         If ``True``, widget is excluded from any function signature representation.
         by default ``False``.  (This will likely be deprecated.)
-    parent : Widget, optional
+    parent : Any, optional
         Optional parent widget of this widget.  CAREFUL: if a parent is set, and
         subsequently deleted, this widget will likely be deleted as well (depending on
         the backend), and will no longer be usable.
@@ -58,16 +55,19 @@ class Widget:
         keyword argument to pass to the backend widget constructor.
     """
 
-    _widget: protocols.WidgetProtocol
+    _widget: WidgetProtocol
     # if this widget becomes owned by a labeled widget
     _labeled_widget_ref: ReferenceType[_LabeledWidget] | None = None
 
-    parent_changed = Signal(object)
-    label_changed = Signal(str)
+    parent_changed = Signal(
+        object,
+        description="Emitted with the backend widget when the widget parent changes.",
+    )
+    label_changed = Signal(str, description="Emitted when the widget label changes.")
 
     def __init__(
         self,
-        widget_type: type[protocols.WidgetProtocol],
+        widget_type: type[WidgetProtocol],
         name: str = "",
         annotation: Any | None = None,
         label: str | None = None,

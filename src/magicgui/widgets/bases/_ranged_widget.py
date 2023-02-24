@@ -30,16 +30,17 @@ class RangedWidget(ValueWidget[T]):
         than 999)
     step : float, optional
         The step size for incrementing the value, by default adaptive step is used
-    bind : Any, optional
-        A value or callback to bind this widget, then whenever `widget.value` is
-        accessed, the value provided here will be returned.  ``value`` can be a
-        callable, in which case ``value(self)`` will be returned (i.e. your callback
-        must accept a single parameter, which is this widget instance.).
+    bind : Callable[[ValueWidget], Any] | Any, optional
+        A value or callback to bind this widget. If provided, whenever
+        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        accessed, the value provided here will be returned instead. `bind` may be a
+        callable, in which case `bind(self)` will be returned (i.e. your bound callback
+        must accept a single parameter, which is this widget instance).
     nullable : bool, optional
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        :class:`~magicgui.widgets.Widget` constructor.
+        [`magicgui.widgets.Widget`][] constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol
@@ -168,7 +169,13 @@ class RangedWidget(ValueWidget[T]):
 
     @property
     def adaptive_step(self) -> bool:
-        """Whether the step size is adaptive."""
+        """Whether the step size is adaptive.
+
+        Adaptive decimal step means that the step size will continuously be adjusted to
+        one power of ten below the current value. So when the value is 1100, the step is
+        set to 100, so stepping up once increases it to 1200. For 1200 stepping up takes
+        it to 1300. For negative values, stepping down from -1100 goes to -1200.
+        """
         return self.step is None
 
     @adaptive_step.setter
@@ -206,16 +213,17 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         The maximum value for the *internal* (widget) position, by default 0.
     step : float, optional
         The step size for incrementing the value, by default 1
-    bind : Any, optional
-        A value or callback to bind this widget, then whenever `widget.value` is
-        accessed, the value provided here will be returned.  ``value`` can be a
-        callable, in which case ``value(self)`` will be returned (i.e. your callback
-        must accept a single parameter, which is this widget instance.).
+    bind : Callable[[ValueWidget], Any] | Any, optional
+        A value or callback to bind this widget. If provided, whenever
+        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        accessed, the value provided here will be returned instead. `bind` may be a
+        callable, in which case `bind(self)` will be returned (i.e. your bound callback
+        must accept a single parameter, which is this widget instance).
     nullable : bool, optional
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        :class:`~magicgui.widgets.Widget` constructor.
+        [`magicgui.widgets.Widget`][] constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol

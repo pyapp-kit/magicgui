@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import inspect
 import os
 import sys
 import time
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, overload
+from typing import TYPE_CHECKING, Callable, Iterable, overload
+
+from docstring_parser import DocstringParam, parse
 
 if TYPE_CHECKING:
     from typing import TypeVar
@@ -14,6 +17,7 @@ if TYPE_CHECKING:
 
     T = TypeVar("T")
     P = ParamSpec("P")
+    C = TypeVar("C", bound=type)
 
 
 @overload
@@ -147,3 +151,132 @@ def safe_issubclass(obj: object, superclass: object) -> bool:
         return issubclass(obj, superclass)  # type: ignore
     except Exception:
         return False
+
+
+def _param_list_to_str(
+    param_list: list[DocstringParam], other_params: list[DocstringParam]
+) -> str:
+    """Format Parameters section for numpy docstring from list of tuples."""
+    out = []
+    out += ["Parameters", len("Parameters") * "-"]
+    for param in param_list:
+        parts = []
+        if param.arg_name:
+            parts.append(param.arg_name)
+        if param.type_name:
+            parts.append(param.type_name)
+        if not parts:
+            continue
+        out += [" : ".join(parts)]
+        if param.description and param.description.strip():
+            out += [" " * 4 + line for line in param.description.split("\n")]
+    out += [""]
+    return "\n".join(out)
+
+
+def merge_super_sigs(
+    cls: C,
+    exclude: Iterable[str] = (
+        "widget_type",
+        "kwargs",
+        "args",
+        "kwds",
+        "extra",
+        "backend_kwargs",
+    ),
+    module: str = "magicgui.widgets",
+) -> C:
+    """Merge the signature and kwarg docs from all superclasses, for clearer docs.
+
+    This can be used as a decorator, but must be used with a function call, (even
+    if you don't pass any arguments).
+
+    Parameters
+    ----------
+    cls : Type
+        The class being modified
+    exclude : tuple, optional
+        A list of parameter names to excluded from the merged docs/signature,
+        by default ("widget_type", "kwargs", "args", "kwds")
+    module : str
+        A module name to assign to `cls.__module__`.
+
+    Returns
+    -------
+    cls : Type
+        The modified class (can be used as a decorator)
+    """
+    params = {}
+    param_docs: list[DocstringParam] = []
+    other_params: list[DocstringParam] = []
+    for sup in inspect.getmro(cls):
+        try:
+            sig = inspect.signature(sup.__init__)  # type: ignore
+        # in some environments `object` or `abc.ABC` will raise ValueError here
+        except ValueError:
+            continue
+        for name, param in sig.parameters.items():
+            if name in exclude:
+                continue
+            params[name] = param
+
+        docstring = getattr(sup, "__doc__", "")
+        param_docs += parse(docstring).params
+        if "Parameters" in docstring:
+            break
+
+    # sphinx_autodoc_typehints isn't removing the type annotations from the signature
+    # so we do it manually when building documentation.
+    if sys.argv[-2:] == ["build", "docs"]:  # if building docs
+        params = {
+            k: v.replace(annotation=inspect.Parameter.empty) for k, v in params.items()
+        }
+
+    cls.__init__.__signature__ = inspect.Signature(  # type: ignore
+        sorted(params.values(), key=lambda x: x.kind)
+    )
+    param_docs = [p for p in param_docs if p.arg_name not in exclude]
+    cls.__doc__ = (cls.__doc__ or "").split("Parameters")[0].rstrip() + "\n\n"
+    cls.__doc__ += _param_list_to_str(param_docs, other_params)
+    # this makes docs linking work... but requires that all of these be in __init__
+    cls.__module__ = module
+    return cls
+
+
+# def mergedoc(
+#     cls: type,
+#     exclude: Iterable[str] = (
+#         "widget_type",
+#         "kwargs",
+#         "args",
+#         "kwds",
+#         "extra",
+#         "backend_kwargs",
+#     ),
+# ):
+#     from textwrap import indent
+
+#     from griffe.dataclasses import Docstring
+#     from griffe.docstrings.dataclasses import DocstringParameter, DocstringSection
+#     from griffe.docstrings.numpy import parse
+
+#     super_docs: dict[str, list[DocstringSection]] = {}
+#     for sup in cls.__mro__:
+#         docstring = getattr(sup, "__doc__", None)
+#         if docstring:
+#             super_docs[sup.__name__] = parse(Docstring(docstring))
+
+#     seen = set(exclude)
+#     for base, sections in super_docs.items():
+#         print(">>", base)
+#         for section in sections:
+#             if section.kind.name == "parameters":
+#                 for p in section.value:
+#                     if p.name in seen:
+#                         # continue
+#                         ...
+#                     p = cast(DocstringParameter, p)
+#                     desc = indent(p.description, ' ' * 4)
+#                     line = f"{p.name} : {p.annotation}\n{desc}"
+#                     seen.add(p.name)
+#                     print(line)
