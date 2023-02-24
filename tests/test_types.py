@@ -52,7 +52,10 @@ def test_pick_widget_builtins_forward_refs(cls, string):
             Annotated[float, {"widget_type": "FloatSlider", "step": 9}],
             widgets.FloatSlider,
         ),
-        (Annotated[Annotated[int, {"widget_type": "Slider"}], {"max": 10}], widgets.Slider),
+        (
+            Annotated[Annotated[int, {"widget_type": "Slider"}], {"max": 10}],
+            widgets.Slider,
+        ),
     ],
 )
 def test_annotated_types(hint, expected_wdg):
