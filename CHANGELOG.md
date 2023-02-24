@@ -1,8 +1,37 @@
 # Changelog
 
-## [0.7.0.rc0](https://github.com/pyapp-kit/magicgui/tree/0.7.0.rc0) (2022-11-26)
+## [0.7.0](https://github.com/pyapp-kit/magicgui/tree/0.7.0) (2023-02-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.6.1...0.7.0.rc0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc0...0.7.0)
+
+**Implemented enhancements:**
+
+- feat: add experimental namespace [\#526](https://github.com/pyapp-kit/magicgui/pull/526) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- fix: fix psygnal rc version parsing [\#533](https://github.com/pyapp-kit/magicgui/pull/533) ([tlambert03](https://github.com/tlambert03))
+- fix: fix psygnal version parsing [\#532](https://github.com/pyapp-kit/magicgui/pull/532) ([tlambert03](https://github.com/tlambert03))
+- fix: catch warning from future version of psygnal [\#531](https://github.com/pyapp-kit/magicgui/pull/531) ([tlambert03](https://github.com/tlambert03))
+- fix: fix annotated in get\_widget\_class [\#525](https://github.com/pyapp-kit/magicgui/pull/525) ([tlambert03](https://github.com/tlambert03))
+- Fix typos and add codespell pre-commit hook [\#522](https://github.com/pyapp-kit/magicgui/pull/522) ([kianmeng](https://github.com/kianmeng))
+- fix: minor fixes for qt backend [\#521](https://github.com/pyapp-kit/magicgui/pull/521) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: new documentation with mkdocs [\#527](https://github.com/pyapp-kit/magicgui/pull/527) ([tlambert03](https://github.com/tlambert03))
+- Add directory picker example to file\_dialog.py [\#524](https://github.com/pyapp-kit/magicgui/pull/524) ([GenevieveBuckley](https://github.com/GenevieveBuckley))
+- docs: Fix docs links [\#520](https://github.com/pyapp-kit/magicgui/pull/520) ([tlambert03](https://github.com/tlambert03))
+- docs: attempting to simplify/clarify widget init docstrings [\#519](https://github.com/pyapp-kit/magicgui/pull/519) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- refactor: enable strict mypy type checking for most modules [\#518](https://github.com/pyapp-kit/magicgui/pull/518) ([tlambert03](https://github.com/tlambert03))
+- refactor:  make ValueWidget a Generic [\#517](https://github.com/pyapp-kit/magicgui/pull/517) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.7.0.rc0](https://github.com/pyapp-kit/magicgui/tree/v0.7.0.rc0) (2022-11-26)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.6.1...v0.7.0.rc0)
 
 **Implemented enhancements:**
 
@@ -428,7 +457,7 @@
 
 ## [v0.2.9](https://github.com/pyapp-kit/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.9)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -454,13 +483,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/pyapp-kit/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.8rc0)
-
 ## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.8)
+
+## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8rc0)
 
 **Implemented enhancements:**
 
