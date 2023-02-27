@@ -1,8 +1,16 @@
 # Changelog
 
-## [0.7.0](https://github.com/pyapp-kit/magicgui/tree/0.7.0) (2023-02-24)
+## [v0.7.0](https://github.com/pyapp-kit/magicgui/tree/v0.7.0) (2023-02-27)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc0...0.7.0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc1...v0.7.0)
+
+**Fixed bugs:**
+
+- fix: Support nested `Annotated` types [\#536](https://github.com/pyapp-kit/magicgui/pull/536) ([hanjinliu](https://github.com/hanjinliu))
+
+## [v0.7.0.rc1](https://github.com/pyapp-kit/magicgui/tree/v0.7.0.rc1) (2023-02-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc0...v0.7.0.rc1)
 
 **Implemented enhancements:**
 
