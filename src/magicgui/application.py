@@ -68,9 +68,9 @@ class Application:
                 f"Could not import object {name!r} from backend {self.backend_module}"
             ) from e
 
-    def run(self) -> None:
+    def run(self, **kwargs: Any) -> None:
         """Enter the native GUI event loop."""
-        return self._backend._mgui_run()
+        return self._backend._mgui_run(**kwargs)
 
     @property
     def native(self) -> Any:

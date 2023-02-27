@@ -7,6 +7,17 @@ from magicgui.widgets import protocols
 
 from .application import MguiApp
 
+try:
+    # useful, but not yet public...
+    from psygnal._weak_callback import WeakCallback, weak_callback
+
+except ImportError:
+    WeakCallback = Callable[[Any], Any]
+
+    def weak_callback(callback: Callable[[Any], Any]) -> WeakCallback:
+        return callback
+
+
 if TYPE_CHECKING:
     import numpy as np
     from textual.dom import DOMNode
@@ -15,7 +26,7 @@ if TYPE_CHECKING:
 # Convert class events to instance events...
 # FIXME: there must be a better pattern, also need weakrefs
 class _Button(txtwdgs.Button):
-    _callbacks: list[Callable[[Any], Any]] = []
+    _callbacks: list[WeakCallback] = []
 
     def on_button_pressed(self):
         for callback in self._callbacks:
@@ -23,7 +34,7 @@ class _Button(txtwdgs.Button):
 
 
 class _Input(txtwdgs.Input):
-    _callbacks: list[Callable[[Any], Any]] = []
+    _callbacks: list[WeakCallback] = []
 
     def on_input_changed(self):
         for callback in self._callbacks:
@@ -31,7 +42,7 @@ class _Input(txtwdgs.Input):
 
 
 class _Switch(txtwdgs.Switch):
-    _callbacks: list[Callable[[Any], Any]] = []
+    _callbacks: list[WeakCallback] = []
 
     def on_switch_changed(self):
         for callback in self._callbacks:
@@ -51,9 +62,12 @@ class TxtBaseWidget(protocols.WidgetProtocol):
         if wdg_class is None:
             raise TypeError("Must provide a valid textual widget type")
         self._txwidget = wdg_class()
-        MguiApp._mgui_widgets.append(self._txwidget)  # TODO
 
-        # TODO: assign parent
+        # TODO: here we add the widget to our global app instance... but perhaps
+        # we should be using `mount()`?
+        MguiApp._mgui_widgets.append(self._txwidget)
+
+        # TODO: assign parent ?
 
     def _mgui_close_widget(self) -> None:
         """Close widget."""
@@ -82,7 +96,7 @@ class TxtBaseWidget(protocols.WidgetProtocol):
 
     def _mgui_set_parent(self, widget: TxWidget) -> None:
         """Set the parent widget of this widget."""
-        raise NotImplementedError()
+        raise NotImplementedError("Setting parent of textual widget not supported")
 
     def _mgui_get_native_widget(self) -> Any:
         """Return the native backend widget instance.
@@ -107,7 +121,7 @@ class TxtBaseWidget(protocols.WidgetProtocol):
 
     def _mgui_render(self) -> "np.ndarray":
         """Return an RGBA (MxNx4) numpy array bitmap of the rendered widget."""
-        raise NotImplementedError()
+        raise NotImplementedError("Textual widget screenshots not yet implemented")
 
     def _mgui_get_width(self) -> int:
         """Get the width of the widget.
@@ -118,27 +132,27 @@ class TxtBaseWidget(protocols.WidgetProtocol):
         ``width()`` may return something large if the widget has not yet been painted
         on screen.
         """
-        raise NotImplementedError()
+        return self._txwidget.styles.width
 
     def _mgui_set_width(self, value: int) -> None:
         """Set the width of the widget."""
-        raise NotImplementedError()
+        self._txwidget.styles.width = value
 
     def _mgui_get_min_width(self) -> int:
         """Get the minimum width of the widget."""
-        raise NotImplementedError()
+        return self._txwidget.styles.min_width
 
     def _mgui_set_min_width(self, value: int) -> None:
         """Set the minimum width of the widget."""
-        raise NotImplementedError()
+        self._txwidget.styles.min_width = value
 
     def _mgui_get_max_width(self) -> int:
         """Get the maximum width of the widget."""
-        raise NotImplementedError()
+        return self._txwidget.styles.max_width
 
     def _mgui_set_max_width(self, value: int) -> None:
         """Set the maximum width of the widget."""
-        raise NotImplementedError()
+        self._txwidget.styles.max_width = value
 
     def _mgui_get_height(self) -> int:
         """Get the height of the widget.
@@ -149,27 +163,27 @@ class TxtBaseWidget(protocols.WidgetProtocol):
         ``height()`` may return something large if the widget has not yet been painted
         on screen.
         """
-        raise NotImplementedError()
+        return self._txwidget.styles.height
 
     def _mgui_set_height(self, value: int) -> None:
         """Set the height of the widget."""
-        raise NotImplementedError()
+        self._txwidget.styles.height = value
 
     def _mgui_get_min_height(self) -> int:
         """Get the minimum height of the widget."""
-        raise NotImplementedError()
+        return self._txwidget.styles.min_height
 
     def _mgui_set_min_height(self, value: int) -> None:
         """Set the minimum height of the widget."""
-        raise NotImplementedError()
+        self._txwidget.styles.min_height = value
 
     def _mgui_get_max_height(self) -> int:
         """Get the maximum height of the widget."""
-        raise NotImplementedError()
+        return self._txwidget.styles.max_height
 
     def _mgui_set_max_height(self, value: int) -> None:
         """Set the maximum height of the widget."""
-        raise NotImplementedError()
+        self._txwidget.styles.max_height = value
 
     def _mgui_get_tooltip(self) -> str:
         """Get the tooltip for this widget."""
@@ -194,7 +208,8 @@ class TxtValueWidget(TxtBaseWidget, protocols.ValueWidgetProtocol):
     def _mgui_bind_change_callback(self, callback: Callable[[Any], Any]) -> None:
         """Bind callback to value change event."""
         if hasattr(self._txwidget, "_callbacks"):
-            cast("list", self._txwidget._callbacks).append(callback)
+            callbacks = cast("list", self._txwidget._callbacks)
+            callbacks.append(weak_callback(callback))
 
 
 class TxtStringWidget(TxtValueWidget):

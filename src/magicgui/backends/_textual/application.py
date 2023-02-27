@@ -6,7 +6,7 @@ from textual.app import App
 from textual.binding import Binding
 from textual.timer import Timer
 from textual.widget import Widget
-from textual.widgets import Footer, Header
+from textual.widgets import Footer
 
 from magicgui.widgets.protocols import BaseApplicationBackend
 
@@ -21,13 +21,14 @@ class MguiApp(App):
         Binding("ctrl+c,ctrl+q", "app.quit", "Quit", show=True),
     ]
 
-    HEADER = Header()
+    HEADER = None
     FOOTER = Footer()
 
     _mgui_widgets: ClassVar[list[Widget]] = []
 
     def compose(self) -> Iterable[Widget]:
-        yield self.HEADER
+        if self.HEADER is not None:
+            yield self.HEADER
         yield from self._mgui_widgets
         yield self.FOOTER
 
@@ -48,8 +49,8 @@ class ApplicationBackend(BaseApplicationBackend):
     def _mgui_process_events(self) -> None:
         ...
 
-    def _mgui_run(self) -> None:
-        self._mgui_get_native_app().run()
+    def _mgui_run(self, **kwargs) -> None:
+        self._mgui_get_native_app().run(**kwargs)
 
     def _mgui_quit(self) -> None:
         return self._mgui_get_native_app().exit()
