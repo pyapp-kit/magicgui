@@ -1,17 +1,27 @@
-name: deploy docs
+name: docs
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy:
+  docs:
     runs-on: macos-latest  # for the screenshots
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.x'
       - run: pip install -e .[docs]
-      - run: mkdocs gh-deploy --strict --force
+
+      - name: Deploy docs to GitHub Pages
+        if: github.event_name == 'push'
+        run: mkdocs gh-deploy --strict --force
+
+      - name: Test that docs build without error
+        if: github.event_name == 'pull_request'
+        run: mkdocs build --strict
