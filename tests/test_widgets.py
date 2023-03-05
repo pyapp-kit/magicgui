@@ -354,9 +354,6 @@ def test_bound_not_called():
     mock.assert_called_once_with(f.a)
 
 
-
-
-
 def test_progressbar():
     """Test manually controlling a progressbar."""
 
@@ -374,7 +371,6 @@ def test_progressbar():
         return pbar.get_value()
 
     assert t() == 23
-
 
 
 def test_main_function_gui():
@@ -500,8 +496,6 @@ def test_exception_range_out_of_range():
 
     with pytest.raises(ValueError):
         widgets.SpinBox(value=-10, min=0)
-
-
 
 
 def test_file_dialog_events():
@@ -721,8 +715,6 @@ def test_radiobutton_reset_choices():
     assert len(wdg.native.findChildren(QRadioButton)) == 3
     wdg.reset_choices()
     assert len(wdg.native.findChildren(QRadioButton)) == 3
-
-
 
 
 def test_tracking():

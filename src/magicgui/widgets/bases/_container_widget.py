@@ -263,7 +263,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     def __signature__(self) -> MagicSignature:
         """Return a MagicSignature object representing the current state of the gui."""
         params = [
-            MagicParameter.from_widget(w) for w in self._list if w.name and not w.gui_only
+            MagicParameter.from_widget(w)
+            for w in self._list
+            if w.name and not w.gui_only
         ]
         # if we have multiple non-default parameters and some but not all of them are
         # "bound" to fallback values, we may have  non-default arguments
@@ -316,7 +318,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     def asdict(self) -> dict[str, Any]:
         """Return state of widget as dict."""
         return {
-            w.name: getattr(w, "value", None) for w in self._list if w.name and not w.gui_only
+            w.name: getattr(w, "value", None)
+            for w in self._list
+            if w.name and not w.gui_only
         }
 
     def update(
