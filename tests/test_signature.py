@@ -8,9 +8,9 @@ def test_make_annotated_raises():
     """Test options to annotated must be a dict."""
     with pytest.raises(TypeError):
         make_annotated(int, "not a dict")  # type: ignore
-    
+
     with pytest.raises(TypeError):
-        make_annotated(Annotated[int, {'a': 1}, 'string'], 1)
+        make_annotated(Annotated[int, {"a": 1}, "string"], 1)
 
 
 def test_make_annotated_works_with_already_annotated():
