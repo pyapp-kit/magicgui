@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.7.1](https://github.com/pyapp-kit/magicgui/tree/v0.7.1) (2023-03-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0...v0.7.1)
+
+**Fixed bugs:**
+
+- Fix recursion error when connecting to container self.method during subclass init  [\#539](https://github.com/pyapp-kit/magicgui/pull/539) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.7.0](https://github.com/pyapp-kit/magicgui/tree/v0.7.0) (2023-02-27)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc1...v0.7.0)
@@ -465,7 +473,7 @@
 
 ## [v0.2.9](https://github.com/pyapp-kit/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.9)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -491,13 +499,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/pyapp-kit/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.8)
-
 ## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8rc0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.8rc0)
+
+## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8)
 
 **Implemented enhancements:**
 
