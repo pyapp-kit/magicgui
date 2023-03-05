@@ -59,7 +59,7 @@ def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
         for opt in anno_options:
             try:
                 _opt = dict(opt)
-            except TypeError as e:
+            except (TypeError, ValueError) as e:
                 raise TypeError(
                     f"Every item in Annotated must be castable to a dict, got: {opt!r}"
                 ) from e
