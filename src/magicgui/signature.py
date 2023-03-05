@@ -57,9 +57,13 @@ def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
         # nested Annotated type results in multiple dicts.
         annotation, *anno_options = get_args(annotation)
         for opt in anno_options:
-            if not isinstance(opt, dict):
-                raise TypeError("Every Annotated option must be a dict")
-            _options.update(opt)
+            try:
+                _opt = dict(opt)
+            except TypeError as e:
+                raise TypeError(
+                    f"Every item in Annotated must be castable to a dict, got: {opt!r}"
+                ) from e
+            _options.update(_opt)
     return Annotated[annotation, _options]
 
 
