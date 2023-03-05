@@ -1,4 +1,4 @@
-name: deploy docs
+name: docs
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  docs:
     runs-on: macos-latest  # for the screenshots
     steps:
       - uses: actions/checkout@v3
