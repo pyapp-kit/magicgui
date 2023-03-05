@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.7.2](https://github.com/pyapp-kit/magicgui/tree/v0.7.2) (2023-03-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.1...v0.7.2)
+
+**Fixed bugs:**
+
+- fix: accept any Annotated options that are castable to a dict [\#540](https://github.com/pyapp-kit/magicgui/pull/540) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.7.1](https://github.com/pyapp-kit/magicgui/tree/v0.7.1) (2023-03-05)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0...v0.7.1)
