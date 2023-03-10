@@ -424,7 +424,7 @@ def register_type(
             # (except NoneType)
             if get_origin(_type_) is Union:
                 for t in get_args(_type_):
-                    if _is_none_type(t):
+                    if not _is_none_type(t):
                         _RETURN_CALLBACKS[t].append(return_callback)
             else:
                 _RETURN_CALLBACKS[_type_].append(return_callback)
