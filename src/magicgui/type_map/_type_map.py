@@ -50,7 +50,9 @@ class MissingWidget(RuntimeError):
     """Raised when a backend widget cannot be found."""
 
 
-_RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
+_RETURN_CALLBACKS: DefaultDict[frozenset[type], list[ReturnCallback]] = defaultdict(
+    list
+)
 _TYPE_DEFS: dict[type, WidgetTuple] = {}
 
 
@@ -426,11 +428,17 @@ def register_type(
             # if the type is a Union, add the callback to all of the types in the union
             # (except NoneType)
             if get_origin(resolved_type) is Union:
-                for t in get_args(resolved_type):
-                    if not _is_none_type(t):
-                        _RETURN_CALLBACKS[t].append(return_callback)
+                type_set = frozenset(get_args(resolved_type))
             else:
-                _RETURN_CALLBACKS[resolved_type].append(return_callback)
+                type_set = frozenset([resolved_type])
+
+            for keyset in sorted(_RETURN_CALLBACKS, key=len, reverse=True):
+                if type_set.issubset(keyset):
+                    if return_callback not in _RETURN_CALLBACKS[keyset]:
+                        _RETURN_CALLBACKS[keyset].append(return_callback)
+                    break
+            else:
+                _RETURN_CALLBACKS[type_set].append(return_callback)
 
         _options = cast(dict, options)
 
@@ -539,14 +547,21 @@ def type2callback(type_: type) -> list[ReturnCallback]:
 
     # look for direct hits ...
     # if it's an Optional, we need to look for the type inside the Optional
-    _, type_ = _is_optional(resolve_single_type(type_))
-    if type_ in _RETURN_CALLBACKS:
-        return _RETURN_CALLBACKS[type_]
+    type_ = resolve_single_type(type_)
+    if _is_none_type(type_):
+        return []
+
+    sorted_callbacks = sorted(_RETURN_CALLBACKS, key=len, reverse=True)
+    types = frozenset(get_args(type_) if get_origin(type_) is Union else [type_])
+    for keyset in sorted_callbacks:
+        if types.issubset(keyset):
+            return _RETURN_CALLBACKS[keyset]
 
     # look for subclasses
-    for registered_type in _RETURN_CALLBACKS:  # sourcery skip: use-next
-        if safe_issubclass(type_, registered_type):
-            return _RETURN_CALLBACKS[registered_type]
+    for keyset in sorted_callbacks:
+        for registered_type in keyset:
+            if safe_issubclass(type_, registered_type):
+                return _RETURN_CALLBACKS[keyset]
     return []
 
 

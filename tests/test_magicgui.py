@@ -13,6 +13,7 @@ from qtpy.QtWidgets import QScrollArea
 
 from magicgui import magicgui, register_type, type_map, widgets
 from magicgui.signature import MagicSignature, magic_signature
+from magicgui.type_map import _type_map
 
 
 def func(a: str = "works", b: int = 3, c=7.1) -> str:
@@ -483,10 +484,7 @@ def test_register_return_callback():
 
         func2()
     finally:
-        from magicgui.type_map._type_map import _RETURN_CALLBACKS
-
-        _RETURN_CALLBACKS.pop(int)
-        _RETURN_CALLBACKS.pop(Base)
+        _type_map._RETURN_CALLBACKS.clear()
 
 
 # @pytest.mark.skip(reason="need to rethink how to test this")
@@ -882,22 +880,37 @@ def test_unknown_exception_create_widget():
     )
 
 
-@pytest.mark.parametrize("optional", [True, False])
-def test_call_union_return_type(optional: bool):
-    """registering Optional[type] should imply registering"""
+@pytest.mark.parametrize("register", ["optional", "both", "required"])
+@pytest.mark.parametrize("return_optional", [True, False])
+def test_call_union_return_type(return_optional: bool, register: str):
+    """registering Optional[X] should imply registering X"""
     mock = Mock()
+    _type_map._RETURN_CALLBACKS.clear()
 
     NewInt = NewType("NewInt", int)
-    register_type(Optional[NewInt], return_callback=mock)
 
-    ReturnType = Optional[NewInt] if optional else NewInt
+    # registering both forms should not result in 2 calls
+    if register in {"optional", "both"}:
+        register_type(Optional[NewInt], return_callback=mock)
+    if register in {"required", "both"}:
+        register_type(NewInt, return_callback=mock)
+
+    ReturnType = Optional[NewInt] if return_optional else NewInt
 
     @magicgui
     def func_optional(a: bool) -> ReturnType:
         return NewInt(1) if a else None
 
     func_optional(a=True)
-    mock.assert_called_once_with(func_optional, 1, ReturnType)
-    mock.reset_mock()
-    func_optional(a=False)
-    mock.assert_called_once_with(func_optional, None, ReturnType)
+    # if the function returns Optional[X] and we only registered X, we should
+    # not get a callback. (i.e. if the return type Union is not a subset of the
+    # registered types, we should not get a callback)
+    if return_optional and register not in {"optional", "both"}:
+        mock.assert_not_called()
+    else:
+        mock.assert_called_once_with(func_optional, 1, ReturnType)
+        mock.reset_mock()
+        func_optional(a=False)
+        mock.assert_called_once_with(func_optional, None, ReturnType)
+
+    _type_map._RETURN_CALLBACKS.clear()
