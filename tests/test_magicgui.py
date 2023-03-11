@@ -908,6 +908,8 @@ def test_call_union_return_type(return_optional: bool, register: str):
     if return_optional and register not in {"optional", "both"}:
         mock.assert_not_called()
     else:
+        # otherwise, regardless of whether we registered Optional[X] or X,
+        # the callback should be called just once per function call
         mock.assert_called_once_with(func_optional, 1, ReturnType)
         mock.reset_mock()
         func_optional(a=False)
