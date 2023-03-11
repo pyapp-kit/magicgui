@@ -417,26 +417,26 @@ def register_type(
         )
 
     def _deco(type_: _T) -> _T:
-        _type_ = resolve_single_type(type_)
+        resolved_type = resolve_single_type(type_)
         if return_callback is not None:
             _validate_return_callback(return_callback)
             # if the type is a Union, add the callback to all of the types in the union
             # (except NoneType)
-            if get_origin(_type_) is Union:
-                for t in get_args(_type_):
+            if get_origin(resolved_type) is Union:
+                for t in get_args(resolved_type):
                     if not _is_none_type(t):
                         _RETURN_CALLBACKS[t].append(return_callback)
             else:
-                _RETURN_CALLBACKS[_type_].append(return_callback)
+                _RETURN_CALLBACKS[resolved_type].append(return_callback)
 
         _options = cast(dict, options)
 
         if "choices" in _options:
-            _TYPE_DEFS[_type_] = (widgets.ComboBox, _options)
+            _TYPE_DEFS[resolved_type] = (widgets.ComboBox, _options)
             if widget_type is not None:
                 warnings.warn(
                     "Providing `choices` overrides `widget_type`. Categorical widget "
-                    f"will be used for type {_type_}",
+                    f"will be used for type {resolved_type}",
                     stacklevel=2,
                 )
         elif widget_type is not None:
@@ -447,11 +447,11 @@ def register_type(
                     '"widget_type" must be either a string, WidgetProtocol, or '
                     "Widget subclass"
                 )
-            _TYPE_DEFS[_type_] = (widget_type, _options)
+            _TYPE_DEFS[resolved_type] = (widget_type, _options)
         elif "bind" in _options:
             # if we're binding a value to this parameter, it doesn't matter what type
             # of ValueWidget is used... it usually won't be shown
-            _TYPE_DEFS[_type_] = (widgets.EmptyWidget, _options)
+            _TYPE_DEFS[resolved_type] = (widgets.EmptyWidget, _options)
         return type_
 
     return _deco if type_ is None else _deco(type_)
@@ -486,34 +486,40 @@ def type_registered(
     options
         key value pairs where the keys are valid `dict`
     """
-    _type_ = resolve_single_type(type_)
+    resolved_type = resolve_single_type(type_)
 
     # check if return_callback is already registered
-    rc_was_present = return_callback in _RETURN_CALLBACKS.get(_type_, [])
+    rc_was_present = return_callback in _RETURN_CALLBACKS.get(resolved_type, [])
     # store any previous widget_type and options for this type
-    prev_type_def: WidgetTuple | None = _TYPE_DEFS.get(_type_, None)
-    _type_ = register_type(
-        _type_, widget_type=widget_type, return_callback=return_callback, **options
+    prev_type_def: WidgetTuple | None = _TYPE_DEFS.get(resolved_type, None)
+    resolved_type = register_type(
+        resolved_type,
+        widget_type=widget_type,
+        return_callback=return_callback,
+        **options,
     )
-    new_type_def: WidgetTuple | None = _TYPE_DEFS.get(_type_, None)
+    new_type_def: WidgetTuple | None = _TYPE_DEFS.get(resolved_type, None)
     try:
         yield
     finally:
         # restore things to before the context
         if return_callback is not None and not rc_was_present:
-            _RETURN_CALLBACKS[_type_].remove(return_callback)
+            _RETURN_CALLBACKS[resolved_type].remove(return_callback)
 
-        if _TYPE_DEFS.get(_type_, None) is not new_type_def:
+        if _TYPE_DEFS.get(resolved_type, None) is not new_type_def:
             warnings.warn("Type definition changed during context", stacklevel=2)
 
         if prev_type_def is not None:
-            _TYPE_DEFS[_type_] = prev_type_def
+            _TYPE_DEFS[resolved_type] = prev_type_def
         else:
-            _TYPE_DEFS.pop(_type_, None)
+            _TYPE_DEFS.pop(resolved_type, None)
 
 
 def type2callback(type_: type) -> list[ReturnCallback]:
     """Return any callbacks that have been registered for ``type_``.
+
+    Note that if the return type is X, then the callbacks registered for Optional[X]
+    will be returned also be returned.
 
     Parameters
     ----------
