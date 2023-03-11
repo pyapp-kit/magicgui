@@ -381,6 +381,9 @@ def register_type(
 ) -> _T | Callable[[_T], _T]:
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
 
+    Note: registering a Union (or Optional) type effectively registers all types in
+    the union with the arguments.
+
     Parameters
     ----------
     type_ : type
