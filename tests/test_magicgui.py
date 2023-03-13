@@ -901,3 +901,24 @@ def test_call_union_return_type(optional: bool):
     mock.reset_mock()
     func_optional(a=False)
     mock.assert_called_once_with(func_optional, None, ReturnType)
+
+
+@pytest.mark.parametrize("optional", [True, False])
+def test_no_duplication_call(optional):
+    mock = Mock()
+    mock2 = Mock()
+
+    NewInt = NewType("NewInt", int)
+    register_type(Optional[NewInt], return_callback=mock)
+    register_type(NewInt, return_callback=mock)
+    register_type(NewInt, return_callback=mock2)
+    ReturnType = Optional[NewInt] if optional else NewInt
+
+    @magicgui
+    def func() -> ReturnType:
+        return NewInt(1)
+
+    func()
+
+    mock.assert_called_once()
+    assert mock2.call_count == (not optional)

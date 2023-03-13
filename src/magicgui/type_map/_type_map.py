@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime
 import inspect
+import itertools
 import os
 import pathlib
 import sys
@@ -426,11 +427,19 @@ def register_type(
             # if the type is a Union, add the callback to all of the types in the union
             # (except NoneType)
             if get_origin(resolved_type) is Union:
+                for type_per in _generate_union_variants(resolved_type):
+                    if return_callback not in _RETURN_CALLBACKS[type_per]:
+                        _RETURN_CALLBACKS[type_per].append(return_callback)
+
                 for t in get_args(resolved_type):
-                    if not _is_none_type(t):
+                    if (
+                        not _is_none_type(t)
+                        and return_callback not in _RETURN_CALLBACKS[t]
+                    ):
                         _RETURN_CALLBACKS[t].append(return_callback)
             else:
-                _RETURN_CALLBACKS[resolved_type].append(return_callback)
+                if return_callback not in _RETURN_CALLBACKS[resolved_type]:
+                    _RETURN_CALLBACKS[resolved_type].append(return_callback)
 
         _options = cast(dict, options)
 
@@ -521,9 +530,6 @@ def type_registered(
 def type2callback(type_: type) -> list[ReturnCallback]:
     """Return any callbacks that have been registered for ``type_``.
 
-    Note that if the return type is X, then the callbacks registered for Optional[X]
-    will be returned also be returned.
-
     Parameters
     ----------
     type_ : type
@@ -539,7 +545,7 @@ def type2callback(type_: type) -> list[ReturnCallback]:
 
     # look for direct hits ...
     # if it's an Optional, we need to look for the type inside the Optional
-    _, type_ = _is_optional(resolve_single_type(type_))
+    type_ = resolve_single_type(type_)
     if type_ in _RETURN_CALLBACKS:
         return _RETURN_CALLBACKS[type_]
 
@@ -550,10 +556,8 @@ def type2callback(type_: type) -> list[ReturnCallback]:
     return []
 
 
-def _is_optional(type_: Any) -> tuple[bool, type]:
-    # TODO: this function is too similar to _type_optional above... need to combine
-    if get_origin(type_) is Union:
-        args = get_args(type_)
-        if len(args) == 2 and any(_is_none_type(i) for i in args):
-            return True, next(i for i in args if not _is_none_type(i))
-    return False, type_
+def _generate_union_variants(type_: Any) -> Iterator[type]:
+    type_args = get_args(type_)
+    for i in range(2, len(type_args) + 1):
+        for per in itertools.permutations(type_args, i):
+            yield cast(type, Union[per])
