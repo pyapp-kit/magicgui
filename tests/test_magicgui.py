@@ -4,7 +4,7 @@
 
 import inspect
 from enum import Enum
-from typing import NewType, Optional
+from typing import NewType, Optional, Union
 from unittest.mock import Mock
 
 import pytest
@@ -922,3 +922,16 @@ def test_no_duplication_call(optional):
 
     mock.assert_called_once()
     assert mock2.call_count == (not optional)
+
+
+def test_no_order():
+    mock = Mock()
+
+    register_type(Union[int, None], return_callback=mock)
+
+    @magicgui
+    def func() -> Union[None, int]:
+        return 1
+
+    func()
+    mock.assert_called_once()

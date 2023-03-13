@@ -559,5 +559,5 @@ def type2callback(type_: type) -> list[ReturnCallback]:
 def _generate_union_variants(type_: Any) -> Iterator[type]:
     type_args = get_args(type_)
     for i in range(2, len(type_args) + 1):
-        for per in itertools.permutations(type_args, i):
+        for per in itertools.combinations(type_args, i):
             yield cast(type, Union[per])
