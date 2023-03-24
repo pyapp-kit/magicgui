@@ -76,6 +76,7 @@ testing = [
     "matplotlib",
     "toolz",
     "ipywidgets",
+    "ipykernel",
     "pydantic",
     "attrs",
     "annotated_types",
