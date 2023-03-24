@@ -62,6 +62,7 @@ class RangedWidget(ValueWidget[T]):
                     f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
                     "In the future this will raise an exception\n",
                     FutureWarning,
+                    stacklevel=2,
                 )
                 if key == "maximum":
                     max = base_widget_kwargs.pop(key)  # noqa: A001
