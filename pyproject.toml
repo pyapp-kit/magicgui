@@ -120,6 +120,7 @@ docs = [
     # extras for all the widgets
     "pint",
     "ipywidgets>=8.0.0",
+    "ipykernel",
     "pyside6",
 ]
 
