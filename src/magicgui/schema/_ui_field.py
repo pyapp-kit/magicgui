@@ -381,13 +381,15 @@ class UiField(Generic[T]):
             warnings.warn(
                 "Cannot set default value in both type annotation and field. Overriding"
                 f" default {kwargs['default']} with {self.default} in field "
-                f"{self.name!r}"
+                f"{self.name!r}",
+                stacklevel=2,
             )
             kwargs.pop("default", None)
         if self.name is not None and kwargs.get("name") is not None:
             warnings.warn(
                 "Cannot set name in both type annotation and field. Overriding"
-                f" name {kwargs['name']!r} with {self.name!r} in field {self.name!r}"
+                f" name {kwargs['name']!r} with {self.name!r} in field {self.name!r}",
+                stacklevel=2,
             )
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)

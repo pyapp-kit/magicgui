@@ -536,10 +536,16 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         row_head = self.row_headers
         nrows, ncols = self.shape
         if _contains_duplicates(col_head):
-            warn("Table column headers are not unique, some columns will be omitted.")
+            warn(
+                "Table column headers are not unique, some columns will be omitted.",
+                stacklevel=2,
+            )
         if orient == "dict":
             if _contains_duplicates(row_head):
-                warn("Table row headers are not unique, some rows will be omitted.")
+                warn(
+                    "Table row headers are not unique, some rows will be omitted.",
+                    stacklevel=2,
+                )
             return {
                 col_head[c]: {row_head[r]: self._get_cell(r, c) for r in range(nrows)}
                 for c in range(ncols)
@@ -555,7 +561,10 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             ]
         if orient == "index":
             if _contains_duplicates(row_head):
-                warn("Table row headers are not unique, some rows will be omitted.")
+                warn(
+                    "Table row headers are not unique, some rows will be omitted.",
+                    stacklevel=2,
+                )
             return {
                 row_head[r]: {col_head[c]: self._get_cell(r, c) for c in range(ncols)}
                 for r in range(nrows)
@@ -806,6 +815,7 @@ def _validate_table_data(
         warn(
             f"Shape of passed values is ({nr}, {nc}), "
             f"headers imply ({len(index) if index else 1}, {len(column)}). "
-            "Data will be truncated."
+            "Data will be truncated.",
+            stacklevel=2,
         )
     return None

@@ -278,7 +278,8 @@ def bind_gui_to_instance(
                         warnings.warn(
                             f"Could not bind {widget.name} to {instance}. "
                             "This may be because the instance has __slots__ or "
-                            "other attribute restrictions. Please update psygnal."
+                            "other attribute restrictions. Please update psygnal.",
+                            stacklevel=2,
                         )
 
                 # connect changes from the instance to the widget

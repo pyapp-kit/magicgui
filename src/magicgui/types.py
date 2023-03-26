@@ -119,6 +119,7 @@ def __getattr__(name: str) -> Any:
             "magicgui.types.WidgetOptions is being removed. Use `dict` instead, "
             "and restrict import to a TYPE_CHECKING clause.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return dict
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
