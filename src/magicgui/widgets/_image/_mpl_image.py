@@ -725,7 +725,10 @@ def imread(fname, format=None):
             if ssl_ctx is None:
                 from warnings import warn
 
-                warn("Could not get certifi ssl context, https may not work.")
+                warn(
+                    "Could not get certifi ssl context, https may not work.",
+                    stacklevel=2,
+                )
             with request.urlopen(fname, context=ssl_ctx) as response:
                 import io
 

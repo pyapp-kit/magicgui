@@ -76,6 +76,7 @@ testing = [
     "matplotlib",
     "toolz",
     "ipywidgets",
+    "ipykernel",
     "pydantic",
     "attrs",
     "annotated_types",
@@ -119,7 +120,8 @@ docs = [
     # extras for all the widgets
     "pint",
     "ipywidgets>=8.0.0",
-    "pyside6",
+    "ipykernel",
+    "pyside6==6.4.2",  # 6.4.3 gives segfault for some reason
 ]
 
 [project.urls]

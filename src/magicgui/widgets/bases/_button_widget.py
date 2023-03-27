@@ -55,7 +55,8 @@ class ButtonWidget(ValueWidget[bool]):
 
             warn(
                 "'text' and 'label' are synonymous for button widgets. To suppress this"
-                " warning, only provide one of the two kwargs."
+                " warning, only provide one of the two kwargs.",
+                stacklevel=2,
             )
         text = text or base_widget_kwargs.get("label")
         # TODO: make a backend hook that lets backends inject their optional API

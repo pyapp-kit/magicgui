@@ -790,7 +790,7 @@ class RangeSlider(_Slider):
             ):
                 getattr(label, method)()
         except AttributeError as e:
-            warnings.warn(str(e))
+            warnings.warn(str(e), stacklevel=2)
 
     def _mgui_set_adaptive_step(self, value: bool):
         pass
@@ -1272,7 +1272,8 @@ class _QTableExtended(QtW.QTableWidget):
 
             warnings.warn(
                 "Multiple table selections detected: "
-                "only the first (upper left) selection will be copied"
+                "only the first (upper left) selection will be copied",
+                stacklevel=2,
             )
 
         # copy first selection range
