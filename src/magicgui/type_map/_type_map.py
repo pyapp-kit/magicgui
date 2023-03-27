@@ -351,6 +351,65 @@ def _validate_return_callback(func: Callable) -> None:
 _T = TypeVar("_T", bound=type)
 
 
+def _register_type_callback(
+    resolved_type: _T,
+    return_callback: ReturnCallback | None = None,
+) -> list[type]:
+    modified_callbacks = []
+    if return_callback is None:
+        return []
+    _validate_return_callback(return_callback)
+    # if the type is a Union, add the callback to all of the types in the union
+    # (except NoneType)
+    if get_origin(resolved_type) is Union:
+        for type_per in _generate_union_variants(resolved_type):
+            if return_callback not in _RETURN_CALLBACKS[type_per]:
+                _RETURN_CALLBACKS[type_per].append(return_callback)
+                modified_callbacks.append(type_per)
+
+        for t in get_args(resolved_type):
+            if not _is_none_type(t) and return_callback not in _RETURN_CALLBACKS[t]:
+                _RETURN_CALLBACKS[t].append(return_callback)
+                modified_callbacks.append(t)
+    elif return_callback not in _RETURN_CALLBACKS[resolved_type]:
+        _RETURN_CALLBACKS[resolved_type].append(return_callback)
+        modified_callbacks.append(resolved_type)
+    return modified_callbacks
+
+
+def _register_widget(
+    resolved_type: _T,
+    widget_type: WidgetRef | None = None,
+    **options: Any,
+) -> WidgetTuple | None:
+    _options = cast(dict, options)
+
+    previous_widget = _TYPE_DEFS.get(resolved_type)
+
+    if "choices" in _options:
+        _TYPE_DEFS[resolved_type] = (widgets.ComboBox, _options)
+        if widget_type is not None:
+            warnings.warn(
+                "Providing `choices` overrides `widget_type`. Categorical widget "
+                f"will be used for type {resolved_type}",
+                stacklevel=2,
+            )
+    elif widget_type is not None:
+        if not isinstance(widget_type, (str, WidgetProtocol)) and not (
+            inspect.isclass(widget_type) and issubclass(widget_type, widgets.Widget)
+        ):
+            raise TypeError(
+                '"widget_type" must be either a string, WidgetProtocol, or '
+                "Widget subclass"
+            )
+        _TYPE_DEFS[resolved_type] = (widget_type, _options)
+    elif "bind" in _options:
+        # if we're binding a value to this parameter, it doesn't matter what type
+        # of ValueWidget is used... it usually won't be shown
+        _TYPE_DEFS[resolved_type] = (widgets.EmptyWidget, _options)
+    return previous_widget
+
+
 @overload
 def register_type(
     type_: _T,
@@ -420,51 +479,11 @@ def register_type(
             "must be provided."
         )
 
-    def _deco(type_: _T) -> _T:
-        resolved_type = resolve_single_type(type_)
-        if return_callback is not None:
-            _validate_return_callback(return_callback)
-            # if the type is a Union, add the callback to all of the types in the union
-            # (except NoneType)
-            if get_origin(resolved_type) is Union:
-                for type_per in _generate_union_variants(resolved_type):
-                    if return_callback not in _RETURN_CALLBACKS[type_per]:
-                        _RETURN_CALLBACKS[type_per].append(return_callback)
-
-                for t in get_args(resolved_type):
-                    if (
-                        not _is_none_type(t)
-                        and return_callback not in _RETURN_CALLBACKS[t]
-                    ):
-                        _RETURN_CALLBACKS[t].append(return_callback)
-            else:
-                if return_callback not in _RETURN_CALLBACKS[resolved_type]:
-                    _RETURN_CALLBACKS[resolved_type].append(return_callback)
-
-        _options = cast(dict, options)
-
-        if "choices" in _options:
-            _TYPE_DEFS[resolved_type] = (widgets.ComboBox, _options)
-            if widget_type is not None:
-                warnings.warn(
-                    "Providing `choices` overrides `widget_type`. Categorical widget "
-                    f"will be used for type {resolved_type}",
-                    stacklevel=2,
-                )
-        elif widget_type is not None:
-            if not isinstance(widget_type, (str, WidgetProtocol)) and not (
-                inspect.isclass(widget_type) and issubclass(widget_type, widgets.Widget)
-            ):
-                raise TypeError(
-                    '"widget_type" must be either a string, WidgetProtocol, or '
-                    "Widget subclass"
-                )
-            _TYPE_DEFS[resolved_type] = (widget_type, _options)
-        elif "bind" in _options:
-            # if we're binding a value to this parameter, it doesn't matter what type
-            # of ValueWidget is used... it usually won't be shown
-            _TYPE_DEFS[resolved_type] = (widgets.EmptyWidget, _options)
-        return type_
+    def _deco(type__: _T) -> _T:
+        resolved_type = resolve_single_type(type__)
+        _register_type_callback(resolved_type, return_callback)
+        _register_widget(resolved_type, widget_type, **options)
+        return type__
 
     return _deco if type_ is None else _deco(type_)
 
@@ -500,23 +519,19 @@ def type_registered(
     """
     resolved_type = resolve_single_type(type_)
 
-    # check if return_callback is already registered
-    rc_was_present = return_callback in _RETURN_CALLBACKS.get(resolved_type, [])
     # store any previous widget_type and options for this type
-    prev_type_def: WidgetTuple | None = _TYPE_DEFS.get(resolved_type, None)
-    resolved_type = register_type(
-        resolved_type,
-        widget_type=widget_type,
-        return_callback=return_callback,
-        **options,
-    )
+
+    revert_list = _register_type_callback(resolved_type, return_callback)
+    prev_type_def = _register_widget(resolved_type, widget_type, **options)
+
     new_type_def: WidgetTuple | None = _TYPE_DEFS.get(resolved_type, None)
     try:
         yield
     finally:
         # restore things to before the context
-        if return_callback is not None and not rc_was_present:
-            _RETURN_CALLBACKS[resolved_type].remove(return_callback)
+        if return_callback is not None:  # this if is only for mypy
+            for return_callback_type in revert_list:
+                _RETURN_CALLBACKS[return_callback_type].remove(return_callback)
 
         if _TYPE_DEFS.get(resolved_type, None) is not new_type_def:
             warnings.warn("Type definition changed during context", stacklevel=2)
