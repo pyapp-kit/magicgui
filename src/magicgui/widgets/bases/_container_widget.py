@@ -184,7 +184,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
     def __setitem__(self, key: Any, value: Any) -> NoReturn:
         """Prevent assignment by index."""
-        raise NotImplementedError("magicgui.Container does not support item setting.")
+        raise RuntimeError("magicgui.Container does not support item setting.")
 
     def __dir__(self) -> list[str]:
         """Add subwidget names to the dir() call for this widget."""

@@ -17,7 +17,7 @@ def test_container_widget(scrollable):
     assert container[:1] == [labela]
     assert container[-1] == labelb
 
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         container[0] = "something"
 
     assert container.layout == "vertical"
