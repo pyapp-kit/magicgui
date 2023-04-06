@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 from unittest.mock import Mock
 
 import pytest
@@ -9,6 +9,9 @@ from typing_extensions import Annotated, get_args
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui._type_resolution import resolve_single_type
 from magicgui.type_map._type_map import _RETURN_CALLBACKS
+
+if TYPE_CHECKING:
+    import numpy
 
 
 def test_forward_refs():

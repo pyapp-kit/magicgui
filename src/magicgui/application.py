@@ -84,7 +84,7 @@ class Application:
     def create(self) -> None:
         """Create the native application."""
         # Ensure that the native app exists
-        self.native
+        self.native  # noqa
 
     def process_events(self) -> None:
         """Process all pending GUI events."""
