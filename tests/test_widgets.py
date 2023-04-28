@@ -12,18 +12,10 @@ from magicgui.widgets import Container, request_values
 from magicgui.widgets.bases import DialogWidget, ValueWidget
 from tests import MyInt
 
-BACKENDS = ["qt"]
-try:
-    import ipywidgets  # noqa
-
-    BACKENDS.append("ipynb")
-except ImportError:
-    pass
-
 
 # it's important that "qt" be last here, so that it's used for
 # the rest of the tests
-@pytest.fixture(scope="module", params=BACKENDS)
+@pytest.fixture(scope="module", params=["ipynb", "qt"])
 def backend(request):
     return request.param
 
