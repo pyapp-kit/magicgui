@@ -75,7 +75,7 @@ testing = [
     "pint>=0.13.0",
     "matplotlib",
     "toolz",
-    "ipywidgets",
+    "ipywidgets; python_version>='3.9'",
     "ipykernel",
     "pydantic",
     "attrs",
