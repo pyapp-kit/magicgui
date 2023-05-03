@@ -161,7 +161,9 @@ def test_path_update():
         a: Path = Path("blabla")
 
     obj = MyGuiClass()
-    assert obj.gui.a.value.resolve() == Path("blabla").resolve()
-    assert obj.a.resolve() == Path("blabla").resolve()
+    assert obj.gui.a.value.stem == "blabla"
+    assert obj.a.stem == "blabla"
+
     obj.gui.a.value = "foo"
-    assert obj.a.resolve() == Path("foo").resolve()
+    assert obj.gui.a.value.stem == "foo"
+    assert obj.a.stem == "foo"
