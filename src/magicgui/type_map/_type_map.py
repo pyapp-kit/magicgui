@@ -263,7 +263,8 @@ def _pick_widget_type(
             f"No widget found for type {_type} and annotation {annotation!r}"
         )
 
-    return widgets.EmptyWidget, {"visible": False}
+    options["visible"] = False
+    return widgets.EmptyWidget, options
 
 
 def _split_annotated_type(annotation: Any) -> tuple[Any, dict]:

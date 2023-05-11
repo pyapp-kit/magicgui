@@ -289,6 +289,21 @@ def test_bound_values():
     assert f() == 5
 
 
+def test_bound_unknown_type_annotation():
+    """Test that we can bind a "permanent" value override to a parameter."""
+
+    import numpy as np
+
+    def _provide_value(_):
+        return np.array(1)
+
+    @magicgui(arr={"bind": _provide_value})
+    def f(arr: np.ndarray) -> np.ndarray:
+        return arr
+
+    assert f() == np.array(1)
+
+
 def test_binding_None():
     """Test that we can bind a "permanent" value override to a parameter."""
 
