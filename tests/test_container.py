@@ -110,7 +110,7 @@ def test_delete_widget():
     # we can delete widgets
     del container.a
     with pytest.raises(AttributeError):
-        container.a
+        _ = container.a
 
     # they disappear from the layout
     with pytest.raises(ValueError):
