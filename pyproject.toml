@@ -76,7 +76,6 @@ testing = [
     "matplotlib",
     "toolz",
     "ipywidgets",
-    "ipython<8.13; python_version<'3.9'",
     "ipykernel",
     "pydantic",
     "attrs",
@@ -122,7 +121,7 @@ docs = [
     "pint",
     "ipywidgets>=8.0.0",
     "ipykernel",
-    "pyside6==6.4.2",  # 6.4.3 gives segfault for some reason
+    "pyside6==6.4.2",    # 6.4.3 gives segfault for some reason
 ]
 
 [project.urls]
