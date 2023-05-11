@@ -30,10 +30,6 @@ def test_doc_code_cells(fname):
                 with pytest.warns(None):
                     exec(cell, globalns)
                 continue
-            if "raises-exception" in header.group():
-                with pytest.raises(Exception):
-                    exec(cell, globalns)
-                continue
         exec(cell, globalns)
 
 
