@@ -53,7 +53,7 @@ def test_magicgui(magic_func):
     # we can delete widgets
     del magic_func.a
     with pytest.raises(AttributeError):
-        magic_func.a
+        _ = magic_func.a
 
     # they disappear from the layout
     with pytest.raises(ValueError):
@@ -353,7 +353,7 @@ def test_get_choices_raises():
         pass
 
     with pytest.raises(AttributeError):
-        func.hi.choices
+        _ = func.hi.choices
 
     assert func.mood.choices == (1, 2, 3)
 
