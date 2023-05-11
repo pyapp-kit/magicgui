@@ -17,7 +17,7 @@ def test_container_widget(scrollable):
     assert container[:1] == [labela]
     assert container[-1] == labelb
 
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         container[0] = "something"
 
     assert container.layout == "vertical"
@@ -110,7 +110,7 @@ def test_delete_widget():
     # we can delete widgets
     del container.a
     with pytest.raises(AttributeError):
-        container.a
+        _ = container.a
 
     # they disappear from the layout
     with pytest.raises(ValueError):
