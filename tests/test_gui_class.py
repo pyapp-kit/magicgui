@@ -146,3 +146,24 @@ def test_guiclass_as_class():
     assert t2.gui.y.value == "baz"
     assert isinstance(t2.gui.foo, PushButton)
     assert t2.foo() == {"x": 3, "y": "baz"}
+
+
+def test_path_update():
+    """One off test for FileEdits... which weren't updating.
+
+    (The deeper issue is that things like FileEdit don't subclass ValueWidget...)
+    """
+
+    from pathlib import Path
+
+    @guiclass
+    class MyGuiClass:
+        a: Path = Path("blabla")
+
+    obj = MyGuiClass()
+    assert obj.gui.a.value.stem == "blabla"
+    assert obj.a.stem == "blabla"
+
+    obj.gui.a.value = "foo"
+    assert obj.gui.a.value.stem == "foo"
+    assert obj.a.stem == "foo"
