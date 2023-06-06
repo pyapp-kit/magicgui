@@ -14,7 +14,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Deque,
     Generic,
     Iterator,
     NoReturn,
@@ -197,7 +196,7 @@ class FunctionGui(Container, Generic[_R]):
         self._bound_instances: dict[int, FunctionGui] = {}
 
         # a deque of Progressbars to be created by (possibly nested) tqdm_mgui iterators
-        self._tqdm_pbars: Deque[ProgressBar] = deque()
+        self._tqdm_pbars: deque[ProgressBar] = deque()
         # the nesting level of tqdm_mgui iterators in a given __call__
         self._tqdm_depth: int = 0
 
