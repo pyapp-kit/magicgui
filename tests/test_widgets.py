@@ -734,7 +734,7 @@ def test_categorical_change_choices_callable(Cls):
 
     wdg.choices = get_choices
 
-    assert wdg.choices == get_choices
+    assert wdg.choices == ("c", "d")
     assert wdg._default_choices == get_choices
 
 
