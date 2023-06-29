@@ -723,10 +723,10 @@ def test_categorical_change_choices(Cls):
 
 @pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
 def test_categorical_change_choices_callable(Cls):
-    first_choices = ["c", "d"]
+    first_choices = ["a", "b"]
 
     def get_choices(wdg):
-        return ["a", "b"]
+        return ["c", "d"]
 
     wdg = Cls(choices=first_choices)
     assert wdg.choices == first_choices
