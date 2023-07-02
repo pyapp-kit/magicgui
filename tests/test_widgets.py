@@ -721,6 +721,23 @@ def test_categorical_change_choices(Cls):
     assert wdg.choices == c
 
 
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_change_choices_callable(Cls):
+    first_choices = ("a", "b")
+
+    def get_choices(wdg):
+        return ("c", "d")
+
+    wdg = Cls(choices=first_choices)
+    assert wdg.choices == first_choices
+    assert wdg._default_choices == first_choices
+
+    wdg.choices = get_choices
+
+    assert wdg.choices == ("c", "d")
+    assert wdg._default_choices == get_choices
+
+
 @pytest.mark.skipif(use_app().backend_name != "qt", reason="only on qt")
 def test_radiobutton_reset_choices():
     """Test that reset_choices doesn't change the number of buttons."""
