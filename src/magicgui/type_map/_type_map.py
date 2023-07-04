@@ -363,7 +363,7 @@ def register_type(
 
 @overload
 def register_type(
-    type_: Literal[None] = None,
+    type_: Literal[None] | None = None,
     *,
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
