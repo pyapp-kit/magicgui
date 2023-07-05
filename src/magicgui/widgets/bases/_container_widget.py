@@ -81,7 +81,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     )
     _widget: protocols.ContainerProtocol
     _initialized = False
-    _list: list[WidgetVar] = []
+    # this is janky ... it's here to allow connections during __init__ by
+    # avoiding a recursion error in __getattr__
+    _list: list[WidgetVar] = []  # noqa: RUF012
 
     def __init__(
         self,

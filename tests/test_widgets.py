@@ -2,7 +2,7 @@ import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -455,7 +455,7 @@ def test_range_value_none():
     """Test that arg: int = None defaults to 0"""
 
     @magicgui
-    def f(x: int = None):  # type: ignore
+    def f(x: Optional[int] = None):  # type: ignore
         ...
 
     assert f.x.value == 0

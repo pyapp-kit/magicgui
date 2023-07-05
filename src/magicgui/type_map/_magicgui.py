@@ -46,7 +46,7 @@ def magicgui(
 
 @overload
 def magicgui(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
@@ -86,7 +86,7 @@ def magicgui(
 
 @overload
 def magicgui(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
@@ -227,7 +227,7 @@ def magic_factory(
 
 @overload
 def magic_factory(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
@@ -269,7 +269,7 @@ def magic_factory(
 
 @overload
 def magic_factory(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
