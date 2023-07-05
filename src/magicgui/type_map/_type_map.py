@@ -15,7 +15,6 @@ from enum import EnumMeta
 from typing import (
     Any,
     Callable,
-    DefaultDict,
     Dict,
     ForwardRef,
     Iterator,
@@ -51,7 +50,7 @@ class MissingWidget(RuntimeError):
     """Raised when a backend widget cannot be found."""
 
 
-_RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
+_RETURN_CALLBACKS: defaultdict[type, list[ReturnCallback]] = defaultdict(list)
 _TYPE_DEFS: dict[type, WidgetTuple] = {}
 
 
@@ -424,7 +423,7 @@ def register_type(
 
 @overload
 def register_type(
-    type_: Literal[None] = None,
+    type_: Literal[None] | None = None,
     *,
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,

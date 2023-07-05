@@ -137,7 +137,9 @@ class CategoricalWidget(ValueWidget[T]):
             str_func = choices["key"]
         elif not isinstance(choices, EnumMeta) and callable(choices):
             _choices = choices(self)
-
+            # ensure that when setting choices with a callable,
+            # the default choices are also updated with that callable
+            self._default_choices = choices
         else:
             _choices = choices
 

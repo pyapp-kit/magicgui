@@ -2,7 +2,7 @@ import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -455,7 +455,7 @@ def test_range_value_none():
     """Test that arg: int = None defaults to 0"""
 
     @magicgui
-    def f(x: int = None):  # type: ignore
+    def f(x: Optional[int] = None):  # type: ignore
         ...
 
     assert f.x.value == 0
@@ -719,6 +719,23 @@ def test_categorical_change_choices(Cls):
     c = tuple(range(15))
     wdg.choices = c
     assert wdg.choices == c
+
+
+@pytest.mark.parametrize("Cls", [widgets.ComboBox, widgets.RadioButtons])
+def test_categorical_change_choices_callable(Cls):
+    first_choices = ("a", "b")
+
+    def get_choices(wdg):
+        return ("c", "d")
+
+    wdg = Cls(choices=first_choices)
+    assert wdg.choices == first_choices
+    assert wdg._default_choices == first_choices
+
+    wdg.choices = get_choices
+
+    assert wdg.choices == ("c", "d")
+    assert wdg._default_choices == get_choices
 
 
 @pytest.mark.skipif(use_app().backend_name != "qt", reason="only on qt")
