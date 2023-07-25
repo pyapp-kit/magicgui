@@ -63,7 +63,7 @@ def test_pydantic():
     class Foo(pydantic.BaseModel):
         a: Optional[int]
         b: str = pydantic.Field(description="the b")
-        c: float = pydantic.Field(0.0, json_schema_extra=dict(widget="FloatSlider"))
+        c: float = pydantic.Field(0.0, json_schema_extra={"widget": "FloatSlider"})
 
     _assert_uifields(Foo)
 
@@ -75,7 +75,7 @@ def test_pydantic_dataclass():
     class Foo:
         a: Optional[int]
         b: str = pydantic.Field(description="the b")
-        c: float = pydantic.Field(0.0, json_schema_extra=dict(widget="FloatSlider"))
+        c: float = pydantic.Field(0.0, json_schema_extra={"widget": "FloatSlider"})
 
     _assert_uifields(Foo)
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses as dc
-import re
 import sys
 import warnings
 from dataclasses import dataclass, field
@@ -31,8 +30,7 @@ if TYPE_CHECKING:
     import pydantic
     from annotated_types import BaseMetadata
     from attrs import Attribute
-    from pydantic.fields import ModelField
-    from pydantic.fields import FieldInfo
+    from pydantic.fields import FieldInfo, ModelField
 
     from magicgui.widgets.bases import ContainerWidget, ValueWidget
 
@@ -583,8 +581,8 @@ def _uifield_from_pydantic(model_field: ModelField) -> UiField:
 
 def _uifield_from_pydantic2(finfo: FieldInfo, name: str) -> UiField:
     """Create a UiField from a pydantic ModelField."""
-    from pydantic_core import PydanticUndefined
     import annotated_types as at
+    from pydantic_core import PydanticUndefined
 
     if isinstance(finfo.json_schema_extra, dict):
         extra = {
