@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses as dc
+import re
 import sys
 import warnings
 from dataclasses import dataclass, field
@@ -31,6 +32,7 @@ if TYPE_CHECKING:
     from annotated_types import BaseMetadata
     from attrs import Attribute
     from pydantic.fields import ModelField
+    from pydantic.fields import FieldInfo
 
     from magicgui.widgets.bases import ContainerWidget, ValueWidget
 
@@ -579,6 +581,63 @@ def _uifield_from_pydantic(model_field: ModelField) -> UiField:
     )
 
 
+def _uifield_from_pydantic2(finfo: FieldInfo, name: str) -> UiField:
+    """Create a UiField from a pydantic ModelField."""
+    from pydantic_core import PydanticUndefined
+    import annotated_types as at
+
+    if isinstance(finfo.json_schema_extra, dict):
+        extra = {
+            k: v for k, v in finfo.json_schema_extra.items() if k in _UI_FIELD_NAMES
+        }
+    else:
+        extra = {}
+    default = (
+        Undefined if finfo.default in (PydanticUndefined, Ellipsis) else finfo.default
+    )
+
+    nullable = None
+    if get_origin(finfo.annotation) is Union and any(
+        i for i in get_args(finfo.annotation) if i is type(None)
+    ):
+        nullable = True
+
+    restrictions: dict = {}
+    for meta in finfo.metadata:
+        if isinstance(meta, at.Ge):
+            restrictions["minimum"] = meta.ge
+        elif isinstance(meta, at.Gt):
+            restrictions["exclusive_minimum"] = meta.gt
+        elif isinstance(meta, at.Le):
+            restrictions["maximum"] = meta.le
+        elif isinstance(meta, at.Lt):
+            restrictions["exclusive_maximum"] = meta.lt
+        elif isinstance(meta, at.MultipleOf):
+            restrictions["multiple_of"] = meta.multiple_of
+        elif isinstance(meta, at.MinLen):
+            restrictions["min_length"] = meta.min_length
+        elif isinstance(meta, at.MaxLen):
+            restrictions["max_length"] = meta.max_length
+        elif hasattr(meta, "__dict__"):
+            # PydanticGeneralMetadata
+            restrictions["pattern"] = meta.__dict__.get("pattern")
+
+    return UiField(
+        name=name,
+        title=finfo.title,
+        description=finfo.description,
+        default=default,
+        default_factory=finfo.default_factory,
+        type=finfo.annotation,
+        nullable=nullable,
+        # const=const,
+        **restrictions,
+        # format=finfo.format,
+        _native_field=finfo,
+        **extra,
+    )
+
+
 # TODO:
 class _ContainerFields:
     autofocus: str | None = field(
@@ -657,8 +716,25 @@ def _ui_fields_from_annotation(cls: type) -> Iterator[UiField]:
 
 
 def _iter_ui_fields(object: Any) -> Iterator[UiField]:
+    # check if it's a pydantic model
+    model = _get_pydantic_model(object)
+    if model is not None:
+        if hasattr(model, "model_fields"):
+            for name, field_info in model.model_fields.items():
+                yield _uifield_from_pydantic2(field_info, name)
+        else:
+            for pf in model.__fields__.values():
+                yield _uifield_from_pydantic(pf)
+        return
+
+    if hasattr(object, "__pydantic_fields__"):
+        # pydantic2 style dataclass
+        for name, field_info in object.__pydantic_fields__.items():
+            yield _uifield_from_pydantic2(field_info, name)
+        return
+
     # check if it's a (non-pydantic) dataclass
-    if dc.is_dataclass(object) and not hasattr(object, "__pydantic_model__"):
+    if dc.is_dataclass(object):
         for df in dc.fields(object):
             yield _uifield_from_dataclass(df)
         return
@@ -667,13 +743,6 @@ def _iter_ui_fields(object: Any) -> Iterator[UiField]:
     if _is_attrs_model(object):
         for af in object.__attrs_attrs__:
             yield _uifield_from_attrs(af)
-        return
-
-    # check if it's a pydantic model
-    model = _get_pydantic_model(object)
-    if model is not None:
-        for pf in model.__fields__.values():
-            yield _uifield_from_pydantic(pf)
         return
 
     # fallback to looking at __annotations__ (named tuple, typed dict, function)
@@ -768,8 +837,12 @@ def _get_values(obj: Any) -> dict | None:
         return cast(dict, attr.asdict(obj))
 
     # pydantic models
-    dict_method = getattr(obj, "dict", None)
-    return dict_method() if callable(dict_method) else None
+    if hasattr(obj, "model_dump"):
+        return cast(dict, obj.model_dump())
+    elif hasattr(obj, "dict"):
+        return cast(dict, obj.dict())
+
+    return None
 
 
 # TODO: unify this with magicgui
