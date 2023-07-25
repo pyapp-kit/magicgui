@@ -54,8 +54,10 @@ nav:
     - dataclasses.md
   - Examples:
     - examples/basic.md
+    - examples/very_basic.md
     - examples/napari_img_math.md
     - examples/napari_parameter_sweep.md
+  - 'Examples gallery': generated/gallery  # This node will automatically be named and have sub-nodes.
   - API:
       - magicgui: api/magicgui.md
       - magic_factory: api/magic_factory.md
@@ -105,6 +107,13 @@ plugins:
       scripts:
         - docs/scripts/_gen_screenshots.py
         - docs/scripts/_gen_widgets.py
+  - gallery:
+      conf_script: docs/gallery_conf.py
+      examples_dirs: [docs/examples_gallery]
+      gallery_dirs: [docs/generated/gallery]
+      filename_pattern: /*.py  # which scripts will be executed for the docs
+      ignore_pattern: /__init__.py  # ignore these examle files completely
+      run_stale_examples: True
   - spellcheck:
       backends: # the backends you want to use
         - codespell: # or nested configs
