@@ -1,6 +1,4 @@
-"""
-Basic example
-=============.
+"""# Basic example
 
 A basic example using magicgui.
 """

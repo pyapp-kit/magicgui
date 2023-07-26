@@ -1,6 +1,4 @@
-"""
-Manual progress bar
-===================.
+"""# Manual progress bar
 
 Example of a progress bar being updated manually.
 

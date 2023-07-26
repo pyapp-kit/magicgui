@@ -1,6 +1,6 @@
-"""
-Optional user choice
-=====================.
+"""# Optional user choice
+
+Optional user input using a dropdown selection widget.
 """
 from typing import Optional
 

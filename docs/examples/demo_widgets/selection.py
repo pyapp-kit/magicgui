@@ -1,6 +1,6 @@
-"""
-Multiple selection widget
-=========================.
+"""# Multiple selection widget
+
+A selection widget allowing multiple selections by the user.
 """
 from magicgui import magicgui
 

@@ -1,6 +1,4 @@
-"""
-Simple progress bar
-===================.
+"""# Simple progress bar
 
 A simple progress bar demo with magicgui.
 """

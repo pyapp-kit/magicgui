@@ -1,6 +1,6 @@
-"""
-Log slider widget
-=================.
+"""# Log slider widget
+
+A logarithmic scale range slider widget.
 """
 from magicgui import magicgui
 

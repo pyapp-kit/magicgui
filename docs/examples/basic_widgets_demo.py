@@ -1,6 +1,4 @@
-"""
-Basic widgets demo
-==================.
+"""# Basic widgets demo
 
 Widget demonstration with magicgui.
 

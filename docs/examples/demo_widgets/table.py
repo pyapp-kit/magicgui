@@ -1,6 +1,4 @@
-"""
-Table widget
-============.
+"""# Table widget
 
 Demonstrating a few ways to input tables.
 """

@@ -1,6 +1,4 @@
-"""
-Callable functions demo
-=======================.
+"""# Callable functions demo
 
 This example demonstrates handling callable functions with magicgui.
 """

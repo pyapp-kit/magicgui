@@ -1,6 +1,6 @@
-"""
-Password login
-==============.
+"""# Password login
+
+A password login field widget.
 """
 from magicgui import magicgui
 

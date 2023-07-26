@@ -1,6 +1,4 @@
-"""
-Chaining functions together
-===========================.
+"""# Chaining functions together
 
 This example demonstrates chaining multiple functions together.
 """
