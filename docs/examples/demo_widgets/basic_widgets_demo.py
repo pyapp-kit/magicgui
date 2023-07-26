@@ -4,7 +4,7 @@ Basic widgets demo
 
 Widget demonstration with magicgui.
 
-This code demonstrates a few of the widget types that magicgui can create 
+This code demonstrates a few of the widget types that magicgui can create
 based on the parameter types in your function.
 """
 import datetime

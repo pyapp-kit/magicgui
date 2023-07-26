@@ -58,14 +58,13 @@ from magicgui import magicgui
     auto_call=True,
     sigma={"widget_type": "FloatSlider", "max": 6},
     mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
-    layout='horizontal'
+    layout="horizontal",
 )
-def gaussian_blur(
-    layer: ImageData, sigma: float = 1.0, mode="nearest"
-) -> ImageData:
+def gaussian_blur(layer: ImageData, sigma: float = 1.0, mode="nearest") -> ImageData:
     """Apply a gaussian blur to 'layer'."""
     if layer is not None:
         return skimage.filters.gaussian(layer, sigma=sigma, mode=mode)
+
 
 # create a viewer and add some images
 viewer = napari.Viewer()

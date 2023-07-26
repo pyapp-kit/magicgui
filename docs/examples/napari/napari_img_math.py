@@ -27,17 +27,18 @@ docs](https://napari.org/guides/magicgui.html)
 # %%
 # ## code
 #
-# *Code follows, with explanation below... You can also [get this example at 
+# *Code follows, with explanation below... You can also [get this example at
 # github](https://github.com/pyapp-kit/magicgui/blob/main/docs/examples/napari/napari_image_arithmetic.py).*
 
 
 from enum import Enum
 
-import numpy
 import napari
+import numpy
 from napari.types import ImageData
 
 from magicgui import magicgui
+
 
 class Operation(Enum):
     """A set of valid arithmetic operations for image_arithmetic.
@@ -47,6 +48,7 @@ class Operation(Enum):
     class for all of the image math operations we want to
     allow.
     """
+
     add = numpy.add
     subtract = numpy.subtract
     multiply = numpy.multiply
@@ -61,6 +63,7 @@ def image_arithmetic(
 ) -> ImageData:
     """Add, subtracts, multiplies, or divides to image layers."""
     return operation.value(layerA, layerB)
+
 
 # create a viewer and add a couple image layers
 viewer = napari.Viewer()
