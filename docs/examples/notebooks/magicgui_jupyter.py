@@ -2,6 +2,8 @@
 
 This example shows magicgui widgets embedded in a jupyter notebook.
 
+The key function here is `use_app("ipynb")`.
+
 You can also [get this example at github](https://github.com/pyapp-kit/magicgui/blob/main/docs/examples/notebooks/magicgui_jupyter.ipynb).
 """
 

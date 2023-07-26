@@ -1,6 +1,6 @@
 """# Deocrate class methods with magicgui
 
-Demonstrates decorating a method.
+Demonstrates decorating a class method with magicgui.
 
 Once the class is instantiated, `instance.method_name` will return a FunctionGui
 in which the instance will always be provided as the first argument (i.e. "self") when
