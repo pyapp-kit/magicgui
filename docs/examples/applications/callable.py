@@ -1,6 +1,6 @@
 """
 Callable functions demo
-=======================
+=======================.
 
 This example demonstrates handling callable functions with magicgui.
 """

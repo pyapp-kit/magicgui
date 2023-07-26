@@ -1,6 +1,6 @@
 """
 Self reference magicgui widgets
-===============================
+===============================.
 
 Widgets created with magicgui can reference themselves, and use the widget API.
 """

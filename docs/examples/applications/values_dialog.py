@@ -1,6 +1,6 @@
 """
 Input values dialog
-===================
+===================.
 
 A basic example of a user input dialog.
 

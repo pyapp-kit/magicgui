@@ -1,6 +1,6 @@
 """
 Password login
-==============
+==============.
 """
 from magicgui import magicgui
 

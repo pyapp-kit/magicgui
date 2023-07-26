@@ -1,6 +1,6 @@
 """
 Range slider widget
-===================
+===================.
 
 A double ended range slider widget.
 """

@@ -1,6 +1,6 @@
 """
 napari forward reference demo
-=============================
+=============================.
 
 Example of using a ForwardRef to avoid importing a module that provides a widget.
 

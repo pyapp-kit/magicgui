@@ -1,6 +1,6 @@
 """
 Log slider widget
-=================
+=================.
 """
 from magicgui import magicgui
 

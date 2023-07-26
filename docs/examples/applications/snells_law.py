@@ -1,6 +1,6 @@
 """
 Snell's law demonstration using magicgui
-========================================
+========================================.
 """
 
 import math

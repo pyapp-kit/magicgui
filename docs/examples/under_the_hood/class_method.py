@@ -1,6 +1,6 @@
 """
 Deocrate class methods with magicgui
-====================================
+====================================.
 
 Demonstrates decorating a method.
 

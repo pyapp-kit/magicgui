@@ -1,6 +1,6 @@
 """
 Jupyter notebooks and magicgui
-==============================
+==============================.
 
 This example shows magicgui widgets embedded in a jupyter notebook.
 

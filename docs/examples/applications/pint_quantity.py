@@ -1,6 +1,6 @@
 """
 Quantities with pint
-====================
+====================.
 
 Pint is a Python package to define, operate and manipulate physical quantities:
 the product of a numerical value and a unit of measurement.

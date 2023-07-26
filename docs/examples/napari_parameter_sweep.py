@@ -1,6 +1,6 @@
 """
 napari parameter sweeps
-=======================
+=======================.
 
 [napari](https://github.com/napari/napari) is a fast, interactive,
 multi-dimensional image viewer for python.  It uses Qt for the GUI, so it's easy

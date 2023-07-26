@@ -1,6 +1,6 @@
 """
 Basic widgets demo
-==================
+==================.
 
 Widget demonstration with magicgui.
 

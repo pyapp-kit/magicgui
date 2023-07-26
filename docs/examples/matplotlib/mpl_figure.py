@@ -1,6 +1,6 @@
 """
 matplotlib figure example
-=========================
+=========================.
 
 Basic example of adding a generic QWidget to a container.
 

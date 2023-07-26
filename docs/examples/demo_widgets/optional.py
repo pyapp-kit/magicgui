@@ -1,6 +1,6 @@
 """
 Optional user choice
-=====================
+=====================.
 """
 from typing import Optional
 
