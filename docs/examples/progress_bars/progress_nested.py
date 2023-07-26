@@ -1,4 +1,4 @@
-"""# Nested progress bars
+"""# Nested progress bars.
 
 Example using nested progress bars in magicgui.
 

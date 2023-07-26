@@ -1,4 +1,4 @@
-"""# Hotdog or not app
+"""# Hotdog or not app.
 
 Demo app to upload an image and classify if it's an hotdog or not.
 """

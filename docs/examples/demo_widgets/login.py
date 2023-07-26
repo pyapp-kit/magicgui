@@ -1,4 +1,4 @@
-"""# Password login
+"""# Password login.
 
 A password login field widget.
 """
