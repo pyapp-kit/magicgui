@@ -69,16 +69,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install -e .[testing]
-          python -m pip install 'pydantic<2'
+          python -m pip install -e .
+          python -m pip install pytest 'pydantic<2' attrs pytest-cov
 
       - name: Test
         run: pytest tests/test_ui_field.py -v --color=yes --cov=magicgui --cov-report=xml
 
-      - name: Coverage
-        uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: false
+      - uses: codecov/codecov-action@v3
 
   test_napari:
     name: napari tests
