@@ -1,4 +1,4 @@
-"""# Snell's law demonstration using magicgui
+"""# Snell's law demonstration using magicgui.
 
 Demo app for calculating angles of refraction according to Snell's law.
 """
