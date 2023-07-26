@@ -11,12 +11,15 @@ from magicgui.widgets import Container
 
 
 class MyObject:
+    """Example object class."""
+
     def __init__(self, name):
         self.name = name
         self.counter = 0.0
 
     @magicgui(auto_call=True)
     def method(self, sigma: float = 0):
+        """Example class method."""
         print(f"instance: {self.name}, counter: {self.counter}, sigma: {sigma}")
         self.counter = self.counter + sigma
         return self.name

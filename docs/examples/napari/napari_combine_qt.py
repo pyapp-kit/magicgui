@@ -17,6 +17,8 @@ from magicgui.widgets import create_widget
 
 
 class CustomWidget(QWidget):
+    """A custom widget class."""
+
     def __init__(self) -> None:
         super().__init__()
         self.setLayout(QVBoxLayout())

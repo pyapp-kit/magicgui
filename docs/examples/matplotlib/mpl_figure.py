@@ -23,6 +23,7 @@ ax = mpl_fig.add_subplot(111)
 
 @magicgui(position={"widget_type": "Slider", "max": 255}, auto_call=True)
 def f(position: int):
+    """Function demonstrating magicgui combined with matplotlib."""
     line.set_ydata(data[position])
     line.figure.canvas.draw()
 

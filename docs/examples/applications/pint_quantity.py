@@ -12,7 +12,7 @@ from magicgui import magicgui
 
 
 @magicgui
-def widget(q=Quantity("1 ms")):
+def widget(q=Quantity("1 ms")):  # noqa: B008
     """Widget allowing users to input quantity measurements."""
     print(q)
 

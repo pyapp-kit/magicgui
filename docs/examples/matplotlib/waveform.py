@@ -61,9 +61,8 @@ class Signal:
         ax: matplotlib.axes.Axes instance, default None
            if provided the plot is done on this axes instance.
            If None a new ax is created
-
-
-        **kwargs are passed to matplotib ax.plot method
+        **kwargs: Keyword arguments that are passed on to
+            the matplotib ax.plot method
 
         Returns
         -------
@@ -87,6 +86,8 @@ def sine(
     ----------
     duration: float
        the duration of the signal in seconds
+    size: int
+        the number of samples in the signal time array
     freq: float
        the frequency of the signal in Hz
     phase: Phase
@@ -159,6 +160,7 @@ def square(
 def on_off(
     duration: Time = 10.0, size: int = 500, t_on: Time = 0.01, t_off: Time = 0.01
 ) -> Signal:
+    """On/Off signal function."""
     data = np.ones(size)
     data[: int(size * t_on / duration)] = -1
     if t_off > 0:
@@ -177,6 +179,8 @@ WAVEFORMS = {
 
 
 class Select(Enum):
+    """Enumeration to select signal type."""
+
     OnOff = "on_off"
     Sine = "sine"
     Chirp = "chirp"

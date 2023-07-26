@@ -12,6 +12,7 @@ from magicgui import magicgui
 # (unless you override "widget_type")
 @magicgui(password2={"widget_type": "Password"})
 def login(username: str, password: str, password2: str):
+    """User login credentials."""
     ...
 
 

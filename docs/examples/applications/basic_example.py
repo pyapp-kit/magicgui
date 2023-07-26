@@ -7,6 +7,7 @@ from magicgui import magicgui
 
 @magicgui
 def example(x: int, y="hi"):
+    """Basic example function."""
     return x, y
 
 

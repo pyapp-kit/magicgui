@@ -45,9 +45,9 @@ def widget_demo(
     dropdown=Medium.Glass,
     radio_option=2,
     date=datetime.date(1999, 12, 31),
-    time=datetime.time(1, 30, 20),
-    datetime=datetime.datetime.now(),
-    filename=Path.home(),
+    time=datetime.time(1, 30, 20),  # noqa: B008
+    datetime=datetime.datetime.now(),  # noqa: B008
+    filename=Path.home(),  # noqa: B008
 ):
     """We can use numpy docstrings to provide tooltips.
 
