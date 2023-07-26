@@ -120,12 +120,12 @@ docs = [
     "mkdocs-gallery",
     "qtgallery",
     # extras for all the widgets
-    "napari",
+    "napari ==0.4.18",
+    "pyside6 ==6.4.2",    # 6.4.3 gives segfault for some reason
     "pint",
     "matplotlib",
-    "ipywidgets>=8.0.0",
+    "ipywidgets >=8.0.0",
     "ipykernel",
-    "pyside6==6.4.2",    # 6.4.3 gives segfault for some reason
 ]
 
 [project.urls]
