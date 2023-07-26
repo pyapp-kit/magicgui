@@ -4,7 +4,7 @@ A basic example of a user input dialog.
 
 This will pause code execution until the user responds.
 
-![Values input dialog](../images/values_input.png){ width=50% }
+![Values input dialog](../../images/values_input.png){ width=50% }
 
 """
 

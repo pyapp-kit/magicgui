@@ -11,8 +11,8 @@ For napari-specific magicgui documentation, see the
 
 ![napari parameter sweep widget](../../images/param_sweep.gif){ width=80% }
 
-*See also:* Some of this tutorial overlaps with topics covered in the [napari
-image arithmetic example](napari_img_math)
+*See also:* Some of this tutorial overlaps with topics covered in the
+[napari image arithmetic example](napari_img_math.py).
 """
 
 # %%
@@ -112,7 +112,7 @@ napari.run()
 # %%
 # #### type annotations
 #
-# As described in the [image arithmetic tutorial](./napari_img_math.md), we take
+# As described in the [image arithmetic example](napari_img_math.py), we take
 # advantage of napari's built in support for `magicgui` by annotating our function
 # parameters and return value as napari `Layer` types.  `napari` will then tell
 # `magicgui` what to do with them, creating a dropdown with a list of current
@@ -159,7 +159,7 @@ napari.run()
 # %%
 # ### connecting events
 #
-# As described in the [Events documentation](../events.md), we can
+# As described in the [Events documentation](../../events.md), we can
 # also connect any callback to the `gaussian_blur.called` signal that will receive
 # the result of our decorated function anytime it is called.
 
