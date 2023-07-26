@@ -53,7 +53,7 @@ nav:
     - events.md
     - decorators.md
     - dataclasses.md
-  - 'Examples': generated_examples  # This node will automatically be named and have sub-nodes.
+  - Examples: generated_examples  # This node will automatically be named and have sub-nodes.
   - API:
       - magicgui: api/magicgui.md
       - magic_factory: api/magic_factory.md

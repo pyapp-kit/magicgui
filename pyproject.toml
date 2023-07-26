@@ -201,7 +201,7 @@ extend-ignore = [
 
 [tool.ruff.per-file-ignores]
 "tests/*.py" = ["D", "E501"]
-"examples/*.py" = ["D", "B"]
+"docs/examples/*.py" = ["D", "B"]
 "src/magicgui/widgets/_image/*.py" = ["D"]
 "setup.py" = ["F821"]
 
@@ -232,7 +232,6 @@ pretty = true
 [[tool.mypy.overrides]]
 module = [
     "_pytest.*",
-    ".examples/",
     ".docs/",
     "magicgui.widgets._image.*",
     "magicgui.backends.*",
@@ -261,7 +260,7 @@ omit = [
     "src/magicgui/widgets/_image/_mpl_image.py",
     "src/magicgui/widgets/_bases/*",
     "tests/*",
-    "examples/*",
+    "docs/*",
 ]
 
 
