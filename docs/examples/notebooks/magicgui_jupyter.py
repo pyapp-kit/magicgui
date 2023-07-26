@@ -1,4 +1,4 @@
-"""# Jupyter notebooks and magicgui
+"""# Jupyter notebooks and magicgui.
 
 This example shows magicgui widgets embedded in a jupyter notebook.
 
@@ -44,4 +44,4 @@ You can also [get this example at github](https://github.com/pyapp-kit/magicgui/
 # ```
 
 # %%
-# ![magicgui widget embedded in the jupyter notebook](../../images/jupyter_magicgui_widget.png)
+# ![magicgui widget embedded in the jupyter notebook](../../images/jupyter_magicgui_widget.png)  # noqa: E501

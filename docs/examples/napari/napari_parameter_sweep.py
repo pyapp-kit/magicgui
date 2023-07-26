@@ -1,4 +1,4 @@
-"""# napari parameter sweeps
+"""# napari parameter sweeps.
 
 [napari](https://github.com/napari/napari) is a fast, interactive,
 multi-dimensional image viewer for python.  It uses Qt for the GUI, so it's easy
@@ -9,7 +9,7 @@ the effect of changing one of the parameters of your function.
 For napari-specific magicgui documentation, see the
 [napari docs](https://napari.org/guides/magicgui.html)
 
-![napari image arithmetic widget](../../images/param_sweep.gif){ width=80% }
+![napari parameter sweep widget](../../images/param_sweep.gif){ width=80% }
 
 *See also:* Some of this tutorial overlaps with topics covered in the [napari
 image arithmetic example](napari_img_math)
@@ -36,7 +36,7 @@ image arithmetic example](napari_img_math)
 # ## code
 #
 # *Code follows, with explanation below... You can also [get this example at
-# github](https://github.com/pyapp-kit/magicgui/blob/main/docs/examples/napari/napari_param_sweep.py).*
+# github](https://github.com/pyapp-kit/magicgui/blob/main/docs/examples/napari/napari_param_sweep.py).*  # noqa: E501
 
 # %%
 import napari
@@ -79,14 +79,15 @@ napari.run()
 # %%
 # ## walkthrough
 #
-# We're going to go a little out of order so that the other code makes more sense.  Let's
-# start with the actual function we'd like to write to apply a gaussian filter to an image.
+# We're going to go a little out of order so that the other code makes more sense.
+# Let's start with the actual function we'd like to write to apply a gaussian
+# filter to an image.
 
 # %%
 # ### the function
 #
 # Our function is a very thin wrapper around
-# [`skimage.filters.gaussian`](https://scikit-image.org/docs/dev/api/skimage.filters.html#skimage.filters.gaussian).
+# [`skimage.filters.gaussian`](https://scikit-image.org/docs/dev/api/skimage.filters.html#skimage.filters.gaussian).  # noqa: E501
 # It takes a `napari` [Image
 # layer](https://napari.org/howtos/layers/image.html), a `sigma` to control
 # the blur radius, and a `mode` that determines how edges are handled.
@@ -102,7 +103,8 @@ napari.run()
 # %%
 # The reasons we are wrapping it here are:
 #
-# 1. `filters.gaussian` accepts a `numpy` array, but we want to work with `napari` layers
+# 1. `filters.gaussian` accepts a `numpy` array,
+#    but we want to work with `napari` layers
 #    that store the data in a `layer.data` attribute. So we need an adapter.
 # 2. We'd like to add some [type annotations](type-inference) to the
 #    signature that were not provided by `filters.gaussian`
@@ -144,7 +146,8 @@ napari.run()
 # - `auto_call=True` makes it so that the `gaussian_blur` function will be called
 #   whenever one of the parameters changes (with the current parameters set in the
 #   GUI).
-# - We then provide keyword arguments to modify the look & behavior of `sigma` and `mode`:
+# - We then provide keyword arguments to modify the look & behavior of `sigma`
+#   and `mode`:
 #
 #     - `"widget_type": "FloatSlider"` tells `magicgui` not to use the standard
 #         (`float`) widget for the `sigma` widget, but rather to use a slider widget.

@@ -1,4 +1,4 @@
-"""# napari image arithmetic widget
+"""# napari image arithmetic widget.
 
 [napari](https://github.com/napari/napari) is a fast, interactive,
 multi-dimensional image viewer for python.  It uses Qt for the GUI, so it's easy
@@ -26,7 +26,7 @@ docs](https://napari.org/guides/magicgui.html)
 # ## code
 #
 # *Code follows, with explanation below... You can also [get this example at
-# github](https://github.com/pyapp-kit/magicgui/blob/main/docs/examples/napari/napari_image_arithmetic.py).*
+# github](https://github.com/pyapp-kit/magicgui/blob/main/docs/examples/napari/napari_image_arithmetic.py).*  # noqa: E501
 
 
 from enum import Enum
@@ -84,7 +84,7 @@ napari.run()
 
 # %%
 # ### the function
-# Our function takes two `numpy` arrays (in this case, from [Image layers](https://napari.org/howtos/layers/image.html)),
+# Our function takes two `numpy` arrays (in this case, from [Image layers](https://napari.org/howtos/layers/image.html)),  # noqa: E501
 # and some mathematical operation
 # (we'll restrict the options using an `enum.Enum`).
 # When called, ourfunction calls the selected operation on the data.
@@ -97,16 +97,17 @@ napari.run()
 
 # %%
 # #### type annotations
-# `magicgui` works particularly well with [type annotations](https://docs.python.org/3/library/typing.html),
-# and allows third-party libraries to register widgets and behavior for handling their custom
-# types (using [`magicgui.type_map.register_type`][]).
-# `napari` [provides support for `magicgui`](https://github.com/napari/napari/blob/main/napari/utils/_magicgui.py)
+# `magicgui` works particularly well with [type annotations](https://docs.python.org/3/library/typing.html),  # noqa: E501
+# and allows third-party libraries to register widgets and behavior for handling
+# their custom types (using [`magicgui.type_map.register_type`][]).
+# `napari` [provides support for `magicgui`](https://github.com/napari/napari/blob/main/napari/utils/_magicgui.py)  # noqa: E501
 # by registering a dropdown menu whenever a function parameter is annotated as one
-# of the basic napari [`Layer` types](https://napari.org/howtos/layers/index.html), or, in this case,
-# `ImageData` indicates we just the `data` attribute of the layer. Furthermore, it
-# recognizes when a function has a `napari.layers.Layer` or `LayerData` return
-# type annotation, and will add the result to the viewer.  So we gain a *lot* by
-# annotating the above function with the appropriate `napari` types.
+# of the basic napari [`Layer` types](https://napari.org/howtos/layers/index.html),
+# or, in this case, `ImageData` indicates we just the `data` attribute of the layer.
+# Furthermore, it recognizes when a function has a `napari.layers.Layer`
+# or `LayerData` return type annotation, and will add the result to the viewer.
+# So we gain a *lot* by annotating the above function with the appropriate
+# `napari` types.
 
 # %%
 # ```python
