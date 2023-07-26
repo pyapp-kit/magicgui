@@ -120,6 +120,7 @@ docs = [
     "mkdocs-gallery",
     "qtgallery",
     # extras for all the widgets
+    "napari[pyqt]",
     "pint",
     "ipywidgets>=8.0.0",
     "ipykernel",
