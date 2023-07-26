@@ -1,3 +1,9 @@
+"""
+Hotdog or not app
+=================
+
+Demo app to upload an image and classify if it's an hotdog or not.
+"""
 import pathlib
 from enum import Enum
 
@@ -5,7 +11,7 @@ from magicgui import magicgui
 
 
 class HotdogOptions(Enum):
-    """All hotdog possibilities"""
+    """All hotdog possibilities."""
 
     Hotdog = 1
     NotHotdog = 0

@@ -1,4 +1,8 @@
-"""Example of using a ForwardRef to avoid importing a module that provides a widget.
+"""
+napari forward reference demo
+=============================
+
+Example of using a ForwardRef to avoid importing a module that provides a widget.
 
 In this example, one might want to create a widget that takes as an argument a napari
 Image layer, and returns an Image.  In order to avoid needing to import napari (and

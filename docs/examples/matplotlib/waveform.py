@@ -1,3 +1,7 @@
+"""
+Waveforms example
+=================
+"""
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import partial
@@ -21,7 +25,7 @@ Time = Annotated[float, {"min": 0.01, "max": 100.0}]
 
 @dataclass
 class Signal:
-    """Constructs a 1D signal
+    """Constructs a 1D signal.
 
     As is, this class is not very useful, but one could add callbacks
     or more functionality here
@@ -45,12 +49,12 @@ class Signal:
     data: np.ndarray = field(init=False)
 
     def __post_init__(self):
-        """evaluate the function at instantiation time"""
+        """Evaluate the function at instantiation time."""
         self.time = np.linspace(0, self.duration, self.size)
         self.data = self.func(self.time)
 
     def plot(self, ax=None, **kwargs):
-        """Plots the data
+        """Plots the data.
 
         Parameters
         ----------
@@ -77,7 +81,7 @@ class Signal:
 def sine(
     duration: Time = 10.0, size: int = 500, freq: Freq = 0.5, phase: Phase = 0.0
 ) -> Signal:
-    """Returns a 1D sine wave
+    """Returns a 1D sine wave.
 
     Parameters
     ----------
@@ -88,7 +92,6 @@ def sine(
     phase: Phase
        the phase of the signal (in degrees)
     """
-
     sig = Signal(
         duration=duration,
         size=size,
@@ -105,7 +108,7 @@ def chirp(
     f1: float = 2.0,
     phase: Phase = 0.0,
 ) -> Signal:
-    """Frequency-swept cosine generator
+    """Frequency-swept cosine generator.
 
     See scipy.signal.chirp
     """
@@ -185,7 +188,7 @@ class WaveForm(widgets.Container):
     """Simple waveform generator widget, with plotting."""
 
     def __init__(self):
-        """Creates the widget"""
+        """Creates the widget."""
         super().__init__()
         self.fig, self.ax = plt.subplots()
         self.native.layout().addWidget(FigureCanvas(self.fig))
@@ -197,13 +200,13 @@ class WaveForm(widgets.Container):
 
     @magicgui(auto_call=True)
     def signal_widget(self, select: Select = Select.Sine) -> widgets.Container:
-        """Waveform selection, from the WAVEFORMS dict"""
+        """Waveform selection, from the WAVEFORMS dict."""
         self.waveform = WAVEFORMS[select.value]
         self.update_controls()
         self.update_graph(self.waveform())
 
     def update_controls(self):
-        """Reset controls according to the new function"""
+        """Reset controls according to the new function."""
         if self.controls is not None:
             self.remove(self.controls)
         self.controls = magicgui(auto_call=True)(self.waveform)
@@ -211,7 +214,7 @@ class WaveForm(widgets.Container):
         self.controls.called.connect(self.update_graph)
 
     def update_graph(self, sig: Signal):
-        """Re-plot when a parameter changes
+        """Re-plot when a parameter changes.
 
         Note
         ----

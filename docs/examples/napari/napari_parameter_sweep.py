@@ -11,7 +11,7 @@ the effect of changing one of the parameters of your function.
 For napari-specific magicgui documentation, see the
 [napari docs](https://napari.org/guides/magicgui.html)
 
-![napari image arithmetic widget](../images/param_sweep.gif){ width=80% }
+![napari image arithmetic widget](../../images/param_sweep.gif){ width=80% }
 
 *See also:* Some of this tutorial overlaps with topics covered in the [napari
 image arithmetic example](napari_img_math)

@@ -1,4 +1,7 @@
-"""Simple demonstration of magicgui."""
+"""
+Snell's law demonstration using magicgui
+========================================
+"""
 
 import math
 from enum import Enum

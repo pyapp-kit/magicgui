@@ -1,3 +1,7 @@
+"""
+Optional user choice
+=====================
+"""
 from typing import Optional
 
 from magicgui import magicgui

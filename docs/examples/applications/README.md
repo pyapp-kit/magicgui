@@ -1,3 +1,3 @@
-# Example applications
+# Demo applications
 
-Example appliations built with magicgui.
+Example applications built with magicgui.

@@ -1,6 +1,10 @@
-""""Basic example of adding a generic QWidget to a container.
+"""
+matplotlib figure example
+=========================
 
-main lesson: add your QWidget to container.native.layout()
+Basic example of adding a generic QWidget to a container.
+
+Main lesson: add your QWidget to container.native.layout()
 as shown on line 30
 """
 

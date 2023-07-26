@@ -1,3 +1,7 @@
+"""
+Multiple selection widget
+=========================
+"""
 from magicgui import magicgui
 
 

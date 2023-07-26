@@ -1,4 +1,7 @@
-"""Simple demonstration of magicgui."""
+"""
+Log slider widget
+=================
+"""
 from magicgui import magicgui
 
 

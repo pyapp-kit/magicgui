@@ -1,3 +1,10 @@
+"""
+Manual progress bar
+===================
+
+Example of a progress bar being updated manually.
+
+"""
 from magicgui import magicgui
 from magicgui.widgets import ProgressBar
 

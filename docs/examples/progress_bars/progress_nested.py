@@ -1,3 +1,11 @@
+"""
+Nested progress bars
+====================
+
+Example using nested progress bars in magicgui.
+
+"""
+
 import random
 from time import sleep
 

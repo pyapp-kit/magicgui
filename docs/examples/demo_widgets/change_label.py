@@ -1,3 +1,7 @@
+"""
+Custom text labels for widgets
+==============================
+"""
 from magicgui import magicgui
 
 

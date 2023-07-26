@@ -1,3 +1,9 @@
+"""
+Range slider widget
+===================
+
+A double ended range slider widget.
+"""
 from typing import Tuple
 
 from magicgui import magicgui

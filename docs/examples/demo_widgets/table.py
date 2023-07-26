@@ -1,4 +1,9 @@
-"""Demonstrating a few ways to input tables."""
+"""
+Table widget
+============
+
+Demonstrating a few ways to input tables.
+"""
 import numpy as np
 
 from magicgui.widgets import Table

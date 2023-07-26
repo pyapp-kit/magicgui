@@ -1,4 +1,7 @@
 """
+napari Qt demo
+==============
+
 Napari provides a few conveniences with magicgui, and one of the
 most commonly used is the layer combo box that gets created when
 a parameter is annotated as napari.layers.Layer.

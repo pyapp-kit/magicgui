@@ -1,4 +1,9 @@
-"""Choices for dropdowns can be provided in a few different ways."""
+"""
+Dropdown selection widget
+=========================
+
+Choices for dropdowns can be provided in a few different ways.
+"""
 from enum import Enum
 
 from magicgui import magicgui, widgets
