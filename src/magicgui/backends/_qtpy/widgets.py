@@ -348,7 +348,7 @@ class TextEdit(QBaseStringWidget, protocols.SupportsReadOnly):
 class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
-    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QAbstractSlider
+    _qwidget: QtW.QDoubleSpinBox | superqt.QLargeIntSpinBox | QtW.QAbstractSlider
     _precision: float = 1
 
     def __init__(self, qwidg: type[QtW.QWidget], **kwargs: Any) -> None:
@@ -566,7 +566,8 @@ class MainWindow(Container):
 
 class SpinBox(QBaseRangedWidget):
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__(QtW.QSpinBox, **kwargs)
+        # TODO: Consider any performance impace of this widget over a QSpinBox
+        super().__init__(superqt.QLargeIntSpinBox, **kwargs)
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(int(value))
@@ -637,7 +638,8 @@ class _Slider(QBaseRangedWidget, protocols.SupportsOrientation):
 
 class Slider(_Slider):
     _qwidget: QtW.QSlider
-    _readout = QtW.QSpinBox
+    # TODO: Consider any performance impace of this widget over a QSpinBox
+    _readout = superqt.QLargeIntSpinBox
 
     def __init__(self, qwidg=QtW.QSlider, **kwargs: Any) -> None:
         self._container = QtW.QWidget()
