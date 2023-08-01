@@ -410,7 +410,7 @@ class FunctionGui(Container, Generic[_R]):
         obj_id = id(obj)
         if obj_id not in self._bound_instances:
             method = getattr(obj.__class__, self._function.__name__)
-            p0 = list(inspect.signature(method).parameters)[0]
+            p0 = next(iter(inspect.signature(method).parameters))
             prior, self._param_options = self._param_options, {
                 p0: {"bind": obj},
                 **self._param_options,
