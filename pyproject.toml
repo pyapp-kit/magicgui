@@ -160,10 +160,6 @@ matrix.backend.features = [
 ]
 
 
-# https://pycqa.github.io/isort/docs/configuration/options.html
-[tool.isort]
-profile = "black"
-src_paths = ["src/magicgui", "tests"]
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
@@ -173,6 +169,7 @@ src = ["src", "tests"]
 select = [
     "E",    # style errors
     "F",    # flakes
+    "W",    # warnings
     "D",    # pydocstyle
     "I",    # isort
     "UP",   # pyupgrade
@@ -180,6 +177,7 @@ select = [
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
     "TCH",  # type checking
+    "TID",  # tidy imports
     "RUF",  # ruff-specific rules
 ]
 ignore = [
