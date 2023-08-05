@@ -99,7 +99,7 @@ dev = [
     "pre-commit",
     "pydantic<2",
     "pydocstyle",
-    "pyqt5>=5.12.0",
+    "pyqt6",
     "pytest-cov",
     "pytest-cov",
     "pytest-mypy-plugins",
