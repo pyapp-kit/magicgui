@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-import inspect
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from magicgui.application import AppRef, use_app
 from magicgui.types import Undefined
 from magicgui.widgets import bases, protocols
 
 from ._widget import Widget
+
+if TYPE_CHECKING:
+    import inspect
 
 
 def create_widget(

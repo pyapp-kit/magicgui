@@ -12,6 +12,7 @@ import math
 import os
 from pathlib import Path
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Generic,
@@ -34,7 +35,6 @@ from magicgui._type_resolution import resolve_single_type
 from magicgui._util import merge_super_sigs, safe_issubclass
 from magicgui.application import use_app
 from magicgui.types import ChoicesType, FileDialogMode, PathLike, Undefined, _Undefined
-from magicgui.widgets import protocols
 from magicgui.widgets.bases import (
     ButtonWidget,
     CategoricalWidget,
@@ -50,6 +50,9 @@ from magicgui.widgets.bases import (
     create_widget,
 )
 from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 WidgetTypeVar = TypeVar("WidgetTypeVar", bound=Type[Widget])

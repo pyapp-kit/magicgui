@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from psygnal import Signal, SignalInstance
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._value_widget import ValueWidget
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 
 class ButtonWidget(ValueWidget[bool]):

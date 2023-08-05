@@ -170,20 +170,19 @@ src_paths = ["src/magicgui", "tests"]
 line-length = 88
 target-version = "py38"
 src = ["src", "tests"]
-extend-select = [
-    "E",  # style errors
-    "F",  # flakes
-    "D",  # pydocstyle
-    "I",  # isort
-    "UP", # pyupgrade
-    # "N",  # pep8-naming
-    # "S",  # bandit
+select = [
+    "E",    # style errors
+    "F",    # flakes
+    "D",    # pydocstyle
+    "I",    # isort
+    "UP",   # pyupgrade
     "C",    # flake8-comprehensions
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
+    "TCH",  # type checking
     "RUF",  # ruff-specific rules
 ]
-extend-ignore = [
+ignore = [
     "D100", # Missing docstring in public module
     "D107", # Missing docstring in __init__
     "D203", # 1 blank line required before class docstring
@@ -200,7 +199,7 @@ extend-ignore = [
 "examples/*.py" = ["D", "B"]
 "src/magicgui/widgets/_image/*.py" = ["D"]
 "setup.py" = ["F821"]
-
+"docs/*.py" = ["B"]
 
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
