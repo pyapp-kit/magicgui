@@ -3,13 +3,15 @@ from __future__ import annotations
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import Any, Callable, Iterable, Tuple, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, TypeVar, Union, cast
 from warnings import warn
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._value_widget import ValueWidget
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
 DEFAULT_MIN = 0.0

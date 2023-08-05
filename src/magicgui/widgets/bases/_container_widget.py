@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import inspect
-from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,7 +19,6 @@ from psygnal import Signal
 from magicgui._util import debounce
 from magicgui.application import use_app
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
-from magicgui.widgets import protocols
 from magicgui.widgets.bases._mixins import _OrientationMixin
 
 from ._button_widget import ButtonWidget
@@ -29,7 +26,10 @@ from ._value_widget import ValueWidget
 from ._widget import Widget
 
 if TYPE_CHECKING:
-    from magicgui.widgets import Container
+    import inspect
+    from pathlib import Path
+
+    from magicgui.widgets import Container, protocols
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 
 

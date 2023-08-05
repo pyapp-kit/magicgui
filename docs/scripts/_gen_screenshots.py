@@ -52,7 +52,7 @@ def _write_markdown_result_image(src: str, ns: dict, dest: str) -> None:
     if not top_widgets:
         print("No top level widgets found for", dest)
     if len(top_widgets) > 1:
-        name = re.search("([^\s\.]+).show\(\)", src, re.DOTALL)[1]
+        name = re.search(r"([^\s\.]+).show\(\)", src, re.DOTALL)[1]
         try:
             top_widgets = {ns[name].native}
         except KeyError:
