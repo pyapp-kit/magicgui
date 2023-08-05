@@ -10,7 +10,6 @@ from psygnal import Signal
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
-from magicgui.widgets.protocols import WidgetProtocol
 
 if TYPE_CHECKING:
     from weakref import ReferenceType
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     import numpy as np
 
     from magicgui.widgets._concrete import _LabeledWidget
+    from magicgui.widgets.protocols import WidgetProtocol
 
 
 class Widget:
