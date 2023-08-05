@@ -27,12 +27,13 @@ from warnings import warn
 from magicgui.application import use_app
 from magicgui.widgets.bases._mixins import _ReadOnlyMixin
 from magicgui.widgets.bases._value_widget import ValueWidget
-from magicgui.widgets.protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
     import numpy
     import pandas
     from typing_extensions import TypeGuard
+
+    from magicgui.widgets.protocols import TableWidgetProtocol
 TblKey = Any
 _KT = TypeVar("_KT")  # Key type
 _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
@@ -761,7 +762,7 @@ def _from_dict(data: dict) -> tuple[list[list], list, list]:
     if set(data) == {"data", "index", "columns"}:
         return data["data"], data["index"], data["columns"]
     columns = list(data)
-    if isinstance(list(data.values())[0], dict):
+    if isinstance(next(iter(data.values())), dict):
         _data, index = _from_nested_column_dict(data)
     else:
         try:

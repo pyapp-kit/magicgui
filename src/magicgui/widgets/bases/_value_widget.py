@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Generic, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, Union, cast
 
 from psygnal import Signal
 from typing_extensions import get_args, get_origin
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._widget import Widget
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 T = TypeVar("T")
 
