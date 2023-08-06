@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from enum import Enum, EnumMeta
-from typing import Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 from magicgui.types import ChoicesType, Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._value_widget import T, ValueWidget
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 
 class CategoricalWidget(ValueWidget[T]):

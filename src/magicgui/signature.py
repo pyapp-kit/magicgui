@@ -19,10 +19,10 @@ from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 
 from typing_extensions import Annotated, get_args, get_origin
 
-from magicgui.application import AppRef
 from magicgui.types import Undefined
 
 if TYPE_CHECKING:
+    from magicgui.application import AppRef
     from magicgui.widgets import Container, Widget
 TZ_EMPTY = "__no__default__"
 
