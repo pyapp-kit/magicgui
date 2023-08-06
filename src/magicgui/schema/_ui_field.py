@@ -534,14 +534,19 @@ def _uifield_from_attrs(field: Attribute) -> UiField:
     )
 
 
-def _uifield_from_pydantic(model_field: ModelField) -> UiField:
+def _uifield_from_pydantic1(model_field: ModelField) -> UiField:
     """Create a UiField from a pydantic ModelField."""
     from pydantic.fields import SHAPE_SINGLETON
     from pydantic.fields import Undefined as PydanticUndefined
 
     finfo = model_field.field_info
 
-    extra = {k: v for k, v in finfo.extra.items() if k in _UI_FIELD_NAMES}
+    _extra_dict = finfo.extra.copy()
+    # backport from pydantic2
+    if "json_schema_extra" in _extra_dict:
+        _extra_dict.update(_extra_dict.pop("json_schema_extra"))
+
+    extra = {k: v for k, v in _extra_dict.items() if k in _UI_FIELD_NAMES}
     const = finfo.const if finfo.const not in (None, PydanticUndefined) else Undefined
     default = (
         Undefined if finfo.default in (PydanticUndefined, Ellipsis) else finfo.default
@@ -722,7 +727,7 @@ def _iter_ui_fields(object: Any) -> Iterator[UiField]:
                 yield _uifield_from_pydantic2(field_info, name)
         else:
             for pf in model.__fields__.values():
-                yield _uifield_from_pydantic(pf)
+                yield _uifield_from_pydantic1(pf)
         return
 
     if hasattr(object, "__pydantic_fields__"):

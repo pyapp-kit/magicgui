@@ -10,12 +10,13 @@ from magicgui.widgets import Container
 EXPECTED = (
     UiField(name="a", type=int, nullable=True),
     UiField(name="b", type=str, description="the b"),
-    UiField(name="c", default=0, type=float, widget="FloatSlider"),
+    UiField(name="c", default=0.0, type=float, widget="FloatSlider"),
 )
 
 
 def _assert_uifields(cls, instantiate=True):
-    assert tuple(get_ui_fields(cls)) == EXPECTED
+    result = tuple(get_ui_fields(cls))
+    assert result == EXPECTED
     wdg = build_widget(cls)
     assert isinstance(wdg, Container)
     assert wdg.asdict() == {
@@ -58,12 +59,23 @@ def test_dataclass():
 
 
 def test_pydantic():
-    pydantic = pytest.importorskip("pydantic")
+    pytest.importorskip("pydantic")
+    import pydantic.version
+    from pydantic import BaseModel, Field
 
-    class Foo(pydantic.BaseModel):
-        a: Optional[int]
-        b: str = pydantic.Field(description="the b")
-        c: float = pydantic.Field(0.0, json_schema_extra={"widget": "FloatSlider"})
+    if pydantic.version.VERSION.startswith("1"):
+
+        class Foo(BaseModel):
+            a: Optional[int]
+            b: str = Field(description="the b")
+            c: float = Field(0.0, widget="FloatSlider")
+
+    else:
+
+        class Foo(BaseModel):
+            a: Optional[int]
+            b: str = Field(description="the b")
+            c: float = Field(0.0, json_schema_extra={"widget": "FloatSlider"})
 
     _assert_uifields(Foo)
 
