@@ -33,9 +33,18 @@ def test_doc_code_cells(fname):
         exec(cell, globalns)
 
 
-@pytest.mark.parametrize(
-    "fname", [f for f in glob("examples/*.py") if "napari" not in f]
-)
+example_files = [f for f in glob("examples/*.py") if "napari" not in f]
+
+# if os is Linux and python version is 3.9 and backend is PyQt5
+LINUX = sys.platform.startswith("linux")
+PY39 = sys.version_info >= (3, 9)
+PYQT5 = "PyQt5" in sys.modules
+if LINUX and PY39 and PYQT5:
+    # skip range_slider example because of superqt c++ wrapped item bug
+    example_files = [f for f in example_files if "range_slider" not in f]
+
+
+@pytest.mark.parametrize("fname", example_files)
 def test_examples(fname, monkeypatch):
     """Make sure that all code cells in documentation perform as expected."""
     if "values_dialog" in str(fname):
