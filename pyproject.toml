@@ -77,7 +77,7 @@ testing = [
     "toolz",
     "ipywidgets",
     "ipykernel",
-    "pydantic<2",
+    "pydantic",
     "attrs",
     "annotated_types",
 ]
@@ -97,7 +97,7 @@ dev = [
     "pillow>=4.0",
     "pint>=0.13.0",
     "pre-commit",
-    "pydantic<2",
+    "pydantic",
     "pydocstyle",
     "pyqt6",
     "pytest-cov",
