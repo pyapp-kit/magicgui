@@ -769,7 +769,7 @@ def test_slider_readeout():
     sld = widgets.Slider()
     sld.show()
     backend_slider = sld.native.children()[1]
-    assert "QSpinBox" in type(backend_slider).__name__
+    assert "SpinBox" in type(backend_slider).__name__
     assert backend_slider.isVisible()
 
     sld = widgets.Slider(readout=False)
