@@ -1,0 +1,97 @@
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-width: 0;
+  border-left-width: 4px;
+}
+
+.md-typeset .doc-children{
+  font-size: 0.7rem;
+}
+
+/* name of a method */
+code.highlight span.n:first-child {
+  color: red;
+}
+code.highlight span.n:not(:first-child) {
+  color: #666;
+}
+
+/* Indentation. */
+div.doc-contents:not(.first) {
+  padding-left: 25px;
+  border-left: 0.05rem solid var(--md-typeset-table-color);
+}
+
+/* Mark external links as such. */
+a.autorefs-external::after {
+  /* https://primer.style/octicons/arrow-up-right-24 */
+  background-repeat: no-repeat;
+  content: " ";
+  display: inline-block;
+  margin-left: 0.25em;
+  margin-right: 0.1em;
+  height: 0.7em;
+  width: 0.7em;
+  /* border-radius: 100%; */
+  background-color: var(--md-typeset-a-color);
+  mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>');
+}
+a.autorefs-external:hover::after {
+  background-color: var(--md-accent-fg-color);
+}
+
+
+/* table styles */
+table thead th {
+  background-color: var(--md-typeset-table-color);
+  color: var(--md-typeset-table-text-color);
+  font-weight: bold;
+}
+
+.md-typeset__table {
+  width: 100%;
+}
+.md-typeset table:not([class]) {
+  display: inline-table;
+}
+
+.code-image {
+  border-radius: 5px;
+  filter: drop-shadow(0px 5px 8px rgba(0, 0, 0, 0.25));
+  margin: 0.5em 0 1em 0;
+}
+
+/* UML diagram */
+#classid-WidgetProtocol-1 rect {
+  fill: red;
+}
+
+h3.rectHeading {
+  padding: 15px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+  font-family: Arial, Helvetica, sans-serif;
+  border-radius: 8px;
+  /* width: fit-content; */
+}
+
+.blueRect {
+  background-color: #366CBD;
+  color: white;
+}
+
+.yellowRect {
+  background-color: #FFC635;
+  color: #4C4B4A;
+}
+
+img {
+  border-radius: 4px;
+}
+
+aside.md-annotation {
+  font-style: normal;
+}
