@@ -37,7 +37,7 @@ jobs:
             backend: pyside2
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
@@ -84,8 +84,8 @@ jobs:
     name: napari tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: napari/napari
           path: napari-from-github
@@ -111,8 +111,8 @@ jobs:
     name: magic-class tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: hanjinliu/magic-class
           path: magic-class
@@ -139,8 +139,8 @@ jobs:
     name: stardist tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: stardist/stardist-napari
           path: stardist-napari
@@ -167,8 +167,8 @@ jobs:
     name: partseg tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: 4DNucleome/PartSeg
           path: PartSeg
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'pyapp-kit/magicgui' && contains(github.ref, 'tags') }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up Python
