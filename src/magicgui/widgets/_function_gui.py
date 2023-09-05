@@ -8,7 +8,6 @@ import inspect
 import re
 from collections import deque
 from contextlib import contextmanager
-from pathlib import Path
 from types import FunctionType
 from typing import (
     TYPE_CHECKING,
@@ -27,11 +26,13 @@ from magicgui._type_resolution import resolve_single_type
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
 from magicgui.widgets.bases import ValueWidget
-from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from magicgui.application import Application, AppRef  # noqa: F401
     from magicgui.widgets import TextEdit
+    from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
 
 
 def _inject_tooltips_from_docstrings(
@@ -410,7 +411,7 @@ class FunctionGui(Container, Generic[_R]):
         obj_id = id(obj)
         if obj_id not in self._bound_instances:
             method = getattr(obj.__class__, self._function.__name__)
-            p0 = list(inspect.signature(method).parameters)[0]
+            p0 = next(iter(inspect.signature(method).parameters))
             prior, self._param_options = self._param_options, {
                 p0: {"bind": obj},
                 **self._param_options,
