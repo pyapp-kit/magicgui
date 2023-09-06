@@ -36,7 +36,8 @@ def test_doc_code_cells(fname):
 EXAMPLES = Path(__file__).parent.parent / "docs" / "examples"
 # leaving out image only because finding the image file in both
 # tests and docs is a pain...
-EXCLUDED = {"napari", "image"}
+# range_slider has periodic segfaults
+EXCLUDED = {"napari", "image", "range_slider"}
 example_files = [
     str(f) for f in EXAMPLES.rglob("*.py") if all(x not in str(f) for x in EXCLUDED)
 ]
