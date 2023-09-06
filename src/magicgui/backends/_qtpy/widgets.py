@@ -26,6 +26,7 @@ from qtpy.QtGui import (
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import Widget, protocols
+from magicgui.widgets._concrete import _LabeledWidget
 
 if TYPE_CHECKING:
     import numpy
@@ -82,9 +83,18 @@ class QBaseWidget(protocols.WidgetProtocol):
     def _mgui_set_enabled(self, enabled: bool) -> None:
         self._qwidget.setEnabled(enabled)
 
-    # TODO: this used to return _magic_widget ... figure out what we should be returning
-    def _mgui_get_parent(self) -> QObject | None:  # type: ignore
-        return self._qwidget.parent()
+    def _mgui_get_parent(self) -> Widget | None:
+        par = self._qwidget.parent()
+        # FIXME: This whole thing is hacky.
+        while par is not None:
+            mgui_wdg = getattr(par, "_magic_widget", None)
+            # the labeled widget itself should be considered a "hidden" layer.
+            if isinstance(mgui_wdg, Widget) and not isinstance(
+                mgui_wdg, _LabeledWidget
+            ):
+                return mgui_wdg
+            par = par.parent()
+        return None
 
     def _mgui_set_parent(self, widget: Widget) -> None:
         self._qwidget.setParent(widget.native if widget else None)
