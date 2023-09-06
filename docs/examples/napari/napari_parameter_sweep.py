@@ -99,7 +99,7 @@ The reasons we are wrapping it here are:
 1. `filters.gaussian` accepts a `numpy` array,
    but we want to work with `napari` layers
    that store the data in a `layer.data` attribute. So we need an adapter.
-2. We'd like to add some [type annotations](type-inference) to the
+2. We'd like to add some [type annotations](../../type_map.md) to the
    signature that were not provided by `filters.gaussian`
 
 #### type annotations
