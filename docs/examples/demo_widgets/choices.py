@@ -1,4 +1,4 @@
-"""# Dropdown selection widget.
+"""# Dropdown selection widget
 
 Choices for dropdowns can be provided in a few different ways.
 """

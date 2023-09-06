@@ -1,4 +1,4 @@
-"""# Custom text labels for widgets.
+"""# Custom text labels for widgets
 
 An example showing how to create custom text labels for your widgets.
 """

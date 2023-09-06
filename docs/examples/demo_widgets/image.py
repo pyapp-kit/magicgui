@@ -1,4 +1,4 @@
-"""# Image widget.
+"""# Image widget
 
 Example of creating an Image Widget from a file.
 

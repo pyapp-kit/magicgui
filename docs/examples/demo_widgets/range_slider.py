@@ -1,4 +1,4 @@
-"""# Range slider widget.
+"""# Range slider widget
 
 A double ended range slider widget.
 """

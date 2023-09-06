@@ -1,4 +1,4 @@
-"""# Waveforms example.
+"""# Waveforms example
 
 Simple waveform generator widget, with plotting.
 """
