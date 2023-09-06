@@ -34,7 +34,9 @@ def test_doc_code_cells(fname):
 
 
 EXAMPLES = Path(__file__).parent.parent / "docs" / "examples"
-EXCLUDED = {"napari"}
+# leaving out image only because finding the image file in both
+# tests and docs is a pain...
+EXCLUDED = {"napari", "image"}
 example_files = [
     str(f) for f in EXAMPLES.rglob("*.py") if all(x not in str(f) for x in EXCLUDED)
 ]
