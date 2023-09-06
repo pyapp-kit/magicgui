@@ -112,8 +112,9 @@ dev = [
 ]
 docs = [
     "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings-python",
+    "mkdocs-material ~=9.2",
+    "mkdocstrings ==0.22.0",
+    "mkdocstrings-python ==1.6.2",
     "mkdocs-gen-files",
     "mkdocs-literate-nav",
     "mkdocs-spellcheck[all]",
@@ -121,7 +122,7 @@ docs = [
     "qtgallery",
     # extras for all the widgets
     "napari ==0.4.18",
-    "pyside6 ==6.4.2",    # 6.4.3 gives segfault for some reason
+    "pyside6 ==6.5.2",    # 6.4.3 gives segfault for some reason
     "pint",
     "matplotlib",
     "ipywidgets >=8.0.0",
@@ -162,7 +163,6 @@ matrix.backend.features = [
         "pyside6",
     ] },
 ]
-
 
 
 # https://github.com/charliermarsh/ruff
