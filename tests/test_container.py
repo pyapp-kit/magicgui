@@ -213,3 +213,4 @@ def test_parent():
 
     assert lbl.parent is inner
     assert inner.parent is outer
+    assert outer.parent is None
