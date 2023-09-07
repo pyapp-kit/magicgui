@@ -33,7 +33,14 @@ def test_doc_code_cells(fname):
         exec(cell, globalns)
 
 
-example_files = [f for f in glob("examples/*.py") if "napari" not in f]
+EXAMPLES = Path(__file__).parent.parent / "docs" / "examples"
+# leaving out image only because finding the image file in both
+# tests and docs is a pain...
+# range_slider has periodic segfaults
+EXCLUDED = {"napari", "image", "range_slider"}
+example_files = [
+    str(f) for f in EXAMPLES.rglob("*.py") if all(x not in str(f) for x in EXCLUDED)
+]
 
 # if os is Linux and python version is 3.9 and backend is PyQt5
 LINUX = sys.platform.startswith("linux")
