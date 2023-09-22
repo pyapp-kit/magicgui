@@ -187,3 +187,13 @@ def test_type_registered_warns():
             register_type(Path, widget_type=widgets.TextEdit)
             assert isinstance(widgets.create_widget(annotation=Path), widgets.TextEdit)
     assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
+
+
+def test_pick_widget_literal():
+    from typing import Literal
+
+    cls, options = type_map.get_widget_class(
+        annotation=Annotated[Literal["a", "b"], {"widget_type": "RadioButtons"}]
+    )
+    assert cls == widgets.RadioButtons
+    assert set(options["choices"]) == {"a", "b"}
