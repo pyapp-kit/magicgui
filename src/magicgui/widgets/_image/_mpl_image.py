@@ -120,7 +120,7 @@ class Colormap:
     def __init__(
         self,
         colors: Collection = [[0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
-        controls: Collection = np.zeros((0, 4)),  # noqa: B008
+        controls: Collection = np.zeros((0, 4)),
         interpolation: str = "linear",
     ) -> None:
         self.interpolation = interpolation
@@ -544,8 +544,7 @@ class Image(ScalarMappable):
             self._A.dtype, float, "same_kind"
         ):
             raise TypeError(
-                "Image data of dtype {} cannot be converted to "
-                "float".format(self._A.dtype)
+                f"Image data of dtype {self._A.dtype} cannot be converted to " "float"
             )
 
         if self._A.ndim == 3 and self._A.shape[-1] == 1:
