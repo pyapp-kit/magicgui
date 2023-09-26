@@ -33,7 +33,7 @@ class ButtonWidget(ValueWidget[bool]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.ButtonWidgetProtocol

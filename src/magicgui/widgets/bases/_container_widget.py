@@ -44,16 +44,18 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     (`container[0]`), as well as by widget name (`container.<widget_name>`). Widgets can
     be added with `append` or `insert`, and removed with `del` or `pop`, etc...
 
-    There is a tight connection between a `ContainerWidget` and an [inspect.Signature][]
-    object, just as there is a tight connection between individual [Widget` objects an
-    an :class:`inspect.Parameter][] object. The signature representation of a
-    `ContainerWidget` (with the current settings as default values) is accessible with
+    There is a tight connection between a `ContainerWidget` and an
+    [inspect.Signature][inspect.Signature] object,
+    just as there is a tight connection between individual [Widget` objects an
+    an :class:`inspect.Parameter][inspect.Parameter] object.
+    The signature representation of a `ContainerWidget`
+    (with the current settings as default values) is accessible with
     the :meth:`~ContainerWidget.__signature__` method (or by using
     :func:`inspect.signature` from the standard library)
 
     For a `ContainerWidget` subclass that is tightly coupled to a specific function
     signature (as in the "classic" magicgui decorator), see
-    [magicgui.widgets.FunctionGui][].
+    [magicgui.widgets.FunctionGui][magicgui.widgets.FunctionGui].
 
     Parameters
     ----------
@@ -72,7 +74,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         `widget.name`, but can be overridden by setting `widget.label`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     changed = Signal(

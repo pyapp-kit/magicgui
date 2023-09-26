@@ -304,7 +304,7 @@ def get_widget_class(
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ) -> tuple[WidgetClass, dict]:
-    """Return a [magicgui.widgets.Widget][] subclass for the given `value`/`annotation`.
+    """Return a [Widget][magicgui.widgets.Widget] subclass for the `value`/`annotation`.
 
     Parameters
     ----------

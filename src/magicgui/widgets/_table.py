@@ -160,8 +160,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         ``tuple(range(len(data[0])))``.  Values provided here override any implied in
         ``value``.
     **kwargs
-        Additional kwargs will be passed to the [magicgui.widgets.Widget][]
-        constructor.
+        Additional kwargs will be passed to the
+        [magicgui.widgets.Widget][magicgui.widgets.Widget] constructor.
 
     Attributes
     ----------
