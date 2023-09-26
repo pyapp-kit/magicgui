@@ -1,6 +1,7 @@
-"""# Indeterminate progress bars
+"""# Indeterminate progress bar
 
-Example of an indeterminate progress bar for a long running computation.
+Example of an indeterminate progress bar for a long running computation
+of unknown time.
 
 """
 import time
