@@ -19,6 +19,15 @@ def test_tqdm_outside_of_functiongui():
     assert tuple(trange(5)) == tuple(range(5))
 
 
+def test_indeterminate_tqdm_outside_of_functiongui():
+    """Test that we can have tqdm with an indeterminate total range."""
+    with tqdm(total=None) as pbar:
+        assert pbar.total is None
+        assert pbar.n == 0
+        pbar.update()
+        assert pbar.n == 1
+
+
 def test_disabled_tqdm():
     """Test that a disabled tqdm does not have a progressbar or magicgui."""
 
@@ -129,6 +138,21 @@ def test_trange_inside_of_magicgui():
     @magicgui
     def long_func(steps=2):
         for _i in trange(4):
+            pass
+
+    long_func.show()
+    assert not long_func._tqdm_pbars
+    long_func()
+    assert len(long_func._tqdm_pbars) == 1
+
+
+def test_indeterminate_tqdm_inside_magicgui():
+    """Test that we can have tqdm with an indeterminate total range."""
+
+    @magicgui
+    def long_func():
+        """Long running computation with indeterminate range."""
+        with tqdm(total=None):
             pass
 
     long_func.show()
