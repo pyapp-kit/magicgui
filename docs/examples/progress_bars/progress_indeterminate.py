@@ -1,3 +1,8 @@
+"""# Indeterminate progress bars
+
+Example of an indeterminate progress bar for a long running computation.
+
+"""
 import time
 
 from superqt.utils import thread_worker
