@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typing_extensions import Annotated
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
@@ -906,6 +907,15 @@ def test_list_edit():
     assert type(f4.x[0]) is widgets.SpinBox
     assert f4.x.value == [0]
 
+    @magicgui
+    def f5(x: List[Annotated[int, {"max": 3}]]):
+        pass
+
+    assert type(f5.x) is widgets.ListEdit
+    assert f5.x.annotation == List[int]
+    f5.x.btn_plus.changed()
+    assert f5.x[0].max == 3
+
 
 def test_tuple_edit():
     """Test TupleEdit."""
@@ -945,6 +955,14 @@ def test_tuple_edit():
     assert type(f2.x) is widgets.TupleEdit
     assert f2.x.annotation == Tuple[int, str]
     assert f2.x.value == (0, "")
+
+    @magicgui
+    def f3(x: Tuple[Annotated[int, {"max": 3}], str]):
+        pass
+
+    assert type(f3.x) is widgets.TupleEdit
+    assert f2.x.annotation == Tuple[int, str]
+    assert f3.x[0].max == 3
 
 
 def test_request_values(monkeypatch):
