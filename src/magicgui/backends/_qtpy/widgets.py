@@ -288,7 +288,7 @@ class Image(QBaseValueWidget):
             )
 
     def _mgui_set_value(self, val: np.ndarray) -> None:
-        image = QImage(val, val.shape[1], val.shape[0], QImage.Format.Format_RGBA8888)  # type: ignore  # noqa: E501
+        image = QImage(val, val.shape[1], val.shape[0], QImage.Format.Format_RGBA8888)  # type: ignore
         self._pixmap = QPixmap.fromImage(image)
         self._rescale()
 
