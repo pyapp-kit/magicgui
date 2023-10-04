@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.3">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.d451bc0e.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.79e020e9.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.a5377069.min.css">
@@ -3008,10 +3008,10 @@ you should no longer provide the <code>value=</code> keyword when emitting.</p>
 <p>Version 0.2.0 of magicgui was a complete rewrite that introduced a couple
 breaking API changes</p>
 <h3 id="gui-attribute-removed"><code>.Gui()</code> attribute removed<a class="headerlink" href="#gui-attribute-removed" title="Permanent link">#</a></h3>
-<p>Before <code>v0.2.0</code>, the [<code>magicgui.magicgui</code>][] decorator added a <code>Gui</code> attribute to
+<p>Before <code>v0.2.0</code>, the <a class="autorefs autorefs-internal" href="../magicgui/#magicgui.magicgui"><code>magicgui.magicgui</code></a> decorator added a <code>Gui</code> attribute to
 the decorated function that was to be called to instantiate a widget.  In <code>v0.2.0</code>
-the object returned from the [<code>magicgui.magicgui</code>][] decorator is already an
-instantiated [<code>magicgui.widgets.Widget</code>][].</p>
+the object returned from the <a class="autorefs autorefs-internal" href="../magicgui/#magicgui.magicgui"><code>magicgui.magicgui</code></a> decorator is already an
+instantiated <a class="autorefs autorefs-internal" href="../widgets/bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a>.</p>
 <div class="highlight"><span class="filename">👎 Old Method (< v0.2.0)</span><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui</span> <span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">event_loop</span>
 
 <span class="nd">@magicgui</span>
@@ -3030,14 +3030,14 @@ instantiated [<code>magicgui.widgets.Widget</code>][].</p>
 <span class="n">function</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="new-base-widget-type">New base widget type<a class="headerlink" href="#new-base-widget-type" title="Permanent link">#</a></h3>
-<p>Before <code>v0.2.0</code>, the <code>Gui()</code> object returned by the [<code>magicgui.magicgui</code>][]
+<p>Before <code>v0.2.0</code>, the <code>Gui()</code> object returned by the <a class="autorefs autorefs-internal" href="../magicgui/#magicgui.magicgui"><code>magicgui.magicgui</code></a>
 decorator was a <code>MagicGuiBase</code> widget class, which in turn was a <em>direct
 subclass</em> of a backend widget, such as a
 <a href="https://doc.qt.io/qt-5/qwidget.html"><code>QtWidgets.QWidget</code></a>.  In <code>v0.2.0</code>, all
-widgets derive from <a class="autorefs autorefs-internal" href="../widgets/bases/#magicgui.widgets.bases.Widget">magicgui.widgets.Widget</a>,
-and the <em>backend</em> is available at <code>widget.native</code>.  If you are incorporating
+widgets derive from [<code>magicgui.widgets.Widget``][magicgui.widgets.Widget],
+and the *backend* is available at</code>widget.native<code>.  If you are incorporating
 magicgui widgets into a larger Qt-based GUI, please note that you will want
-to use <code>widget.native</code> instead of <code>widget</code></p>
+to use</code>widget.native<code>instead of</code>widget`</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui</span> <span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">use_app</span>
 
 <span class="n">use_app</span><span class="p">(</span><span class="s1">&#39;qt&#39;</span><span class="p">)</span>
@@ -3170,10 +3170,11 @@ to get/set the value, but the actual underlying widget was at <code>gui.x_widget
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
+    
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.a264c092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.726fbb30.min.js"></script>
+      <script src="../../assets/javascripts/bundle.6eac0284.min.js"></script>
       
     
   </body>

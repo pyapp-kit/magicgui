@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.3">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.d451bc0e.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.79e020e9.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a5377069.min.css">
@@ -2962,7 +2962,7 @@
 
 <h1 id="magicgui-magic_factory">magicgui &amp; magic_factory<a class="headerlink" href="#magicgui-magic_factory" title="Permanent link">#</a></h1>
 <h2 id="from-object-to-gui">From Object to GUI<a class="headerlink" href="#from-object-to-gui" title="Permanent link">#</a></h2>
-<p>The eponymous feature of <code>magicgui</code> is the [<code>magicgui.magicgui</code>][] function,
+<p>The eponymous feature of <code>magicgui</code> is the <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicgui"><code>magicgui.magicgui</code></a> function,
 which converts an object into a widget.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -3001,11 +3001,11 @@ using the type of the default value otherwise.</p>
 <span class="n">snells_law</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/decorators_0.png" /></p>
-<p>The object returned by the <code>magicgui</code> decorator is an instance of [<code>magicgui.widgets.FunctionGui</code>][].  It can still be called like the original function, but it also knows how to present itself as a GUI.</p>
+<p>The object returned by the <code>magicgui</code> decorator is an instance of <a class="autorefs autorefs-internal" href="../api/widgets/FunctionGui/#magicgui.widgets.FunctionGui"><code>magicgui.widgets.FunctionGui</code></a>.  It can still be called like the original function, but it also knows how to present itself as a GUI.</p>
 <h2 id="two-way-data-binding">Two-Way Data Binding<a class="headerlink" href="#two-way-data-binding" title="Permanent link">#</a></h2>
 <p>The modified <code>snells_law</code> object gains attributes named after each of the
 parameters in the function.  Each attribute is an instance of a
-[<code>magicgui.widgets.Widget</code>] subclass (suitable for the data type represented by
+<a class="autorefs autorefs-internal" href="../api/widgets/bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a> subclass (suitable for the data type represented by
 that parameter). As you make changes in your GUI, the attributes of the
 <code>snells_law</code> object will be kept in sync.  For instance, change the first
 dropdown menu from "Glass" to "Oil", and the corresponding <code>n1</code> object on
@@ -3117,7 +3117,7 @@ decorator if you don't need a widget immediately, but want to create one later
 <span class="n">widget_instance</span> <span class="o">=</span> <span class="n">magicgui</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="magic_factory">magic_factory<a class="headerlink" href="#magic_factory" title="Permanent link">#</a></h2>
-<p>The [<code>magicgui.magic_factory</code>][] function/decorator acts very much like the <code>magicgui</code>
+<p>The <a class="autorefs autorefs-internal" href="../api/magic_factory/#magicgui.magic_factory"><code>magicgui.magic_factory</code></a> function/decorator acts very much like the <code>magicgui</code>
 decorator, with one important difference:</p>
 <p><strong>Unlike <code>magicgui</code>, <code>magic_factory</code> does not return a widget instance
 immediately.  Instead, it returns a "factory function" that can be <em>called</em>
@@ -3130,7 +3130,7 @@ widget (a napari plugin is a good example), you will likely want to use
 subclass).</p>
 <div class="admonition tip">
 <p class="admonition-title">it's just a partial</p>
-<p>If you're familiar with [<code>functools.partial</code>][], you can think of
+<p>If you're familiar with <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functools.html#functools.partial"><code>functools.partial</code></a>, you can think of
 <code>magic_factory</code> as a partial function application of the <code>magicgui</code>
 decorator (in fact, <code>magic_factory</code> is a subclass of <code>partial</code>).
 It is very roughly equivalent to:</p>
@@ -3157,7 +3157,7 @@ or connect <a href="../events/">events</a>.</p>
 <h2 id="the-lack-of-magic-in-magicgui">The (lack of) "magic" in magicgui<a class="headerlink" href="#the-lack-of-magic-in-magicgui" title="Permanent link">#</a></h2>
 <p>Just to demystify the name a bit, there really isn't a whole lot of "magic"
 in the <code>magicgui</code> decorator.  It's really just a thin wrapper around the
-[<code>magicgui.widgets.create_widget</code>][] function, to create a
+<a class="autorefs autorefs-internal" href="../api/widgets/create_widget/#magicgui.widgets.create_widget"><code>magicgui.widgets.create_widget</code></a> function, to create a
 <a class="autorefs autorefs-internal" href="../api/widgets/Container/#magicgui.widgets.Container"><code>Container</code></a> with a sub-widget for each
 parameter in the function signature.</p>
 <p>The widget creation is very roughly equivalent to something like this:</p>
@@ -3246,10 +3246,11 @@ function</a>.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
+    
     <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.a264c092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.726fbb30.min.js"></script>
+      <script src="../assets/javascripts/bundle.6eac0284.min.js"></script>
       
     
   </body>

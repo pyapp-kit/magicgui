@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.3">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.d451bc0e.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.79e020e9.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a5377069.min.css">
@@ -2950,14 +2950,14 @@ deprecations or warnings.</p>
 </div>
 <p><strong>magicgui</strong> supports the dataclass API as a way to define the interface for compound
 widget, where each attribute of the dataclass is a separate widget.  The
-[<code>magicgui.experimental.guiclass</code>][] decorator can be used to mark a class
+<a class="autorefs autorefs-internal" href="../api/experimental/#magicgui.experimental.guiclass"><code>magicgui.experimental.guiclass</code></a> decorator can be used to mark a class
 as a "GUI class".  A GUI class <em>is</em> a Python standard <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass"><code>dataclass</code></a>
 that has two additional features:</p>
 <ol>
 <li>A property (named "<code>gui</code>" by default) that returns a <a class="autorefs autorefs-internal" href="../api/widgets/Container/#magicgui.widgets.Container"><code>Container</code></a>
    widget which contains a widget for each attribute of the dataclass.</li>
 <li>An property (named "<code>events</code>" by default) that returns a
-   [<code>psygnal.SignalGroup</code>][] object that allows you to connect callbacks
+   <a class="autorefs autorefs-external" href="https://psygnal.readthedocs.io/en/latest/API/#psygnal.SignalGroup"><code>psygnal.SignalGroup</code></a> object that allows you to connect callbacks
    to the change event of any of field in the dataclass.  (Under the hood,
    this uses the
    <a href="https://psygnal.readthedocs.io/en/latest/dataclasses/"><code>@evented</code> dataclass decorator from <code>psygnal</code></a>.)</li>
@@ -3010,7 +3010,7 @@ So, <code>obj.gui.a.value</code>, returns the current value of the <em>widget</e
 <p>Buttons are one of the few widget types that tend not to have an associated
 value, but simply trigger a callback when clicked.  That is: it doesn't often
 make sense to add a field to a dataclass representing a button. To add a button
-to a <code>guiclass</code>, decorate a method with the [<code>magicgui.experimental.button</code>][]
+to a <code>guiclass</code>, decorate a method with the <a class="autorefs autorefs-internal" href="../api/experimental/#magicgui.experimental.button"><code>magicgui.experimental.button</code></a>
 decorator.</p>
 <div class="admonition warning">
 <p class="admonition-title">positioning buttons</p>
@@ -3018,7 +3018,7 @@ decorator.</p>
 to position the button in the layout will be added in the future.</p>
 </div>
 <p>Any additional keyword arguments to the <code>button</code> decorator will be passed to the
-[<code>magicgui.widgets.PushButton</code>][] constructor (e.g. <code>label</code>, <code>tooltip</code>, etc.)</p>
+<a class="autorefs autorefs-internal" href="../api/widgets/PushButton/#magicgui.widgets.PushButton"><code>magicgui.widgets.PushButton</code></a> constructor (e.g. <code>label</code>, <code>tooltip</code>, etc.)</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.experimental</span> <span class="kn">import</span> <span class="n">guiclass</span><span class="p">,</span> <span class="n">button</span>
 
 <span class="nd">@guiclass</span>
@@ -3103,10 +3103,11 @@ designed with pure functions that take inputs and return outputs in mind.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
+    
     <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.a264c092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.726fbb30.min.js"></script>
+      <script src="../assets/javascripts/bundle.6eac0284.min.js"></script>
       
     
   </body>

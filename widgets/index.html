@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.3">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.d451bc0e.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.79e020e9.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a5377069.min.css">
@@ -3005,7 +3005,7 @@
 <a href="../api/widgets/">Widget Index</a>.</p>
 </div>
 <p>All individual graphical elements in <strong>magicgui</strong> are "widgets", and all widgets
-are instances of [<code>magicgui.widgets.Widget</code>][].  Widgets may be created
+are instances of <a class="autorefs autorefs-internal" href="../api/widgets/bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a>.  Widgets may be created
 directly:</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.widgets</span> <span class="kn">import</span> <span class="n">LineEdit</span>
 
@@ -3013,7 +3013,7 @@ directly:</p>
 <span class="n">line_edit</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/widgets_0.png" /></p>
-<p>Some widgets (such as [<code>magicgui.widgets.Container</code>][]) are composite
+<p>Some widgets (such as <a class="autorefs autorefs-internal" href="../api/widgets/Container/#magicgui.widgets.Container"><code>magicgui.widgets.Container</code></a>) are composite
 widgets that comprise other widgets:</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.widgets</span> <span class="kn">import</span> <span class="n">LineEdit</span><span class="p">,</span> <span class="n">SpinBox</span><span class="p">,</span> <span class="n">Container</span>
 
@@ -3024,7 +3024,7 @@ widgets that comprise other widgets:</p>
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/widgets_1.png" /></p>
 <p><strong>magicgui</strong> provides a way to automatically select a widget given a python value
-or type annotation using [<code>magicgui.widgets.create_widget</code>][]. Here is an
+or type annotation using <a class="autorefs autorefs-internal" href="../api/widgets/create_widget/#magicgui.widgets.create_widget"><code>magicgui.widgets.create_widget</code></a>. Here is an
 example that yields the same result as the one above:</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.widgets</span> <span class="kn">import</span> <span class="n">create_widget</span>
 
@@ -3071,9 +3071,9 @@ not intended to be instantiated directly.  Instead, you would create the widget
 type you wanted, such as <code>LineEdit</code> or <code>SpinBox</code>, respectively.</p>
 </div>
 <h3 id="widget"><code>Widget</code><a class="headerlink" href="#widget" title="Permanent link">#</a></h3>
-<p>As mentioned above, all magicgui widgets derive from [<code>magicgui.widgets.Widget</code>][] and have the
+<p>As mentioned above, all magicgui widgets derive from <a class="autorefs autorefs-internal" href="../api/widgets/bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a> and have the
 following attributes (this list is not comprehensive, see
-the [<code>magicgui.widgets.Widget</code>][] API):</p>
+the <a class="autorefs autorefs-internal" href="../api/widgets/bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a> API):</p>
 <table>
 <thead>
 <tr>
@@ -3096,7 +3096,7 @@ the [<code>magicgui.widgets.Widget</code>][] API):</p>
 <tr>
 <td><code>label</code></td>
 <td><code>str</code></td>
-<td>A string to use for an associated Label widget (if this widget is being shown in a [<code>magicgui.widgets.Container</code>][] widget, and <code>container.labels</code> is <code>True</code>). By default, <code>name</code> will be used. Note: <code>name</code> refers the name of the parameter, as might be used in a signature, whereas label is just the label for that widget in the GUI.</td>
+<td>A string to use for an associated Label widget (if this widget is being shown in a <a class="autorefs autorefs-internal" href="../api/widgets/Container/#magicgui.widgets.Container"><code>magicgui.widgets.Container</code></a> widget, and <code>container.labels</code> is <code>True</code>). By default, <code>name</code> will be used. Note: <code>name</code> refers the name of the parameter, as might be used in a signature, whereas label is just the label for that widget in the GUI.</td>
 </tr>
 <tr>
 <td><code>tooltip</code></td>
@@ -3191,8 +3191,8 @@ following <code>ValueWidgets</code> track some <code>value</code>:</p>
 </tr>
 <tr>
 <td><code>changed</code></td>
-<td>[<code>psygnal.SignalInstance</code>][]</td>
-<td>A [<code>psygnal.SignalInstance</code>][] that will emit an event when the <code>value</code> has changed.  Connect callbacks to the change event using <code>widget.changed.connect(callback)</code></td>
+<td><a class="autorefs autorefs-external" href="https://psygnal.readthedocs.io/en/latest/API/#psygnal.SignalInstance"><code>psygnal.SignalInstance</code></a></td>
+<td>A <a class="autorefs autorefs-external" href="https://psygnal.readthedocs.io/en/latest/API/#psygnal.SignalInstance"><code>psygnal.SignalInstance</code></a> that will emit an event when the <code>value</code> has changed.  Connect callbacks to the change event using <code>widget.changed.connect(callback)</code></td>
 </tr>
 <tr>
 <td><code>bind</code></td>
@@ -3390,10 +3390,10 @@ that additionally have an <code>orientation</code>, and a <code>readout</code>.<
 <p><code>CategoricalWidget</code> are <a href="#valuewidget"><code>ValueWidgets</code></a> that provide a set
 of valid choices.  They can be created from:</p>
 <ul>
-<li>an [<code>enum.Enum</code>][]</li>
+<li>an <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/enum.html#enum.Enum"><code>enum.Enum</code></a></li>
 <li>an iterable of objects (or an iterable of 2-tuples <code>(name, object)</code>)</li>
-<li>a callable that returns an [<code>enum.Enum</code>][] or an iterable</li>
-<li>a [<code>typing.Literal</code>][] annotation.</li>
+<li>a callable that returns an <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/enum.html#enum.Enum"><code>enum.Enum</code></a> or an iterable</li>
+<li>a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/typing.html#typing.Literal"><code>typing.Literal</code></a> annotation.</li>
 </ul>
 <table>
 <thead>
@@ -3456,8 +3456,8 @@ of valid choices.  They can be created from:</p>
 <h3 id="containerwidget"><code>ContainerWidget</code><a class="headerlink" href="#containerwidget" title="Permanent link">#</a></h3>
 <p>A <code>ContainerWidget</code> is a list-like <code>Widget</code> that can contain other widgets.
 Containers allow you to build more complex widgets from sub-widgets. A notable
-example of a <code>Container</code> is [<code>magicgui.widgets.FunctionGui</code>][]) (the product of
-the <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicgui"><code>@magicgui</code></a> decorator).</p>
+example of a <code>Container</code> is <a class="autorefs autorefs-internal" href="../api/widgets/FunctionGui/#magicgui.widgets.FunctionGui"><code>magicgui.widgets.FunctionGui</code></a>)
+(the product of the <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicgui"><code>@magicgui</code></a> decorator).</p>
 <table>
 <thead>
 <tr>
@@ -3506,8 +3506,8 @@ the <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicg
 </tr>
 </tbody>
 </table>
-<p><code>Container</code> implements the full [<code>collections.abc.MutableSequence</code>][] interface.  You
-can add and remove widgets from it just as you would add or remove items from a list.</p>
+<p><code>Container</code> implements the full <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSequence"><code>collections.abc.MutableSequence</code></a> interface.
+You can add and remove widgets from it just as you would add or remove items from a list.</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.widgets</span> <span class="kn">import</span> <span class="n">Container</span><span class="p">,</span> <span class="n">Slider</span><span class="p">,</span> <span class="n">FloatSlider</span><span class="p">,</span> <span class="n">ProgressBar</span>
 
 <span class="n">container</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Container</span><span class="p">()</span>
@@ -3523,7 +3523,8 @@ bar.</p>
 <p>A <code>FunctionGui</code> is a special type of <a href="#containerwidget"><code>ContainerWidget</code></a>
 that is created from a function.  It is the product of the
 <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicgui"><code>@magicgui</code></a> decorator.  It is a container that contains a
-widget for each of the parameters in the function.  See [<code>magicgui.widgets.FunctionGui</code>][] for details.</p>
+widget for each of the parameters in the function.
+See <a class="autorefs autorefs-internal" href="../api/widgets/FunctionGui/#magicgui.widgets.FunctionGui"><code>magicgui.widgets.FunctionGui</code></a> for details.</p>
 <h4 id="magicgui"><code>@magicgui</code><a class="headerlink" href="#magicgui" title="Permanent link">#</a></h4>
 <p>It's worth noting that <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicgui"><code>@magicgui</code></a> and
 <a class="autorefs autorefs-internal" href="../api/magic_factory/#magicgui.magic_factory"><code>@magic_factory</code></a> decorators are just conveniences
@@ -3620,10 +3621,11 @@ the GUI as default parameters when calling the function.</em></p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
+    
     <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.a264c092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.726fbb30.min.js"></script>
+      <script src="../assets/javascripts/bundle.6eac0284.min.js"></script>
       
     
   </body>
