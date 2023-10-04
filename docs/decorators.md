@@ -2,7 +2,7 @@
 
 ## From Object to GUI
 
-The eponymous feature of `magicgui` is the [`magicgui.magicgui`][] function,
+The eponymous feature of `magicgui` is the [`magicgui.magicgui`][magicgui.magicgui] function,
 which converts an object into a widget.
 
 !!! info
@@ -43,13 +43,13 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
 snells_law.show() # leave open
 ```
 
-The object returned by the `magicgui` decorator is an instance of [`magicgui.widgets.FunctionGui`][].  It can still be called like the original function, but it also knows how to present itself as a GUI.
+The object returned by the `magicgui` decorator is an instance of [`magicgui.widgets.FunctionGui`][magicgui.widgets.FunctionGui].  It can still be called like the original function, but it also knows how to present itself as a GUI.
 
 ## Two-Way Data Binding
 
 The modified `snells_law` object gains attributes named after each of the
 parameters in the function.  Each attribute is an instance of a
-[`magicgui.widgets.Widget`] subclass (suitable for the data type represented by
+[`magicgui.widgets.Widget`][magicgui.widgets.Widget] subclass (suitable for the data type represented by
 that parameter). As you make changes in your GUI, the attributes of the
 `snells_law` object will be kept in sync.  For instance, change the first
 dropdown menu from "Glass" to "Oil", and the corresponding `n1` object on
@@ -194,7 +194,7 @@ widget_instance = magicgui(function)
 
 ## magic_factory
 
-The [`magicgui.magic_factory`][] function/decorator acts very much like the `magicgui`
+The [`magicgui.magic_factory`][magicgui.magic_factory] function/decorator acts very much like the `magicgui`
 decorator, with one important difference:
 
 **Unlike `magicgui`, `magic_factory` does not return a widget instance
@@ -210,7 +210,7 @@ subclass).
 
 !!! tip "it's just a partial"
 
-    If you're familiar with [`functools.partial`][], you can think of
+    If you're familiar with [`functools.partial`][functools.partial], you can think of
     `magic_factory` as a partial function application of the `magicgui`
     decorator (in fact, `magic_factory` is a subclass of `partial`).
     It is very roughly equivalent to:
@@ -246,7 +246,7 @@ new_widget = my_factory()
 
 Just to demystify the name a bit, there really isn't a whole lot of "magic"
 in the `magicgui` decorator.  It's really just a thin wrapper around the
-[`magicgui.widgets.create_widget`][] function, to create a
+[`magicgui.widgets.create_widget`][magicgui.widgets.create_widget] function, to create a
 [`Container`][magicgui.widgets.Container] with a sub-widget for each
 parameter in the function signature.
 

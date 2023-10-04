@@ -123,7 +123,7 @@ def _replace_type_to_widget(md: str) -> str:
                 _name = name.split("[")[0]
                 name_link = f"[`{name}`][typing.{_name}]"
             else:
-                name_link = f"[`{name}`][]"
+                name_link = f"[`{name}`][{name}]"
             table.append(f"| {name_link}  | {wdg_link} | {kwargs} | ")
 
     lines[start:last_line] = table

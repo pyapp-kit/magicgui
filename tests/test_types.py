@@ -222,3 +222,13 @@ def test_type_registered_optional_callbacks():
 
     assert _RETURN_CALLBACKS[Optional[int]] == [mock3]
     assert _RETURN_CALLBACKS[int] == [mock2, mock3]
+
+
+def test_pick_widget_literal():
+    from typing import Literal
+
+    cls, options = type_map.get_widget_class(
+        annotation=Annotated[Literal["a", "b"], {"widget_type": "RadioButtons"}]
+    )
+    assert cls == widgets.RadioButtons
+    assert set(options["choices"]) == {"a", "b"}

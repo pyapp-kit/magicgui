@@ -94,14 +94,8 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
         return widgets.FunctionGui, {"function": default}
 
     origin = get_origin(type_) or type_
-    if origin is Literal:
-        choices = []
-        nullable = False
-        for choice in get_args(type_):
-            if choice is None:
-                nullable = True
-            else:
-                choices.append(choice)
+    choices, nullable = _literal_choices(type_)
+    if choices is not None:  # it's a Literal type
         return widgets.ComboBox, {"choices": choices, "nullable": nullable}
 
     # sequence of paths
@@ -194,6 +188,24 @@ def _type_optional(
     return type_, nullable
 
 
+def _literal_choices(annotation: Any) -> tuple[list | None, bool]:
+    """Return choices and nullable for a Literal type.
+
+    if annotation is not a Literal type, returns (None, False)
+    """
+    origin = get_origin(annotation) or annotation
+    choices: list | None = None
+    nullable = False
+    if origin is Literal:
+        choices = []
+        for choice in get_args(annotation):
+            if choice is None:
+                nullable = True
+            else:
+                choices.append(choice)
+    return choices, nullable
+
+
 def _pick_widget_type(
     value: Any = Undefined,
     annotation: Any = Undefined,
@@ -220,6 +232,10 @@ def _pick_widget_type(
     _type, optional = _type_optional(value, annotation)
     options.setdefault("nullable", optional)
     choices = choices or (isinstance(_type, EnumMeta) and _type)
+    literal_choices, nullable = _literal_choices(annotation)
+    if literal_choices is not None:
+        choices = literal_choices
+        options["nullable"] = nullable
 
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
@@ -289,7 +305,7 @@ def get_widget_class(
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ) -> tuple[WidgetClass, dict]:
-    """Return a [magicgui.widgets.Widget][] subclass for the given `value`/`annotation`.
+    """Return a [Widget][magicgui.widgets.Widget] subclass for the `value`/`annotation`.
 
     Parameters
     ----------

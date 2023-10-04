@@ -24,7 +24,7 @@ setup(
         "docstring_parser>=0.7",
         "psygnal>=0.5.0",
         "qtpy>=1.7.0",
-        "superqt>=0.4.0",
+        "superqt>=0.5.0",
         "typing_extensions",
     ],
 )

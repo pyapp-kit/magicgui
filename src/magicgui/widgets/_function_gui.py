@@ -265,7 +265,7 @@ class FunctionGui(Container, Generic[_R]):
 
     @property
     def return_annotation(self) -> Any:
-        """Return annotation to use when converting to [inspect.Signature][].
+        """Return annotation for [inspect.Signature][inspect.Signature] conversion.
 
         ForwardRefs will be resolve when setting the annotation.
         """
@@ -488,7 +488,7 @@ def _function_name_pointing_to_widget(function_gui: FunctionGui) -> Iterator[Non
     In standard `@magicgui` usage, this will have been the case anyway.
     Doing this here allows the function name in a `@magic_factory`-decorated function
     to *also* refer to the function gui instance created by the factory, (rather than
-    to the [~magicgui._magicgui.MagicFactory][] object).
+    to the [~magicgui._magicgui.MagicFactory][magicgui._magicgui.MagicFactory] object).
 
     Examples
     --------

@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typing_extensions import Annotated
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
@@ -197,7 +198,7 @@ def test_basic_widget_attributes():
 
     assert widget.parent is None
     container.append(widget)
-    assert widget.parent is container.native
+    assert widget.parent is container
     widget.parent = None
     assert widget.parent is None
     assert widget.label == "my name"
@@ -769,7 +770,7 @@ def test_slider_readeout():
     sld = widgets.Slider()
     sld.show()
     backend_slider = sld.native.children()[1]
-    assert "QSpinBox" in type(backend_slider).__name__
+    assert "SpinBox" in type(backend_slider).__name__
     assert backend_slider.isVisible()
 
     sld = widgets.Slider(readout=False)
@@ -906,6 +907,15 @@ def test_list_edit():
     assert type(f4.x[0]) is widgets.SpinBox
     assert f4.x.value == [0]
 
+    @magicgui
+    def f5(x: List[Annotated[int, {"max": 3}]]):
+        pass
+
+    assert type(f5.x) is widgets.ListEdit
+    assert f5.x.annotation == List[int]
+    f5.x.btn_plus.changed()
+    assert f5.x[0].max == 3
+
 
 def test_tuple_edit():
     """Test TupleEdit."""
@@ -945,6 +955,14 @@ def test_tuple_edit():
     assert type(f2.x) is widgets.TupleEdit
     assert f2.x.annotation == Tuple[int, str]
     assert f2.x.value == (0, "")
+
+    @magicgui
+    def f3(x: Tuple[Annotated[int, {"max": 3}], str]):
+        pass
+
+    assert type(f3.x) is widgets.TupleEdit
+    assert f2.x.annotation == Tuple[int, str]
+    assert f3.x[0].max == 3
 
 
 def test_request_values(monkeypatch):
