@@ -203,3 +203,14 @@ def test_connection_during_init() -> None:
             ...
 
     assert isinstance(C(), widgets.Container)
+
+
+def test_parent():
+    lbl = widgets.Label()
+    inner = widgets.Container(widgets=[lbl])
+    outer = widgets.Container()
+    outer.append(inner)
+
+    assert lbl.parent is inner
+    assert inner.parent is outer
+    assert outer.parent is None

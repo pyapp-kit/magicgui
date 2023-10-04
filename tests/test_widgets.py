@@ -198,7 +198,7 @@ def test_basic_widget_attributes():
 
     assert widget.parent is None
     container.append(widget)
-    assert widget.parent is container.native
+    assert widget.parent is container
     widget.parent = None
     assert widget.parent is None
     assert widget.label == "my name"
