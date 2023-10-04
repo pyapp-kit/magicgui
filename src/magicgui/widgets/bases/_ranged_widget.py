@@ -42,7 +42,7 @@ class RangedWidget(ValueWidget[T]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol
@@ -196,7 +196,7 @@ class RangedWidget(ValueWidget[T]):
 
 
 class TransformedRangedWidget(RangedWidget[float], ABC):
-    """Widget with a contstrained value. Wraps RangedWidgetProtocol.
+    """Widget with a constrained value. Wraps RangedWidgetProtocol.
 
     This can be used to map one domain of numbers onto another, useful for creating
     things like LogSliders.  Subclasses must reimplement ``_value_from_position`` and
@@ -226,7 +226,7 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol

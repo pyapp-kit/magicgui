@@ -32,7 +32,7 @@ class ValueWidget(Widget, Generic[T]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.ValueWidgetProtocol
@@ -97,7 +97,7 @@ class ValueWidget(Widget, Generic[T]):
         return self._widget._mgui_set_value(value)
 
     def __repr__(self) -> str:
-        """Return representation of widget of instsance."""
+        """Return representation of widget of instance."""
         try:
             val = self.value if self._bound_value is Undefined else self._bound_value
             return (

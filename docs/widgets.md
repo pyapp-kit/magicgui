@@ -5,7 +5,7 @@
     [Widget Index](api/widgets/index.md).
 
 All individual graphical elements in **magicgui** are "widgets", and all widgets
-are instances of [`magicgui.widgets.Widget`][].  Widgets may be created
+are instances of [`magicgui.widgets.Widget`][magicgui.widgets.Widget].  Widgets may be created
 directly:
 
 ```python
@@ -15,7 +15,7 @@ line_edit = LineEdit(value='hello!')
 line_edit.show()
 ```
 
-Some widgets (such as [`magicgui.widgets.Container`][]) are composite
+Some widgets (such as [`magicgui.widgets.Container`][magicgui.widgets.Container]) are composite
 widgets that comprise other widgets:
 
 ```python
@@ -28,7 +28,7 @@ container.show()
 ```
 
 **magicgui** provides a way to automatically select a widget given a python value
-or type annotation using [`magicgui.widgets.create_widget`][]. Here is an
+or type annotation using [`magicgui.widgets.create_widget`][magicgui.widgets.create_widget]. Here is an
 example that yields the same result as the one above:
 
 ```python
@@ -83,15 +83,15 @@ properties and attributes it has.
 
 ### `Widget`
 
-As mentioned above, all magicgui widgets derive from [`magicgui.widgets.Widget`][] and have the
+As mentioned above, all magicgui widgets derive from [`magicgui.widgets.Widget`][magicgui.widgets.Widget] and have the
 following attributes (this list is not comprehensive, see
-the [`magicgui.widgets.Widget`][] API):
+the [`magicgui.widgets.Widget`][magicgui.widgets.Widget] API):
 
 | <div style="width:80px">Attribute</div> | Type | Description |
 |-----------|------|-------------|
 | `name` | `str` | The name or "ID" of this widget (such as a function parameter name to which this widget corresponds). |
 | `annotation` | `Any` | A type annotation for the value represented by the widget. |
-| `label` | `str` | A string to use for an associated Label widget (if this widget is being shown in a [`magicgui.widgets.Container`][] widget, and `container.labels` is `True`). By default, `name` will be used. Note: `name` refers the name of the parameter, as might be used in a signature, whereas label is just the label for that widget in the GUI. |
+| `label` | `str` | A string to use for an associated Label widget (if this widget is being shown in a [`magicgui.widgets.Container`][magicgui.widgets.Container] widget, and `container.labels` is `True`). By default, `name` will be used. Note: `name` refers the name of the parameter, as might be used in a signature, whereas label is just the label for that widget in the GUI. |
 | `tooltip` | `str` | A tooltip to display when hovering over the widget. |
 | `visible` | `bool` | Whether the widget is visible. |
 
@@ -118,7 +118,7 @@ following `ValueWidgets` track some `value`:
 | <div style="width:80px">Attribute</div> | Type | Description |
 |-----------|------|-------------|
 | `value` | `Any` | The current value of the widget. |
-| `changed` | [`psygnal.SignalInstance`][] | A [`psygnal.SignalInstance`][] that will emit an event when the `value` has changed.  Connect callbacks to the change event using `widget.changed.connect(callback)` |
+| `changed` | [`psygnal.SignalInstance`][psygnal.SignalInstance] | A [`psygnal.SignalInstance`][psygnal.SignalInstance] that will emit an event when the `value` has changed.  Connect callbacks to the change event using `widget.changed.connect(callback)` |
 | `bind` | `Any, optional` | A value or callback to bind this widget.  If bound, whenever `widget.value` is accessed, the value provided here will be returned.  The bound value can be a callable, in which case `bound_value(self)` will be returned (i.e. your callback must accept a single parameter, which is this widget instance.). see [`ValueWidget.bind`][magicgui.widgets.bases.ValueWidget.bind] for details. |
 
 Here is a demonstration of all these:
@@ -225,10 +225,10 @@ container.show()
 `CategoricalWidget` are [`ValueWidgets`](#valuewidget) that provide a set
 of valid choices.  They can be created from:
 
-- an [`enum.Enum`][]
+- an [`enum.Enum`][enum.Enum]
 - an iterable of objects (or an iterable of 2-tuples `(name, object)`)
-- a callable that returns an [`enum.Enum`][] or an iterable
-- a [`typing.Literal`][] annotation.
+- a callable that returns an [`enum.Enum`][enum.Enum] or an iterable
+- a [`typing.Literal`][typing.Literal] annotation.
 
 ::: autosummary
     magicgui.widgets.ComboBox
@@ -257,8 +257,8 @@ container.show()
 
 A `ContainerWidget` is a list-like `Widget` that can contain other widgets.
 Containers allow you to build more complex widgets from sub-widgets. A notable
-example of a `Container` is [`magicgui.widgets.FunctionGui`][]) (the product of
-the [`@magicgui`][magicgui.magicgui] decorator).
+example of a `Container` is [`magicgui.widgets.FunctionGui`][magicgui.widgets.FunctionGui])
+(the product of the [`@magicgui`][magicgui.magicgui] decorator).
 
 ::: autosummary
     magicgui.widgets.Container
@@ -271,8 +271,8 @@ the [`@magicgui`][magicgui.magicgui] decorator).
 | `widgets` | `Sequence[Widget]` | The widgets that the container contains. |
 | `labels` | `bool` | Whether each widget should be shown with a corresponding `Label` widget to the left.  Note: the text for each widget defaults to `widget.name`, but can be overridden by setting `widget.label`. |
 
-`Container` implements the full [`collections.abc.MutableSequence`][] interface.  You
-can add and remove widgets from it just as you would add or remove items from a list.
+`Container` implements the full [`collections.abc.MutableSequence`][collections.abc.MutableSequence] interface.
+You can add and remove widgets from it just as you would add or remove items from a list.
 
 ```python
 from magicgui.widgets import Container, Slider, FloatSlider, ProgressBar
@@ -293,7 +293,8 @@ bar.
 A `FunctionGui` is a special type of [`ContainerWidget`](#containerwidget)
 that is created from a function.  It is the product of the
 [`@magicgui`][magicgui.magicgui] decorator.  It is a container that contains a
-widget for each of the parameters in the function.  See [`magicgui.widgets.FunctionGui`][] for details.
+widget for each of the parameters in the function.
+See [`magicgui.widgets.FunctionGui`][magicgui.widgets.FunctionGui] for details.
 
 #### `@magicgui`
 

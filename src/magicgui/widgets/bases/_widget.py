@@ -366,7 +366,7 @@ class Widget:
         return self._widget._mgui_render()
 
     def __repr__(self) -> str:
-        """Return representation of widget of instsance."""
+        """Return representation of widget of instance."""
         return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
 
     def _repr_png_(self) -> bytes | None:
