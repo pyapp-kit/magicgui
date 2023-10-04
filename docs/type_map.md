@@ -64,12 +64,12 @@ wdg.show()
 ## Customizing Widget Options with `typing.Annotated`
 
 Widget options and types may be embedded in the type hint itself using
-[`typing.Annotated`][].
+[`typing.Annotated`][typing.Annotated].
 
 
 !!! note
     This is not the *only* way to customize the widget type or options
-    in magicgui.  Some functions (like [`magicgui.magicgui`][]) also accept
+    in magicgui.  Some functions (like [`magicgui.magicgui`][magicgui.magicgui]) also accept
     `**param_options` keyword arguments that map parameter names to
     dictionaries of widget options.
 
@@ -127,7 +127,7 @@ Create a widget using standard type map:
     my_widget = obj.gui
     ```
 
-Customize a widget using [`typing.Annotated`][]:
+Customize a widget using [`typing.Annotated`][typing.Annotated]:
 
 === "create_widget"
 
@@ -270,7 +270,7 @@ As a general rule, if you *must* use forward references or
 
 ## Registering Support for Custom Types
 
-Any third-party library may use the [`magicgui.register_type`][] function to
+Any third-party library may use the [`magicgui.register_type`][magicgui.register_type] function to
 register its types with magicgui.  When a registered type is used as an
 annotation, the registered widget will be used.
 
