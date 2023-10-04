@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import inspect
-from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,7 +19,6 @@ from psygnal import Signal
 from magicgui._util import debounce
 from magicgui.application import use_app
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
-from magicgui.widgets import protocols
 from magicgui.widgets.bases._mixins import _OrientationMixin
 
 from ._button_widget import ButtonWidget
@@ -29,7 +26,10 @@ from ._value_widget import ValueWidget
 from ._widget import Widget
 
 if TYPE_CHECKING:
-    from magicgui.widgets import Container
+    import inspect
+    from pathlib import Path
+
+    from magicgui.widgets import Container, protocols
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 
 
@@ -44,16 +44,18 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     (`container[0]`), as well as by widget name (`container.<widget_name>`). Widgets can
     be added with `append` or `insert`, and removed with `del` or `pop`, etc...
 
-    There is a tight connection between a `ContainerWidget` and an [inspect.Signature][]
-    object, just as there is a tight connection between individual [Widget` objects an
-    an :class:`inspect.Parameter][] object. The signature representation of a
-    `ContainerWidget` (with the current settings as default values) is accessible with
+    There is a tight connection between a `ContainerWidget` and an
+    [inspect.Signature][inspect.Signature] object,
+    just as there is a tight connection between individual [Widget` objects an
+    an :class:`inspect.Parameter][inspect.Parameter] object.
+    The signature representation of a `ContainerWidget`
+    (with the current settings as default values) is accessible with
     the :meth:`~ContainerWidget.__signature__` method (or by using
     :func:`inspect.signature` from the standard library)
 
     For a `ContainerWidget` subclass that is tightly coupled to a specific function
     signature (as in the "classic" magicgui decorator), see
-    [magicgui.widgets.FunctionGui][].
+    [magicgui.widgets.FunctionGui][magicgui.widgets.FunctionGui].
 
     Parameters
     ----------
@@ -72,7 +74,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         `widget.name`, but can be overridden by setting `widget.label`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     changed = Signal(
@@ -81,6 +83,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     )
     _widget: protocols.ContainerProtocol
     _initialized = False
+    # this is janky ... it's here to allow connections during __init__ by
+    # avoiding a recursion error in __getattr__
+    _list: list[WidgetVar] = []  # noqa: RUF012
 
     def __init__(
         self,
@@ -107,7 +112,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
     def __getattr__(self, name: str) -> WidgetVar:
         """Return attribute ``name``.  Will return a widget if present."""
-        for widget in self:
+        for widget in self._list:
             if name == widget.name:
                 return widget
         return object.__getattribute__(self, name)  # type: ignore
@@ -115,7 +120,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     def __setattr__(self, name: str, value: Any) -> None:
         """Set attribute ``name``.  Prevents changing widget if present, (use del)."""
         if self._initialized:
-            for widget in self:
+            for widget in self._list:
                 if name == widget.name:
                     raise AttributeError(
                         "Cannot set attribute with same name as a widget\n"
@@ -183,12 +188,12 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
     def __setitem__(self, key: Any, value: Any) -> NoReturn:
         """Prevent assignment by index."""
-        raise NotImplementedError("magicgui.Container does not support item setting.")
+        raise RuntimeError("magicgui.Container does not support item setting.")
 
     def __dir__(self) -> list[str]:
         """Add subwidget names to the dir() call for this widget."""
         d = list(super().__dir__())
-        d.extend([w.name for w in self if not w.gui_only])
+        d.extend([w.name for w in self._list if not w.gui_only])
         return d
 
     def insert(self, key: int, widget: WidgetVar) -> None:
@@ -217,7 +222,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         if not self._initialized:
             return
 
-        need_labels = [w for w in self if not isinstance(w, ButtonWidget)]
+        need_labels = [w for w in self._list if not isinstance(w, ButtonWidget)]
         if self.layout == "vertical" and self.labels and need_labels:
             measure = use_app().get_obj("get_text_width")
             widest_label = max(measure(w.label) for w in need_labels)
@@ -254,7 +259,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         choices as when the widget was instantiated, if the callable relies on external
         state.
         """
-        for widget in self:
+        for widget in self._list:
             if hasattr(widget, "reset_choices"):
                 widget.reset_choices()
 
@@ -262,7 +267,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     def __signature__(self) -> MagicSignature:
         """Return a MagicSignature object representing the current state of the gui."""
         params = [
-            MagicParameter.from_widget(w) for w in self if w.name and not w.gui_only
+            MagicParameter.from_widget(w)
+            for w in self._list
+            if w.name and not w.gui_only
         ]
         # if we have multiple non-default parameters and some but not all of them are
         # "bound" to fallback values, we may have  non-default arguments
@@ -315,7 +322,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     def asdict(self) -> dict[str, Any]:
         """Return state of widget as dict."""
         return {
-            w.name: getattr(w, "value", None) for w in self if w.name and not w.gui_only
+            w.name: getattr(w, "value", None)
+            for w in self._list
+            if w.name and not w.gui_only
         }
 
     def update(
@@ -342,7 +351,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         _dict = {}
-        for widget in self:
+        for widget in self._list:
             try:
                 # not all values will be pickleable and restorable...
                 # for now, don't even try

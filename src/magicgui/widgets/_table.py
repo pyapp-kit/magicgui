@@ -27,12 +27,13 @@ from warnings import warn
 from magicgui.application import use_app
 from magicgui.widgets.bases._mixins import _ReadOnlyMixin
 from magicgui.widgets.bases._value_widget import ValueWidget
-from magicgui.widgets.protocols import TableWidgetProtocol
 
 if TYPE_CHECKING:
     import numpy
     import pandas
     from typing_extensions import TypeGuard
+
+    from magicgui.widgets.protocols import TableWidgetProtocol
 TblKey = Any
 _KT = TypeVar("_KT")  # Key type
 _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
@@ -159,8 +160,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         ``tuple(range(len(data[0])))``.  Values provided here override any implied in
         ``value``.
     **kwargs
-        Additional kwargs will be passed to the [magicgui.widgets.Widget][]
-        constructor.
+        Additional kwargs will be passed to the
+        [magicgui.widgets.Widget][magicgui.widgets.Widget] constructor.
 
     Attributes
     ----------
@@ -204,7 +205,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         Emitted whenever a cell in the table changes. The value will have a
         dict of information regarding the cell that changed:
         {'data': x, 'row': int, 'column': int, 'column_header': str, 'row_header': str}
-        CURRENTLY: only emitted on changes in the GUI. not programattic changes.
+        CURRENTLY: only emitted on changes in the GUI. not programmatic changes.
     """
 
     _widget: TableWidgetProtocol
@@ -536,10 +537,16 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         row_head = self.row_headers
         nrows, ncols = self.shape
         if _contains_duplicates(col_head):
-            warn("Table column headers are not unique, some columns will be omitted.")
+            warn(
+                "Table column headers are not unique, some columns will be omitted.",
+                stacklevel=2,
+            )
         if orient == "dict":
             if _contains_duplicates(row_head):
-                warn("Table row headers are not unique, some rows will be omitted.")
+                warn(
+                    "Table row headers are not unique, some rows will be omitted.",
+                    stacklevel=2,
+                )
             return {
                 col_head[c]: {row_head[r]: self._get_cell(r, c) for r in range(nrows)}
                 for c in range(ncols)
@@ -555,7 +562,10 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             ]
         if orient == "index":
             if _contains_duplicates(row_head):
-                warn("Table row headers are not unique, some rows will be omitted.")
+                warn(
+                    "Table row headers are not unique, some rows will be omitted.",
+                    stacklevel=2,
+                )
             return {
                 row_head[r]: {col_head[c]: self._get_cell(r, c) for c in range(ncols)}
                 for r in range(nrows)
@@ -752,7 +762,7 @@ def _from_dict(data: dict) -> tuple[list[list], list, list]:
     if set(data) == {"data", "index", "columns"}:
         return data["data"], data["index"], data["columns"]
     columns = list(data)
-    if isinstance(list(data.values())[0], dict):
+    if isinstance(next(iter(data.values())), dict):
         _data, index = _from_nested_column_dict(data)
     else:
         try:
@@ -806,6 +816,7 @@ def _validate_table_data(
         warn(
             f"Shape of passed values is ({nr}, {nc}), "
             f"headers imply ({len(index) if index else 1}, {len(column)}). "
-            "Data will be truncated."
+            "Data will be truncated.",
+            stacklevel=2,
         )
     return None

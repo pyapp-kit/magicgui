@@ -10,7 +10,6 @@ from psygnal import Signal
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
-from magicgui.widgets.protocols import WidgetProtocol
 
 if TYPE_CHECKING:
     from weakref import ReferenceType
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     import numpy as np
 
     from magicgui.widgets._concrete import _LabeledWidget
+    from magicgui.widgets.protocols import WidgetProtocol
 
 
 class Widget:
@@ -366,7 +366,7 @@ class Widget:
         return self._widget._mgui_render()
 
     def __repr__(self) -> str:
-        """Return representation of widget of instsance."""
+        """Return representation of widget of instance."""
         return f"{self.widget_type}(annotation={self.annotation!r}, name={self.name!r})"
 
     def _repr_png_(self) -> bytes | None:

@@ -71,7 +71,7 @@ dataclasses simply by annotating them with standard python
 
 #### `create_widget`
 
-[`magicgui.widgets.create_widget`][] is a general function, used throughout the library, that allows you to create a widget for a specific Python type or value:
+[`magicgui.widgets.create_widget`][magicgui.widgets.create_widget] is a general function, used throughout the library, that allows you to create a widget for a specific Python type or value:
 
 ```python
 from magicgui.widgets import create_widget
@@ -92,7 +92,7 @@ For more details on how magicgui maps types to widgets, see
 
 #### magicgui
 
-The [`magicgui.magicgui`][] function is one way to
+The [`magicgui.magicgui`][magicgui.magicgui] function is one way to
 autogenerate a compound Widget based on the parameters of a function:
 
 ```python
@@ -124,8 +124,8 @@ decorators](decorators.md) page.
 
 #### :material-flask-outline: guiclass
 
-[`magicgui.experimental.guiclass`][] is a newer experimental feature that provides an object-oriented
-alternative to `magicgui`.  It wraps [`dataclasses.dataclass`][] and adds a
+[`magicgui.experimental.guiclass`][magicgui.experimental.guiclass] is a newer experimental feature that provides an object-oriented
+alternative to `magicgui`.  It wraps [`dataclasses.dataclass`][dataclasses.dataclass] and adds a
 `gui` attribute to the resulting class, which is a `magicgui`-generated widget
 that can be used to control the dataclass instance.  (The widget is only created
 when the `gui` attribute is accessed for the first time.)

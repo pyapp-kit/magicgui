@@ -46,7 +46,7 @@ def magicgui(
 
 @overload
 def magicgui(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
@@ -86,7 +86,7 @@ def magicgui(
 
 @overload
 def magicgui(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
@@ -227,7 +227,7 @@ def magic_factory(
 
 @overload
 def magic_factory(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
@@ -269,7 +269,7 @@ def magic_factory(
 
 @overload
 def magic_factory(
-    function: Literal[None] = None,
+    function: Literal[None] | None = None,
     *,
     layout: str = "horizontal",
     scrollable: bool = False,
@@ -313,7 +313,8 @@ def magic_factory(
     1. Whereas `magicgui` returns a `FunctionGui` instance, `magic_factory` returns a
        callable that returns a `FunctionGui` instance.  (Technically, it returns an
        instance of [`MagicFactory`][magicgui.type_map._magicgui.MagicFactory] which you
-       behaves exactly like a [`functools.partial`][] for a `FunctionGui` instance.)
+       behaves exactly like a [`functools.partial`][functools.partial]
+       for a `FunctionGui` instance.)
     2. `magic_factory` adds a `widget_init` method: a callable that will be called
         immediately after the `FunctionGui` instance is created.  This can be used to
         add additional widgets to the layout, or to connect signals to the widgets.
@@ -418,7 +419,7 @@ class MagicFactory(partial, Generic[_R, _T]):
     """Factory function that returns a FunctionGui instance.
 
     While this can be used directly, (see example below) the preferred usage is
-    via the [`magicgui.magic_factory`][] decorator.
+    via the [`magicgui.magic_factory`][magicgui.magic_factory] decorator.
 
     Examples
     --------

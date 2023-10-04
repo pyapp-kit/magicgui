@@ -19,10 +19,10 @@ from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 
 from typing_extensions import Annotated, get_args, get_origin
 
-from magicgui.application import AppRef
 from magicgui.types import Undefined
 
 if TYPE_CHECKING:
+    from magicgui.application import AppRef
     from magicgui.widgets import Container, Widget
 TZ_EMPTY = "__no__default__"
 
@@ -54,8 +54,16 @@ def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
     _options = (options or {}).copy()
 
     if get_origin(annotation) is Annotated:
-        annotation, anno_options = get_args(annotation)
-        _options.update(anno_options)
+        # nested Annotated type results in multiple dicts.
+        annotation, *anno_options = get_args(annotation)
+        for opt in anno_options:
+            try:
+                _opt = dict(opt)
+            except (TypeError, ValueError) as e:
+                raise TypeError(
+                    f"Every item in Annotated must be castable to a dict, got: {opt!r}"
+                ) from e
+            _options.update(_opt)
     return Annotated[annotation, _options]
 
 

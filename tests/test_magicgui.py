@@ -4,6 +4,8 @@
 
 import inspect
 from enum import Enum
+from typing import NewType, Optional
+from unittest.mock import Mock
 
 import pytest
 from qtpy.QtCore import Qt
@@ -51,7 +53,7 @@ def test_magicgui(magic_func):
     # we can delete widgets
     del magic_func.a
     with pytest.raises(AttributeError):
-        magic_func.a
+        _ = magic_func.a
 
     # they disappear from the layout
     with pytest.raises(ValueError):
@@ -351,7 +353,7 @@ def test_get_choices_raises():
         pass
 
     with pytest.raises(AttributeError):
-        func.hi.choices
+        _ = func.hi.choices
 
     assert func.mood.choices == (1, 2, 3)
 
@@ -878,3 +880,24 @@ def test_unknown_exception_create_widget():
     assert isinstance(
         widgets.create_widget(A, raise_on_unknown=False), widgets.EmptyWidget
     )
+
+
+@pytest.mark.parametrize("optional", [True, False])
+def test_call_union_return_type(optional: bool):
+    """registering Optional[type] should imply registering"""
+    mock = Mock()
+
+    NewInt = NewType("NewInt", int)
+    register_type(Optional[NewInt], return_callback=mock)
+
+    ReturnType = Optional[NewInt] if optional else NewInt
+
+    @magicgui
+    def func_optional(a: bool) -> ReturnType:
+        return NewInt(1) if a else None
+
+    func_optional(a=True)
+    mock.assert_called_once_with(func_optional, 1, ReturnType)
+    mock.reset_mock()
+    func_optional(a=False)
+    mock.assert_called_once_with(func_optional, None, ReturnType)

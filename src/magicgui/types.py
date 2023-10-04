@@ -21,7 +21,7 @@ class ChoicesDict(TypedDict):
 
 
 #: A [`Widget`][magicgui.widgets.Widget] class or a
-#: [~magicgui.widgets.protocols.WidgetProtocol][]
+#: [`WidgetProtocol`][magicgui.widgets.protocols.WidgetProtocol]
 WidgetClass = Union["type[Widget]", "type[WidgetProtocol]"]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
@@ -35,8 +35,9 @@ ChoicesCallback = Callable[["CategoricalWidget[Any]"], ChoicesIterable]
 #: The set of all valid types for widget ``choices``.
 ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, ChoicesDict]
 #: A callback that may be registered for a given return annotation. When called, it will
-#: be provided an instance of a [~magicgui.widgets.FunctionGui][], the result
-#: of the function that was called, and the return annotation itself.
+#: be provided an instance of a
+#: [~magicgui.widgets.FunctionGui][magicgui.widgets.FunctionGui],
+#: the result of the function that was called, and the return annotation itself.
 ReturnCallback = Callable[["FunctionGui[Any]", Any, type], None]
 #: A valid file path type
 PathLike = Union[Path, str, bytes]
@@ -119,6 +120,7 @@ def __getattr__(name: str) -> Any:
             "magicgui.types.WidgetOptions is being removed. Use `dict` instead, "
             "and restrict import to a TYPE_CHECKING clause.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return dict
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

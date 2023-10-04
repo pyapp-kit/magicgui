@@ -14,7 +14,6 @@ from enum import EnumMeta
 from typing import (
     Any,
     Callable,
-    DefaultDict,
     Dict,
     ForwardRef,
     Iterator,
@@ -50,7 +49,7 @@ class MissingWidget(RuntimeError):
     """Raised when a backend widget cannot be found."""
 
 
-_RETURN_CALLBACKS: DefaultDict[type, list[ReturnCallback]] = defaultdict(list)
+_RETURN_CALLBACKS: defaultdict[type, list[ReturnCallback]] = defaultdict(list)
 _TYPE_DEFS: dict[type, WidgetTuple] = {}
 
 
@@ -94,14 +93,8 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
         return widgets.FunctionGui, {"function": default}
 
     origin = get_origin(type_) or type_
-    if origin is Literal:
-        choices = []
-        nullable = False
-        for choice in get_args(type_):
-            if choice is None:
-                nullable = True
-            else:
-                choices.append(choice)
+    choices, nullable = _literal_choices(type_)
+    if choices is not None:  # it's a Literal type
         return widgets.ComboBox, {"choices": choices, "nullable": nullable}
 
     # sequence of paths
@@ -194,6 +187,24 @@ def _type_optional(
     return type_, nullable
 
 
+def _literal_choices(annotation: Any) -> tuple[list | None, bool]:
+    """Return choices and nullable for a Literal type.
+
+    if annotation is not a Literal type, returns (None, False)
+    """
+    origin = get_origin(annotation) or annotation
+    choices: list | None = None
+    nullable = False
+    if origin is Literal:
+        choices = []
+        for choice in get_args(annotation):
+            if choice is None:
+                nullable = True
+            else:
+                choices.append(choice)
+    return choices, nullable
+
+
 def _pick_widget_type(
     value: Any = Undefined,
     annotation: Any = Undefined,
@@ -220,6 +231,10 @@ def _pick_widget_type(
     _type, optional = _type_optional(value, annotation)
     options.setdefault("nullable", optional)
     choices = choices or (isinstance(_type, EnumMeta) and _type)
+    literal_choices, nullable = _literal_choices(annotation)
+    if literal_choices is not None:
+        choices = literal_choices
+        options["nullable"] = nullable
 
     if "widget_type" in options:
         widget_type = options.pop("widget_type")
@@ -263,7 +278,8 @@ def _pick_widget_type(
             f"No widget found for type {_type} and annotation {annotation!r}"
         )
 
-    return widgets.EmptyWidget, {"visible": False}
+    options["visible"] = False
+    return widgets.EmptyWidget, options
 
 
 def _split_annotated_type(annotation: Any) -> tuple[Any, dict]:
@@ -288,7 +304,7 @@ def get_widget_class(
     is_result: bool = False,
     raise_on_unknown: bool = True,
 ) -> tuple[WidgetClass, dict]:
-    """Return a [magicgui.widgets.Widget][] subclass for the given `value`/`annotation`.
+    """Return a [Widget][magicgui.widgets.Widget] subclass for the `value`/`annotation`.
 
     Parameters
     ----------
@@ -363,7 +379,7 @@ def register_type(
 
 @overload
 def register_type(
-    type_: Literal[None] = None,
+    type_: Literal[None] | None = None,
     *,
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
@@ -380,6 +396,9 @@ def register_type(
     **options: Any,
 ) -> _T | Callable[[_T], _T]:
     """Register a ``widget_type`` to be used for all parameters with type ``type_``.
+
+    Note: registering a Union (or Optional) type effectively registers all types in
+    the union with the arguments.
 
     Parameters
     ----------
@@ -417,20 +436,26 @@ def register_type(
         )
 
     def _deco(type_: _T) -> _T:
-        _type_ = resolve_single_type(type_)
-
+        resolved_type = resolve_single_type(type_)
         if return_callback is not None:
             _validate_return_callback(return_callback)
-            _RETURN_CALLBACKS[_type_].append(return_callback)
+            # if the type is a Union, add the callback to all of the types in the union
+            # (except NoneType)
+            if get_origin(resolved_type) is Union:
+                for t in get_args(resolved_type):
+                    if not _is_none_type(t):
+                        _RETURN_CALLBACKS[t].append(return_callback)
+            else:
+                _RETURN_CALLBACKS[resolved_type].append(return_callback)
 
         _options = cast(dict, options)
 
         if "choices" in _options:
-            _TYPE_DEFS[_type_] = (widgets.ComboBox, _options)
+            _TYPE_DEFS[resolved_type] = (widgets.ComboBox, _options)
             if widget_type is not None:
                 warnings.warn(
                     "Providing `choices` overrides `widget_type`. Categorical widget "
-                    f"will be used for type {_type_}",
+                    f"will be used for type {resolved_type}",
                     stacklevel=2,
                 )
         elif widget_type is not None:
@@ -441,11 +466,11 @@ def register_type(
                     '"widget_type" must be either a string, WidgetProtocol, or '
                     "Widget subclass"
                 )
-            _TYPE_DEFS[_type_] = (widget_type, _options)
+            _TYPE_DEFS[resolved_type] = (widget_type, _options)
         elif "bind" in _options:
             # if we're binding a value to this parameter, it doesn't matter what type
             # of ValueWidget is used... it usually won't be shown
-            _TYPE_DEFS[_type_] = (widgets.EmptyWidget, _options)
+            _TYPE_DEFS[resolved_type] = (widgets.EmptyWidget, _options)
         return type_
 
     return _deco if type_ is None else _deco(type_)
@@ -480,34 +505,40 @@ def type_registered(
     options
         key value pairs where the keys are valid `dict`
     """
-    _type_ = resolve_single_type(type_)
+    resolved_type = resolve_single_type(type_)
 
     # check if return_callback is already registered
-    rc_was_present = return_callback in _RETURN_CALLBACKS.get(_type_, [])
+    rc_was_present = return_callback in _RETURN_CALLBACKS.get(resolved_type, [])
     # store any previous widget_type and options for this type
-    prev_type_def: WidgetTuple | None = _TYPE_DEFS.get(_type_, None)
-    _type_ = register_type(
-        _type_, widget_type=widget_type, return_callback=return_callback, **options
+    prev_type_def: WidgetTuple | None = _TYPE_DEFS.get(resolved_type, None)
+    resolved_type = register_type(
+        resolved_type,
+        widget_type=widget_type,
+        return_callback=return_callback,
+        **options,
     )
-    new_type_def: WidgetTuple | None = _TYPE_DEFS.get(_type_, None)
+    new_type_def: WidgetTuple | None = _TYPE_DEFS.get(resolved_type, None)
     try:
         yield
     finally:
         # restore things to before the context
         if return_callback is not None and not rc_was_present:
-            _RETURN_CALLBACKS[_type_].remove(return_callback)
+            _RETURN_CALLBACKS[resolved_type].remove(return_callback)
 
-        if _TYPE_DEFS.get(_type_, None) is not new_type_def:
+        if _TYPE_DEFS.get(resolved_type, None) is not new_type_def:
             warnings.warn("Type definition changed during context", stacklevel=2)
 
         if prev_type_def is not None:
-            _TYPE_DEFS[_type_] = prev_type_def
+            _TYPE_DEFS[resolved_type] = prev_type_def
         else:
-            _TYPE_DEFS.pop(_type_, None)
+            _TYPE_DEFS.pop(resolved_type, None)
 
 
 def type2callback(type_: type) -> list[ReturnCallback]:
     """Return any callbacks that have been registered for ``type_``.
+
+    Note that if the return type is X, then the callbacks registered for Optional[X]
+    will be returned also be returned.
 
     Parameters
     ----------
@@ -522,8 +553,9 @@ def type2callback(type_: type) -> list[ReturnCallback]:
     if type_ is inspect.Parameter.empty:
         return []
 
-    # look for direct hits
-    type_ = resolve_single_type(type_)
+    # look for direct hits ...
+    # if it's an Optional, we need to look for the type inside the Optional
+    _, type_ = _is_optional(resolve_single_type(type_))
     if type_ in _RETURN_CALLBACKS:
         return _RETURN_CALLBACKS[type_]
 
@@ -532,3 +564,12 @@ def type2callback(type_: type) -> list[ReturnCallback]:
         if safe_issubclass(type_, registered_type):
             return _RETURN_CALLBACKS[registered_type]
     return []
+
+
+def _is_optional(type_: Any) -> tuple[bool, type]:
+    # TODO: this function is too similar to _type_optional above... need to combine
+    if get_origin(type_) is Union:
+        args = get_args(type_)
+        if len(args) == 2 and any(_is_none_type(i) for i in args):
+            return True, next(i for i in args if not _is_none_type(i))
+    return False, type_

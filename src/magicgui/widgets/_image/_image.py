@@ -170,7 +170,7 @@ class Image(ValueWidget):
         self._widget._mgui_set_value(self._image.make_image())
 
     def __repr__(self) -> str:
-        """Return representation of widget of instsance."""
+        """Return representation of widget of instance."""
         d = self.image_data
         shape = "x".join(map(str, d.shape)) if d is not None else "<no data>"
         return f"{self.widget_type}({shape}, name={self.name!r})"

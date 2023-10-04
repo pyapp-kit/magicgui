@@ -26,6 +26,7 @@ from qtpy.QtGui import (
 
 from magicgui.types import FileDialogMode
 from magicgui.widgets import Widget, protocols
+from magicgui.widgets._concrete import _LabeledWidget
 
 if TYPE_CHECKING:
     import numpy
@@ -82,9 +83,18 @@ class QBaseWidget(protocols.WidgetProtocol):
     def _mgui_set_enabled(self, enabled: bool) -> None:
         self._qwidget.setEnabled(enabled)
 
-    # TODO: this used to return _magic_widget ... figure out what we should be returning
-    def _mgui_get_parent(self) -> QObject | None:  # type: ignore
-        return self._qwidget.parent()
+    def _mgui_get_parent(self) -> Widget | None:
+        par = self._qwidget.parent()
+        # FIXME: This whole thing is hacky.
+        while par is not None:
+            mgui_wdg = getattr(par, "_magic_widget", None)
+            # the labeled widget itself should be considered a "hidden" layer.
+            if isinstance(mgui_wdg, Widget) and not isinstance(
+                mgui_wdg, _LabeledWidget
+            ):
+                return mgui_wdg
+            par = par.parent()
+        return None
 
     def _mgui_set_parent(self, widget: Widget) -> None:
         self._qwidget.setParent(widget.native if widget else None)
@@ -288,7 +298,7 @@ class Image(QBaseValueWidget):
             )
 
     def _mgui_set_value(self, val: np.ndarray) -> None:
-        image = QImage(val, val.shape[1], val.shape[0], QImage.Format.Format_RGBA8888)  # type: ignore  # noqa: E501
+        image = QImage(val, val.shape[1], val.shape[0], QImage.Format.Format_RGBA8888)  # type: ignore
         self._pixmap = QPixmap.fromImage(image)
         self._rescale()
 
@@ -348,7 +358,7 @@ class TextEdit(QBaseStringWidget, protocols.SupportsReadOnly):
 class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
     """Provides min/max/step implementations."""
 
-    _qwidget: QtW.QDoubleSpinBox | QtW.QSpinBox | QtW.QAbstractSlider
+    _qwidget: QtW.QDoubleSpinBox | superqt.QLargeIntSpinBox | QtW.QAbstractSlider
     _precision: float = 1
 
     def __init__(self, qwidg: type[QtW.QWidget], **kwargs: Any) -> None:
@@ -566,7 +576,8 @@ class MainWindow(Container):
 
 class SpinBox(QBaseRangedWidget):
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__(QtW.QSpinBox, **kwargs)
+        # TODO: Consider any performance impace of this widget over a QSpinBox
+        super().__init__(superqt.QLargeIntSpinBox, **kwargs)
 
     def _mgui_set_value(self, value) -> None:
         super()._mgui_set_value(int(value))
@@ -637,7 +648,8 @@ class _Slider(QBaseRangedWidget, protocols.SupportsOrientation):
 
 class Slider(_Slider):
     _qwidget: QtW.QSlider
-    _readout = QtW.QSpinBox
+    # TODO: Consider any performance impace of this widget over a QSpinBox
+    _readout = superqt.QLargeIntSpinBox
 
     def __init__(self, qwidg=QtW.QSlider, **kwargs: Any) -> None:
         self._container = QtW.QWidget()
@@ -790,7 +802,7 @@ class RangeSlider(_Slider):
             ):
                 getattr(label, method)()
         except AttributeError as e:
-            warnings.warn(str(e))
+            warnings.warn(str(e), stacklevel=2)
 
     def _mgui_set_adaptive_step(self, value: bool):
         pass
@@ -1272,7 +1284,8 @@ class _QTableExtended(QtW.QTableWidget):
 
             warnings.warn(
                 "Multiple table selections detected: "
-                "only the first (upper left) selection will be copied"
+                "only the first (upper left) selection will be copied",
+                stacklevel=2,
             )
 
         # copy first selection range

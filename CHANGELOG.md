@@ -1,8 +1,62 @@
 # Changelog
 
-## [0.7.0](https://github.com/pyapp-kit/magicgui/tree/0.7.0) (2023-02-24)
+## [v0.7.3](https://github.com/pyapp-kit/magicgui/tree/v0.7.3) (2023-08-12)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc0...0.7.0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.2...v0.7.3)
+
+**Implemented enhancements:**
+
+- Replace QSpinBox with QLargeIntSpinBox [\#572](https://github.com/pyapp-kit/magicgui/pull/572) ([gselzer](https://github.com/gselzer))
+- feat: support Pydantic2 \(as well as Pydantic1\) [\#570](https://github.com/pyapp-kit/magicgui/pull/570) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- Update `choices` setter for categorical widget to ensure `_default_choices` are updated when a `callable` choices is passed [\#563](https://github.com/pyapp-kit/magicgui/pull/563) ([jamesyan-git](https://github.com/jamesyan-git))
+- Fix bind when annotating with unknown type [\#560](https://github.com/pyapp-kit/magicgui/pull/560) ([tlambert03](https://github.com/tlambert03))
+- fix: fix binding of non ValueWidgets in guiclass [\#556](https://github.com/pyapp-kit/magicgui/pull/556) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- test:skip ubuntu py39 pyqt [\#574](https://github.com/pyapp-kit/magicgui/pull/574) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: use pyqt6 for dev extra [\#569](https://github.com/pyapp-kit/magicgui/pull/569) ([tlambert03](https://github.com/tlambert03))
+- ci\(dependabot\): bump tlambert03/setup-qt-libs from 1.4 to 1.5 [\#552](https://github.com/pyapp-kit/magicgui/pull/552) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(pre-commit.ci\): autoupdate [\#551](https://github.com/pyapp-kit/magicgui/pull/551) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- Change exception to not confuse static code checkers [\#550](https://github.com/pyapp-kit/magicgui/pull/550) ([Czaki](https://github.com/Czaki))
+- ci: use headless-gui instead of xvfb-action [\#549](https://github.com/pyapp-kit/magicgui/pull/549) ([tlambert03](https://github.com/tlambert03))
+- chore: pre-commit autoupdate [\#548](https://github.com/pyapp-kit/magicgui/pull/548) ([tlambert03](https://github.com/tlambert03))
+- feat: Register all types in a Union when passed to return\_callback [\#544](https://github.com/pyapp-kit/magicgui/pull/544) ([tlambert03](https://github.com/tlambert03))
+- ci\(pre-commit.ci\): autoupdate [\#542](https://github.com/pyapp-kit/magicgui/pull/542) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
+## [v0.7.2](https://github.com/pyapp-kit/magicgui/tree/v0.7.2) (2023-03-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.1...v0.7.2)
+
+**Fixed bugs:**
+
+- fix: accept any Annotated options that are castable to a dict [\#540](https://github.com/pyapp-kit/magicgui/pull/540) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.7.1](https://github.com/pyapp-kit/magicgui/tree/v0.7.1) (2023-03-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0...v0.7.1)
+
+**Fixed bugs:**
+
+- Fix recursion error when connecting to container self.method during subclass init  [\#539](https://github.com/pyapp-kit/magicgui/pull/539) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.7.0](https://github.com/pyapp-kit/magicgui/tree/v0.7.0) (2023-02-27)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc1...v0.7.0)
+
+**Fixed bugs:**
+
+- fix: Support nested `Annotated` types [\#536](https://github.com/pyapp-kit/magicgui/pull/536) ([hanjinliu](https://github.com/hanjinliu))
+
+## [v0.7.0.rc1](https://github.com/pyapp-kit/magicgui/tree/v0.7.0.rc1) (2023-02-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.0.rc0...v0.7.0.rc1)
 
 **Implemented enhancements:**
 
@@ -651,7 +705,7 @@
 
 ## [v0.2.0](https://github.com/pyapp-kit/magicgui/tree/v0.2.0) (2020-12-26)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6...v0.2.0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6rc0...v0.2.0)
 
 **Merged pull requests:**
 
@@ -668,13 +722,13 @@
 - Drop support for python 3.6 [\#42](https://github.com/pyapp-kit/magicgui/pull/42) ([tlambert03](https://github.com/tlambert03))
 - Add \(slightly\) strict mypy checking [\#41](https://github.com/pyapp-kit/magicgui/pull/41) ([tlambert03](https://github.com/tlambert03))
 
-## [v0.1.6](https://github.com/pyapp-kit/magicgui/tree/v0.1.6) (2020-07-23)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6rc0...v0.1.6)
-
 ## [v0.1.6rc0](https://github.com/pyapp-kit/magicgui/tree/v0.1.6rc0) (2020-07-23)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.5...v0.1.6rc0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6...v0.1.6rc0)
+
+## [v0.1.6](https://github.com/pyapp-kit/magicgui/tree/v0.1.6) (2020-07-23)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.5...v0.1.6)
 
 **Merged pull requests:**
 

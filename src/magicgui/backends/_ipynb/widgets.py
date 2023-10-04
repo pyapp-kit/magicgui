@@ -59,7 +59,10 @@ class _IPyWidget(protocols.WidgetProtocol):
 
     def _mgui_get_parent(self):
         # TODO: how does ipywidgets handle this?
-        return getattr(self._ipywidget, "parent", None)
+        # return getattr(self._ipywidget, "parent", None)
+        raise NotImplementedError(
+            "parent not implemented for ipywidgets backend.  Please open an issue"
+        )
 
     def _mgui_set_parent(self, widget):
         # TODO: how does ipywidgets handle this?

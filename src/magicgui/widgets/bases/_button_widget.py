@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from psygnal import Signal, SignalInstance
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._value_widget import ValueWidget
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 
 class ButtonWidget(ValueWidget[bool]):
@@ -31,7 +33,7 @@ class ButtonWidget(ValueWidget[bool]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.ButtonWidgetProtocol
@@ -55,7 +57,8 @@ class ButtonWidget(ValueWidget[bool]):
 
             warn(
                 "'text' and 'label' are synonymous for button widgets. To suppress this"
-                " warning, only provide one of the two kwargs."
+                " warning, only provide one of the two kwargs.",
+                stacklevel=2,
             )
         text = text or base_widget_kwargs.get("label")
         # TODO: make a backend hook that lets backends inject their optional API

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from enum import Enum, EnumMeta
-from typing import Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 from magicgui.types import ChoicesType, Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._value_widget import T, ValueWidget
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 
 class CategoricalWidget(ValueWidget[T]):
@@ -28,7 +30,7 @@ class CategoricalWidget(ValueWidget[T]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.CategoricalWidgetProtocol
@@ -125,7 +127,7 @@ class CategoricalWidget(ValueWidget[T]):
 
     @choices.setter
     def choices(self, choices: ChoicesType) -> None:
-        str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str  # type: ignore  # noqa: E501
+        str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str  # type: ignore
         if isinstance(choices, dict):
             if "choices" not in choices or "key" not in choices:
                 raise ValueError(
@@ -137,7 +139,9 @@ class CategoricalWidget(ValueWidget[T]):
             str_func = choices["key"]
         elif not isinstance(choices, EnumMeta) and callable(choices):
             _choices = choices(self)
-
+            # ensure that when setting choices with a callable,
+            # the default choices are also updated with that callable
+            self._default_choices = choices
         else:
             _choices = choices
 

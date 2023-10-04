@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Tuple, Union
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._mixins import _OrientationMixin
 from ._ranged_widget import MultiValueRangedWidget, RangedWidget, T
 
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
+
 
 class SliderWidget(RangedWidget[T], _OrientationMixin):
-    """Widget with a contstrained value and orientation. Wraps SliderWidgetProtocol.
+    """Widget with a constrained value and orientation. Wraps SliderWidgetProtocol.
 
     Parameters
     ----------
@@ -42,7 +44,7 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.SliderWidgetProtocol

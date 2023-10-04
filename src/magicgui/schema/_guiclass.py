@@ -13,7 +13,7 @@ import warnings
 from dataclasses import Field, dataclass, field, is_dataclass
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
 
-from psygnal import SignalGroup, evented
+from psygnal import SignalGroup, SignalInstance, evented
 from psygnal import __version__ as psygnal_version
 
 from magicgui.schema._ui_field import build_widget
@@ -264,26 +264,35 @@ def bind_gui_to_instance(
         warnings.simplefilter("ignore", category=RuntimeWarning)
 
         for widget in gui:
+            # would be cleaner to check isinstance(widget, ValueWidget)... but a few
+            # widgets (like FileEdit) are not ValueWidgets, but still have a `changed`
+            # signal and a value method. So for now we just check for the protocol.
+            changed = getattr(widget, "changed", None)
+
             # we skip PushButton here, otherwise we will set the value of the
             # button (a boolean) to some attribute on the instance, which is probably
             # not what we want.
-            if isinstance(widget, ValueWidget) and not isinstance(widget, PushButton):
+            if isinstance(changed, SignalInstance) and not isinstance(
+                widget, PushButton
+            ):
+                name: str = getattr(widget, "name", "")
                 # connect changes in the widget to the instance
-                if hasattr(instance, widget.name):
+                if hasattr(instance, name):
                     try:
-                        widget.changed.connect_setattr(
-                            instance, widget.name, **_IGNORE_REF_ERR  # type: ignore
+                        changed.connect_setattr(
+                            instance, name, **_IGNORE_REF_ERR  # type: ignore
                         )
                     except TypeError:
                         warnings.warn(
-                            f"Could not bind {widget.name} to {instance}. "
+                            f"Could not bind {name} to {instance}. "
                             "This may be because the instance has __slots__ or "
-                            "other attribute restrictions. Please update psygnal."
+                            "other attribute restrictions. Please update psygnal.",
+                            stacklevel=2,
                         )
 
                 # connect changes from the instance to the widget
-                if widget.name in signals:
-                    signals[widget.name].connect_setattr(widget, "value")
+                if name in signals:
+                    signals[name].connect_setattr(widget, "value")
 
 
 def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:

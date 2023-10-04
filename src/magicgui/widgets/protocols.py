@@ -1,8 +1,9 @@
 """Protocols (interfaces) for backends to implement.
 
-Each class in this module is a [typing.Protocol][] that specifies a set of
-:func:`~abc.abstractmethod` that a backend widget must implement to be compatible with
-the magicgui API.  All magicgui-specific abstract methods are prefaced with ``_mgui_*``.
+Each class in this module is a [typing.Protocol][typing.Protocol] that specifies
+a set of :func:`~abc.abstractmethod` that a backend widget must implement
+to be compatible with the magicgui API.
+All magicgui-specific abstract methods are prefaced with ``_mgui_*``.
 
 For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 """

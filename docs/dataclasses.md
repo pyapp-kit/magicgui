@@ -64,14 +64,14 @@ library.
 
 **magicgui** supports the dataclass API as a way to define the interface for compound
 widget, where each attribute of the dataclass is a separate widget.  The
-[`magicgui.experimental.guiclass`][] decorator can be used to mark a class
+[`magicgui.experimental.guiclass`][magicgui.experimental.guiclass] decorator can be used to mark a class
 as a "GUI class".  A GUI class *is* a Python standard [`dataclass`][dataclasses.dataclass]
 that has two additional features:
 
 1. A property (named "`gui`" by default) that returns a [`Container`][magicgui.widgets.Container]
    widget which contains a widget for each attribute of the dataclass.
 2. An property (named "`events`" by default) that returns a
-   [`psygnal.SignalGroup`][] object that allows you to connect callbacks
+   [`psygnal.SignalGroup`][psygnal.SignalGroup] object that allows you to connect callbacks
    to the change event of any of field in the dataclass.  (Under the hood,
    this uses the
    [`@evented` dataclass decorator from `psygnal`](https://psygnal.readthedocs.io/en/latest/dataclasses/).)
@@ -128,7 +128,7 @@ obj.gui.show()
 Buttons are one of the few widget types that tend not to have an associated
 value, but simply trigger a callback when clicked.  That is: it doesn't often
 make sense to add a field to a dataclass representing a button. To add a button
-to a `guiclass`, decorate a method with the [`magicgui.experimental.button`][]
+to a `guiclass`, decorate a method with the [`magicgui.experimental.button`][magicgui.experimental.button]
 decorator.
 
 !!! warning "positioning buttons"
@@ -136,7 +136,7 @@ decorator.
     to position the button in the layout will be added in the future.
 
 Any additional keyword arguments to the `button` decorator will be passed to the
-[`magicgui.widgets.PushButton`][] constructor (e.g. `label`, `tooltip`, etc.)
+[`magicgui.widgets.PushButton`][magicgui.widgets.PushButton] constructor (e.g. `label`, `tooltip`, etc.)
 
 ``` python
 from magicgui.experimental import guiclass, button

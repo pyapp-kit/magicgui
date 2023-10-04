@@ -68,10 +68,10 @@ breaking API changes
 
 ### `.Gui()` attribute removed
 
-Before `v0.2.0`, the [`magicgui.magicgui`][] decorator added a `Gui` attribute to
+Before `v0.2.0`, the [`magicgui.magicgui`][magicgui.magicgui] decorator added a `Gui` attribute to
 the decorated function that was to be called to instantiate a widget.  In `v0.2.0`
-the object returned from the [`magicgui.magicgui`][] decorator is already an
-instantiated [`magicgui.widgets.Widget`][].
+the object returned from the [`magicgui.magicgui`][magicgui.magicgui] decorator is already an
+instantiated [`magicgui.widgets.Widget`][magicgui.widgets.Widget].
 
 ```python title="👎 Old Method (< v0.2.0)"
 from magicgui import magicgui, event_loop
@@ -97,11 +97,11 @@ function.show(run=True)
 
 ### New base widget type
 
-Before `v0.2.0`, the `Gui()` object returned by the [`magicgui.magicgui`][]
+Before `v0.2.0`, the `Gui()` object returned by the [`magicgui.magicgui`][magicgui.magicgui]
 decorator was a `MagicGuiBase` widget class, which in turn was a *direct
 subclass* of a backend widget, such as a
 [`QtWidgets.QWidget`](https://doc.qt.io/qt-5/qwidget.html).  In `v0.2.0`, all
-widgets derive from [magicgui.widgets.Widget][],
+widgets derive from [`magicgui.widgets.Widget``][magicgui.widgets.Widget],
 and the *backend* is available at `widget.native`.  If you are incorporating
 magicgui widgets into a larger Qt-based GUI, please note that you will want
 to use `widget.native` instead of `widget`

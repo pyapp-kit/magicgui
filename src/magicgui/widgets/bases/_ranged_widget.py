@@ -3,13 +3,15 @@ from __future__ import annotations
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import Any, Callable, Iterable, Tuple, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, TypeVar, Union, cast
 from warnings import warn
 
 from magicgui.types import Undefined, _Undefined
-from magicgui.widgets import protocols
 
 from ._value_widget import ValueWidget
+
+if TYPE_CHECKING:
+    from magicgui.widgets import protocols
 
 T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
 DEFAULT_MIN = 0.0
@@ -40,7 +42,7 @@ class RangedWidget(ValueWidget[T]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol
@@ -62,6 +64,7 @@ class RangedWidget(ValueWidget[T]):
                     f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
                     "In the future this will raise an exception\n",
                     FutureWarning,
+                    stacklevel=2,
                 )
                 if key == "maximum":
                     max = base_widget_kwargs.pop(key)  # noqa: A001
@@ -193,7 +196,7 @@ class RangedWidget(ValueWidget[T]):
 
 
 class TransformedRangedWidget(RangedWidget[float], ABC):
-    """Widget with a contstrained value. Wraps RangedWidgetProtocol.
+    """Widget with a constrained value. Wraps RangedWidgetProtocol.
 
     This can be used to map one domain of numbers onto another, useful for creating
     things like LogSliders.  Subclasses must reimplement ``_value_from_position`` and
@@ -223,7 +226,7 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     **base_widget_kwargs : Any
         All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][] constructor.
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.RangedWidgetProtocol

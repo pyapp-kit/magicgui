@@ -4,12 +4,13 @@ from __future__ import annotations
 import signal
 from contextlib import contextmanager
 from importlib import import_module
-from types import ModuleType
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Union
 
 from magicgui.backends import BACKENDS
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from magicgui.widgets.protocols import BaseApplicationBackend
 DEFAULT_BACKEND = "qt"
 APPLICATION_NAME = "magicgui"
@@ -84,7 +85,7 @@ class Application:
     def create(self) -> None:
         """Create the native application."""
         # Ensure that the native app exists
-        self.native
+        self.native  # noqa
 
     def process_events(self) -> None:
         """Process all pending GUI events."""
