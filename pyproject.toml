@@ -25,6 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Desktop Environment",
     "Topic :: Software Development",
     "Topic :: Software Development :: User Interfaces",
@@ -217,6 +218,8 @@ filterwarnings = [
     "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
     "ignore:Enum value:DeprecationWarning:matplotlib",
     "ignore:Widget([^\\s]+) is deprecated:DeprecationWarning",                               # ipywidgets
+    "ignore::DeprecationWarning:docstring_parser",
+    "ignore::DeprecationWarning:tqdm",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
