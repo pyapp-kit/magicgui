@@ -15,9 +15,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ForwardRef,
     Generic,
     Iterable,
     Iterator,
+    List,
     Literal,
     Sequence,
     Tuple,
@@ -29,7 +31,7 @@ from typing import (
 )
 from weakref import ref
 
-from typing_extensions import get_args, get_origin
+from typing_extensions import Annotated, get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui._util import merge_super_sigs, safe_issubclass
@@ -691,17 +693,27 @@ class ListEdit(Container[ValueWidget[_V]]):
             self._args_type = None
             return
 
-        value = resolve_single_type(value)
+        value_resolved = resolve_single_type(value)
+        if isinstance(value, (str, ForwardRef)):
+            value = value_resolved
+        # unwrap annotated (options are not needed to normalize `annotation`)
+        while get_origin(value) is Annotated:
+            value = get_args(value)[0]
         arg: type | None = None
 
-        if value and value is not inspect.Parameter.empty:
-            orig = get_origin(value) or value
+        if value_resolved and value_resolved is not inspect.Parameter.empty:
+            orig = get_origin(value_resolved) or value_resolved
             if not (safe_issubclass(orig, list) or isinstance(orig, list)):
                 raise TypeError(
                     f"cannot set annotation {value} to {type(self).__name__}."
                 )
             args = get_args(value)
             arg = args[0] if len(args) > 0 else None
+            args_resolved = get_args(value_resolved)
+            if len(args_resolved) > 0:
+                value = List[args_resolved[0]]  # type: ignore
+            else:
+                value = list
 
         self._annotation = value
         self._args_type = arg
@@ -930,17 +942,23 @@ class TupleEdit(Container[ValueWidget]):
             self._args_types = None
             return
 
-        value = resolve_single_type(value)
+        value_resolved = resolve_single_type(value)
+        if isinstance(value, (str, ForwardRef)):
+            value = value_resolved
+        # unwrap annotated (options are not needed to normalize `annotation`)
+        while get_origin(value) is Annotated:
+            value = get_args(value)[0]
         args: tuple[type, ...] | None = None
 
-        if value and value is not inspect.Parameter.empty:
-            orig = get_origin(value)
+        if value_resolved and value_resolved is not inspect.Parameter.empty:
+            orig = get_origin(value_resolved)
             if not (safe_issubclass(orig, tuple) or isinstance(orig, tuple)):
                 raise TypeError(
                     f"cannot set annotation {value} to {type(self).__name__}."
                 )
             args = get_args(value)
-            value = Tuple[args]
+            args_resolved = get_args(value_resolved)
+            value = Tuple[args_resolved]
 
         self._annotation = value
         self._args_types = args

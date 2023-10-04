@@ -127,7 +127,7 @@ class CategoricalWidget(ValueWidget[T]):
 
     @choices.setter
     def choices(self, choices: ChoicesType) -> None:
-        str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str  # type: ignore  # noqa: E501
+        str_func: Callable = _get_name if isinstance(choices, EnumMeta) else str  # type: ignore
         if isinstance(choices, dict):
             if "choices" not in choices or "key" not in choices:
                 raise ValueError(
