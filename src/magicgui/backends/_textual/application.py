@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Callable, ClassVar, Iterable
 from textual.app import App
 from textual.binding import Binding
 from textual.timer import Timer
-from textual.widget import Widget
 from textual.widgets import Footer
 
 from magicgui.widgets.protocols import BaseApplicationBackend
 
 if TYPE_CHECKING:
     from textual.message import Message
+    from textual.widget import Widget
 
 
 class MguiApp(App):
