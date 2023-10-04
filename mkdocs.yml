@@ -109,7 +109,7 @@ plugins:
       gallery_dirs: [docs/generated_examples]
       filename_pattern: /*.py  # which scripts will be executed for the docs
       ignore_pattern: /__init__.py  # ignore these example files completely
-      run_stale_examples: True
+      run_stale_examples: False
   - spellcheck:
       backends: # the backends you want to use
         - codespell: # or nested configs

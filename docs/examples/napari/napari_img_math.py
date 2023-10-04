@@ -94,7 +94,7 @@ def image_arithmetic(array1, operation, array2):
 
 `magicgui` works particularly well with [type annotations](https://docs.python.org/3/library/typing.html),
 and allows third-party libraries to register widgets and behavior for handling
-their custom types (using [`magicgui.type_map.register_type`][]).
+their custom types (using [`magicgui.type_map.register_type`][magicgui.type_map.register_type]).
 `napari` [provides support for `magicgui`](https://github.com/napari/napari/blob/main/napari/utils/_magicgui.py)
 by registering a dropdown menu whenever a function parameter is annotated as one
 of the basic napari [`Layer` types](https://napari.org/howtos/layers/index.html),
@@ -137,7 +137,7 @@ into other GUIs (such as the napari GUI shown in this example)
 ### create dropdowns with Enums
 
 We'd like the user to be able to select the operation (`add`, `subtract`,
-`multiply`, `divide`) using a dropdown menu. [`enum.Enum`][] offers a convenient
+`multiply`, `divide`) using a dropdown menu. [`enum.Enum`][enum.Enum] offers a convenient
 way to restrict values to a strict set of options, while providing `name: value`
 pairs for each of the options. Here, the value for each choice is the actual
 function we would like to have called when that option is selected.

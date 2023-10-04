@@ -160,8 +160,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         ``tuple(range(len(data[0])))``.  Values provided here override any implied in
         ``value``.
     **kwargs
-        Additional kwargs will be passed to the [magicgui.widgets.Widget][]
-        constructor.
+        Additional kwargs will be passed to the
+        [magicgui.widgets.Widget][magicgui.widgets.Widget] constructor.
 
     Attributes
     ----------
@@ -205,7 +205,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         Emitted whenever a cell in the table changes. The value will have a
         dict of information regarding the cell that changed:
         {'data': x, 'row': int, 'column': int, 'column_header': str, 'row_header': str}
-        CURRENTLY: only emitted on changes in the GUI. not programattic changes.
+        CURRENTLY: only emitted on changes in the GUI. not programmatic changes.
     """
 
     _widget: TableWidgetProtocol
