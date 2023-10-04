@@ -196,7 +196,7 @@ class RangedWidget(ValueWidget[T]):
 
 
 class TransformedRangedWidget(RangedWidget[float], ABC):
-    """Widget with a contstrained value. Wraps RangedWidgetProtocol.
+    """Widget with a constrained value. Wraps RangedWidgetProtocol.
 
     This can be used to map one domain of numbers onto another, useful for creating
     things like LogSliders.  Subclasses must reimplement ``_value_from_position`` and

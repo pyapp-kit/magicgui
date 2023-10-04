@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class SliderWidget(RangedWidget[T], _OrientationMixin):
-    """Widget with a contstrained value and orientation. Wraps SliderWidgetProtocol.
+    """Widget with a constrained value and orientation. Wraps SliderWidgetProtocol.
 
     Parameters
     ----------

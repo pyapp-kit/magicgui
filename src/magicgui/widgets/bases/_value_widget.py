@@ -97,7 +97,7 @@ class ValueWidget(Widget, Generic[T]):
         return self._widget._mgui_set_value(value)
 
     def __repr__(self) -> str:
-        """Return representation of widget of instsance."""
+        """Return representation of widget of instance."""
         try:
             val = self.value if self._bound_value is Undefined else self._bound_value
             return (
