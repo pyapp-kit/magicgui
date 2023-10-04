@@ -21,7 +21,7 @@ class ChoicesDict(TypedDict):
 
 
 #: A [`Widget`][magicgui.widgets.Widget] class or a
-#: [`WidgetProtocol``][magicgui.widgets.protocols.WidgetProtocol]
+#: [`WidgetProtocol`][magicgui.widgets.protocols.WidgetProtocol]
 WidgetClass = Union["type[Widget]", "type[WidgetProtocol]"]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
