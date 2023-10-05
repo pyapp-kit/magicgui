@@ -25,6 +25,7 @@ setup(
         "psygnal>=0.5.0",
         "qtpy>=1.7.0",
         "superqt>=0.5.0",
+        "pint",
         "typing_extensions",
     ],
 )
