@@ -12,6 +12,9 @@
   <a href="https://anaconda.org/conda-forge/magicgui">
     <img src="https://img.shields.io/conda/vn/conda-forge/magicgui" alt="magicgui on conda-forge" />
   </a>
+  <a href="https://python.org">
+    <img src="https://img.shields.io/pypi/pyversions/magicgui.svg?color=green" alt="magicgui python version support" />
+  </a>
   </p>
   <p align="center">
   <a href="https://github.com/pyapp-kit/magicgui/actions/workflows/test_and_deploy.yml">
