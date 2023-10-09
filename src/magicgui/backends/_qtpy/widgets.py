@@ -1201,13 +1201,20 @@ class ToolBar(QBaseWidget):
         """Add a widget to the toolbar."""
         self._qwidget.addWidget(widget.native)
 
-    def _mgui_get_icon_size(self) -> int:
+    def _mgui_get_icon_size(self) -> tuple[int, int] | None:
         """Return the icon size of the toolbar."""
-        return self._qwidget.iconSize()
+        sz = self._qwidget.iconSize()
+        return None if sz.isNull() else (sz.width(), sz.height())
 
-    def _mgui_set_icon_size(self, width: int, height: int) -> None:
+    def _mgui_set_icon_size(self, size: int | tuple[int, int] | None) -> None:
         """Set the icon size of the toolbar."""
-        self._qwidget.setIconSize(QSize(width, height))
+        if isinstance(size, int):
+            _size = QSize(size, size)
+        elif isinstance(size, tuple):
+            _size = QSize(size[0], size[1])
+        else:
+            _size = QSize()
+        self._qwidget.setIconSize(_size)
 
     def _mgui_clear(self) -> None:
         """Clear the toolbar."""

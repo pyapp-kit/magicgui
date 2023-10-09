@@ -331,38 +331,56 @@ class ToolBar(_IPyWidget):
 
     def __init__(self, **kwargs):
         super().__init__(ipywidgets.HBox, **kwargs)
+        self._icon_sz: tuple[int, int] | None = None
 
     def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
         """Add an action to the toolbar."""
-        btn = ipywdg.Button(description=text, icon=icon)
-        # btn.layout.width = "50px"
+        btn = ipywdg.Button(
+            description=text, icon=icon, layout={"width": "auto", "height": "auto"}
+        )
         if callback:
             btn.on_click(lambda e: callback())
-        # self.actions[name] = _IpyAction(btn)
+        self._add_ipywidget(btn)
 
+    def _add_ipywidget(self, widget: "ipywidgets.Widget") -> None:
         children = list(self._ipywidget.children)
-        children.append(btn)
+        children.append(widget)
         self._ipywidget.children = children
-        btn.parent = self._ipywidget
 
     def _mgui_add_separator(self) -> None:
         """Add a separator line to the toolbar."""
+        # Define the vertical separator
+        sep = ipywdg.Box(
+            layout=ipywdg.Layout(border_left="1px dotted gray", margin="1px 4px")
+        )
+        self._add_ipywidget(sep)
 
     def _mgui_add_spacer(self) -> None:
         """Add a spacer to the toolbar."""
+        self._add_ipywidget(ipywdg.Box(layout=ipywdg.Layout(flex="1")))
 
     def _mgui_add_widget(self, widget: "Widget") -> None:
         """Add a widget to the toolbar."""
-        children = list(self._ipywidget.children)
-        children.append(widget.native)
-        self._ipywidget.children = children
-        widget.parent = self._ipywidget
+        self._add_ipywidget(widget.native)
 
-    def _mgui_get_icon_size(self) -> int:
+    def _mgui_get_icon_size(self) -> tuple[int, int] | None:
         """Return the icon size of the toolbar."""
+        return self._icon_sz
 
-    def _mgui_set_icon_size(self, width: int, height: int) -> None:
+    def _mgui_set_icon_size(self, size: int | tuple[int, int] | None) -> None:
         """Set the icon size of the toolbar."""
+        if isinstance(size, int):
+            size = (size, size)
+        elif size is None:
+            size = (0, 0)
+        elif not isinstance(size, tuple):
+            raise ValueError("icon size must be an int or tuple of ints")
+        sz = max(size)
+        self._icon_sz = (sz, sz)
+        for child in self._ipywidget.children:
+            if hasattr(child, "style"):
+                child.style.font_size = f"{sz}px" if sz else None
+            child.layout.min_height = f"{sz*2}px" if sz else None
 
     def _mgui_clear(self) -> None:
         """Clear the toolbar."""

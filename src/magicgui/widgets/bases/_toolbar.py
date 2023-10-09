@@ -45,17 +45,15 @@ class ToolBarWidget(Widget):
         """Add a widget to the toolbar."""
         self._widget._mgui_add_widget(widget)
 
-    def get_icon_size(self) -> int:
+    @property
+    def icon_size(self) -> tuple[int, int] | None:
         """Return the icon size of the toolbar."""
         return self._widget._mgui_get_icon_size()
 
-    def set_icon_size(self, height: int, width: int | None = None) -> None:
-        """Set the icon size of the toolbar.
-
-        If width is not provided, it will be set to height.
-        """
-        width = height if width is None else width
-        self._widget._mgui_set_icon_size(width, height)
+    @icon_size.setter
+    def icon_size(self, size: int | tuple[int, int] | None) -> None:
+        """Set the icon size of the toolbar."""
+        self._widget._mgui_set_icon_size(size)
 
     def clear(self) -> None:
         """Clear the toolbar."""

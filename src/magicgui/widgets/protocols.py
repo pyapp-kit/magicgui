@@ -524,11 +524,11 @@ class ToolBarProtocol(WidgetProtocol, Protocol):
         """Add a widget to the toolbar."""
 
     @abstractmethod
-    def _mgui_get_icon_size(self) -> int:
+    def _mgui_get_icon_size(self) -> tuple[int, int] | None:
         """Return the icon size of the toolbar."""
 
     @abstractmethod
-    def _mgui_set_icon_size(self, width: int, height: int) -> None:
+    def _mgui_set_icon_size(self, size: int | tuple[int, int] | None) -> None:
         """Set the icon size of the toolbar."""
 
     @abstractmethod
