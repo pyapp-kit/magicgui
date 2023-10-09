@@ -326,6 +326,49 @@ class TimeEdit(_IPyValueWidget):
     _ipywidget: ipywdg.TimePicker
 
 
+class ToolBar(_IPyWidget):
+    _ipywidget: ipywidgets.HBox
+
+    def __init__(self, **kwargs):
+        super().__init__(ipywidgets.HBox, **kwargs)
+
+    def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
+        """Add an action to the toolbar."""
+        btn = ipywdg.Button(description=text, icon=icon)
+        # btn.layout.width = "50px"
+        if callback:
+            btn.on_click(lambda e: callback())
+        # self.actions[name] = _IpyAction(btn)
+
+        children = list(self._ipywidget.children)
+        children.append(btn)
+        self._ipywidget.children = children
+        btn.parent = self._ipywidget
+
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the toolbar."""
+
+    def _mgui_add_spacer(self) -> None:
+        """Add a spacer to the toolbar."""
+
+    def _mgui_add_widget(self, widget: "Widget") -> None:
+        """Add a widget to the toolbar."""
+        children = list(self._ipywidget.children)
+        children.append(widget.native)
+        self._ipywidget.children = children
+        widget.parent = self._ipywidget
+
+    def _mgui_get_icon_size(self) -> int:
+        """Return the icon size of the toolbar."""
+
+    def _mgui_set_icon_size(self, width: int, height: int) -> None:
+        """Set the icon size of the toolbar."""
+
+    def _mgui_clear(self) -> None:
+        """Clear the toolbar."""
+        self._ipywidget.children = ()
+
+
 class PushButton(_IPyButtonWidget):
     _ipywidget: ipywdg.Button
 

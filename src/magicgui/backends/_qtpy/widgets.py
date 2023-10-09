@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Sequence
 import qtpy
 import superqt
 from qtpy import QtWidgets as QtW
-from qtpy.QtCore import QEvent, QObject, Qt, Signal
+from qtpy.QtCore import QEvent, QObject, QSize, Qt, Signal
 from qtpy.QtGui import (
     QFont,
     QFontMetrics,
@@ -1170,6 +1170,48 @@ class TimeEdit(QBaseValueWidget):
             return self._qwidget.time().toPython()
         except (TypeError, AttributeError):
             return self._qwidget.time().toPyTime()
+
+
+class ToolBar(QBaseWidget):
+    _qwidget: QtW.QToolBar
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(QtW.QToolBar, **kwargs)
+
+    def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
+        """Add an action to the toolbar."""
+        if icon:
+            self._qwidget.addAction(icon, text, callback)
+        else:
+            self._qwidget.addAction(text, callback)
+
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the toolbar."""
+        self._qwidget.addSeparator()
+
+    def _mgui_add_spacer(self) -> None:
+        """Add a spacer to the toolbar."""
+        empty = QtW.QWidget()
+        empty.setSizePolicy(
+            QtW.QSizePolicy.Policy.Expanding, QtW.QSizePolicy.Policy.Preferred
+        )
+        self._qwidget.addWidget(empty)
+
+    def _mgui_add_widget(self, widget: Widget) -> None:
+        """Add a widget to the toolbar."""
+        self._qwidget.addWidget(widget.native)
+
+    def _mgui_get_icon_size(self) -> int:
+        """Return the icon size of the toolbar."""
+        return self._qwidget.iconSize()
+
+    def _mgui_set_icon_size(self, width: int, height: int) -> None:
+        """Set the icon size of the toolbar."""
+        self._qwidget.setIconSize(QSize(width, height))
+
+    def _mgui_clear(self) -> None:
+        """Clear the toolbar."""
+        self._qwidget.clear()
 
 
 class Dialog(QBaseWidget, protocols.ContainerProtocol):

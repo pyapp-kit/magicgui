@@ -28,6 +28,7 @@ from .widgets import (
     Table,
     TextEdit,
     TimeEdit,
+    ToolBar,
     get_text_width,
     show_file_dialog,
 )
@@ -64,4 +65,5 @@ __all__ = [
     "Table",
     "TextEdit",
     "TimeEdit",
+    "ToolBar",
 ]

@@ -501,6 +501,41 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
         raise NotImplementedError()
 
 
+@runtime_checkable
+class ToolBarProtocol(WidgetProtocol, Protocol):
+    """Toolbar that contains a set of controls."""
+
+    @abstractmethod
+    def _mgui_add_button(
+        self, text: str, icon: str, callback: Callable | None = None
+    ) -> None:
+        """Add a button to the toolbar."""
+
+    @abstractmethod
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the toolbar."""
+
+    @abstractmethod
+    def _mgui_add_spacer(self) -> None:
+        """Add a spacer to the toolbar."""
+
+    @abstractmethod
+    def _mgui_add_widget(self, widget: Widget) -> None:
+        """Add a widget to the toolbar."""
+
+    @abstractmethod
+    def _mgui_get_icon_size(self) -> int:
+        """Return the icon size of the toolbar."""
+
+    @abstractmethod
+    def _mgui_set_icon_size(self, width: int, height: int) -> None:
+        """Set the icon size of the toolbar."""
+
+    @abstractmethod
+    def _mgui_clear(self) -> None:
+        """Clear the toolbar."""
+
+
 class DialogProtocol(ContainerProtocol, Protocol):
     """Protocol for modal (blocking) containers."""
 
