@@ -419,10 +419,12 @@ class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
 # BUTTONS
 
 
-class QBaseButtonWidget(QBaseValueWidget, protocols.SupportsText):
+class QBaseButtonWidget(
+    QBaseValueWidget, protocols.SupportsText, protocols.SupportsIcon
+):
     _qwidget: QtW.QCheckBox | QtW.QPushButton | QtW.QRadioButton | QtW.QToolButton
 
-    def __init__(self, qwidg: type[QtW.QWidget], **kwargs: Any) -> None:
+    def __init__(self, qwidg: type[QtW.QAbstractButton], **kwargs: Any) -> None:
         super().__init__(qwidg, "isChecked", "setChecked", "toggled", **kwargs)
 
     def _mgui_set_text(self, value: str) -> None:
@@ -432,6 +434,9 @@ class QBaseButtonWidget(QBaseValueWidget, protocols.SupportsText):
     def _mgui_get_text(self) -> str:
         """Get text."""
         return self._qwidget.text()
+
+    def _mgui_set_icon(self, value: str, color: str | None) -> None:
+        self._qwidget.setIcon(superqt.QIconifyIcon(value, color=color))
 
 
 class PushButton(QBaseButtonWidget):

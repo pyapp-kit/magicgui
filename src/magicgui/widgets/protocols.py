@@ -438,7 +438,16 @@ class SupportsText(Protocol):
 
 
 @runtime_checkable
-class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, Protocol):
+class SupportsIcon(Protocol):
+    """Widget that can be reoriented."""
+
+    @abstractmethod
+    def _mgui_set_icon(self, value: str, color: str | None) -> None:
+        """Set icon. Value is a font-awesome v5 icon name."""
+
+
+@runtime_checkable
+class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, SupportsIcon, Protocol):
     """The "value" in a ButtonWidget is the current (checked) state."""
 
 

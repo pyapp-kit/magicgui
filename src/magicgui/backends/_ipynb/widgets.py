@@ -260,11 +260,24 @@ class _IPySupportsText(protocols.SupportsText):
         return self._ipywidget.description
 
 
+class _IPySupportsIcon(protocols.SupportsIcon):
+    """Widget that can show an icon."""
+
+    _ipywidget: ipywdg.Widget
+
+    def _mgui_set_icon(self, value: str, color: str) -> None:
+        """Set icon."""
+        # not all ipywidget buttons support icons (like checkboxes),
+        # but our button protocol does.
+        if hasattr(self._ipywidget, "icon"):
+            self._ipywidget.icon = value.replace("fa-", "")
+
+
 class _IPyCategoricalWidget(_IPyValueWidget, _IPySupportsChoices):
     pass
 
 
-class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText):
+class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText, _IPySupportsIcon):
     pass
 
 
