@@ -266,7 +266,7 @@ class _IPySupportsIcon(protocols.SupportsIcon):
 
     _ipywidget: ipywdg.Button
 
-    def _mgui_set_icon(self, value: str, color: str) -> None:
+    def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
         """Set icon."""
         # only ipywdg.Button actually supports icons.
         # but our button protocol allows it for all buttons subclasses
@@ -277,6 +277,7 @@ class _IPySupportsIcon(protocols.SupportsIcon):
             # which works for iconify icons served by qt, while still
             # allowing for bare "icon-name" syntax which works for ipywidgets.
             # note however... only fa4/5 icons will work for ipywidgets.
+            value = value or ""
             self._ipywidget.icon = value.replace("fa-", "").split(":", 1)[-1]
             self._ipywidget.style.text_color = color
 

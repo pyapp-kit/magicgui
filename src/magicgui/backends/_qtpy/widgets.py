@@ -457,6 +457,11 @@ class QBaseButtonWidget(
             pal = self._qwidget.palette()
             color = pal.color(QPalette.ColorRole.WindowText).name()
 
+        if ":" not in value:
+            # for parity with the other backends, assume fontawesome
+            # if no prefix is given.
+            value = f"fa-regular:{value}"
+
         try:
             self._qwidget.setIcon(superqt.QIconifyIcon(value, color=color))
         except (OSError, ValueError) as e:
