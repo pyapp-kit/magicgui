@@ -29,7 +29,19 @@ if TYPE_CHECKING:
     import inspect
     from pathlib import Path
 
+    from typing_extensions import Unpack
+
     from magicgui.widgets import Container, protocols
+
+    from ._widget import WidgetKwargs
+
+    class ContainerKwargs(WidgetKwargs, total=False):
+        widgets: Sequence[Widget]
+        layout: str
+        scrollable: bool
+        labels: bool
+
+
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 
 
@@ -94,14 +106,13 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         layout: str = "vertical",
         scrollable: bool = False,
         labels: bool = True,
-        **base_widget_kwargs: Any,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
         self._list: list[WidgetVar] = []
         self._labels = labels
         self._layout = layout
         self._scrollable = scrollable
-        base_widget_kwargs.setdefault("backend_kwargs", {})
-        base_widget_kwargs["backend_kwargs"].update(
+        base_widget_kwargs.setdefault("backend_kwargs", {}).update(  # type: ignore
             {"layout": layout, "scrollable": scrollable}
         )
         super().__init__(**base_widget_kwargs)
@@ -284,13 +295,18 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         return MagicSignature(params)
 
     @classmethod
-    def from_signature(cls, sig: inspect.Signature, **kwargs: Any) -> Container:
+    def from_signature(
+        cls, sig: inspect.Signature, **kwargs: Unpack[ContainerKwargs]
+    ) -> Container:
         """Create a Container widget from an inspect.Signature object."""
         return MagicSignature.from_signature(sig).to_container(**kwargs)
 
     @classmethod
     def from_callable(
-        cls, obj: Callable, gui_options: dict | None = None, **kwargs: Any
+        cls,
+        obj: Callable,
+        gui_options: dict | None = None,
+        **kwargs: Unpack[ContainerKwargs],
     ) -> Container:
         """Create a Container widget from a callable object.
 

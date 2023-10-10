@@ -31,9 +31,12 @@ from magicgui.widgets.bases._value_widget import ValueWidget
 if TYPE_CHECKING:
     import numpy
     import pandas
-    from typing_extensions import TypeGuard
+    from typing_extensions import TypeGuard, Unpack
 
     from magicgui.widgets.protocols import TableWidgetProtocol
+
+    from .bases._widget import WidgetKwargs
+
 TblKey = Any
 _KT = TypeVar("_KT")  # Key type
 _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
@@ -227,9 +230,9 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         *,
         index: Collection | None = None,
         columns: Collection | None = None,
-        **kwargs: Any,
+        **kwargs: Unpack[WidgetKwargs],
     ) -> None:
-        super().__init__(widget_type=use_app().get_obj("Table"), **kwargs)
+        super().__init__(**{**kwargs, "widget_type": use_app().get_obj("Table")})
         self._data = DataView(self)
         data, _index, _columns = normalize_table_data(value)
         self.value = {
