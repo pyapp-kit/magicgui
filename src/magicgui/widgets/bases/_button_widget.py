@@ -94,5 +94,5 @@ class ButtonWidget(ValueWidget[bool]):
         """Alias for changed event."""
         return self.changed
 
-    def set_icon(self, value: str, color: str | None) -> None:
-        self._widget._mgui_set_icon(str(value), color)
+    def set_icon(self, value: str | None, color: str | None = None) -> None:
+        self._widget._mgui_set_icon(value, color)

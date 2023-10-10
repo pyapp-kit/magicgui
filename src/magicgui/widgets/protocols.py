@@ -442,8 +442,13 @@ class SupportsIcon(Protocol):
     """Widget that can be reoriented."""
 
     @abstractmethod
-    def _mgui_set_icon(self, value: str, color: str | None) -> None:
-        """Set icon. Value is a font-awesome v5 icon name."""
+    def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
+        """Set icon.
+
+        Value is an "prefix:name" from iconify: https://icon-sets.iconify.design
+        Color is any valid CSS color string.
+        Set value to `None` or an empty string to remove icon.
+        """
 
 
 @runtime_checkable
