@@ -444,33 +444,38 @@ class QBaseButtonWidget(
 
     def _update_icon(self) -> None:
         # Called when palette changes or icon is set
-        if self._icon is None:
-            return
-
-        value, color = self._icon
-        if not value:
-            self._qwidget.setIcon(QIcon())
-            return
-
-        if not color or color == "auto":
-            # use foreground color
-            pal = self._qwidget.palette()
-            color = pal.color(QPalette.ColorRole.WindowText).name()
-
-        if ":" not in value:
-            # for parity with the other backends, assume fontawesome
-            # if no prefix is given.
-            value = f"fa-regular:{value}"
-
-        try:
-            self._qwidget.setIcon(superqt.QIconifyIcon(value, color=color))
-        except (OSError, ValueError) as e:
-            warnings.warn(f"Could not set iconify icon: {e}", stacklevel=2)
-            self._icon = None  # don't try again
+        if self._icon:
+            qicon = _get_qicon(*self._icon, palette=self._qwidget.palette())
+            if qicon is None:
+                self._icon = None  # an error occurred don't try again
+                self._qwidget.setIcon(QIcon())
+            else:
+                self._qwidget.setIcon(qicon)
 
     def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
         self._icon = (value, color)
         self._update_icon()
+
+
+def _get_qicon(key: str | None, color: str | None, palette: QPalette) -> QIcon | None:
+    """Return a QIcon from iconify, or None if it fails."""
+    if not key:
+        return QIcon()
+
+    if not color or color == "auto":
+        # use foreground color
+        color = palette.color(QPalette.ColorRole.WindowText).name()
+
+    if ":" not in key:
+        # for parity with the other backends, assume fontawesome
+        # if no prefix is given.
+        key = f"fa-regular:{key}"
+
+    try:
+        return superqt.QIconifyIcon(key, color=color)
+    except (OSError, ValueError) as e:
+        warnings.warn(f"Could not set iconify icon: {e}", stacklevel=2)
+        return None
 
 
 class PushButton(QBaseButtonWidget):

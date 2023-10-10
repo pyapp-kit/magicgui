@@ -1,3 +1,5 @@
+# from __future__ import annotations  # NO
+
 from typing import Any, Callable, Iterable, Optional, Tuple, Type, Union
 
 try:
@@ -266,7 +268,7 @@ class _IPySupportsIcon(protocols.SupportsIcon):
 
     _ipywidget: ipywdg.Button
 
-    def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
+    def _mgui_set_icon(self, value: Optional[str], color: Optional[str]) -> None:
         """Set icon."""
         # only ipywdg.Button actually supports icons.
         # but our button protocol allows it for all buttons subclasses
