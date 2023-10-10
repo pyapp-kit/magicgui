@@ -457,7 +457,7 @@ class MainFunctionGui(FunctionGui[_P, _R], MainWindow):
 
     _widget: MainWindowProtocol
 
-    def __init__(self, function: Callable, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, function: Callable[_P, _R], *args: Any, **kwargs: Any) -> None:
         super().__init__(function, *args, **kwargs)
         self.create_menu_item("Help", "Documentation", callback=self._show_docs)
         self._help_text_edit: TextEdit | None = None
