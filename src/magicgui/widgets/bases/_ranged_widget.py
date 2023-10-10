@@ -3,15 +3,18 @@ from __future__ import annotations
 import builtins
 from abc import ABC, abstractmethod
 from math import ceil, log10
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, TypeVar, Union, cast
-from warnings import warn
+from typing import TYPE_CHECKING, Callable, Iterable, Tuple, TypeVar, Union, cast
 
 from magicgui.types import Undefined, _Undefined
 
 from ._value_widget import ValueWidget
 
 if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
     from magicgui.widgets import protocols
+
+    from ._widget import WidgetKwargs
 
 T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
 DEFAULT_MIN = 0.0
@@ -56,20 +59,8 @@ class RangedWidget(ValueWidget[T]):
         step: float | _Undefined | None = Undefined,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
-        **base_widget_kwargs: Any,
-    ) -> None:  # sourcery skip: avoid-builtin-shadow
-        for key in ("maximum", "minimum"):
-            if key in base_widget_kwargs:
-                warn(
-                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
-                    "In the future this will raise an exception\n",
-                    FutureWarning,
-                    stacklevel=2,
-                )
-                if key == "maximum":
-                    max = base_widget_kwargs.pop(key)  # noqa: A001
-                else:
-                    min = base_widget_kwargs.pop(key)  # noqa: A001
+        **base_widget_kwargs: Unpack[WidgetKwargs],
+    ) -> None:
         # value should be set *after* min max is set
         super().__init__(
             bind=bind,  # type: ignore
@@ -242,7 +233,7 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         step: int = 1,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
-        **base_widget_kwargs: Any,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
         self._min = min
         self._max = max

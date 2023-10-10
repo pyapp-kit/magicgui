@@ -413,6 +413,9 @@ def magic_factory(
     )
 
 
+MAGICGUI_PARAMS = inspect.signature(magicgui).parameters
+
+
 # _R is the return type of the decorated function
 # _T is the type of the FunctionGui instance (FunctionGui or MainFunctionGui)
 class MagicFactory(partial, Generic[_R, _T]):
@@ -467,11 +470,10 @@ class MagicFactory(partial, Generic[_R, _T]):
 
     def __repr__(self) -> str:
         """Return string repr."""
-        params = inspect.signature(magicgui).parameters
         args = [
             f"{k}={v!r}"
             for (k, v) in self.keywords.items()
-            if v not in (params[k].default, {})
+            if v not in (MAGICGUI_PARAMS[k].default, {})
         ]
         return f"MagicFactory({', '.join(args)})"
 
@@ -479,10 +481,12 @@ class MagicFactory(partial, Generic[_R, _T]):
         """Call the wrapped _magicgui and return a FunctionGui."""
         if args:
             raise ValueError("MagicFactory instance only accept keyword arguments")
-        params = inspect.signature(magicgui).parameters
+
         factory_kwargs = self.keywords.copy()
         prm_options = factory_kwargs.pop("param_options", {})
-        prm_options.update({k: kwargs.pop(k) for k in list(kwargs) if k not in params})
+        prm_options.update(
+            {k: kwargs.pop(k) for k in list(kwargs) if k not in MAGICGUI_PARAMS}
+        )
         widget = self.func(param_options=prm_options, **{**factory_kwargs, **kwargs})
         if self._widget_init is not None:
             self._widget_init(widget)
