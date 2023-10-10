@@ -1222,13 +1222,21 @@ class ToolBar(QBaseWidget):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(QtW.QToolBar, **kwargs)
+        self._qwidget.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self._event_filter.paletteChanged.connect(self._on_palette_change)
+
+    def _on_palette_change(self):
+        for action in self._qwidget.actions():
+            if icon := action.data():
+                if qicon := _get_qicon(icon, None, palette=self._qwidget.palette()):
+                    action.setIcon(qicon)
 
     def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
         """Add an action to the toolbar."""
+        act = self._qwidget.addAction(text, callback)
         if qicon := _get_qicon(icon, None, palette=self._qwidget.palette()):
-            self._qwidget.addAction(qicon, text, callback)
-        else:
-            self._qwidget.addAction(text, callback)
+            act.setIcon(qicon)
+            act.setData(icon)
 
     def _mgui_add_separator(self) -> None:
         """Add a separator line to the toolbar."""
