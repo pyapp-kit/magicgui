@@ -232,7 +232,8 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         columns: Collection | None = None,
         **kwargs: Unpack[WidgetKwargs],
     ) -> None:
-        super().__init__(**{**kwargs, "widget_type": use_app().get_obj("Table")})
+        kwargs["widget_type"] = use_app().get_obj("Table")
+        super().__init__(**kwargs)
         self._data = DataView(self)
         data, _index, _columns = normalize_table_data(value)
         self.value = {
