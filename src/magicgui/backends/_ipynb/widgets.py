@@ -264,62 +264,25 @@ class _IPySupportsText(protocols.SupportsText):
 class _IPySupportsIcon(protocols.SupportsIcon):
     """Widget that can show an icon."""
 
-    _ipywidget: ipywdg.Widget
+    _ipywidget: ipywdg.Button
 
     def _mgui_set_icon(self, value: str, color: str) -> None:
         """Set icon."""
-        # not all ipywidget buttons support icons (like checkboxes),
-        # but our button protocol does.
+        # only ipywdg.Button actually supports icons.
+        # but our button protocol allows it for all buttons subclasses
+        # so we need this method in the concrete subclasses, but we
+        # can't actually set the icon for anything but ipywdg.Button
         if hasattr(self._ipywidget, "icon"):
-            self._ipywidget.icon = value.replace("fa-", "")
+            # by splitting on ":" we allow for "prefix:icon-name" syntax
+            # which works for iconify icons served by qt, while still
+            # allowing for bare "icon-name" syntax which works for ipywidgets.
+            # note however... only fa4/5 icons will work for ipywidgets.
+            self._ipywidget.icon = value.replace("fa-", "").split(":", 1)[-1]
+            self._ipywidget.style.text_color = color
 
 
 class _IPyCategoricalWidget(_IPyValueWidget, _IPySupportsChoices):
     pass
-
-
-class IconButton(ipywdg.HTML):
-    TEMPLATE = """<style>{style}</style>
-    <button class="lm-Widget jupyter-widgets jupyter-button widget-button">{body}
-    </button>
-    """
-
-    def __init__(self, description: str = "", icon: str = "", **kwargs):
-        from pyconify import css
-
-        selector = f"{icon.replace(' ', '--').replace(':', '--')}"
-        styles = css(icon, selector=f".{selector}")
-        styles = styles.replace("}", "margin: 0px 3px -2px}")
-        value = self.TEMPLATE.format(
-            body=f'<span class="{selector}"></span>{description}', style=styles
-        )
-        super().__init__(value=value, **kwargs)
-        self._click_handlers = ipywdg.CallbackDispatcher()
-        self.on_msg(self._handle_button_msg)
-
-    def on_click(self, callback, remove=False):
-        """Register a callback to execute when the button is clicked.
-
-        The callback will be called with one argument, the clicked button
-        widget instance.
-
-        Parameters
-        ----------
-        remove: bool (optional)
-            Set to true to remove the callback from the list of callbacks.
-        """
-        self._click_handlers.register_callback(callback, remove=remove)
-
-    def _handle_button_msg(self, _, content, buffers):
-        """Handle a msg from the front-end.
-
-        Parameters
-        ----------
-        content: dict
-            Content of the msg.
-        """
-        if content.get("event", "") == "click":
-            self._click_handlers(self)
 
 
 class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText, _IPySupportsIcon):
