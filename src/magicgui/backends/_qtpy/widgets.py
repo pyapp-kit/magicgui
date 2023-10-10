@@ -1181,9 +1181,16 @@ class ToolBar(QBaseWidget):
     def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
         """Add an action to the toolbar."""
         if icon:
-            self._qwidget.addAction(icon, text, callback)
-        else:
-            self._qwidget.addAction(text, callback)
+            from superqt import QIconifyIcon
+
+            try:
+                qicon = QIconifyIcon(icon)
+                self._qwidget.addAction(qicon, text, callback)
+                return
+            except (OSError, ValueError) as e:
+                warnings.warn(f"Could not load icon: {e}", stacklevel=2)
+
+        self._qwidget.addAction(text, callback)
 
     def _mgui_add_separator(self) -> None:
         """Add a separator line to the toolbar."""
