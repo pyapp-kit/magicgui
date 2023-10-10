@@ -465,11 +465,13 @@ def _get_qicon(key: str | None, color: str | None, palette: QPalette) -> QIcon |
     if not color or color == "auto":
         # use foreground color
         color = palette.color(QPalette.ColorRole.WindowText).name()
+        # don't use full black or white
+        color = {"#000000": "#333333", "#ffffff": "#cccccc"}.get(color, color)
 
     if ":" not in key:
         # for parity with the other backends, assume fontawesome
         # if no prefix is given.
-        key = f"fa-regular:{key}"
+        key = f"fa:{key}"
 
     try:
         return superqt.QIconifyIcon(key, color=color)
