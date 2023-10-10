@@ -5,6 +5,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Generic,
     Iterable,
     Mapping,
     MutableSequence,
@@ -25,6 +26,8 @@ from ._button_widget import ButtonWidget
 from ._value_widget import ValueWidget
 from ._widget import Widget
 
+WidgetVar = TypeVar("WidgetVar", bound=Widget)
+
 if TYPE_CHECKING:
     import inspect
     from pathlib import Path
@@ -35,14 +38,11 @@ if TYPE_CHECKING:
 
     from ._widget import WidgetKwargs
 
-    class ContainerKwargs(WidgetKwargs, total=False):
-        widgets: Sequence[Widget]
+    class ContainerKwargs(WidgetKwargs, Generic[WidgetVar], total=False):
+        widgets: Sequence[WidgetVar]
         layout: str
         scrollable: bool
         labels: bool
-
-
-WidgetVar = TypeVar("WidgetVar", bound=Widget)
 
 
 class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
