@@ -285,21 +285,6 @@ class LogSlider(TransformedRangedWidget):
         tracking: bool = True,
         **kwargs: Any,
     ):
-        # sourcery skip: avoid-builtin-shadow
-        for key in ("maximum", "minimum"):
-            if key in kwargs:
-                import warnings
-
-                warnings.warn(
-                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
-                    "In the future this will raise an exception\n",
-                    FutureWarning,
-                    stacklevel=2,
-                )
-                if key == "maximum":
-                    max = kwargs.pop(key)  # noqa: A001
-                else:
-                    min = kwargs.pop(key)  # noqa: A001
         self._base = base
         app = use_app()
         assert app.native
