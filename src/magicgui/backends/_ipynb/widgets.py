@@ -9,6 +9,7 @@ except ImportError as e:
         "Please run `pip install ipywidgets`"
     ) from e
 
+
 from magicgui.widgets import protocols
 from magicgui.widgets.bases import Widget
 
@@ -275,6 +276,50 @@ class _IPySupportsIcon(protocols.SupportsIcon):
 
 class _IPyCategoricalWidget(_IPyValueWidget, _IPySupportsChoices):
     pass
+
+
+class IconButton(ipywdg.HTML):
+    TEMPLATE = """<style>{style}</style>
+    <button class="lm-Widget jupyter-widgets jupyter-button widget-button">{body}
+    </button>
+    """
+
+    def __init__(self, description: str = "", icon: str = "", **kwargs):
+        from pyconify import css
+
+        selector = f"{icon.replace(' ', '--').replace(':', '--')}"
+        styles = css(icon, selector=f".{selector}")
+        styles = styles.replace("}", "margin: 0px 3px -2px}")
+        value = self.TEMPLATE.format(
+            body=f'<span class="{selector}"></span>{description}', style=styles
+        )
+        super().__init__(value=value, **kwargs)
+        self._click_handlers = ipywdg.CallbackDispatcher()
+        self.on_msg(self._handle_button_msg)
+
+    def on_click(self, callback, remove=False):
+        """Register a callback to execute when the button is clicked.
+
+        The callback will be called with one argument, the clicked button
+        widget instance.
+
+        Parameters
+        ----------
+        remove: bool (optional)
+            Set to true to remove the callback from the list of callbacks.
+        """
+        self._click_handlers.register_callback(callback, remove=remove)
+
+    def _handle_button_msg(self, _, content, buffers):
+        """Handle a msg from the front-end.
+
+        Parameters
+        ----------
+        content: dict
+            Content of the msg.
+        """
+        if content.get("event", "") == "click":
+            self._click_handlers(self)
 
 
 class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText, _IPySupportsIcon):
