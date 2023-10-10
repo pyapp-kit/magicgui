@@ -17,8 +17,10 @@ from qtpy.QtCore import QEvent, QObject, QSize, Qt, Signal
 from qtpy.QtGui import (
     QFont,
     QFontMetrics,
+    QIcon,
     QImage,
     QKeyEvent,
+    QPalette,
     QPixmap,
     QResizeEvent,
     QTextDocument,
@@ -48,10 +50,13 @@ if TYPE_CHECKING:
 class EventFilter(QObject):
     parentChanged = Signal()
     valueChanged = Signal(object)
+    paletteChanged = Signal()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if event.type() == QEvent.Type.ParentChange:
             self.parentChanged.emit()
+        if event.type() == QEvent.Type.PaletteChange:
+            self.paletteChanged.emit()
         return False
 
 
@@ -419,11 +424,15 @@ class QBaseRangedWidget(QBaseValueWidget, protocols.RangedWidgetProtocol):
 # BUTTONS
 
 
-class QBaseButtonWidget(QBaseValueWidget, protocols.SupportsText):
+class QBaseButtonWidget(
+    QBaseValueWidget, protocols.SupportsText, protocols.SupportsIcon
+):
     _qwidget: QtW.QCheckBox | QtW.QPushButton | QtW.QRadioButton | QtW.QToolButton
 
-    def __init__(self, qwidg: type[QtW.QWidget], **kwargs: Any) -> None:
+    def __init__(self, qwidg: type[QtW.QAbstractButton], **kwargs: Any) -> None:
         super().__init__(qwidg, "isChecked", "setChecked", "toggled", **kwargs)
+        self._event_filter.paletteChanged.connect(self._update_icon)
+        self._icon: tuple[str | None, str | None] | None = None
 
     def _mgui_set_text(self, value: str) -> None:
         """Set text."""
@@ -433,12 +442,46 @@ class QBaseButtonWidget(QBaseValueWidget, protocols.SupportsText):
         """Get text."""
         return self._qwidget.text()
 
+    def _update_icon(self) -> None:
+        # Called when palette changes or icon is set
+        if self._icon:
+            qicon = _get_qicon(*self._icon, palette=self._qwidget.palette())
+            if qicon is None:
+                self._icon = None  # an error occurred don't try again
+                self._qwidget.setIcon(QIcon())
+            else:
+                self._qwidget.setIcon(qicon)
+
+    def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
+        self._icon = (value, color)
+        self._update_icon()
+
+
+def _get_qicon(key: str | None, color: str | None, palette: QPalette) -> QIcon | None:
+    """Return a QIcon from iconify, or None if it fails."""
+    if not key:
+        return QIcon()
+
+    if not color or color == "auto":
+        # use foreground color
+        color = palette.color(QPalette.ColorRole.WindowText).name()
+
+    if ":" not in key:
+        # for parity with the other backends, assume fontawesome
+        # if no prefix is given.
+        key = f"fa-regular:{key}"
+
+    try:
+        return superqt.QIconifyIcon(key, color=color)
+    except (OSError, ValueError) as e:
+        warnings.warn(f"Could not set iconify icon: {e}", stacklevel=2)
+        return None
+
 
 class PushButton(QBaseButtonWidget):
     def __init__(self, **kwargs: Any) -> None:
-        QBaseValueWidget.__init__(
-            self, QtW.QPushButton, "isChecked", "setChecked", "clicked", **kwargs
-        )
+        super().__init__(QtW.QPushButton, **kwargs)
+        self._onchange_name = "clicked"
         # make enter/return "click" the button when focused.
         self._qwidget.setAutoDefault(True)
 
