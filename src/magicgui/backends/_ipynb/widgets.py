@@ -1,3 +1,5 @@
+# from __future__ import annotations  # NO
+
 from typing import Any, Callable, Iterable, Optional, Tuple, Type, Union
 
 try:
@@ -8,6 +10,7 @@ except ImportError as e:
         "magicgui requires ipywidgets to be installed to use the 'ipynb' backend. "
         "Please run `pip install ipywidgets`"
     ) from e
+
 
 from magicgui.widgets import protocols
 from magicgui.widgets.bases import Widget
@@ -260,11 +263,32 @@ class _IPySupportsText(protocols.SupportsText):
         return self._ipywidget.description
 
 
+class _IPySupportsIcon(protocols.SupportsIcon):
+    """Widget that can show an icon."""
+
+    _ipywidget: ipywdg.Button
+
+    def _mgui_set_icon(self, value: Optional[str], color: Optional[str]) -> None:
+        """Set icon."""
+        # only ipywdg.Button actually supports icons.
+        # but our button protocol allows it for all buttons subclasses
+        # so we need this method in the concrete subclasses, but we
+        # can't actually set the icon for anything but ipywdg.Button
+        if hasattr(self._ipywidget, "icon"):
+            # by splitting on ":" we allow for "prefix:icon-name" syntax
+            # which works for iconify icons served by qt, while still
+            # allowing for bare "icon-name" syntax which works for ipywidgets.
+            # note however... only fa4/5 icons will work for ipywidgets.
+            value = value or ""
+            self._ipywidget.icon = value.replace("fa-", "").split(":", 1)[-1]
+            self._ipywidget.style.text_color = color
+
+
 class _IPyCategoricalWidget(_IPyValueWidget, _IPySupportsChoices):
     pass
 
 
-class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText):
+class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText, _IPySupportsIcon):
     pass
 
 

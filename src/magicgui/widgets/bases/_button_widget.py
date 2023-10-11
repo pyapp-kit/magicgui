@@ -52,6 +52,8 @@ class ButtonWidget(ValueWidget[bool]):
         value: bool | _Undefined = Undefined,
         *,
         text: str | None = None,
+        icon: str | None = None,
+        icon_color: str | None = None,
         bind: bool | Callable[[ValueWidget], bool] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
@@ -72,6 +74,8 @@ class ButtonWidget(ValueWidget[bool]):
             value=value, bind=bind, nullable=nullable, **base_widget_kwargs
         )
         self.text = (text or self.name).replace("_", " ")
+        if icon:
+            self.set_icon(icon, icon_color)
 
     @property
     def options(self) -> dict:
@@ -93,3 +97,6 @@ class ButtonWidget(ValueWidget[bool]):
     def clicked(self) -> SignalInstance:
         """Alias for changed event."""
         return self.changed
+
+    def set_icon(self, value: str | None, color: str | None = None) -> None:
+        self._widget._mgui_set_icon(value, color)

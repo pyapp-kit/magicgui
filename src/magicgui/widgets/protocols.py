@@ -438,7 +438,21 @@ class SupportsText(Protocol):
 
 
 @runtime_checkable
-class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, Protocol):
+class SupportsIcon(Protocol):
+    """Widget that can be reoriented."""
+
+    @abstractmethod
+    def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
+        """Set icon.
+
+        Value is an "prefix:name" from iconify: https://icon-sets.iconify.design
+        Color is any valid CSS color string.
+        Set value to `None` or an empty string to remove icon.
+        """
+
+
+@runtime_checkable
+class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, SupportsIcon, Protocol):
     """The "value" in a ButtonWidget is the current (checked) state."""
 
 
