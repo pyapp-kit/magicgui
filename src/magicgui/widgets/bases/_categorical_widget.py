@@ -8,7 +8,11 @@ from magicgui.types import ChoicesType, Undefined, _Undefined
 from ._value_widget import T, ValueWidget
 
 if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
     from magicgui.widgets import protocols
+
+    from ._widget import WidgetKwargs
 
 
 class CategoricalWidget(ValueWidget[T]):
@@ -45,7 +49,7 @@ class CategoricalWidget(ValueWidget[T]):
         allow_multiple: bool | None = None,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
-        **base_widget_kwargs: Any,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
         if allow_multiple is not None:
             self._allow_multiple = allow_multiple

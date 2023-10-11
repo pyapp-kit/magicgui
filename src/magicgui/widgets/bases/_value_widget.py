@@ -10,7 +10,11 @@ from magicgui.types import Undefined, _Undefined
 from ._widget import Widget
 
 if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
     from magicgui.widgets import protocols
+
+    from ._widget import WidgetKwargs
 
 T = TypeVar("T")
 
@@ -45,7 +49,7 @@ class ValueWidget(Widget, Generic[T]):
         *,
         bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
-        **base_widget_kwargs: Any,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
         self._nullable = nullable
         self._bound_value = bind

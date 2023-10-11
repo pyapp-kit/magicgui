@@ -812,7 +812,7 @@ def test_pushbutton_click_signal():
 def test_pushbutton_icon(backend: str):
     use_app(backend)
     btn = widgets.PushButton(icon="mdi:folder")
-    btn.set_icon("smile", "red")
+    btn.set_icon("play", "red")
     btn.set_icon(None)
 
     if backend == "qt":

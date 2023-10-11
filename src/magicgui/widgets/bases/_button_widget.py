@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Callable
 
 from psygnal import Signal, SignalInstance
 
@@ -9,7 +9,11 @@ from magicgui.types import Undefined, _Undefined
 from ._value_widget import ValueWidget
 
 if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
     from magicgui.widgets import protocols
+
+    from ._widget import WidgetKwargs
 
 
 class ButtonWidget(ValueWidget[bool]):
@@ -52,7 +56,7 @@ class ButtonWidget(ValueWidget[bool]):
         icon_color: str | None = None,
         bind: bool | Callable[[ValueWidget], bool] | _Undefined = Undefined,
         nullable: bool = False,
-        **base_widget_kwargs: Any,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
         if text and base_widget_kwargs.get("label"):
             from warnings import warn

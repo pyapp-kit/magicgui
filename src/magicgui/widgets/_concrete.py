@@ -55,7 +55,12 @@ from magicgui.widgets.bases import (
 from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 
 if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
     from magicgui.widgets import protocols
+    from magicgui.widgets.bases._container_widget import ContainerKwargs
+    from magicgui.widgets.bases._widget import WidgetKwargs
+
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 WidgetTypeVar = TypeVar("WidgetTypeVar", bound=Type[Widget])
@@ -284,32 +289,13 @@ class LogSlider(TransformedRangedWidget):
         max: float = 100,
         base: float = math.e,
         tracking: bool = True,
-        **kwargs: Any,
+        **kwargs: Unpack[WidgetKwargs],
     ):
-        # sourcery skip: avoid-builtin-shadow
-        for key in ("maximum", "minimum"):
-            if key in kwargs:
-                import warnings
-
-                warnings.warn(
-                    f"The {key!r} keyword arguments has been changed to {key[:3]!r}. "
-                    "In the future this will raise an exception\n",
-                    FutureWarning,
-                    stacklevel=2,
-                )
-                if key == "maximum":
-                    max = kwargs.pop(key)  # noqa: A001
-                else:
-                    min = kwargs.pop(key)  # noqa: A001
         self._base = base
         app = use_app()
         assert app.native
-        super().__init__(
-            min=min,
-            max=max,
-            widget_type=app.get_obj("Slider"),
-            **kwargs,
-        )
+        kwargs["widget_type"] = app.get_obj("Slider")
+        super().__init__(min=min, max=max, **kwargs)
         self.tracking = tracking
 
     @property
@@ -372,7 +358,10 @@ class RadioButtons(CategoricalWidget, _OrientationMixin):  # type: ignore
     """An exclusive group of radio buttons, providing a choice from multiple choices."""
 
     def __init__(
-        self, choices: ChoicesType = (), orientation: str = "vertical", **kwargs: Any
+        self,
+        choices: ChoicesType = (),
+        orientation: str = "vertical",
+        **kwargs: Unpack[WidgetKwargs],
     ) -> None:
         app = use_app()
         assert app.native
@@ -423,9 +412,10 @@ class FileEdit(Container):
         mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
         filter: str | None = None,
         nullable: bool = False,
-        **kwargs: Any,
+        **kwargs: Unpack[ContainerKwargs],
     ) -> None:
-        value = kwargs.pop("value", None)
+        # use empty string as a null value
+        value = kwargs.pop("value", None)  # type: ignore [typeddict-item]
         if value is None:
             value = ""
         self.line_edit = LineEdit(value=value)
@@ -534,9 +524,9 @@ class RangeEdit(Container[SpinBox]):
         step: int = 1,
         min: int | tuple[int, int, int] | None = None,
         max: int | tuple[int, int, int] | None = None,
-        **kwargs: Any,
+        **kwargs: Unpack[ContainerKwargs],
     ) -> None:
-        value = kwargs.pop("value", None)
+        value = kwargs.pop("value", None)  # type: ignore [typeddict-item]
         if value is not None and value is not Undefined:
             if not all(hasattr(value, x) for x in ("start", "stop", "step")):
                 raise TypeError(f"Invalid value type for {type(self)}: {type(value)}")
@@ -549,7 +539,7 @@ class RangeEdit(Container[SpinBox]):
         kwargs["widgets"] = [self.start, self.stop, self.step]
         kwargs.setdefault("layout", "horizontal")
         kwargs.setdefault("labels", True)
-        kwargs.pop("nullable", None)
+        kwargs.pop("nullable", None)  # type: ignore [typeddict-item]
         super().__init__(**kwargs)
 
     @classmethod
@@ -632,13 +622,13 @@ class ListEdit(Container[ValueWidget[_V]]):
         All additional keyword arguments are passed to `Container` constructor.
     """
 
-    def __init__(
+    def __init__(  # type: ignore [misc]  # overlap between names
         self,
         value: Iterable[_V] | _Undefined = Undefined,
         layout: str = "horizontal",
         nullable: bool = False,
         options: dict | None = None,
-        **kwargs: Any,
+        **kwargs: Unpack[ContainerKwargs],
     ) -> None:
         self._args_type: type | None = None
         self._nullable = nullable
@@ -889,14 +879,14 @@ class TupleEdit(Container[ValueWidget]):
         self,
         value: Iterable[_V] | _Undefined = Undefined,
         *,
-        layout: str = "horizontal",
         nullable: bool = False,
         options: dict | None = None,
-        **kwargs: Any,
+        **container_kwargs: Unpack[ContainerKwargs[ValueWidget]],
     ) -> None:
         self._nullable = nullable
         self._args_types: tuple[type, ...] | None = None
-        super().__init__(layout=layout, labels=False, **kwargs)
+        container_kwargs["labels"] = False
+        super().__init__(**container_kwargs)
         self._child_options = options or {}
         self.margins = (0, 0, 0, 0)
 
@@ -988,12 +978,12 @@ class ToolBar(ToolBarWidget):
 class _LabeledWidget(Container):
     """Simple container that wraps a widget and provides a label."""
 
-    def __init__(
+    def __init__(  # type: ignore [misc]  # overlap between argument names
         self,
         widget: Widget,
         label: str | None = None,
         position: str = "left",
-        **kwargs: Any,
+        **kwargs: Unpack[ContainerKwargs],
     ) -> None:
         kwargs["layout"] = "horizontal" if position in {"left", "right"} else "vertical"
         self._inner_widget = widget
