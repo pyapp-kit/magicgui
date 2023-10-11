@@ -38,7 +38,7 @@ ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, ChoicesDict]
 #: be provided an instance of a
 #: [~magicgui.widgets.FunctionGui][magicgui.widgets.FunctionGui],
 #: the result of the function that was called, and the return annotation itself.
-ReturnCallback = Callable[["FunctionGui[Any]", Any, type], None]
+ReturnCallback = Callable[["FunctionGui", Any, type], None]
 #: A valid file path type
 PathLike = Union[Path, str, bytes]
 
