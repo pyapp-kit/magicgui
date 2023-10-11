@@ -355,7 +355,7 @@ class ToolBar(_IPyWidget):
 
     def __init__(self, **kwargs):
         super().__init__(ipywidgets.HBox, **kwargs)
-        self._icon_sz: Tuple[int, int] | None = None
+        self._icon_sz: Optional[Tuple[int, int]] = None
 
     def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
         """Add an action to the toolbar."""
@@ -387,11 +387,11 @@ class ToolBar(_IPyWidget):
         """Add a widget to the toolbar."""
         self._add_ipywidget(widget.native)
 
-    def _mgui_get_icon_size(self) -> Tuple[int, int] | None:
+    def _mgui_get_icon_size(self) -> Optional[Tuple[int, int]]:
         """Return the icon size of the toolbar."""
         return self._icon_sz
 
-    def _mgui_set_icon_size(self, size: int | Tuple[int, int] | None) -> None:
+    def _mgui_set_icon_size(self, size: Union[int, Tuple[int, int], None]) -> None:
         """Set the icon size of the toolbar."""
         if isinstance(size, int):
             size = (size, size)
