@@ -15,6 +15,7 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    Literal,
     NoReturn,
     Protocol,
     Sequence,
@@ -25,6 +26,8 @@ if TYPE_CHECKING:
     import numpy as np
 
     from magicgui.widgets.bases import Widget
+
+    Area = Literal["left", "right", "top", "bottom"]
 
 
 def assert_protocol(widget_class: type, protocol: type) -> None | NoReturn:
@@ -548,6 +551,22 @@ class MainWindowProtocol(ContainerProtocol, Protocol):
         shortcut : str | None, optional
             A keyboard shortcut for the action, by default None.
         """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_dock_widget(self, widget: Widget, area: Area) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_tool_bar(self, widget: Widget, area: Area) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_menu_bar(self, widget: Widget) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_status_bar(self, widget: Widget) -> None:
         raise NotImplementedError()
 
 

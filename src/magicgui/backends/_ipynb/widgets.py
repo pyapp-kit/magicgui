@@ -1,6 +1,6 @@
 # from __future__ import annotations  # NO
 
-from typing import Any, Callable, Iterable, Optional, Tuple, Type, Union
+from typing import Any, Callable, Iterable, Literal, Optional, Tuple, Type, Union
 
 try:
     import ipywidgets
@@ -461,6 +461,116 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
 
     def _mgui_get_orientation(self) -> str:
         return "vertical" if isinstance(self._ipywidget, ipywdg.VBox) else "horizontal"
+
+
+from ipywidgets import Button, GridspecLayout, Layout
+
+
+class IpyMainWindow(GridspecLayout):
+    IDX_MENUBAR = (0, slice(None))
+    IDX_STATUSBAR = (6, slice(None))
+    IDX_TOOLBAR_TOP = (1, slice(None))
+    IDX_TOOLBAR_BOTTOM = (5, slice(None))
+    IDX_TOOLBAR_LEFT = (slice(2, 5), 0)
+    IDX_TOOLBAR_RIGHT = (slice(2, 5), 4)
+    IDX_DOCK_TOP = (2, slice(1, 4))
+    IDX_DOCK_BOTTOM = (4, slice(1, 4))
+    IDX_DOCK_LEFT = (3, 1)
+    IDX_DOCK_RIGHT = (3, 3)
+    IDX_CENTRAL_WIDGET = (3, 2)
+
+    def __init__(self, **kwargs):
+        n_rows = 7
+        n_columns = 5
+        kwargs.setdefault("width", "600px")
+        kwargs.setdefault("height", "600px")
+        super().__init__(n_rows, n_columns, **kwargs)
+
+        hlay = ipywdg.Layout(height="30px", width="auto")
+        vlay = ipywdg.Layout(height="auto", width="30px")
+        self[self.IDX_TOOLBAR_TOP] = self._tbars_top = ipywdg.HBox(layout=hlay)
+        self[self.IDX_TOOLBAR_BOTTOM] = self._tbars_bottom = ipywdg.HBox(layout=hlay)
+        self[self.IDX_TOOLBAR_LEFT] = self._tbars_left = ipywdg.VBox(layout=vlay)
+        self[self.IDX_TOOLBAR_RIGHT] = self._tbars_right = ipywdg.VBox(layout=vlay)
+        self[self.IDX_DOCK_TOP] = self._dwdgs_top = ipywdg.HBox(layout=hlay)
+        self[self.IDX_DOCK_BOTTOM] = self._dwdgs_bottom = ipywdg.HBox(layout=hlay)
+        self[self.IDX_DOCK_LEFT] = self._dwdgs_left = ipywdg.VBox(layout=vlay)
+        self[self.IDX_DOCK_RIGHT] = self._dwdgs_right = ipywdg.VBox(layout=vlay)
+
+        self.layout.grid_template_columns = "34px 34px 1fr 34px 34px"
+        self.layout.grid_template_rows = "34px 34px 34px 1fr 34px 34px 34px"
+
+    def set_menu_bar(self, widget):
+        self[self.IDX_MENUBAR] = widget
+
+    def set_status_bar(self, widget):
+        self[self.IDX_STATUSBAR] = widget
+
+    def add_toolbar(self, widget, area: Literal["left", "top", "right", "bottom"]):
+        if area == "top":
+            self._tbars_top.children += (widget,)
+        elif area == "bottom":
+            self._tbars_bottom.children += (widget,)
+        elif area == "left":
+            self._tbars_left.children += (widget,)
+        elif area == "right":
+            self._tbars_right.children += (widget,)
+        else:
+            raise ValueError(f"Invalid area: {area!r}")
+
+    def add_dock_widget(self, widget, area: Literal["left", "top", "right", "bottom"]):
+        if area == "top":
+            self._dwdgs_top.children += (widget,)
+        elif area == "bottom":
+            self._dwdgs_bottom.children += (widget,)
+        elif area == "left":
+            self._dwdgs_left.children += (widget,)
+        elif area == "right":
+            self._dwdgs_right.children += (widget,)
+        else:
+            raise ValueError(f"Invalid area: {area!r}")
+
+
+# grid = GridspecLayout(7, 5, layout=layout, width="600px", height="600px")
+
+# grid[0, :] = Button(
+#     description="Menu Bar", button_style="danger", layout=Layout(**he_vf)
+# )
+# grid[1, :] = Button(description="Toolbars", button_style="info", layout=Layout(**he_vf))
+# grid[2, 1:4] = Button(
+#     description="Dock Widgets", button_style="success", layout=Layout(**he_vf)
+# )
+# grid[2:5, 0] = Button(description="T", button_style="info", layout=Layout(**hf_ve))
+# grid[3, 1] = Button(description="D", button_style="success", layout=Layout(**hf_ve))
+# grid[3, 2] = Button(
+#     description="Central Widget",
+#     button_style="warning",
+#     layout=Layout(height="auto", width="auto"),
+# )
+# grid[3, 3] = Button(description="D", button_style="success", layout=Layout(**hf_ve))
+# grid[2:5, 4] = Button(description="T", button_style="info", layout=Layout(**hf_ve))
+# grid[4, 1:4] = Button(description="D", button_style="success", layout=Layout(**he_vf))
+# grid[5, :] = Button(description="T", button_style="info", layout=Layout(**he_vf))
+# grid[6, :] = Button(
+#     description="Status Bar", button_style="danger", layout=Layout(**he_vf)
+# )
+# grid.layout.grid_template_columns = "34px 34px 1fr 34px 34px"
+# grid.layout.grid_template_rows = "34px 34px 34px 1fr 34px 34px 34px"
+
+
+class MainWindow(Container):
+    def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
+        self._ipywidget = IpyMainWindow()
+        print(self._ipywidget)
+
+    def _mgui_create_menu_item(
+        self,
+        menu_name: str,
+        action_name: str,
+        callback: Callable | None = None,
+        shortcut: str | None = None,
+    ):
+        pass
 
 
 def get_text_width(text):

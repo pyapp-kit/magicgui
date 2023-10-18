@@ -422,6 +422,54 @@ class MainWindowWidget(ContainerWidget):
         """
         self._widget._mgui_create_menu_item(menu_name, item_name, callback, shortcut)
 
+    def add_dock_widget(
+        self, widget: Widget, *, area: protocols.Area = "right"
+    ) -> None:
+        """Add a dock widget to the main window.
+
+        Parameters
+        ----------
+        widget : Widget
+            The widget to add to the main window.
+        area : str, optional
+            The area in which to add the widget, must be one of
+            `{'left', 'right', 'top', 'bottom'}`, by default "right".
+        """
+        self._widget._mgui_add_dock_widget(widget, area)
+
+    def add_tool_bar(self, widget: Widget, *, area: protocols.Area = "top") -> None:
+        """Add a toolbar to the main window.
+
+        Parameters
+        ----------
+        widget : Widget
+            The widget to add to the main window.
+        area : str, optional
+            The area in which to add the widget, must be one of
+            `{'left', 'right', 'top', 'bottom'}`, by default "top".
+        """
+        self._widget._mgui_add_tool_bar(widget, area)
+
+    def set_menubar(self, widget: Widget) -> None:
+        """Set the menubar of the main window.
+
+        Parameters
+        ----------
+        widget : Widget
+            The widget to add to the main window.
+        """
+        self._widget._mgui_set_menu_bar(widget)
+
+    def set_status_bar(self, widget: Widget) -> None:
+        """Set the statusbar of the main window.
+
+        Parameters
+        ----------
+        widget : Widget
+            The widget to add to the main window.
+        """
+        self._widget._mgui_set_status_bar(widget)
+
 
 class DialogWidget(ContainerWidget):
     """Modal Container."""
