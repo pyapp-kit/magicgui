@@ -46,6 +46,7 @@ from magicgui.widgets.bases import (
     MultiValuedSliderWidget,
     RangedWidget,
     SliderWidget,
+    ToolBarWidget,
     TransformedRangedWidget,
     ValueWidget,
     Widget,
@@ -967,6 +968,11 @@ class TupleEdit(Container[ValueWidget]):
             for w, v in zip(self, vals):
                 w.value = v
         self.changed.emit(self.value)
+
+
+@backend_widget
+class ToolBar(ToolBarWidget):
+    """Toolbar that contains a set of controls."""
 
 
 class _LabeledWidget(Container):
