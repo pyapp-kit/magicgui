@@ -46,6 +46,7 @@ from magicgui.widgets.bases import (
     MultiValuedSliderWidget,
     RangedWidget,
     SliderWidget,
+    StatusBarWidget,
     ToolBarWidget,
     TransformedRangedWidget,
     ValueWidget,
@@ -973,6 +974,11 @@ class TupleEdit(Container[ValueWidget]):
 @backend_widget
 class ToolBar(ToolBarWidget):
     """Toolbar that contains a set of controls."""
+
+
+@backend_widget
+class StatusBar(StatusBarWidget):
+    """Status bar that displays status information."""
 
 
 class _LabeledWidget(Container):

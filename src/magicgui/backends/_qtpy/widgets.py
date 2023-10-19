@@ -27,11 +27,14 @@ from qtpy.QtGui import (
 )
 
 from magicgui.types import FileDialogMode
-from magicgui.widgets import Widget, protocols
+from magicgui.widgets import protocols
 from magicgui.widgets._concrete import _LabeledWidget
+from magicgui.widgets.bases import Widget
 
 if TYPE_CHECKING:
     import numpy
+
+    from magicgui.widgets.protocols import Area
 
 
 @contextmanager
@@ -580,7 +583,7 @@ class Container(
             return "vertical"
 
 
-class MainWindow(Container):
+class MainWindow(Container, protocols.MainWindowProtocol):
     def __init__(
         self, layout="vertical", scrollable: bool = False, **kwargs: Any
     ) -> None:
@@ -617,6 +620,53 @@ class MainWindow(Container):
         if callback is not None:
             action.triggered.connect(callback)
         menu.addAction(action)
+
+    def _mgui_add_tool_bar(self, widget: Widget, area: Area) -> None:
+        native = widget.native
+        if not isinstance(native, QtW.QToolBar):
+            raise TypeError(
+                f"Expected widget to be a {QtW.QToolBar}, got {type(native)}"
+            )
+        self._main_window.addToolBar(Q_TB_AREA[area], native)
+
+    def _mgui_add_dock_widget(self, widget: Widget, area: Area) -> None:
+        native = widget.native
+        if isinstance(native, QtW.QDockWidget):
+            dw = native
+        else:
+            # TODO: allowed areas
+            dw = QtW.QDockWidget()
+            dw.setWidget(native)
+        self._main_window.addDockWidget(Q_DW_AREA[area], dw)
+
+    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
+        if widget is None:
+            self._main_window.setStatusBar(None)
+            return
+
+        native = widget.native
+        if not isinstance(native, QtW.QStatusBar):
+            raise TypeError(
+                f"Expected widget to be a {QtW.QStatusBar}, got {type(native)}"
+            )
+        self._main_window.setStatusBar(native)
+
+    def _mgui_set_menu_bar(self, widget: Widget) -> None:
+        raise NotImplementedError()
+
+
+Q_TB_AREA: dict[Area, Qt.ToolBarArea] = {
+    "top": Qt.ToolBarArea.TopToolBarArea,
+    "bottom": Qt.ToolBarArea.BottomToolBarArea,
+    "left": Qt.ToolBarArea.LeftToolBarArea,
+    "right": Qt.ToolBarArea.RightToolBarArea,
+}
+Q_DW_AREA: dict[Area, Qt.DockWidgetArea] = {
+    "top": Qt.DockWidgetArea.TopDockWidgetArea,
+    "bottom": Qt.DockWidgetArea.BottomDockWidgetArea,
+    "left": Qt.DockWidgetArea.LeftDockWidgetArea,
+    "right": Qt.DockWidgetArea.RightDockWidgetArea,
+}
 
 
 class SpinBox(QBaseRangedWidget):
@@ -1217,7 +1267,7 @@ class TimeEdit(QBaseValueWidget):
             return self._qwidget.time().toPyTime()
 
 
-class ToolBar(QBaseWidget):
+class ToolBar(QBaseWidget, protocols.ToolBarProtocol):
     _qwidget: QtW.QToolBar
 
     def __init__(self, **kwargs: Any) -> None:
@@ -1233,7 +1283,10 @@ class ToolBar(QBaseWidget):
 
     def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
         """Add an action to the toolbar."""
-        act = self._qwidget.addAction(text, callback)
+        if callback:
+            act = self._qwidget.addAction(text, callback)
+        else:
+            act = self._qwidget.addAction(text)
         if qicon := _get_qicon(icon, None, palette=self._qwidget.palette()):
             act.setIcon(qicon)
             act.setData(icon)
@@ -1272,6 +1325,35 @@ class ToolBar(QBaseWidget):
     def _mgui_clear(self) -> None:
         """Clear the toolbar."""
         self._qwidget.clear()
+
+
+class StatusBar(QBaseWidget, protocols.StatusBarProtocol):
+    _qwidget: QtW.QStatusBar
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(QtW.QStatusBar, **kwargs)
+
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
+        """Insert `widget` at the given `position`."""
+        self._qwidget.insertWidget(position, widget.native)
+
+    def _mgui_remove_widget(self, widget: Widget) -> None:
+        """Remove the specified widget."""
+        self._qwidget.removeWidget(widget.native)
+
+    def _mgui_get_message(self) -> str:
+        """Return currently shown message, or empty string if None."""
+        return self._qwidget.currentMessage()
+
+    def _mgui_set_message(self, message: str, timeout: int = 0) -> None:
+        """Show a message in the status bar for a given timeout.
+
+        To clear the message, set it to the empty string
+        """
+        if message:
+            self._qwidget.showMessage(message, timeout)
+        else:
+            self._qwidget.clearMessage()
 
 
 class Dialog(QBaseWidget, protocols.ContainerProtocol):

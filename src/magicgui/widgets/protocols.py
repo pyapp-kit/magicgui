@@ -553,6 +553,66 @@ class ToolBarProtocol(WidgetProtocol, Protocol):
         """Clear the toolbar."""
 
 
+class StatusBarProtocol(WidgetProtocol, Protocol):
+    """Status bar that contains a set of controls."""
+
+    @abstractmethod
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
+        """Insert `widget` at the given `position`."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_remove_widget(self, widget: Widget) -> None:
+        """Remove the specified widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_message(self) -> str:
+        """Return currently shown message, or empty string if None."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_message(self, message: str, timeout: int = 0) -> None:
+        """Show a message in the status bar for a given timeout.
+
+        To clear the message, set it to the empty string
+        """
+        raise NotImplementedError()
+
+
+class MenuProtocol(WidgetProtocol, Protocol):
+    """Menu that contains a set of actions."""
+
+    @abstractmethod
+    def _mgui_insert_action(self, before: str | None, action: Widget) -> None:
+        """Insert action before the specified action."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+        """Add a menu to the menu."""
+        raise NotImplementedError()
+
+
+class MenuBarProtocol(WidgetProtocol, Protocol):
+    """Menu bar that contains a set of menus."""
+
+    @abstractmethod
+    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+        """Add a menu to the menu bar."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
+        raise NotImplementedError()
+
+
 class DialogProtocol(ContainerProtocol, Protocol):
     """Protocol for modal (blocking) containers."""
 
@@ -601,7 +661,7 @@ class MainWindowProtocol(ContainerProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_status_bar(self, widget: Widget) -> None:
+    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
         raise NotImplementedError()
 
 
