@@ -524,7 +524,7 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
         return "vertical" if isinstance(self._ipywidget, ipywdg.VBox) else "horizontal"
 
 
-from ipywidgets import Button, GridspecLayout, Layout
+from ipywidgets import GridspecLayout
 
 
 class IpyMainWindow(GridspecLayout):
