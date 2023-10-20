@@ -93,7 +93,7 @@ def create_widget(
     assert wdg.value == ""
     ```
     """
-    _options = options.copy() if options is not None else {}
+    options_ = options.copy() if options is not None else {}
     kwargs = {
         "value": value,
         "annotation": annotation,
@@ -109,21 +109,21 @@ def create_widget(
         from magicgui.type_map import get_widget_class
 
         if widget_type:
-            _options["widget_type"] = widget_type
+            options_["widget_type"] = widget_type
         # special case parameters named "password" with annotation of str
         if (
-            not _options.get("widget_type")
+            not options_.get("widget_type")
             and (name or "").lower() == "password"
             and annotation is str
         ):
-            _options["widget_type"] = "Password"
+            options_["widget_type"] = "Password"
 
         wdg_class, opts = get_widget_class(
-            value, annotation, _options, is_result, raise_on_unknown
+            value, annotation, options_, is_result, raise_on_unknown
         )
 
         if issubclass(wdg_class, Widget):
-            widget = wdg_class(**{**kwargs, **opts, **_options})
+            widget = wdg_class(**{**kwargs, **opts, **options_})
             if param_kind:
                 widget.param_kind = param_kind  # type: ignore
             return widget
@@ -133,9 +133,9 @@ def create_widget(
     for p in ("Categorical", "Ranged", "Button", "Value", ""):
         prot = getattr(protocols, f"{p}WidgetProtocol")
         if isinstance(wdg_class, prot):
-            _options = kwargs.pop("options", None)
+            options_ = kwargs.pop("options", None)
             cls = getattr(bases, f"{p}Widget")
-            widget = cls(**{**kwargs, **(_options or {}), "widget_type": wdg_class})
+            widget = cls(**{**kwargs, **(options_ or {}), "widget_type": wdg_class})
             if param_kind:
                 widget.param_kind = param_kind  # type: ignore
             return widget

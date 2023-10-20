@@ -214,8 +214,8 @@ def _pick_widget_type(
     raise_on_unknown: bool = True,
 ) -> WidgetTuple:
     """Pick the appropriate widget type for ``value`` with ``annotation``."""
-    annotation, _options = _split_annotated_type(annotation)
-    options = {**_options, **(options or {})}
+    annotation, options_ = _split_annotated_type(annotation)
+    options = {**options_, **(options or {})}
     choices = options.get("choices")
 
     if is_result and annotation is inspect.Parameter.empty:
@@ -229,9 +229,9 @@ def _pick_widget_type(
     ):
         return widgets.EmptyWidget, {"visible": False, **options}
 
-    _type, optional = _type_optional(value, annotation)
+    type_, optional = _type_optional(value, annotation)
     options.setdefault("nullable", optional)
-    choices = choices or (isinstance(_type, EnumMeta) and _type)
+    choices = choices or (isinstance(type_, EnumMeta) and type_)
     literal_choices, nullable = _literal_choices(annotation)
     if literal_choices is not None:
         choices = literal_choices
@@ -243,7 +243,7 @@ def _pick_widget_type(
             if widget_type == "RadioButton":
                 widget_type = "RadioButtons"
                 warnings.warn(
-                    f"widget_type of 'RadioButton' (with dtype {_type}) is"
+                    f"widget_type of 'RadioButton' (with dtype {type_}) is"
                     " being coerced to 'RadioButtons' due to choices or Enum type.",
                     stacklevel=2,
                 )
@@ -252,15 +252,15 @@ def _pick_widget_type(
 
     # look for subclasses
     for registered_type in _TYPE_DEFS:
-        if _type == registered_type or safe_issubclass(_type, registered_type):
-            _cls, opts = _TYPE_DEFS[registered_type]
-            return _cls, {**options, **opts}
+        if type_ == registered_type or safe_issubclass(type_, registered_type):
+            cls_, opts = _TYPE_DEFS[registered_type]
+            return cls_, {**options, **opts}
 
     if is_result:
-        _widget_type = match_return_type(_type)
-        if _widget_type:
-            _cls, opts = _widget_type
-            return _cls, {**options, **opts}
+        widget_type_ = match_return_type(type_)
+        if widget_type_:
+            cls_, opts = widget_type_
+            return cls_, {**opts, **options}
         # Chosen for backwards/test compatibility
         return widgets.LineEdit, {"gui_only": True}
 
@@ -269,14 +269,14 @@ def _pick_widget_type(
         wdg = widgets.Select if options.get("allow_multiple") else widgets.ComboBox
         return wdg, options
 
-    _widget_type = match_type(_type, value)
-    if _widget_type:
-        _cls, opts = _widget_type
-        return _cls, {**options, **opts}
+    widget_type_ = match_type(type_, value)
+    if widget_type_:
+        cls_, opts = widget_type_
+        return cls_, {**opts, **options}
 
     if raise_on_unknown:
         raise ValueError(
-            f"No widget found for type {_type} and annotation {annotation!r}"
+            f"No widget found for type {type_} and annotation {annotation!r}"
         )
 
     options["visible"] = False
@@ -328,7 +328,7 @@ def get_widget_class(
         The WidgetClass, and dict that can be used for params. dict
         may be different than the options passed in.
     """
-    widget_type, _options = _pick_widget_type(
+    widget_type, options_ = _pick_widget_type(
         value, annotation, options, is_result, raise_on_unknown
     )
 
@@ -340,7 +340,7 @@ def get_widget_class(
     if not safe_issubclass(widget_class, widgets.bases.Widget):
         assert_protocol(widget_class, WidgetProtocol)
 
-    return widget_class, _options
+    return widget_class, options_
 
 
 def _import_wdg_class(class_name: str) -> WidgetClass:

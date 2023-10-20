@@ -110,6 +110,17 @@ def test_create_widget_annotation(annotation, expected_type):
     wdg.close()
 
 
+def test_create_widget_annotation_overwritte_parrams():
+    wdg1 = widgets.create_widget(annotation=widgets.ProgressBar)
+    assert isinstance(wdg1, widgets.ProgressBar)
+    assert wdg1.visible
+    wdg2 = widgets.create_widget(
+        annotation=Annotated[widgets.ProgressBar, {"visible": False}]
+    )
+    assert isinstance(wdg2, widgets.ProgressBar)
+    assert not wdg2.visible
+
+
 # fmt: off
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
