@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
     from magicgui.widgets import Container, protocols
-    from magicgui.widgets._concrete import StatusBar
 
     from ._widget import WidgetKwargs
 
@@ -403,8 +402,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
                 val = pickle.loads(val)
                 if val != self.NO_VALUE:
                     getattr(self, key).value = val
-
-
 
 
 class DialogWidget(ContainerWidget):
