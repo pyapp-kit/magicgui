@@ -20,6 +20,7 @@ main.status_bar.set_message("")
 file_menu = main.menu_bar.add_menu("File")
 assert file_menu is main.menu_bar["File"]  # can also access like this
 file_menu.add_action("Open", callback=lambda: print("Open"))
+
 subm = file_menu.add_menu("Submenu")
 subm.add_action("Subaction", callback=lambda: print("Subaction"))
 subm.add_separator()

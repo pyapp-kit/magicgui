@@ -1,39 +1,82 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, overload
 
 from ._widget import Widget
 
 if TYPE_CHECKING:
     from magicgui.widgets import protocols
+    from magicgui.widgets._concrete import Menu
 
 
-class MenuBarWidget(Widget):
+class _SupportsMenus:
+    """Mixin for widgets that support menus."""
+
+    _widget: protocols.MenuBarProtocol | protocols.MenuProtocol
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        self._menus: dict[str, MenuWidget] = {}
+        super().__init__(*args, **kwargs)
+
+    def __getitem__(self, key: str) -> MenuWidget:
+        return self._menus[key]
+
+    @overload
+    def add_menu(self, widget: Menu) -> MenuWidget:
+        ...
+
+    @overload
+    def add_menu(self, title: str, icon: str | None = None) -> MenuWidget:
+        ...
+
+    def add_menu(
+        self,
+        *args: Any,
+        widget: Menu | None = None,
+        title: str = "",
+        icon: str | None = None,
+    ) -> MenuWidget:
+        """Add a menu to the menu bar."""
+        widget = _parse_menu_overload(args, widget, title, icon)
+        self._menus[widget.title] = widget
+        self._widget._mgui_add_menu_widget(widget)
+        return widget
+
+
+def _parse_menu_overload(
+    args: tuple, widget: Menu | None = None, title: str = "", icon: str | None = None
+) -> Menu:
+    from magicgui.widgets._concrete import Menu
+
+    if len(args) == 2:
+        title, icon = args
+    elif len(args) == 1:
+        if not isinstance(arg0 := args[0], (str, Menu)):
+            raise TypeError("First argument must be a string or Menu")
+        if isinstance(arg0, Menu):
+            widget = arg0
+        else:
+            title = arg0
+
+    if widget is None:
+        widget = Menu(title=title, icon=icon)
+    return widget
+
+
+class MenuBarWidget(_SupportsMenus, Widget):
     """Menu bar containing menus. Can be added to a MainWindowWidget."""
 
     _widget: protocols.MenuBarProtocol
 
     def __init__(self, **base_widget_kwargs: Any) -> None:
         super().__init__(**base_widget_kwargs)
-        self._menus: dict[str, MenuWidget] = {}
-
-    def __getitem__(self, key: str) -> MenuWidget:
-        return self._menus[key]
-
-    def add_menu(self, title: str, icon: str | None = None) -> MenuWidget:
-        """Add a menu to the menu bar."""
-        from magicgui.widgets._concrete import Menu
-
-        self._menus[title] = menu = Menu(title=title, icon=icon)
-        self._widget._mgui_add_menu_widget(menu)
-        return menu
 
     def clear(self) -> None:
         """Clear the menu bar."""
         self._widget._mgui_clear()
 
 
-class MenuWidget(Widget):
+class MenuWidget(_SupportsMenus, Widget):
     """Menu widget. Can be added to a MenuBarWidget or another MenuWidget."""
 
     _widget: protocols.MenuProtocol
@@ -44,7 +87,6 @@ class MenuWidget(Widget):
         super().__init__(**base_widget_kwargs)
         self.title = title
         self.icon = icon
-        self._menus: dict[str, MenuWidget] = {}
 
     @property
     def title(self) -> str:
@@ -79,14 +121,6 @@ class MenuWidget(Widget):
         """Add a separator line to the menu."""
         self._widget._mgui_add_separator()
 
-    def add_menu(self, title: str, icon: str | None = None) -> MenuWidget:
-        """Add a menu to the menu."""
-        from magicgui.widgets._concrete import Menu
-
-        self._menus[title] = menu = Menu(title=title, icon=icon)
-        self._widget._mgui_add_menu_widget(menu)
-        return menu
-
     def clear(self) -> None:
-        """Clear the menu bar."""
+        """Clear the menu."""
         self._widget._mgui_clear()

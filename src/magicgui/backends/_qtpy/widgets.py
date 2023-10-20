@@ -29,7 +29,7 @@ from qtpy.QtGui import (
 from magicgui.types import FileDialogMode
 from magicgui.widgets import protocols
 from magicgui.widgets._concrete import _LabeledWidget
-from magicgui.widgets.bases import Widget, MenuWidget
+from magicgui.widgets.bases import MenuWidget, Widget
 
 if TYPE_CHECKING:
     import numpy
