@@ -25,8 +25,7 @@ from typing import (
 if TYPE_CHECKING:
     import numpy as np
 
-    from magicgui.widgets.bases import Widget
-    from magicgui.widgets.bases import MenuWidget
+    from magicgui.widgets.bases import MenuWidget, Widget
 
     Area = Literal["left", "right", "top", "bottom"]
 
