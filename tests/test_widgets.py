@@ -1,5 +1,6 @@
 import datetime
 import inspect
+import typing
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Tuple
@@ -108,6 +109,17 @@ def test_create_widget_annotation(annotation, expected_type):
     wdg = widgets.create_widget(annotation=annotation)
     assert isinstance(wdg, expected_type)
     wdg.close()
+
+
+def test_create_widget_annotation_overwritte_parrams():
+    wdg1 = widgets.create_widget(annotation=widgets.ProgressBar)
+    assert isinstance(wdg1, widgets.ProgressBar)
+    assert wdg1.visible
+    wdg2 = widgets.create_widget(
+        annotation=typing.Annotated[widgets.ProgressBar, {"visible": False}]
+    )
+    assert isinstance(wdg2, widgets.ProgressBar)
+    assert not wdg2.visible
 
 
 # fmt: off
