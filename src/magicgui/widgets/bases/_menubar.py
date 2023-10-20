@@ -22,9 +22,11 @@ class MenuBarWidget(Widget):
 
     def add_menu(self, title: str, icon: str | None = None) -> MenuWidget:
         """Add a menu to the menu bar."""
-        menu_widg = self._widget._mgui_add_menu(title, icon)
-        self._menus[title] = wrapped = MenuWidget(widget_type=menu_widg)
-        return wrapped
+        from magicgui.widgets._concrete import Menu
+
+        self._menus[title] = menu = Menu(title=title, icon=icon)
+        self._widget._mgui_add_menu_widget(menu)
+        return menu
 
     def clear(self) -> None:
         """Clear the menu bar."""
@@ -37,7 +39,7 @@ class MenuWidget(Widget):
     _widget: protocols.MenuProtocol
 
     def __init__(
-        self, title: str = "", icon: str = "", **base_widget_kwargs: Any
+        self, title: str = "", icon: str | None = "", **base_widget_kwargs: Any
     ) -> None:
         super().__init__(**base_widget_kwargs)
         self.title = title
@@ -79,9 +81,11 @@ class MenuWidget(Widget):
 
     def add_menu(self, title: str, icon: str | None = None) -> MenuWidget:
         """Add a menu to the menu."""
-        menu_widg = self._widget._mgui_add_menu(title, icon)
-        self._menus[title] = wrapped = MenuWidget(widget_type=menu_widg)
-        return wrapped
+        from magicgui.widgets._concrete import Menu
+
+        self._menus[title] = menu = Menu(title=title, icon=icon)
+        self._widget._mgui_add_menu_widget(menu)
+        return menu
 
     def clear(self) -> None:
         """Clear the menu bar."""

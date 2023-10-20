@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     import numpy as np
 
     from magicgui.widgets.bases import Widget
+    from magicgui.widgets.bases import MenuWidget
 
     Area = Literal["left", "right", "top", "bottom"]
 
@@ -583,8 +584,13 @@ class StatusBarProtocol(WidgetProtocol, Protocol):
 class MenuBarProtocol(WidgetProtocol, Protocol):
     """Menu bar that contains a set of menus."""
 
+    # @abstractmethod
+    # def _mgui_add_menu(self, title: str, icon: str | None) -> MenuProtocol:
+    #     """Add a menu to the menu bar."""
+    #     raise NotImplementedError()
+
     @abstractmethod
-    def _mgui_add_menu(self, title: str, icon: str | None) -> MenuProtocol:
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
         """Add a menu to the menu bar."""
         raise NotImplementedError()
 
@@ -638,8 +644,13 @@ class MenuProtocol(WidgetProtocol, Protocol):
         """Add a separator line to the menu."""
 
     @abstractmethod
-    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
-        """Add a menu to the menu."""
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        """Add a menu to the menu bar."""
+        raise NotImplementedError()
+
+    # @abstractmethod
+    # def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+    #     """Add a menu to the menu."""
 
     @abstractmethod
     def _mgui_clear(self) -> None:

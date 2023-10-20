@@ -29,7 +29,7 @@ from qtpy.QtGui import (
 from magicgui.types import FileDialogMode
 from magicgui.widgets import protocols
 from magicgui.widgets._concrete import _LabeledWidget
-from magicgui.widgets.bases import Widget
+from magicgui.widgets.bases import Widget, MenuWidget
 
 if TYPE_CHECKING:
     import numpy
@@ -590,22 +590,26 @@ class Container(
             return "vertical"
 
 
+def _add_qmenu(wdg: QtW.QMenu | QtW.QMenuBar, mgui_menu: MenuWidget):
+    """Add a magicgui menu to a QMenu or QMenuBar."""
+    native = mgui_menu.native
+    if not isinstance(native, QtW.QMenu):
+        raise TypeError(
+            f"Expected menu to be a {QtW.QMenu}, got {type(native)}: {native}"
+        )
+    wdg.addMenu(native)
+
+
 class MenuBar(QBaseWidget, protocols.MenuBarProtocol):
     _qwidget: QtW.QMenuBar
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(QtW.QMenuBar, **kwargs)
 
-    def _mgui_add_menu(self, title: str, icon: str | None) -> protocols.MenuProtocol:
+    # def _mgui_add_menu(self, title: str, icon: str | None) -> protocols.MenuProtocol:
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
         """Add a menu to the menu bar."""
-        if not title.startswith("&"):
-            title = f"&{title}"
-
-        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
-            self._qwidget.addMenu(qicon, title)
-            return
-        menu_qwidg = self._qwidget.addMenu(title)
-        return Menu(menu_qwidg)
+        _add_qmenu(self._qwidget, widget)
 
     def _mgui_clear(self) -> None:
         """Clear the menu bar."""
@@ -618,6 +622,23 @@ class Menu(QBaseWidget, protocols.MenuProtocol):
         self, qwidg: type[QtW.QMenu] | QtW.QMenu = QtW.QMenu, **kwargs: Any
     ) -> None:
         super().__init__(qwidg, **kwargs)
+
+    def _mgui_get_title(self) -> str:
+        return self._qwidget.title()
+
+    def _mgui_set_title(self, value: str) -> None:
+        self._qwidget.setTitle(value)
+
+    def _mgui_get_icon(self) -> str | None:
+        # see also: https://github.com/pyapp-kit/superqt/pull/213
+        return self._icon
+
+    def _mgui_set_icon(self, icon: str | None) -> None:
+        self._icon = icon
+        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
+            self._qwidget.setIcon(qicon)
+        else:
+            self._qwidget.setIcon(QIcon())
 
     def _mgui_add_action(
         self,
@@ -643,15 +664,9 @@ class Menu(QBaseWidget, protocols.MenuProtocol):
         """Add a separator to the menu."""
         self._qwidget.addSeparator()
 
-    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
         """Add a menu to the menu bar."""
-        if not title.startswith("&"):
-            title = f"&{title}"
-        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
-            self._qwidget.addMenu(qicon, title)
-            return
-        menu_qwidg = self._qwidget.addMenu(title)
-        return Menu(menu_qwidg)
+        _add_qmenu(self._qwidget, widget)
 
     def _mgui_clear(self) -> None:
         """Clear the menu bar."""
@@ -669,6 +684,7 @@ class MainWindow(Container, protocols.MainWindowProtocol):
             self._main_window.setCentralWidget(self._scroll)
         else:
             self._main_window.setCentralWidget(self._qwidget)
+        # self._qwidget = self._main_window  # TODO
 
     def _mgui_get_visible(self):
         return self._main_window.isVisible()
