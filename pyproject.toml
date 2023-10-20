@@ -112,7 +112,7 @@ dev = [
 ]
 docs = [
     "mkdocs",
-    "mkdocs-material ~=9.2",
+    "mkdocs-material ~=9.4",
     "mkdocstrings ==0.22.0",
     "mkdocstrings-python ==1.6.2",
     "mkdocs-gen-files",
