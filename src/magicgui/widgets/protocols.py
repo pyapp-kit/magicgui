@@ -603,6 +603,26 @@ class MenuProtocol(WidgetProtocol, Protocol):
     #     raise NotImplementedError()
 
     @abstractmethod
+    def _mgui_get_title(self) -> str:
+        """Return the title of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_title(self, title: str) -> None:
+        """Set the title of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_icon(self) -> str | None:
+        """Return the icon of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_icon(self, icon: str | None) -> None:
+        """Set the icon of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
     def _mgui_add_action(
         self,
         text: str,

@@ -36,9 +36,31 @@ class MenuWidget(Widget):
 
     _widget: protocols.MenuProtocol
 
-    def __init__(self, **base_widget_kwargs: Any) -> None:
+    def __init__(
+        self, title: str = "", icon: str = "", **base_widget_kwargs: Any
+    ) -> None:
         super().__init__(**base_widget_kwargs)
+        self.title = title
+        self.icon = icon
         self._menus: dict[str, MenuWidget] = {}
+
+    @property
+    def title(self) -> str:
+        """Title of the menu."""
+        return self._widget._mgui_get_title()
+
+    @title.setter
+    def title(self, value: str) -> None:
+        self._widget._mgui_set_title(value)
+
+    @property
+    def icon(self) -> str | None:
+        """Icon of the menu."""
+        return self._widget._mgui_get_icon()
+
+    @icon.setter
+    def icon(self, value: str | None) -> None:
+        self._widget._mgui_set_icon(value)
 
     def add_action(
         self,
