@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any
 
 from ._widget import Widget
 
 if TYPE_CHECKING:
     from magicgui.widgets import protocols
-
-T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
 
 
 class StatusBarWidget(Widget):

@@ -6,7 +6,7 @@ from ._container_widget import ContainerWidget
 
 if TYPE_CHECKING:
     from magicgui.widgets import protocols
-    from magicgui.widgets._concrete import StatusBar
+    from magicgui.widgets._concrete import MenuBar, StatusBar
 
     from ._widget import Widget
 
@@ -16,6 +16,7 @@ class MainWindowWidget(ContainerWidget):
 
     _widget: protocols.MainWindowProtocol
     _status_bar: StatusBar | None = None
+    _menu_bar: MenuBar | None = None
 
     def create_menu_item(
         self,
@@ -58,34 +59,20 @@ class MainWindowWidget(ContainerWidget):
         """
         self._widget._mgui_add_tool_bar(widget, area)
 
-    def set_menubar(self, widget: Widget) -> None:
-        """Set the menubar of the main window.
-
-        Parameters
-        ----------
-        widget : Widget
-            The widget to add to the main window.
-        """
-        self._widget._mgui_set_menu_bar(widget)
-
     @property
-    def menu_bar(self) -> StatusBar:
+    def menu_bar(self) -> MenuBar:
         """Return the status bar widget."""
-        if self._status_bar is None:
-            from magicgui.widgets._concrete import StatusBar
+        if self._menu_bar is None:
+            from magicgui.widgets._concrete import MenuBar
 
-            self.status_bar = StatusBar()
-        return cast("StatusBar", self._status_bar)
-    
-    # def set_status_bar(self, widget: Widget) -> None:
-    #     """Set the statusbar of the main window.
+            self.menu_bar = MenuBar()
+        return cast("MenuBar", self._menu_bar)
 
-    #     Parameters
-    #     ----------
-    #     widget : Widget
-    #         The widget to add to the main window.
-    #     """
-    #     self._widget._mgui_set_status_bar(widget)
+    @menu_bar.setter
+    def menu_bar(self, widget: MenuBar | None) -> None:
+        """Set the status bar widget."""
+        self._menu_bar = widget
+        self._widget._mgui_set_menu_bar(widget)
 
     @property
     def status_bar(self) -> StatusBar:
@@ -101,3 +88,23 @@ class MainWindowWidget(ContainerWidget):
         """Set the status bar widget."""
         self._status_bar = widget
         self._widget._mgui_set_status_bar(widget)
+
+    # def set_status_bar(self, widget: Widget) -> None:
+    #     """Set the statusbar of the main window.
+
+    #     Parameters
+    #     ----------
+    #     widget : Widget
+    #         The widget to add to the main window.
+    #     """
+    #     self._widget._mgui_set_status_bar(widget)
+
+    # def set_menubar(self, widget: Widget) -> None:
+    #     """Set the menubar of the main window.
+
+    #     Parameters
+    #     ----------
+    #     widget : Widget
+    #         The widget to add to the main window.
+    #     """
+    #     self._widget._mgui_set_menu_bar(widget)

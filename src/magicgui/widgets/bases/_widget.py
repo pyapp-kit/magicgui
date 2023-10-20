@@ -85,7 +85,7 @@ class Widget:
 
     def __init__(
         self,
-        widget_type: type[WidgetProtocol],
+        widget_type: type[WidgetProtocol] | WidgetProtocol,
         name: str = "",
         annotation: Any | None = None,
         label: str | None = None,
@@ -116,26 +116,31 @@ class Widget:
             )
         if not isinstance(_prot, str):
             _prot = _prot.__name__
+
         prot = getattr(protocols, _prot.replace("protocols.", ""))
-        protocols.assert_protocol(widget_type, prot)
         self.__magicgui_app__ = use_app()
         assert self.__magicgui_app__.native
         if isinstance(parent, Widget):
             parent = parent.native
-        try:
-            self._widget = widget_type(parent=parent, **backend_kwargs)
-        except TypeError as e:
-            if "unexpected keyword" not in str(e) and "no arguments" not in str(e):
-                raise
+        if not isinstance(widget_type, type):
+            protocols.assert_protocol(type(widget_type), prot)
+            self._widget = widget_type
+        else:
+            protocols.assert_protocol(widget_type, prot)
+            try:
+                self._widget = widget_type(parent=parent, **backend_kwargs)
+            except TypeError as e:
+                if "unexpected keyword" not in str(e) and "no arguments" not in str(e):
+                    raise
 
-            warnings.warn(
-                "Beginning with magicgui v0.6, the `widget_type` class passed to "
-                "`magicgui.Widget` must accept a `parent` Argument. In v0.7 this "
-                "will raise an exception. "
-                f"Please update '{widget_type.__name__}.__init__()'",
-                stacklevel=2,
-            )
-            self._widget = widget_type(**backend_kwargs)
+                warnings.warn(
+                    "Beginning with magicgui v0.6, the `widget_type` class passed to "
+                    "`magicgui.Widget` must accept a `parent` Argument. In v0.7 this "
+                    "will raise an exception. "
+                    f"Please update '{widget_type.__name__}.__init__()'",
+                    stacklevel=2,
+                )
+                self._widget = widget_type(**backend_kwargs)
 
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD

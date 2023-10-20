@@ -43,6 +43,8 @@ from magicgui.widgets.bases import (
     ContainerWidget,
     DialogWidget,
     MainWindowWidget,
+    MenuBarWidget,
+    MenuWidget,
     MultiValuedSliderWidget,
     RangedWidget,
     SliderWidget,
@@ -979,6 +981,16 @@ class ToolBar(ToolBarWidget):
 @backend_widget
 class StatusBar(StatusBarWidget):
     """Status bar that displays status information."""
+
+
+@backend_widget
+class MenuBar(MenuBarWidget):
+    """Menu bar that contains multiple menus."""
+
+
+@backend_widget
+class Menu(MenuWidget):
+    """A menu that contains actions."""
 
 
 class _LabeledWidget(Container):

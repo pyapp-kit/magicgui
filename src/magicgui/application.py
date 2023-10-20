@@ -20,11 +20,12 @@ def _in_jupyter() -> bool:
     with suppress(ImportError):
         from IPython import get_ipython
 
-        return get_ipython().__class__.__name__ == "ZMQInteractiveShell"
+        ipy_class = get_ipython().__class__.__name__
+        return bool(ipy_class == "ZMQInteractiveShell")
     return False
 
 
-def _choose_backend():
+def _choose_backend() -> str:
     return "ipynb" if _in_jupyter() else "qt"
 
 

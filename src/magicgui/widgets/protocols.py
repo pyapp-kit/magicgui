@@ -580,30 +580,11 @@ class StatusBarProtocol(WidgetProtocol, Protocol):
         raise NotImplementedError()
 
 
-class MenuProtocol(WidgetProtocol, Protocol):
-    """Menu that contains a set of actions."""
-
-    @abstractmethod
-    def _mgui_insert_action(self, before: str | None, action: Widget) -> None:
-        """Insert action before the specified action."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_add_separator(self) -> None:
-        """Add a separator line to the menu."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
-        """Add a menu to the menu."""
-        raise NotImplementedError()
-
-
 class MenuBarProtocol(WidgetProtocol, Protocol):
     """Menu bar that contains a set of menus."""
 
     @abstractmethod
-    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+    def _mgui_add_menu(self, title: str, icon: str | None) -> MenuProtocol:
         """Add a menu to the menu bar."""
         raise NotImplementedError()
 
@@ -611,6 +592,38 @@ class MenuBarProtocol(WidgetProtocol, Protocol):
     def _mgui_clear(self) -> None:
         """Clear the menu bar."""
         raise NotImplementedError()
+
+
+class MenuProtocol(WidgetProtocol, Protocol):
+    """Menu that contains a set of actions."""
+
+    # @abstractmethod
+    # def _mgui_insert_action(self, before: str | None, action: Widget) -> None:
+    #     """Insert action before the specified action."""
+    #     raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_action(
+        self,
+        text: str,
+        shortcut: str | None = None,
+        icon: str | None = None,
+        tooltip: str | None = None,
+        callback: Callable | None = None,
+    ) -> None:
+        """Add an action to the menu."""
+
+    @abstractmethod
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the menu."""
+
+    @abstractmethod
+    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+        """Add a menu to the menu."""
+
+    @abstractmethod
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
 
 
 class DialogProtocol(ContainerProtocol, Protocol):
@@ -657,7 +670,7 @@ class MainWindowProtocol(ContainerProtocol, Protocol):
         raise NotImplementedError()
 
     @abstractmethod
-    def _mgui_set_menu_bar(self, widget: Widget) -> None:
+    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
         raise NotImplementedError()
 
     @abstractmethod

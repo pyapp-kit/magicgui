@@ -69,10 +69,17 @@ class QBaseWidget(protocols.WidgetProtocol):
     _qwidget: QtW.QWidget
 
     def __init__(
-        self, qwidg: type[QtW.QWidget], parent: QtW.QWidget | None = None, **kwargs: Any
+        self,
+        qwidg: type[QtW.QWidget] | QtW.QWidget,
+        parent: QtW.QWidget | None = None,
+        **kwargs: Any,
     ) -> None:
-        self._qwidget = qwidg(parent=parent)
-        self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
+        if isinstance(qwidg, QtW.QWidget):
+            self._qwidget = qwidg
+            self._qwidget.setObjectName(f"magicgui.{type(qwidg).__name__}")
+        else:
+            self._qwidget = qwidg(parent=parent)
+            self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
@@ -583,6 +590,74 @@ class Container(
             return "vertical"
 
 
+class MenuBar(QBaseWidget, protocols.MenuBarProtocol):
+    _qwidget: QtW.QMenuBar
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(QtW.QMenuBar, **kwargs)
+
+    def _mgui_add_menu(self, title: str, icon: str | None) -> protocols.MenuProtocol:
+        """Add a menu to the menu bar."""
+        if not title.startswith("&"):
+            title = f"&{title}"
+
+        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
+            self._qwidget.addMenu(qicon, title)
+            return
+        menu_qwidg = self._qwidget.addMenu(title)
+        return Menu(menu_qwidg)
+
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
+
+
+class Menu(QBaseWidget, protocols.MenuProtocol):
+    _qwidget: QtW.QMenu
+
+    def __init__(
+        self, qwidg: type[QtW.QMenu] | QtW.QMenu = QtW.QMenu, **kwargs: Any
+    ) -> None:
+        super().__init__(qwidg, **kwargs)
+
+    def _mgui_add_action(
+        self,
+        text: str,
+        shortcut: str | None = None,
+        icon: str | None = None,
+        tooltip: str | None = None,
+        callback: Callable | None = None,
+    ) -> None:
+        """Add an action to the menu."""
+        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
+            action = self._qwidget.addAction(qicon, text)
+        else:
+            action = self._qwidget.addAction(text)
+        if shortcut:
+            action.setShortcut(shortcut)
+        if tooltip:
+            action.setToolTip(tooltip)
+        if callback:
+            action.triggered.connect(callback)
+
+    def _mgui_add_separator(self) -> None:
+        """Add a separator to the menu."""
+        self._qwidget.addSeparator()
+
+    def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+        """Add a menu to the menu bar."""
+        if not title.startswith("&"):
+            title = f"&{title}"
+        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
+            self._qwidget.addMenu(qicon, title)
+            return
+        menu_qwidg = self._qwidget.addMenu(title)
+        return Menu(menu_qwidg)
+
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
+        self._qwidget.clear()
+
+
 class MainWindow(Container, protocols.MainWindowProtocol):
     def __init__(
         self, layout="vertical", scrollable: bool = False, **kwargs: Any
@@ -651,8 +726,17 @@ class MainWindow(Container, protocols.MainWindowProtocol):
             )
         self._main_window.setStatusBar(native)
 
-    def _mgui_set_menu_bar(self, widget: Widget) -> None:
-        raise NotImplementedError()
+    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
+        if widget is None:
+            self._main_window.setMenuBar(QtW.QMenuBar())
+            return
+
+        native = widget.native
+        if not isinstance(native, QtW.QMenuBar):
+            raise TypeError(
+                f"Expected widget to be a {QtW.QMenuBar}, got {type(native)}"
+            )
+        self._main_window.setMenuBar(native)
 
 
 Q_TB_AREA: dict[Area, Qt.ToolBarArea] = {
