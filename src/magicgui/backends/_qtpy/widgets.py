@@ -673,27 +673,44 @@ class Menu(QBaseWidget, protocols.MenuProtocol):
         self._qwidget.clear()
 
 
-class MainWindow(Container, protocols.MainWindowProtocol):
+class MainWindow(QBaseWidget, protocols.MainWindowProtocol):
+    _qwidget: QtW.QMainWindow
+
     def __init__(
         self, layout="vertical", scrollable: bool = False, **kwargs: Any
     ) -> None:
-        super().__init__(layout=layout, scrollable=scrollable, **kwargs)
-        self._main_window = QtW.QMainWindow()
+        QBaseWidget.__init__(self, QtW.QMainWindow, **kwargs)
+        if layout == "horizontal":
+            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
+        else:
+            self._layout = QtW.QVBoxLayout()
+        self._central_widget = QtW.QWidget()
+        self._central_widget.setLayout(self._layout)
+
+        if scrollable:
+            self._scroll = QtW.QScrollArea()
+            # Allow widget to resize when window is larger than min widget size
+            self._scroll.setWidgetResizable(True)
+            if layout == "horizontal":
+                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
+                vert_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            else:
+                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+                vert_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
+            self._scroll.setVerticalScrollBarPolicy(vert_policy)
+            self._scroll.setWidget(self._central_widget)
+            self._central_widget = self._scroll
+
         self._menus: dict[str, QtW.QMenu] = {}
         if scrollable:
-            self._main_window.setCentralWidget(self._scroll)
+            self._qwidget.setCentralWidget(self._scroll)
         else:
-            self._main_window.setCentralWidget(self._qwidget)
-        # self._qwidget = self._main_window  # TODO
+            self._qwidget.setCentralWidget(self._central_widget)
 
-    def _mgui_get_visible(self):
-        return self._main_window.isVisible()
-
-    def _mgui_set_visible(self, value: bool):
-        self._main_window.setVisible(value)
-
-    def _mgui_get_native_widget(self) -> QtW.QMainWindow:
-        return self._main_window
+    @property
+    def _is_scrollable(self) -> bool:
+        return isinstance(self._central_widget, QtW.QScrollArea)
 
     def _mgui_create_menu_item(
         self,
@@ -703,9 +720,9 @@ class MainWindow(Container, protocols.MainWindowProtocol):
         shortcut: str | None = None,
     ):
         menu = self._menus.setdefault(
-            menu_name, self._main_window.menuBar().addMenu(f"&{menu_name}")
+            menu_name, self._qwidget.menuBar().addMenu(f"&{menu_name}")
         )
-        action = QtW.QAction(action_name, self._main_window)
+        action = QtW.QAction(action_name, self._qwidget)
         if shortcut is not None:
             action.setShortcut(shortcut)
         if callback is not None:
@@ -718,7 +735,7 @@ class MainWindow(Container, protocols.MainWindowProtocol):
             raise TypeError(
                 f"Expected widget to be a {QtW.QToolBar}, got {type(native)}"
             )
-        self._main_window.addToolBar(Q_TB_AREA[area], native)
+        self._qwidget.addToolBar(Q_TB_AREA[area], native)
 
     def _mgui_add_dock_widget(self, widget: Widget, area: Area) -> None:
         native = widget.native
@@ -728,11 +745,11 @@ class MainWindow(Container, protocols.MainWindowProtocol):
             # TODO: allowed areas
             dw = QtW.QDockWidget()
             dw.setWidget(native)
-        self._main_window.addDockWidget(Q_DW_AREA[area], dw)
+        self._qwidget.addDockWidget(Q_DW_AREA[area], dw)
 
     def _mgui_set_status_bar(self, widget: Widget | None) -> None:
         if widget is None:
-            self._main_window.setStatusBar(None)
+            self._qwidget.setStatusBar(None)
             return
 
         native = widget.native
@@ -740,11 +757,11 @@ class MainWindow(Container, protocols.MainWindowProtocol):
             raise TypeError(
                 f"Expected widget to be a {QtW.QStatusBar}, got {type(native)}"
             )
-        self._main_window.setStatusBar(native)
+        self._qwidget.setStatusBar(native)
 
     def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
         if widget is None:
-            self._main_window.setMenuBar(QtW.QMenuBar())
+            self._qwidget.setMenuBar(QtW.QMenuBar())
             return
 
         native = widget.native
@@ -752,7 +769,41 @@ class MainWindow(Container, protocols.MainWindowProtocol):
             raise TypeError(
                 f"Expected widget to be a {QtW.QMenuBar}, got {type(native)}"
             )
-        self._main_window.setMenuBar(native)
+        self._qwidget.setMenuBar(native)
+
+    def _mgui_insert_widget(self, position: int, widget: Widget):
+        self._layout.insertWidget(position, widget.native)
+        if self._is_scrollable:
+            min_size = self._layout.totalMinimumSize()
+            if isinstance(self._layout, QtW.QHBoxLayout):
+                self._scroll.setMinimumHeight(min_size.height())
+            else:
+                self._scroll.setMinimumWidth(min_size.width() + 20)
+
+    def _mgui_remove_widget(self, widget: Widget):
+        self._layout.removeWidget(widget.native)
+        widget.native.setParent(None)
+
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
+        m = self._layout.contentsMargins()
+        return m.left(), m.top(), m.right(), m.bottom()
+
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
+        self._layout.setContentsMargins(*margins)
+
+    def _mgui_set_orientation(self, value) -> None:
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
+        raise NotImplementedError(
+            "Sorry, changing orientation after instantiation "
+            "is not yet implemented for Qt."
+        )
+
+    def _mgui_get_orientation(self) -> str:
+        """Set orientation, return either 'horizontal' or 'vertical'."""
+        if isinstance(self, QtW.QHBoxLayout):
+            return "horizontal"
+        else:
+            return "vertical"
 
 
 Q_TB_AREA: dict[Area, Qt.ToolBarArea] = {
