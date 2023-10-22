@@ -2,7 +2,6 @@
 
 from typing import Any, Callable, Iterable, Literal, Optional, Tuple, Type, Union
 
-
 try:
     import ipywidgets
     from ipywidgets import widgets as ipywdg
