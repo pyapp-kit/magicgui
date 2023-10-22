@@ -10,28 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://pyapp-kit.github.io/magicgui/dataclasses/">
+        <link rel="canonical" href="https://pyapp-kit.github.io/magicgui/api/widgets/ToolBar/">
       
       
-        <link rel="prev" href="../decorators/">
+        <link rel="prev" href="../TimeEdit/">
       
       
-        <link rel="next" href="../generated_examples/">
+        <link rel="next" href="../TupleEdit/">
       
       
-      <link rel="icon" href="../images/favicon.ico">
+      <link rel="icon" href="../../../images/favicon.ico">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.6">
     
     
       
-        <title>Dataclasses & guiclass - magicgui</title>
+        <title>ToolBar - magicgui</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35e1ed30.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.35e1ed30.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.356b1318.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.356b1318.min.css">
       
       
 
@@ -50,21 +50,21 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-      <link rel="stylesheet" href="../stylesheets/pygments.css">
+      <link rel="stylesheet" href="../../../stylesheets/pygments.css">
     
-      <link rel="stylesheet" href="../sg_gallery-rendered-html.css">
+      <link rel="stylesheet" href="../../../sg_gallery-rendered-html.css">
     
-      <link rel="stylesheet" href="../sg_gallery-dataframe.css">
+      <link rel="stylesheet" href="../../../sg_gallery-dataframe.css">
     
-      <link rel="stylesheet" href="../sg_gallery-binder.css">
+      <link rel="stylesheet" href="../../../sg_gallery-binder.css">
     
-      <link rel="stylesheet" href="../sg_gallery.css">
+      <link rel="stylesheet" href="../../../sg_gallery.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -93,7 +93,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dataclasses-guiclass" class="md-skip">
+        <a href="#toolbar" class="md-skip">
           Skip to content
         </a>
       
@@ -109,9 +109,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="magicgui" class="md-header__button md-logo" aria-label="magicgui" data-md-component="logo">
+    <a href="../../.." title="magicgui" class="md-header__button md-logo" aria-label="magicgui" data-md-component="logo">
       
-  <img src="../images/logo.png" alt="logo">
+  <img src="../../../images/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Dataclasses & guiclass
+              ToolBar
             
           </span>
         </div>
@@ -245,9 +245,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="magicgui" class="md-nav__button md-logo" aria-label="magicgui" data-md-component="logo">
+    <a href="../../.." title="magicgui" class="md-nav__button md-logo" aria-label="magicgui" data-md-component="logo">
       
-  <img src="../images/logo.png" alt="logo">
+  <img src="../../../images/logo.png" alt="logo">
 
     </a>
     magicgui
@@ -273,7 +273,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -292,7 +292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+      <a href="../../../installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -309,8 +309,6 @@
       
   
   
-    
-  
   
     
     
@@ -332,12 +330,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -351,7 +349,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Usage
@@ -364,7 +362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../widgets/" class="md-nav__link">
+      <a href="../../../widgets/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -384,7 +382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../type_map/" class="md-nav__link">
+      <a href="../../../type_map/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -404,7 +402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../events/" class="md-nav__link">
+      <a href="../../../events/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -424,7 +422,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../decorators/" class="md-nav__link">
+      <a href="../../../decorators/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -442,29 +440,9 @@
                 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Dataclasses & guiclass
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../dataclasses/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -473,73 +451,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-are-dataclasses" class="md-nav__link">
-    What are dataclasses?
-  </a>
-  
-    <nav class="md-nav" aria-label="What are dataclasses?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dataclass-patterns-outside-the-standard-library" class="md-nav__link">
-    dataclass patterns outside the standard library
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#magicgui-guiclass" class="md-nav__link">
-    magicgui guiclass
-  </a>
-  
-    <nav class="md-nav" aria-label="magicgui guiclass">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#two-way-data-binding" class="md-nav__link">
-    Two-way data binding
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#adding-buttons-and-callbacks" class="md-nav__link">
-    Adding buttons and callbacks
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -597,7 +508,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../generated_examples/" class="md-nav__link ">
+            <a href="../../../generated_examples/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -671,7 +582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/basic_example/" class="md-nav__link">
+      <a href="../../../generated_examples/basic_example/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -691,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/basic_widgets_demo/" class="md-nav__link">
+      <a href="../../../generated_examples/basic_widgets_demo/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -769,7 +680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/applications/values_dialog/" class="md-nav__link">
+      <a href="../../../generated_examples/applications/values_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -789,7 +700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/applications/pint_quantity/" class="md-nav__link">
+      <a href="../../../generated_examples/applications/pint_quantity/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -809,7 +720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/applications/callable/" class="md-nav__link">
+      <a href="../../../generated_examples/applications/callable/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -829,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/applications/snells_law/" class="md-nav__link">
+      <a href="../../../generated_examples/applications/snells_law/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -849,7 +760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/applications/hotdog/" class="md-nav__link">
+      <a href="../../../generated_examples/applications/hotdog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -869,7 +780,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/applications/chaining/" class="md-nav__link">
+      <a href="../../../generated_examples/applications/chaining/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -955,7 +866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/image/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/image/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -975,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/change_label/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/change_label/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -995,7 +906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/range_slider/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/range_slider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1015,7 +926,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/log_slider/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/log_slider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1035,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/optional/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/optional/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1055,7 +966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/selection/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/selection/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1075,7 +986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1095,7 +1006,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1115,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/choices/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/choices/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1135,7 +1046,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/demo_widgets/table/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/table/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1205,7 +1116,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/matplotlib/mpl_figure/" class="md-nav__link">
+      <a href="../../../generated_examples/matplotlib/mpl_figure/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1225,7 +1136,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/matplotlib/waveform/" class="md-nav__link">
+      <a href="../../../generated_examples/matplotlib/waveform/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1299,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/napari/napari_forward_refs/" class="md-nav__link">
+      <a href="../../../generated_examples/napari/napari_forward_refs/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1319,7 +1230,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/napari/napari_combine_qt/" class="md-nav__link">
+      <a href="../../../generated_examples/napari/napari_combine_qt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1339,7 +1250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/napari/napari_parameter_sweep/" class="md-nav__link">
+      <a href="../../../generated_examples/napari/napari_parameter_sweep/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1359,7 +1270,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/napari/napari_img_math/" class="md-nav__link">
+      <a href="../../../generated_examples/napari/napari_img_math/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1427,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/notebooks/magicgui_jupyter/" class="md-nav__link">
+      <a href="../../../generated_examples/notebooks/magicgui_jupyter/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1501,7 +1412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/progress_bars/progress_manual/" class="md-nav__link">
+      <a href="../../../generated_examples/progress_bars/progress_manual/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1521,7 +1432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/progress_bars/progress/" class="md-nav__link">
+      <a href="../../../generated_examples/progress_bars/progress/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1541,7 +1452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/progress_bars/progress_indeterminate/" class="md-nav__link">
+      <a href="../../../generated_examples/progress_bars/progress_indeterminate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1561,7 +1472,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/progress_bars/progress_nested/" class="md-nav__link">
+      <a href="../../../generated_examples/progress_bars/progress_nested/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1631,7 +1542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/under_the_hood/self_reference/" class="md-nav__link">
+      <a href="../../../generated_examples/under_the_hood/self_reference/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1651,7 +1562,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated_examples/under_the_hood/class_method/" class="md-nav__link">
+      <a href="../../../generated_examples/under_the_hood/class_method/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1684,6 +1595,8 @@
       
   
   
+    
+  
   
     
     
@@ -1713,12 +1626,12 @@
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -1732,7 +1645,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             API
@@ -1745,7 +1658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/magicgui/" class="md-nav__link">
+      <a href="../../magicgui/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1765,7 +1678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/magic_factory/" class="md-nav__link">
+      <a href="../../magic_factory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1783,6 +1696,8 @@
                 
   
   
+    
+  
   
     
     
@@ -1871,17 +1786,17 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../api/widgets/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -1898,7 +1813,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             widgets
@@ -1913,7 +1828,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/CheckBox/" class="md-nav__link">
+      <a href="../CheckBox/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1933,7 +1848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/ComboBox/" class="md-nav__link">
+      <a href="../ComboBox/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1953,7 +1868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Container/" class="md-nav__link">
+      <a href="../Container/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1973,7 +1888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/DateEdit/" class="md-nav__link">
+      <a href="../DateEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1993,7 +1908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/DateTimeEdit/" class="md-nav__link">
+      <a href="../DateTimeEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2013,7 +1928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Dialog/" class="md-nav__link">
+      <a href="../Dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2033,7 +1948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/EmptyWidget/" class="md-nav__link">
+      <a href="../EmptyWidget/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2053,7 +1968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/FileEdit/" class="md-nav__link">
+      <a href="../FileEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2073,7 +1988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/FloatRangeSlider/" class="md-nav__link">
+      <a href="../FloatRangeSlider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2093,7 +2008,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/FloatSlider/" class="md-nav__link">
+      <a href="../FloatSlider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2113,7 +2028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/FloatSpinBox/" class="md-nav__link">
+      <a href="../FloatSpinBox/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2133,7 +2048,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/FunctionGui/" class="md-nav__link">
+      <a href="../FunctionGui/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2153,7 +2068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Image/" class="md-nav__link">
+      <a href="../Image/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2173,7 +2088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Label/" class="md-nav__link">
+      <a href="../Label/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2193,7 +2108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/LineEdit/" class="md-nav__link">
+      <a href="../LineEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2213,7 +2128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/ListEdit/" class="md-nav__link">
+      <a href="../ListEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2233,7 +2148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/LiteralEvalLineEdit/" class="md-nav__link">
+      <a href="../LiteralEvalLineEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2253,7 +2168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/LogSlider/" class="md-nav__link">
+      <a href="../LogSlider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2273,7 +2188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/MainFunctionGui/" class="md-nav__link">
+      <a href="../MainFunctionGui/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2293,7 +2208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/MainWindow/" class="md-nav__link">
+      <a href="../MainWindow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2313,7 +2228,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Password/" class="md-nav__link">
+      <a href="../Password/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2333,7 +2248,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/ProgressBar/" class="md-nav__link">
+      <a href="../ProgressBar/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2353,7 +2268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/PushButton/" class="md-nav__link">
+      <a href="../PushButton/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2373,7 +2288,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/QuantityEdit/" class="md-nav__link">
+      <a href="../QuantityEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2393,7 +2308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/RadioButton/" class="md-nav__link">
+      <a href="../RadioButton/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2413,7 +2328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/RadioButtons/" class="md-nav__link">
+      <a href="../RadioButtons/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2433,7 +2348,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/RangeEdit/" class="md-nav__link">
+      <a href="../RangeEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2453,7 +2368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/RangeSlider/" class="md-nav__link">
+      <a href="../RangeSlider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2473,7 +2388,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Select/" class="md-nav__link">
+      <a href="../Select/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2493,7 +2408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/SliceEdit/" class="md-nav__link">
+      <a href="../SliceEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2513,7 +2428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Slider/" class="md-nav__link">
+      <a href="../Slider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2533,7 +2448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/SpinBox/" class="md-nav__link">
+      <a href="../SpinBox/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2553,7 +2468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/Table/" class="md-nav__link">
+      <a href="../Table/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2573,7 +2488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/TextEdit/" class="md-nav__link">
+      <a href="../TextEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2593,7 +2508,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/TimeEdit/" class="md-nav__link">
+      <a href="../TimeEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2611,9 +2526,29 @@
                 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../api/widgets/ToolBar/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    ToolBar
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -2622,6 +2557,40 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#signals" class="md-nav__link">
+    Signals
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#magicgui.widgets.ToolBar" class="md-nav__link">
+    ToolBar
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2633,7 +2602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/TupleEdit/" class="md-nav__link">
+      <a href="../TupleEdit/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2653,7 +2622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/create_widget/" class="md-nav__link">
+      <a href="../create_widget/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2681,7 +2650,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/widgets/bases/" class="md-nav__link">
+      <a href="../bases/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2701,7 +2670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/protocols/" class="md-nav__link">
+      <a href="../../protocols/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2721,7 +2690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/type_map/" class="md-nav__link">
+      <a href="../../type_map/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2741,7 +2710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/app/" class="md-nav__link">
+      <a href="../../app/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2761,7 +2730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/experimental/" class="md-nav__link">
+      <a href="../../experimental/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2781,7 +2750,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/migration/" class="md-nav__link">
+      <a href="../../migration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2808,7 +2777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CONTRIBUTING/" class="md-nav__link">
+      <a href="../../../CONTRIBUTING/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2848,49 +2817,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-are-dataclasses" class="md-nav__link">
-    What are dataclasses?
+  <a href="#signals" class="md-nav__link">
+    Signals
   </a>
-  
-    <nav class="md-nav" aria-label="What are dataclasses?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dataclass-patterns-outside-the-standard-library" class="md-nav__link">
-    dataclass patterns outside the standard library
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#magicgui-guiclass" class="md-nav__link">
-    magicgui guiclass
+  <a href="#magicgui.widgets.ToolBar" class="md-nav__link">
+    ToolBar
   </a>
-  
-    <nav class="md-nav" aria-label="magicgui guiclass">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#two-way-data-binding" class="md-nav__link">
-    Two-way data binding
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#adding-buttons-and-callbacks" class="md-nav__link">
-    Adding buttons and callbacks
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2908,161 +2844,56 @@
                 
                   
 
-  
-  
 
-
-<h1 id="dataclasses-guiclass">Dataclasses &amp; guiclass<a class="headerlink" href="#dataclasses-guiclass" title="Permanent link">#</a></h1>
-<h2 id="what-are-dataclasses">What are dataclasses?<a class="headerlink" href="#what-are-dataclasses" title="Permanent link">#</a></h2>
-<p><a href="https://docs.python.org/3/library/dataclasses.html"><code>dataclasses</code></a> are a
-feature added in Python 3.7
-(<a href="https://www.python.org/dev/peps/pep-0557/">PEP 557</a>) that allow you to simply
-define classes that store a specific set of data.  They encourage clear,
-type-annotated code, and are a great way to define data structures with minimal
-boilerplate.</p>
-<div class="admonition info">
-<p class="admonition-title">New to dataclasses?</p>
-<p>If you're totally new to dataclasses, you might want to start with the
-<a href="https://docs.python.org/3/library/dataclasses.html">official documentation</a>
-for the <code>dataclasses</code> module, or
-<a href="https://realpython.com/python-data-classes/">this Real Python post on dataclasses</a>.
-The following is a very brief example of the key features:</p>
-<div class="highlight"><span class="filename">Example dataclass</span><pre><span></span><code><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-
-<span class="nd">@dataclass</span>  <span class="c1"># (1)!</span>
-<span class="k">class</span> <span class="nc">Person</span><span class="p">:</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="c1"># (2)!</span>
-    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># (3)!</span>
-
-<span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;John&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># (4)!</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="c1"># (5)!</span>
-</code></pre></div>
-<ol>
-<li>The <code>@dataclass</code> decorator is used to mark a class as a dataclass.  This
-    will automatically generate an <code>__init__</code> method with a parameter for
-    each annotated class attribute.</li>
-<li>Attribute names are annotated with types.  Note that, as with all Python
-    type hints, these have no runtime effect (i.e. no validation is performed).</li>
-<li>Optional attributes can be defined with a default value. If no default value
-    is specified, then the field is required when creating a new object.</li>
-<li>Creating a new object is as simple as passing in the required arguments.</li>
-<li>The <code>__repr__</code> method is automatically generated and will print out the
-    class name and all of the attributes and their current values.</li>
-</ol>
-</div>
-<h3 id="dataclass-patterns-outside-the-standard-library">dataclass patterns outside the standard library<a class="headerlink" href="#dataclass-patterns-outside-the-standard-library" title="Permanent link">#</a></h3>
-<p>The <code>dataclasses</code> module is not the only way to define data-focused classes in Python.
-There are other libraries that provide similar functionality, and
-some of them have additional features that are not available in the standard
-library.</p>
+<h1 id="toolbar">ToolBar<a class="headerlink" href="#toolbar" title="Permanent link">#</a></h1>
+<p><img alt="ToolBar widget" class="widget-image" loading="lazy," src="../../../images/ToolBar.png" /></p>
+<p>Available in backends: <code>qt</code>, <code>ipynb</code></p>
+<h2 id="signals">Signals<a class="headerlink" href="#signals" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://www.attrs.org/en/stable/"><code>attrs</code></a> is a popular library that
-  provides a number of additional features on top of the standard library
-  <code>dataclasses</code>, including complex validation and type conversions.</li>
-<li><a href="https://pydantic-docs.helpmanual.io/"><code>pydantic</code></a> is a library that provides
-  runtime type enforcement and casting, serialization, and other features.</li>
-<li><a href="https://github.com/jcrist/msgspec"><code>msgspec</code></a> is a fast serialization library
-  with a <code>msgspec.Struct</code> that is similar to a dataclass.</li>
+<li><strong><code>label_changed(str)</code></strong> - Emitted when the widget label changes.</li>
+<li><strong><code>parent_changed(object)</code></strong> - Emitted with the backend widget when the widget parent changes.</li>
 </ul>
-<h2 id="magicgui-guiclass">magicgui <code>guiclass</code><a class="headerlink" href="#magicgui-guiclass" title="Permanent link">#</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Experimental</p>
-<p>This is an experimental feature.  The API may change in the future without
-deprecations or warnings.</p>
-</div>
-<p><strong>magicgui</strong> supports the dataclass API as a way to define the interface for compound
-widget, where each attribute of the dataclass is a separate widget.  The
-<a class="autorefs autorefs-internal" href="../api/experimental/#magicgui.experimental.guiclass"><code>magicgui.experimental.guiclass</code></a> decorator can be used to mark a class
-as a "GUI class".  A GUI class <em>is</em> a Python standard <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass"><code>dataclass</code></a>
-that has two additional features:</p>
-<ol>
-<li>A property (named "<code>gui</code>" by default) that returns a <a class="autorefs autorefs-internal" href="../api/widgets/Container/#magicgui.widgets.Container"><code>Container</code></a>
-   widget which contains a widget for each attribute of the dataclass.</li>
-<li>An property (named "<code>events</code>" by default) that returns a
-   <a class="autorefs autorefs-external" href="https://psygnal.readthedocs.io/en/latest/API/#psygnal.SignalGroup"><code>psygnal.SignalGroup</code></a> object that allows you to connect callbacks
-   to the change event of any of field in the dataclass.  (Under the hood,
-   this uses the
-   <a href="https://psygnal.readthedocs.io/en/latest/dataclasses/"><code>@evented</code> dataclass decorator from <code>psygnal</code></a>.)</li>
-</ol>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>You can still use all of the standard dataclass features, including <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field"><code>field</code></a> values, <a href="https://docs.python.org/3/library/dataclasses.html#post-init-processing"><code>__post_init__</code> processing</a>, and <a href="https://docs.python.org/3/library/dataclasses.html#class-variables"><code>ClassVar</code></a>.</p>
-</div>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>In the future, we may also support other dataclass-like objects, such as
-<a href="https://pydantic-docs.helpmanual.io/usage/models/"><code>pydantic</code> models</a>,
-<a href="https://www.attrs.org/en/stable/examples.html#classes"><code>attrs</code> classes</a>,
-and <a href="https://traitlets.readthedocs.io/en/stable/api.html#traitlets.HasTraits"><code>traitlets</code> classes</a>.</p>
-</div>
-<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.experimental</span> <span class="kn">import</span> <span class="n">guiclass</span>
 
-<span class="nd">@guiclass</span>
-<span class="k">class</span> <span class="nc">MyDataclass</span><span class="p">:</span>
-    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hello&#39;</span>
-    <span class="n">c</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
-<span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">()</span>
-<span class="n">obj</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-<img alt="" class="code-image" src="../_images/dataclasses_0.png" /></p>
-<p>The individual widgets in the <code>Container</code> may be accessed by the same name as the
-corresponding attribute. For example, <code>obj.gui.a</code> will return the <code>SpinBox</code> widget
-that controls the value of the <code>a</code> attribute.</p>
-<h3 id="two-way-data-binding">Two-way data binding<a class="headerlink" href="#two-way-data-binding" title="Permanent link">#</a></h3>
-<p>As you interact programmatically with the <code>obj</code> instance, the widgets in the
-<code>obj.gui</code> will update.  Similarly, as you change the value of the widgets in the
-<code>obj.gui</code>, the values of the <code>obj</code> instance will be updated.</p>
-<p><div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">obj</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;world&#39;</span>
-<span class="n">obj</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="kc">False</span>
+<div class="doc doc-object doc-class">
 
-<span class="n">obj</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-<img alt="" class="code-image" src="../_images/dataclasses_1.png" /></p>
-<div class="admonition tip">
-<p class="admonition-title">All magicgui-related stuff is in the <code>gui</code> attribute</p>
-<p>The original dataclass instance (<code>obj</code>) is essentially untouched.  Just as in a regular
-dataclass, <code>obj.a</code> returns the current value of <code>a</code> in the dataclass.  The <em>widget</em> for
-the class will be at <code>obj.gui</code> (or whatever name you specified in the <code>gui_name</code> parameter)
-So, <code>obj.gui.a.value</code>, returns the current value of the <em>widget</em>.  Unless you explicitly disconnect the gui from the underlying object/model, the two will always be in sync.</p>
-</div>
-<h3 id="adding-buttons-and-callbacks">Adding buttons and callbacks<a class="headerlink" href="#adding-buttons-and-callbacks" title="Permanent link">#</a></h3>
-<p>Buttons are one of the few widget types that tend not to have an associated
-value, but simply trigger a callback when clicked.  That is: it doesn't often
-make sense to add a field to a dataclass representing a button. To add a button
-to a <code>guiclass</code>, decorate a method with the <a class="autorefs autorefs-internal" href="../api/experimental/#magicgui.experimental.button"><code>magicgui.experimental.button</code></a>
-decorator.</p>
-<div class="admonition warning">
-<p class="admonition-title">positioning buttons</p>
-<p>Currently, all buttons are appended to the end of the widget. The ability
-to position the button in the layout will be added in the future.</p>
-</div>
-<p>Any additional keyword arguments to the <code>button</code> decorator will be passed to the
-<a class="autorefs autorefs-internal" href="../api/widgets/PushButton/#magicgui.widgets.PushButton"><code>magicgui.widgets.PushButton</code></a> constructor (e.g. <code>label</code>, <code>tooltip</code>, etc.)</p>
-<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.experimental</span> <span class="kn">import</span> <span class="n">guiclass</span><span class="p">,</span> <span class="n">button</span>
 
-<span class="nd">@guiclass</span>
-<span class="k">class</span> <span class="nc">Greeter</span><span class="p">:</span>
-    <span class="n">first_name</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="nd">@button</span>
-    <span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-<span class="n">greeter</span> <span class="o">=</span> <span class="n">Greeter</span><span class="p">(</span><span class="s1">&#39;Talley&#39;</span><span class="p">)</span>
-<span class="n">greeter</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-<img alt="" class="code-image" src="../_images/dataclasses_2.png" /></p>
-<blockquote>
-<p><img alt="👆" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@14.1.2/assets/svg/1f446.svg" title=":point_up_2:" /> <em>clicking the "say_hello" button will print "Hello Talley" to the console</em></p>
-</blockquote>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>As your widget begins to manage more internal state, the <code>guiclass</code> pattern
-becomes much more useful than the <code>magicgui</code> decorator pattern -- which was
-designed with pure functions that take inputs and return outputs in mind.</p>
+<h2 id="magicgui.widgets.ToolBar" class="doc doc-heading">
+          <code>ToolBar</code>
+
+
+<a href="#magicgui.widgets.ToolBar" class="headerlink" title="Permanent link">#</a></h2>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="magicgui.widgets.bases.ToolBarWidget">ToolBarWidget</span></code></p>
+
+  
+      <p>Toolbar that contains a set of controls.</p>
+
+
+
+  <p>Parameters:</p>
+  <ul>
+      <li class="field-body">
+        <b>**base_widget_kwargs</b>
+            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                <code>{}</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>All additional keyword arguments are passed to the base
+<a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a> constructor.</p>
+        </div>
+      </li>
+  </ul>
+
+
+  </div>
+
 </div>
 
 
@@ -3126,10 +2957,10 @@ designed with pure functions that take inputs and return outputs in mind.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.aecac24b.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.aecac24b.min.js"></script>
       
     
   </body>
