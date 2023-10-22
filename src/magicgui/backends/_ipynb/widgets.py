@@ -2,6 +2,7 @@
 
 from typing import Any, Callable, Iterable, Literal, Optional, Tuple, Type, Union
 
+
 try:
     import ipywidgets
     from ipywidgets import widgets as ipywdg
@@ -10,7 +11,6 @@ except ImportError as e:
         "magicgui requires ipywidgets to be installed to use the 'ipynb' backend. "
         "Please run `pip install ipywidgets`"
     ) from e
-
 
 from magicgui.widgets import protocols
 from magicgui.widgets.bases import Widget
@@ -524,10 +524,7 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
         return "vertical" if isinstance(self._ipywidget, ipywdg.VBox) else "horizontal"
 
 
-from ipywidgets import GridspecLayout
-
-
-class IpyMainWindow(GridspecLayout):
+class IpyMainWindow(ipywdg.GridspecLayout):
     IDX_MENUBAR = (0, slice(None))
     IDX_STATUSBAR = (6, slice(None))
     IDX_TOOLBAR_TOP = (1, slice(None))
@@ -592,34 +589,7 @@ class IpyMainWindow(GridspecLayout):
             raise ValueError(f"Invalid area: {area!r}")
 
 
-# grid = GridspecLayout(7, 5, layout=layout, width="600px", height="600px")
-
-# grid[0, :] = Button(
-#     description="Menu Bar", button_style="danger", layout=Layout(**he_vf)
-# )
-# grid[1, :] = Button(description="Toolbars", button_style="info", layout=Layout(**he_vf))
-# grid[2, 1:4] = Button(
-#     description="Dock Widgets", button_style="success", layout=Layout(**he_vf)
-# )
-# grid[2:5, 0] = Button(description="T", button_style="info", layout=Layout(**hf_ve))
-# grid[3, 1] = Button(description="D", button_style="success", layout=Layout(**hf_ve))
-# grid[3, 2] = Button(
-#     description="Central Widget",
-#     button_style="warning",
-#     layout=Layout(height="auto", width="auto"),
-# )
-# grid[3, 3] = Button(description="D", button_style="success", layout=Layout(**hf_ve))
-# grid[2:5, 4] = Button(description="T", button_style="info", layout=Layout(**hf_ve))
-# grid[4, 1:4] = Button(description="D", button_style="success", layout=Layout(**he_vf))
-# grid[5, :] = Button(description="T", button_style="info", layout=Layout(**he_vf))
-# grid[6, :] = Button(
-#     description="Status Bar", button_style="danger", layout=Layout(**he_vf)
-# )
-# grid.layout.grid_template_columns = "34px 34px 1fr 34px 34px"
-# grid.layout.grid_template_rows = "34px 34px 34px 1fr 34px 34px 34px"
-
-
-class MainWindow(Container):
+class MainWindow(Container, protocols.MainWindowProtocol):
     def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
         self._ipywidget = IpyMainWindow()
         print(self._ipywidget)
@@ -632,6 +602,18 @@ class MainWindow(Container):
         shortcut: str | None = None,
     ):
         pass
+
+    def _mgui_add_dock_widget(self, widget: Widget, area: "protocols.Area") -> None:
+        ...
+
+    def _mgui_add_tool_bar(self, widget: Widget, area: "protocols.Area") -> None:
+        ...
+
+    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
+        ...
+
+    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
+        ...
 
 
 def get_text_width(text):
