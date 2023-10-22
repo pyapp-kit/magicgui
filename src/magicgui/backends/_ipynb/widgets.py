@@ -597,8 +597,8 @@ class MainWindow(Container, protocols.MainWindowProtocol):
         self,
         menu_name: str,
         action_name: str,
-        callback: Callable | None = None,
-        shortcut: str | None = None,
+        callback: Optional[Callable] = None,
+        shortcut: Optional[str] = None,
     ):
         pass
 
@@ -608,10 +608,10 @@ class MainWindow(Container, protocols.MainWindowProtocol):
     def _mgui_add_tool_bar(self, widget: Widget, area: "protocols.Area") -> None:
         ...
 
-    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
+    def _mgui_set_status_bar(self, widget: Optional[Widget]) -> None:
         ...
 
-    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
+    def _mgui_set_menu_bar(self, widget: Optional[Widget]) -> None:
         ...
 
 
