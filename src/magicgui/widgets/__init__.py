@@ -43,6 +43,7 @@ from ._concrete import (
     SpinBox,
     TextEdit,
     TimeEdit,
+    ToolBar,
     TupleEdit,
 )
 from ._dialogs import request_values, show_file_dialog
@@ -107,6 +108,7 @@ __all__ = [
     "Table",
     "TextEdit",
     "TimeEdit",
+    "ToolBar",
     "TupleEdit",
     "Widget",
     "show_file_dialog",

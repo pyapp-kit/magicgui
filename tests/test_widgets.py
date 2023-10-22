@@ -1067,3 +1067,14 @@ def test_float_slider_readout():
     assert sld._widget._readout_widget.value() == 4
     assert sld._widget._readout_widget.minimum() == 0.5
     assert sld._widget._readout_widget.maximum() == 10.5
+
+
+def test_toolbar():
+    tb = widgets.ToolBar()
+    tb.add_button("test", callback=lambda: None)
+    tb.add_separator()
+    tb.add_spacer()
+    tb.add_button("test2", callback=lambda: None)
+    tb.icon_size = 26
+    assert tb.icon_size == (26, 26)
+    tb.clear()
