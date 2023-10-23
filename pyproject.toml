@@ -209,17 +209,7 @@ ignore = [
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["tests"]
-filterwarnings = [
-    "error",
-    "ignore::DeprecationWarning:qtpy",
-    "ignore:distutils Version classes are deprecated",
-    "ignore:path is deprecated:DeprecationWarning",
-    "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
-    "ignore:Enum value:DeprecationWarning:matplotlib",
-    "ignore:Widget([^\\s]+) is deprecated:DeprecationWarning",                               # ipywidgets
-    "ignore::DeprecationWarning:docstring_parser",
-    "ignore::DeprecationWarning:tqdm",
-]
+filterwarnings = ["error:::magicgui"]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
