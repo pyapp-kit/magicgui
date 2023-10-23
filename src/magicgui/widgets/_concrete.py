@@ -615,8 +615,6 @@ class ListEdit(Container[ValueWidget[_V]]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     options: dict, optional
         Widget options of child widgets.
-    **kwargs : Any
-        All additional keyword arguments are passed to `Container` constructor.
     """
 
     def __init__(
@@ -866,8 +864,6 @@ class TupleEdit(Container[ValueWidget]):
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     options: dict, optional
         Widget options of child widgets.
-    **kwargs : Any
-        All additional keyword arguments are passed to `Container` constructor.
     """
 
     def __init__(
