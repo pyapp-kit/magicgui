@@ -209,7 +209,11 @@ ignore = [
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["tests"]
-filterwarnings = ["error:::magicgui"]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:tqdm",
+    "ignore::DeprecationWarning:docstring_parser",
+]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
