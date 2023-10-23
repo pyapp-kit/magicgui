@@ -611,9 +611,6 @@ class ListEdit(Container[ValueWidget[_V]]):
     ----------
     value : Iterable, optional
         The starting value for the widget.
-    layout : str, optional
-        The layout for the container.  must be one of ``{'horizontal',
-        'vertical'}``. by default "horizontal"
     nullable : bool
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     options: dict, optional
@@ -622,17 +619,18 @@ class ListEdit(Container[ValueWidget[_V]]):
         All additional keyword arguments are passed to `Container` constructor.
     """
 
-    def __init__(  # type: ignore [misc]  # overlap between names
+    def __init__(
         self,
         value: Iterable[_V] | _Undefined = Undefined,
-        layout: str = "horizontal",
         nullable: bool = False,
         options: dict | None = None,
-        **kwargs: Unpack[ContainerKwargs],
+        **container_kwargs: Unpack[ContainerKwargs],
     ) -> None:
         self._args_type: type | None = None
         self._nullable = nullable
-        super().__init__(layout=layout, labels=False, **kwargs)
+        container_kwargs.setdefault("layout", "horizontal")
+        container_kwargs.setdefault("labels", False)
+        super().__init__(**container_kwargs)
         self.margins = (0, 0, 0, 0)
 
         if not isinstance(value, _Undefined):
@@ -651,7 +649,7 @@ class ListEdit(Container[ValueWidget[_V]]):
         button_plus = PushButton(text="+", name="plus")
         button_minus = PushButton(text="-", name="minus")
 
-        if layout == "horizontal":
+        if self.layout == "horizontal":
             button_plus.max_width = 40
             button_minus.max_width = 40
 
@@ -864,9 +862,6 @@ class TupleEdit(Container[ValueWidget]):
     ----------
     value : Iterable, optional
         The starting value for the widget.
-    layout : str, optional
-        The layout for the container.  must be one of ``{'horizontal',
-        'vertical'}``. by default "horizontal"
     nullable : bool
         If `True`, the widget will accepts `None` as a valid value, by default `False`.
     options: dict, optional
@@ -885,7 +880,8 @@ class TupleEdit(Container[ValueWidget]):
     ) -> None:
         self._nullable = nullable
         self._args_types: tuple[type, ...] | None = None
-        container_kwargs["labels"] = False
+        container_kwargs.setdefault("labels", False)
+        container_kwargs.setdefault("layout", "horizontal")
         super().__init__(**container_kwargs)
         self._child_options = options or {}
         self.margins = (0, 0, 0, 0)
