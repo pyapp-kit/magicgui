@@ -1,6 +1,5 @@
 """magicgui is a utility for generating a GUI from a python function."""
 from importlib.metadata import PackageNotFoundError, version
-from typing import Any
 
 try:
     __version__ = version("magicgui")
