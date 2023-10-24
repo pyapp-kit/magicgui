@@ -110,17 +110,3 @@ JsonStringFormats = Literal[
     # regular expressions
     "regex",  # draft 7
 ]
-
-
-def __getattr__(name: str) -> Any:
-    if name == "WidgetOptions":
-        import warnings
-
-        warnings.warn(
-            "magicgui.types.WidgetOptions is being removed. Use `dict` instead, "
-            "and restrict import to a TYPE_CHECKING clause.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return dict
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
