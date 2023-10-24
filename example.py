@@ -24,5 +24,8 @@ subm.add_action("Subaction", callback=lambda: print("Subaction"))
 subm.add_separator()
 subm.add_action("Subaction2", callback=lambda: print("Subaction2"))
 
+# central widget
+main.append(widgets.Label(value="Central widget"))
+
 main.height = 400
 main.show(run=True)
