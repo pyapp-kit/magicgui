@@ -7,7 +7,6 @@ from typing import (
     Callable,
     Iterable,
     Literal,
-    Optional,
     get_type_hints,
 )
 
@@ -687,8 +686,8 @@ class MainWindow(Container, protocols.MainWindowProtocol):
         self,
         menu_name: str,
         action_name: str,
-        callback: Optional[Callable] = None,
-        shortcut: Optional[str] = None,
+        callback: Callable | None = None,
+        shortcut: str | None = None,
     ):
         pass
 
@@ -698,10 +697,10 @@ class MainWindow(Container, protocols.MainWindowProtocol):
     def _mgui_add_tool_bar(self, widget: Widget, area: protocols.Area) -> None:
         self._ipywidget.add_toolbar(widget.native, area)
 
-    def _mgui_set_status_bar(self, widget: Optional[Widget]) -> None:
+    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
         self._ipywidget.set_status_bar(widget.native)
 
-    def _mgui_set_menu_bar(self, widget: Optional[Widget]) -> None:
+    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
         self._ipywidget.set_menu_bar(widget.native)
 
 
