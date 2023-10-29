@@ -1,7 +1,6 @@
 """Tests for the Table widget."""
 import os
 import sys
-from numpy import delete
 
 import pytest
 
