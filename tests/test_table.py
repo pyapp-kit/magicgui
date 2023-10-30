@@ -396,3 +396,12 @@ def test_item_delegate(qapp):
     data = ["1.2", "1.23456789", "0.000123", "1234567", "0.0", "1", "s"]
     results = [_format_number(v, 4) for v in data]
     assert results == ["1.2000", "1.2346", "1.230e-04", "1.235e+06", "0.0000", "1", "s"]
+
+
+def test_row_delete(qapp) -> None:
+    table = Table(value=_TABLE_DATA["split"])
+    assert table.data.to_list() == [[1, 2, 3], [4, 5, 6]]
+    table.delete_row(index=0)
+    assert table.data.to_list() == [[4, 5, 6]]
+    table.delete_row(header="r2")
+    assert table.data.to_list() == []

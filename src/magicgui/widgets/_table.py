@@ -269,6 +269,39 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         for row, d in enumerate(data):
             self._set_rowi(row, d)
 
+    def delete_row(
+        self,
+        *,
+        index: int | Sequence[int] | None = None,
+        header: Any | Sequence[Any] | None = None,
+    ) -> None:
+        """Delete row(s) by index or header.
+
+        Parameters
+        ----------
+        index : int or Sequence[int], optional
+            Index or indices of row(s) to delete.
+        header : Any or Sequence[Any], optional
+            Header or headers of row(s) to delete.
+        """
+        indices: set[int] = set()
+        if index is not None:
+            if isinstance(index, Sequence):
+                indices.update(index)
+            else:
+                indices.add(index)
+        if header is not None:
+            if isinstance(header, str) or not isinstance(header, Sequence):
+                header = (header,)
+            row_headers = self.row_headers
+            for h in header:
+                try:
+                    indices.add(row_headers.index(h))
+                except ValueError as e:
+                    raise KeyError(f"{h!r} is not a valid row header") from e
+        for i in sorted(indices, reverse=True):
+            self._del_rowi(i)
+
     @property
     def data(self) -> DataView:
         """Return DataView object for this table."""
