@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.6">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.7">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.35e1ed30.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.4b4a2bd9.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.356b1318.min.css">
@@ -2641,6 +2641,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#magicgui.widgets.Table.delete_row" class="md-nav__link">
+    delete_row()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.items" class="md-nav__link">
     items()
   </a>
@@ -3085,6 +3092,13 @@
           <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.clear" class="md-nav__link">
     clear()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#magicgui.widgets.Table.delete_row" class="md-nav__link">
+    delete_row()
   </a>
   
 </li>
@@ -3639,6 +3653,52 @@ See docstring of :meth:<code>to_dict</code> for details.</p>
   <div class="doc doc-contents ">
   
       <p>Clear the table.</p>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="magicgui.widgets.Table.delete_row" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">delete_row</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+
+<a href="#magicgui.widgets.Table.delete_row" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Delete row(s) by index or header.</p>
+
+
+
+  <p>Parameters:</p>
+  <ul>
+      <li class="field-body">
+        <b>index</b>
+            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a> or <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>, default:
+                <code>None</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>Index or indices of row(s) to delete.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b>header</b>
+            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a> or <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]</code>, default:
+                <code>None</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>Header or headers of row(s) to delete.</p>
+        </div>
+      </li>
+  </ul>
 
   </div>
 
