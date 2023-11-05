@@ -258,7 +258,8 @@ omit = [
     "tests/*",
     "docs/*",
 ]
-
+[tool.coverage.run]
+source = ["magicgui"]
 
 # https://github.com/mgedmin/check-manifest#configuration
 [tool.check-manifest]
