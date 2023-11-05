@@ -17,6 +17,7 @@ on:
 
 jobs:
   test:
+    name: Test
     uses: pyapp-kit/.github/.github/workflows/reusable-ci.yml@main
     strategy:
       fail-fast: false
