@@ -17,7 +17,7 @@ on:
 
 jobs:
   test:
-    uses: pyapp-kit/.github/workflows/reusable-ci.yml@main
+    uses: pyapp-kit/.github/.github/workflows/reusable-ci.yml@main
     strategy:
       fail-fast: false
       matrix:
