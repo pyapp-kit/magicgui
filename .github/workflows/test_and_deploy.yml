@@ -17,8 +17,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.platform }} (${{ matrix.python-version }}) ${{ matrix.backend }}
-    runs-on: ${{ matrix.platform }}
+    uses: pyapp-kit/.github/workflows/reusable-ci.yml@main
     strategy:
       fail-fast: false
       matrix:
@@ -38,26 +37,10 @@ jobs:
         exclude:
           - python-version: "3.11"
             backend: pyside2
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: tlambert03/setup-qt-libs@v1.5
-      - name: Install dependencies
-        run: python -m pip install --upgrade hatch
-
-      - name: Test
-        uses: aganders3/headless-gui@v1
-        with:
-          run: hatch -v run +backend=${{ matrix.backend }} test:run
-
-      - name: Coverage
-        uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: false
+    with:
+      os: ${{ matrix.platform }}
+      python-version: ${{ matrix.python-version }}
+      qt: ${{ matrix.backend }}
 
   test-pydantic1:
     name: Test pydantic1
