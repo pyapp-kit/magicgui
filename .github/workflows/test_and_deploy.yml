@@ -6,42 +6,42 @@ concurrency:
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches: [main]
+    tags: [v*]
   pull_request:
-    branches:
-      - main
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # run once a day
 
 jobs:
   test:
     name: Test
-    uses: pyapp-kit/.github/.github/workflows/reusable-ci.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      qt: ${{ matrix.qt }}
+      pip-install-pre-release: ${{ github.event_name == 'schedule' }}
+      report-failures: ${{ github.event_name == 'schedule' }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-        backend: [pyqt5, pyside2]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        qt: [pyqt5, pyside2]
         include:
           - python-version: "3.10"
-            platform: ubuntu-latest
-            backend: pyqt6
+            os: ubuntu-latest
+            qt: pyqt6
           - python-version: "3.10"
-            platform: ubuntu-latest
-            backend: pyside6
+            os: ubuntu-latest
+            qt: pyside6
           - python-version: "3.12"
-            platform: ubuntu-latest
-            backend: pyqt6
+            os: ubuntu-latest
+            qt: pyqt6
         exclude:
           - python-version: "3.11"
-            backend: pyside2
-    with:
-      os: ${{ matrix.platform }}
-      python-version: ${{ matrix.python-version }}
-      qt: ${{ matrix.backend }}
+            qt: pyside2
 
   test-pydantic1:
     name: Test pydantic1
@@ -67,110 +67,34 @@ jobs:
 
       - uses: codecov/codecov-action@v3
 
-  test_napari:
-    name: napari tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: napari/napari
-          path: napari-from-github
-      - uses: tlambert03/setup-qt-libs@v1.5
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip pytest-pretty
-          python -m pip install -e .[testing]
-          python -m pip install -e ./napari-from-github[pyqt5]
 
-      - name: Test napari magicgui
-        uses: aganders3/headless-gui@v1
-        with:
-          working-directory: napari-from-github
-          run: pytest -W ignore napari/_tests/test_magicgui.py -v --color=yes
-
-  test_magicclass:
-    name: magic-class tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: hanjinliu/magic-class
-          path: magic-class
-      - uses: tlambert03/setup-qt-libs@v1.5
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e .[testing,pyqt5]
-          python -m pip install ./magic-class[testing]
-
-      - name: Test magicclass
-        uses: aganders3/headless-gui@v1
-        # magicclass is still in development, don't fail the whole build
-        # this makes this much less useful... but it's better than nothing?
-        continue-on-error: true
-        with:
-          working-directory: magic-class
-          run: pytest -v --color=yes
-
-  test_stardist:
-    name: stardist tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: stardist/stardist-napari
-          path: stardist-napari
-      - uses: tlambert03/setup-qt-libs@v1.5
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e .[testing]
-          python -m pip install ./stardist-napari[test]
-
-      - name: Run stardist tests
-        uses: aganders3/headless-gui@v1
-        with:
-          working-directory: stardist-napari
-          run: python -m pytest -v --color=yes -W ignore stardist_napari
-        env:
-          STARDIST_NAPARI_NOTHREADS: true
-          STARDIST_NAPARI_NOPERSIST: true
-
-  test_partseg:
-    name: partseg tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: 4DNucleome/PartSeg
-          path: PartSeg
-      - uses: tlambert03/setup-qt-libs@v1.5
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install
-        run: |
-          python -m pip install -e .[testing]
-          python -m pip install ./PartSeg[test,pyqt5]
-
-      - name: Run PartSeg tests
-        uses: aganders3/headless-gui@v1
-        with:
-          working-directory: PartSeg
-          run: python -m pytest -v --color=yes -W ignore package/tests/test_PartSeg/test_napari_widgets.py
+  test-dependents:
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    with:
+      package_to_test: ${{ matrix.package }}
+      package_to_test_ref: ${{ matrix.package-version }}
+      package-extras:  ${{ matrix.package-extras || 'testing' }} 
+      host-extras: 'testing'
+      qt: pyqt5
+      python-version: "3.10"
+      post_install_cmd: 'python -m pip install pytest-pretty'
+      pytest-args: ${{ matrix.pytest-args }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: napari/napari
+            pytest-args: napari/_tests/test_magicgui.py
+          - package: napari/napari
+            package-version: "v0.4.18"
+            pytest-args: napari/_tests/test_magicgui.py
+          - package: hanjinliu/magic-class
+          - package: stardist/stardist-napari
+            package-extras: test
+            pytest-args: stardist_napari
+          - package: 4DNucleome/PartSeg
+            package-extras: test
+            pytest-args: package/tests/test_PartSeg/test_napari_widgets.py
 
   deploy:
     needs: test
