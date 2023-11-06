@@ -71,13 +71,13 @@ jobs:
   test-dependents:
     uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
     with:
-      package_to_test: ${{ matrix.package }}
-      package_to_test_ref: ${{ matrix.package-version }}
-      package-extras:  ${{ matrix.package-extras || 'testing' }}
+      dependency-repo: ${{ matrix.package }}
+      dependency-ref: ${{ matrix.package-version }}
+      dependency-extras:  ${{ matrix.package-extras || 'testing' }}
       host-extras: 'testing'
       qt: pyqt5
       python-version: "3.10"
-      post_install_cmd: 'python -m pip install pytest-pretty'
+      post-install-cmd: 'python -m pip install pytest-pretty'
       pytest-args: ${{ matrix.pytest-args }}
     strategy:
       fail-fast: false
