@@ -1,5 +1,29 @@
 # Changelog
 
+## [v0.8.1](https://github.com/pyapp-kit/magicgui/tree/v0.8.1) (2023-12-06)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.0...v0.8.1)
+
+**Implemented enhancements:**
+
+- feat: add `Table.delete_row` method [\#610](https://github.com/pyapp-kit/magicgui/pull/610) ([tlambert03](https://github.com/tlambert03))
+- feat: add toolbar widget [\#597](https://github.com/pyapp-kit/magicgui/pull/597) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- Ensure QImage is ARGB32 before converting to numpy [\#618](https://github.com/pyapp-kit/magicgui/pull/618) ([aganders3](https://github.com/aganders3))
+- fix: allow future annotations in ipywidgets backend [\#609](https://github.com/pyapp-kit/magicgui/pull/609) ([tlambert03](https://github.com/tlambert03))
+- Make kwargs of container-like widgets consistent [\#606](https://github.com/pyapp-kit/magicgui/pull/606) ([hanjinliu](https://github.com/hanjinliu))
+
+**Documentation:**
+
+- docs: unpin pyside6 when building docs [\#614](https://github.com/pyapp-kit/magicgui/pull/614) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- ci\(dependabot\): bump tlambert03/setup-qt-libs from 1.5 to 1.6 [\#615](https://github.com/pyapp-kit/magicgui/pull/615) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore!: remove older deprecations [\#607](https://github.com/pyapp-kit/magicgui/pull/607) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.8.0](https://github.com/pyapp-kit/magicgui/tree/v0.8.0) (2023-10-20)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.3...v0.8.0)
@@ -32,6 +56,7 @@
 
 **Merged pull requests:**
 
+- chore: changelog v0.8.0 [\#605](https://github.com/pyapp-kit/magicgui/pull/605) ([tlambert03](https://github.com/tlambert03))
 - style: use `Unpack` for better kwargs typing [\#599](https://github.com/pyapp-kit/magicgui/pull/599) ([tlambert03](https://github.com/tlambert03))
 - chore: remove setup.py [\#595](https://github.com/pyapp-kit/magicgui/pull/595) ([tlambert03](https://github.com/tlambert03))
 - ci\(dependabot\): bump actions/checkout from 3 to 4 [\#578](https://github.com/pyapp-kit/magicgui/pull/578) ([dependabot[bot]](https://github.com/apps/dependabot))
@@ -548,7 +573,7 @@
 
 ## [v0.2.9](https://github.com/pyapp-kit/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.9)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -574,13 +599,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/pyapp-kit/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.8)
-
 ## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8rc0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.8rc0)
+
+## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8)
 
 **Implemented enhancements:**
 
