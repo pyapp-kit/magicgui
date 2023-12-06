@@ -181,6 +181,8 @@ class QBaseWidget(protocols.WidgetProtocol):
             ) from None
 
         img = self._qwidget.grab().toImage()
+        if img.format() != QImage.Format_ARGB32:
+            img = img.convertToFormat(QImage.Format_ARGB32)
         bits = img.constBits()
         h, w, c = img.height(), img.width(), 4
         if qtpy.API_NAME.startswith("PySide"):
