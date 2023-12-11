@@ -50,7 +50,7 @@ jobs:
         run: python -m pip install --upgrade hatch
 
       - name: Test
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           run: hatch -v run +backend=${{ matrix.backend }} test:run
 
@@ -77,7 +77,7 @@ jobs:
           python -m pip install pytest 'pydantic<2' attrs pytest-cov pyqt6
 
       - name: Test
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           run: pytest tests/test_ui_field.py -v --color=yes --cov=magicgui --cov-report=xml
 
@@ -103,7 +103,7 @@ jobs:
           python -m pip install -e ./napari-from-github[pyqt5]
 
       - name: Test napari magicgui
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           working-directory: napari-from-github
           run: pytest -W ignore napari/_tests/test_magicgui.py -v --color=yes
@@ -128,7 +128,7 @@ jobs:
           python -m pip install ./magic-class[testing]
 
       - name: Test magicclass
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         # magicclass is still in development, don't fail the whole build
         # this makes this much less useful... but it's better than nothing?
         continue-on-error: true
@@ -156,7 +156,7 @@ jobs:
           python -m pip install ./stardist-napari[test]
 
       - name: Run stardist tests
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           working-directory: stardist-napari
           run: python -m pytest -v --color=yes -W ignore stardist_napari
@@ -183,7 +183,7 @@ jobs:
           python -m pip install ./PartSeg[test,pyqt5]
 
       - name: Run PartSeg tests
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           working-directory: PartSeg
           run: python -m pytest -v --color=yes -W ignore package/tests/test_PartSeg/test_napari_widgets.py
