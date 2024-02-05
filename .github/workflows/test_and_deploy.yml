@@ -55,7 +55,7 @@ jobs:
           run: hatch -v run +backend=${{ matrix.backend }} test:run
 
       - name: Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: false
 
@@ -81,7 +81,7 @@ jobs:
         with:
           run: pytest tests/test_ui_field.py -v --color=yes --cov=magicgui --cov-report=xml
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
 
   test_napari:
     name: napari tests
