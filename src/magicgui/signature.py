@@ -11,6 +11,7 @@ calling ``inspect.signature`` on a function decorated with `magicgui` still work
 (it returns a ``MagicSignature``, which is a subclass of ``inspect.Signature``)
 
 """
+
 from __future__ import annotations
 
 import inspect

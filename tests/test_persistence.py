@@ -30,8 +30,7 @@ def test_user_cache_dir():
 def test_persistence(tmp_path):
     """Test that we can persist values across instances."""
 
-    def _my_func(x: int, y="hello"):
-        ...
+    def _my_func(x: int, y="hello"): ...
 
     with patch("magicgui._util.user_cache_dir", lambda: tmp_path):
         fg = FunctionGui(_my_func, persist=True)

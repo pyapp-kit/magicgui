@@ -117,8 +117,7 @@ def test_pathlike_annotation():
 
 def test_optional_type():
     @magicgui(x={"choices": ["a", "b"]})
-    def widget(x: Optional[str] = None):
-        ...
+    def widget(x: Optional[str] = None): ...
 
     assert isinstance(widget.x, widgets.ComboBox)
     assert widget.x.value is None

@@ -1,4 +1,5 @@
 """Functions in this module are responsible for mapping type annotations to widgets."""
+
 from __future__ import annotations
 
 import datetime
@@ -433,8 +434,7 @@ def register_type(
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
     **options: Any,
-) -> _T:
-    ...
+) -> _T: ...
 
 
 @overload
@@ -444,8 +444,7 @@ def register_type(
     widget_type: WidgetRef | None = None,
     return_callback: ReturnCallback | None = None,
     **options: Any,
-) -> Callable[[_T], _T]:
-    ...
+) -> Callable[[_T], _T]: ...
 
 
 def register_type(

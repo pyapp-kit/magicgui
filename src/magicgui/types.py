@@ -1,4 +1,5 @@
 """Types used internally in magicgui."""
+
 from __future__ import annotations
 
 from enum import Enum, EnumMeta

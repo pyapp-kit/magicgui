@@ -10,6 +10,7 @@ removing layers as needed.
 This example shows how to use just that widget in the context
 of a larger custom QWidget.
 """
+
 import napari
 from qtpy.QtWidgets import QVBoxLayout, QWidget
 

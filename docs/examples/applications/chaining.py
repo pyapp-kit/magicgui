@@ -2,6 +2,7 @@
 
 This example demonstrates chaining multiple functions together.
 """
+
 from magicgui import magicgui, widgets
 
 

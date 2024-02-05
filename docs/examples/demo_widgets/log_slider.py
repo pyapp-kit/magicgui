@@ -2,6 +2,7 @@
 
 A logarithmic scale range slider widget.
 """
+
 from magicgui import magicgui
 
 

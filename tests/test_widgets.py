@@ -1045,16 +1045,14 @@ def test_literal():
     Lit = Literal[None, "a", 1, True, b"bytes"]
 
     @magicgui
-    def f(x: Lit):
-        ...
+    def f(x: Lit): ...
 
     cbox = f.x
     assert type(cbox) is widgets.ComboBox
     assert cbox.choices == get_args(Lit)
 
     @magicgui
-    def f(x: Set[Lit]):
-        ...
+    def f(x: Set[Lit]): ...
 
     sel = f.x
     assert type(sel) is widgets.Select
