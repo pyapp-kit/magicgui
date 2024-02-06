@@ -508,7 +508,7 @@ def test_parent_changed(qtbot, magic_func: widgets.FunctionGui) -> None:
     mock.assert_called_with(None)
 
     with pytest.warns(FutureWarning, match="'parent_changed' signal has been renamed"):
-        magic_func.parent_changed
+        magic_func.parent_changed  # noqa: B018
 
 
 def test_function_binding():

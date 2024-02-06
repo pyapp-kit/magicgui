@@ -135,7 +135,9 @@ class _IPyWidget(protocols.WidgetProtocol):
         return self._ipywidget._ipython_display_(**kwargs)
 
     def _mgui_bind_parent_change_callback(self, callback):
-        warnings.warn("parent_changed callback not implemented for ipywidgets")
+        warnings.warn(
+            "parent_changed callback not implemented for ipywidgets", stacklevel=2
+        )
 
     def _mgui_render(self):
         pass
