@@ -1,4 +1,4 @@
-from qtpy.QtWidgets import QApplication, QWidget, QHBoxLayout
+from qtpy.QtWidgets import QApplication, QHBoxLayout, QWidget
 
 from magicgui.widgets import Container
 
