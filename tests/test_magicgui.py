@@ -9,7 +9,7 @@ from unittest.mock import Mock
 
 import pytest
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QScrollArea
+from qtpy.QtWidgets import QScrollArea, QWidget
 
 from magicgui import magicgui, register_type, type_map, widgets
 from magicgui.signature import MagicSignature, magic_signature
@@ -489,12 +489,26 @@ def test_register_return_callback():
         _RETURN_CALLBACKS.pop(Base)
 
 
-# @pytest.mark.skip(reason="need to rethink how to test this")
-# def test_parent_changed(qtbot, magic_func):
-#     """Test that setting MagicGui parent emits a signal."""
-#     with qtbot.waitSignal(magic_func.parent_changed, timeout=1000):
-#         magic_func.native.setParent(None)
+def test_parent_changed(qtbot, magic_func: widgets.FunctionGui) -> None:
+    """Test that setting a backend parent emits a signal."""
+    wdg = QWidget()
+    qtbot.addWidget(wdg)
 
+    mock = Mock()
+    magic_func.native_parent_changed.connect(mock)
+    with qtbot.waitSignal(magic_func.native_parent_changed, timeout=1000):
+        magic_func.native.setParent(wdg)
+
+    # the backend parent is emitted
+    mock.assert_called_once_with(wdg)
+
+    with qtbot.waitSignal(magic_func.native_parent_changed, timeout=1000):
+        magic_func.native.setParent(None)
+
+    mock.assert_called_with(None)
+
+    with pytest.warns(FutureWarning, match="'parent_changed' signal has been renamed"):
+        magic_func.parent_changed
 
 def test_function_binding():
     class MyObject:

@@ -983,7 +983,7 @@ class _LabeledWidget(Container):
         _visible = False if widget._explicitly_hidden else None
         self._label_widget = Label(value=label or widget.label, tooltip=widget.tooltip)
         super().__init__(**kwargs, visible=_visible)
-        self.parent_changed.disconnect()  # don't need _LabeledWidget to trigger stuff
+        self.native_parent_changed.disconnect()  # don't need _LabeledWidget to trigger
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)
         for w in [self._label_widget, widget]:
