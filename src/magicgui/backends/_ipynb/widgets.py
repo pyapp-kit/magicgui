@@ -1,8 +1,7 @@
 from __future__ import annotations
-from logging import warn
 
-from typing import TYPE_CHECKING, Any, Callable, Iterable, get_type_hints
 import warnings
+from typing import TYPE_CHECKING, Any, Callable, Iterable, get_type_hints
 
 try:
     import ipywidgets

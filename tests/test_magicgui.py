@@ -510,6 +510,7 @@ def test_parent_changed(qtbot, magic_func: widgets.FunctionGui) -> None:
     with pytest.warns(FutureWarning, match="'parent_changed' signal has been renamed"):
         magic_func.parent_changed
 
+
 def test_function_binding():
     class MyObject:
         def __init__(self, name):
