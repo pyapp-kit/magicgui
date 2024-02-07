@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.8">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.50c56a3b.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.f2e4d321.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -2618,15 +2618,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.Table--events" class="md-nav__link">
-    <span class="md-ellipsis">
-      Events
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.column_headers" class="md-nav__link">
     <span class="md-ellipsis">
       column_headers
@@ -3132,15 +3123,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.Table--events" class="md-nav__link">
-    <span class="md-ellipsis">
-      Events
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.column_headers" class="md-nav__link">
     <span class="md-ellipsis">
       column_headers
@@ -3396,18 +3378,42 @@
 </ul>
         </div>
       </li>
+      <li class="field-body">
+        <b>index</b>
+            (<code><a class="autorefs autorefs-external" title="typing.Collection" href="https://docs.python.org/3/library/typing.html#typing.Collection">Collection</a></code>, default:
+                <code>None</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>A sized iterable container of row headers. By default, row headers will be
+<code>tuple(range(len(data)))</code>.  Values provided here override any implied in
+<code>value</code>.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b>columns</b>
+            (<code><a class="autorefs autorefs-external" title="typing.Collection" href="https://docs.python.org/3/library/typing.html#typing.Collection">Collection</a></code>, default:
+                <code>None</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>A sized iterable container of column headers. By default, column headers will be
+<code>tuple(range(len(data[0])))</code>.  Values provided here override any implied in
+<code>value</code>.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b>**kwargs</b>
+            (<code><span title="typing_extensions.Unpack">Unpack</span>[<span title="magicgui.widgets.bases._widget.WidgetKwargs">WidgetKwargs</span>]</code>, default:
+                <code>{}</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>Additional kwargs will be passed to the
+<a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.Widget">magicgui.widgets.Widget</a> constructor.</p>
+        </div>
+      </li>
   </ul>
-      <p>index : Collection, optional
-    A sized iterable container of row headers. By default, row headers will be
-    <code>tuple(range(len(data)))</code>.  Values provided here override any implied in
-    <code>value</code>.
-columns : Collection, optional
-    A sized iterable container of column headers. By default, column headers will be
-    <code>tuple(range(len(data[0])))</code>.  Values provided here override any implied in
-    <code>value</code>.
-**kwargs
-    Additional kwargs will be passed to the
-    <a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.Widget">magicgui.widgets.Widget</a> constructor.</p>
 
 
 
@@ -3511,13 +3517,15 @@ See docstring of :meth:<code>to_dict</code> for details.</p>
           </div>
         </li>
   </ul>
-      <h4 id="magicgui.widgets.Table--events">Events<a class="headerlink" href="#magicgui.widgets.Table--events" title="Permanent link">#</a></h4>
-<p>changed
+
+<details class="events" open>
+  <summary>Events</summary>
+  <p>changed
     Emitted whenever a cell in the table changes. The value will have a
     dict of information regarding the cell that changed:
     {'data': x, 'row': int, 'column': int, 'column_header': str, 'row_header': str}
     CURRENTLY: only emitted on changes in the GUI. not programmatic changes.</p>
-
+</details>
 
   
 
@@ -4077,10 +4085,10 @@ See docstring of :meth:<code>to_dict</code> for details.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.8fd75fb4.min.js"></script>
       
     
   </body>

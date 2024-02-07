@@ -6,6 +6,7 @@ Once the class is instantiated, `instance.method_name` will return a FunctionGui
 in which the instance will always be provided as the first argument (i.e. "self") when
 the FunctionGui or method is called.
 """
+
 from magicgui import event_loop, magicgui
 from magicgui.widgets import Container
 
