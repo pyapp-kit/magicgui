@@ -2,6 +2,7 @@
 
 Demonstrating a few ways to input tables.
 """
+
 import numpy as np
 
 from magicgui.widgets import Table

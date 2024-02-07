@@ -1,4 +1,5 @@
 """https://www.mkdocs.org/dev-guide/plugins/#events ."""
+
 from __future__ import annotations
 
 import importlib.abc

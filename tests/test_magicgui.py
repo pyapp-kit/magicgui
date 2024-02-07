@@ -83,8 +83,7 @@ def test_overriding_widget_type():
 
     # also without type annotation
     @magicgui(a={"widget_type": "LogSlider"})
-    def g(a):
-        ...
+    def g(a): ...
 
     assert isinstance(g.a, widgets.LogSlider)
 
@@ -173,8 +172,7 @@ def test_dropdown_list_from_enum():
         Air = 1.0003
 
     @magicgui
-    def func(arg: Medium = Medium.Water):
-        ...
+    def func(arg: Medium = Medium.Water): ...
 
     assert func.arg.value == Medium.Water
     assert isinstance(func.arg, widgets.ComboBox)
@@ -186,8 +184,7 @@ def test_dropdown_list_from_choices():
     CHOICES = ["Oil", "Water", "Air"]
 
     @magicgui(arg={"choices": CHOICES})
-    def func(arg="Water"):
-        ...
+    def func(arg="Water"): ...
 
     assert func.arg.value == "Water"
     assert isinstance(func.arg, widgets.ComboBox)
@@ -196,8 +193,7 @@ def test_dropdown_list_from_choices():
     with pytest.raises(ValueError):
         # the default value must be in the list
         @magicgui(arg={"choices": ["Oil", "Water", "Air"]})
-        def func(arg="Silicone"):
-            ...
+        def func(arg="Silicone"): ...
 
 
 def test_dropdown_list_from_callable():
@@ -208,8 +204,7 @@ def test_dropdown_list_from_callable():
         return CHOICES
 
     @magicgui(arg={"choices": get_choices})
-    def func(arg="Water"):
-        ...
+    def func(arg="Water"): ...
 
     assert func.arg.value == "Water"
     assert isinstance(func.arg, widgets.ComboBox)
@@ -729,8 +724,7 @@ def test_empty_function():
     """Test that a function with no params works."""
 
     @magicgui(call_button=True)
-    def f():
-        ...
+    def f(): ...
 
     f.show()
 
@@ -767,8 +761,7 @@ def test_none_defaults():
 
 def test_update_and_dict():
     @magicgui
-    def test(a: int = 1, y: str = "a"):
-        ...
+    def test(a: int = 1, y: str = "a"): ...
 
     assert test.asdict() == {"a": 1, "y": "a"}
 
@@ -784,8 +777,7 @@ def test_update_and_dict():
 
 def test_update_on_call():
     @magicgui
-    def test(a: int = 1, y: str = "a"):
-        ...
+    def test(a: int = 1, y: str = "a"): ...
 
     assert test.call_count == 0
     test(a=10, y="b", update_widget=True)
@@ -839,16 +831,14 @@ def test_curry():
 
 def test_scrollable():
     @magicgui(scrollable=True)
-    def test_scrollable(a: int = 1, y: str = "a"):
-        ...
+    def test_scrollable(a: int = 1, y: str = "a"): ...
 
     assert test_scrollable.native is not test_scrollable.root_native_widget
     assert not isinstance(test_scrollable.native, QScrollArea)
     assert isinstance(test_scrollable.root_native_widget, QScrollArea)
 
     @magicgui(scrollable=False)
-    def test_nonscrollable(a: int = 1, y: str = "a"):
-        ...
+    def test_nonscrollable(a: int = 1, y: str = "a"): ...
 
     assert test_nonscrollable.native is test_nonscrollable.root_native_widget
     assert not isinstance(test_nonscrollable.native, QScrollArea)
