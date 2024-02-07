@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING, Any, Callable, Iterable, get_type_hints
 
 try:
@@ -135,9 +134,7 @@ class _IPyWidget(protocols.WidgetProtocol):
         return self._ipywidget._ipython_display_(**kwargs)
 
     def _mgui_bind_parent_change_callback(self, callback):
-        warnings.warn(
-            "parent_changed callback not implemented for ipywidgets", stacklevel=2
-        )
+        pass
 
     def _mgui_render(self):
         pass

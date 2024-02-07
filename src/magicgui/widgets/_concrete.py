@@ -987,7 +987,7 @@ class _LabeledWidget(Container):
         self.labels = False  # important to avoid infinite recursion during insert!
         self._inner_widget.label_changed.connect(self._on_label_change)
         for w in [self._label_widget, widget]:
-            with w.parent_changed.blocked():
+            with w.native_parent_changed.blocked():
                 self.append(w)
         self.margins = (0, 0, 0, 0)
 
