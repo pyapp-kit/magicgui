@@ -1,4 +1,5 @@
 """Backend modules implementing applications and widgets."""
+
 from __future__ import annotations
 
 BACKENDS: dict[str, tuple[str, str]] = {

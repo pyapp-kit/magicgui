@@ -2,6 +2,7 @@
 
 A file dialog widget example.
 """
+
 from pathlib import Path
 from typing import Sequence
 

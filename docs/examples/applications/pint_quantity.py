@@ -6,6 +6,7 @@ It allows arithmetic operations between them and conversions
 from and to different units.
 https://pint.readthedocs.io/en/stable/
 """
+
 from pint import Quantity
 
 from magicgui import magicgui

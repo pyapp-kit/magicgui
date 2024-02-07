@@ -1,4 +1,5 @@
 """A wrapper around the tqdm.tqdm iterator that adds a ProgressBar to a magicgui."""
+
 from __future__ import annotations
 
 import contextlib

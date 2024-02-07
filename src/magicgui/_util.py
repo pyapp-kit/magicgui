@@ -21,13 +21,13 @@ if TYPE_CHECKING:
 
 
 @overload
-def debounce(function: Callable[P, T]) -> Callable[P, T | None]:
-    ...
+def debounce(function: Callable[P, T]) -> Callable[P, T | None]: ...
 
 
 @overload
-def debounce(*, wait: float = 0.2) -> Callable[[Callable[P, T]], Callable[P, T | None]]:
-    ...
+def debounce(
+    *, wait: float = 0.2
+) -> Callable[[Callable[P, T]], Callable[P, T | None]]: ...
 
 
 def debounce(function: Callable[P, T] | None = None, wait: float = 0.2) -> Callable:

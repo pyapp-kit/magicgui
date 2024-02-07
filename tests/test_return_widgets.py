@@ -94,12 +94,10 @@ def test_return_widget_for_type(data, expected_type, equality_check):
 
 def test_table_return_annotation():
     @magicgui.magicgui(result_widget=True)
-    def f() -> "magicgui.widgets.Table":
-        ...
+    def f() -> "magicgui.widgets.Table": ...
 
     @magicgui.magicgui(result_widget=True)
-    def f2() -> widgets.Table:
-        ...
+    def f2() -> widgets.Table: ...
 
     assert isinstance(f._result_widget, widgets.Table)
     assert isinstance(f2._result_widget, widgets.Table)

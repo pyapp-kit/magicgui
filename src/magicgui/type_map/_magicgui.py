@@ -45,8 +45,7 @@ def magicgui(
     persist: bool = False,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> FunctionGui[_P, _R]:
-    ...
+) -> FunctionGui[_P, _R]: ...
 
 
 @overload
@@ -65,8 +64,7 @@ def magicgui(
     persist: bool = False,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> Callable[[Callable[_P, _R]], FunctionGui[_P, _R]]:
-    ...
+) -> Callable[[Callable[_P, _R]], FunctionGui[_P, _R]]: ...
 
 
 @overload
@@ -85,8 +83,7 @@ def magicgui(
     persist: bool = False,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> MainFunctionGui[_P, _R]:
-    ...
+) -> MainFunctionGui[_P, _R]: ...
 
 
 @overload
@@ -105,8 +102,7 @@ def magicgui(
     persist: bool = False,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> Callable[[Callable[_P, _R]], MainFunctionGui[_P, _R]]:
-    ...
+) -> Callable[[Callable[_P, _R]], MainFunctionGui[_P, _R]]: ...
 
 
 def magicgui(
@@ -226,8 +222,7 @@ def magic_factory(
     widget_init: Callable[[FunctionGui], None] | None = None,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> MagicFactory[FunctionGui[_P, _R]]:
-    ...
+) -> MagicFactory[FunctionGui[_P, _R]]: ...
 
 
 @overload
@@ -247,8 +242,7 @@ def magic_factory(
     widget_init: Callable[[FunctionGui], None] | None = None,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> Callable[[Callable[_P, _R]], MagicFactory[FunctionGui[_P, _R]]]:
-    ...
+) -> Callable[[Callable[_P, _R]], MagicFactory[FunctionGui[_P, _R]]]: ...
 
 
 @overload
@@ -268,8 +262,7 @@ def magic_factory(
     widget_init: Callable[[FunctionGui], None] | None = None,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> MagicFactory[MainFunctionGui[_P, _R]]:
-    ...
+) -> MagicFactory[MainFunctionGui[_P, _R]]: ...
 
 
 @overload
@@ -289,8 +282,7 @@ def magic_factory(
     widget_init: Callable[[FunctionGui], None] | None = None,
     raise_on_unknown: bool = False,
     **param_options: dict,
-) -> Callable[[Callable[_P, _R]], MagicFactory[MainFunctionGui[_P, _R]]]:
-    ...
+) -> Callable[[Callable[_P, _R]], MagicFactory[MainFunctionGui[_P, _R]]]: ...
 
 
 def magic_factory(

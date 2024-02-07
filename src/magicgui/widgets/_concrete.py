@@ -3,6 +3,7 @@
 All of these widgets should provide the `widget_type` argument to their
 super().__init__ calls.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -68,8 +69,7 @@ _V = TypeVar("_V")
 
 
 @overload
-def backend_widget(cls: WidgetTypeVar) -> WidgetTypeVar:
-    ...
+def backend_widget(cls: WidgetTypeVar) -> WidgetTypeVar: ...
 
 
 @overload
@@ -78,8 +78,7 @@ def backend_widget(
     *,
     widget_name: str | None = ...,
     transform: Callable[[type], type] | None = ...,
-) -> Callable[[WidgetTypeVar], WidgetTypeVar]:
-    ...
+) -> Callable[[WidgetTypeVar], WidgetTypeVar]: ...
 
 
 def backend_widget(
@@ -785,12 +784,10 @@ class ListDataView(Generic[_V]):
         return list(self) == other
 
     @overload
-    def __getitem__(self, i: int) -> _V:
-        ...
+    def __getitem__(self, i: int) -> _V: ...
 
     @overload
-    def __getitem__(self, key: slice) -> list[_V]:
-        ...
+    def __getitem__(self, key: slice) -> list[_V]: ...
 
     def __getitem__(self, key: int | slice) -> _V | list[_V]:
         """Slice as a list."""
@@ -804,12 +801,10 @@ class ListDataView(Generic[_V]):
             )
 
     @overload
-    def __setitem__(self, key: int, value: _V) -> None:
-        ...
+    def __setitem__(self, key: int, value: _V) -> None: ...
 
     @overload
-    def __setitem__(self, key: slice, value: _V | Iterable[_V]) -> None:
-        ...
+    def __setitem__(self, key: slice, value: _V | Iterable[_V]) -> None: ...
 
     def __setitem__(self, key: int | slice, value: _V | Iterable[_V]) -> None:
         """Update widget value."""
@@ -830,12 +825,10 @@ class ListDataView(Generic[_V]):
             )
 
     @overload
-    def __delitem__(self, key: int) -> None:
-        ...
+    def __delitem__(self, key: int) -> None: ...
 
     @overload
-    def __delitem__(self, key: slice) -> None:
-        ...
+    def __delitem__(self, key: slice) -> None: ...
 
     def __delitem__(self, key: int | slice) -> None:
         """Delete widget at the key(s)."""
