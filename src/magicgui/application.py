@@ -1,4 +1,5 @@
 """Magicgui application object, wrapping a backend application."""
+
 from __future__ import annotations
 
 import signal

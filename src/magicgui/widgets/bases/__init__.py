@@ -42,12 +42,14 @@ create a widget subclass appropriate for the arguments passed (such as "value" o
 "annotation").
 
 """
+
 from ._button_widget import ButtonWidget
 from ._categorical_widget import CategoricalWidget
 from ._container_widget import ContainerWidget, DialogWidget, MainWindowWidget
 from ._create_widget import create_widget
 from ._ranged_widget import RangedWidget, TransformedRangedWidget
 from ._slider_widget import MultiValuedSliderWidget, SliderWidget
+from ._toolbar import ToolBarWidget
 from ._value_widget import ValueWidget
 from ._widget import Widget
 
@@ -55,13 +57,14 @@ __all__ = [
     "ButtonWidget",
     "CategoricalWidget",
     "ContainerWidget",
+    "create_widget",
     "DialogWidget",
     "MainWindowWidget",
     "MultiValuedSliderWidget",
     "RangedWidget",
     "SliderWidget",
+    "ToolBarWidget",
     "TransformedRangedWidget",
     "ValueWidget",
     "Widget",
-    "create_widget",
 ]

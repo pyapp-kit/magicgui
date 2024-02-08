@@ -7,6 +7,7 @@ All magicgui-specific abstract methods are prefaced with ``_mgui_*``.
 
 For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
     from magicgui.widgets.bases import Widget
 
 
-def assert_protocol(widget_class: type, protocol: type) -> None | NoReturn:
+def assert_protocol(widget_class: type, protocol: type) -> None:
     """Ensure that widget_class implements protocol, or raise helpful error."""
     if not isinstance(widget_class, protocol):
         _raise_protocol_error(widget_class, protocol)
@@ -438,7 +439,21 @@ class SupportsText(Protocol):
 
 
 @runtime_checkable
-class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, Protocol):
+class SupportsIcon(Protocol):
+    """Widget that can be reoriented."""
+
+    @abstractmethod
+    def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
+        """Set icon.
+
+        Value is an "prefix:name" from iconify: https://icon-sets.iconify.design
+        Color is any valid CSS color string.
+        Set value to `None` or an empty string to remove icon.
+        """
+
+
+@runtime_checkable
+class ButtonWidgetProtocol(ValueWidgetProtocol, SupportsText, SupportsIcon, Protocol):
     """The "value" in a ButtonWidget is the current (checked) state."""
 
 
@@ -499,6 +514,41 @@ class ContainerProtocol(WidgetProtocol, SupportsOrientation, Protocol):
     def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
         """Set the margins of the container."""
         raise NotImplementedError()
+
+
+@runtime_checkable
+class ToolBarProtocol(WidgetProtocol, Protocol):
+    """Toolbar that contains a set of controls."""
+
+    @abstractmethod
+    def _mgui_add_button(
+        self, text: str, icon: str, callback: Callable | None = None
+    ) -> None:
+        """Add a button to the toolbar."""
+
+    @abstractmethod
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the toolbar."""
+
+    @abstractmethod
+    def _mgui_add_spacer(self) -> None:
+        """Add a spacer to the toolbar."""
+
+    @abstractmethod
+    def _mgui_add_widget(self, widget: Widget) -> None:
+        """Add a widget to the toolbar."""
+
+    @abstractmethod
+    def _mgui_get_icon_size(self) -> tuple[int, int] | None:
+        """Return the icon size of the toolbar."""
+
+    @abstractmethod
+    def _mgui_set_icon_size(self, size: int | tuple[int, int] | None) -> None:
+        """Set the icon size of the toolbar."""
+
+    @abstractmethod
+    def _mgui_clear(self) -> None:
+        """Clear the toolbar."""
 
 
 class DialogProtocol(ContainerProtocol, Protocol):

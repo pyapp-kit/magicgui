@@ -15,9 +15,27 @@ if TYPE_CHECKING:
     from weakref import ReferenceType
 
     import numpy as np
+    from typing_extensions import TypedDict
 
     from magicgui.widgets._concrete import _LabeledWidget
     from magicgui.widgets.protocols import WidgetProtocol
+
+    class WidgetKwargs(TypedDict, total=False):
+        # technically, this should be Required[type[WidgetProtocol]]]
+        # but the widget_type argument is generally provided dynamically
+        # by the @backend_widget decorator. So it appears to be missing if we require it
+        widget_type: type[WidgetProtocol]
+        name: str
+        annotation: Any | None
+        label: str | None
+        tooltip: str | None
+        visible: bool | None
+        enabled: bool
+        gui_only: bool
+        parent: Any
+        backend_kwargs: dict | None
+
+        description: str  # alias for label
 
 
 class Widget:
@@ -77,7 +95,7 @@ class Widget:
         gui_only: bool = False,
         parent: Any | None = None,
         backend_kwargs: dict | None = None,
-        **extra: Any,
+        **extra: Any,  # not really used
     ):
         # for ipywidgets API compatibility
         if backend_kwargs is None:

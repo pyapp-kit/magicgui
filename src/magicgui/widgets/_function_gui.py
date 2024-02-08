@@ -2,6 +2,7 @@
 
 The core `magicgui` decorator returns an instance of a FunctionGui widget.
 """
+
 from __future__ import annotations
 
 import inspect
@@ -30,9 +31,15 @@ from magicgui.widgets.bases import ValueWidget
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from typing_extensions import ParamSpec
+
     from magicgui.application import Application, AppRef  # noqa: F401
     from magicgui.widgets import TextEdit
     from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
+
+    _P = ParamSpec("_P")
+else:
+    _P = TypeVar("_P")  # easier runtime dependency than ParamSpec
 
 
 def _inject_tooltips_from_docstrings(
@@ -70,7 +77,7 @@ _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
 
 
-class FunctionGui(Container, Generic[_R]):
+class FunctionGui(Container, Generic[_P, _R]):
     """Wrapper for a container of widgets representing a callable object.
 
     Parameters
@@ -129,7 +136,7 @@ class FunctionGui(Container, Generic[_R]):
 
     def __init__(
         self,
-        function: Callable[..., _R],
+        function: Callable[_P, _R],
         call_button: bool | str | None = None,
         layout: str = "vertical",
         scrollable: bool = False,
@@ -276,8 +283,11 @@ class FunctionGui(Container, Generic[_R]):
         """Return a MagicSignature object representing the current state of the gui."""
         return super().__signature__.replace(return_annotation=self.return_annotation)
 
-    def __call__(self, *args: Any, update_widget: bool = False, **kwargs: Any) -> _R:
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R:
         """Call the original function with the current parameter values from the Gui.
+
+        You may pass a `update_widget=True` keyword argument to update the widget
+        values to match the current parameter values before calling the function.
 
         It is also possible to override the current parameter values from the GUI by
         providing args/kwargs to the function call.  Only those provided will override
@@ -298,6 +308,8 @@ class FunctionGui(Container, Generic[_R]):
         gui()  # calls the original function with the current parameters
         ```
         """
+        update_widget: bool = bool(kwargs.pop("update_widget", False))
+
         sig = self.__signature__
         try:
             bound = sig.bind(*args, **kwargs)
@@ -441,12 +453,12 @@ class FunctionGui(Container, Generic[_R]):
         super()._load(path or self._dump_path, quiet=quiet)
 
 
-class MainFunctionGui(FunctionGui[_R], MainWindow):
+class MainFunctionGui(FunctionGui[_P, _R], MainWindow):
     """Container of widgets as a Main Application Window."""
 
     _widget: MainWindowProtocol
 
-    def __init__(self, function: Callable, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, function: Callable[_P, _R], *args: Any, **kwargs: Any) -> None:
         super().__init__(function, *args, **kwargs)
         self.create_menu_item("Help", "Documentation", callback=self._show_docs)
         self._help_text_edit: TextEdit | None = None

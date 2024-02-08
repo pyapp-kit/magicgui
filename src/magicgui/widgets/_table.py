@@ -15,7 +15,6 @@ from typing import (
     Literal,
     Mapping,
     MutableMapping,
-    NoReturn,
     Sequence,
     TypeVar,
     Union,
@@ -31,9 +30,12 @@ from magicgui.widgets.bases._value_widget import ValueWidget
 if TYPE_CHECKING:
     import numpy
     import pandas
-    from typing_extensions import TypeGuard
+    from typing_extensions import TypeGuard, Unpack
 
     from magicgui.widgets.protocols import TableWidgetProtocol
+
+    from .bases._widget import WidgetKwargs
+
 TblKey = Any
 _KT = TypeVar("_KT")  # Key type
 _KT_co = TypeVar("_KT_co", covariant=True)  # Key type covariant containers.
@@ -227,9 +229,10 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         *,
         index: Collection | None = None,
         columns: Collection | None = None,
-        **kwargs: Any,
+        **kwargs: Unpack[WidgetKwargs],
     ) -> None:
-        super().__init__(widget_type=use_app().get_obj("Table"), **kwargs)
+        kwargs["widget_type"] = use_app().get_obj("Table")
+        super().__init__(**kwargs)
         self._data = DataView(self)
         data, _index, _columns = normalize_table_data(value)
         self.value = {
@@ -264,6 +267,39 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
         self.row_headers = tuple(index) or range(len(data))  # type: ignore
         for row, d in enumerate(data):
             self._set_rowi(row, d)
+
+    def delete_row(
+        self,
+        *,
+        index: int | Sequence[int] | None = None,
+        header: Any | Sequence[Any] | None = None,
+    ) -> None:
+        """Delete row(s) by index or header.
+
+        Parameters
+        ----------
+        index : int or Sequence[int], optional
+            Index or indices of row(s) to delete.
+        header : Any or Sequence[Any], optional
+            Header or headers of row(s) to delete.
+        """
+        indices: set[int] = set()
+        if index is not None:
+            if isinstance(index, Sequence):
+                indices.update(index)
+            else:
+                indices.add(index)
+        if header is not None:
+            if isinstance(header, str) or not isinstance(header, Sequence):
+                header = (header,)
+            row_headers = self.row_headers
+            for h in header:
+                try:
+                    indices.add(row_headers.index(h))
+                except ValueError as e:
+                    raise KeyError(f"{h!r} is not a valid row header") from e
+        for i in sorted(indices, reverse=True):
+            self._del_rowi(i)
 
     @property
     def data(self) -> DataView:
@@ -798,7 +834,7 @@ def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list
 
 def _validate_table_data(
     data: Collection, index: Sequence | None, column: Sequence | None
-) -> None | NoReturn:
+) -> None:
     """Make sure data matches shape of index and column."""
     nr = len(data)
     if not nr:

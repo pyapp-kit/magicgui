@@ -117,8 +117,7 @@ def test_pathlike_annotation():
 
 def test_optional_type():
     @magicgui(x={"choices": ["a", "b"]})
-    def widget(x: Optional[str] = None):
-        ...
+    def widget(x: Optional[str] = None): ...
 
     assert isinstance(widget.x, widgets.ComboBox)
     assert widget.x.value is None
@@ -187,6 +186,41 @@ def test_type_registered_warns():
             register_type(Path, widget_type=widgets.TextEdit)
             assert isinstance(widgets.create_widget(annotation=Path), widgets.TextEdit)
     assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
+
+
+def test_type_registered_optional_callbacks():
+    assert not _RETURN_CALLBACKS[int]
+    assert not _RETURN_CALLBACKS[Optional[int]]
+
+    @magicgui
+    def func1(a: int) -> int:
+        return a
+
+    @magicgui
+    def func2(a: int) -> Optional[int]:
+        return a
+
+    mock1 = Mock()
+    mock2 = Mock()
+    mock3 = Mock()
+
+    register_type(int, return_callback=mock2)
+
+    with type_registered(Optional[int], return_callback=mock1):
+        func1(1)
+        mock1.assert_called_once_with(func1, 1, int)
+        mock1.reset_mock()
+        func2(2)
+        mock1.assert_called_once_with(func2, 2, Optional[int])
+        mock1.reset_mock()
+        mock2.assert_called_once_with(func1, 1, int)
+        assert _RETURN_CALLBACKS[int] == [mock2, mock1]
+        assert _RETURN_CALLBACKS[Optional[int]] == [mock1]
+        register_type(Optional[int], return_callback=mock3)
+        assert _RETURN_CALLBACKS[Optional[int]] == [mock1, mock3]
+
+    assert _RETURN_CALLBACKS[Optional[int]] == [mock3]
+    assert _RETURN_CALLBACKS[int] == [mock2, mock3]
 
 
 def test_pick_widget_literal():

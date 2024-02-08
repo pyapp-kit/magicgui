@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Tuple, Union
+from typing import TYPE_CHECKING, Callable, Tuple, Union
 
 from magicgui.types import Undefined, _Undefined
 
@@ -8,7 +8,11 @@ from ._mixins import _OrientationMixin
 from ._ranged_widget import MultiValueRangedWidget, RangedWidget, T
 
 if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
     from magicgui.widgets import protocols
+
+    from ._widget import WidgetKwargs
 
 
 class SliderWidget(RangedWidget[T], _OrientationMixin):
@@ -61,7 +65,7 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         tracking: bool = True,
         bind: T | Callable[[protocols.ValueWidgetProtocol], T] | _Undefined = Undefined,
         nullable: bool = False,
-        **base_widget_kwargs: Any,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
         base_widget_kwargs["backend_kwargs"] = {
             "readout": readout,

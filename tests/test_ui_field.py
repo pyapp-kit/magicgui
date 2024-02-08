@@ -116,8 +116,7 @@ def test_function():
         a: Optional[int],
         b: Annotated[str, UiField(description="the b")],
         c: Annotated[float, UiField(widget="FloatSlider")] = 0.0,
-    ):
-        ...
+    ): ...
 
     # makes to sense to instantiate a function
     _assert_uifields(foo, instantiate=False)

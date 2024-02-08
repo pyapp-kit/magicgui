@@ -17,3 +17,12 @@ def always_qapp(qapp):
     for w in qapp.topLevelWidgets():
         w.close()
         w.deleteLater()
+
+
+@pytest.fixture(autouse=True, scope="function")
+def _clean_return_callbacks():
+    from magicgui.type_map._type_map import _RETURN_CALLBACKS
+
+    yield
+
+    _RETURN_CALLBACKS.clear()

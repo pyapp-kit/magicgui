@@ -110,6 +110,17 @@ def test_create_widget_annotation(annotation, expected_type):
     wdg.close()
 
 
+def test_create_widget_annotation_overwritte_parrams():
+    wdg1 = widgets.create_widget(annotation=widgets.ProgressBar)
+    assert isinstance(wdg1, widgets.ProgressBar)
+    assert wdg1.visible
+    wdg2 = widgets.create_widget(
+        annotation=Annotated[widgets.ProgressBar, {"visible": False}]
+    )
+    assert isinstance(wdg2, widgets.ProgressBar)
+    assert not wdg2.visible
+
+
 # fmt: off
 class MyBadWidget:
     """INCOMPLETE widget implementation and will error."""
@@ -809,6 +820,17 @@ def test_pushbutton_click_signal():
     mock2.assert_called_once()
 
 
+def test_pushbutton_icon(backend: str):
+    use_app(backend)
+    btn = widgets.PushButton(icon="mdi:folder")
+    btn.set_icon("play", "red")
+    btn.set_icon(None)
+
+    if backend == "qt":
+        with pytest.warns(UserWarning, match="Could not set iconify icon"):
+            btn.set_icon("bad:key")
+
+
 def test_list_edit():
     """Test ListEdit."""
     from typing import List
@@ -1023,16 +1045,14 @@ def test_literal():
     Lit = Literal[None, "a", 1, True, b"bytes"]
 
     @magicgui
-    def f(x: Lit):
-        ...
+    def f(x: Lit): ...
 
     cbox = f.x
     assert type(cbox) is widgets.ComboBox
     assert cbox.choices == get_args(Lit)
 
     @magicgui
-    def f(x: Set[Lit]):
-        ...
+    def f(x: Set[Lit]): ...
 
     sel = f.x
     assert type(sel) is widgets.Select
@@ -1045,3 +1065,14 @@ def test_float_slider_readout():
     assert sld._widget._readout_widget.value() == 4
     assert sld._widget._readout_widget.minimum() == 0.5
     assert sld._widget._readout_widget.maximum() == 10.5
+
+
+def test_toolbar():
+    tb = widgets.ToolBar()
+    tb.add_button("test", callback=lambda: None)
+    tb.add_separator()
+    tb.add_spacer()
+    tb.add_button("test2", callback=lambda: None)
+    tb.icon_size = 26
+    assert tb.icon_size == (26, 26)
+    tb.clear()

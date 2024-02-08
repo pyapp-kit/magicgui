@@ -1,4 +1,5 @@
 """Types used internally in magicgui."""
+
 from __future__ import annotations
 
 from enum import Enum, EnumMeta
@@ -38,7 +39,7 @@ ChoicesType = Union[EnumMeta, ChoicesIterable, ChoicesCallback, ChoicesDict]
 #: be provided an instance of a
 #: [~magicgui.widgets.FunctionGui][magicgui.widgets.FunctionGui],
 #: the result of the function that was called, and the return annotation itself.
-ReturnCallback = Callable[["FunctionGui[Any]", Any, type], None]
+ReturnCallback = Callable[["FunctionGui", Any, type], None]
 #: A valid file path type
 PathLike = Union[Path, str, bytes]
 
@@ -110,17 +111,3 @@ JsonStringFormats = Literal[
     # regular expressions
     "regex",  # draft 7
 ]
-
-
-def __getattr__(name: str) -> Any:
-    if name == "WidgetOptions":
-        import warnings
-
-        warnings.warn(
-            "magicgui.types.WidgetOptions is being removed. Use `dict` instead, "
-            "and restrict import to a TYPE_CHECKING clause.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return dict
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

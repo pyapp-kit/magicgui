@@ -11,6 +11,7 @@ calling ``inspect.signature`` on a function decorated with `magicgui` still work
 (it returns a ``MagicSignature``, which is a subclass of ``inspect.Signature``)
 
 """
+
 from __future__ import annotations
 
 import inspect
@@ -22,8 +23,12 @@ from typing_extensions import Annotated, get_args, get_origin
 from magicgui.types import Undefined
 
 if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
     from magicgui.application import AppRef
     from magicgui.widgets import Container, Widget
+    from magicgui.widgets.bases._container_widget import ContainerKwargs
+
 TZ_EMPTY = "__no__default__"
 
 
@@ -229,14 +234,14 @@ class MagicSignature(inspect.Signature):
             {n: p.to_widget(app) for n, p in self.parameters.items()}
         )
 
-    def to_container(self, **kwargs: Any) -> Container:
+    def to_container(
+        self, app: AppRef | None = None, **kwargs: Unpack[ContainerKwargs]
+    ) -> Container:
         """Return a ``magicgui.widgets.Container`` for this MagicSignature."""
         from magicgui.widgets import Container
 
-        return Container(
-            widgets=list(self.widgets(kwargs.get("app")).values()),
-            **kwargs,
-        )
+        kwargs["widgets"] = list(self.widgets(app).values())
+        return Container(**kwargs)
 
     def replace(  # type: ignore[override]
         self,

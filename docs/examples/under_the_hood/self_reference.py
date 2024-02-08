@@ -2,6 +2,7 @@
 
 Widgets created with magicgui can reference themselves, and use the widget API.
 """
+
 from magicgui import magicgui
 
 

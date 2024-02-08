@@ -1,4 +1,6 @@
-from typing import Any, Callable, Iterable, Optional, Tuple, Type, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable, Iterable, get_type_hints
 
 try:
     import ipywidgets
@@ -9,11 +11,14 @@ except ImportError as e:
         "Please run `pip install ipywidgets`"
     ) from e
 
+
 from magicgui.widgets import protocols
-from magicgui.widgets.bases import Widget
+
+if TYPE_CHECKING:
+    from magicgui.widgets.bases import Widget
 
 
-def _pxstr2int(pxstr: Union[int, str]) -> int:
+def _pxstr2int(pxstr: int | str) -> int:
     if isinstance(pxstr, int):
         return pxstr
     if isinstance(pxstr, str) and pxstr.endswith("px"):
@@ -21,7 +26,7 @@ def _pxstr2int(pxstr: Union[int, str]) -> int:
     return int(pxstr)
 
 
-def _int2pxstr(pxint: Union[int, str]) -> str:
+def _int2pxstr(pxint: int | str) -> str:
     return f"{pxint}px" if isinstance(pxint, int) else pxint
 
 
@@ -30,11 +35,11 @@ class _IPyWidget(protocols.WidgetProtocol):
 
     def __init__(
         self,
-        wdg_class: Optional[Type[ipywdg.Widget]] = None,
-        parent: Optional[ipywdg.Widget] = None,
+        wdg_class: type[ipywdg.Widget] | None = None,
+        parent: ipywdg.Widget | None = None,
     ):
         if wdg_class is None:
-            wdg_class = type(self).__annotations__.get("_ipywidget")
+            wdg_class = get_type_hints(self, None, globals()).get("_ipywidget")
         if wdg_class is None:
             raise TypeError("Must provide a valid ipywidget type")
         self._ipywidget = wdg_class()
@@ -79,20 +84,20 @@ class _IPyWidget(protocols.WidgetProtocol):
         # will this always work with our base Widget assumptions?
         return _pxstr2int(self._ipywidget.layout.width)
 
-    def _mgui_set_width(self, value: Union[int, str]) -> None:
+    def _mgui_set_width(self, value: int | str) -> None:
         """Set the current width of the widget."""
         self._ipywidget.layout.width = _int2pxstr(value)
 
     def _mgui_get_min_width(self) -> int:
         return _pxstr2int(self._ipywidget.layout.min_width)
 
-    def _mgui_set_min_width(self, value: Union[int, str]):
+    def _mgui_set_min_width(self, value: int | str):
         self._ipywidget.layout.min_width = _int2pxstr(value)
 
     def _mgui_get_max_width(self) -> int:
         return _pxstr2int(self._ipywidget.layout.max_width)
 
-    def _mgui_set_max_width(self, value: Union[int, str]):
+    def _mgui_set_max_width(self, value: int | str):
         self._ipywidget.layout.max_width = _int2pxstr(value)
 
     def _mgui_get_height(self) -> int:
@@ -122,7 +127,7 @@ class _IPyWidget(protocols.WidgetProtocol):
     def _mgui_get_tooltip(self) -> str:
         return self._ipywidget.tooltip
 
-    def _mgui_set_tooltip(self, value: Optional[str]) -> None:
+    def _mgui_set_tooltip(self, value: str | None) -> None:
         self._ipywidget.tooltip = value
 
     def _ipython_display_(self, **kwargs):
@@ -208,11 +213,11 @@ class _IPySupportsOrientation(protocols.SupportsOrientation):
 class _IPySupportsChoices(protocols.SupportsChoices):
     _ipywidget: ipywdg.Widget
 
-    def _mgui_get_choices(self) -> Tuple[Tuple[str, Any]]:
+    def _mgui_get_choices(self) -> tuple[tuple[str, Any]]:
         """Get available choices."""
         return self._ipywidget.options
 
-    def _mgui_set_choices(self, choices: Iterable[Tuple[str, Any]]) -> None:
+    def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set available choices."""
         self._ipywidget.options = choices
 
@@ -260,11 +265,32 @@ class _IPySupportsText(protocols.SupportsText):
         return self._ipywidget.description
 
 
+class _IPySupportsIcon(protocols.SupportsIcon):
+    """Widget that can show an icon."""
+
+    _ipywidget: ipywdg.Button
+
+    def _mgui_set_icon(self, value: str | None, color: str | None) -> None:
+        """Set icon."""
+        # only ipywdg.Button actually supports icons.
+        # but our button protocol allows it for all buttons subclasses
+        # so we need this method in the concrete subclasses, but we
+        # can't actually set the icon for anything but ipywdg.Button
+        if hasattr(self._ipywidget, "icon"):
+            # by splitting on ":" we allow for "prefix:icon-name" syntax
+            # which works for iconify icons served by qt, while still
+            # allowing for bare "icon-name" syntax which works for ipywidgets.
+            # note however... only fa4/5 icons will work for ipywidgets.
+            value = value or ""
+            self._ipywidget.icon = value.replace("fa-", "").split(":", 1)[-1]
+            self._ipywidget.style.text_color = color
+
+
 class _IPyCategoricalWidget(_IPyValueWidget, _IPySupportsChoices):
     pass
 
 
-class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText):
+class _IPyButtonWidget(_IPyValueWidget, _IPySupportsText, _IPySupportsIcon):
     pass
 
 
@@ -326,6 +352,67 @@ class TimeEdit(_IPyValueWidget):
     _ipywidget: ipywdg.TimePicker
 
 
+class ToolBar(_IPyWidget):
+    _ipywidget: ipywidgets.HBox
+
+    def __init__(self, **kwargs):
+        super().__init__(ipywidgets.HBox, **kwargs)
+        self._icon_sz: tuple[int, int] | None = None
+
+    def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
+        """Add an action to the toolbar."""
+        btn = ipywdg.Button(
+            description=text, icon=icon, layout={"width": "auto", "height": "auto"}
+        )
+        if callback:
+            btn.on_click(lambda e: callback())
+        self._add_ipywidget(btn)
+
+    def _add_ipywidget(self, widget: ipywidgets.Widget) -> None:
+        children = list(self._ipywidget.children)
+        children.append(widget)
+        self._ipywidget.children = children
+
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the toolbar."""
+        # Define the vertical separator
+        sep = ipywdg.Box(
+            layout=ipywdg.Layout(border_left="1px dotted gray", margin="1px 4px")
+        )
+        self._add_ipywidget(sep)
+
+    def _mgui_add_spacer(self) -> None:
+        """Add a spacer to the toolbar."""
+        self._add_ipywidget(ipywdg.Box(layout=ipywdg.Layout(flex="1")))
+
+    def _mgui_add_widget(self, widget: Widget) -> None:
+        """Add a widget to the toolbar."""
+        self._add_ipywidget(widget.native)
+
+    def _mgui_get_icon_size(self) -> tuple[int, int] | None:
+        """Return the icon size of the toolbar."""
+        return self._icon_sz
+
+    def _mgui_set_icon_size(self, size: int | (tuple[int, int] | None)) -> None:
+        """Set the icon size of the toolbar."""
+        if isinstance(size, int):
+            size = (size, size)
+        elif size is None:
+            size = (0, 0)
+        elif not isinstance(size, tuple):
+            raise ValueError("icon size must be an int or tuple of ints")
+        sz = max(size)
+        self._icon_sz = (sz, sz)
+        for child in self._ipywidget.children:
+            if hasattr(child, "style"):
+                child.style.font_size = f"{sz}px" if sz else None
+            child.layout.min_height = f"{sz*2}px" if sz else None
+
+    def _mgui_clear(self) -> None:
+        """Clear the toolbar."""
+        self._ipywidget.children = ()
+
+
 class PushButton(_IPyButtonWidget):
     _ipywidget: ipywdg.Button
 
@@ -380,19 +467,19 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
         wdg_class = ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox
         super().__init__(wdg_class, **kwargs)
 
-    def _mgui_add_widget(self, widget: "Widget") -> None:
+    def _mgui_add_widget(self, widget: Widget) -> None:
         children = list(self._ipywidget.children)
         children.append(widget.native)
         self._ipywidget.children = children
         widget.parent = self._ipywidget
 
-    def _mgui_insert_widget(self, position: int, widget: "Widget") -> None:
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
         children = list(self._ipywidget.children)
         children.insert(position, widget.native)
         self._ipywidget.children = children
         widget.parent = self._ipywidget
 
-    def _mgui_remove_widget(self, widget: "Widget") -> None:
+    def _mgui_remove_widget(self, widget: Widget) -> None:
         children = list(self._ipywidget.children)
         children.remove(widget.native)
         self._ipywidget.children = children
@@ -405,17 +492,17 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
     def _mgui_count(self) -> int:
         return len(self._ipywidget.children)
 
-    def _mgui_index(self, widget: "Widget") -> int:
+    def _mgui_index(self, widget: Widget) -> int:
         return self._ipywidget.children.index(widget.native)
 
-    def _mgui_get_index(self, index: int) -> Optional[Widget]:
+    def _mgui_get_index(self, index: int) -> Widget | None:
         """(return None instead of index error)."""
         return self._ipywidget.children[index]._magic_widget
 
     def _mgui_get_native_layout(self) -> Any:
         raise self._ipywidget
 
-    def _mgui_get_margins(self) -> Tuple[int, int, int, int]:
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
         margin = self._ipywidget.layout.margin
         if margin:
             try:
@@ -425,7 +512,7 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
                 return margin
         return (0, 0, 0, 0)
 
-    def _mgui_set_margins(self, margins: Tuple[int, int, int, int]) -> None:
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
         lft, top, rgt, bot = margins
         self._ipywidget.layout.margin = f"{top}px {rgt}px {bot}px {lft}px"
 
