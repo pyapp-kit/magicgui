@@ -64,8 +64,7 @@ def __dataclass_transform__(
 
 @__dataclass_transform__(field_specifiers=(Field, field))
 @overload
-def guiclass(cls: T) -> T:
-    ...
+def guiclass(cls: T) -> T: ...
 
 
 @__dataclass_transform__(field_specifiers=(Field, field))
@@ -76,8 +75,7 @@ def guiclass(
     events_namespace: str = "events",
     follow_changes: bool = True,
     **dataclass_kwargs: Any,
-) -> Callable[[T], T]:
-    ...
+) -> Callable[[T], T]: ...
 
 
 def guiclass(
@@ -169,13 +167,11 @@ def is_guiclass(obj: object) -> TypeGuard[GuiClassProtocol]:
 
 
 @overload
-def button(func: F) -> F:
-    ...
+def button(func: F) -> F: ...
 
 
 @overload
-def button(**kwargs: Any) -> Callable[[F], F]:
-    ...
+def button(**kwargs: Any) -> Callable[[F], F]: ...
 
 
 def button(func: F | None = None, **button_kwargs: Any) -> F | Callable[[F], F]:
@@ -349,5 +345,4 @@ with warnings.catch_warnings():
             # the mypy dataclass magic doesn't work without the literal decorator
             # it WILL work with pyright due to the __dataclass_transform__ above
             # here we just avoid a false error in mypy
-            def __init__(self, *args: Any, **kwargs: Any) -> None:
-                ...
+            def __init__(self, *args: Any, **kwargs: Any) -> None: ...
