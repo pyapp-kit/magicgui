@@ -117,7 +117,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         )
         super().__init__(**base_widget_kwargs)
         self.extend(widgets)
-        self.parent_changed.connect(self.reset_choices)
+        self.native_parent_changed.connect(self.reset_choices)
         self._initialized = True
         self._unify_label_widths()
 
