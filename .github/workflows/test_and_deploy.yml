@@ -45,7 +45,7 @@ jobs:
             qt: pyside2
 
   test-min-reqs:
-    name: Test minimum requirements
+    name: Test min reqs
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
     with:
       os: ${{ matrix.os }}
