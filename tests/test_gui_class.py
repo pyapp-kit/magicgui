@@ -83,14 +83,18 @@ def test_on_existing_dataclass():
     assert isinstance(foo.gui, Container)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason="slots are python3.10 or higher")
+@pytest.mark.skipif(
+    sys.version_info < (3, 11), reason="weakref_slot are python3.11 or higher"
+)
 def test_slots_guiclass():
     """Test that the guiclass decorator works as expected."""
 
     psyg_v = tuple(int(x.split("r")[0]) for x in psygnal.__version__.split(".")[:3])
     old_psygnal = psyg_v < (0, 6, 1)
 
-    @guiclass(slots=True)
+    # if you don't use weakref_slot, it will still work, but you'll get a warning
+    # during signal connection on gui-creation
+    @guiclass(slots=True, weakref_slot=True)
     class Foo:
         a: int = 1
         b: str = "bar"
