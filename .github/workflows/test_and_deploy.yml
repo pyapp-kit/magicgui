@@ -53,7 +53,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: tlambert03/setup-qt-libs@v1.5
+      - uses: tlambert03/setup-qt-libs@v1.6
 
       - name: Install dependencies
         run: |
@@ -66,7 +66,6 @@ jobs:
           run: pytest tests/test_ui_field.py -v --color=yes --cov=magicgui --cov-report=xml
 
       - uses: codecov/codecov-action@v3
-
 
   test-dependents:
     uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
