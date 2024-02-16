@@ -23,6 +23,7 @@ jobs:
       qt: ${{ matrix.qt }}
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
       report-failures: ${{ github.event_name == 'schedule' }}
+    secrets: inherit
     strategy:
       fail-fast: false
       matrix:
