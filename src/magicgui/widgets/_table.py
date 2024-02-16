@@ -15,7 +15,6 @@ from typing import (
     Literal,
     Mapping,
     MutableMapping,
-    NoReturn,
     Sequence,
     TypeVar,
     Union,
@@ -835,7 +834,7 @@ def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list
 
 def _validate_table_data(
     data: Collection, index: Sequence | None, column: Sequence | None
-) -> None | NoReturn:
+) -> None:
     """Make sure data matches shape of index and column."""
     nr = len(data)
     if not nr:

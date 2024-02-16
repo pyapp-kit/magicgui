@@ -49,11 +49,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - uses: tlambert03/setup-qt-libs@v1.6
+      - uses: tlambert03/setup-qt-libs@v1.7
 
       - name: Install dependencies
         run: |
@@ -61,7 +61,7 @@ jobs:
           python -m pip install pytest 'pydantic<2' attrs pytest-cov pyqt6
 
       - name: Test
-        uses: aganders3/headless-gui@v1
+        uses: aganders3/headless-gui@v2
         with:
           run: pytest tests/test_ui_field.py -v --color=yes --cov=magicgui --cov-report=xml
 
@@ -72,11 +72,11 @@ jobs:
     with:
       dependency-repo: ${{ matrix.package }}
       dependency-ref: ${{ matrix.package-version }}
-      dependency-extras:  ${{ matrix.package-extras || 'testing' }}
-      host-extras: 'testing'
+      dependency-extras: ${{ matrix.package-extras || 'testing' }}
+      host-extras: "testing"
       qt: pyqt5
       python-version: "3.10"
-      post-install-cmd: 'python -m pip install pytest-pretty'
+      post-install-cmd: "python -m pip install pytest-pretty"
       pytest-args: ${{ matrix.pytest-args }}
     strategy:
       fail-fast: false
@@ -104,7 +104,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - name: Install dependencies

@@ -2,6 +2,7 @@
 
 Simple waveform generator widget, with plotting.
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import partial

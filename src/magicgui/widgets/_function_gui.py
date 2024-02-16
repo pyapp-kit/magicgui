@@ -2,6 +2,7 @@
 
 The core `magicgui` decorator returns an instance of a FunctionGui widget.
 """
+
 from __future__ import annotations
 
 import inspect

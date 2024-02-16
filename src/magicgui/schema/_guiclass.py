@@ -6,12 +6,13 @@
 2. Adds a `gui` property to the class that will return a `magicgui` widget, bound to
 the values of the dataclass instance.
 """
+
 from __future__ import annotations
 
 import contextlib
 import warnings
 from dataclasses import Field, dataclass, field, is_dataclass
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Mapping, TypeVar, overload
 
 from psygnal import SignalGroup, SignalInstance, evented
 from psygnal import __version__ as psygnal_version
@@ -63,8 +64,7 @@ def __dataclass_transform__(
 
 @__dataclass_transform__(field_specifiers=(Field, field))
 @overload
-def guiclass(cls: T) -> T:
-    ...
+def guiclass(cls: T) -> T: ...
 
 
 @__dataclass_transform__(field_specifiers=(Field, field))
@@ -75,8 +75,7 @@ def guiclass(
     events_namespace: str = "events",
     follow_changes: bool = True,
     **dataclass_kwargs: Any,
-) -> Callable[[T], T]:
-    ...
+) -> Callable[[T], T]: ...
 
 
 def guiclass(
@@ -168,13 +167,11 @@ def is_guiclass(obj: object) -> TypeGuard[GuiClassProtocol]:
 
 
 @overload
-def button(func: F) -> F:
-    ...
+def button(func: F) -> F: ...
 
 
 @overload
-def button(**kwargs: Any) -> Callable[[F], F]:
-    ...
+def button(**kwargs: Any) -> Callable[[F], F]: ...
 
 
 def button(func: F | None = None, **button_kwargs: Any) -> F | Callable[[F], F]:
@@ -256,7 +253,13 @@ def bind_gui_to_instance(
         If True, changes to the instance will be reflected in the gui, by default True
     """
     events = getattr(instance, "events", None) if two_way else None
-    signals = events.signals if isinstance(events, SignalGroup) else {}
+    signals: Mapping[str, SignalInstance] = {}
+    if isinstance(events, SignalGroup):
+        # psygnal >=0.10
+        if hasattr(events, "__iter__") and hasattr(events, "__getitem__"):
+            signals = {k: events[k] for k in events}  # type: ignore
+        else:  # psygnal <0.10
+            signals = events.signals
 
     # in cases of classes with `__slots__`, widget.changed.connect_setattr(instance...)
     # will show a RuntimeWarning because `instance` will not be weak referenceable.
@@ -280,7 +283,10 @@ def bind_gui_to_instance(
                 if hasattr(instance, name):
                     try:
                         changed.connect_setattr(
-                            instance, name, **_IGNORE_REF_ERR  # type: ignore
+                            instance,
+                            name,
+                            maxargs=1,
+                            **_IGNORE_REF_ERR,  # type: ignore
                         )
                     except TypeError:
                         warnings.warn(
@@ -339,5 +345,4 @@ with warnings.catch_warnings():
             # the mypy dataclass magic doesn't work without the literal decorator
             # it WILL work with pyright due to the __dataclass_transform__ above
             # here we just avoid a false error in mypy
-            def __init__(self, *args: Any, **kwargs: Any) -> None:
-                ...
+            def __init__(self, *args: Any, **kwargs: Any) -> None: ...

@@ -42,6 +42,7 @@ create a widget subclass appropriate for the arguments passed (such as "value" o
 "annotation").
 
 """
+
 from ._button_widget import ButtonWidget
 from ._categorical_widget import CategoricalWidget
 from ._container_widget import ContainerWidget, DialogWidget, MainWindowWidget

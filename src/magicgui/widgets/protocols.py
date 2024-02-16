@@ -7,6 +7,7 @@ All magicgui-specific abstract methods are prefaced with ``_mgui_*``.
 
 For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
     from magicgui.widgets.bases import Widget
 
 
-def assert_protocol(widget_class: type, protocol: type) -> None | NoReturn:
+def assert_protocol(widget_class: type, protocol: type) -> None:
     """Ensure that widget_class implements protocol, or raise helpful error."""
     if not isinstance(widget_class, protocol):
         _raise_protocol_error(widget_class, protocol)

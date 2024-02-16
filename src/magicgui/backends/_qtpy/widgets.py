@@ -48,13 +48,13 @@ if TYPE_CHECKING:
 
 
 class EventFilter(QObject):
-    parentChanged = Signal()
+    parentChanged = Signal(QObject)
     valueChanged = Signal(object)
     paletteChanged = Signal()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if event.type() == QEvent.Type.ParentChange:
-            self.parentChanged.emit()
+            self.parentChanged.emit(obj.parent())
         if event.type() == QEvent.Type.PaletteChange:
             self.paletteChanged.emit()
         return False

@@ -2,6 +2,7 @@
 
 Demo app to upload an image and classify if it's an hotdog or not.
 """
+
 import pathlib
 from enum import Enum
 
