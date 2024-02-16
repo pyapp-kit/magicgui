@@ -44,6 +44,22 @@ jobs:
           - python-version: "3.11"
             qt: pyside2
 
+  test-min-reqs:
+    name: Test minimum requirements
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      qt: ${{ matrix.qt }}
+      pip-install-min-reqs: true
+    secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest]
+        qt: [pyqt5]
+
   test-pydantic1:
     name: Test pydantic1
     runs-on: ubuntu-latest
