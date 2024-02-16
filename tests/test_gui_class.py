@@ -92,6 +92,8 @@ def test_slots_guiclass():
     psyg_v = tuple(int(x.split("r")[0]) for x in psygnal.__version__.split(".")[:3])
     old_psygnal = psyg_v < (0, 6, 1)
 
+    # if you don't use weakref_slot, it will still work, but you'll get a warning
+    # during signal connection on gui-creation
     @guiclass(slots=True, weakref_slot=True)
     class Foo:
         a: int = 1
