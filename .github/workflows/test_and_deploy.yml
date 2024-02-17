@@ -48,17 +48,15 @@ jobs:
     name: Test min reqs
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
     with:
-      os: ${{ matrix.os }}
+      os: ubuntu-latest
       python-version: ${{ matrix.python-version }}
-      qt: ${{ matrix.qt }}
+      qt: pyqt5
       pip-install-min-reqs: true
     secrets: inherit
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-        os: [ubuntu-latest]
-        qt: [pyqt5]
 
   test-pydantic1:
     name: Test pydantic1
