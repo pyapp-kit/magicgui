@@ -35,23 +35,15 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "docstring_parser>=0.7",
-    "psygnal>=0.5.0",
+    "psygnal>=0.6.1",
     "qtpy>=1.7.0",
     "superqt[iconify]>=0.6.1",
-    "typing_extensions>=3.7.4.3",
+    "typing_extensions>=4.0.0",
 ]
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
-min-req = [
-    "docstring_parser==0.7",
-    "psygnal==0.5.0",
-    "qtpy==1.7.0",
-    "superqt==0.6.1",
-    "typing_extensions",
-]
-
 pyqt5 = ["pyqt5>=5.12.0"]
 pyqt6 = ["pyqt6"]
 pyside2 = [
@@ -67,7 +59,7 @@ test = [
     "pytest",
     "pytest-qt",
     "pytest-cov",
-    "pytest-mypy-plugins",
+    "pytest-mypy-plugins>=3",
     "numpy",
     "pandas",
     "tqdm>=4.30.0",
@@ -82,33 +74,14 @@ test = [
     "annotated_types",
 ]
 dev = [
-    "annotated_types",
-    "attrs",
     "black",
     "ruff",
     "ipython",
-    "ipywidgets",
-    "isort",
-    "matplotlib",
     "mypy",
-    "numpy",
-    "pandas",
     "pdbpp",
-    "pillow>=4.0",
-    "pint>=0.13.0",
     "pre-commit",
-    "pydantic",
-    "pydocstyle",
     "pyqt6",
-    "pytest-cov",
-    "pytest-cov",
-    "pytest-mypy-plugins",
-    "pytest-qt",
-    "pytest",
-    "pytest",
     "rich",
-    "toolz",
-    "tqdm>=4.30.0",
 ]
 docs = [
     "mkdocs",
@@ -213,6 +186,7 @@ filterwarnings = [
     "error",
     "ignore::DeprecationWarning:tqdm",
     "ignore::DeprecationWarning:docstring_parser",
+    "ignore:distutils Version classes are deprecated:DeprecationWarning",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
