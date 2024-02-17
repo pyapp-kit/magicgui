@@ -241,6 +241,7 @@ ignore_missing_imports = true
 
 # https://coverage.readthedocs.io/en/6.4/config.html
 [tool.coverage.report]
+show_missing = true
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
@@ -252,9 +253,9 @@ exclude_lines = [
     "\\.\\.\\.",
 ]
 omit = [
-    "src/magicgui/events.py",
-    "src/magicgui/widgets/_image/_mpl_image.py",
-    "src/magicgui/widgets/_bases/*",
+    "**/magicgui/events.py",
+    "**/magicgui/widgets/_image/_mpl_image.py",
+    "**/magicgui/widgets/_bases/*",
     "tests/*",
     "docs/*",
 ]
