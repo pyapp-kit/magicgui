@@ -1,3 +1,5 @@
+"""Gallery configuration for docs."""
+
 import warnings
 from pathlib import Path
 
@@ -10,7 +12,7 @@ from qtpy.QtWidgets import QApplication
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
-def qt_window_scraper(block, script: GalleryScript):
+def qt_window_scraper(block: tuple, script: GalleryScript) -> str:
     """Scrape screenshots from open Qt windows.
 
     Parameters
