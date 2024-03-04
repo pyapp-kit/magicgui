@@ -110,7 +110,7 @@ def test_create_widget_annotation(annotation, expected_type):
     wdg.close()
 
 
-def test_create_widget_annotation_overwritte_parrams():
+def test_create_widget_annotation_overwrite_parrams():
     wdg1 = widgets.create_widget(annotation=widgets.ProgressBar)
     assert isinstance(wdg1, widgets.ProgressBar)
     assert wdg1.visible
