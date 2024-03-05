@@ -1,5 +1,29 @@
 # Changelog
 
+## [v0.8.2](https://github.com/pyapp-kit/magicgui/tree/v0.8.2) (2024-03-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.1...v0.8.2)
+
+**Fixed bugs:**
+
+- fix: fix parent\_changed signal, and rename to native\_parent\_changed [\#628](https://github.com/pyapp-kit/magicgui/pull/628) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- test: use weakref\_slot for guiclass test [\#630](https://github.com/pyapp-kit/magicgui/pull/630) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- chore: use ruff format instead of black [\#633](https://github.com/pyapp-kit/magicgui/pull/633) ([tlambert03](https://github.com/tlambert03))
+- feat: support psygnal v0.10 [\#629](https://github.com/pyapp-kit/magicgui/pull/629) ([tlambert03](https://github.com/tlambert03))
+- ci\(pre-commit.ci\): autoupdate [\#626](https://github.com/pyapp-kit/magicgui/pull/626) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(dependabot\): bump tlambert03/setup-qt-libs from 1.6 to 1.7 [\#625](https://github.com/pyapp-kit/magicgui/pull/625) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump codecov/codecov-action from 3 to 4 [\#624](https://github.com/pyapp-kit/magicgui/pull/624) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(pre-commit.ci\): autoupdate [\#622](https://github.com/pyapp-kit/magicgui/pull/622) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(dependabot\): bump actions/setup-python from 4 to 5 [\#620](https://github.com/pyapp-kit/magicgui/pull/620) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump aganders3/headless-gui from 1 to 2 [\#619](https://github.com/pyapp-kit/magicgui/pull/619) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci: use reusable test workflow [\#612](https://github.com/pyapp-kit/magicgui/pull/612) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.8.1](https://github.com/pyapp-kit/magicgui/tree/v0.8.1) (2023-12-06)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.0...v0.8.1)
