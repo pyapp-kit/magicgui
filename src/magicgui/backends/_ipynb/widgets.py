@@ -1,6 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Iterable, get_type_hints
+import asyncio
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Literal,
+    get_type_hints,
+)
 
 try:
     import ipywidgets
@@ -11,11 +19,10 @@ except ImportError as e:
         "Please run `pip install ipywidgets`"
     ) from e
 
-
 from magicgui.widgets import protocols
 
 if TYPE_CHECKING:
-    from magicgui.widgets.bases import Widget
+    from magicgui.widgets.bases import MenuWidget, Widget
 
 
 def _pxstr2int(pxstr: int | str) -> int:
@@ -524,6 +531,177 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
 
     def _mgui_get_orientation(self) -> str:
         return "vertical" if isinstance(self._ipywidget, ipywdg.VBox) else "horizontal"
+
+
+class IpyMainWindow(ipywdg.GridspecLayout):
+    IDX_MENUBAR = (0, slice(None))
+    IDX_STATUSBAR = (6, slice(None))
+    IDX_TOOLBAR_TOP = (1, slice(None))
+    IDX_TOOLBAR_BOTTOM = (5, slice(None))
+    IDX_TOOLBAR_LEFT = (slice(2, 5), 0)
+    IDX_TOOLBAR_RIGHT = (slice(2, 5), 4)
+    IDX_DOCK_TOP = (2, slice(1, 4))
+    IDX_DOCK_BOTTOM = (4, slice(1, 4))
+    IDX_DOCK_LEFT = (3, 1)
+    IDX_DOCK_RIGHT = (3, 3)
+    IDX_CENTRAL_WIDGET = (3, 2)
+
+    def __init__(self, **kwargs):
+        n_rows = 7
+        n_columns = 5
+        kwargs.setdefault("width", "600px")
+        kwargs.setdefault("height", "600px")
+        super().__init__(n_rows, n_columns, **kwargs)
+
+        hlay = ipywdg.Layout(height="30px", width="auto")
+        vlay = ipywdg.Layout(height="auto", width="30px")
+        self[self.IDX_TOOLBAR_TOP] = self._tbars_top = ipywdg.HBox(layout=hlay)
+        self[self.IDX_TOOLBAR_BOTTOM] = self._tbars_bottom = ipywdg.HBox(layout=hlay)
+        self[self.IDX_TOOLBAR_LEFT] = self._tbars_left = ipywdg.VBox(layout=vlay)
+        self[self.IDX_TOOLBAR_RIGHT] = self._tbars_right = ipywdg.VBox(layout=vlay)
+        self[self.IDX_DOCK_TOP] = self._dwdgs_top = ipywdg.HBox(layout=hlay)
+        self[self.IDX_DOCK_BOTTOM] = self._dwdgs_bottom = ipywdg.HBox(layout=hlay)
+        self[self.IDX_DOCK_LEFT] = self._dwdgs_left = ipywdg.VBox(layout=vlay)
+        self[self.IDX_DOCK_RIGHT] = self._dwdgs_right = ipywdg.VBox(layout=vlay)
+
+        # self.layout.grid_template_columns = "34px 34px 1fr 34px 34px"
+        # self.layout.grid_template_rows = "34px 34px 34px 1fr 34px 34px 34px"
+
+    def set_menu_bar(self, widget):
+        self[self.IDX_MENUBAR] = widget
+
+    def set_status_bar(self, widget):
+        self[self.IDX_STATUSBAR] = widget
+
+    def add_toolbar(self, widget, area: Literal["left", "top", "right", "bottom"]):
+        if area == "top":
+            self._tbars_top.children += (widget,)
+        elif area == "bottom":
+            self._tbars_bottom.children += (widget,)
+        elif area == "left":
+            self._tbars_left.children += (widget,)
+        elif area == "right":
+            self._tbars_right.children += (widget,)
+        else:
+            raise ValueError(f"Invalid area: {area!r}")
+
+    def add_dock_widget(self, widget, area: Literal["left", "top", "right", "bottom"]):
+        if area == "top":
+            self._dwdgs_top.children += (widget,)
+        elif area == "bottom":
+            self._dwdgs_bottom.children += (widget,)
+        elif area == "left":
+            self._dwdgs_left.children += (widget,)
+        elif area == "right":
+            self._dwdgs_right.children += (widget,)
+        else:
+            raise ValueError(f"Invalid area: {area!r}")
+
+
+class StatusBar(_IPyWidget, protocols.StatusBarProtocol):
+    _ipywidget: ipywdg.HBox
+
+    def __init__(self, **kwargs):
+        super().__init__(ipywdg.HBox, **kwargs)
+        self._ipywidget.layout.width = "100%"
+
+        self._message_label = ipywdg.Label()
+        self._buttons = ipywdg.HBox()
+        # Spacer to push buttons to the right
+        self._spacer = ipywdg.HBox(layout=ipywdg.Layout(flex="1"))
+        self._ipywidget.children = (self._message_label, self._spacer, self._buttons)
+
+    def _mgui_get_message(self) -> str:
+        return self._message_label.value
+
+    def _clear_message(self):
+        self._message_label.value = ""
+
+    def _mgui_set_message(self, message: str, timeout: int = 0) -> None:
+        self._message_label.value = message
+        if timeout > 0:
+            asyncio.get_event_loop().call_later(timeout / 1000, self._clear_message)
+
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
+        self._ipywidget.children = (
+            *self._ipywidget.children[:position],
+            widget.native,
+            *self._ipywidget.children[position:],
+        )
+
+    def _mgui_remove_widget(self, widget: Widget) -> None:
+        self._ipywidget.children = tuple(
+            child for child in self._ipywidget.children if child != widget.native
+        )
+
+
+class MenuBar(_IPyWidget, protocols.MenuBarProtocol):
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        ...
+
+    def _mgui_clear(self) -> None:
+        ...
+
+
+class Menu(_IPyWidget, protocols.MenuProtocol):
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        ...
+
+    def _mgui_add_action(
+        self,
+        text: str,
+        shortcut: str | None = None,
+        icon: str | None = None,
+        tooltip: str | None = None,
+        callback: Callable[..., Any] | None = None,
+    ) -> None:
+        ...
+
+    def _mgui_clear(self) -> None:
+        ...
+
+    def _mgui_add_separator(self) -> None:
+        ...
+
+    def _mgui_get_icon(self) -> str | None:
+        ...
+
+    def _mgui_set_icon(self, icon: str | None) -> None:
+        ...
+
+    def _mgui_get_title(self) -> str:
+        ...
+
+    def _mgui_set_title(self, title: str) -> None:
+        ...
+
+
+class MainWindow(Container, protocols.MainWindowProtocol):
+    _ipywidget: IpyMainWindow
+
+    def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
+        self._ipywidget = IpyMainWindow()
+
+    def _mgui_create_menu_item(
+        self,
+        menu_name: str,
+        action_name: str,
+        callback: Callable | None = None,
+        shortcut: str | None = None,
+    ):
+        pass
+
+    def _mgui_add_dock_widget(self, widget: Widget, area: protocols.Area) -> None:
+        self._ipywidget.add_dock_widget(widget.native, area)
+
+    def _mgui_add_tool_bar(self, widget: Widget, area: protocols.Area) -> None:
+        self._ipywidget.add_toolbar(widget.native, area)
+
+    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
+        self._ipywidget.set_status_bar(widget.native)
+
+    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
+        self._ipywidget.set_menu_bar(widget.native)
 
 
 def get_text_width(text):

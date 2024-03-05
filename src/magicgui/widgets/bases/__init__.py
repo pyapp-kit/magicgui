@@ -45,10 +45,13 @@ create a widget subclass appropriate for the arguments passed (such as "value" o
 
 from ._button_widget import ButtonWidget
 from ._categorical_widget import CategoricalWidget
-from ._container_widget import ContainerWidget, DialogWidget, MainWindowWidget
+from ._container_widget import ContainerWidget, DialogWidget
 from ._create_widget import create_widget
+from ._main_window import MainWindowWidget
+from ._menubar import MenuBarWidget, MenuWidget
 from ._ranged_widget import RangedWidget, TransformedRangedWidget
 from ._slider_widget import MultiValuedSliderWidget, SliderWidget
+from ._statusbar import StatusBarWidget
 from ._toolbar import ToolBarWidget
 from ._value_widget import ValueWidget
 from ._widget import Widget
@@ -60,9 +63,12 @@ __all__ = [
     "create_widget",
     "DialogWidget",
     "MainWindowWidget",
+    "MenuBarWidget",
+    "MenuWidget",
     "MultiValuedSliderWidget",
     "RangedWidget",
     "SliderWidget",
+    "StatusBarWidget",
     "ToolBarWidget",
     "TransformedRangedWidget",
     "ValueWidget",

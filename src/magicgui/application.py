@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import signal
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Union
 
@@ -13,8 +13,21 @@ if TYPE_CHECKING:
     from types import ModuleType
 
     from magicgui.widgets.protocols import BaseApplicationBackend
-DEFAULT_BACKEND = "qt"
 APPLICATION_NAME = "magicgui"
+
+
+def _in_jupyter() -> bool:
+    """Return true if we're running in jupyter notebook/lab or qtconsole."""
+    with suppress(ImportError):
+        from IPython import get_ipython
+
+        ipy_class = get_ipython().__class__.__name__
+        return bool(ipy_class == "ZMQInteractiveShell")
+    return False
+
+
+def _choose_backend() -> str:
+    return "ipynb" if _in_jupyter() else "qt"
 
 
 @contextmanager
@@ -50,7 +63,7 @@ class Application:
     def _use(self, backend_name: str | None = None) -> None:
         """Select a backend by name."""
         if not backend_name:
-            backend_name = DEFAULT_BACKEND
+            backend_name = _choose_backend()
         if not backend_name or backend_name.lower() not in BACKENDS:
             raise ValueError(
                 f"backend_name must be one of {set(BACKENDS)!r}, "

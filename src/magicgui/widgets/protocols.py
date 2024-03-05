@@ -16,6 +16,7 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    Literal,
     NoReturn,
     Protocol,
     Sequence,
@@ -25,7 +26,9 @@ from typing import (
 if TYPE_CHECKING:
     import numpy as np
 
-    from magicgui.widgets.bases import Widget
+    from magicgui.widgets.bases import MenuWidget, Widget
+
+    Area = Literal["left", "right", "top", "bottom"]
 
 
 def assert_protocol(widget_class: type, protocol: type) -> None:
@@ -551,6 +554,109 @@ class ToolBarProtocol(WidgetProtocol, Protocol):
         """Clear the toolbar."""
 
 
+class StatusBarProtocol(WidgetProtocol, Protocol):
+    """Status bar that contains a set of controls."""
+
+    @abstractmethod
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
+        """Insert `widget` at the given `position`."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_remove_widget(self, widget: Widget) -> None:
+        """Remove the specified widget."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_message(self) -> str:
+        """Return currently shown message, or empty string if None."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_message(self, message: str, timeout: int = 0) -> None:
+        """Show a message in the status bar for a given timeout.
+
+        To clear the message, set it to the empty string
+        """
+        raise NotImplementedError()
+
+
+class MenuBarProtocol(WidgetProtocol, Protocol):
+    """Menu bar that contains a set of menus."""
+
+    # @abstractmethod
+    # def _mgui_add_menu(self, title: str, icon: str | None) -> MenuProtocol:
+    #     """Add a menu to the menu bar."""
+    #     raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        """Add a menu to the menu bar."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
+        raise NotImplementedError()
+
+
+class MenuProtocol(WidgetProtocol, Protocol):
+    """Menu that contains a set of actions."""
+
+    # @abstractmethod
+    # def _mgui_insert_action(self, before: str | None, action: Widget) -> None:
+    #     """Insert action before the specified action."""
+    #     raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_title(self) -> str:
+        """Return the title of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_title(self, title: str) -> None:
+        """Set the title of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_get_icon(self) -> str | None:
+        """Return the icon of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_icon(self, icon: str | None) -> None:
+        """Set the icon of the menu."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_action(
+        self,
+        text: str,
+        shortcut: str | None = None,
+        icon: str | None = None,
+        tooltip: str | None = None,
+        callback: Callable | None = None,
+    ) -> None:
+        """Add an action to the menu."""
+
+    @abstractmethod
+    def _mgui_add_separator(self) -> None:
+        """Add a separator line to the menu."""
+
+    @abstractmethod
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        """Add a menu to the menu bar."""
+        raise NotImplementedError()
+
+    # @abstractmethod
+    # def _mgui_add_menu(self, title: str, icon: str | None) -> None:
+    #     """Add a menu to the menu."""
+
+    @abstractmethod
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
+
+
 class DialogProtocol(ContainerProtocol, Protocol):
     """Protocol for modal (blocking) containers."""
 
@@ -584,6 +690,22 @@ class MainWindowProtocol(ContainerProtocol, Protocol):
         shortcut : str | None, optional
             A keyboard shortcut for the action, by default None.
         """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_dock_widget(self, widget: Widget, area: Area) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_add_tool_bar(self, widget: Widget, area: Area) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
         raise NotImplementedError()
 
 

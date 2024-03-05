@@ -402,25 +402,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
                     getattr(self, key).value = val
 
 
-class MainWindowWidget(ContainerWidget):
-    """Top level Application widget that can contain other widgets."""
-
-    _widget: protocols.MainWindowProtocol
-
-    def create_menu_item(
-        self,
-        menu_name: str,
-        item_name: str,
-        callback: Callable | None = None,
-        shortcut: str | None = None,
-    ) -> None:
-        """Create a menu item ``item_name`` under menu ``menu_name``.
-
-        ``menu_name`` will be created if it does not already exist.
-        """
-        self._widget._mgui_create_menu_item(menu_name, item_name, callback, shortcut)
-
-
 class DialogWidget(ContainerWidget):
     """Modal Container."""
 

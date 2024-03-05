@@ -27,11 +27,14 @@ from qtpy.QtGui import (
 )
 
 from magicgui.types import FileDialogMode
-from magicgui.widgets import Widget, protocols
+from magicgui.widgets import protocols
 from magicgui.widgets._concrete import _LabeledWidget
+from magicgui.widgets.bases import MenuWidget, Widget
 
 if TYPE_CHECKING:
     import numpy
+
+    from magicgui.widgets.protocols import Area
 
 
 @contextmanager
@@ -66,10 +69,17 @@ class QBaseWidget(protocols.WidgetProtocol):
     _qwidget: QtW.QWidget
 
     def __init__(
-        self, qwidg: type[QtW.QWidget], parent: QtW.QWidget | None = None, **kwargs: Any
+        self,
+        qwidg: type[QtW.QWidget] | QtW.QWidget,
+        parent: QtW.QWidget | None = None,
+        **kwargs: Any,
     ) -> None:
-        self._qwidget = qwidg(parent=parent)
-        self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
+        if isinstance(qwidg, QtW.QWidget):
+            self._qwidget = qwidg
+            self._qwidget.setObjectName(f"magicgui.{type(qwidg).__name__}")
+        else:
+            self._qwidget = qwidg(parent=parent)
+            self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
@@ -582,26 +592,127 @@ class Container(
             return "vertical"
 
 
-class MainWindow(Container):
+def _add_qmenu(wdg: QtW.QMenu | QtW.QMenuBar, mgui_menu: MenuWidget):
+    """Add a magicgui menu to a QMenu or QMenuBar."""
+    native = mgui_menu.native
+    if not isinstance(native, QtW.QMenu):
+        raise TypeError(
+            f"Expected menu to be a {QtW.QMenu}, got {type(native)}: {native}"
+        )
+    wdg.addMenu(native)
+
+
+class MenuBar(QBaseWidget, protocols.MenuBarProtocol):
+    _qwidget: QtW.QMenuBar
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(QtW.QMenuBar, **kwargs)
+
+    # def _mgui_add_menu(self, title: str, icon: str | None) -> protocols.MenuProtocol:
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        """Add a menu to the menu bar."""
+        _add_qmenu(self._qwidget, widget)
+
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
+
+
+class Menu(QBaseWidget, protocols.MenuProtocol):
+    _qwidget: QtW.QMenu
+
+    def __init__(
+        self, qwidg: type[QtW.QMenu] | QtW.QMenu = QtW.QMenu, **kwargs: Any
+    ) -> None:
+        super().__init__(qwidg, **kwargs)
+
+    def _mgui_get_title(self) -> str:
+        return self._qwidget.title()
+
+    def _mgui_set_title(self, value: str) -> None:
+        self._qwidget.setTitle(value)
+
+    def _mgui_get_icon(self) -> str | None:
+        # see also: https://github.com/pyapp-kit/superqt/pull/213
+        return self._icon
+
+    def _mgui_set_icon(self, icon: str | None) -> None:
+        self._icon = icon
+        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
+            self._qwidget.setIcon(qicon)
+        else:
+            self._qwidget.setIcon(QIcon())
+
+    def _mgui_add_action(
+        self,
+        text: str,
+        shortcut: str | None = None,
+        icon: str | None = None,
+        tooltip: str | None = None,
+        callback: Callable | None = None,
+    ) -> None:
+        """Add an action to the menu."""
+        if icon and (qicon := _get_qicon(icon, None, self._qwidget.palette())):
+            action = self._qwidget.addAction(qicon, text)
+        else:
+            action = self._qwidget.addAction(text)
+        if shortcut:
+            action.setShortcut(shortcut)
+        if tooltip:
+            action.setToolTip(tooltip)
+        if callback:
+            action.triggered.connect(callback)
+
+    def _mgui_add_separator(self) -> None:
+        """Add a separator to the menu."""
+        self._qwidget.addSeparator()
+
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        """Add a menu to the menu bar."""
+        _add_qmenu(self._qwidget, widget)
+
+    def _mgui_clear(self) -> None:
+        """Clear the menu bar."""
+        self._qwidget.clear()
+
+
+class MainWindow(QBaseWidget, protocols.MainWindowProtocol):
+    _qwidget: QtW.QMainWindow
+
     def __init__(
         self, layout="vertical", scrollable: bool = False, **kwargs: Any
     ) -> None:
-        super().__init__(layout=layout, scrollable=scrollable, **kwargs)
-        self._main_window = QtW.QMainWindow()
+        QBaseWidget.__init__(self, QtW.QMainWindow, **kwargs)
+        if layout == "horizontal":
+            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
+        else:
+            self._layout = QtW.QVBoxLayout()
+        self._central_widget = QtW.QWidget()
+        self._central_widget.setLayout(self._layout)
+
+        if scrollable:
+            self._scroll = QtW.QScrollArea()
+            # Allow widget to resize when window is larger than min widget size
+            self._scroll.setWidgetResizable(True)
+            if layout == "horizontal":
+                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
+                vert_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            else:
+                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+                vert_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
+            self._scroll.setVerticalScrollBarPolicy(vert_policy)
+            self._scroll.setWidget(self._central_widget)
+            self._central_widget = self._scroll
+
         self._menus: dict[str, QtW.QMenu] = {}
         if scrollable:
-            self._main_window.setCentralWidget(self._scroll)
+            self._qwidget.setCentralWidget(self._scroll)
         else:
-            self._main_window.setCentralWidget(self._qwidget)
+            self._qwidget.setCentralWidget(self._central_widget)
 
-    def _mgui_get_visible(self):
-        return self._main_window.isVisible()
-
-    def _mgui_set_visible(self, value: bool):
-        self._main_window.setVisible(value)
-
-    def _mgui_get_native_widget(self) -> QtW.QMainWindow:
-        return self._main_window
+    @property
+    def _is_scrollable(self) -> bool:
+        return isinstance(self._central_widget, QtW.QScrollArea)
 
     def _mgui_create_menu_item(
         self,
@@ -611,14 +722,104 @@ class MainWindow(Container):
         shortcut: str | None = None,
     ):
         menu = self._menus.setdefault(
-            menu_name, self._main_window.menuBar().addMenu(f"&{menu_name}")
+            menu_name, self._qwidget.menuBar().addMenu(f"&{menu_name}")
         )
-        action = QtW.QAction(action_name, self._main_window)
+        action = QtW.QAction(action_name, self._qwidget)
         if shortcut is not None:
             action.setShortcut(shortcut)
         if callback is not None:
             action.triggered.connect(callback)
         menu.addAction(action)
+
+    def _mgui_add_tool_bar(self, widget: Widget, area: Area) -> None:
+        native = widget.native
+        if not isinstance(native, QtW.QToolBar):
+            raise TypeError(
+                f"Expected widget to be a {QtW.QToolBar}, got {type(native)}"
+            )
+        self._qwidget.addToolBar(Q_TB_AREA[area], native)
+
+    def _mgui_add_dock_widget(self, widget: Widget, area: Area) -> None:
+        native = widget.native
+        if isinstance(native, QtW.QDockWidget):
+            dw = native
+        else:
+            # TODO: allowed areas
+            dw = QtW.QDockWidget()
+            dw.setWidget(native)
+        self._qwidget.addDockWidget(Q_DW_AREA[area], dw)
+
+    def _mgui_set_status_bar(self, widget: Widget | None) -> None:
+        if widget is None:
+            self._qwidget.setStatusBar(None)
+            return
+
+        native = widget.native
+        if not isinstance(native, QtW.QStatusBar):
+            raise TypeError(
+                f"Expected widget to be a {QtW.QStatusBar}, got {type(native)}"
+            )
+        self._qwidget.setStatusBar(native)
+
+    def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
+        if widget is None:
+            self._qwidget.setMenuBar(QtW.QMenuBar())
+            return
+
+        native = widget.native
+        if not isinstance(native, QtW.QMenuBar):
+            raise TypeError(
+                f"Expected widget to be a {QtW.QMenuBar}, got {type(native)}"
+            )
+        self._qwidget.setMenuBar(native)
+
+    def _mgui_insert_widget(self, position: int, widget: Widget):
+        self._layout.insertWidget(position, widget.native)
+        if self._is_scrollable:
+            min_size = self._layout.totalMinimumSize()
+            if isinstance(self._layout, QtW.QHBoxLayout):
+                self._scroll.setMinimumHeight(min_size.height())
+            else:
+                self._scroll.setMinimumWidth(min_size.width() + 20)
+
+    def _mgui_remove_widget(self, widget: Widget):
+        self._layout.removeWidget(widget.native)
+        widget.native.setParent(None)
+
+    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
+        m = self._layout.contentsMargins()
+        return m.left(), m.top(), m.right(), m.bottom()
+
+    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
+        self._layout.setContentsMargins(*margins)
+
+    def _mgui_set_orientation(self, value) -> None:
+        """Set orientation, value will be 'horizontal' or 'vertical'."""
+        raise NotImplementedError(
+            "Sorry, changing orientation after instantiation "
+            "is not yet implemented for Qt."
+        )
+
+    def _mgui_get_orientation(self) -> str:
+        """Set orientation, return either 'horizontal' or 'vertical'."""
+        if isinstance(self, QtW.QHBoxLayout):
+            return "horizontal"
+        else:
+            return "vertical"
+
+
+Q_TB_AREA: dict[Area, Qt.ToolBarArea] = {
+    "top": Qt.ToolBarArea.TopToolBarArea,
+    "bottom": Qt.ToolBarArea.BottomToolBarArea,
+    "left": Qt.ToolBarArea.LeftToolBarArea,
+    "right": Qt.ToolBarArea.RightToolBarArea,
+}
+Q_DW_AREA: dict[Area, Qt.DockWidgetArea] = {
+    "top": Qt.DockWidgetArea.TopDockWidgetArea,
+    "bottom": Qt.DockWidgetArea.BottomDockWidgetArea,
+    "left": Qt.DockWidgetArea.LeftDockWidgetArea,
+    "right": Qt.DockWidgetArea.RightDockWidgetArea,
+}
 
 
 class SpinBox(QBaseRangedWidget):
@@ -1219,7 +1420,7 @@ class TimeEdit(QBaseValueWidget):
             return self._qwidget.time().toPyTime()
 
 
-class ToolBar(QBaseWidget):
+class ToolBar(QBaseWidget, protocols.ToolBarProtocol):
     _qwidget: QtW.QToolBar
 
     def __init__(self, **kwargs: Any) -> None:
@@ -1235,7 +1436,10 @@ class ToolBar(QBaseWidget):
 
     def _mgui_add_button(self, text: str, icon: str, callback: Callable) -> None:
         """Add an action to the toolbar."""
-        act = self._qwidget.addAction(text, callback)
+        if callback:
+            act = self._qwidget.addAction(text, callback)
+        else:
+            act = self._qwidget.addAction(text)
         if qicon := _get_qicon(icon, None, palette=self._qwidget.palette()):
             act.setIcon(qicon)
             act.setData(icon)
@@ -1274,6 +1478,35 @@ class ToolBar(QBaseWidget):
     def _mgui_clear(self) -> None:
         """Clear the toolbar."""
         self._qwidget.clear()
+
+
+class StatusBar(QBaseWidget, protocols.StatusBarProtocol):
+    _qwidget: QtW.QStatusBar
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(QtW.QStatusBar, **kwargs)
+
+    def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
+        """Insert `widget` at the given `position`."""
+        self._qwidget.insertWidget(position, widget.native)
+
+    def _mgui_remove_widget(self, widget: Widget) -> None:
+        """Remove the specified widget."""
+        self._qwidget.removeWidget(widget.native)
+
+    def _mgui_get_message(self) -> str:
+        """Return currently shown message, or empty string if None."""
+        return self._qwidget.currentMessage()
+
+    def _mgui_set_message(self, message: str, timeout: int = 0) -> None:
+        """Show a message in the status bar for a given timeout.
+
+        To clear the message, set it to the empty string
+        """
+        if message:
+            self._qwidget.showMessage(message, timeout)
+        else:
+            self._qwidget.clearMessage()
 
 
 class Dialog(QBaseWidget, protocols.ContainerProtocol):
