@@ -51,7 +51,11 @@ def _inject_tooltips_from_docstrings(
     if not docstring:
         return
 
-    doc_params = {p.arg_name: p.description for p in parse(docstring).params}
+    doc_params: dict[str, str | None] = {
+        p.arg_name: p.description for p in parse(docstring).params
+    }
+    if not doc_params:
+        return
 
     # deal with the (numpydocs) case when there are multiple parameters separated
     # by a comma
@@ -424,10 +428,13 @@ class FunctionGui(Container, Generic[_P, _R]):
         if obj_id not in self._bound_instances:
             method = getattr(obj.__class__, self._function.__name__)
             p0 = next(iter(inspect.signature(method).parameters))
-            prior, self._param_options = self._param_options, {
-                p0: {"bind": obj},
-                **self._param_options,
-            }
+            prior, self._param_options = (
+                self._param_options,
+                {
+                    p0: {"bind": obj},
+                    **self._param_options,
+                },
+            )
             try:
                 self._bound_instances[obj_id] = self.copy()
             finally:
