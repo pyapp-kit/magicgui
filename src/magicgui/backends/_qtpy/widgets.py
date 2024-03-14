@@ -26,7 +26,7 @@ from qtpy.QtGui import (
     QTextDocument,
 )
 
-from magicgui.types import FileDialogMode
+from magicgui.types import FileDialogMode, Separator
 from magicgui.widgets import Widget, protocols
 from magicgui.widgets._concrete import _LabeledWidget
 
@@ -952,9 +952,13 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
             for i in reversed(range(self._qwidget.count())):
                 if self._qwidget.itemText(i) not in choice_names:
                     self._qwidget.removeItem(i)
-            # update choices
+            # update choices and insert separators
             for name, data in choices_:
-                self._mgui_set_choice(name, data)
+                if isinstance(data, Separator):
+                    for _ in range(data.thickness):
+                        self._qwidget.insertSeparator(self._mgui_get_count())
+                else:
+                    self._mgui_set_choice(name, data)
 
             # if the currently selected item is not in the new set,
             # remove it and select the first item in the list

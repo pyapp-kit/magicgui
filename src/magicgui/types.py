@@ -81,6 +81,13 @@ class _Undefined:
 
 Undefined = _Undefined()
 
+class Separator:
+    """Separator sentinel for ComboBox choices."""
+
+    def __init__(self, thickness: int = 1):
+        self.thickness: int = thickness
+
+
 JsonStringFormats = Literal[
     # ISO 8601 format.
     # https://www.iso.org/iso-8601-date-and-time-format.html
