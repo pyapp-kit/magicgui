@@ -954,9 +954,8 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
                     self._qwidget.removeItem(i)
             # update choices and insert separators
             for name, data in choices_:
-                if isinstance(data, Separator):
-                    for _ in range(data.thickness):
-                        self._qwidget.insertSeparator(self._mgui_get_count())
+                if data is Separator:
+                    self._qwidget.insertSeparator(self._mgui_get_count())
                 else:
                     self._mgui_set_choice(name, data)
 

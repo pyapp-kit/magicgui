@@ -1059,19 +1059,20 @@ def test_literal():
     assert sel.choices == get_args(Lit)
 
 
-def test_separator_default():
-    from magicgui.types import Separator
+def test_separator_singleton():
+    from magicgui.types import Separator, _Separator
 
-    sep = Separator()
-    assert sep.thickness == 1
+    sep1 = Separator
+    sep2 = _Separator()
+    assert sep1 is sep2
 
 
 def test_separator():
     from magicgui.types import Separator
 
-    sep = [Separator(i + 1) for i in range(4)]
-    a = [1, 2, sep[0], 4, sep[1], 6, 7, sep[2], 9, sep[3], 11, 12, sep[0], 14, sep[0]]
-    b = [1, 2, sep[0], 4, sep[1], 6, 7, sep[2], 9, sep[3], 6, 7, sep[0], 9, sep[0]]
+    sep = [[Separator] * (i + 1) for i in range(4)]
+    a = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 11, 12, *sep[0], 14, *sep[0]]
+    b = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 6, 7, *sep[0], 9, *sep[0]]
     a2 = (1, 2, None, 4, None, None, 6, 7, None, None, None, 9, None, None, None, None, 11, 12, None, 14, None)
     b2 = (1, 2, None, 4, None, None, 6, 7, None, None, None, 9, None, None, None, None, None, None)
 
