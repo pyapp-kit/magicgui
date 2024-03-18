@@ -1098,14 +1098,18 @@ def test_separator(backend: str):
         assert get_all_itemdata(widget_with_separator.a.native) == a
         assert get_all_itemdata(widget_with_separator.b.native) == b2
 
+        # Choices only returns unique, non-separator items
+        assert widget_with_separator.a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert widget_with_separator.b.choices == (1, 2, 4, 6, 7, 9)
+
     if backend == "ipynb":
         # Separator singletons themselves are used as separator item data
         assert widget_with_separator.a.options['choices'] == a
-        assert widget_with_separator.b.options['choices'] == b  # non-separators are not unique
+        assert widget_with_separator.b.options['choices'] == b  # items are not unique
 
-    # Choices only returns unique, non-separator items
-    assert widget_with_separator.a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
-    assert widget_with_separator.b.choices == (1, 2, 4, 6, 7, 9)
+        # Choices only returns duplicated, non-separator items
+        assert widget_with_separator.a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert widget_with_separator.b.choices == (1, 2, 4, 6, 7, 9, 6, 7, 9)
 
 
 def test_float_slider_readout():

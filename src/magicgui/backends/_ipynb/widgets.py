@@ -221,7 +221,6 @@ class _IPySupportsChoices(protocols.SupportsChoices):
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set available choices."""
         options = [item for item in choices if item[1] is not Separator]
-        options = list(dict(options).items())  # remove duplicate names, last data used
         self._ipywidget.options = options
 
     def _mgui_del_choice(self, choice_name: str) -> None:
