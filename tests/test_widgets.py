@@ -1067,8 +1067,10 @@ def test_separator_singleton():
     assert sep1 is sep2
 
 
-def test_separator():
+def test_separator(backend: str):
     from magicgui.types import Separator
+
+    use_app(backend)
 
     sep = [[Separator] * (i + 1) for i in range(4)]
     a = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 11, 12, *sep[0], 14, *sep[0]]
@@ -1084,20 +1086,26 @@ def test_separator():
     def widget_with_separator(a=a[0], b=b[0]):
         return
 
-    def get_all_itemdata(combo_box):
-        return [combo_box.itemData(index) for index in range(combo_box.count())]
+    if backend == "qt":
+        def get_all_itemdata(combo_box):
+            return [combo_box.itemData(index) for index in range(combo_box.count())]
 
-    # Count returns the number of all items including separator items
-    assert widget_with_separator.a.native.count() == 21
-    assert widget_with_separator.b.native.count() == 18
+        # Count returns the number of all items including separator items
+        assert widget_with_separator.a.native.count() == 21
+        assert widget_with_separator.b.native.count() == 18
+
+        # Separator singletons themselves are used as separator item data
+        assert get_all_itemdata(widget_with_separator.a.native) == a
+        assert get_all_itemdata(widget_with_separator.b.native) == b2
+
+    if backend == "ipynb":
+        # Separator singletons themselves are used as separator item data
+        assert widget_with_separator.a.options['choices'] == a
+        assert widget_with_separator.b.options['choices'] == b  # non-separators are not unique
 
     # Choices only returns unique, non-separator items
     assert widget_with_separator.a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
     assert widget_with_separator.b.choices == (1, 2, 4, 6, 7, 9)
-
-    # Separator singletons themselves are used as separator item data
-    assert get_all_itemdata(widget_with_separator.a.native) == a
-    assert get_all_itemdata(widget_with_separator.b.native) == b2
 
 
 def test_float_slider_readout():
