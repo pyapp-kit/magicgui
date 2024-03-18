@@ -1073,8 +1073,7 @@ def test_separator():
     sep = [[Separator] * (i + 1) for i in range(4)]
     a = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 11, 12, *sep[0], 14, *sep[0]]
     b = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 6, 7, *sep[0], 9, *sep[0]]
-    a2 = (1, 2, None, 4, None, None, 6, 7, None, None, None, 9, None, None, None, None, 11, 12, None, 14, None)
-    b2 = (1, 2, None, 4, None, None, 6, 7, None, None, None, 9, None, None, None, None, None, None)
+    b2 = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], *sep[0], *sep[0]]
 
     @magicgui(
         call_button="Test Separator",
@@ -1085,10 +1084,20 @@ def test_separator():
     def widget_with_separator(a=a[0], b=b[0]):
         return
 
+    def get_all_itemdata(combo_box):
+        return [combo_box.itemData(index) for index in range(combo_box.count())]
+
+    # Count returns the number of all items including separator items
     assert widget_with_separator.a.native.count() == 21
     assert widget_with_separator.b.native.count() == 18
-    assert widget_with_separator.a.choices == a2
-    assert widget_with_separator.b.choices == b2
+
+    # Choices only returns unique, non-separator items
+    assert widget_with_separator.a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+    assert widget_with_separator.b.choices == (1, 2, 4, 6, 7, 9)
+
+    # Separator singletons themselves are used as separator item data
+    assert get_all_itemdata(widget_with_separator.a.native) == a
+    assert get_all_itemdata(widget_with_separator.b.native) == b2
 
 
 def test_float_slider_readout():

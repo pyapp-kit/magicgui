@@ -342,7 +342,7 @@ class LogSlider(TransformedRangedWidget):
 
 @backend_widget
 class ComboBox(CategoricalWidget):
-    """A dropdown menu allowing ``Separator`` and selection between multiple choices."""
+    """A dropdown menu, allowing selection between multiple choices."""
 
 
 @backend_widget
