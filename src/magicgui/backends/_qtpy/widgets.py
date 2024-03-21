@@ -908,8 +908,12 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
         self._event_filter.valueChanged.connect(callback)
 
     def _mgui_get_count(self) -> int:
-        """Return the number of items in the dropdown, including separator items."""
-        return self._qwidget.count()
+        """Return the number of items in the dropdown, omitting any separator items."""
+        return sum(
+            1
+            for i in range(self._qwidget.count())
+            if self._qwidget.itemData(i) != Separator
+        )
 
     def _mgui_get_choice(self, choice_name: str) -> Any:
         item_index = self._qwidget.findText(choice_name)
@@ -931,7 +935,7 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
         if data is Separator:
-            item_index = self._mgui_get_count()
+            item_index = self._qwidget.count()
             self._qwidget.insertSeparator(item_index)  # itemData is None
             self._qwidget.setItemData(item_index, Separator)
         else:

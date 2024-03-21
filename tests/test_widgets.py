@@ -1080,6 +1080,9 @@ def test_separator(backend: str):
     combo_a = widgets.ComboBox(choices=a, value=a[0])
     combo_b = widgets.ComboBox(choices=b, value=b[0])
 
+    assert len(combo_a) == len(combo_a.choices)
+    assert len(combo_b) == len(combo_b.choices)
+
     if backend == "qt":
         def get_all_itemdata(combo_box):
             return [combo_box.itemData(index) for index in range(combo_box.count())]
