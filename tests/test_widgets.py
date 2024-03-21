@@ -1077,39 +1077,33 @@ def test_separator(backend: str):
     b = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 6, 7, *sep[0], 9, *sep[0]]
     b2 = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], *sep[0], *sep[0]]
 
-    @magicgui(
-        call_button="Test Separator",
-        a={"widget_type": "ComboBox", "choices": a},
-        b={"widget_type": "ComboBox", "choices": b},
-        result_widget=True,
-    )
-    def widget_with_separator(a=a[0], b=b[0]):
-        return
+    combo_a = widgets.ComboBox(choices=a, value=a[0])
+    combo_b = widgets.ComboBox(choices=b, value=b[0])
 
     if backend == "qt":
         def get_all_itemdata(combo_box):
             return [combo_box.itemData(index) for index in range(combo_box.count())]
 
         # Count returns the number of all items including separator items
-        assert widget_with_separator.a.native.count() == 21
-        assert widget_with_separator.b.native.count() == 18
+        assert combo_a.native.count() == 21
+        assert combo_b.native.count() == 18
 
         # Separator singletons themselves are used as separator item data
-        assert get_all_itemdata(widget_with_separator.a.native) == a
-        assert get_all_itemdata(widget_with_separator.b.native) == b2
+        assert get_all_itemdata(combo_a.native) == a
+        assert get_all_itemdata(combo_b.native) == b2
 
         # Choices only returns unique, non-separator items
-        assert widget_with_separator.a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
-        assert widget_with_separator.b.choices == (1, 2, 4, 6, 7, 9)
+        assert combo_a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert combo_b.choices == (1, 2, 4, 6, 7, 9)
 
     if backend == "ipynb":
         # Separator singletons themselves are used as separator item data
-        assert widget_with_separator.a.options['choices'] == a
-        assert widget_with_separator.b.options['choices'] == b  # items are not unique
+        assert combo_a.options['choices'] == a
+        assert combo_b.options['choices'] == b  # items are not unique
 
         # Choices only returns duplicated, non-separator items
-        assert widget_with_separator.a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
-        assert widget_with_separator.b.choices == (1, 2, 4, 6, 7, 9, 6, 7, 9)
+        assert combo_a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert combo_b.choices == (1, 2, 4, 6, 7, 9, 6, 7, 9)
 
 
 def test_float_slider_readout():
