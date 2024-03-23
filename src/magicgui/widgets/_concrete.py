@@ -6,7 +6,6 @@ super().__init__ calls.
 
 from __future__ import annotations
 
-import contextlib
 import datetime
 import inspect
 import math
@@ -596,6 +595,31 @@ class SliceEdit(RangeEdit):
         self.step.value = value.step
 
 
+class _ListEditChildWidget(Container[Widget]):
+    """A widget to represent a single element of a ListEdit widget."""
+
+    def __init__(self, widget: ValueWidget):
+        btn = PushButton(text="-")
+        super().__init__(widgets=[widget, btn], layout="horizontal", labels=False)
+        self.btn_minus = btn
+        self.value_widget = widget
+        self.margins = (0, 0, 0, 0)
+
+        btn.changed.disconnect()
+        widget.changed.disconnect()
+        widget.changed.connect(self.changed.emit)
+        btn.max_height = btn.max_width = use_app().get_obj("get_text_width")("-") + 4
+
+    @property
+    def value(self) -> Any:
+        """Return value of the child widget."""
+        return self.value_widget.value
+
+    @value.setter
+    def value(self, value: Any) -> None:
+        """Set value of the child widget."""
+        self.value_widget.value = value
+
 @merge_super_sigs
 class ListEdit(Container[ValueWidget[_V]]):
     """A widget to represent a list of values.
@@ -644,24 +668,15 @@ class ListEdit(Container[ValueWidget[_V]]):
         self._child_options = options or {}
 
         button_plus = PushButton(text="+", name="plus")
-        button_minus = PushButton(text="-", name="minus")
-
-        if self.layout == "horizontal":
-            button_plus.max_width = 40
-            button_minus.max_width = 40
 
         self.append(button_plus)  # type: ignore
-        self.append(button_minus)  # type: ignore
         button_plus.changed.disconnect()
-        button_minus.changed.disconnect()
         button_plus.changed.connect(lambda: self._append_value())
-        button_minus.changed.connect(self._pop_value)
 
         for a in _value:
             self._append_value(a)
 
         self.btn_plus = button_plus
-        self.btn_minus = button_minus
 
     @property
     def annotation(self) -> Any:
@@ -711,35 +726,32 @@ class ListEdit(Container[ValueWidget[_V]]):
 
     def _append_value(self, value: _V | _Undefined = Undefined) -> None:
         """Create a new child value widget and append it."""
-        i = len(self) - 2
+        i = len(self) - 1
 
-        widget = cast(
-            ValueWidget,
-            create_widget(
-                annotation=self._args_type,
-                name=f"value_{i}",
-                options=self._child_options,
-            ),
+        _value_widget = create_widget(
+            annotation=self._args_type,
+            name=f"value_{i}",
+            options=self._child_options,
         )
+        widget = _ListEditChildWidget(cast(ValueWidget, _value_widget))
+        # connect the minus-button-clicked event
+        widget.btn_minus.changed.connect(lambda: self.remove(widget))
 
-        self.insert(i, widget)
+        # _ListEditChildWidget is technically a ValueWidget.
+        self.insert(i, widget)  # type: ignore
 
         widget.changed.disconnect()
 
         # Value must be set after new widget is inserted because it could be
         # valid only after same parent is shared between widgets.
         if value is Undefined and i > 0:
+            # copy value from the previous child widget if possible
             value = self[i - 1].value
         if value is not Undefined:
             widget.value = value
 
         widget.changed.connect(lambda: self.changed.emit(self.value))
         self.changed.emit(self.value)
-
-    def _pop_value(self) -> None:
-        """Delete last child value widget."""
-        with contextlib.suppress(IndexError):
-            self.pop(-3)
 
     @property
     def value(self) -> list[_V]:
@@ -749,7 +761,7 @@ class ListEdit(Container[ValueWidget[_V]]):
     @value.setter
     def value(self, vals: Iterable[_V]) -> None:
         with self.changed.blocked():
-            del self[:-2]
+            del self[:-1]
             for v in vals:
                 self._append_value(v)
         self.changed.emit(self.value)
@@ -769,7 +781,7 @@ class ListDataView(Generic[_V]):
 
     def __init__(self, obj: ListEdit[_V]):
         self._obj = obj
-        self._widgets = list(obj[:-2])
+        self._widgets = list(obj[:-1])
 
     def __repr__(self) -> str:
         """Return list-like representation."""
