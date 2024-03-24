@@ -849,23 +849,23 @@ def test_list_edit():
     assert mock.call_count == 1
     mock.assert_called_with([1, 2, 3, 3])
 
-    list_edit.btn_minus.changed()
-    assert list_edit.value == [1, 2, 3]
-    assert list_edit.data == [1, 2, 3]
+    list_edit[1].btn_minus.changed()
+    assert list_edit.value == [1, 3, 3]
+    assert list_edit.data == [1, 3, 3]
     assert mock.call_count == 2
-    mock.assert_called_with([1, 2, 3])
+    mock.assert_called_with([1, 3, 3])
 
     list_edit.data[0] = 0
-    assert list_edit.value == [0, 2, 3]
-    assert list_edit.data == [0, 2, 3]
+    assert list_edit.value == [0, 3, 3]
+    assert list_edit.data == [0, 3, 3]
     assert mock.call_count == 3
-    mock.assert_called_with([0, 2, 3])
+    mock.assert_called_with([0, 3, 3])
 
     list_edit[0].value = 10
-    assert list_edit.value == [10, 2, 3]
-    assert list_edit.data == [10, 2, 3]
+    assert list_edit.value == [10, 3, 3]
+    assert list_edit.data == [10, 3, 3]
     assert mock.call_count == 4
-    mock.assert_called_with([10, 2, 3])
+    mock.assert_called_with([10, 3, 3])
 
     list_edit.data[:2] = [6, 5]  # type: ignore
     assert list_edit.value == [6, 5, 3]
@@ -912,10 +912,10 @@ def test_list_edit():
         pass
 
     assert type(f3.x) is widgets.ListEdit
-    assert type(f3.x[0]) is widgets.Slider
-    assert f3.x[0].min == -10
-    assert f3.x[0].max == 10
-    assert f3.x[0].step == 5
+    assert type(f3.x[0].value_widget) is widgets.Slider
+    assert f3.x[0].value_widget.min == -10
+    assert f3.x[0].value_widget.max == 10
+    assert f3.x[0].value_widget.step == 5
 
     @magicgui
     def f4(x: List[int] = ()):  # type: ignore
@@ -926,7 +926,7 @@ def test_list_edit():
     assert f4.x._args_type is int
     assert f4.x.value == []
     f4.x.btn_plus.changed()
-    assert type(f4.x[0]) is widgets.SpinBox
+    assert type(f4.x[0].value_widget) is widgets.SpinBox
     assert f4.x.value == [0]
 
     @magicgui
@@ -936,7 +936,7 @@ def test_list_edit():
     assert type(f5.x) is widgets.ListEdit
     assert f5.x.annotation == List[int]
     f5.x.btn_plus.changed()
-    assert f5.x[0].max == 3
+    assert f5.x[0].value_widget.max == 3
 
 
 def test_tuple_edit():
