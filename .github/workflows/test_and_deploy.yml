@@ -134,7 +134,7 @@ jobs:
           python -m build
           twine check dist/*
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: dist/*
           body_path: ${{ github.workspace }}/CHANGELOG.md
