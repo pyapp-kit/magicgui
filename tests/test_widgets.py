@@ -1059,6 +1059,56 @@ def test_literal():
     assert sel.choices == get_args(Lit)
 
 
+def test_separator_singleton():
+    from magicgui.types import Separator, _Separator
+
+    sep1 = Separator
+    sep2 = _Separator()
+    assert sep1 is sep2
+
+
+def test_separator(backend: str):
+    from magicgui.types import Separator
+
+    use_app(backend)
+
+    sep = [[Separator] * (i + 1) for i in range(4)]
+    a = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 11, 12, *sep[0], 14, *sep[0]]
+    b = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 6, 7, *sep[0], 9, *sep[0]]
+    b2 = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], *sep[0], *sep[0]]
+
+    combo_a = widgets.ComboBox(choices=a, value=a[0])
+    combo_b = widgets.ComboBox(choices=b, value=b[0])
+
+    assert len(combo_a) == len(combo_a.choices)
+    assert len(combo_b) == len(combo_b.choices)
+
+    if backend == "qt":
+        def get_all_itemdata(combo_box):
+            return [combo_box.itemData(index) for index in range(combo_box.count())]
+
+        # Count returns the number of all items including separator items
+        assert combo_a.native.count() == 21
+        assert combo_b.native.count() == 18
+
+        # Separator singletons themselves are used as separator item data
+        assert get_all_itemdata(combo_a.native) == a
+        assert get_all_itemdata(combo_b.native) == b2
+
+        # Choices only returns unique, non-separator items
+        assert combo_a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert combo_b.choices == (1, 2, 4, 6, 7, 9)
+
+    if backend == "ipynb":
+        # Separator singletons themselves are used as separator item data
+        assert combo_a.options['choices'] == a
+        assert combo_b.options['choices'] == b  # items are not unique
+
+        # Choices only returns duplicated, non-separator items
+        assert combo_a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert combo_b.choices == (1, 2, 4, 6, 7, 9, 6, 7, 9)
+
+
 def test_float_slider_readout():
     sld = widgets.FloatSlider(value=4, min=0.5, max=10.5)
     assert sld.value == 4
