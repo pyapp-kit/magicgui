@@ -25,9 +25,6 @@ class ApplicationBackend(BaseApplicationBackend):
 
     def _mgui_run(self):
         app = self._mgui_get_native_app()
-        resultbox = QMessageBox()
-        resultbox.setText("Computation Completed!")
-        resultbox.exec_()
         # only start the event loop if magicgui created it
         if app.applicationName() == APPLICATION_NAME:
             return app.exec_()

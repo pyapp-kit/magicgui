@@ -248,9 +248,6 @@ class FunctionGui(Container, Generic[_P, _R]):
                 ),
             )
             self.append(self._result_widget)
-            # resultbox = QMessageBox()
-            # resultbox.setText("GUI Completed!")
-            # resultbox.exec_()
 
         if persist:
             self._load(quiet=True)
@@ -355,6 +352,10 @@ class FunctionGui(Container, Generic[_P, _R]):
         if self._result_widget is not None:
             with self._result_widget.changed.blocked():
                 self._result_widget.value = value
+            resultbox = QMessageBox()
+            resultbox.setText("Computation Completed!")
+            resultbox.exec_()
+
 
         return_type = sig.return_annotation
         if return_type:
