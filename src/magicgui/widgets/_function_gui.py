@@ -21,6 +21,7 @@ from typing import (
     cast,
 )
 
+from PyQt5.QtWidgets import QMessageBox
 from psygnal import Signal
 
 from magicgui._type_resolution import resolve_single_type
@@ -247,12 +248,16 @@ class FunctionGui(Container, Generic[_P, _R]):
                 ),
             )
             self.append(self._result_widget)
+            # resultbox = QMessageBox()
+            # resultbox.setText("GUI Completed!")
+            # resultbox.exec_()
 
         if persist:
             self._load(quiet=True)
 
         self._auto_call = auto_call
         self.changed.connect(self._on_change)
+
 
     def _on_change(self) -> None:
         if self.persist:

@@ -1,7 +1,7 @@
 import sys
 
 from qtpy.QtCore import QCoreApplication, Qt, QTimer
-from qtpy.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication, QMessageBox
 
 try:
     from qtpy import QT6
@@ -22,8 +22,12 @@ class ApplicationBackend(BaseApplicationBackend):
         app = self._mgui_get_native_app()
         app.processEvents()
 
+
     def _mgui_run(self):
         app = self._mgui_get_native_app()
+        resultbox = QMessageBox()
+        resultbox.setText("Computation Completed!")
+        resultbox.exec_()
         # only start the event loop if magicgui created it
         if app.applicationName() == APPLICATION_NAME:
             return app.exec_()
@@ -53,3 +57,4 @@ class ApplicationBackend(BaseApplicationBackend):
     def _mgui_stop_timer(self):
         if getattr(self, "_timer", None):
             self._timer.stop()
+
