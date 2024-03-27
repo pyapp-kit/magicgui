@@ -355,6 +355,7 @@ class FunctionGui(Container, Generic[_P, _R]):
             resultbox = QMessageBox()
             resultbox.setText("Computation Completed!")
             resultbox.exec_()
+            print("\nQMessageBox text:  " + resultbox.text())
 
 
         return_type = sig.return_annotation
