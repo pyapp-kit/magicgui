@@ -136,3 +136,6 @@ dmypy.json
 examples/_wip
 .ruff_cache
 docs/_images/
+
+#BSU Capstone
+.idea

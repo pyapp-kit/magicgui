@@ -3,6 +3,10 @@ from enum import Enum
 import sys
 import io
 
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import Qt
+
 
 class Medium(Enum):
     Glass = 1.520
@@ -12,7 +16,6 @@ class Medium(Enum):
 
 
 def test_message_box_text():
-
     @magicgui(call_button="calculate(test)", result_widget=True)
     def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
         import math
@@ -24,7 +27,12 @@ def test_message_box_text():
         except ValueError:
             return "Total internal reflection"
 
-    snells_law.show(run=True)
+    snells_law.show(run=False)
+    button_widget = getattr(snells_law, '_call_button', None)
+    QTest.mouseRelease(button_widget.native, Qt.LeftButton)
+    snells_law.close()
+    QApplication.quit()
+
 
     # this code gets what is printed to terminal which I made the message box print to terminal
     captured_output = io.StringIO()
@@ -34,4 +42,6 @@ def test_message_box_text():
     # print("\nTest: "+capturedOutput.getvalue())
 
     assert captured_output.getvalue() == "\nQMessageBox text:  Computation Completed!\n"
+
+
 
