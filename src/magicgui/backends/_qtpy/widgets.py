@@ -26,7 +26,7 @@ from qtpy.QtGui import (
     QTextDocument,
 )
 
-from magicgui.types import FileDialogMode
+from magicgui.types import FileDialogMode, Separator
 from magicgui.widgets import Widget, protocols
 from magicgui.widgets._concrete import _LabeledWidget
 
@@ -908,8 +908,12 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
         self._event_filter.valueChanged.connect(callback)
 
     def _mgui_get_count(self) -> int:
-        """Return the number of items in the dropdown."""
-        return self._qwidget.count()
+        """Return the number of items in the dropdown, omitting any separator items."""
+        return sum(
+            1
+            for i in range(self._qwidget.count())
+            if self._qwidget.itemData(i) != Separator
+        )
 
     def _mgui_get_choice(self, choice_name: str) -> Any:
         item_index = self._qwidget.findText(choice_name)
@@ -930,13 +934,18 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
-        item_index = self._qwidget.findText(choice_name)
-        # if it's not in the list, add a new item
-        if item_index == -1:
-            self._qwidget.addItem(choice_name, data)
-        # otherwise update its data
+        if data is Separator:
+            item_index = self._qwidget.count()
+            self._qwidget.insertSeparator(item_index)  # itemData is None
+            self._qwidget.setItemData(item_index, Separator)
         else:
-            self._qwidget.setItemData(item_index, data)
+            item_index = self._qwidget.findText(choice_name)
+            # if it's not in the list, add a new item
+            if item_index == -1:
+                self._qwidget.addItem(choice_name, data)
+            # otherwise update its data
+            else:
+                self._qwidget.setItemData(item_index, data)
 
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
@@ -952,10 +961,9 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
             for i in reversed(range(self._qwidget.count())):
                 if self._qwidget.itemText(i) not in choice_names:
                     self._qwidget.removeItem(i)
-            # update choices
+            # update choices and insert separators
             for name, data in choices_:
                 self._mgui_set_choice(name, data)
-
             # if the currently selected item is not in the new set,
             # remove it and select the first item in the list
             current2 = self._qwidget.itemText(self._qwidget.currentIndex())
@@ -980,6 +988,7 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
         return tuple(
             (self._qwidget.itemText(i), self._qwidget.itemData(i))
             for i in range(self._qwidget.count())
+            if self._qwidget.itemData(i) != Separator
         )
 
 

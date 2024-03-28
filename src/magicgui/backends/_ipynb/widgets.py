@@ -12,6 +12,7 @@ except ImportError as e:
     ) from e
 
 
+from magicgui.types import Separator
 from magicgui.widgets import protocols
 
 if TYPE_CHECKING:
@@ -219,7 +220,8 @@ class _IPySupportsChoices(protocols.SupportsChoices):
 
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set available choices."""
-        self._ipywidget.options = choices
+        options = [item for item in choices if item[1] is not Separator]
+        self._ipywidget.options = options
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete a choice."""

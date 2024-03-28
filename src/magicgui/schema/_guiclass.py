@@ -257,7 +257,7 @@ def bind_gui_to_instance(
     if isinstance(events, SignalGroup):
         # psygnal >=0.10
         if hasattr(events, "__iter__") and hasattr(events, "__getitem__"):
-            signals = {k: events[k] for k in events}  # type: ignore
+            signals = {k: events[k] for k in events}
         else:  # psygnal <0.10
             signals = events.signals
 

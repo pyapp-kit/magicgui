@@ -81,6 +81,29 @@ class _Undefined:
 
 Undefined = _Undefined()
 
+
+class _Separator:
+    """Sentinel class to separate groups of items in a ComboBox.
+
+    Example: ``choices=[1, 2, 3, Separator, Separator, 4, Separator]``
+
+    ``_Separator`` is a singleton.
+    """
+
+    _instance: _Separator | None = None
+
+    def __new__(cls) -> _Separator:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __repr__(self) -> str:
+        return "<Separator>"
+
+
+Separator = _Separator()
+
+
 JsonStringFormats = Literal[
     # ISO 8601 format.
     # https://www.iso.org/iso-8601-date-and-time-format.html
