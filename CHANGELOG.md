@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.8.3](https://github.com/pyapp-kit/magicgui/tree/v0.8.3) (2024-03-29)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.2...v0.8.3)
+
+**Implemented enhancements:**
+
+- feat: Better ListEdit UI [\#640](https://github.com/pyapp-kit/magicgui/pull/640) ([hanjinliu](https://github.com/hanjinliu))
+- feat: Add Separator to ComboBox [\#638](https://github.com/pyapp-kit/magicgui/pull/638) ([qin-yu](https://github.com/qin-yu))
+
+**Merged pull requests:**
+
+- ci\(dependabot\): bump softprops/action-gh-release from 1 to 2 [\#635](https://github.com/pyapp-kit/magicgui/pull/635) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v0.8.2](https://github.com/pyapp-kit/magicgui/tree/v0.8.2) (2024-03-05)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.1...v0.8.2)
@@ -597,7 +610,7 @@
 
 ## [v0.2.9](https://github.com/pyapp-kit/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.9)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -623,13 +636,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/pyapp-kit/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.8rc0)
-
 ## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.8)
+
+## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8rc0)
 
 **Implemented enhancements:**
 
@@ -791,7 +804,7 @@
 
 ## [v0.2.0](https://github.com/pyapp-kit/magicgui/tree/v0.2.0) (2020-12-26)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6rc0...v0.2.0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6...v0.2.0)
 
 **Merged pull requests:**
 
@@ -808,13 +821,13 @@
 - Drop support for python 3.6 [\#42](https://github.com/pyapp-kit/magicgui/pull/42) ([tlambert03](https://github.com/tlambert03))
 - Add \(slightly\) strict mypy checking [\#41](https://github.com/pyapp-kit/magicgui/pull/41) ([tlambert03](https://github.com/tlambert03))
 
-## [v0.1.6rc0](https://github.com/pyapp-kit/magicgui/tree/v0.1.6rc0) (2020-07-23)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6...v0.1.6rc0)
-
 ## [v0.1.6](https://github.com/pyapp-kit/magicgui/tree/v0.1.6) (2020-07-23)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.5...v0.1.6)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6rc0...v0.1.6)
+
+## [v0.1.6rc0](https://github.com/pyapp-kit/magicgui/tree/v0.1.6rc0) (2020-07-23)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.5...v0.1.6rc0)
 
 **Merged pull requests:**
 
