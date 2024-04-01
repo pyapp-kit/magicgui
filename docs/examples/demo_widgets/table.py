@@ -51,7 +51,7 @@ table.row_headers = ("row1", "row2")
 table.column_headers = ("a", "b", "c")
 
 # setting value clears and resets the table:
-table.value = np.arange(18).reshape(6, 3)
+table.value = np.arrange(18).reshape(6, 3)
 # we can get/set/delete the 2D data table using numpy-style indexing:
 # get every other row
 assert table.data[::2] == [[0, 1, 2], [6, 7, 8], [12, 13, 14]]

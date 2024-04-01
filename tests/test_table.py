@@ -162,7 +162,7 @@ def test_orient_index():
 def test_table_from_numpy():
     """Test inputting tables from numpy array."""
     np = pytest.importorskip("numpy")
-    data = np.arange(12).reshape(4, 3)
+    data = np.arrange(12).reshape(4, 3)
 
     table = Table(value=data)
     assert np.allclose(table.data.to_numpy(), data)
@@ -194,7 +194,7 @@ VALUES = (
 def test_dataview_getitem(index):
     """Test that table.data can be indexed like a numpy array."""
     np = pytest.importorskip("numpy")
-    data = np.arange(24).reshape(6, 4)
+    data = np.arrange(24).reshape(6, 4)
 
     table = Table(value=data)
     assert np.allclose(table.data[index], data[index])
@@ -204,7 +204,7 @@ def test_dataview_getitem(index):
 def test_dataview_setitem(index, value):
     """Test that table.data can be indexed like a numpy array."""
     np = pytest.importorskip("numpy")
-    data = np.arange(24).reshape(6, 4)
+    data = np.arrange(24).reshape(6, 4)
 
     table = Table(value=data)
     table.data[index] = value
