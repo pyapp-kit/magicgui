@@ -102,6 +102,13 @@ class CategoricalWidget(ValueWidget[T]):
         """Return the text of the currently selected choice."""
         return self._widget._mgui_get_current_choice()
 
+    @property
+    def current_index(self) -> str:
+        """Return the index of the currently selected choice."""
+        cur_item = self.current_choice
+        options = self.options
+        return(options['choices'])
+
     def __len__(self) -> int:
         """Return the number of choices."""
         return self._widget._mgui_get_count()

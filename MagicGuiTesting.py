@@ -34,5 +34,5 @@ def long_calculation_test():
 
 
 # your function is now capable of showing a GUI
-# snells_law.show(run=True)
-long_calculation_test.show(run=True)
+snells_law.show(run=True)
+# long_calculation_test.show(run=True)
