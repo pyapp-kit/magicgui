@@ -110,7 +110,7 @@ class CategoricalWidget(ValueWidget[T]):
         try:
             choices = [item.value for item in options['choices']]
         except:
-            choices = [item for item in options['choices']]
+            choices = options['choices']
         return choices.index(cur_item)
 
     def __len__(self) -> int:
