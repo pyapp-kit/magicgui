@@ -23,5 +23,14 @@ def combobox_list(group="jared"):
     print(current_index)
     return
 
+@magicgui(group={"choices": ["jared", "james", "graham", "carlvin"]}, auto_call=True, call_button="get index (list) original solution")
+def combobox_list_original(group="jared"):
+    current_name = combobox_list_original.group.current_choice
+    current_index = combobox_list_original.group.choices.index(current_name)
+    print(current_index)
+    return
 
+
+#combobox_enum.show(run=True)
 combobox_list.show(run=True)
+#combobox_list_original.show(run=True)
