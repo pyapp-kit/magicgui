@@ -1,11 +1,12 @@
-from magicgui import magicgui
-from enum import Enum
-import sys
 import io
+import sys
+from enum import Enum
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt
+
+from magicgui import magicgui
 
 
 class Medium(Enum):
@@ -13,7 +14,7 @@ class Medium(Enum):
     Oil = 1.515
     Water = 1.333
     Air = 1.0003
-    
+
 class members(Enum):
     jared = "jared"
     james = "james"
@@ -56,7 +57,7 @@ def test_combobox_index_enum():
         return
 
     combobox_enum.show(run=False)
-    cur_index = getattr(combobox_enum.group, "current_index")
+    cur_index = combobox_enum.group.current_index
     assert cur_index == 0
 
 
@@ -68,7 +69,7 @@ def test_combobox_index_enum_select():
 
     combobox_enum.show(run=False)
     QTest.keyClick(combobox_enum.group.native, Qt.Key_Down)
-    cur_index = getattr(combobox_enum.group, "current_index")
+    cur_index = combobox_enum.group.current_index
     assert cur_index == 1
 
 
@@ -78,7 +79,7 @@ def test_combobox_index_list():
         return
 
     combobox_enum.show(run=False)
-    cur_index = getattr(combobox_enum.group, "current_index")
+    cur_index = combobox_enum.group.current_index
     assert cur_index == 0
 
 
@@ -89,7 +90,7 @@ def test_combobox_index_list_select():
 
     combobox_enum.show(run=False)
     QTest.keyClick(combobox_enum.group.native, Qt.Key_Down)
-    cur_index = getattr(combobox_enum.group, "current_index")
+    cur_index = combobox_enum.group.current_index
     assert cur_index == 1
 
 

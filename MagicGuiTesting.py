@@ -1,5 +1,7 @@
-from magicgui import magicgui
 from enum import Enum
+
+from magicgui import magicgui
+
 #test branch
 
 class Medium(Enum):

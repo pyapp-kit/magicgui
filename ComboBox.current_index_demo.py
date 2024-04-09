@@ -1,5 +1,6 @@
-from magicgui import magicgui
 from enum import Enum
+
+from magicgui import magicgui
 
 
 class members(Enum):

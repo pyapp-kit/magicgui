@@ -1,7 +1,7 @@
 import sys
 
 from qtpy.QtCore import QCoreApplication, Qt, QTimer
-from qtpy.QtWidgets import QApplication, QMessageBox
+from qtpy.QtWidgets import QApplication
 
 try:
     from qtpy import QT6
