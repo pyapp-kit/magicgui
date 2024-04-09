@@ -60,4 +60,16 @@ def test_combobox_index_enum():
     assert cur_index == 0
 
 
+def test_combobox_index_enum_select():
+    """ selects different combobox option """
+    @magicgui(auto_call=True, call_button="get index (enum)")
+    def combobox_enum(group: members = members.jared):
+        return
+
+    combobox_enum.show(run=False)
+    QTest.keyClick(combobox_enum.group.native, Qt.Key_Down)
+    cur_index = getattr(combobox_enum.group, "current_index")
+    assert cur_index == 1
+
+
 
