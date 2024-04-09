@@ -72,4 +72,24 @@ def test_combobox_index_enum_select():
     assert cur_index == 1
 
 
+def test_combobox_index_list():
+    @magicgui(group={"choices": ["jared", "james", "graham", "carlvin"]}, auto_call=True, call_button="get index list")
+    def combobox_enum(group="jared"):
+        return
+
+    combobox_enum.show(run=False)
+    cur_index = getattr(combobox_enum.group, "current_index")
+    assert cur_index == 0
+
+
+def test_combobox_index_list_select():
+    @magicgui(group={"choices": ["jared", "james", "graham", "carlvin"]}, auto_call=True, call_button="get index list")
+    def combobox_enum(group="jared"):
+        return
+
+    combobox_enum.show(run=False)
+    QTest.keyClick(combobox_enum.group.native, Qt.Key_Down)
+    cur_index = getattr(combobox_enum.group, "current_index")
+    assert cur_index == 1
+
 
