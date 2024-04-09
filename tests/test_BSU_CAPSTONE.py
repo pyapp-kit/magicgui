@@ -13,6 +13,12 @@ class Medium(Enum):
     Oil = 1.515
     Water = 1.333
     Air = 1.0003
+    
+class members(Enum):
+    jared = "jared"
+    james = "james"
+    graham = "graham"
+    carlvin = "carlvin"
 
 
 def test_message_box_text():
@@ -42,6 +48,16 @@ def test_message_box_text():
     # print("\nTest: "+capturedOutput.getvalue())
 
     assert captured_output.getvalue() == "\nQMessageBox text:  Computation Completed!\n"
+
+
+def test_combobox_index_enum():
+    @magicgui(auto_call=True, call_button="get index (enum)")
+    def combobox_enum(group: members = members.jared):
+        return
+
+    combobox_enum.show(run=False)
+    cur_index = getattr(combobox_enum.group, "current_index")
+    assert cur_index == 0
 
 
 
