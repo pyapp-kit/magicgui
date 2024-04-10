@@ -989,10 +989,13 @@ class Select(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(QtW.QListWidget, "isChecked", "setCurrentIndex", "", **kwargs)
         self._qwidget.itemSelectionChanged.connect(self._emit_data)
+        self._qwidget.itemChanged.connect(self._handle_checks)
         self._qwidget.setSelectionMode(
             QtW.QAbstractItemView.SelectionMode.ExtendedSelection
         )
 
+    def _handle_checks(self, item: QtW.QListWidgetItem):
+        item.setSelected(item.checkState() == Qt.Checked)
     def _emit_data(self):
         data = self._qwidget.selectedItems()
         self._event_filter.valueChanged.emit(
@@ -1034,11 +1037,15 @@ class Select(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
         # if it's not in the list, add a new item
         if not items:
             item = QtW.QListWidgetItem(choice_name)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Unchecked)
             item.setData(Qt.ItemDataRole.UserRole, data)
             self._qwidget.addItem(item)
         # otherwise update its data
         else:
             for item in items:
+                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+                item.setCheckState(Qt.Unchecked)
                 item.setData(Qt.ItemDataRole.UserRole, data)
 
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
