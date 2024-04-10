@@ -1,11 +1,7 @@
 from enum import Enum
-<<<<<<< HEAD
-=======
 
 from magicgui import magicgui
 
->>>>>>> dd1ec07b7ffd1af51b6491e00424e9ac7791dfba
-#test branch
 
 class Medium(Enum):
     Glass = 1.520
@@ -39,5 +35,5 @@ def long_calculation_test():
 
 
 # your function is now capable of showing a GUI
-snells_law.show(run=True)
-# long_calculation_test.show(run=True)
+# snells_law.show(run=True)
+long_calculation_test.show(run=True)
