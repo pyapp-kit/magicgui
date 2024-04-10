@@ -21,8 +21,8 @@ from typing import (
     cast,
 )
 
-from PyQt5.QtWidgets import QMessageBox
 from psygnal import Signal
+from PyQt5.QtWidgets import QMessageBox
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui.signature import MagicSignature, magic_signature
