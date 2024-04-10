@@ -988,15 +988,23 @@ class Select(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(QtW.QListWidget, "isChecked", "setCurrentIndex", "", **kwargs)
+        self._check_boxes()
         self._qwidget.itemSelectionChanged.connect(self._emit_data)
         self._qwidget.itemChanged.connect(self._handle_checks)
         self._qwidget.setSelectionMode(
             QtW.QAbstractItemView.SelectionMode.ExtendedSelection
         )
 
+    def _check_boxes(self):
+        for i in range(self._qwidget.count()):
+            option = self._qwidget.item(i)
+            option.setSelected(option.checkState() == Qt.Checked)
+            if option.checkState() != Qt.Checked:
+                option.setSelected(False)
     def _handle_checks(self, item: QtW.QListWidgetItem):
-        item.setSelected(item.checkState() == Qt.Checked)
+        self._check_boxes()
     def _emit_data(self):
+        self._check_boxes()
         data = self._qwidget.selectedItems()
         self._event_filter.valueChanged.emit(
             [d.data(Qt.ItemDataRole.UserRole) for d in data]
