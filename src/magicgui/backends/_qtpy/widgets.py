@@ -70,6 +70,9 @@ class QBaseWidget(protocols.WidgetProtocol):
     ) -> None:
         self._qwidget = qwidg(parent=parent)
         self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
+
+        self._qwidget.setWindowTitle("Graham")
+
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
