@@ -42,6 +42,7 @@ if TYPE_CHECKING:
 else:
     _P = TypeVar("_P")  # easier runtime dependency than ParamSpec
 
+global global_func_name
 
 def _inject_tooltips_from_docstrings(
     docstring: str | None, sig: MagicSignature
@@ -187,6 +188,10 @@ class FunctionGui(Container, Generic[_P, _R]):
         # Mypy doesn't seem catch this at this point:
         # https://github.com/python/mypy/issues/9934
         name = name or getattr(function, "__name__", None)
+
+        global global_func_name
+        global_func_name = name
+
         if not name:
             if hasattr(function, "func"):  # partials:
                 f = getattr(function, "func", None)
@@ -347,16 +352,15 @@ class FunctionGui(Container, Generic[_P, _R]):
         self._tqdm_depth = 0  # reset the tqdm stack count
         with _function_name_pointing_to_widget(self):
             value = self._function(*bound.args, **bound.kwargs)
-
         self._call_count += 1
         if self._result_widget is not None:
             with self._result_widget.changed.blocked():
                 self._result_widget.value = value
             resultbox = QMessageBox()
             resultbox.setText("Computation Completed!")
+
             resultbox.exec_()
             print("\nQMessageBox text:  " + resultbox.text())
-
 
         return_type = sig.return_annotation
         if return_type:
