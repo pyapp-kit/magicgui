@@ -94,3 +94,19 @@ def test_combobox_index_list_select():
     assert cur_index == 1
 
 
+def test_window_title():
+    @magicgui(call_button="calculate(test)", result_widget=True)
+    def example_function(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
+        import math
+
+        aoi = math.radians(aoi) if degrees else aoi
+        try:
+            result = math.asin(n1.value * math.sin(aoi) / n2.value)
+            return math.degrees(result) if degrees else result
+        except ValueError:
+            return "Total internal reflection"
+
+    assert example_function._widget._mgui_get_window_title() == 'example_function'
+
+
+
