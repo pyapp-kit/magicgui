@@ -29,6 +29,7 @@ from qtpy.QtGui import (
 from magicgui.types import FileDialogMode
 from magicgui.widgets import Widget, protocols
 from magicgui.widgets._concrete import _LabeledWidget
+from magicgui.widgets import _function_gui
 
 if TYPE_CHECKING:
     import numpy
@@ -70,11 +71,17 @@ class QBaseWidget(protocols.WidgetProtocol):
     ) -> None:
         self._qwidget = qwidg(parent=parent)
         self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
+
+        self._qwidget.setWindowTitle(str(_function_gui.global_func_name))
+
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
 
     def _mgui_close_widget(self) -> None:
         self._qwidget.close()
+
+    def _mgui_get_window_title(self):
+        return self._qwidget.windowTitle()
 
     def _mgui_get_visible(self) -> bool:
         return self._qwidget.isVisible()
