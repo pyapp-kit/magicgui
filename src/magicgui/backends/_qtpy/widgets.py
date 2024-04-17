@@ -80,6 +80,9 @@ class QBaseWidget(protocols.WidgetProtocol):
     def _mgui_close_widget(self) -> None:
         self._qwidget.close()
 
+    def _mgui_get_window_title(self):
+        return self._qwidget.windowTitle()
+
     def _mgui_get_visible(self) -> bool:
         return self._qwidget.isVisible()
 
@@ -543,9 +546,6 @@ class Container(
 
     def _mgui_get_root_native_widget(self):
         return self._qwidget
-
-    def _mgui_get_window_title(self):
-        return self._qwidget.windowTitle()
 
     def _mgui_get_native_widget(self):
         # Return widget with the layout set
