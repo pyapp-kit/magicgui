@@ -109,4 +109,27 @@ def test_window_title():
     assert example_function._widget._mgui_get_window_title() == 'example_function'
 
 
+#select widget test
+def test_select_checkbox():
+    @magicgui(
+        pick_some={
+            "choices": ("first", "second", "third", "fourth"),
+            "allow_multiple": True,
+        }
+    )
+    def my_widget(pick_some=("first")):
+        """Dropdown selection function."""
+
+
+    my_widget.show(run=False)
+    list = my_widget.pick_some.native
+    assert not list.item(0).isSelected()
+    assert list.item(0).checkState() == Qt.Unchecked
+    list.item(0).setCheckState(Qt.Checked)
+    assert list.item(0).isSelected()
+    assert list.item(0).checkState() == Qt.Checked
+
+
+
+
 
