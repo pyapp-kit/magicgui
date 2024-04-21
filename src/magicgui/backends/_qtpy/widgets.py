@@ -750,7 +750,12 @@ class Slider(_Slider):
         self._container.setLayout(layout)
 
     def _on_slider_change(self, value):
-        self._readout_widget.setValue(self._post_get_hook(value))
+        step = self._readout_widget.singleStep()
+        rem = (value // step) * step
+        if value % step >= step / 2:
+            rem += step
+        self._qwidget.setValue(rem)
+        self._readout_widget.setValue(self._post_get_hook(rem))
 
     def _on_readout_change(self):
         self._qwidget.setValue(self._pre_set_hook(self._readout_widget.value()))

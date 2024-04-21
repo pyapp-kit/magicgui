@@ -1,8 +1,8 @@
 from magicgui import magicgui
 
 
-@magicgui(auto_call=True, slider_int={"label" : "val = 500", "widget_type": "Slider", "value": 500, "min": 400, "max": 1000, "step": 100,},)
-def step_demo(slider_int=500,):
+@magicgui(auto_call=True, slider_int={"label" : "val = 10000", "widget_type": "Slider", "value": 10000, "min": 10000, "max": 100000, "step": 10000,},)
+def step_demo(slider_int=10000,):
     step_demo.slider_int.label = "val = " + str(slider_int)
     return slider_int
 
@@ -21,5 +21,5 @@ def step_workaround(slider_int=500,):
     return slider_int
 
 
-#step_demo.show(run=True)
-step_workaround.show(run=True)
+step_demo.show(run=True)
+#step_workaround.show(run=True)
