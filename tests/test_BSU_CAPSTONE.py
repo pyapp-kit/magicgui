@@ -7,6 +7,7 @@ from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from magicgui import magicgui
+from magicgui.backends._qtpy import widgets
 
 
 class Medium(Enum):
@@ -129,6 +130,20 @@ def test_select_checkbox():
     assert list.item(0).isSelected()
     assert list.item(0).checkState() == Qt.Checked
 
+
+def test_slider_step():
+    @magicgui(auto_call=True, slider_int={"label": "val = 500", "widget_type": "Slider", "value": 500, "min": 400,
+                                          "max": 1000, "step": 100}, )
+    def widget_slider(slider_int=500, ):
+        widget_slider.slider_int.label = "val = " + str(slider_int)
+        return slider_int
+
+    widget_slider.show(run=False)
+
+    QTest.keyClick(widget_slider.native, Qt.Key_Right)
+    position0 = widgets.slider_values[0]
+    position1 = widgets.slider_values[1]
+    assert (position1 - position0) == 100
 
 
 
