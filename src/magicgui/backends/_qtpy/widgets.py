@@ -34,6 +34,8 @@ from magicgui.widgets import _function_gui
 if TYPE_CHECKING:
     import numpy
 
+slider_values = []
+
 
 @contextmanager
 def _signals_blocked(obj: QtW.QWidget) -> Iterator[None]:
@@ -756,6 +758,8 @@ class Slider(_Slider):
             rem += step
         self._qwidget.setValue(rem)
         self._readout_widget.setValue(self._post_get_hook(rem))
+        global slider_values
+        slider_values.append(self._post_get_hook(rem))
 
     def _on_readout_change(self):
         self._qwidget.setValue(self._pre_set_hook(self._readout_widget.value()))
