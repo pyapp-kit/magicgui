@@ -139,6 +139,7 @@ def test_slider_step():
         return slider_int
 
     widget_slider.show(run=False)
+
     QTest.keyClick(widget_slider.native, Qt.Key_Right)
     position0 = widgets.slider_values[0]
     position1 = widgets.slider_values[1]
