@@ -181,12 +181,11 @@ def magicgui(
     Examples
     --------
     >>> @magicgui
-    ... def my_function(a: int = 1, b: str = 'hello'):
+    ... def my_function(a: int = 1, b: str = "hello"):
     ...     pass
-    ...
     >>> my_function.show()
     >>> my_function.a.value == 1  # True
-    >>> my_function.b.value = 'world'
+    >>> my_function.b.value = "world"
     """
     return _magicgui(
         function=function,
@@ -383,13 +382,12 @@ def magic_factory(
     Examples
     --------
     >>> @magic_factory
-    ... def my_function(a: int = 1, b: str = 'hello'):
+    ... def my_function(a: int = 1, b: str = "hello"):
     ...     pass
-    ...
     >>> my_widget = my_function()
     >>> my_widget.show()
     >>> my_widget.a.value == 1  # True
-    >>> my_widget.b.value = 'world'
+    >>> my_widget.b.value = "world"
     """
     return _magicgui(
         factory=True,
@@ -425,7 +423,6 @@ class MagicFactory(partial, Generic[_FGuiVar]):
     --------
     >>> def func(x: int, y: str):
     ...     pass
-    ...
     >>> factory = MagicFactory(function=func, labels=False)
     >>> # factory accepts all the same arguments as magicgui()
     >>> widget1 = factory(call_button=True)
@@ -463,7 +460,7 @@ class MagicFactory(partial, Generic[_FGuiVar]):
                 raise TypeError(
                     "'widget_init' must be a callable that accepts a single argument"
                 )
-        obj = super().__new__(cls, magic_class, *args, **keywords)  # type: ignore
+        obj = super().__new__(cls, magic_class, *args, **keywords)
         obj._widget_init = widget_init
         return obj
 
