@@ -146,5 +146,23 @@ def test_slider_step():
     assert (position1 - position0) == 100
 
 
+def test_configurable_labels():
+    @magicgui(x={"label": "TEST", "label_min_width": 100, "label_min_height": 100, "label_max_width": 200,
+                 "label_max_height": 200})
+    def example(x="test"):
+        return x
+
+    example.show(run=False)
+
+    label_widget = example.x.native
+    label_width = label_widget.width()
+    label_height = label_widget.height()
+
+    assert label_width > 100
+    assert label_width < 200
+    assert label_height > 100
+    assert label_height < 200
+
+
 
 
