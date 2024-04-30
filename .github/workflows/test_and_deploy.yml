@@ -56,8 +56,6 @@ jobs:
             os: ubuntu-latest
             qt: pyside6
 
-
-
   test-min-reqs:
     name: Test min reqs
     uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
