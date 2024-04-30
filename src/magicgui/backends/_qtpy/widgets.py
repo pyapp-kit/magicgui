@@ -74,7 +74,7 @@ class QBaseWidget(protocols.WidgetProtocol):
         self._qwidget = qwidg(parent=parent)
         self._qwidget.setObjectName(f"magicgui.{qwidg.__name__}")
 
-        self._qwidget.setWindowTitle(str(_function_gui.global_func_name))
+        # self._qwidget.setWindowTitle(str(_function_gui.global_func_name))
 
         self._event_filter = EventFilter()
         self._qwidget.installEventFilter(self._event_filter)
@@ -274,6 +274,13 @@ class Label(QBaseStringWidget):
         self._qwidget.setSizePolicy(
             QtW.QSizePolicy.Policy.Fixed, QtW.QSizePolicy.Policy.Fixed
         )
+        # self._qwidget.font().setPointSize(kwargs.get("font_size"))
+        for key, value in self._widget.kwargs.items():
+            print(f'key: {key}, value: {value}')
+        font = self._qwidget.font()
+        font.setPointSize(40)
+        self._qwidget.setFont(font)
+
 
     def _mgui_bind_change_callback(self, callback: Callable) -> None:
         # raise NotImplementedError("QLabel has no change signal")

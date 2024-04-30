@@ -34,6 +34,7 @@ if TYPE_CHECKING:
         gui_only: bool
         parent: Any
         backend_kwargs: dict | None
+        font_size: int | None
 
         description: str  # alias for label
 
@@ -95,6 +96,7 @@ class Widget:
         gui_only: bool = False,
         parent: Any | None = None,
         backend_kwargs: dict | None = None,
+        font_size: int | None = None,
         **extra: Any,  # not really used
     ):
         # for ipywidgets API compatibility
@@ -151,6 +153,7 @@ class Widget:
         self._post_init()
         self._visible: bool = False
         self._explicitly_hidden: bool = False
+        self.font_size = font_size
         if visible is not None:
             self.visible = visible
 
