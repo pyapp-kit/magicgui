@@ -34,6 +34,7 @@ if TYPE_CHECKING:
         gui_only: bool
         parent: Any
         backend_kwargs: dict | None
+
         font_size: int | None
 
         description: str  # alias for label
@@ -96,7 +97,9 @@ class Widget:
         gui_only: bool = False,
         parent: Any | None = None,
         backend_kwargs: dict | None = None,
+
         font_size: int | None = None,
+
         **extra: Any,  # not really used
     ):
         # for ipywidgets API compatibility
@@ -142,6 +145,9 @@ class Widget:
         self.name: str = name
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
+
+        self.font_size = font_size
+
         self.tooltip = tooltip
         self.enabled = enabled
         self.annotation: Any = annotation
@@ -153,7 +159,7 @@ class Widget:
         self._post_init()
         self._visible: bool = False
         self._explicitly_hidden: bool = False
-        self.font_size = font_size
+
         if visible is not None:
             self.visible = visible
 
@@ -255,6 +261,10 @@ class Widget:
     @property
     def label(self) -> str:
         """Return a label to use for this widget when present in Containers."""
+        print("TEST ??")
+        font = self._label.native.font()
+        font.setPointSize(self.font_size)
+        self._label.setFont(font)
         return self.name.replace("_", " ") if self._label is None else self._label
 
     @label.setter
