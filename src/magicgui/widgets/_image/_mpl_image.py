@@ -398,7 +398,7 @@ class ScalarMappable:
                 else:
                     raise ValueError(
                         "Image RGB array must be uint8 or "
-                        "floating point; found %s" % xx.dtype
+                        f"floating point; found {xx.dtype}"
                     )
                 return xx
         except AttributeError:

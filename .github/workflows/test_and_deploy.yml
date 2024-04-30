@@ -27,22 +27,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11"]
         os: [ubuntu-latest, macos-latest, windows-latest]
-        qt: [pyqt5, pyside2]
+        qt: [pyqt6, pyside6]
         include:
+          - python-version: "3.8"
+            os: ubuntu-latest
+            qt: pyqt5
+          - python-version: "3.8"
+            os: macos-13
+            qt: pyside2
+          - python-version: "3.8"
+            os: windows-latest
+            qt: pyqt5
+          - python-version: "3.9"
+            os: macos-13
+            qt: pyqt5
+          - python-version: "3.9"
+            os: ubuntu-latest
+            qt: pyside2
           - python-version: "3.10"
             os: ubuntu-latest
-            qt: pyqt6
-          - python-version: "3.10"
-            os: ubuntu-latest
-            qt: pyside6
+            qt: pyside2
           - python-version: "3.12"
             os: ubuntu-latest
             qt: pyqt6
-        exclude:
-          - python-version: "3.11"
-            qt: pyside2
+          - python-version: "3.12"
+            os: ubuntu-latest
+            qt: pyside6
 
   test-min-reqs:
     name: Test min reqs
@@ -93,7 +105,7 @@ jobs:
       host-extras: "testing"
       qt: pyqt5
       python-version: "3.10"
-      post-install-cmd: "python -m pip install pytest-pretty"
+      post-install-cmd: "python -m pip install pytest-pretty lxml_html_clean"  # just for napari
       pytest-args: ${{ matrix.pytest-args }}
     strategy:
       fail-fast: false
@@ -102,7 +114,7 @@ jobs:
           - package: napari/napari
             pytest-args: napari/_tests/test_magicgui.py
           - package: napari/napari
-            package-version: "v0.4.18"
+            package-version: "v0.4.19.post1"
             pytest-args: napari/_tests/test_magicgui.py
           - package: hanjinliu/magic-class
           - package: stardist/stardist-napari
