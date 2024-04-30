@@ -35,7 +35,7 @@ if TYPE_CHECKING:
         parent: Any
         backend_kwargs: dict | None
 
-        font_size: int | None
+        label_size: int | None
 
         description: str  # alias for label
 
@@ -98,7 +98,7 @@ class Widget:
         parent: Any | None = None,
         backend_kwargs: dict | None = None,
 
-        font_size: int | None = None,
+        label_size: int | None = None,
 
         **extra: Any,  # not really used
     ):
@@ -146,7 +146,7 @@ class Widget:
         self.param_kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
         self._label = label
 
-        self.font_size = font_size
+        self.label_size = label_size
 
         self.tooltip = tooltip
         self.enabled = enabled
@@ -261,10 +261,10 @@ class Widget:
     @property
     def label(self) -> str:
         """Return a label to use for this widget when present in Containers."""
-        print("TEST ??")
-        font = self._label.native.font()
-        font.setPointSize(self.font_size)
-        self._label.setFont(font)
+        # print("TEST ??")
+        # font = self._label.native.font()
+        # font.setPointSize(self.font_size)
+        # self._label.setFont(font)
         return self.name.replace("_", " ") if self._label is None else self._label
 
     @label.setter

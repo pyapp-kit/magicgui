@@ -60,6 +60,18 @@ class ValueWidget(Widget, Generic[T]):
         if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
             self.hide()
 
+        print(f'value widget self.value: {self.value}')
+        font_size = 12
+        for key, value in base_widget_kwargs.items():
+            if key == 'label_size':
+                font_size = value
+
+        for key, value in base_widget_kwargs.items():
+            print(f'{key}')
+            if key == 'label':
+                self._widget._mgui_set_min_height(font_size)
+                self._widget._mgui_set_min_width(font_size)
+
     def _post_init(self) -> None:
         super()._post_init()
         self._widget._mgui_bind_change_callback(self._on_value_change)
