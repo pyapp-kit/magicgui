@@ -16,7 +16,7 @@ on:
 jobs:
   test:
     name: Test
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -97,7 +97,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   test-dependents:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
     with:
       dependency-repo: ${{ matrix.package }}
       dependency-ref: ${{ matrix.package-version }}
