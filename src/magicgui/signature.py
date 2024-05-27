@@ -69,7 +69,54 @@ def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
                     f"Every item in Annotated must be castable to a dict, got: {opt!r}"
                 ) from e
             _options.update(_opt)
+
+    if not _hashable(annotation):
+        annotation = _make_hashable(annotation)
+    if not _hashable(_options):
+        _options = _make_hashable(_options)
+
     return Annotated[annotation, _options]
+
+
+# this is a stupid hack to deal with something that changed in typing-extensions
+# v4.12.0 (and probably python 3.13), where all items in Annotated must now be hashable
+# The PR that necessitated this was https://github.com/python/typing_extensions/pull/392
+
+
+class hashabledict(dict):
+    """Hashable immutable dict."""
+
+    def __hash__(self) -> int:  # type: ignore # noqa: D105
+        # we don't actually want to hash the contents, just the object itself.
+        return id(self)
+
+    def __setitem__(self, key: Any, value: Any) -> None:  # noqa: D105
+        raise TypeError("hashabledict is immutable")
+
+    def __delitem__(self, key: Any) -> None:  # noqa: D105
+        raise TypeError("hashabledict is immutable")
+
+
+def _hashable(obj: Any) -> bool:
+    try:
+        hash(obj)
+        return True
+    except TypeError:
+        return False
+
+
+def _make_hashable(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return hashabledict({k: _make_hashable(v) for k, v in obj.items()})
+    if isinstance(obj, (list, tuple)):
+        return tuple(_make_hashable(v) for v in obj)
+    if isinstance(obj, set):
+        return frozenset(_make_hashable(v) for v in obj)
+    if args := getattr(obj, "__args__", None):
+        obj.__args__ = _make_hashable(args)
+    if meta := getattr(obj, "__metadata__", None):
+        obj.__metadata__ = _make_hashable(meta)
+    return obj
 
 
 class _void:

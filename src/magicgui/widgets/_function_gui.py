@@ -64,7 +64,6 @@ def _inject_tooltips_from_docstrings(
             for split_key in k.split(","):
                 doc_params[split_key.strip()] = v
             del doc_params[k]
-
     for name, description in doc_params.items():
         # this is to catch potentially bad arg_name parsing in docstring_parser
         # if using napoleon style google docstringss
