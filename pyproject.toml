@@ -50,7 +50,7 @@ pyside2 = [
     "pyside2>=5.14 ; python_version=='3.8'",
     "pyside2>=5.15 ; python_version>='3.9'",
 ]
-pyside6 = ["pyside6"]
+pyside6 = ["pyside6!=6.7.1"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=8.0.0"]
 image = ["pillow>=4.0"]
