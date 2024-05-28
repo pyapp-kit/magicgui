@@ -17,6 +17,7 @@ from __future__ import annotations
 import inspect
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
+import warnings
 
 from typing_extensions import Annotated, get_args, get_origin
 
@@ -91,7 +92,12 @@ class hashabledict(dict):
         return id(self)
 
     def __setitem__(self, key: Any, value: Any) -> None:  # noqa: D105
-        raise TypeError("hashabledict is immutable")
+        warnings.warn(
+            "Mutating magicgui Annotation metadata after creation is not supported."
+            "This will raise an error in a future version.",
+            stacklevel=2,
+        )
+        super().__setitem__(key, value)
 
     def __delitem__(self, key: Any) -> None:  # noqa: D105
         raise TypeError("hashabledict is immutable")
