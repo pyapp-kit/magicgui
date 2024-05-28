@@ -71,7 +71,7 @@ jobs:
 
   upload_coverage:
     if: always()
-    needs: [test, test-qt]
+    needs: [test, test-min-reqs]
     uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
     secrets: inherit
 
