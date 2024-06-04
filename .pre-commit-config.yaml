@@ -5,17 +5,17 @@ ci:
 
 repos:
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.16
+    rev: v0.18
     hooks:
       - id: validate-pyproject
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.21.0
+    rev: v1.22.0
     hooks:
       - id: typos
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.3
+    rev: v0.4.7
     hooks:
       - id: ruff
         args: ["--fix"]
