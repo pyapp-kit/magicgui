@@ -15,9 +15,9 @@ calling ``inspect.signature`` on a function decorated with `magicgui` still work
 from __future__ import annotations
 
 import inspect
+import warnings
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
-import warnings
 
 from typing_extensions import Annotated, get_args, get_origin
 
