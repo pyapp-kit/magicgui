@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 from unittest.mock import Mock
 
 import pytest
@@ -117,7 +117,8 @@ def test_pathlike_annotation():
 
 def test_optional_type():
     @magicgui(x={"choices": ["a", "b"]})
-    def widget(x: Optional[str] = None): ...
+    def widget(x: Optional[str] = None):
+        ...
 
     assert isinstance(widget.x, widgets.ComboBox)
     assert widget.x.value is None
@@ -231,3 +232,10 @@ def test_pick_widget_literal():
     )
     assert cls == widgets.RadioButtons
     assert set(options["choices"]) == {"a", "b"}
+
+
+def test_redundant_annotation() -> None:
+    # just shouldn't raise
+    @magicgui
+    def f(a: Annotated[List[int], {"annotation": List[int]}]):
+        pass

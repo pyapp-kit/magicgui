@@ -16,14 +16,13 @@ on:
 jobs:
   test:
     name: Test
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       qt: ${{ matrix.qt }}
       pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      report-failures: ${{ github.event_name == 'schedule' }}
-    secrets: inherit
+      coverage-upload: artifact
     strategy:
       fail-fast: false
       matrix:
@@ -58,17 +57,23 @@ jobs:
 
   test-min-reqs:
     name: Test min reqs
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@main
+    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
     with:
       os: ubuntu-latest
       python-version: ${{ matrix.python-version }}
       qt: pyqt5
       pip-install-min-reqs: true
-    secrets: inherit
+      coverage-upload: artifact
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+  upload_coverage:
+    if: always()
+    needs: [test, test-min-reqs]
+    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
+    secrets: inherit
 
   test-pydantic1:
     name: Test pydantic1
@@ -97,7 +102,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   test-dependents:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v1
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
     with:
       dependency-repo: ${{ matrix.package }}
       dependency-ref: ${{ matrix.package-version }}
@@ -105,7 +110,7 @@ jobs:
       host-extras: "testing"
       qt: pyqt5
       python-version: "3.10"
-      post-install-cmd: "python -m pip install pytest-pretty lxml_html_clean"  # just for napari
+      post-install-cmd: "python -m pip install pytest-pretty lxml_html_clean" # just for napari
       pytest-args: ${{ matrix.pytest-args }}
     strategy:
       fail-fast: false

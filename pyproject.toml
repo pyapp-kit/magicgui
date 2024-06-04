@@ -180,6 +180,7 @@ minversion = "6.0"
 testpaths = ["tests"]
 filterwarnings = [
     "error",
+    "ignore:Failed to disconnect::pytestqt",
     "ignore::DeprecationWarning:tqdm",
     "ignore::DeprecationWarning:docstring_parser",
     "ignore:distutils Version classes are deprecated:DeprecationWarning",

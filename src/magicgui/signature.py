@@ -15,6 +15,8 @@ calling ``inspect.signature`` on a function decorated with `magicgui` still work
 from __future__ import annotations
 
 import inspect
+import typing
+import warnings
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
 
@@ -69,7 +71,63 @@ def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
                     f"Every item in Annotated must be castable to a dict, got: {opt!r}"
                 ) from e
             _options.update(_opt)
+
+    annotation = _make_hashable(annotation)
+    _options = _make_hashable(_options)
     return Annotated[annotation, _options]
+
+
+# this is a stupid hack to deal with something that changed in typing-extensions
+# v4.12.0 (and probably python 3.13), where all items in Annotated must now be hashable
+# The PR that necessitated this was https://github.com/python/typing_extensions/pull/392
+
+
+class hashabledict(dict):
+    """Hashable immutable dict."""
+
+    def __hash__(self) -> int:  # type: ignore # noqa: D105
+        # we don't actually want to hash the contents, just the object itself.
+        return id(self)
+
+    def __setitem__(self, key: Any, value: Any) -> None:  # noqa: D105
+        warnings.warn(
+            "Mutating magicgui Annotation metadata after creation is not supported."
+            "This will raise an error in a future version.",
+            stacklevel=2,
+        )
+        super().__setitem__(key, value)
+
+    def __delitem__(self, key: Any) -> None:  # noqa: D105
+        raise TypeError("hashabledict is immutable")
+
+
+def _hashable(obj: Any) -> bool:
+    try:
+        hash(obj)
+        return True
+    except TypeError:
+        return False
+
+
+def _make_hashable(obj: Any) -> Any:
+    if _hashable(obj):
+        return obj
+    if isinstance(obj, dict):
+        return hashabledict({k: _make_hashable(v) for k, v in obj.items()})
+    if isinstance(obj, (list, tuple)):
+        return tuple(_make_hashable(v) for v in obj)
+    if isinstance(obj, set):
+        return frozenset(_make_hashable(v) for v in obj)
+    if (args := get_args(obj)) and (not _hashable(args)):
+        try:
+            obj = get_origin(obj)[_make_hashable(args)]
+        except TypeError:
+            # python 3.8 hack
+            if obj.__module__ == "typing" and hasattr(obj, "_name"):
+                generic = getattr(typing, obj._name)
+                return generic[_make_hashable(args)]
+            raise
+    return obj
 
 
 class _void:
