@@ -118,10 +118,8 @@ def _make_hashable(obj: Any) -> Any:
         return tuple(_make_hashable(v) for v in obj)
     if isinstance(obj, set):
         return frozenset(_make_hashable(v) for v in obj)
-    if args := getattr(obj, "__args__", None):
-        obj.__args__ = _make_hashable(args)
-    if meta := getattr(obj, "__metadata__", None):
-        obj.__metadata__ = _make_hashable(meta)
+    if args := get_args(obj):
+        obj = get_origin(obj)[_make_hashable(args)]
     return obj
 
 

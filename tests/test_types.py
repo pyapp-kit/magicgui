@@ -231,3 +231,10 @@ def test_pick_widget_literal():
     )
     assert cls == widgets.RadioButtons
     assert set(options["choices"]) == {"a", "b"}
+
+
+def test_redundant_annotation() -> None:
+    # just shouldn't raise
+    @magicgui
+    def f(a: Annotated[list[int], {"annotation": list[int]}]):
+        pass
