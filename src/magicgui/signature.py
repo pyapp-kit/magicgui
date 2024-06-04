@@ -15,6 +15,7 @@ calling ``inspect.signature`` on a function decorated with `magicgui` still work
 from __future__ import annotations
 
 import inspect
+import typing
 import warnings
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
@@ -71,11 +72,8 @@ def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
                 ) from e
             _options.update(_opt)
 
-    if not _hashable(annotation):
-        annotation = _make_hashable(annotation)
-    if not _hashable(_options):
-        _options = _make_hashable(_options)
-
+    annotation = _make_hashable(annotation)
+    _options = _make_hashable(_options)
     return Annotated[annotation, _options]
 
 
@@ -112,14 +110,23 @@ def _hashable(obj: Any) -> bool:
 
 
 def _make_hashable(obj: Any) -> Any:
+    if _hashable(obj):
+        return obj
     if isinstance(obj, dict):
         return hashabledict({k: _make_hashable(v) for k, v in obj.items()})
     if isinstance(obj, (list, tuple)):
         return tuple(_make_hashable(v) for v in obj)
     if isinstance(obj, set):
         return frozenset(_make_hashable(v) for v in obj)
-    if args := get_args(obj):
-        obj = get_origin(obj)[_make_hashable(args)]
+    if (args := get_args(obj)) and (not _hashable(args)):
+        try:
+            obj = get_origin(obj)[_make_hashable(args)]
+        except TypeError:
+            # python 3.8 hack
+            if obj.__module__ == "typing" and hasattr(obj, "_name"):
+                generic = getattr(typing, obj._name)
+                return generic[_make_hashable(args)]
+            raise
     return obj
 
 
