@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.8.3](https://github.com/pyapp-kit/magicgui/tree/v0.8.3) (2024-03-29)
+## [v0.8.3](https://github.com/pyapp-kit/magicgui/tree/v0.8.3) (2024-06-04)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.2...v0.8.3)
 
@@ -8,6 +8,10 @@
 
 - feat: Better ListEdit UI [\#640](https://github.com/pyapp-kit/magicgui/pull/640) ([hanjinliu](https://github.com/hanjinliu))
 - feat: Add Separator to ComboBox [\#638](https://github.com/pyapp-kit/magicgui/pull/638) ([qin-yu](https://github.com/qin-yu))
+
+**Fixed bugs:**
+
+- fix: fix compatibility with typing-extensions 0.4.12 [\#649](https://github.com/pyapp-kit/magicgui/pull/649) ([tlambert03](https://github.com/tlambert03))
 
 **Merged pull requests:**
 
