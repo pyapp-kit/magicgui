@@ -133,6 +133,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'pyapp-kit/magicgui' && contains(github.ref, 'tags') }}
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
