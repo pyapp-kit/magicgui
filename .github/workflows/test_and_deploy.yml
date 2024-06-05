@@ -133,6 +133,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'pyapp-kit/magicgui' && contains(github.ref, 'tags') }}
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -155,8 +157,5 @@ jobs:
         with:
           files: dist/*
           body_path: ${{ github.workspace }}/CHANGELOG.md
-      - name: Publish
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_API_KEY }}
-        run: twine upload dist/*
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
