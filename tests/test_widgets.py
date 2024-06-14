@@ -290,7 +290,7 @@ def test_unhashable_choice_data():
 def test_ambiguous_eq_choice_data():
     """Test that providing choice data with an ambiguous equal operation is ok."""
     import numpy as np
-    
+
     combo = widgets.ComboBox()
     assert not combo.choices
     combo.choices = (("a", np.array([0, 0, 0])), ("b", np.array([1, 2, 3])))
