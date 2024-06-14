@@ -287,6 +287,20 @@ def test_unhashable_choice_data():
     combo.close()
 
 
+def test_ambiguous_eq_choice_data():
+    """Test that providing choice data with an ambiguous equal operation is ok."""
+    import numpy as np
+    
+    combo = widgets.ComboBox()
+    assert not combo.choices
+    combo.choices = (("a", np.array([0, 0, 0])), ("b", np.array([1, 2, 3])))
+    assert len(combo.choices) == 2
+    assert np.all(combo.choices[0] == [0, 0, 0])
+    assert np.all(combo.choices[1] == [1, 2, 3])
+
+    combo.close()
+
+
 def test_bound_values():
     """Test that we can bind a "permanent" value override to a parameter."""
 

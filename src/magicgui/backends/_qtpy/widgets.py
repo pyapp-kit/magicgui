@@ -988,7 +988,7 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
         return tuple(
             (self._qwidget.itemText(i), self._qwidget.itemData(i))
             for i in range(self._qwidget.count())
-            if self._qwidget.itemData(i) != Separator
+            if self._qwidget.itemData(i) is not Separator
         )
 
 
