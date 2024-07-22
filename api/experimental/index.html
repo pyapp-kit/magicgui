@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -850,6 +850,8 @@
       
         
       
+        
+      
     
     
       
@@ -1013,11 +1015,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../generated_examples/demo_widgets/files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1034,11 +1036,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../generated_examples/demo_widgets/directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../generated_examples/demo_widgets/login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
   </span>
   
 
@@ -2817,7 +2840,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.experimental.guiclass" class="md-nav__link">
     <span class="md-ellipsis">
-      guiclass()
+      guiclass
     </span>
   </a>
   
@@ -2826,7 +2849,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.experimental.button" class="md-nav__link">
     <span class="md-ellipsis">
-      button()
+      button
     </span>
   </a>
   
@@ -2835,7 +2858,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.experimental.is_guiclass" class="md-nav__link">
     <span class="md-ellipsis">
-      is_guiclass()
+      is_guiclass
     </span>
   </a>
   
@@ -2927,7 +2950,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.experimental.guiclass" class="md-nav__link">
     <span class="md-ellipsis">
-      guiclass()
+      guiclass
     </span>
   </a>
   
@@ -2936,7 +2959,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.experimental.button" class="md-nav__link">
     <span class="md-ellipsis">
-      button()
+      button
     </span>
   </a>
   
@@ -2945,7 +2968,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.experimental.is_guiclass" class="md-nav__link">
     <span class="md-ellipsis">
-      is_guiclass()
+      is_guiclass
     </span>
   </a>
   
@@ -2978,20 +3001,17 @@ deprecation.</p>
 </div>
 
 
-
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.experimental.guiclass" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">guiclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">gui_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;gui&#39;</span><span class="p">,</span> <span class="n">events_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;events&#39;</span><span class="p">,</span> <span class="n">follow_changes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">dataclass_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">guiclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">gui_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;gui&#39;</span><span class="p">,</span> <span class="n">events_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;events&#39;</span><span class="p">,</span> <span class="n">follow_changes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">dataclass_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">]</span></code>
 
 <a href="#magicgui.experimental.guiclass" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Turn class into a dataclass with a property (<code>gui_name</code>) that returns a gui.</p>
 <p>This decorator is similar to <code>dataclasses.dataclass</code>, but it will also add an
 <code>events</code> attribute to the class that is an instance of <code>psygnal.SignalGroup</code> (with a
@@ -3010,81 +3030,78 @@ preventing it from being garbage collected.  To avoid this, you can call
 </div>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>cls</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>, default:
-                <code>None</code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>cls</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The class to turn into a dataclass.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>gui_name</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>&#39;gui&#39;</code>
+          –
+          <div class="doc-md-description">
+            <p>The class to turn into a dataclass.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>gui_name</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;gui&#39;</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The name of the property that will return a <code>magicgui</code> widget, by default
+          –
+          <div class="doc-md-description">
+            <p>The name of the property that will return a <code>magicgui</code> widget, by default
 <code>"gui"</code></p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>events_namespace</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>&#39;events&#39;</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>events_namespace</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;events&#39;</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The name of the attribute that will be added to the class, by default "events".
+          –
+          <div class="doc-md-description">
+            <p>The name of the attribute that will be added to the class, by default "events".
 This attribute will be an instance of <code>psygnal.SignalGroup</code> that will be used
 to connect events to the class.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>follow_changes</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>True</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>follow_changes</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>True</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If <code>True</code> (default), changes to the dataclass instance will be reflected in the
+          –
+          <div class="doc-md-description">
+            <p>If <code>True</code> (default), changes to the dataclass instance will be reflected in the
 gui, and changes to the gui will be reflected in the dataclass instance.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>dataclass_kwargs</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
-                <code>{}</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>dataclass_kwargs</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
+                  <code>{}</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Additional keyword arguments to pass to <code>dataclasses.dataclass</code>.</p>
-        </div>
-      </li>
-  </ul>
+          –
+          <div class="doc-md-description">
+            <p>Additional keyword arguments to pass to <code>dataclasses.dataclass</code>.</p>
+          </div>
+        </li>
+    </ul>
 
 
-
-  <p>Returns:</p>
-  <ul>
-      <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>
-        –
-        <div class="doc-md-description">
-          <p>The dataclass.</p>
-      </div>
-      </li>
-  </ul>
-
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>
+          –
+          <div class="doc-md-description">
+            <p>The dataclass.</p>
+          </div>
+        </li>
+    </ul>
 
 
-<p><strong>Examples:</strong></p>
+<p><span class="doc-section-title">Examples:</span></p>
     <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nd">@guiclass</span>
 <span class="gp">... </span><span class="k">class</span> <span class="nc">MyData</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
@@ -3099,74 +3116,67 @@ gui, and changes to the gui will be reflected in the dataclass instance.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 
-  </div>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.experimental.button" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">F</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">button_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">F</span><span class="p">],</span> <span class="n">F</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">F</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">button_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">F</span><span class="p">],</span> <span class="n">F</span><span class="p">]</span></code>
 
 <a href="#magicgui.experimental.button" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Add a method as a button to a <code>guiclass</code>, which calls the decorated method.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>func</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#callable">callable</a></code>, default:
-                <code>None</code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>func</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#callable">callable</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The method to decorate.  If None, returns a decorator that can be applied to a
+          –
+          <div class="doc-md-description">
+            <p>The method to decorate.  If None, returns a decorator that can be applied to a
 method.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>button_kwargs</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
-                <code>{}</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>button_kwargs</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
+                  <code>{}</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Additional keyword arguments to pass to <code>magicgui.widgets.PushButton</code>.</p>
-        </div>
-      </li>
-  </ul>
+          –
+          <div class="doc-md-description">
+            <p>Additional keyword arguments to pass to <code>magicgui.widgets.PushButton</code>.</p>
+          </div>
+        </li>
+    </ul>
 
-  </div>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.experimental.is_guiclass" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">is_guiclass</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="n">GuiClassProtocol</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">is_guiclass</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="n">GuiClassProtocol</span><span class="p">]</span></code>
 
 <a href="#magicgui.experimental.is_guiclass" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Return <code>True</code> if obj is a guiclass or an instance of a guiclass.</p>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3242,7 +3252,7 @@ method.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

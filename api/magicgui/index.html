@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -850,6 +850,8 @@
       
         
       
+        
+      
     
     
       
@@ -1013,11 +1015,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../generated_examples/demo_widgets/files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1034,11 +1036,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../generated_examples/demo_widgets/directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../generated_examples/demo_widgets/login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
   </span>
   
 
@@ -1756,7 +1779,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.magicgui" class="md-nav__link">
     <span class="md-ellipsis">
-      magicgui()
+      magicgui
     </span>
   </a>
   
@@ -2909,7 +2932,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.magicgui" class="md-nav__link">
     <span class="md-ellipsis">
-      magicgui()
+      magicgui
     </span>
   </a>
   
@@ -2936,195 +2959,189 @@
 <h1 id="magicguimagicgui"><code>magicgui.magicgui</code><a class="headerlink" href="#magicguimagicgui" title="Permanent link">#</a></h1>
 
 
-
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.magicgui" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">magicgui</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">scrollable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tooltips</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">call_button</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">main_window</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">param_options</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">magicgui</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">scrollable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tooltips</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">call_button</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">main_window</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">param_options</span><span class="p">)</span></code>
 
 <a href="#magicgui.magicgui" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Return a <a class="autorefs autorefs-internal" href="../widgets/FunctionGui/#magicgui.widgets.FunctionGui"><code>FunctionGui</code></a> for <code>function</code>.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>function</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></code>, default:
-                <code>None</code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>function</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The function to decorate.  Optional to allow bare decorator with optional
+          –
+          <div class="doc-md-description">
+            <p>The function to decorate.  Optional to allow bare decorator with optional
 arguments. by default <code>None</code></p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>layout</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>&#39;vertical&#39;</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>layout</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;vertical&#39;</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The type of layout to use. Must be <code>horizontal</code> or <code>vertical</code>
+          –
+          <div class="doc-md-description">
+            <p>The type of layout to use. Must be <code>horizontal</code> or <code>vertical</code>
 by default "vertical".</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>scrollable</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>scrollable</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether to enable scroll bars or not. If enabled, scroll bars will
+          –
+          <div class="doc-md-description">
+            <p>Whether to enable scroll bars or not. If enabled, scroll bars will
 only appear along the layout direction, not in both directions.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>labels</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>True</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>labels</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>True</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether labels are shown in the widget. by default True</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>tooltips</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>True</code>
+          –
+          <div class="doc-md-description">
+            <p>Whether labels are shown in the widget. by default True</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>tooltips</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>True</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether tooltips are shown when hovering over widgets. by default True</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>call_button</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a> or <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>None</code>
+          –
+          <div class="doc-md-description">
+            <p>Whether tooltips are shown when hovering over widgets. by default True</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>call_button</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a> or <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If <code>True</code>, create an additional button that calls the original
+          –
+          <div class="doc-md-description">
+            <p>If <code>True</code>, create an additional button that calls the original
 function when clicked.  If a <code>str</code>, set the button text. If None (the
 default), it defaults to True when <code>auto_call</code> is False, and False
 otherwise.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>auto_call</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>auto_call</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If <code>True</code>, changing any parameter in either the GUI or the widget attributes
+          –
+          <div class="doc-md-description">
+            <p>If <code>True</code>, changing any parameter in either the GUI or the widget attributes
 will call the original function with the current settings. by default False</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>result_widget</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>result_widget</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether to display a LineEdit widget the output of the function when called,
+          –
+          <div class="doc-md-description">
+            <p>Whether to display a LineEdit widget the output of the function when called,
 by default False</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>main_window</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>main_window</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether this widget should be treated as the main app window, with menu bar,
+          –
+          <div class="doc-md-description">
+            <p>Whether this widget should be treated as the main app window, with menu bar,
 by default False.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>app</b>
-            (<code><span title="magicgui.type_map._magicgui.magicgui.Application">Application</span> or <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>None</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>app</code></b>
+              (<code><span title="magicgui.type_map._magicgui.magicgui.Application">Application</span> or <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A backend to use, by default <code>None</code> (use the default backend.)</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>persist</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          –
+          <div class="doc-md-description">
+            <p>A backend to use, by default <code>None</code> (use the default backend.)</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>persist</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If <code>True</code>, when parameter values change in the widget, they will be stored to
+          –
+          <div class="doc-md-description">
+            <p>If <code>True</code>, when parameter values change in the widget, they will be stored to
 disk and restored when the widget is loaded again with <code>persist = True</code>.
 Call <code>magicgui._util.user_cache_dir()</code> to get the default cache location.
 By default False.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>raise_on_unknown</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>raise_on_unknown</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If <code>True</code>, raise an error if magicgui cannot determine widget for function
+          –
+          <div class="doc-md-description">
+            <p>If <code>True</code>, raise an error if magicgui cannot determine widget for function
 argument or return type. If <code>False</code>, ignore unknown types. By default False.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>param_options</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>, default:
-                <code>{}</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>param_options</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>, default:
+                  <code>{}</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Any additional keyword arguments will be used as parameter-specific options.
+          –
+          <div class="doc-md-description">
+            <p>Any additional keyword arguments will be used as parameter-specific options.
 Keywords must match the name of one of the arguments in the function signature,
 and the value must be a dict of keyword arguments to pass to the widget
 constructor.</p>
-        </div>
-      </li>
-  </ul>
+          </div>
+        </li>
+    </ul>
 
 
-
-  <p>Returns:</p>
-  <ul>
-      <li class="field-body">
-<b>result</b> (            <code><a class="autorefs autorefs-internal" title="magicgui.widgets.FunctionGui" href="../widgets/FunctionGui/#magicgui.widgets.FunctionGui">FunctionGui</a> or <a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[F], <a class="autorefs autorefs-internal" title="magicgui.widgets.FunctionGui" href="../widgets/FunctionGui/#magicgui.widgets.FunctionGui">FunctionGui</a>]</code>
-)        –
-        <div class="doc-md-description">
-          <p>If <code>function</code> is not <code>None</code> (such as when this is used as a bare decorator),
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>result</code></b> (              <code><a class="autorefs autorefs-internal" title="magicgui.widgets.FunctionGui" href="../widgets/FunctionGui/#magicgui.widgets.FunctionGui">FunctionGui</a> or <a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[F], <a class="autorefs autorefs-internal" title="magicgui.widgets.FunctionGui" href="../widgets/FunctionGui/#magicgui.widgets.FunctionGui">FunctionGui</a>]</code>
+)          –
+          <div class="doc-md-description">
+            <p>If <code>function</code> is not <code>None</code> (such as when this is used as a bare decorator),
 returns a FunctionGui instance, which is a list-like container of autogenerated
 widgets corresponding to each parameter in the function.
 If <code>function</code> is <code>None</code> such as when arguments are provided like
 <code>magicgui(auto_call=True)</code>, then returns a function that can be used as a
 decorator.</p>
-      </div>
-      </li>
-  </ul>
+          </div>
+        </li>
+    </ul>
 
 
-
-<p><strong>Examples:</strong></p>
+<p><span class="doc-section-title">Examples:</span></p>
     <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nd">@magicgui</span>
 <span class="gp">... </span><span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>
@@ -3133,7 +3150,7 @@ decorator.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_function</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span>
 </code></pre></div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3209,7 +3226,7 @@ decorator.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

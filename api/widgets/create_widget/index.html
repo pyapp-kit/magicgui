@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -850,6 +850,8 @@
       
         
       
+        
+      
     
     
       
@@ -1013,11 +1015,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1034,11 +1036,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
   </span>
   
 
@@ -2706,7 +2729,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.widgets.create_widget" class="md-nav__link">
     <span class="md-ellipsis">
-      create_widget()
+      create_widget
     </span>
   </a>
   
@@ -2911,7 +2934,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.widgets.create_widget" class="md-nav__link">
     <span class="md-ellipsis">
-      create_widget()
+      create_widget
     </span>
   </a>
   
@@ -2938,20 +2961,17 @@
 <h1 id="magicguiwidgetscreate_widget"><code>magicgui.widgets.create_widget</code><a class="headerlink" href="#magicguiwidgetscreate_widget" title="Permanent link">#</a></h1>
 
 
-
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.widgets.create_widget" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">param_kind</span><span class="o">=</span><span class="s1">&#39;POSITIONAL_OR_KEYWORD&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gui_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">widget_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">param_kind</span><span class="o">=</span><span class="s1">&#39;POSITIONAL_OR_KEYWORD&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gui_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">widget_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#magicgui.widgets.create_widget" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Create and return appropriate widget subclass.</p>
 <p>This factory function can be used to create a widget appropriate for the
 provided <code>value</code> and/or <code>annotation</code> provided. See
@@ -2959,162 +2979,158 @@ provided <code>value</code> and/or <code>annotation</code> provided. See
 determined from type annotations.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>value</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code><span title="magicgui.types.Undefined">Undefined</span></code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>value</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code><span title="magicgui.types.Undefined">Undefined</span></code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The starting value for the widget, by default <code>None</code></p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>annotation</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code>None</code>
+          –
+          <div class="doc-md-description">
+            <p>The starting value for the widget, by default <code>None</code></p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>annotation</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The type annotation for the parameter represented by the widget, by default
+          –
+          <div class="doc-md-description">
+            <p>The type annotation for the parameter represented by the widget, by default
 <code>None</code>.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>name</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>&#39;&#39;</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>name</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;&#39;</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The name of the parameter represented by this widget. by default <code>""</code></p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>param_kind</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>&#39;POSITIONAL_OR_KEYWORD&#39;</code>
+          –
+          <div class="doc-md-description">
+            <p>The name of the parameter represented by this widget. by default <code>""</code></p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>param_kind</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;POSITIONAL_OR_KEYWORD&#39;</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The :attr:<code>inspect.Parameter.kind</code> represented by this widget.  Used in building
+          –
+          <div class="doc-md-description">
+            <p>The :attr:<code>inspect.Parameter.kind</code> represented by this widget.  Used in building
 signatures from multiple widgets, by default "<code>POSITIONAL_OR_KEYWORD</code>"</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>label</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>None</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>label</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A string to use for an associated Label widget (if this widget is being
+          –
+          <div class="doc-md-description">
+            <p>A string to use for an associated Label widget (if this widget is being
 shown in a <a class="autorefs autorefs-internal" href="../Container/#magicgui.widgets.Container"><code>Container</code></a> widget, and labels are on).
 By default, <code>name</code> will be used. Note: <code>name</code> refers the name of the
 parameter, as might be used in a signature, whereas label is just the label
 for that widget in the GUI.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>gui_only</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>gui_only</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether the widget should be considered "only for the gui", or if it should
+          –
+          <div class="doc-md-description">
+            <p>Whether the widget should be considered "only for the gui", or if it should
 be included in any widget container signatures, by default False</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>app</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>None</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>app</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The backend to use, by default <code>None</code></p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>widget_type</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> or Type[WidgetProtocol] or None</code>, default:
-                <code>None</code>
+          –
+          <div class="doc-md-description">
+            <p>The backend to use, by default <code>None</code></p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>widget_type</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> or Type[WidgetProtocol] or None</code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A class implementing a widget protocol or a string with the name of a
+          –
+          <div class="doc-md-description">
+            <p>A class implementing a widget protocol or a string with the name of a
 magicgui widget type (e.g. "Label", "PushButton", etc...).
 If provided, this widget type will be used instead of the type
 autodetermined from <code>value</code> and/or <code>annotation</code> above.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>options</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
-                <code>None</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>options</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Dict of options to pass to the Widget constructor, by default dict()</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>is_result</b>
-            (<code>boolean</code>, default:
-                <code>False</code>
-)
-        –
-        <div class="doc-md-description">
-          <p>Whether the widget belongs to an input or an output. By default, an input
-is assumed.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>raise_on_unknown</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>True</code>
-)
-        –
-        <div class="doc-md-description">
-          <p>Raise exception if no widget is found for the given type, by default True</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-  <p>Returns:</p>
-  <ul>
-      <li class="field-body">
-            <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases._widget.Widget" href="../bases/#magicgui.widgets.bases.Widget">Widget</a></code>
-        –
-        <div class="doc-md-description">
-          <p>An instantiated widget subclass</p>
-      </div>
-      </li>
-  </ul>
-
-
-
-  <p>Raises:</p>
-  <ul>
-      <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a></code>
           –
-        <div class="doc-md-description">
-          <p>If the provided or autodetected <code>widget_type</code> does not implement any known
+          <div class="doc-md-description">
+            <p>Dict of options to pass to the Widget constructor, by default dict()</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>is_result</code></b>
+              (<code>boolean</code>, default:
+                  <code>False</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Whether the widget belongs to an input or an output. By default, an input
+is assumed.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>raise_on_unknown</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>True</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Raise exception if no widget is found for the given type, by default True</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases._widget.Widget" href="../bases/#magicgui.widgets.bases.Widget">Widget</a></code>
+          –
+          <div class="doc-md-description">
+            <p>An instantiated widget subclass</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a></code>
+            –
+          <div class="doc-md-description">
+            <p>If the provided or autodetected <code>widget_type</code> does not implement any known
 <a href="../../protocols/">widget protocols</a></p>
-        </div>
-      </li>
-  </ul>
+          </div>
+        </li>
+    </ul>
 
 
-
-<p><strong>Examples:</strong></p>
+<p><span class="doc-section-title">Examples:</span></p>
     <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">magicgui.widgets</span> <span class="kn">import</span> <span class="n">create_widget</span>
 
 <span class="c1"># create a widget from a string value</span>
@@ -3126,7 +3142,7 @@ is assumed.</p>
 <span class="k">assert</span> <span class="n">wdg</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
 </code></pre></div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3202,7 +3218,7 @@ is assumed.</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

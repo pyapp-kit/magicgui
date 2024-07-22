@@ -13,22 +13,18 @@
         <link rel="canonical" href="https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/file_dialog/">
       
       
-        <link rel="prev" href="../login/">
-      
-      
-        <link rel="next" href="../choices/">
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
-        <title>File dialog widget - magicgui</title>
+        <title>File dialog - magicgui</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -125,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              File dialog widget
+              File dialog
             
           </span>
         </div>
@@ -475,8 +471,6 @@
       
   
   
-    
-  
   
   
     
@@ -510,11 +504,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           
@@ -536,7 +530,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Examples
@@ -827,10 +821,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -854,16 +846,18 @@
       
         
       
+        
+      
     
     
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
         
           
           <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
@@ -877,7 +871,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_4">
             <span class="md-nav__icon md-icon"></span>
             Demo widget types
@@ -1017,11 +1011,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../login/" class="md-nav__link">
+      <a href="../files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1035,28 +1029,39 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
   </span>
   
 
       </a>
-      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2893,60 +2898,31 @@
 to download the full example code</p>
 </div>
 <h1 id="file-dialog-widget">File dialog widget<a class="headerlink" href="#file-dialog-widget" title="Permanent link">#</a></h1>
-<p>A file dialog widget example.</p>
-<!-- GENERATED FROM PYTHON SOURCE LINES 5-45 -->
+<p>A dialog to select a file.</p>
+<!-- GENERATED FROM PYTHON SOURCE LINES 5-21 -->
 
-<ul class="mkd-glr-horizontal">
-%s
-</ul>
-
-<div class="highlight"><pre><span></span><code>* ![file dialog](../images/mkd_glr_file_dialog_001.png){: .mkd-glr-multi-img srcset=&quot;../images/mkd_glr_file_dialog_001.png&quot;}
-
-* ![file dialog](../images/mkd_glr_file_dialog_002.png){: .mkd-glr-multi-img srcset=&quot;../images/mkd_glr_file_dialog_002.png&quot;}
-
-* ![file dialog](../images/mkd_glr_file_dialog_003.png){: .mkd-glr-multi-img srcset=&quot;../images/mkd_glr_file_dialog_003.png&quot;}
+<p><img alt="file dialog" class="mkd-glr-single-img" src="../images/mkd_glr_file_dialog_001.png" srcset="../images/mkd_glr_file_dialog_001.png" /></p>
+<p class="mkd-glr-script-out">Out:</p>
+<div class="mkd-glr-script-out-disp highlight"><pre><span></span><code>&lt;FunctionGui<span class="w"> </span>filepicker<span class="o">(</span><span class="nv">filename</span><span class="o">=</span>PosixPath<span class="o">(</span><span class="s1">&#39;~&#39;</span><span class="o">))</span><span class="w"> </span>-&gt;<span class="w"> </span>pathlib.Path&gt;
 </code></pre></div>
+<p><br /></p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
 
-<span class="kn">from</span> <span class="nn">magicgui</span> <span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">use_app</span>
+<span class="kn">from</span> <span class="nn">magicgui</span> <span class="kn">import</span> <span class="n">magicgui</span>
 
 
 <span class="nd">@magicgui</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;r&quot;</span><span class="p">})</span>
-<span class="k">def</span> <span class="nf">filepicker</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)):</span>
+<span class="k">def</span> <span class="nf">filepicker</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Take a filename and do something with it.&quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The filename is:&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">filename</span>
 
 
-<span class="c1"># Sequence of paths</span>
-<span class="c1"># We change the label using &quot;label&quot; for added clarity</span>
-<span class="c1"># the filter argument restricts file types</span>
-<span class="nd">@magicgui</span><span class="p">(</span><span class="n">filenames</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Choose Tiff files:&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">:</span> <span class="s2">&quot;*.tif&quot;</span><span class="p">})</span>
-<span class="k">def</span> <span class="nf">filespicker</span><span class="p">(</span><span class="n">filenames</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Path</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take a filename and do something with it.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The filenames are:&quot;</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">filenames</span>
 
-
-<span class="c1"># Select a directory, instead of file(s)</span>
-<span class="nd">@magicgui</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Choose a directory&quot;</span><span class="p">})</span>
-<span class="k">def</span> <span class="nf">directorypicker</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take a directory name and do something with it.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The directory name is:&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">directory</span>
-
-
-<span class="n">filepicker</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">filespicker</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">directorypicker</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="n">filepicker</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
-<span class="n">filespicker</span><span class="o">.</span><span class="n">filenames</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
-<span class="n">directorypicker</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
-
-<span class="n">use_app</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">filepicker</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p><strong>Total running time of the script:</strong> ( 0 minutes  0.097 seconds)</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.041 seconds)</p>
 <div id="download_links"></div>
 
 <p><a class="md-button center" href="../file_dialog.py"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v242.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/></svg></span> Download Python source code: file_dialog.py</a></p>
@@ -3025,7 +3001,7 @@ to download the full example code</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -850,6 +850,8 @@
       
         
       
+        
+      
     
     
       
@@ -1013,11 +1015,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1034,11 +1036,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
   </span>
   
 
@@ -2113,7 +2136,7 @@
           <li class="md-nav__item">
   <a href="#magicgui.widgets.FileEdit.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
-      __repr__()
+      __repr__
     </span>
   </a>
   
@@ -2990,7 +3013,7 @@
           <li class="md-nav__item">
   <a href="#magicgui.widgets.FileEdit.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
-      __repr__()
+      __repr__
     </span>
   </a>
   
@@ -3031,56 +3054,54 @@
 
 
 
-
 <h2 id="magicgui.widgets.FileEdit" class="doc doc-heading">
-          <code>FileEdit</code>
+            <code>FileEdit</code>
 
 
 <a href="#magicgui.widgets.FileEdit" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets._concrete.Container" href="../Container/#magicgui.widgets.Container">Container</a></code></p>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets._concrete.Container" href="../Container/#magicgui.widgets.Container">Container</a></code></p>
 
-  
+
       <p>A LineEdit widget with a button that opens a FileDialog.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>mode</b>
-            (<code><span title="magicgui.types.FileDialogMode">FileDialogMode</span> or <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code><span title="magicgui.types.FileDialogMode.EXISTING_FILE">EXISTING_FILE</span></code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>mode</code></b>
+              (<code><span title="magicgui.types.FileDialogMode">FileDialogMode</span> or <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code><span title="magicgui.types.FileDialogMode.EXISTING_FILE">EXISTING_FILE</span></code>
 )
-        –
-        <div class="doc-md-description">
-          <ul>
+          –
+          <div class="doc-md-description">
+            <ul>
 <li><code>'r'</code> returns one existing file.</li>
 <li><code>'rm'</code> return one or more existing files.</li>
 <li><code>'w'</code> return one file name that does not have to exist.</li>
 <li><code>'d'</code> returns one existing directory.</li>
 </ul>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>filter</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>None</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>filter</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The filter is used to specify the kind of files that should be shown.
+          –
+          <div class="doc-md-description">
+            <p>The filter is used to specify the kind of files that should be shown.
 It should be a glob-style string, like <code>'*.png'</code> (this may be
 backend-specific)</p>
-        </div>
-      </li>
-  </ul>
+          </div>
+        </li>
+    </ul>
 
 
-  
+
 
   <div class="doc doc-children">
 
@@ -3094,10 +3115,9 @@ backend-specific)</p>
 
 
 
-
 <h3 id="magicgui.widgets.FileEdit.mode" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">mode</span><span class="p">:</span> <span class="n">FileDialogMode</span></code>
-  
+            <code class="highlight language-python"><span class="n">mode</span><span class="p">:</span> <span class="n">FileDialogMode</span></code>
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-writable"><code>writable</code></small>
@@ -3106,10 +3126,10 @@ backend-specific)</p>
 <a href="#magicgui.widgets.FileEdit.mode" class="headerlink" title="Permanent link">#</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Mode for the FileDialog.</p>
-  </div>
+    </div>
 
 </div>
 
@@ -3117,10 +3137,9 @@ backend-specific)</p>
 
 
 
-
 <h3 id="magicgui.widgets.FileEdit.value" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span></code>
-  
+            <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span></code>
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-writable"><code>writable</code></small>
@@ -3129,32 +3148,29 @@ backend-specific)</p>
 <a href="#magicgui.widgets.FileEdit.value" class="headerlink" title="Permanent link">#</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return current value of the widget.  This may be interpreted by backends.</p>
-  </div>
+    </div>
 
 </div>
-
 
 
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h3 id="magicgui.widgets.FileEdit.__repr__" class="doc doc-heading">
-          <code class="highlight language-python"><span class="fm">__repr__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span></code>
+            <code class="highlight language-python"><span class="fm">__repr__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span></code>
 
 <a href="#magicgui.widgets.FileEdit.__repr__" class="headerlink" title="Permanent link">#</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return string representation.</p>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3162,7 +3178,7 @@ backend-specific)</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3238,7 +3254,7 @@ backend-specific)</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

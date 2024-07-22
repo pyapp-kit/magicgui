@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -850,6 +850,8 @@
       
         
       
+        
+      
     
     
       
@@ -1013,11 +1015,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../generated_examples/demo_widgets/files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1034,11 +1036,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../generated_examples/demo_widgets/directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../generated_examples/demo_widgets/login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
   </span>
   
 
@@ -2775,7 +2798,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.get_widget_class" class="md-nav__link">
     <span class="md-ellipsis">
-      get_widget_class()
+      get_widget_class
     </span>
   </a>
   
@@ -2784,7 +2807,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.register_type" class="md-nav__link">
     <span class="md-ellipsis">
-      register_type()
+      register_type
     </span>
   </a>
   
@@ -2793,7 +2816,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.type_registered" class="md-nav__link">
     <span class="md-ellipsis">
-      type_registered()
+      type_registered
     </span>
   </a>
   
@@ -2802,7 +2825,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.type2callback" class="md-nav__link">
     <span class="md-ellipsis">
-      type2callback()
+      type2callback
     </span>
   </a>
   
@@ -2936,7 +2959,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.get_widget_class" class="md-nav__link">
     <span class="md-ellipsis">
-      get_widget_class()
+      get_widget_class
     </span>
   </a>
   
@@ -2945,7 +2968,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.register_type" class="md-nav__link">
     <span class="md-ellipsis">
-      register_type()
+      register_type
     </span>
   </a>
   
@@ -2954,7 +2977,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.type_registered" class="md-nav__link">
     <span class="md-ellipsis">
-      type_registered()
+      type_registered
     </span>
   </a>
   
@@ -2963,7 +2986,7 @@
         <li class="md-nav__item">
   <a href="#magicgui.type_map.type2callback" class="md-nav__link">
     <span class="md-ellipsis">
-      type2callback()
+      type2callback
     </span>
   </a>
   
@@ -3016,299 +3039,280 @@
 </table>
 
 
-
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.type_map.get_widget_class" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">get_widget_class</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">annotation</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">WidgetClass</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">get_widget_class</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">annotation</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">WidgetClass</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span></code>
 
 <a href="#magicgui.type_map.get_widget_class" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Return a <a class="autorefs autorefs-internal" href="../widgets/bases/#magicgui.widgets.bases.Widget">Widget</a> subclass for the <code>value</code>/<code>annotation</code>.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>value</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code><span title="magicgui.types.Undefined">Undefined</span></code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>value</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code><span title="magicgui.types.Undefined">Undefined</span></code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A python value.  Will be used to determine the widget type if an <code>annotation</code>
+          –
+          <div class="doc-md-description">
+            <p>A python value.  Will be used to determine the widget type if an <code>annotation</code>
 is not explicitly provided by default None</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>annotation</b>
-            (<code>Optional[<a class="autorefs autorefs-external" title="typing.Type" href="https://docs.python.org/3/library/typing.html#typing.Type">Type</a>]</code>, default:
-                <code><span title="magicgui.types.Undefined">Undefined</span></code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>annotation</code></b>
+              (<code>Optional[<a class="autorefs autorefs-external" title="typing.Type" href="https://docs.python.org/3/library/typing.html#typing.Type">Type</a>]</code>, default:
+                  <code><span title="magicgui.types.Undefined">Undefined</span></code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A type annotation, by default None</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>options</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
-                <code>None</code>
+          –
+          <div class="doc-md-description">
+            <p>A type annotation, by default None</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>options</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Options to pass when constructing the widget, by default {}</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>is_result</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          –
+          <div class="doc-md-description">
+            <p>Options to pass when constructing the widget, by default {}</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>is_result</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Identifies whether the returned widget should be tailored to
+          –
+          <div class="doc-md-description">
+            <p>Identifies whether the returned widget should be tailored to
 an input or to an output.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>raise_on_unknown</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>True</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>raise_on_unknown</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>True</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Raise exception if no widget is found for the given type, by default True</p>
-        </div>
-      </li>
-  </ul>
+          –
+          <div class="doc-md-description">
+            <p>Raise exception if no widget is found for the given type, by default True</p>
+          </div>
+        </li>
+    </ul>
 
 
-
-  <p>Returns:</p>
-  <ul>
-      <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a>[<span title="magicgui.type_map._type_map.WidgetClass">WidgetClass</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>
-        –
-        <div class="doc-md-description">
-          <p>The WidgetClass, and dict that can be used for params. dict
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a>[<span title="magicgui.type_map._type_map.WidgetClass">WidgetClass</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>
+          –
+          <div class="doc-md-description">
+            <p>The WidgetClass, and dict that can be used for params. dict
 may be different than the options passed in.</p>
-      </div>
-      </li>
-  </ul>
+          </div>
+        </li>
+    </ul>
 
-  </div>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.type_map.register_type" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">register_type</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="n">_T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">widget_type</span><span class="p">:</span> <span class="n">WidgetRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_callback</span><span class="p">:</span> <span class="n">ReturnCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T</span><span class="p">],</span> <span class="n">_T</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">register_type</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="n">_T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">widget_type</span><span class="p">:</span> <span class="n">WidgetRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_callback</span><span class="p">:</span> <span class="n">ReturnCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T</span><span class="p">],</span> <span class="n">_T</span><span class="p">]</span></code>
 
 <a href="#magicgui.type_map.register_type" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Register a <code>widget_type</code> to be used for all parameters with type <code>type_</code>.</p>
 <p>Note: registering a Union (or Optional) type effectively registers all types in
 the union with the arguments.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>type_</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>, default:
-                <code>None</code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>type_</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The type for which a widget class or return callback will be provided.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>widget_type</b>
-            (<code><span title="magicgui.type_map._type_map.WidgetRef">WidgetRef</span></code>, default:
-                <code>None</code>
+          –
+          <div class="doc-md-description">
+            <p>The type for which a widget class or return callback will be provided.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>widget_type</code></b>
+              (<code><span title="magicgui.type_map._type_map.WidgetRef">WidgetRef</span></code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A widget class from the current backend that should be used whenever <code>type_</code>
+          –
+          <div class="doc-md-description">
+            <p>A widget class from the current backend that should be used whenever <code>type_</code>
 is used as the type annotation for an argument in a decorated function,
 by default None</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>return_callback</b>
-            (<code><span title="magicgui.types.ReturnCallback">ReturnCallback</span> | None</code>, default:
-                <code>None</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>return_callback</code></b>
+              (<code><span title="magicgui.types.ReturnCallback">ReturnCallback</span> | None</code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If provided, whenever <code>type_</code> is declared as the return type of a decorated
+          –
+          <div class="doc-md-description">
+            <p>If provided, whenever <code>type_</code> is declared as the return type of a decorated
 function, <code>return_callback(widget, value, return_type)</code> will be called
 whenever the decorated function is called... where <code>widget</code> is the Widget
 instance, and <code>value</code> is the return value of the decorated function.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>options</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code>{}</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>options</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code>{}</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>key value pairs where the keys are valid <code>dict</code></p>
-        </div>
-      </li>
-  </ul>
-
-
-
-  <p>Raises:</p>
-  <ul>
-      <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></code>
           –
-        <div class="doc-md-description">
-          <p>If none of <code>widget_type</code>, <code>return_callback</code>, <code>bind</code> or <code>choices</code> are provided.</p>
-        </div>
-      </li>
-  </ul>
+          <div class="doc-md-description">
+            <p>key value pairs where the keys are valid <code>dict</code></p>
+          </div>
+        </li>
+    </ul>
 
-  </div>
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></code>
+            –
+          <div class="doc-md-description">
+            <p>If none of <code>widget_type</code>, <code>return_callback</code>, <code>bind</code> or <code>choices</code> are provided.</p>
+          </div>
+        </li>
+    </ul>
+
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.type_map.type_registered" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">type_registered</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">widget_type</span><span class="p">:</span> <span class="n">WidgetRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_callback</span><span class="p">:</span> <span class="n">ReturnCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">type_registered</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">widget_type</span><span class="p">:</span> <span class="n">WidgetRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_callback</span><span class="p">:</span> <span class="n">ReturnCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span></code>
 
 <a href="#magicgui.type_map.type_registered" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Context manager that temporarily registers a widget type for a given <code>type_</code>.</p>
 <p>When the context is exited, the previous widget type associations for <code>type_</code> is
 restored.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>type_</b>
-            (<code><span title="magicgui.type_map._type_map._T">_T</span></code>)
-        –
-        <div class="doc-md-description">
-          <p>The type for which a widget class or return callback will be provided.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>widget_type</b>
-            (<code>Optional[<span title="magicgui.type_map._type_map.WidgetRef">WidgetRef</span>]</code>, default:
-                <code>None</code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>type_</code></b>
+              (<code><span title="magicgui.type_map._type_map._T">_T</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The type for which a widget class or return callback will be provided.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>widget_type</code></b>
+              (<code>Optional[<span title="magicgui.type_map._type_map.WidgetRef">WidgetRef</span>]</code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A widget class from the current backend that should be used whenever <code>type_</code>
+          –
+          <div class="doc-md-description">
+            <p>A widget class from the current backend that should be used whenever <code>type_</code>
 is used as the type annotation for an argument in a decorated function,
 by default None</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>return_callback</b>
-            (<code><span title="magicgui.types.ReturnCallback">ReturnCallback</span> | None</code>, default:
-                <code>None</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>return_callback</code></b>
+              (<code><span title="magicgui.types.ReturnCallback">ReturnCallback</span> | None</code>, default:
+                  <code>None</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If provided, whenever <code>type_</code> is declared as the return type of a decorated
+          –
+          <div class="doc-md-description">
+            <p>If provided, whenever <code>type_</code> is declared as the return type of a decorated
 function, <code>return_callback(widget, value, return_type)</code> will be called
 whenever the decorated function is called... where <code>widget</code> is the Widget
 instance, and <code>value</code> is the return value of the decorated function.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>options</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code>{}</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>options</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code>{}</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>key value pairs where the keys are valid <code>dict</code></p>
-        </div>
-      </li>
-  </ul>
+          –
+          <div class="doc-md-description">
+            <p>key value pairs where the keys are valid <code>dict</code></p>
+          </div>
+        </li>
+    </ul>
 
-  </div>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h2 id="magicgui.type_map.type2callback" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">type2callback</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ReturnCallback</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="o">.</span><span class="n">type_map</span><span class="o">.</span><span class="n">type2callback</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ReturnCallback</span><span class="p">]</span></code>
 
 <a href="#magicgui.type_map.type2callback" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p>Return any callbacks that have been registered for <code>type_</code>.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>type_</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>)
-        –
-        <div class="doc-md-description">
-          <p>The type_ to look up.</p>
-        </div>
-      </li>
-  </ul>
-
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>type_</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The type_ to look up.</p>
+          </div>
+        </li>
+    </ul>
 
 
-  <p>Returns:</p>
-  <ul>
-      <li class="field-body">
-            <code>list of callable</code>
-        –
-        <div class="doc-md-description">
-          <p>Where a return callback accepts two arguments (gui, value) and does something.</p>
-      </div>
-      </li>
-  </ul>
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code>list of callable</code>
+          –
+          <div class="doc-md-description">
+            <p>Where a return callback accepts two arguments (gui, value) and does something.</p>
+          </div>
+        </li>
+    </ul>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3384,7 +3388,7 @@ instance, and <code>value</code> is the return value of the decorated function.<
     <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

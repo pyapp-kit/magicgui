@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -850,6 +850,8 @@
       
         
       
+        
+      
     
     
       
@@ -1013,11 +1015,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1034,11 +1036,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
   </span>
   
 
@@ -2965,85 +2988,83 @@
 
 
 
-
 <h2 id="magicgui.widgets.Dialog" class="doc doc-heading">
-          <code>Dialog</code>
+            <code>Dialog</code>
 
 
 <a href="#magicgui.widgets.Dialog" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases.DialogWidget" href="../bases/#magicgui.widgets.bases.DialogWidget">DialogWidget</a></code></p>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases.DialogWidget" href="../bases/#magicgui.widgets.bases.DialogWidget">DialogWidget</a></code></p>
 
-  
+
       <p>A modal container.</p>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>widgets</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="magicgui.widgets.bases.Widget" href="../bases/#magicgui.widgets.bases.Widget">Widget</a>]</code>, default:
-                <code>()</code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>widgets</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="magicgui.widgets.bases.Widget" href="../bases/#magicgui.widgets.bases.Widget">Widget</a>]</code>, default:
+                  <code>()</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A sequence of widgets with which to initialize the container, by default
+          –
+          <div class="doc-md-description">
+            <p>A sequence of widgets with which to initialize the container, by default
 <code>None</code>.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>layout</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                <code>&#39;vertical&#39;</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>layout</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;vertical&#39;</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The layout for the container.  must be one of <code>{'horizontal',
+          –
+          <div class="doc-md-description">
+            <p>The layout for the container.  must be one of <code>{'horizontal',
 'vertical'}</code>. by default "vertical"</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>scrollable</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>scrollable</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether to enable scroll bars or not. If enabled, scroll bars will
+          –
+          <div class="doc-md-description">
+            <p>Whether to enable scroll bars or not. If enabled, scroll bars will
 only appear along the layout direction, not in both directions.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>labels</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>True</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>labels</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>True</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>Whether each widget should be shown with a corresponding Label widget to the
+          –
+          <div class="doc-md-description">
+            <p>Whether each widget should be shown with a corresponding Label widget to the
 left, by default <code>True</code>.  Note: the text for each widget defaults to
 <code>widget.name</code>, but can be overridden by setting <code>widget.label</code>.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>**base_widget_kwargs</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code>{}</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>**base_widget_kwargs</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code>{}</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>All additional keyword arguments are passed to the base
+          –
+          <div class="doc-md-description">
+            <p>All additional keyword arguments are passed to the base
 <a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a> constructor.</p>
-        </div>
-      </li>
-  </ul>
+          </div>
+        </li>
+    </ul>
 
 
-  </div>
+    </div>
 
 </div>
 
@@ -3119,7 +3140,7 @@ left, by default <code>True</code>.  Note: the text for each widget defaults to
     <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

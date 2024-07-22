@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -28,7 +28,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -850,6 +850,8 @@
       
         
       
+        
+      
     
     
       
@@ -1013,11 +1015,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/files_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Password login
+    File dialog widget
   </span>
   
 
@@ -1034,11 +1036,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../generated_examples/demo_widgets/file_dialog/" class="md-nav__link">
+      <a href="../../../generated_examples/demo_widgets/directory_dialog/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    File dialog widget
+    Directory dialog widget
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../generated_examples/demo_widgets/login/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Password login
   </span>
   
 
@@ -2083,7 +2106,7 @@
           <li class="md-nav__item">
   <a href="#magicgui.widgets.EmptyWidget.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
-      __repr__()
+      __repr__
     </span>
   </a>
   
@@ -2092,7 +2115,7 @@
           <li class="md-nav__item">
   <a href="#magicgui.widgets.EmptyWidget.get_value" class="md-nav__link">
     <span class="md-ellipsis">
-      get_value()
+      get_value
     </span>
   </a>
   
@@ -2981,7 +3004,7 @@
           <li class="md-nav__item">
   <a href="#magicgui.widgets.EmptyWidget.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
-      __repr__()
+      __repr__
     </span>
   </a>
   
@@ -2990,7 +3013,7 @@
           <li class="md-nav__item">
   <a href="#magicgui.widgets.EmptyWidget.get_value" class="md-nav__link">
     <span class="md-ellipsis">
-      get_value()
+      get_value
     </span>
   </a>
   
@@ -3031,77 +3054,75 @@
 
 
 
-
 <h2 id="magicgui.widgets.EmptyWidget" class="doc doc-heading">
-          <code>EmptyWidget</code>
+            <code>EmptyWidget</code>
 
 
 <a href="#magicgui.widgets.EmptyWidget" class="headerlink" title="Permanent link">#</a></h2>
 
 
-  <div class="doc doc-contents first">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a></code></p>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a></code></p>
 
-  
+
       <p>A base widget with no value.</p>
 <div class="highlight"><pre><span></span><code>This widget is primarily here to serve as a &quot;hidden widget&quot; to which a value or
 callback can be bound.
 </code></pre></div>
 
 
-
-  <p>Parameters:</p>
-  <ul>
-      <li class="field-body">
-        <b>value</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code><span title="magicgui.types.Undefined">Undefined</span></code>
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>value</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code><span title="magicgui.types.Undefined">Undefined</span></code>
 )
-        –
-        <div class="doc-md-description">
-          <p>The starting value for the widget.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>bind</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a>], <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>] | <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code><span title="magicgui.types.Undefined">Undefined</span></code>
+          –
+          <div class="doc-md-description">
+            <p>The starting value for the widget.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>bind</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a>], <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>] | <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code><span title="magicgui.types.Undefined">Undefined</span></code>
 )
-        –
-        <div class="doc-md-description">
-          <p>A value or callback to bind this widget. If provided, whenever
+          –
+          <div class="doc-md-description">
+            <p>A value or callback to bind this widget. If provided, whenever
 <a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.ValueWidget.value"><code>widget.value</code></a> is
 accessed, the value provided here will be returned instead. <code>bind</code> may be a
 callable, in which case <code>bind(self)</code> will be returned (i.e. your bound callback
 must accept a single parameter, which is this widget instance).</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>nullable</b>
-            (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                <code>False</code>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>nullable</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
+                  <code>False</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>If <code>True</code>, the widget will accepts <code>None</code> as a valid value, by default <code>False</code>.</p>
-        </div>
-      </li>
-      <li class="field-body">
-        <b>**base_widget_kwargs</b>
-            (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                <code>{}</code>
+          –
+          <div class="doc-md-description">
+            <p>If <code>True</code>, the widget will accepts <code>None</code> as a valid value, by default <code>False</code>.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>**base_widget_kwargs</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
+                  <code>{}</code>
 )
-        –
-        <div class="doc-md-description">
-          <p>All additional keyword arguments are passed to the base
+          –
+          <div class="doc-md-description">
+            <p>All additional keyword arguments are passed to the base
 <a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a> constructor.</p>
-        </div>
-      </li>
-  </ul>
+          </div>
+        </li>
+    </ul>
 
 
-  
+
 
   <div class="doc doc-children">
 
@@ -3115,10 +3136,9 @@ must accept a single parameter, which is this widget instance).</p>
 
 
 
-
 <h3 id="magicgui.widgets.EmptyWidget.value" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="n">Any</span></code>
-  
+            <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="n">Any</span></code>
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-writable"><code>writable</code></small>
@@ -3127,52 +3147,46 @@ must accept a single parameter, which is this widget instance).</p>
 <a href="#magicgui.widgets.EmptyWidget.value" class="headerlink" title="Permanent link">#</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Look for a bound value, otherwise fallback to <code>get_value</code>.</p>
-  </div>
+    </div>
 
 </div>
-
 
 
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h3 id="magicgui.widgets.EmptyWidget.__repr__" class="doc doc-heading">
-          <code class="highlight language-python"><span class="fm">__repr__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span></code>
+            <code class="highlight language-python"><span class="fm">__repr__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span></code>
 
 <a href="#magicgui.widgets.EmptyWidget.__repr__" class="headerlink" title="Permanent link">#</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return string repr (avoid looking for value).</p>
 
-  </div>
+    </div>
 
 </div>
-
 
 <div class="doc doc-object doc-function">
 
 
-
-
 <h3 id="magicgui.widgets.EmptyWidget.get_value" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_value</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
+            <code class="highlight language-python"><span class="n">get_value</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
 
 <a href="#magicgui.widgets.EmptyWidget.get_value" class="headerlink" title="Permanent link">#</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Return value if one has been manually set... otherwise return Param.empty.</p>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3180,7 +3194,7 @@ must accept a single parameter, which is this widget instance).</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3256,7 +3270,7 @@ must accept a single parameter, which is this widget instance).</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>
