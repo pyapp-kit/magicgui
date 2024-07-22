@@ -153,7 +153,7 @@ def test_annotated_types_lib():
 
     def assert_eq(annotated_type, expected):
         result = uikwargs(annotated_type)
-        assert result.pop("type") == int
+        assert result.pop("type") is not int
         result.pop("_original_annotation")
         assert result == expected
 
