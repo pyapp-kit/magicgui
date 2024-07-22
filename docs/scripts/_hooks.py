@@ -13,7 +13,7 @@ from importlib import import_module
 from importlib.machinery import ModuleSpec
 from itertools import count
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Mapping
 
 from griffe.dataclasses import Alias
 from griffe.docstrings import numpy
@@ -30,21 +30,35 @@ if TYPE_CHECKING:
 # TODO: figure out how to do this with options
 @contextmanager
 def _hide_numpy_warn():
+    if not hasattr(numpy, "_warn"):
+        yield
+        return
     before, numpy._warn = numpy._warn, lambda *x, **k: None
     yield
     numpy._warn = before
 
 
 def inject_dynamic_docstring(item: Alias, identifier: str) -> None:
-    module, name = identifier.rsplit(".", 1)
-    obj = getattr(import_module(module), name)
-    first_line, *rest = (obj.__doc__ or "").splitlines()
-    if first_line and item.target.docstring:
-        item.target.docstring.value = first_line + "\n" + dedent("\n".join(rest))
+    for i in range(1, 3):
+        module_name, *names = identifier.rsplit(".", 1)
+        try:
+            module = import_module(module_name)
+        except ModuleNotFoundError:
+            continue
+        else:
+            obj = module
+            for name in names:
+                obj = getattr(obj, name)
+            first_line, *rest = (obj.__doc__ or "").splitlines()
+            if first_line and item.target.docstring:
+                item.target.docstring.value = (
+                    first_line + "\n" + dedent("\n".join(rest))
+                )
+            break
 
 
 class WidgetHandler(PythonHandler):
-    def collect(self, identifier: str, config: dict) -> Any:
+    def collect(self, identifier: str, config: Mapping[str, Any]) -> Any:
         item = super().collect(identifier, config)
         if isinstance(item, Alias):
             inject_dynamic_docstring(item, identifier)
@@ -52,7 +66,7 @@ class WidgetHandler(PythonHandler):
         # item.parameters["something"].default = ...
         return item
 
-    def render(self, data: Any, config: dict) -> str:
+    def render(self, data: Any, config: Mapping[str, Any]) -> str:
         with _hide_numpy_warn():
             return super().render(data, config)
 
@@ -61,9 +75,26 @@ class MyLoader(importlib.abc.Loader):
     def create_module(self, spec):
         return types.ModuleType(spec.name)
 
-    def exec_module(self, module: types.ModuleType):
-        def get_handler(**kwargs):
-            return WidgetHandler(handler="python", **kwargs)
+    def exec_module(self, module: types.ModuleType) -> None:
+        def get_handler(
+            *,
+            theme: str,
+            custom_templates: str | None = None,
+            config_file_path: str | None = None,
+            paths: list[str] | None = None,
+            locale: str = "en",
+            load_external_modules: bool | None = None,
+            **config: Any,
+        ) -> PythonHandler:
+            return WidgetHandler(
+                handler="python",
+                theme=theme,
+                custom_templates=custom_templates,
+                config_file_path=config_file_path,
+                paths=paths,
+                locale=locale,
+                load_external_modules=load_external_modules,
+            )
 
         module.get_handler = get_handler
 

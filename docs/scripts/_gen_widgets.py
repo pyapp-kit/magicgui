@@ -23,6 +23,9 @@ Available in backends: {backends}
 
 ::: magicgui.widgets.{name}
     handler: widget_handler
+    options:
+        docstring_options:
+            warn_unknown_params: false
 """
 
 
