@@ -1,6 +1,6 @@
 import sys
 import typing
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 import pytest
 
@@ -71,7 +71,7 @@ class TestSafeIsSubclass:
         assert safe_issubclass(typing.Tuple[int], typing.Sequence[int])
         assert safe_issubclass(typing.Tuple[int, int], typing.Sequence[int])
         assert safe_issubclass(typing.Tuple[int, ...], typing.Sequence[int])
-        assert safe_issubclass(typing.Tuple[int, ...], Iterable[int])
+        assert safe_issubclass(typing.Tuple[int, ...], typing.Iterable[int])
         assert not safe_issubclass(typing.Tuple[int, ...], typing.Dict[int, typing.Any])
         assert safe_issubclass(typing.Tuple[int, ...], typing.Tuple[int, ...])
         assert safe_issubclass(typing.Tuple[int, int], typing.Tuple[int, ...])
