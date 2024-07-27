@@ -68,9 +68,9 @@ class TestSafeIsSubclass:
 
     def test_tuple_check(self):
         assert safe_issubclass(typing.Tuple[int, str], tuple)
-        assert safe_issubclass(typing.Tuple[int], Sequence[int])
-        assert safe_issubclass(typing.Tuple[int, int], Sequence[int])
-        assert safe_issubclass(typing.Tuple[int, ...], Sequence[int])
+        assert safe_issubclass(typing.Tuple[int], typing.Sequence[int])
+        assert safe_issubclass(typing.Tuple[int, int], typing.Sequence[int])
+        assert safe_issubclass(typing.Tuple[int, ...], typing.Sequence[int])
         assert safe_issubclass(typing.Tuple[int, ...], Iterable[int])
         assert not safe_issubclass(typing.Tuple[int, ...], typing.Dict[int, typing.Any])
         assert safe_issubclass(typing.Tuple[int, ...], typing.Tuple[int, ...])
