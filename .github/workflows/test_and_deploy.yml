@@ -97,10 +97,6 @@ jobs:
           name: covreport-pydantic1
           path: ./.coverage*
 
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
   upload_coverage:
     if: always()
     needs: [test, test-min-reqs, test-pydantic1]
