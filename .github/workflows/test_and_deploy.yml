@@ -84,7 +84,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -e .
-          python -m pip install pytest 'pydantic<2' attrs pyqt6
+          python -m pip install pytest 'pydantic<2' attrs pyqt6 coverage
 
       - name: Test
         uses: aganders3/headless-gui@v2
