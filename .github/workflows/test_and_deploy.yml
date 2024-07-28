@@ -76,7 +76,7 @@ jobs:
       os: ubuntu-latest
       python-version: 3.11
       qt: pyqt6
-      pip-post-installs: "pydantic<2"
+      pip-post-installs: '"pydantic<2"'
       coverage-upload: artifact
 
   upload_coverage:
