@@ -54,6 +54,10 @@ jobs:
           - python-version: "3.12"
             os: ubuntu-latest
             qt: pyside6
+          - python-version: "3.11"
+            os: ubuntu-latest
+            qt: pyqt6
+            pip-post-installs: '"pydantic<2"'
 
   test-min-reqs:
     name: Test min reqs
@@ -69,19 +73,9 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
-  test-pydantic1:
-    name: Test pydantic 1
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    with:
-      os: ubuntu-latest
-      python-version: 3.11
-      qt: pyqt6
-      pip-post-installs: '"pydantic<2"'
-      coverage-upload: artifact
-
   upload_coverage:
     if: always()
-    needs: [test, test-min-reqs, test-pydantic1]
+    needs: [test, test-min-reqs]
     uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
     secrets: inherit
 
