@@ -192,11 +192,16 @@ def safe_issubclass(obj: object, superclass: object) -> bool:
         return any(safe_issubclass(obj, s) for s in superclass)
     obj_origin = get_origin(obj)
     superclass_origin = get_origin(superclass)
+    superclass_args = get_args(superclass)
     try:
         if obj_origin is None:
             if superclass_origin is None:
                 return issubclass(obj, superclass) # type: ignore
-            return issubclass(obj, superclass_origin)  # type: ignore
+            if not superclass_args:
+                return issubclass(obj, superclass_origin)  # type: ignore
+            # if obj is not generic type, but superclass is with
+            # we can't say anything about it
+            return False
         if obj_origin is not None and superclass_origin is None:
             return issubclass(obj_origin, superclass) # type: ignore
         if not issubclass(obj_origin, superclass_origin):  # type: ignore
@@ -205,7 +210,6 @@ def safe_issubclass(obj: object, superclass: object) -> bool:
         if obj_origin is tuple and obj_args:
             return _safe_isinstance_tuple(obj, superclass)
 
-        superclass_args = get_args(superclass)
         return (
                 issubclass(obj_origin, superclass_origin) and  # type: ignore
                 (obj_args == superclass_args or not superclass_args)

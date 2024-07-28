@@ -33,15 +33,16 @@ class TestSafeIsSubclass:
     def test_inheritance_generic_list(self):
         assert safe_issubclass(list, typing.Sequence)
         assert safe_issubclass(typing.List, typing.Sequence)
-        assert safe_issubclass(list, typing.Sequence[int])
         assert safe_issubclass(typing.List[int], typing.Sequence[int])
         assert safe_issubclass(typing.List[int], typing.Sequence)
         assert safe_issubclass(typing.List[int], Sequence)
 
+    def test_no_inheritance_generic_super(self):
+        assert not safe_issubclass(list, typing.List[int])
+
     def test_inheritance_generic_mapping(self):
         assert safe_issubclass(dict, typing.Mapping)
         assert safe_issubclass(typing.Dict, typing.Mapping)
-        assert safe_issubclass(dict, typing.Mapping[int, str])
         assert safe_issubclass(typing.Dict[int, str], typing.Mapping[int, str])
         assert safe_issubclass(typing.Dict[int, str], typing.Mapping)
         assert safe_issubclass(typing.Dict[int, str], Mapping)

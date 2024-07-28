@@ -72,6 +72,7 @@ _SIMPLE_TYPES = {
     range: widgets.RangeEdit,
     slice: widgets.SliceEdit,
     Sequence[pathlib.Path]: widgets.FileEdit,
+    tuple: widgets.TupleEdit,
     Sequence: widgets.ListEdit,
     os.PathLike: widgets.FileEdit,
 }
@@ -89,7 +90,7 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
         return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
 
     if type_ in _SIMPLE_TYPES:
-        return _SIMPLE_TYPES[type_], {}
+        return _SIMPLE_TYPES[type_], _ADDITIONAL_KWARGS.get(type_, {})
     for key in _SIMPLE_TYPES.keys():
         if safe_issubclass(type_, key):
             return _SIMPLE_TYPES[key], _ADDITIONAL_KWARGS.get(key, {})
