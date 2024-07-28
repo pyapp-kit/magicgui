@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Sequence, Union
 from unittest.mock import Mock
 
 import pytest
@@ -150,6 +150,7 @@ def test_type_registered():
     with type_registered(Path, widget_type=widgets.LineEdit):
         assert isinstance(widgets.create_widget(annotation=Path), widgets.LineEdit)
     assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
+    assert isinstance(widgets.create_widget(annotation=Sequence[Path]), widgets.FileEdit)
 
 
 def test_type_registered_callbacks():

@@ -71,11 +71,14 @@ _SIMPLE_TYPES = {
     datetime.datetime: widgets.DateTimeEdit,
     range: widgets.RangeEdit,
     slice: widgets.SliceEdit,
-    list: widgets.ListEdit,
-    tuple: widgets.TupleEdit,
+    Sequence[pathlib.Path]: widgets.FileEdit,
+    Sequence: widgets.ListEdit,
     os.PathLike: widgets.FileEdit,
 }
 
+_ADDITIONAL_KWARGS: dict[type, dict[str, Any]] = {
+    Sequence[pathlib.Path]: {"mode": "rm"}
+}
 
 def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
     """Check simple type mappings."""
@@ -89,7 +92,7 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
         return _SIMPLE_TYPES[type_], {}
     for key in _SIMPLE_TYPES.keys():
         if safe_issubclass(type_, key):
-            return _SIMPLE_TYPES[key], {}
+            return _SIMPLE_TYPES[key], _ADDITIONAL_KWARGS.get(key, {})
 
     if type_ in (types.FunctionType,):
         return widgets.FunctionGui, {"function": default}
@@ -98,12 +101,6 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
     choices, nullable = _literal_choices(type_)
     if choices is not None:  # it's a Literal type
         return widgets.ComboBox, {"choices": choices, "nullable": nullable}
-
-    # sequence of paths
-    if safe_issubclass(origin, Sequence):
-        args = get_args(type_)
-        if len(args) == 1 and safe_issubclass(args[0], pathlib.Path):
-            return widgets.FileEdit, {"mode": "rm"}
 
     if safe_issubclass(origin, Set):
         for arg in get_args(type_):
