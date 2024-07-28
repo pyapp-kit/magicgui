@@ -104,10 +104,6 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
         args = get_args(type_)
         if len(args) == 1 and safe_issubclass(args[0], pathlib.Path):
             return widgets.FileEdit, {"mode": "rm"}
-        elif safe_issubclass(origin, list):
-            return widgets.ListEdit, {}
-        elif safe_issubclass(origin, tuple):
-            return widgets.TupleEdit, {}
 
     if safe_issubclass(origin, Set):
         for arg in get_args(type_):
