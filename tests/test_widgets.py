@@ -2,7 +2,7 @@ import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -847,8 +847,6 @@ def test_pushbutton_icon(backend: str):
 
 def test_list_edit():
     """Test ListEdit."""
-    from typing import List
-
     mock = MagicMock()
 
     list_edit = widgets.ListEdit(value=[1, 2, 3])
@@ -900,6 +898,8 @@ def test_list_edit():
     assert mock.call_count == 7
     mock.assert_called_with([2, 1])
 
+
+def test_list_edit_only_values():
     @magicgui
     def f1(x=[2, 4, 6]):  # noqa: B006
         pass
@@ -908,6 +908,7 @@ def test_list_edit():
     assert f1.x._args_type is int
     assert f1.x.value == [2, 4, 6]
 
+def test_list_edit_annotations():
     @magicgui
     def f2(x: List[int]):
         pass
