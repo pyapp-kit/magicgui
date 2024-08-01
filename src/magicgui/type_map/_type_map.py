@@ -59,7 +59,7 @@ _SIMPLE_ANNOTATIONS = {
     PathLike: widgets.FileEdit,
 }
 
-_SIMPLE_TYPES = {
+_SIMPLE_TYPES: dict[type, type[widgets.Widget]] = {
     bool: widgets.CheckBox,
     int: widgets.SpinBox,
     float: widgets.FloatSpinBox,
@@ -90,10 +90,10 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
         return widgets.ProgressBar, {"bind": lambda widget: widget, "visible": True}
 
     if type_ in _SIMPLE_TYPES:
-        return _SIMPLE_TYPES[type_], _ADDITIONAL_KWARGS.get(type_, {})  # type: ignore
+        return _SIMPLE_TYPES[type_], _ADDITIONAL_KWARGS.get(type_, {})
     for key in _SIMPLE_TYPES.keys():
         if safe_issubclass(type_, key):
-            return _SIMPLE_TYPES[key], _ADDITIONAL_KWARGS.get(key, {})  # type: ignore
+            return _SIMPLE_TYPES[key], _ADDITIONAL_KWARGS.get(key, {})
 
     if type_ in (types.FunctionType,):
         return widgets.FunctionGui, {"function": default}
