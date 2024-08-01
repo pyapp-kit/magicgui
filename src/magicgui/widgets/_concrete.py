@@ -44,10 +44,12 @@ from magicgui.widgets.bases import (
     DialogWidget,
     MainWindowWidget,
     MultiValuedSliderWidget,
+    PrimitiveValueWidget,
     RangedWidget,
     SliderWidget,
     ToolBarWidget,
     TransformedRangedWidget,
+    ValuedContainerWidget,
     ValueWidget,
     Widget,
     create_widget,
@@ -58,7 +60,10 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
     from magicgui.widgets import protocols
-    from magicgui.widgets.bases._container_widget import ContainerKwargs
+    from magicgui.widgets.bases._container_widget import (
+        ContainerKwargs,
+        ValuedContainerKwargs,
+    )
     from magicgui.widgets.bases._widget import WidgetKwargs
 
 
@@ -126,8 +131,7 @@ def backend_widget(
     return wrapper(cls) if cls else wrapper
 
 
-@backend_widget
-class EmptyWidget(ValueWidget):
+class EmptyWidget(ValuedContainerWidget[Any]):
     """A base widget with no value.
 
     This widget is primarily here to serve as a "hidden widget" to which a value or
@@ -140,13 +144,7 @@ class EmptyWidget(ValueWidget):
         """Return value if one has been manually set... otherwise return Param.empty."""
         return self._hidden_value
 
-    @property
-    def value(self) -> Any:
-        """Look for a bound value, otherwise fallback to `get_value`."""
-        return super().value
-
-    @value.setter
-    def value(self, value: Any) -> None:
+    def set_value(self, value: Any) -> None:
         self._hidden_value = value
 
     def __repr__(self) -> str:
@@ -159,37 +157,37 @@ class EmptyWidget(ValueWidget):
 
 
 @backend_widget
-class Label(ValueWidget[str]):
+class Label(PrimitiveValueWidget[str]):
     """A non-editable text display."""
 
 
 @backend_widget
-class LineEdit(ValueWidget[str]):
+class LineEdit(PrimitiveValueWidget[str]):
     """A one-line text editor."""
 
 
 @backend_widget
-class Password(ValueWidget[str]):
+class Password(PrimitiveValueWidget[str]):
     """A one-line text editor that obscures input."""
 
 
 @backend_widget
-class LiteralEvalLineEdit(ValueWidget[str]):
+class LiteralEvalLineEdit(PrimitiveValueWidget[str]):
     """A one-line text editor that evaluates strings as python literals."""
 
 
 @backend_widget
-class TextEdit(ValueWidget[str], _ReadOnlyMixin):  # type: ignore
+class TextEdit(PrimitiveValueWidget[str], _ReadOnlyMixin):  # type: ignore
     """A widget to edit and display both plain and rich text."""
 
 
 @backend_widget
-class DateTimeEdit(ValueWidget[datetime.datetime]):
+class DateTimeEdit(PrimitiveValueWidget[datetime.datetime]):
     """A widget for editing dates and times."""
 
 
 @backend_widget
-class DateEdit(ValueWidget[datetime.date]):
+class DateEdit(PrimitiveValueWidget[datetime.date]):
     """A widget for editing dates."""
 
 
@@ -197,7 +195,7 @@ TV = TypeVar("TV", bound=Union[datetime.time, datetime.timedelta])
 
 
 @backend_widget
-class TimeEdit(ValueWidget[TV]):
+class TimeEdit(PrimitiveValueWidget[TV]):
     """A widget for editing times."""
 
 
@@ -387,9 +385,8 @@ class Dialog(DialogWidget):
 class MainWindow(MainWindowWidget):
     """A Widget to contain other widgets, includes a menu bar."""
 
-
 @merge_super_sigs
-class FileEdit(Container):
+class FileEdit(ValuedContainerWidget[Union[Path, Tuple[Path, ...], None]]):
     """A LineEdit widget with a button that opens a FileDialog.
 
     Parameters
@@ -409,26 +406,30 @@ class FileEdit(Container):
         self,
         mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
         filter: str | None = None,
-        nullable: bool = False,
-        **kwargs: Unpack[ContainerKwargs],
+        value: Path | tuple[Path, ...] | None | _Undefined = Undefined,
+        **kwargs: Unpack[ValuedContainerKwargs],
     ) -> None:
         # use empty string as a null value
-        value = kwargs.pop("value", None)  # type: ignore [typeddict-item]
-        if value is None:
-            value = ""
-        self.line_edit = LineEdit(value=value)
+        if value is None or value is Undefined:
+            _line_edit_value = ""
+        elif isinstance(value, (str, Path)):
+            _line_edit_value = str(value)
+        elif isinstance(value, (list, tuple)):
+            _line_edit_value = ", ".join(os.fspath(p) for p in value)
+        else:
+            raise TypeError(
+                f"value must be a string, or list/tuple of strings, got {type(value)}"
+            )
+        self.line_edit = LineEdit(value=_line_edit_value)
         self.choose_btn = PushButton()
         self.mode = mode  # sets the button text too
         self.filter = filter
-        self._nullable = nullable
         kwargs["widgets"] = [self.line_edit, self.choose_btn]
         kwargs["labels"] = False
         kwargs["layout"] = "horizontal"
         super().__init__(**kwargs)
         self.margins = (0, 0, 0, 0)
         self._show_file_dialog = use_app().get_obj("show_file_dialog")
-        self.choose_btn.changed.disconnect()
-        self.line_edit.changed.disconnect()
         self.choose_btn.changed.connect(self._on_choose_clicked)
         self.line_edit.changed.connect(lambda: self.changed.emit(self.value))
 
@@ -465,9 +466,8 @@ class FileEdit(Container):
         if result:
             self.value = result
 
-    @property
-    def value(self) -> tuple[Path, ...] | Path | None:
-        """Return current value of the widget.  This may be interpreted by backends."""
+    def get_value(self) -> tuple[Path, ...] | Path | None:
+        """Return current value."""
         text = self.line_edit.value
         if self._nullable and not text:
             return None
@@ -475,8 +475,7 @@ class FileEdit(Container):
             return tuple(Path(p) for p in text.split(", ") if p.strip())
         return Path(text)
 
-    @value.setter
-    def value(self, value: Sequence[PathLike] | PathLike | None) -> None:
+    def set_value(self, value: Sequence[PathLike] | PathLike | None) -> None:
         """Set current file path."""
         if value is None and self._nullable:
             value = ""
@@ -494,26 +493,10 @@ class FileEdit(Container):
         """Return string representation."""
         return f"FileEdit(mode={self.mode.value!r}, value={self.value!r})"
 
+_V0 = TypeVar("_V0", range, slice)
 
-@merge_super_sigs
-class RangeEdit(Container[SpinBox]):
-    """A widget to represent a python range object, with start/stop/step.
-
-    A range object produces a sequence of integers from start (inclusive)
-    to stop (exclusive) by step.  range(i, j) produces i, i+1, i+2, ..., j-1.
-    start defaults to 0, and stop is omitted!  range(4) produces 0, 1, 2, 3.
-    These are exactly the valid indices for a list of 4 elements.
-    When step is given, it specifies the increment (or decrement).
-
-    Parameters
-    ----------
-    start : int, optional
-        The range start value, by default 0
-    stop : int, optional
-        The range stop value, by default 10
-    step : int, optional
-        The range step value, by default 1
-    """
+class _RangeOrSliceEdit(ValuedContainerWidget[_V0]):
+    _value_type: type[_V0]
 
     def __init__(
         self,
@@ -522,7 +505,7 @@ class RangeEdit(Container[SpinBox]):
         step: int = 1,
         min: int | tuple[int, int, int] | None = None,
         max: int | tuple[int, int, int] | None = None,
-        **kwargs: Unpack[ContainerKwargs],
+        **kwargs: Unpack[ValuedContainerKwargs],
     ) -> None:
         value = kwargs.pop("value", None)  # type: ignore [typeddict-item]
         if value is not None and value is not Undefined:
@@ -534,10 +517,12 @@ class RangeEdit(Container[SpinBox]):
         self.start = SpinBox(value=start, min=minstart, max=maxstart, name="start")
         self.stop = SpinBox(value=stop, min=minstop, max=maxstop, name="stop")
         self.step = SpinBox(value=step, min=minstep, max=maxstep, name="step")
-        kwargs["widgets"] = [self.start, self.stop, self.step]
+        self.start.changed.connect(self._emit_current_value)
+        self.stop.changed.connect(self._emit_current_value)
+        self.step.changed.connect(self._emit_current_value)
         kwargs.setdefault("layout", "horizontal")
         kwargs.setdefault("labels", True)
-        kwargs.pop("nullable", None)  # type: ignore [typeddict-item]
+        kwargs["widgets"] = [self.start, self.stop, self.step]
         super().__init__(**kwargs)
 
     @classmethod
@@ -556,14 +541,17 @@ class RangeEdit(Container[SpinBox]):
         else:
             return (int(default),) * 3
 
-    @property
-    def value(self) -> range:
-        """Return current value of the widget.  This may be interpreted by backends."""
-        return range(self.start.value, self.stop.value, self.step.value)
+    def _emit_current_value(self) -> None:
+        return self.changed.emit(self.value)
 
-    @value.setter
-    def value(self, value: range) -> None:
+    def get_value(self) -> _V0:
+        """Return current value of the widget."""
+        return self._value_type(self.start.value, self.stop.value, self.step.value)
+
+    def set_value(self, value: _V0) -> None:
         """Set current file path."""
+        if not isinstance(value, self._value_type):
+            raise TypeError(f"value must be a {self._value_type}, got {type(value)}")
         self.start.value = value.start
         self.stop.value = value.stop
         self.step.value = value.step
@@ -572,56 +560,70 @@ class RangeEdit(Container[SpinBox]):
         """Return string representation."""
         return f"<{self.__class__.__name__} value={self.value!r}>"
 
+@merge_super_sigs
+class RangeEdit(_RangeOrSliceEdit[range]):
+    """A widget to represent a python range object, with start/stop/step.
 
-class SliceEdit(RangeEdit):
+    A range object produces a sequence of integers from start (inclusive)
+    to stop (exclusive) by step.  range(i, j) produces i, i+1, i+2, ..., j-1.
+    start defaults to 0, and stop is omitted!  range(4) produces 0, 1, 2, 3.
+    These are exactly the valid indices for a list of 4 elements.
+    When step is given, it specifies the increment (or decrement).
+
+    Parameters
+    ----------
+    start : int, optional
+        The range start value, by default 0
+    stop : int, optional
+        The range stop value, by default 10
+    step : int, optional
+        The range step value, by default 1
+    """
+
+    _value_type = range
+
+class SliceEdit(_RangeOrSliceEdit[slice]):
     """A widget to represent `slice` objects, with start/stop/step.
 
     slice(stop)
     slice(start, stop[, step])
 
     Slice objects may be used for extended slicing (e.g. a[0:10:2])
+
+    Parameters
+    ----------
+    start : int, optional
+        The range start value, by default 0
+    stop : int, optional
+        The range stop value, by default 10
+    step : int, optional
+        The range step value, by default 1
     """
 
-    @property  # type: ignore
-    def value(self) -> slice:
-        """Return current value of the widget.  This may be interpreted by backends."""
-        return slice(self.start.value, self.stop.value, self.step.value)
+    _value_type = slice
 
-    @value.setter
-    def value(self, value: slice) -> None:
-        """Set current file path."""
-        self.start.value = value.start
-        self.stop.value = value.stop
-        self.step.value = value.step
-
-
-class _ListEditChildWidget(Container[Widget]):
+class _ListEditChildWidget(ValuedContainerWidget[_V]):
     """A widget to represent a single element of a ListEdit widget."""
 
-    def __init__(self, widget: ValueWidget):
+    def __init__(self, widget: ValueWidget[_V]):
         btn = PushButton(text="-")
         super().__init__(widgets=[widget, btn], layout="horizontal", labels=False)
         self.btn_minus = btn
         self.value_widget = widget
         self.margins = (0, 0, 0, 0)
-
-        btn.changed.disconnect()
-        widget.changed.disconnect()
         widget.changed.connect(self.changed.emit)
         btn.max_height = btn.max_width = use_app().get_obj("get_text_width")("-") + 4
 
-    @property
-    def value(self) -> Any:
+    def get_value(self) -> Any:
         """Return value of the child widget."""
         return self.value_widget.value
 
-    @value.setter
-    def value(self, value: Any) -> None:
+    def set_value(self, value: Any) -> None:
         """Set value of the child widget."""
         self.value_widget.value = value
 
 @merge_super_sigs
-class ListEdit(Container[ValueWidget[_V]]):
+class ListEdit(ValuedContainerWidget[List[_V]]):
     """A widget to represent a list of values.
 
     A ListEdit container can create a list with multiple objects of same type. It
@@ -643,12 +645,10 @@ class ListEdit(Container[ValueWidget[_V]]):
     def __init__(
         self,
         value: Iterable[_V] | _Undefined = Undefined,
-        nullable: bool = False,
         options: dict | None = None,
-        **container_kwargs: Unpack[ContainerKwargs],
+        **container_kwargs: Unpack[ValuedContainerKwargs],
     ) -> None:
         self._args_type: type | None = None
-        self._nullable = nullable
         container_kwargs.setdefault("layout", "horizontal")
         container_kwargs.setdefault("labels", False)
         super().__init__(**container_kwargs)
@@ -669,8 +669,7 @@ class ListEdit(Container[ValueWidget[_V]]):
 
         button_plus = PushButton(text="+", name="plus")
 
-        self.append(button_plus)  # type: ignore
-        button_plus.changed.disconnect()
+        self._insert_widget(0, button_plus)
         button_plus.changed.connect(lambda: self._append_value())
 
         for a in _value:
@@ -721,7 +720,16 @@ class ListEdit(Container[ValueWidget[_V]]):
 
     def __delitem__(self, key: int | slice) -> None:
         """Delete child widget(s)."""
-        super().__delitem__(key)
+        if isinstance(key, int):
+            self._pop_widget(key)
+        elif isinstance(key, slice):
+            for i in range(*key.indices(len(self))):
+                self._pop_widget(i)
+        else:
+            raise TypeError(
+                f"{self.__class__.__name__} indices must be integers or slices, got "
+                f"{type(key).__name__}"
+            )
         self.changed.emit(self.value)
 
     def _append_value(self, value: _V | _Undefined = Undefined) -> None:
@@ -735,33 +743,43 @@ class ListEdit(Container[ValueWidget[_V]]):
         )
         widget = _ListEditChildWidget(cast(ValueWidget, _value_widget))
         # connect the minus-button-clicked event
-        widget.btn_minus.changed.connect(lambda: self.remove(widget))
+        def _remove_me() -> None:
+            self._pop_widget(self.index(widget))
+            self.changed.emit(self.value)
 
-        # _ListEditChildWidget is technically a ValueWidget.
-        self.insert(i, widget)  # type: ignore
-
-        widget.changed.disconnect()
+        widget.btn_minus.changed.connect(_remove_me)
+        self._insert_widget(i, widget)
 
         # Value must be set after new widget is inserted because it could be
         # valid only after same parent is shared between widgets.
         if value is Undefined and i > 0:
             # copy value from the previous child widget if possible
-            value = self[i - 1].value
+            value = self._get_child_widget(i - 1).value
         if value is not Undefined:
             widget.value = value
 
         widget.changed.connect(lambda: self.changed.emit(self.value))
         self.changed.emit(self.value)
 
-    @property
-    def value(self) -> list[_V]:
+    def _get_child_widget(self, key: int) -> _ListEditChildWidget[_V]:
+        if key < 0:
+            key += len(self) - 1
+        if key < 0 or key >= len(self) - 1:
+            raise IndexError("list index out of range")
+        return self[key]  # type: ignore
+
+    def _get_child_widgets(self, key: slice) -> list[_ListEditChildWidget[_V]]:
+        key = slice(*key.indices(len(self) - 1))
+        return self[key]  # type: ignore
+
+    def get_value(self) -> list[_V]:
         """Return current value as a list object."""
         return list(ListDataView(self))
 
-    @value.setter
-    def value(self, vals: Iterable[_V]) -> None:
+    def set_value(self, vals: Iterable[_V]) -> None:
         with self.changed.blocked():
-            del self[:-1]
+            for _ in range(len(self) - 1):
+                self._pop_widget(0)
             for v in vals:
                 self._append_value(v)
         self.changed.emit(self.value)
@@ -781,7 +799,7 @@ class ListDataView(Generic[_V]):
 
     def __init__(self, obj: ListEdit[_V]):
         self._obj = obj
-        self._widgets = list(obj[:-1])
+        self._widgets = list(obj._list[:-1])
 
     def __repr__(self) -> str:
         """Return list-like representation."""
@@ -804,9 +822,9 @@ class ListDataView(Generic[_V]):
     def __getitem__(self, key: int | slice) -> _V | list[_V]:
         """Slice as a list."""
         if isinstance(key, int):
-            return self._widgets[key].value
+            return self._obj._get_child_widget(key).value
         elif isinstance(key, slice):
-            return [w.value for w in self._widgets[key]]
+            return [w.value for w in self._obj._get_child_widgets(key)]
         else:
             raise TypeError(
                 f"list indices must be integers or slices, not {type(key).__name__}"
@@ -821,14 +839,17 @@ class ListDataView(Generic[_V]):
     def __setitem__(self, key: int | slice, value: _V | Iterable[_V]) -> None:
         """Update widget value."""
         if isinstance(key, int):
-            self._widgets[key].value = cast(_V, value)
+            self._obj._get_child_widget(key).value = cast(_V, value)
         elif isinstance(key, slice):
             with self._obj.changed.blocked():
-                if isinstance(value, type(self._widgets[0].value)):
-                    for w in self._widgets[key]:
+                if isinstance(value, type(self._obj._get_child_widget(0).value)):
+                    for w in self._obj._get_child_widgets(key):
                         w.value = value
                 else:
-                    for w, v in zip(self._widgets[key], value):  # type: ignore
+                    value_list = list(value)  # type: ignore
+                    if len(value_list) != len(self._obj._get_child_widgets(key)):
+                        raise ValueError("Length of value does not match.")
+                    for w, v in zip(self._obj._get_child_widgets(key), value_list):
                         w.value = v
             self._obj.changed.emit(self._obj.value)
         else:
@@ -848,12 +869,12 @@ class ListDataView(Generic[_V]):
 
     def __iter__(self) -> Iterator[_V]:
         """Iterate over values of child widgets."""
-        for w in self._widgets:
+        for w in self._obj._get_child_widgets(slice(None)):
             yield w.value
 
 
 @merge_super_sigs
-class TupleEdit(Container[ValueWidget]):
+class TupleEdit(ValuedContainerWidget[Tuple]):
     """A widget to represent a tuple of values.
 
     A TupleEdit container has several child widgets of different type. Their value is
@@ -873,13 +894,11 @@ class TupleEdit(Container[ValueWidget]):
 
     def __init__(
         self,
-        value: Iterable[_V] | _Undefined = Undefined,
+        value: Iterable | _Undefined = Undefined,
         *,
-        nullable: bool = False,
-        options: dict | None = None,
-        **container_kwargs: Unpack[ContainerKwargs[ValueWidget]],
+        options: dict[str, Any] | None = None,
+        **container_kwargs: Unpack[ValuedContainerKwargs[tuple]],
     ) -> None:
-        self._nullable = nullable
         self._args_types: tuple[type, ...] | None = None
         container_kwargs.setdefault("labels", False)
         container_kwargs.setdefault("layout", "horizontal")
@@ -910,8 +929,7 @@ class TupleEdit(Container[ValueWidget]):
                     options=self._child_options,
                 ),
             )
-            self.insert(i, widget)
-            widget.changed.disconnect()
+            self._insert_widget(i, widget)
             widget.changed.connect(lambda: self.changed.emit(self.value))
 
     @property
@@ -951,19 +969,17 @@ class TupleEdit(Container[ValueWidget]):
         self._annotation = value
         self._args_types = args
 
-    @property
-    def value(self) -> tuple:
+    def get_value(self) -> tuple:
         """Return current value as a tuple."""
-        return tuple(w.value for w in self)
+        return tuple(w.value for w in self._list)  # type: ignore
 
-    @value.setter
-    def value(self, vals: Sequence) -> None:
+    def set_value(self, vals: Sequence[Any]) -> None:
         if len(vals) != len(self):
             raise ValueError("Length of tuple does not match.")
 
         with self.changed.blocked():
-            for w, v in zip(self, vals):
-                w.value = v
+            for w, v in zip(self._list, vals):
+                w.value = v  # type: ignore
         self.changed.emit(self.value)
 
 
@@ -1030,5 +1046,5 @@ class _LabeledWidget(Container):
 
 
 @backend_widget
-class QuantityEdit(ValueWidget):
+class QuantityEdit(PrimitiveValueWidget):
     """A combined `LineEdit` and `ComboBox` to edit a `pint.Quantity`."""

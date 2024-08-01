@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, cast
 
 from magicgui.types import ChoicesType, Undefined, _Undefined
 
-from ._value_widget import T, ValueWidget
+from ._value_widget import PrimitiveValueWidget, T, ValueWidget
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from ._widget import WidgetKwargs
 
 
-class CategoricalWidget(ValueWidget[T]):
+class CategoricalWidget(PrimitiveValueWidget[T]):
     """Widget with a value and choices.  Wraps CategoricalWidgetProtocol.
 
     Parameters

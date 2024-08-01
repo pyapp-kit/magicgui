@@ -314,6 +314,18 @@ def test_bound_values():
     f.x.unbind()
     assert f() == 5
 
+def test_bound_values_for_container_like():
+    """Test that "bind" works for container-like value widgets."""
+
+    @magicgui(x={"bind": (1, "a")})
+    def f(x: Tuple[int, str] = (2, "b")):
+        return x
+
+    # bound values hide the widget by default
+    assert not f.x.visible
+    assert f() == (1, "a")
+    f.x.unbind()
+    assert f() == (2, "b")
 
 def test_bound_unknown_type_annotation():
     """Test that we can bind a "permanent" value override to a parameter."""

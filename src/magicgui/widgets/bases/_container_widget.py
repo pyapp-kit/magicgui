@@ -12,6 +12,7 @@ from typing import (
     NoReturn,
     Sequence,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -20,6 +21,7 @@ from psygnal import Signal
 from magicgui._util import debounce
 from magicgui.application import use_app
 from magicgui.signature import MagicParameter, MagicSignature, magic_signature
+from magicgui.types import Undefined, _Undefined
 from magicgui.widgets.bases._mixins import _OrientationMixin
 
 from ._button_widget import ButtonWidget
@@ -27,6 +29,7 @@ from ._value_widget import ValueWidget
 from ._widget import Widget
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
+T = TypeVar("T")
 
 if TYPE_CHECKING:
     import inspect
@@ -44,8 +47,200 @@ if TYPE_CHECKING:
         scrollable: bool
         labels: bool
 
+    class ValuedContainerKwargs(ContainerKwargs[Widget], Generic[T], total=False):
+        # NOTE: "value" is usually given as a positional argument
+        bind: T | Callable[[ValueWidget], T]
+        nullable: bool
 
-class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
+
+class _BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
+    _widget: protocols.ContainerProtocol
+    _initialized = False
+    # this is janky ... it's here to allow connections during __init__ by
+    # avoiding a recursion error in __getattr__
+    _list: list[WidgetVar] = []  # noqa: RUF012
+
+    def __init__(
+        self,
+        *,
+        widgets: Sequence[WidgetVar] = (),
+        layout: str = "vertical",
+        scrollable: bool = False,
+        labels: bool = True,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
+    ) -> None:
+        self._list: list[WidgetVar] = []
+        self._labels = labels
+        self._layout = layout
+        self._scrollable = scrollable
+        base_widget_kwargs.setdefault("backend_kwargs", {}).update(  # type: ignore
+            {"layout": layout, "scrollable": scrollable}
+        )
+        Widget.__init__(self, **base_widget_kwargs)
+        for index, widget in enumerate(widgets):
+            self._insert_widget(index, widget)
+        self.native_parent_changed.connect(self.reset_choices)
+        self._initialized = True
+
+    def __len__(self) -> int:
+        """Return the count of widgets."""
+        return len(self._list)
+
+    def __getattr__(self, name: str) -> WidgetVar:
+        """Return attribute ``name``.  Will return a widget if present."""
+        for widget in self._list:
+            if name == widget.name:
+                return widget
+        return object.__getattribute__(self, name)  # type: ignore
+
+    @overload
+    def __getitem__(self, key: int | str) -> WidgetVar: ...
+
+    @overload
+    def __getitem__(self, key: slice) -> MutableSequence[WidgetVar]: ...
+
+    def __getitem__(
+        self, key: int | str | slice
+    ) -> WidgetVar | MutableSequence[WidgetVar]:
+        """Get item by integer, str, or slice."""
+        if isinstance(key, str):
+            return self.__getattr__(key)
+        if isinstance(key, slice):
+            return [getattr(item, "_inner_widget", item) for item in self._list[key]]
+        elif isinstance(key, int):
+            item = self._list[key]
+            return getattr(item, "_inner_widget", item)
+        raise TypeError(f"list indices must be integers or slices, not {type(key)}")
+
+    def reset_choices(self, *_: Any) -> None:
+        """Reset choices for all Categorical subWidgets to the default state.
+
+        If widget._default_choices is a callable, this may NOT be the exact same set of
+        choices as when the widget was instantiated, if the callable relies on external
+        state.
+        """
+        for widget in self._list:
+            if hasattr(widget, "reset_choices"):
+                widget.reset_choices()
+
+    @property
+    def labels(self) -> bool:
+        """Whether widgets are presented with labels."""
+        return self._labels
+
+    @labels.setter
+    def labels(self, value: bool) -> None:
+        if value == self._labels:
+            return
+        self._labels = value
+
+        for index, _ in enumerate(self._list):
+            widgt = self._list[index]
+            self._pop_widget(index)
+            self._insert_widget(index, widgt)
+
+    @property
+    def layout(self) -> str:
+        """Return the layout of the widget."""
+        return self._layout
+
+    @layout.setter
+    def layout(self, value: str) -> NoReturn:
+        raise NotImplementedError(
+            "It is not yet possible to change layout after instantiation"
+        )
+
+    @property
+    def margins(self) -> tuple[int, int, int, int]:
+        """Return margin between the content and edges of the container."""
+        return self._widget._mgui_get_margins()
+
+    @margins.setter
+    def margins(self, margins: tuple[int, int, int, int]) -> None:
+        # left, top, right, bottom
+        self._widget._mgui_set_margins(margins)
+
+    def _unify_label_widths(self) -> None:
+        if not self._initialized:
+            return
+
+        need_labels = [w for w in self._list if not isinstance(w, ButtonWidget)]
+        if self.layout == "vertical" and self.labels and need_labels:
+            measure = use_app().get_obj("get_text_width")
+            widest_label = max(measure(w.label) for w in need_labels)
+            for w in self._list:
+                labeled_widget = w._labeled_widget()
+                if labeled_widget:
+                    labeled_widget.label_width = widest_label
+
+    def _insert_widget(self, index: int, widget: WidgetVar) -> None:
+        """Insert widget at the given index."""
+        _widget = widget
+
+        if self.labels:
+            from magicgui.widgets._concrete import _LabeledWidget
+
+            # no labels for button widgets (push buttons, checkboxes, have their own)
+            if not isinstance(widget, (_LabeledWidget, ButtonWidget)):
+                _widget = _LabeledWidget(widget)  # type: ignore
+                widget.label_changed.connect(self._unify_label_widths)
+
+        if index < 0:
+            index += len(self)
+        self._list.insert(index, widget)
+        # NOTE: if someone has manually mucked around with self.native.layout()
+        # it's possible that indices will be off.
+        self._widget._mgui_insert_widget(index, _widget)
+        self._unify_label_widths()
+
+    def _pop_widget(self, index: int) -> WidgetVar:
+        """Remove a widget instance and return it."""
+        item = self._list[index]
+        ref = getattr(item, "_labeled_widget_ref", None)
+        if ref:
+            item = item._labeled_widget_ref()  # type: ignore
+        self._widget._mgui_remove_widget(item)
+        del self._list[index]
+        return item
+
+class ValuedContainerWidget(_BaseContainerWidget[Widget], ValueWidget[T], Generic[T]):
+    """Container-type ValueWidget."""
+
+    _widget: protocols.ContainerProtocol
+
+    def __init__(
+        self,
+        value: T | _Undefined = Undefined,
+        *,
+        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        nullable: bool = False,
+        widgets: Sequence[Widget] = (),
+        layout: str = "vertical",
+        scrollable: bool = False,
+        labels: bool = True,
+        **base_widget_kwargs: Unpack[WidgetKwargs],
+    ) -> None:
+        self._nullable = nullable
+        self._bound_value = bind
+        self._call_bound: bool = True
+        app = use_app()
+        assert app.native
+        base_widget_kwargs["widget_type"] = app.get_obj("Container")
+        _BaseContainerWidget.__init__(
+            self,
+            widgets=widgets,
+            layout=layout,
+            scrollable=scrollable,
+            labels=labels,
+            **base_widget_kwargs,
+        )
+        if value is not Undefined:
+            self.value = cast(T, value)
+        if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
+            self.hide()
+
+
+class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]):
     """Widget that can contain other widgets.
 
     Wraps a widget that implements
@@ -89,15 +284,11 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
+    _widget: protocols.ContainerProtocol
     changed = Signal(
         object,
         description="Emitted with `self` when any sub-widget in the container changes.",
     )
-    _widget: protocols.ContainerProtocol
-    _initialized = False
-    # this is janky ... it's here to allow connections during __init__ by
-    # avoiding a recursion error in __getattr__
-    _list: list[WidgetVar] = []  # noqa: RUF012
 
     def __init__(
         self,
@@ -108,25 +299,16 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         labels: bool = True,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
-        self._list: list[WidgetVar] = []
-        self._labels = labels
-        self._layout = layout
-        self._scrollable = scrollable
-        base_widget_kwargs.setdefault("backend_kwargs", {}).update(  # type: ignore
-            {"layout": layout, "scrollable": scrollable}
+        super().__init__(
+            widgets=widgets,
+            layout=layout,
+            scrollable=scrollable,
+            labels=labels,
+            **base_widget_kwargs,
         )
-        super().__init__(**base_widget_kwargs)
-        self.extend(widgets)
-        self.native_parent_changed.connect(self.reset_choices)
-        self._initialized = True
-        self._unify_label_widths()
-
-    def __getattr__(self, name: str) -> WidgetVar:
-        """Return attribute ``name``.  Will return a widget if present."""
         for widget in self._list:
-            if name == widget.name:
-                return widget
-        return object.__getattribute__(self, name)  # type: ignore
+            if isinstance(widget, (ValueWidget, _BaseContainerWidget)):
+                widget.changed.connect(lambda: self.changed.emit(self))
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Set attribute ``name``.  Prevents changing widget if present, (use del)."""
@@ -139,25 +321,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
                         f"`{self.__class__.__name__}.{name}.value = {value}`",
                     )
         object.__setattr__(self, name, value)
-
-    @overload
-    def __getitem__(self, key: int | str) -> WidgetVar: ...
-
-    @overload
-    def __getitem__(self, key: slice) -> MutableSequence[WidgetVar]: ...
-
-    def __getitem__(
-        self, key: int | str | slice
-    ) -> WidgetVar | MutableSequence[WidgetVar]:
-        """Get item by integer, str, or slice."""
-        if isinstance(key, str):
-            return self.__getattr__(key)
-        if isinstance(key, slice):
-            return [getattr(item, "_inner_widget", item) for item in self._list[key]]
-        elif isinstance(key, int):
-            item = self._list[key]
-            return getattr(item, "_inner_widget", item)
-        raise TypeError(f"list indices must be integers or slices, not {type(key)}")
 
     def index(self, value: Any, start: int = 0, stop: int = 9223372036854775807) -> int:
         """Return index of a specific widget instance (or widget name)."""
@@ -191,10 +354,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
             raise TypeError(f"list indices must be integers or slices, not {type(key)}")
         del self._list[key]
 
-    def __len__(self) -> int:
-        """Return the count of widgets."""
-        return len(self._list)
-
     def __setitem__(self, key: Any, value: Any) -> NoReturn:
         """Prevent assignment by index."""
         raise RuntimeError("magicgui.Container does not support item setting.")
@@ -207,70 +366,9 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
     def insert(self, key: int, widget: WidgetVar) -> None:
         """Insert widget at ``key``."""
-        if isinstance(widget, (ValueWidget, ContainerWidget)):
+        if isinstance(widget, (ValueWidget, _BaseContainerWidget)):
             widget.changed.connect(lambda: self.changed.emit(self))
-        _widget = widget
-
-        if self.labels:
-            from magicgui.widgets._concrete import _LabeledWidget
-
-            # no labels for button widgets (push buttons, checkboxes, have their own)
-            if not isinstance(widget, (_LabeledWidget, ButtonWidget)):
-                _widget = _LabeledWidget(widget)  # type: ignore
-                widget.label_changed.connect(self._unify_label_widths)
-
-        if key < 0:
-            key += len(self)
-        self._list.insert(key, widget)
-        # NOTE: if someone has manually mucked around with self.native.layout()
-        # it's possible that indices will be off.
-        self._widget._mgui_insert_widget(key, _widget)
-        self._unify_label_widths()
-
-    def _unify_label_widths(self) -> None:
-        if not self._initialized:
-            return
-
-        need_labels = [w for w in self._list if not isinstance(w, ButtonWidget)]
-        if self.layout == "vertical" and self.labels and need_labels:
-            measure = use_app().get_obj("get_text_width")
-            widest_label = max(measure(w.label) for w in need_labels)
-            for w in self:
-                labeled_widget = w._labeled_widget()
-                if labeled_widget:
-                    labeled_widget.label_width = widest_label
-
-    @property
-    def margins(self) -> tuple[int, int, int, int]:
-        """Return margin between the content and edges of the container."""
-        return self._widget._mgui_get_margins()
-
-    @margins.setter
-    def margins(self, margins: tuple[int, int, int, int]) -> None:
-        # left, top, right, bottom
-        self._widget._mgui_set_margins(margins)
-
-    @property
-    def layout(self) -> str:
-        """Return the layout of the widget."""
-        return self._layout
-
-    @layout.setter
-    def layout(self, value: str) -> NoReturn:
-        raise NotImplementedError(
-            "It is not yet possible to change layout after instantiation"
-        )
-
-    def reset_choices(self, *_: Any) -> None:
-        """Reset choices for all Categorical subWidgets to the default state.
-
-        If widget._default_choices is a callable, this may NOT be the exact same set of
-        choices as when the widget was instantiated, if the callable relies on external
-        state.
-        """
-        for widget in self._list:
-            if hasattr(widget, "reset_choices"):
-                widget.reset_choices()
+        self._insert_widget(key, widget)
 
     @property
     def __signature__(self) -> MagicSignature:
@@ -315,21 +413,6 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
     def __repr__(self) -> str:
         """Return a repr."""
         return f"<Container {self.__signature__}>"
-
-    @property
-    def labels(self) -> bool:
-        """Whether widgets are presented with labels."""
-        return self._labels
-
-    @labels.setter
-    def labels(self, value: bool) -> None:
-        if value == self._labels:
-            return
-        self._labels = value
-
-        for index, _ in enumerate(self):
-            widget = self.pop(index)
-            self.insert(index, widget)
 
     NO_VALUE = "NO_VALUE"
 

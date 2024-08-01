@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Callable, Iterable, Tuple, TypeVar, Union, cas
 
 from magicgui.types import Undefined, _Undefined
 
-from ._value_widget import ValueWidget
+from ._value_widget import PrimitiveValueWidget, ValueWidget
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -21,7 +21,7 @@ DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 
 
-class RangedWidget(ValueWidget[T]):
+class RangedWidget(PrimitiveValueWidget[T]):
     """Widget with a constrained value. Wraps RangedWidgetProtocol.
 
     Parameters
@@ -75,7 +75,7 @@ class RangedWidget(ValueWidget[T]):
             self.step = cast(float, step)
 
         self.min, self.max = self._init_range(value, min, max)
-        if value not in (Undefined, None):
+        if value is not None and not isinstance(value, _Undefined):
             self.value = value
 
     def _init_range(
@@ -117,8 +117,7 @@ class RangedWidget(ValueWidget[T]):
         d.update({"min": self.min, "max": self.max, "step": self.step})
         return d
 
-    @ValueWidget.value.setter  # type: ignore
-    def value(self, value: T) -> None:
+    def set_value(self, value: T) -> None:
         """Set widget value, will raise Value error if not within min/max."""
         val: tuple[float, ...] = value if isinstance(value, tuple) else (value,)
         if any(float(v) < self.min or float(v) > self.max for v in val):
@@ -126,7 +125,7 @@ class RangedWidget(ValueWidget[T]):
                 f"value {value} is outside of the allowed range: "
                 f"({self.min}, {self.max})"
             )
-        ValueWidget.value.fset(self, value)  # type: ignore
+        super().set_value(value)
 
     @property
     def min(self) -> float:
@@ -224,14 +223,14 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
 
     def __init__(
         self,
-        value: T | _Undefined = Undefined,
+        value: float | _Undefined = Undefined,
         *,
         min: float = 0,
         max: float = 100,
         min_pos: int = 0,
         max_pos: int = 100,
         step: int = 1,
-        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        bind: float | Callable[[ValueWidget], float] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
@@ -239,8 +238,12 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         self._max = max
         self._min_pos = min_pos
         self._max_pos = max_pos
-        ValueWidget.__init__(  # type: ignore
-            self, value=value, bind=bind, nullable=nullable, **base_widget_kwargs
+        PrimitiveValueWidget.__init__(
+            self,  # type: ignore
+            value=value,  # type: ignore
+            bind=bind,  # type: ignore
+            nullable=nullable,
+            **base_widget_kwargs
         )
 
         self._widget._mgui_set_min(self._min_pos)
@@ -299,11 +302,10 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         self.value = prev
 
 
-class MultiValueRangedWidget(RangedWidget[T]):
+class MultiValueRangedWidget(RangedWidget[Tuple[Union[int, float], ...]]):
     """Widget with a constrained *iterable* value, like a tuple."""
 
-    @ValueWidget.value.setter  # type: ignore
-    def value(self, value: tuple[float, ...]) -> None:
+    def set_value(self, value: tuple[float, ...]) -> None:
         """Set widget value, will raise Value error if not within min/max."""
         if not isinstance(value, Iterable):
             raise ValueError(
@@ -318,4 +320,4 @@ class MultiValueRangedWidget(RangedWidget[T]):
                     f"value {v} is outside of the allowed range: "
                     f"({self.min}, {self.max})"
                 )
-        ValueWidget.value.fset(self, value)  # type: ignore
+        super().set_value(value)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, Union, cast
 
 from psygnal import Signal
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-class ValueWidget(Widget, Generic[T]):
+class ValueWidget(Widget, ABC, Generic[T]):
     """Widget with a value, Wraps ValueWidgetProtocol.
 
     Parameters
@@ -39,7 +40,6 @@ class ValueWidget(Widget, Generic[T]):
         [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
-    _widget: protocols.ValueWidgetProtocol
     changed = Signal(object, description="Emitted when the widget value changes.")
     null_value: Any = None
 
@@ -60,16 +60,13 @@ class ValueWidget(Widget, Generic[T]):
         if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
             self.hide()
 
-    def _post_init(self) -> None:
-        super()._post_init()
-        self._widget._mgui_bind_change_callback(self._on_value_change)
-
     def _on_value_change(self, value: T | None = None) -> None:
         """Called when the widget value changes."""
         if value is self.null_value and not self._nullable:
             return
         self.changed.emit(value)
 
+    @abstractmethod
     def get_value(self) -> T:
         """Callable version of `self.value`.
 
@@ -77,7 +74,10 @@ class ValueWidget(Widget, Generic[T]):
         an escape hatch if trying to access the widget's value inside of a callback
         bound to self._bound_value.
         """
-        return cast(T, self._widget._mgui_get_value())
+
+    @abstractmethod
+    def set_value(self, value: Any) -> None:
+        """Normalize and set the value of the widget."""
 
     @property
     def value(self) -> T:
@@ -98,7 +98,7 @@ class ValueWidget(Widget, Generic[T]):
 
     @value.setter
     def value(self, value: T) -> None:
-        return self._widget._mgui_set_value(value)
+        return self.set_value(value)
 
     def __repr__(self) -> str:
         """Return representation of widget of instance."""
@@ -159,3 +159,24 @@ class ValueWidget(Widget, Generic[T]):
     @annotation.setter
     def annotation(self, value: Any) -> None:
         Widget.annotation.fset(self, value)  # type: ignore
+
+class PrimitiveValueWidget(ValueWidget[T]):
+    """ValueWidget whose behaviors are implemented on the backend side."""
+
+    _widget: protocols.ValueWidgetProtocol
+
+    def _post_init(self) -> None:
+        super()._post_init()
+        self._widget._mgui_bind_change_callback(self._on_value_change)
+
+    def get_value(self) -> T:
+        """Callable version of `self.value`.
+
+        The main API is to use `self.value`, however, this is here in order to provide
+        an escape hatch if trying to access the widget's value inside of a callback
+        bound to self._bound_value.
+        """
+        return cast(T, self._widget._mgui_get_value())
+
+    def set_value(self, value: Any) -> None:
+        self._widget._mgui_set_value(value)

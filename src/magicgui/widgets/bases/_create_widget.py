@@ -130,14 +130,18 @@ def create_widget(
 
     # pick the appropriate subclass for the given protocol
     # order matters
-    for p in ("Categorical", "Ranged", "Button", "Value", ""):
-        prot = getattr(protocols, f"{p}WidgetProtocol")
+    for prot, cls in [
+        (protocols.CategoricalWidgetProtocol, bases.CategoricalWidget),
+        (protocols.RangedWidgetProtocol, bases.RangedWidget),
+        (protocols.ButtonWidgetProtocol, bases.ButtonWidget),
+        (protocols.ValueWidgetProtocol, bases.PrimitiveValueWidget),
+        (protocols.WidgetProtocol, bases.Widget),
+    ]:
         if isinstance(wdg_class, prot):
             options_ = kwargs.pop("options", None)
-            cls = getattr(bases, f"{p}Widget")
             widget = cls(**{**kwargs, **(options_ or {}), "widget_type": wdg_class})
             if param_kind:
-                widget.param_kind = param_kind  # type: ignore
+                widget.param_kind = param_kind
             return widget
 
     raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")

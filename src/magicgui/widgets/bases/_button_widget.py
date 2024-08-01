@@ -6,7 +6,7 @@ from psygnal import Signal, SignalInstance
 
 from magicgui.types import Undefined, _Undefined
 
-from ._value_widget import ValueWidget
+from ._value_widget import PrimitiveValueWidget, ValueWidget
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from ._widget import WidgetKwargs
 
 
-class ButtonWidget(ValueWidget[bool]):
+class ButtonWidget(PrimitiveValueWidget[bool]):
     """Widget with a value, Wraps a widget implementing the ButtonWidgetProtocol.
 
     >see [ButtonWidgetProtocol][magicgui.widgets.protocols.ButtonWidgetProtocol].
