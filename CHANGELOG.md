@@ -1,5 +1,29 @@
 # Changelog
 
+## [v0.9.0](https://github.com/pyapp-kit/magicgui/tree/v0.9.0) (2024-08-02)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.3...v0.9.0)
+
+**Implemented enhancements:**
+
+- feat: Add mechanism to check basic subclassing of generics [\#658](https://github.com/pyapp-kit/magicgui/pull/658) ([Czaki](https://github.com/Czaki))
+
+**Fixed bugs:**
+
+- Fix array data not compatible with ComboBox [\#652](https://github.com/pyapp-kit/magicgui/pull/652) ([hanjinliu](https://github.com/hanjinliu))
+
+**Tests & CI:**
+
+- ci: upload pydantic1 coverage with the rest of them [\#660](https://github.com/pyapp-kit/magicgui/pull/660) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: fix missing images in docs, update docs deps [\#656](https://github.com/pyapp-kit/magicgui/pull/656) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- Use PyPI trusted publishing to push release to PyPI [\#651](https://github.com/pyapp-kit/magicgui/pull/651) ([jni](https://github.com/jni))
+
 ## [v0.8.3](https://github.com/pyapp-kit/magicgui/tree/v0.8.3) (2024-06-04)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.2...v0.8.3)
