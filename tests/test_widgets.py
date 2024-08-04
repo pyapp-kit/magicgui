@@ -10,7 +10,7 @@ from typing_extensions import Annotated
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
-from magicgui.widgets.bases import DialogWidget, ValueWidget
+from magicgui.widgets.bases import BaseValueWidget, DialogWidget
 from tests import MyInt
 
 
@@ -166,7 +166,7 @@ def test_custom_widget():
     # widget with a widgets._bases.ValueWidget
     with pytest.warns(UserWarning, match="must accept a `parent` Argument"):
         wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
-    assert isinstance(wdg, ValueWidget)
+    assert isinstance(wdg, BaseValueWidget)
     wdg.close()
 
 

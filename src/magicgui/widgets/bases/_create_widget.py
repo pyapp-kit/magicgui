@@ -134,7 +134,7 @@ def create_widget(
         (protocols.CategoricalWidgetProtocol, bases.CategoricalWidget),
         (protocols.RangedWidgetProtocol, bases.RangedWidget),
         (protocols.ButtonWidgetProtocol, bases.ButtonWidget),
-        (protocols.ValueWidgetProtocol, bases.PrimitiveValueWidget),
+        (protocols.ValueWidgetProtocol, bases.ValueWidget),
         (protocols.WidgetProtocol, bases.Widget),
     ]:
         if isinstance(wdg_class, prot):

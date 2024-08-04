@@ -25,7 +25,7 @@ from magicgui.types import Undefined, _Undefined
 from magicgui.widgets.bases._mixins import _OrientationMixin
 
 from ._button_widget import ButtonWidget
-from ._value_widget import ValueWidget
+from ._value_widget import BaseValueWidget
 from ._widget import Widget
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 
     class ValuedContainerKwargs(ContainerKwargs[Widget], Generic[T], total=False):
         # NOTE: "value" is usually given as a positional argument
-        bind: T | Callable[[ValueWidget], T]
+        bind: T | Callable[[BaseValueWidget], T]
         nullable: bool
 
 
@@ -203,7 +203,9 @@ class _BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         del self._list[index]
         return item
 
-class ValuedContainerWidget(_BaseContainerWidget[Widget], ValueWidget[T], Generic[T]):
+class ValuedContainerWidget(
+    _BaseContainerWidget[Widget], BaseValueWidget[T], Generic[T]
+):
     """Container-type ValueWidget."""
 
     _widget: protocols.ContainerProtocol
@@ -212,7 +214,7 @@ class ValuedContainerWidget(_BaseContainerWidget[Widget], ValueWidget[T], Generi
         self,
         value: T | _Undefined = Undefined,
         *,
-        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        bind: T | Callable[[BaseValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         widgets: Sequence[Widget] = (),
         layout: str = "vertical",
@@ -307,7 +309,7 @@ class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar
             **base_widget_kwargs,
         )
         for widget in self._list:
-            if isinstance(widget, (ValueWidget, _BaseContainerWidget)):
+            if isinstance(widget, (BaseValueWidget, _BaseContainerWidget)):
                 widget.changed.connect(lambda: self.changed.emit(self))
 
     def __setattr__(self, name: str, value: Any) -> None:
@@ -366,7 +368,7 @@ class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar
 
     def insert(self, key: int, widget: WidgetVar) -> None:
         """Insert widget at ``key``."""
-        if isinstance(widget, (ValueWidget, _BaseContainerWidget)):
+        if isinstance(widget, (BaseValueWidget, _BaseContainerWidget)):
             widget.changed.connect(lambda: self.changed.emit(self))
         self._insert_widget(key, widget)
 

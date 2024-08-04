@@ -25,7 +25,7 @@ from warnings import warn
 
 from magicgui.application import use_app
 from magicgui.widgets.bases._mixins import _ReadOnlyMixin
-from magicgui.widgets.bases._value_widget import PrimitiveValueWidget
+from magicgui.widgets.bases._value_widget import ValueWidget
 
 if TYPE_CHECKING:
     import numpy
@@ -133,7 +133,7 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
 
 
 class Table(
-    PrimitiveValueWidget[Mapping[TblKey, Collection]],
+    ValueWidget[Mapping[TblKey, Collection]],
     _ReadOnlyMixin,
     MutableMapping[TblKey, list],
 ):

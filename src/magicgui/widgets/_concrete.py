@@ -38,13 +38,13 @@ from magicgui._util import merge_super_sigs, safe_issubclass
 from magicgui.application import use_app
 from magicgui.types import ChoicesType, FileDialogMode, PathLike, Undefined, _Undefined
 from magicgui.widgets.bases import (
+    BaseValueWidget,
     ButtonWidget,
     CategoricalWidget,
     ContainerWidget,
     DialogWidget,
     MainWindowWidget,
     MultiValuedSliderWidget,
-    PrimitiveValueWidget,
     RangedWidget,
     SliderWidget,
     ToolBarWidget,
@@ -157,37 +157,37 @@ class EmptyWidget(ValuedContainerWidget[Any]):
 
 
 @backend_widget
-class Label(PrimitiveValueWidget[str]):
+class Label(ValueWidget[str]):
     """A non-editable text display."""
 
 
 @backend_widget
-class LineEdit(PrimitiveValueWidget[str]):
+class LineEdit(ValueWidget[str]):
     """A one-line text editor."""
 
 
 @backend_widget
-class Password(PrimitiveValueWidget[str]):
+class Password(ValueWidget[str]):
     """A one-line text editor that obscures input."""
 
 
 @backend_widget
-class LiteralEvalLineEdit(PrimitiveValueWidget[str]):
+class LiteralEvalLineEdit(ValueWidget[str]):
     """A one-line text editor that evaluates strings as python literals."""
 
 
 @backend_widget
-class TextEdit(PrimitiveValueWidget[str], _ReadOnlyMixin):  # type: ignore
+class TextEdit(ValueWidget[str], _ReadOnlyMixin):  # type: ignore
     """A widget to edit and display both plain and rich text."""
 
 
 @backend_widget
-class DateTimeEdit(PrimitiveValueWidget[datetime.datetime]):
+class DateTimeEdit(ValueWidget[datetime.datetime]):
     """A widget for editing dates and times."""
 
 
 @backend_widget
-class DateEdit(PrimitiveValueWidget[datetime.date]):
+class DateEdit(ValueWidget[datetime.date]):
     """A widget for editing dates."""
 
 
@@ -195,7 +195,7 @@ TV = TypeVar("TV", bound=Union[datetime.time, datetime.timedelta])
 
 
 @backend_widget
-class TimeEdit(PrimitiveValueWidget[TV]):
+class TimeEdit(ValueWidget[TV]):
     """A widget for editing times."""
 
 
@@ -605,7 +605,7 @@ class SliceEdit(_RangeOrSliceEdit[slice]):
 class _ListEditChildWidget(ValuedContainerWidget[_V]):
     """A widget to represent a single element of a ListEdit widget."""
 
-    def __init__(self, widget: ValueWidget[_V]):
+    def __init__(self, widget: BaseValueWidget[_V]):
         btn = PushButton(text="-")
         super().__init__(widgets=[widget, btn], layout="horizontal", labels=False)
         self.btn_minus = btn
@@ -741,7 +741,7 @@ class ListEdit(ValuedContainerWidget[List[_V]]):
             name=f"value_{i}",
             options=self._child_options,
         )
-        widget = _ListEditChildWidget(cast(ValueWidget, _value_widget))
+        widget = _ListEditChildWidget(cast(BaseValueWidget, _value_widget))
         # connect the minus-button-clicked event
         def _remove_me() -> None:
             self._pop_widget(self.index(widget))
@@ -921,7 +921,7 @@ class TupleEdit(ValuedContainerWidget[Tuple]):
         for a in _value:
             i = len(self)
             widget = cast(
-                ValueWidget,
+                BaseValueWidget,
                 create_widget(
                     value=a,
                     annotation=self._args_types[i],
@@ -1046,5 +1046,5 @@ class _LabeledWidget(Container):
 
 
 @backend_widget
-class QuantityEdit(PrimitiveValueWidget):
+class QuantityEdit(ValueWidget):
     """A combined `LineEdit` and `ComboBox` to edit a `pint.Quantity`."""

@@ -55,7 +55,7 @@ from ._create_widget import create_widget
 from ._ranged_widget import RangedWidget, TransformedRangedWidget
 from ._slider_widget import MultiValuedSliderWidget, SliderWidget
 from ._toolbar import ToolBarWidget
-from ._value_widget import PrimitiveValueWidget, ValueWidget
+from ._value_widget import BaseValueWidget, ValueWidget
 from ._widget import Widget
 
 __all__ = [
@@ -66,12 +66,12 @@ __all__ = [
     "DialogWidget",
     "MainWindowWidget",
     "MultiValuedSliderWidget",
-    "PrimitiveValueWidget",
+    "ValueWidget",
     "RangedWidget",
     "SliderWidget",
     "ToolBarWidget",
     "TransformedRangedWidget",
     "ValuedContainerWidget",
-    "ValueWidget",
+    "BaseValueWidget",
     "Widget",
 ]

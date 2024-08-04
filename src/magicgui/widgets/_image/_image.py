@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 from magicgui.widgets._concrete import backend_widget
-from magicgui.widgets.bases import PrimitiveValueWidget
+from magicgui.widgets.bases import ValueWidget
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @backend_widget
-class Image(PrimitiveValueWidget):
+class Image(ValueWidget):
     """A non-editable image display."""
 
     _widget: ValueWidgetProtocol

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Callable, Iterable, Tuple, TypeVar, Union, cas
 
 from magicgui.types import Undefined, _Undefined
 
-from ._value_widget import PrimitiveValueWidget, ValueWidget
+from ._value_widget import BaseValueWidget, ValueWidget
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -21,7 +21,7 @@ DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 
 
-class RangedWidget(PrimitiveValueWidget[T]):
+class RangedWidget(ValueWidget[T]):
     """Widget with a constrained value. Wraps RangedWidgetProtocol.
 
     Parameters
@@ -57,7 +57,7 @@ class RangedWidget(PrimitiveValueWidget[T]):
         min: float | _Undefined = Undefined,
         max: float | _Undefined = Undefined,
         step: float | _Undefined | None = Undefined,
-        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        bind: T | Callable[[BaseValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
@@ -230,7 +230,7 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         min_pos: int = 0,
         max_pos: int = 100,
         step: int = 1,
-        bind: float | Callable[[ValueWidget], float] | _Undefined = Undefined,
+        bind: float | Callable[[BaseValueWidget], float] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
@@ -238,7 +238,7 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         self._max = max
         self._min_pos = min_pos
         self._max_pos = max_pos
-        PrimitiveValueWidget.__init__(
+        ValueWidget.__init__(
             self,  # type: ignore
             value=value,  # type: ignore
             bind=bind,  # type: ignore
