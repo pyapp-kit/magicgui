@@ -141,19 +141,6 @@ class _IPyWidget(protocols.WidgetProtocol):
         pass
 
 
-class EmptyWidget(_IPyWidget):
-    _ipywidget: ipywdg.Widget
-
-    def _mgui_get_value(self) -> Any:
-        raise NotImplementedError()
-
-    def _mgui_set_value(self, value: Any) -> None:
-        raise NotImplementedError()
-
-    def _mgui_bind_change_callback(self, callback: Callable):
-        pass
-
-
 class _IPyValueWidget(_IPyWidget, protocols.ValueWidgetProtocol):
     def _mgui_get_value(self) -> float:
         return self._ipywidget.value
