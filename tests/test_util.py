@@ -85,3 +85,4 @@ class TestSafeIsSubclass:
         assert safe_issubclass(Future[typing.List[int]], Future[list[int]])
         assert safe_issubclass(Future[typing.List[int]], Future[list])
         assert safe_issubclass(Future[list[int]], Future[typing.List[int]])
+        assert not safe_issubclass(Future[list[int]], Future[typing.List[str]])
