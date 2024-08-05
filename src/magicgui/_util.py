@@ -210,10 +210,11 @@ def safe_issubclass(obj: object, superclass: object) -> bool:
         if obj_origin is tuple and obj_args:
             return _safe_isinstance_tuple(obj, superclass)
 
-        return (
-                issubclass(obj_origin, superclass_origin) and  # type: ignore
-                (obj_args == superclass_args or not superclass_args)
-        )
+        if not superclass_args:
+            return True
+        if len(obj_args) != len(superclass_args):
+            return False
+        return all(safe_issubclass(o, s) for o, s in zip(obj_args, superclass_args))
 
     except Exception:
         return False
