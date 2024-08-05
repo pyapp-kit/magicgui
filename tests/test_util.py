@@ -80,6 +80,7 @@ class TestSafeIsSubclass:
         assert not safe_issubclass(typing.Tuple[int, int], typing.Tuple[int, str])
         assert not safe_issubclass(typing.Tuple[int, int], typing.Tuple[int, int, int])
 
+    @pytest.mark.skipif(sys.version_info < (3, 9), reason="Future[] is supported in 3.9+")
     def test_subclass_future(self):
         assert safe_issubclass(Future[typing.List[int]], Future[list[int]])
         assert safe_issubclass(Future[typing.List[int]], Future[list])
