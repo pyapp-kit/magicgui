@@ -1,6 +1,7 @@
 import sys
 import typing
 from collections.abc import Mapping, Sequence
+from concurrent.futures import Future
 
 import pytest
 
@@ -78,3 +79,10 @@ class TestSafeIsSubclass:
         assert safe_issubclass(typing.Tuple[int, int], typing.Tuple[int, ...])
         assert not safe_issubclass(typing.Tuple[int, int], typing.Tuple[int, str])
         assert not safe_issubclass(typing.Tuple[int, int], typing.Tuple[int, int, int])
+
+    @pytest.mark.skipif(sys.version_info < (3, 9), reason="Future[] is supported in 3.9+")
+    def test_subclass_future(self):
+        assert safe_issubclass(Future[typing.List[int]], Future[list[int]])
+        assert safe_issubclass(Future[typing.List[int]], Future[list])
+        assert safe_issubclass(Future[list[int]], Future[typing.List[int]])
+        assert not safe_issubclass(Future[list[int]], Future[typing.List[str]])
