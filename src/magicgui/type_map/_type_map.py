@@ -59,7 +59,7 @@ _SIMPLE_ANNOTATIONS = {
     PathLike: widgets.FileEdit,
 }
 
-_SIMPLE_TYPES = {
+_SIMPLE_TYPES: dict[type, type[widgets.Widget]] = {
     bool: widgets.CheckBox,
     int: widgets.SpinBox,
     float: widgets.FloatSpinBox,
