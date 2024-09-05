@@ -335,11 +335,13 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
 
     def asdict(self) -> dict[str, Any]:
         """Return state of widget as dict."""
-        return {
-            w.name: getattr(w, "value", None)
-            for w in self._list
-            if w.name and not w.gui_only
-        }
+        ret = {}
+        for w in self._list:
+            if w.name and not w.gui_only:
+                ret[w.name] = getattr(w, "value", None)
+            if isinstance(w, ContainerWidget):
+                ret[w.label] = w.asdict()
+        return ret
 
     def update(
         self,
