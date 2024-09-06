@@ -6,7 +6,7 @@
 
 **Fixed bugs:**
 
-- fix: Fix checking sublcasses of Future [\#665](https://github.com/pyapp-kit/magicgui/pull/665) ([Czaki](https://github.com/Czaki))
+- fix: Fix checking subclasses of Future [\#665](https://github.com/pyapp-kit/magicgui/pull/665) ([Czaki](https://github.com/Czaki))
 
 ## [v0.9.0](https://github.com/pyapp-kit/magicgui/tree/v0.9.0) (2024-08-05)
 
