@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from attrs import Attribute
     from pydantic.fields import FieldInfo, ModelField
 
+    from magicgui.types import NestedValueWidgets
     from magicgui.widgets.bases import ContainerWidget, ValueWidget
 
     class HasAttrs(Protocol):
@@ -44,7 +45,6 @@ __all__ = ["build_widget", "get_ui_fields", "UiField"]
 
 SLOTS = {"slots": True} if sys.version_info >= (3, 10) else {}
 T = TypeVar("T")
-
 
 @dataclass(frozen=True, **SLOTS)
 class UiField(Generic[T]):
@@ -394,7 +394,9 @@ class UiField(Generic[T]):
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)
 
-    def create_widget(self, value: T | _Undefined = Undefined) -> ValueWidget[T]:
+    def create_widget(self,
+                      value: T | _Undefined = Undefined
+                      ) -> ValueWidget[T] | NestedValueWidgets:
         """Create a new Widget for this field."""
         from magicgui.type_map import get_widget_class
 
@@ -448,7 +450,7 @@ class UiField(Generic[T]):
         except ValueError:
             try:
                 wdg = build_widget(self.type)
-                wdg.label = self.name
+                wdg.label = self.name if self.name else ""
                 return wdg
             except TypeError as e:
                 raise TypeError(
@@ -799,7 +801,7 @@ def _uifields_to_container(
     values: Mapping[str, Any] | None = None,
     *,
     container_kwargs: Mapping | None = None,
-) -> ContainerWidget[ValueWidget]:
+) -> ContainerWidget[NestedValueWidgets]:
     """Create a container widget from a sequence of UiFields.
 
     This function is the heart of build_widget.
@@ -862,7 +864,9 @@ def _get_values(obj: Any) -> dict | None:
 
 
 # TODO: unify this with magicgui
-def build_widget(cls_or_instance: Any) -> ContainerWidget[ValueWidget]:
+def build_widget(
+    cls_or_instance: Any
+) -> ContainerWidget[NestedValueWidgets]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
     values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
     return _uifields_to_container(get_ui_fields(cls_or_instance), values=values)
