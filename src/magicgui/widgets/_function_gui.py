@@ -26,7 +26,7 @@ from psygnal import Signal
 from magicgui._type_resolution import resolve_single_type
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
-from magicgui.widgets.bases import ValueWidget
+from magicgui.widgets.bases import BaseValueWidget
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -231,12 +231,12 @@ class FunctionGui(Container, Generic[_P, _R]):
 
             self.append(self._call_button)
 
-        self._result_widget: ValueWidget | None = None
+        self._result_widget: BaseValueWidget | None = None
         if result_widget:
             from magicgui.widgets.bases import create_widget
 
             self._result_widget = cast(
-                ValueWidget,
+                BaseValueWidget,
                 create_widget(
                     value=None,
                     annotation=self._return_annotation,
