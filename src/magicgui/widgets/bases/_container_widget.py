@@ -339,7 +339,7 @@ class ContainerWidget(Widget, _OrientationMixin, MutableSequence[WidgetVar]):
         for w in self._list:
             if w.name and not w.gui_only:
                 ret[w.name] = getattr(w, "value", None)
-            if isinstance(w, ContainerWidget):
+            if isinstance(w, ContainerWidget) and w.widget_type == "Container":
                 ret[w.label] = w.asdict()
         return ret
 
