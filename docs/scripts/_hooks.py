@@ -15,8 +15,7 @@ from itertools import count
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Mapping
 
-from griffe.dataclasses import Alias
-from griffe.docstrings import numpy
+from griffe import Alias
 from mkdocstrings_handlers.python.handler import PythonHandler
 
 from magicgui.type_map import get_widget_class
@@ -30,12 +29,12 @@ if TYPE_CHECKING:
 # TODO: figure out how to do this with options
 @contextmanager
 def _hide_numpy_warn():
-    if not hasattr(numpy, "_warn"):
-        yield
-        return
-    before, numpy._warn = numpy._warn, lambda *x, **k: None
+    # if not hasattr(numpy, "_warn"):
+    #     yield
+    #     return
+    # before, numpy._warn = numpy._warn, lambda *x, **k: None
     yield
-    numpy._warn = before
+    # numpy._warn = before
 
 
 def inject_dynamic_docstring(item: Alias, identifier: str) -> None:
