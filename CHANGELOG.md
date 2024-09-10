@@ -1,5 +1,38 @@
 # Changelog
 
+## [v0.9.1](https://github.com/pyapp-kit/magicgui/tree/v0.9.1) (2024-08-06)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.0...v0.9.1)
+
+**Fixed bugs:**
+
+- fix: Fix checking subclasses of Future [\#665](https://github.com/pyapp-kit/magicgui/pull/665) ([Czaki](https://github.com/Czaki))
+
+## [v0.9.0](https://github.com/pyapp-kit/magicgui/tree/v0.9.0) (2024-08-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.3...v0.9.0)
+
+**Implemented enhancements:**
+
+- feat: Add mechanism to check basic subclassing of generics [\#658](https://github.com/pyapp-kit/magicgui/pull/658) ([Czaki](https://github.com/Czaki))
+
+**Fixed bugs:**
+
+- Fix array data not compatible with ComboBox [\#652](https://github.com/pyapp-kit/magicgui/pull/652) ([hanjinliu](https://github.com/hanjinliu))
+
+**Tests & CI:**
+
+- ci: upload pydantic1 coverage with the rest of them [\#660](https://github.com/pyapp-kit/magicgui/pull/660) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: fix missing images in docs, update docs deps [\#656](https://github.com/pyapp-kit/magicgui/pull/656) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- chore: Add missed contents permission to deploy steep of workflow [\#664](https://github.com/pyapp-kit/magicgui/pull/664) ([Czaki](https://github.com/Czaki))
+- Use PyPI trusted publishing to push release to PyPI [\#651](https://github.com/pyapp-kit/magicgui/pull/651) ([jni](https://github.com/jni))
+
 ## [v0.8.3](https://github.com/pyapp-kit/magicgui/tree/v0.8.3) (2024-06-04)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.2...v0.8.3)
@@ -614,7 +647,7 @@
 
 ## [v0.2.9](https://github.com/pyapp-kit/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.9)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -640,13 +673,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/pyapp-kit/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.8)
-
 ## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8rc0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.8rc0)
+
+## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8)
 
 **Implemented enhancements:**
 
