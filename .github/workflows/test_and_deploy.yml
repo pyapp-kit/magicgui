@@ -30,21 +30,21 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         qt: [pyqt6, pyside6]
         include:
-          - python-version: "3.8"
+          - python-version: "3.9"
             os: ubuntu-latest
             qt: pyqt5
-          - python-version: "3.8"
+          - python-version: "3.9"
+            os: ubuntu-latest
+            qt: pyside2
+          - python-version: "3.9"
             os: macos-13
             qt: pyside2
-          - python-version: "3.8"
+          - python-version: "3.9"
+            os: macos-13
+            qt: pyqt5
+          - python-version: "3.9"
             os: windows-latest
             qt: pyqt5
-          - python-version: "3.9"
-            os: macos-13
-            qt: pyqt5
-          - python-version: "3.9"
-            os: ubuntu-latest
-            qt: pyside2
           - python-version: "3.10"
             os: ubuntu-latest
             qt: pyside2
@@ -54,6 +54,12 @@ jobs:
           - python-version: "3.12"
             os: ubuntu-latest
             qt: pyside6
+          - python-version: "3.13"
+            os: ubuntu-latest
+            qt: pyside6
+          - python-version: "3.13"
+            os: windows-latest
+            qt: pyqt6
 
   test-min-reqs:
     name: Test min reqs
