@@ -8,7 +8,7 @@ from typing_extensions import Annotated, get_args
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui._type_resolution import resolve_single_type
-from magicgui.type_map._type_map import _RETURN_CALLBACKS
+from magicgui.type_map import TypeMap
 
 if TYPE_CHECKING:
     import numpy
@@ -154,11 +154,13 @@ def test_type_registered():
 
 
 def test_type_registered_callbacks():
+    _return_callbacks = TypeMap.global_instance()._return_callbacks
+
     @magicgui
     def func(a: int) -> int:
         return a
 
-    assert not _RETURN_CALLBACKS[int]
+    assert not _return_callbacks[int]
     mock = Mock()
     func(1)
     mock.assert_not_called()
@@ -170,13 +172,13 @@ def test_type_registered_callbacks():
         func(2)
         mock.assert_called_once_with(2)
         mock.reset_mock()
-        assert _RETURN_CALLBACKS[int] == [cb]
+        assert _return_callbacks[int] == [cb]
         register_type(int, return_callback=cb2)
-        assert _RETURN_CALLBACKS[int] == [cb, cb2]
+        assert _return_callbacks[int] == [cb, cb2]
 
     func(3)
     mock.assert_not_called()
-    assert _RETURN_CALLBACKS[int] == [cb2]
+    assert _return_callbacks[int] == [cb2]
 
 
 def test_type_registered_warns():
@@ -191,8 +193,9 @@ def test_type_registered_warns():
 
 
 def test_type_registered_optional_callbacks():
-    assert not _RETURN_CALLBACKS[int]
-    assert not _RETURN_CALLBACKS[Optional[int]]
+    _return_callbacks = TypeMap.global_instance()._return_callbacks
+    assert not _return_callbacks[int]
+    assert not _return_callbacks[Optional[int]]
 
     @magicgui
     def func1(a: int) -> int:
@@ -216,13 +219,13 @@ def test_type_registered_optional_callbacks():
         mock1.assert_called_once_with(func2, 2, Optional[int])
         mock1.reset_mock()
         mock2.assert_called_once_with(func1, 1, int)
-        assert _RETURN_CALLBACKS[int] == [mock2, mock1]
-        assert _RETURN_CALLBACKS[Optional[int]] == [mock1]
+        assert _return_callbacks[int] == [mock2, mock1]
+        assert _return_callbacks[Optional[int]] == [mock1]
         register_type(Optional[int], return_callback=mock3)
-        assert _RETURN_CALLBACKS[Optional[int]] == [mock1, mock3]
+        assert _return_callbacks[Optional[int]] == [mock1, mock3]
 
-    assert _RETURN_CALLBACKS[Optional[int]] == [mock3]
-    assert _RETURN_CALLBACKS[int] == [mock2, mock3]
+    assert _return_callbacks[Optional[int]] == [mock3]
+    assert _return_callbacks[int] == [mock2, mock3]
 
 
 def test_pick_widget_literal():
@@ -240,3 +243,20 @@ def test_redundant_annotation() -> None:
     @magicgui
     def f(a: Annotated[List[int], {"annotation": List[int]}]):
         pass
+
+def test_multiple_type_maps():
+    typemap1 = TypeMap()
+
+    typemap1.register_type(int, widget_type=widgets.Slider)
+
+    def f(a: int, b: str):
+        pass
+
+    fgui0 = magicgui(f)
+    fgui1 = typemap1.magicgui(f)
+
+    assert isinstance(fgui0[0], widgets.SpinBox)
+    assert isinstance(fgui0[1], widgets.LineEdit)
+    assert isinstance(fgui1[0], widgets.Slider)
+    assert isinstance(fgui1[1], widgets.LineEdit)
+

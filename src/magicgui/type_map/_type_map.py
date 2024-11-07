@@ -118,11 +118,11 @@ class TypeMap:
     def copy(self) -> TypeMap:
         """Return a copy of the type map."""
         return TypeMap(
-            simple_types=self._simple_types,
-            simple_annotations=self._simple_annotations,
-            type_defs=self._type_defs,
-            return_callbacks=self._return_callbacks,
-            additional_kwargs=self._additional_kwargs,
+            simple_types=self._simple_types.copy(),
+            simple_annotations=self._simple_annotations.copy(),
+            type_defs=self._type_defs.copy(),
+            return_callbacks=self._return_callbacks.copy(),
+            additional_kwargs=self._additional_kwargs.copy(),
         )
 
     def match_type(self, type_: Any, default: Any | None = None) -> WidgetTuple | None:
