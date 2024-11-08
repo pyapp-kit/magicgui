@@ -12,7 +12,7 @@ from importlib import import_module
 from importlib.machinery import ModuleSpec
 from itertools import count
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 from griffe import Alias
 from mkdocstrings_handlers.python.handler import PythonHandler
@@ -22,6 +22,8 @@ from magicgui.type_map import get_widget_class
 warnings.simplefilter("ignore", DeprecationWarning)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from mkdocs.structure.pages import Page
 
 

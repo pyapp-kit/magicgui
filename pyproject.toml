@@ -9,7 +9,7 @@ name = "magicgui"
 description = " build GUIs from python types"
 keywords = ["gui", "widgets", "type annotations"]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ email = "talley.lambert@gmail.com", name = "Talley Lambert" }]
 classifiers = [
@@ -47,7 +47,6 @@ dependencies = [
 pyqt5 = ["pyqt5>=5.12.0"]
 pyqt6 = ["pyqt6"]
 pyside2 = [
-    "pyside2>=5.14 ; python_version=='3.8'",
     "pyside2>=5.15 ; python_version>='3.9'",
 ]
 pyside6 = ["pyside6"]
@@ -141,7 +140,7 @@ matrix.backend.features = [
 # https://docs.astral.sh/ruff
 [tool.ruff]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 src = ["src", "tests"]
 
 [tool.ruff.lint]

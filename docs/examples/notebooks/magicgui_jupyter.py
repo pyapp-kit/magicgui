@@ -11,7 +11,9 @@ import math
 from enum import Enum
 
 from magicgui import magicgui, use_app
+
 use_app("ipynb")
+
 
 class Medium(Enum):
     # Various media and their refractive indices.
@@ -22,7 +24,7 @@ class Medium(Enum):
 
 
 @magicgui(
-    call_button="calculate", result_widget=True, layout='vertical', auto_call=True
+    call_button="calculate", result_widget=True, layout="vertical", auto_call=True
 )
 def snells_law(aoi=1.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
     # Calculate the angle of refraction given two media and an angle of incidence.

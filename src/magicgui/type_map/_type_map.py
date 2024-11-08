@@ -11,26 +11,22 @@ import sys
 import types
 import warnings
 from collections import defaultdict
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from enum import EnumMeta
 from typing import (
+    Annotated,
     Any,
     Callable,
-    Dict,
     ForwardRef,
-    Iterator,
     Literal,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
     overload,
 )
 
-from typing_extensions import Annotated, get_args, get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
@@ -42,9 +38,9 @@ __all__: list[str] = ["register_type", "get_widget_class"]
 
 
 # redefining these here for the sake of sphinx autodoc forward refs
-WidgetClass = Union[Type[widgets.Widget], Type[WidgetProtocol]]
+WidgetClass = Union[type[widgets.Widget], type[WidgetProtocol]]
 WidgetRef = Union[str, WidgetClass]
-WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
+WidgetTuple = tuple[WidgetRef, dict[str, Any]]
 
 
 class MissingWidget(RuntimeError):
@@ -81,6 +77,7 @@ _ADDITIONAL_KWARGS: dict[type, dict[str, Any]] = {
     Sequence[pathlib.Path]: {"mode": "rm"}
 }
 
+
 def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
     """Check simple type mappings."""
     if type_ in _SIMPLE_ANNOTATIONS:
@@ -103,7 +100,7 @@ def match_type(type_: Any, default: Any | None = None) -> WidgetTuple | None:
     if choices is not None:  # it's a Literal type
         return widgets.ComboBox, {"choices": choices, "nullable": nullable}
 
-    if safe_issubclass(origin, Set):
+    if safe_issubclass(origin, set):
         for arg in get_args(type_):
             if get_origin(arg) is Literal:
                 return widgets.Select, {"choices": get_args(arg)}

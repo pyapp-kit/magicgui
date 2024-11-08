@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Literal, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import TypedDict
 
@@ -27,9 +28,9 @@ WidgetClass = Union["type[Widget]", "type[WidgetProtocol]"]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
 #: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
-WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
+WidgetTuple = tuple[WidgetRef, dict[str, Any]]
 #: An iterable that can be used as a valid argument for widget ``choices``
-ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
+ChoicesIterable = Union[Iterable[tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes
 #: a categorical widget and returns a :attr:`ChoicesIterable`.
 ChoicesCallback = Callable[["CategoricalWidget[Any]"], ChoicesIterable]

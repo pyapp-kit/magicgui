@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union
 
 from ._widget import Widget
 
 if TYPE_CHECKING:
     from magicgui.widgets import protocols
 
-T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
+T = TypeVar("T", int, float, tuple[Union[int, float], ...])
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 

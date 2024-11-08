@@ -5,11 +5,12 @@ from __future__ import annotations
 import signal
 from contextlib import contextmanager
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Union
+from typing import TYPE_CHECKING, Any, Callable, Union
 
 from magicgui.backends import BACKENDS
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from types import ModuleType
 
     from magicgui.widgets.protocols import BaseApplicationBackend

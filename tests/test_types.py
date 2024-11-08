@@ -1,10 +1,11 @@
+from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Annotated, Optional, Union
 from unittest.mock import Mock
 
 import pytest
-from typing_extensions import Annotated, get_args
+from typing_extensions import get_args
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui._type_resolution import resolve_single_type
@@ -117,8 +118,7 @@ def test_pathlike_annotation():
 
 def test_optional_type():
     @magicgui(x={"choices": ["a", "b"]})
-    def widget(x: Optional[str] = None):
-        ...
+    def widget(x: Optional[str] = None): ...
 
     assert isinstance(widget.x, widgets.ComboBox)
     assert widget.x.value is None
@@ -136,13 +136,11 @@ def test_widget_options():
 
 
 def test_nested_forward_refs():
-    resolved = resolve_single_type(Optional['List["numpy.ndarray"]'])
-
-    from typing import List
+    resolved = resolve_single_type(Optional['list["numpy.ndarray"]'])
 
     import numpy as np
 
-    assert resolved == Optional[List[np.ndarray]]
+    assert resolved == Optional[list[np.ndarray]]
 
 
 def test_type_registered():
@@ -150,7 +148,9 @@ def test_type_registered():
     with type_registered(Path, widget_type=widgets.LineEdit):
         assert isinstance(widgets.create_widget(annotation=Path), widgets.LineEdit)
     assert isinstance(widgets.create_widget(annotation=Path), widgets.FileEdit)
-    assert isinstance(widgets.create_widget(annotation=Sequence[Path]), widgets.FileEdit)
+    assert isinstance(
+        widgets.create_widget(annotation=Sequence[Path]), widgets.FileEdit
+    )
 
 
 def test_type_registered_callbacks():
@@ -238,5 +238,5 @@ def test_pick_widget_literal():
 def test_redundant_annotation() -> None:
     # just shouldn't raise
     @magicgui
-    def f(a: Annotated[List[int], {"annotation": List[int]}]):
+    def f(a: Annotated[list[int], {"annotation": list[int]}]):
         pass

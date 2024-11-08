@@ -42,11 +42,10 @@ example_files = [
     str(f) for f in EXAMPLES.rglob("*.py") if all(x not in str(f) for x in EXCLUDED)
 ]
 
-# if os is Linux and python version is 3.9 and backend is PyQt5
+# if os is Linux and backend is PyQt5
 LINUX = sys.platform.startswith("linux")
-PY39 = sys.version_info >= (3, 9)
 PYQT5 = "PyQt5" in sys.modules
-if LINUX and PY39 and PYQT5:
+if LINUX and PYQT5:
     # skip range_slider example because of superqt c++ wrapped item bug
     example_files = [f for f in example_files if "range_slider" not in f]
 
