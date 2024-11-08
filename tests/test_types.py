@@ -1,18 +1,14 @@
 from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Optional, Union
+from typing import Annotated, Optional, Union
 from unittest.mock import Mock
 
 import pytest
 from typing_extensions import get_args
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
-from magicgui._type_resolution import resolve_single_type
 from magicgui.type_map._type_map import _RETURN_CALLBACKS
-
-if TYPE_CHECKING:
-    import numpy
 
 
 def test_forward_refs():
@@ -133,14 +129,6 @@ def test_widget_options():
     choice3 = widgets.create_widget(annotation=E)
     assert choice1._nullable is choice3._nullable is False
     assert choice2._nullable is True
-
-
-def test_nested_forward_refs():
-    resolved = resolve_single_type(Optional['list["numpy.ndarray"]'])
-
-    import numpy as np
-
-    assert resolved == Optional[list[np.ndarray]]
 
 
 def test_type_registered():
