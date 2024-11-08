@@ -225,7 +225,7 @@ class FunctionGui(Container, Generic[_P, _R]):
                     self._call_button = cast(PushButton, self._call_button)
                     self._call_button.enabled = False
                     try:
-                        self.__call__()
+                        self.__call__()  # type: ignore [call-arg]
                     finally:
                         self._call_button.enabled = True
 
@@ -257,7 +257,7 @@ class FunctionGui(Container, Generic[_P, _R]):
         if self.persist:
             self._dump()
         if self._auto_call:
-            self()
+            self()  # type: ignore [call-arg]
 
     @property
     def call_button(self) -> PushButton | None:
