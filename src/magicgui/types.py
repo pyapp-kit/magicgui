@@ -10,7 +10,12 @@ from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from magicgui.widgets import FunctionGui
-    from magicgui.widgets.bases import CategoricalWidget, Widget
+    from magicgui.widgets.bases import (
+        CategoricalWidget,
+        ContainerWidget,
+        ValueWidget,
+        Widget,
+    )
     from magicgui.widgets.protocols import WidgetProtocol
 
 
@@ -28,6 +33,9 @@ WidgetClass = Union["type[Widget]", "type[WidgetProtocol]"]
 WidgetRef = Union[str, WidgetClass]
 #: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
 WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
+#: A [`ValueWidget`][magicgui.widgets.ValueWidget] class or a
+#: [`ContainerWidget`][magicgui.widgets.ContainerWidget] class for nesting those
+NestedValueWidgets = Union["ValueWidget", "ContainerWidget[NestedValueWidgets]"]
 #: An iterable that can be used as a valid argument for widget ``choices``
 ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes

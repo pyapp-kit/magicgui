@@ -26,6 +26,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import TypeGuard
 
+    from magicgui.types import NestedValueWidgets
+
     # fmt: off
     class GuiClassProtocol(Protocol):
         """Protocol for a guiclass."""
@@ -206,7 +208,7 @@ class GuiBuilder:
 
     def __get__(
         self, instance: object | None, owner: type
-    ) -> ContainerWidget[ValueWidget]:
+    ) -> ContainerWidget[NestedValueWidgets]:
         wdg = build_widget(owner if instance is None else instance)
 
         # look for @button-decorated methods
