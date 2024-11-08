@@ -66,7 +66,7 @@ def debounce(function: Callable[P, T] | None = None, wait: float = 0.2) -> Calla
 
         return debounced
 
-    return decorator if function is None else decorator(function)  # type: ignore
+    return decorator if function is None else decorator(function)
 
 
 def throttle(t: float) -> Callable[[Callable[P, T]], Callable[P, T | None]]:
