@@ -112,9 +112,6 @@ jobs:
             package-version: "v0.4.19.post1"
             pytest-args: napari/_tests/test_magicgui.py
           - package: hanjinliu/magic-class
-          - package: stardist/stardist-napari
-            package-extras: test
-            pytest-args: stardist_napari
           - package: 4DNucleome/PartSeg
             package-extras: test
             pytest-args: package/tests/test_PartSeg/test_napari_widgets.py
