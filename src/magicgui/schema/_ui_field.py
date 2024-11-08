@@ -166,7 +166,7 @@ class UiField(Generic[T]):
     decimal_places: int | None = field(
         default=None,
         metadata={
-            "descripion": "Maximum number of digits within the decimal. It does "
+            "description": "Maximum number of digits within the decimal. It does "
             "not include trailing decimal zeroes."
         },
     )
