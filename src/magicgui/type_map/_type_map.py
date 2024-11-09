@@ -21,14 +21,13 @@ from typing import (
     Callable,
     ForwardRef,
     Literal,
-    ParamSpec,
     TypeVar,
     Union,
     cast,
     overload,
 )
 
-from typing_extensions import get_args, get_origin
+from typing_extensions import ParamSpec, get_args, get_origin
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
@@ -151,9 +150,9 @@ class TypeMap:
                 if get_origin(arg) is Literal:
                     return widgets.Select, {"choices": get_args(arg)}
 
-            pint = sys.modules.get("pint")
-            if pint and safe_issubclass(origin, pint.Quantity):
-                return widgets.QuantityEdit, {}
+        pint = sys.modules.get("pint")
+        if pint and safe_issubclass(origin, pint.Quantity):
+            return widgets.QuantityEdit, {}
 
         return None
 
@@ -370,7 +369,11 @@ class TypeMap:
             may be different than the options passed in.
         """  # noqa: E501
         widget_type, options_ = self._pick_widget_type(
-            value, annotation, options, is_result, raise_on_unknown
+            value=value,
+            annotation=annotation,
+            options=options,
+            is_result=is_result,
+            raise_on_unknown=raise_on_unknown,
         )
 
         if isinstance(widget_type, str):
