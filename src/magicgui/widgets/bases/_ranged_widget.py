@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import builtins
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from math import ceil, log10
-from typing import TYPE_CHECKING, Callable, Iterable, Tuple, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Callable, TypeVar, Union, cast
 
 from magicgui.types import Undefined, _Undefined
 
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 
     from ._widget import WidgetKwargs
 
-T = TypeVar("T", int, float, Tuple[Union[int, float], ...])
+T = TypeVar("T", int, float, tuple[Union[int, float], ...])
 DEFAULT_MIN = 0.0
 DEFAULT_MAX = 1000.0
 

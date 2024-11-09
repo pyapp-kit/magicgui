@@ -11,27 +11,24 @@ import sys
 import types
 import warnings
 from collections import defaultdict
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from enum import EnumMeta
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
     ForwardRef,
-    Iterator,
     Literal,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
+    ParamSpec,
     TypeVar,
     Union,
     cast,
     overload,
 )
 
-from typing_extensions import Annotated, ParamSpec, get_args, get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
@@ -48,13 +45,14 @@ __all__: list[str] = ["register_type", "get_widget_class"]
 
 
 # redefining these here for the sake of sphinx autodoc forward refs
-WidgetClass = Union[Type[widgets.Widget], Type[WidgetProtocol]]
+WidgetClass = Union[type[widgets.Widget], type[WidgetProtocol]]
 WidgetRef = Union[str, WidgetClass]
-WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
+WidgetTuple = tuple[WidgetRef, dict[str, Any]]
 
 
 class MissingWidget(RuntimeError):
     """Raised when a backend widget cannot be found."""
+
 
 _T = TypeVar("_T", bound=type)
 _P = ParamSpec("_P")
@@ -85,6 +83,7 @@ _SIMPLE_TYPES_DEFAULTS = {
 _ADDITIONAL_KWARGS_DEFAULTS: dict[type, dict[str, Any]] = {
     Sequence[pathlib.Path]: {"mode": "rm"}
 }
+
 
 class TypeMap:
     def __init__(
@@ -147,17 +146,16 @@ class TypeMap:
         if choices is not None:  # it's a Literal type
             return widgets.ComboBox, {"choices": choices, "nullable": nullable}
 
-        if safe_issubclass(origin, Set):
+        if safe_issubclass(origin, set):
             for arg in get_args(type_):
                 if get_origin(arg) is Literal:
                     return widgets.Select, {"choices": get_args(arg)}
 
-        pint = sys.modules.get("pint")
-        if pint and safe_issubclass(origin, pint.Quantity):
-            return widgets.QuantityEdit, {}
+            pint = sys.modules.get("pint")
+            if pint and safe_issubclass(origin, pint.Quantity):
+                return widgets.QuantityEdit, {}
 
         return None
-
 
     def match_return_type(self, type_: Any) -> WidgetTuple | None:
         """Check simple type mappings for result widgets."""
@@ -190,7 +188,6 @@ class TypeMap:
         **options: Any,
     ) -> _T: ...
 
-
     @overload
     def register_type(
         self,
@@ -200,7 +197,6 @@ class TypeMap:
         return_callback: ReturnCallback | None = None,
         **options: Any,
     ) -> Callable[[_T], _T]: ...
-
 
     def register_type(
         self,
@@ -259,7 +255,6 @@ class TypeMap:
 
         return _deco if type_ is None else _deco(type_)
 
-
     @contextmanager
     def type_registered(
         self,
@@ -314,7 +309,6 @@ class TypeMap:
             else:
                 self._type_defs.pop(resolved_type, None)
 
-
     def type2callback(self, type_: type) -> list[ReturnCallback]:
         """Return any callbacks that have been registered for ``type_``.
 
@@ -343,7 +337,6 @@ class TypeMap:
             if safe_issubclass(type_, registered_type):
                 return self._return_callbacks[registered_type]
         return []
-
 
     def get_widget_class(
         self,
@@ -389,7 +382,6 @@ class TypeMap:
             assert_protocol(widget_class, WidgetProtocol)
 
         return widget_class, options_
-
 
     def create_widget(
         self,
@@ -514,15 +506,12 @@ class TypeMap:
             if isinstance(wdg_class, prot):
                 options_ = kwargs.pop("options", None)
                 cls = getattr(widgets.bases, f"{p}Widget")
-                widget = cls(
-                    **{**kwargs, **(options_ or {}), "widget_type": wdg_class}
-                )
+                widget = cls(**{**kwargs, **(options_ or {}), "widget_type": wdg_class})
                 if param_kind:
                     widget.param_kind = param_kind  # type: ignore
                 return widget
 
         raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
-
 
     @overload
     def magicgui(
@@ -543,7 +532,6 @@ class TypeMap:
         **param_options: dict,
     ) -> widgets.FunctionGui[_P, _R]: ...
 
-
     @overload
     def magicgui(
         self,
@@ -562,7 +550,6 @@ class TypeMap:
         raise_on_unknown: bool = False,
         **param_options: dict,
     ) -> Callable[[Callable[_P, _R]], widgets.FunctionGui[_P, _R]]: ...
-
 
     @overload
     def magicgui(
@@ -583,7 +570,6 @@ class TypeMap:
         **param_options: dict,
     ) -> widgets.MainFunctionGui[_P, _R]: ...
 
-
     @overload
     def magicgui(
         self,
@@ -602,7 +588,6 @@ class TypeMap:
         raise_on_unknown: bool = False,
         **param_options: dict,
     ) -> Callable[[Callable[_P, _R]], widgets.MainFunctionGui[_P, _R]]: ...
-
 
     def magicgui(
         self,
@@ -703,7 +688,6 @@ class TypeMap:
             param_options=param_options,
         )
 
-
     @overload
     def magic_factory(
         self,
@@ -723,7 +707,6 @@ class TypeMap:
         raise_on_unknown: bool = False,
         **param_options: dict,
     ) -> MagicFactory[widgets.FunctionGui[_P, _R]]: ...
-
 
     @overload
     def magic_factory(
@@ -745,7 +728,6 @@ class TypeMap:
         **param_options: dict,
     ) -> Callable[[Callable[_P, _R]], MagicFactory[widgets.FunctionGui[_P, _R]]]: ...
 
-
     @overload
     def magic_factory(
         self,
@@ -766,7 +748,6 @@ class TypeMap:
         **param_options: dict,
     ) -> MagicFactory[widgets.MainFunctionGui[_P, _R]]: ...
 
-
     @overload
     def magic_factory(
         self,
@@ -785,8 +766,9 @@ class TypeMap:
         widget_init: Callable[[widgets.FunctionGui], None] | None = None,
         raise_on_unknown: bool = False,
         **param_options: dict,
-    ) -> Callable[[Callable[_P, _R]], MagicFactory[widgets.MainFunctionGui[_P, _R]]]:
-        ...
+    ) -> Callable[
+        [Callable[_P, _R]], MagicFactory[widgets.MainFunctionGui[_P, _R]]
+    ]: ...
 
     def magic_factory(
         self,
@@ -1020,7 +1002,6 @@ class TypeMap:
             modified_callbacks.append(resolved_type)
         return modified_callbacks
 
-
     def _register_widget(
         self,
         resolved_type: _T,
@@ -1053,7 +1034,6 @@ class TypeMap:
             # of ValueWidget is used... it usually won't be shown
             self._type_defs[resolved_type] = (widgets.EmptyWidget, _options)
         return previous_widget
-
 
     def _magicgui(
         self,
@@ -1099,6 +1079,7 @@ get_widget_class = _GLOBAL_TYPE_MAP.get_widget_class
 register_type = _GLOBAL_TYPE_MAP.register_type
 type2callback = _GLOBAL_TYPE_MAP.type2callback
 type_registered = _GLOBAL_TYPE_MAP.type_registered
+
 
 def _is_none_type(type_: Any) -> bool:
     return any(type_ is x for x in {None, type(None), Literal[None]})
@@ -1184,6 +1165,7 @@ def _validate_return_callback(func: Callable) -> None:
         sig.bind(1, 2, 3)  # (gui, result, return_type)
     except TypeError as e:
         raise TypeError(f"object {func!r} is not a valid return callback: {e}") from e
+
 
 def _generate_union_variants(type_: Any) -> Iterator[type]:
     type_args = get_args(type_)

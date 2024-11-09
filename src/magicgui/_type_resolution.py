@@ -1,39 +1,35 @@
-import sys
 import types
 import typing
 from copy import copy
 from functools import lru_cache, partial
 from importlib import import_module
-from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
-
-# required for python 3.8 to strip annotations
-from typing_extensions import get_type_hints
+from typing import Any, Callable, Optional, Union, get_type_hints
 
 try:
     from toolz import curry
 
-    PARTIAL_TYPES: Tuple[Type, ...] = (partial, curry)
+    PARTIAL_TYPES: tuple[type, ...] = (partial, curry)
 except ImportError:  # pragma: no cover
     PARTIAL_TYPES = (partial,)
 
 
 @lru_cache(maxsize=1)
-def _typing_names() -> Dict[str, Any]:
+def _typing_names() -> dict[str, Any]:
     return {**typing.__dict__, **types.__dict__}
 
 
 def _unwrap_partial(func: Any) -> Any:
     while isinstance(func, PARTIAL_TYPES):
-        func = func.func
+        func = func.func  # type: ignore
     return func
 
 
 def resolve_types(
     obj: Union[Callable, types.ModuleType, types.MethodType, type],
-    globalns: Optional[Dict[str, Any]] = None,
-    localns: Optional[Dict[str, Any]] = None,
+    globalns: Optional[dict[str, Any]] = None,
+    localns: Optional[dict[str, Any]] = None,
     do_imports: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Resolve type hints from an object.
 
     Parameters
@@ -56,7 +52,7 @@ def resolve_types(
     obj = _unwrap_partial(obj)
 
     try:
-        hints = get_type_hints(obj, globalns=globalns, localns=localns)  # type: ignore
+        hints = get_type_hints(obj, globalns=globalns, localns=localns)
     except NameError as e:
         if do_imports:
             # try to import the top level name and try again
@@ -69,18 +65,7 @@ def resolve_types(
                     return resolve_types(obj, globalns, ns, do_imports=do_imports)
         raise e
 
-    # before version 3.9, typing.get_type_hints did not resolve hint.__args__
-    if sys.version_info < (3, 9):
-        _iterdict(hints, _resolve_forwards)
     return hints
-
-
-def _iterdict(d: Dict[str, Any], func: Callable) -> None:
-    for k, v in d.items():
-        if isinstance(v, dict):
-            _iterdict(v, func)
-        else:
-            d[k] = func(v)
 
 
 def _resolve_forwards(v: Any) -> Any:
@@ -94,8 +79,8 @@ def _resolve_forwards(v: Any) -> Any:
 
 def resolve_single_type(
     hint: Any,
-    globalns: Optional[Dict[str, Any]] = None,
-    localns: Optional[Dict[str, Any]] = None,
+    globalns: Optional[dict[str, Any]] = None,
+    localns: Optional[dict[str, Any]] = None,
     do_imports: bool = True,
 ) -> Any:
     """Resolve a single type hint.
