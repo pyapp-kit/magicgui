@@ -166,6 +166,7 @@ class BaseValueWidget(Widget, ABC, Generic[T]):
     def annotation(self, value: Any) -> None:
         Widget.annotation.fset(self, value)  # type: ignore
 
+
 class ValueWidget(BaseValueWidget[T]):
     """Widget with a value, Wraps ValueWidgetProtocol.
 
