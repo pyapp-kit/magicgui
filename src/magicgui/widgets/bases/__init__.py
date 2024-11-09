@@ -10,22 +10,18 @@ implements one of the widget protocols defined in
 .. code-block:: python
 
    class Widget:
-
        def __init__(
-            self,
-
-            # widget_type is a class, likely from the `backends` module
-            # that implements one of the `WidgetProtocols` defined in _protocols.
-            widget_type: Type[protocols.WidgetProtocol],
-
-            # backend_kwargs is a key-value map of arguments that will be provided
-            # to the concrete (backend) implementation of the WidgetProtocol
-            backend_kwargs: dict = dict(),
-
-            # additional kwargs will be provided to the magicgui.Widget itself
-            # things like, `name`, `value`, etc...
-            **kwargs
-        ):
+           self,
+           # widget_type is a class, likely from the `backends` module
+           # that implements one of the `WidgetProtocols` defined in _protocols.
+           widget_type: Type[protocols.WidgetProtocol],
+           # backend_kwargs is a key-value map of arguments that will be provided
+           # to the concrete (backend) implementation of the WidgetProtocol
+           backend_kwargs: dict = dict(),
+           # additional kwargs will be provided to the magicgui.Widget itself
+           # things like, `name`, `value`, etc...
+           **kwargs,
+       ):
            # instantiation of the backend widget.
            self._widget = widget_type(**backend_kwargs)
 

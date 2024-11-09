@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Hashable, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Callable
 
 from magicgui.types import FileDialogMode
 
 from ._concrete import Dialog
 from .bases import create_widget
+
+if TYPE_CHECKING:
+    from collections.abc import Hashable, Iterable, Mapping
 
 
 def show_file_dialog(
@@ -96,13 +99,10 @@ def request_values(
     >>> request_values(
     ...     age=dict(value=40),
     ...     name=dict(annotation=str, label="Enter your name:"),
-    ...     title="Hi! Who are you?"
+    ...     title="Hi! Who are you?",
     ... )
 
-    >>> request_values(
-    ...     values={'age': int, 'name': str},
-    ...     title="Hi! Who are you?"
-    ... )
+    >>> request_values(values={"age": int, "name": str}, title="Hi! Who are you?")
     """
     widgets = []
     if title:

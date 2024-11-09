@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Iterable, Mapping, MutableSequence, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Generic,
-    Iterable,
-    Mapping,
-    MutableSequence,
     NoReturn,
-    Sequence,
     TypeVar,
     cast,
     overload,
@@ -202,6 +199,7 @@ class _BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         self._widget._mgui_remove_widget(item)
         del self._list[index]
         return item
+
 
 class ValuedContainerWidget(
     _BaseContainerWidget[Widget], BaseValueWidget[T], Generic[T]

@@ -3,8 +3,8 @@
 A dialog to select multiple files.
 """
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from magicgui import magicgui
 

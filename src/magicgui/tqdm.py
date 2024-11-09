@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import contextlib
 import inspect
-from typing import Any, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from magicgui.application import use_app
 from magicgui.widgets import FunctionGui, ProgressBar
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 try:
     from tqdm import tqdm as _tqdm_std

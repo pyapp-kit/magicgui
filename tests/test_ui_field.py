@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from typing import NamedTuple, Optional
+from typing import Annotated, NamedTuple, Optional
 
 import pytest
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 from magicgui.schema._ui_field import UiField, build_widget, get_ui_fields
 from magicgui.widgets import Container

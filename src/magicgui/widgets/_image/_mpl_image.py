@@ -52,8 +52,9 @@ Agreement.
 """
 
 import logging
+from collections.abc import Collection
 from functools import lru_cache
-from typing import TYPE_CHECKING, Collection, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 try:
     import numpy as np

@@ -2,20 +2,22 @@ from __future__ import annotations
 
 import operator
 import sys
-from itertools import zip_longest
-from typing import (
-    TYPE_CHECKING,
-    Any,
+from collections.abc import (
     Collection,
-    Generic,
     ItemsView,
     Iterable,
     Iterator,
     KeysView,
-    Literal,
     Mapping,
     MutableMapping,
     Sequence,
+)
+from itertools import zip_longest
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Literal,
     TypeVar,
     Union,
     cast,

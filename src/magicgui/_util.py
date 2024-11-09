@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Callable,
-    Iterable,
     get_args,
     get_origin,
     overload,
@@ -18,6 +17,7 @@ from typing import (
 from docstring_parser import DocstringParam, parse
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from typing import TypeVar
 
     from typing_extensions import ParamSpec
@@ -66,7 +66,7 @@ def debounce(function: Callable[P, T] | None = None, wait: float = 0.2) -> Calla
 
         return debounced
 
-    return decorator if function is None else decorator(function)  # type: ignore
+    return decorator if function is None else decorator(function)
 
 
 def throttle(t: float) -> Callable[[Callable[P, T]], Callable[P, T | None]]:
@@ -176,9 +176,8 @@ def _safe_isinstance_tuple(obj: object, superclass: object) -> bool:
             # case 2
             return all(safe_issubclass(o, superclass_args[0]) for o in obj_args)
         # fallback to simple compare
-        return (
-                len(obj_args) == len(superclass_args) and
-                all(safe_issubclass(o, s) for o, s in zip(obj_args, superclass_args))
+        return len(obj_args) == len(superclass_args) and all(
+            safe_issubclass(o, s) for o, s in zip(obj_args, superclass_args)
         )
 
     if len(obj_args) == 2 and obj_args[1] is Ellipsis:
@@ -196,14 +195,14 @@ def safe_issubclass(obj: object, superclass: object) -> bool:
     try:
         if obj_origin is None:
             if superclass_origin is None:
-                return issubclass(obj, superclass) # type: ignore
+                return issubclass(obj, superclass)  # type: ignore
             if not superclass_args:
                 return issubclass(obj, superclass_origin)  # type: ignore
             # if obj is not generic type, but superclass is with
             # we can't say anything about it
             return False
         if obj_origin is not None and superclass_origin is None:
-            return issubclass(obj_origin, superclass) # type: ignore
+            return issubclass(obj_origin, superclass)  # type: ignore
         if not issubclass(obj_origin, superclass_origin):  # type: ignore
             return False
         obj_args = get_args(obj)

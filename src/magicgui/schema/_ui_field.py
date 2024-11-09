@@ -4,27 +4,27 @@ import dataclasses as dc
 import sys
 import warnings
 from dataclasses import dataclass, field
-from functools import lru_cache
+from functools import cache
 from types import FunctionType
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     Generic,
-    Iterable,
-    Iterator,
     Literal,
     TypeVar,
     Union,
     cast,
 )
 
-from typing_extensions import Annotated, TypeGuard, get_args, get_origin
+from typing_extensions import TypeGuard, get_args, get_origin
 
 from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
 if TYPE_CHECKING:
-    from typing import Mapping, Protocol
+    from collections.abc import Iterable, Iterator, Mapping
+    from typing import Protocol
 
     import attrs
     import pydantic
@@ -166,7 +166,7 @@ class UiField(Generic[T]):
     decimal_places: int | None = field(
         default=None,
         metadata={
-            "descripion": "Maximum number of digits within the decimal. It does "
+            "description": "Maximum number of digits within the decimal. It does "
             "not include trailing decimal zeroes."
         },
     )
@@ -758,7 +758,7 @@ def _iter_ui_fields(object: Any) -> Iterator[UiField]:
     )  # pragma: no cover
 
 
-@lru_cache(maxsize=None)
+@cache
 def _cached_iter_ui_fields(cls: type) -> tuple[UiField, ...]:
     return tuple(_iter_ui_fields(cls))
 

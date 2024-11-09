@@ -13,17 +13,12 @@ import os
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     ForwardRef,
     Generic,
-    Iterable,
-    Iterator,
-    List,
     Literal,
-    Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -31,7 +26,7 @@ from typing import (
 )
 from weakref import ref
 
-from typing_extensions import Annotated, get_args, get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui._util import merge_super_sigs, safe_issubclass
@@ -57,6 +52,8 @@ from magicgui.widgets.bases import (
 from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     from typing_extensions import Unpack
 
     from magicgui.widgets import protocols
@@ -68,7 +65,7 @@ if TYPE_CHECKING:
 
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
-WidgetTypeVar = TypeVar("WidgetTypeVar", bound=Type[Widget])
+WidgetTypeVar = TypeVar("WidgetTypeVar", bound=type[Widget])
 _V = TypeVar("_V")
 
 
@@ -385,8 +382,9 @@ class Dialog(DialogWidget):
 class MainWindow(MainWindowWidget):
     """A Widget to contain other widgets, includes a menu bar."""
 
+
 @merge_super_sigs
-class FileEdit(ValuedContainerWidget[Union[Path, Tuple[Path, ...], None]]):
+class FileEdit(ValuedContainerWidget[Union[Path, tuple[Path, ...], None]]):
     """A LineEdit widget with a button that opens a FileDialog.
 
     Parameters
@@ -493,7 +491,9 @@ class FileEdit(ValuedContainerWidget[Union[Path, Tuple[Path, ...], None]]):
         """Return string representation."""
         return f"FileEdit(mode={self.mode.value!r}, value={self.value!r})"
 
+
 _V0 = TypeVar("_V0", range, slice)
+
 
 class _RangeOrSliceEdit(ValuedContainerWidget[_V0]):
     _value_type: type[_V0]
@@ -560,6 +560,7 @@ class _RangeOrSliceEdit(ValuedContainerWidget[_V0]):
         """Return string representation."""
         return f"<{self.__class__.__name__} value={self.value!r}>"
 
+
 @merge_super_sigs
 class RangeEdit(_RangeOrSliceEdit[range]):
     """A widget to represent a python range object, with start/stop/step.
@@ -582,6 +583,7 @@ class RangeEdit(_RangeOrSliceEdit[range]):
 
     _value_type = range
 
+
 class SliceEdit(_RangeOrSliceEdit[slice]):
     """A widget to represent `slice` objects, with start/stop/step.
 
@@ -601,6 +603,7 @@ class SliceEdit(_RangeOrSliceEdit[slice]):
     """
 
     _value_type = slice
+
 
 class _ListEditChildWidget(ValuedContainerWidget[_V]):
     """A widget to represent a single element of a ListEdit widget."""
@@ -622,8 +625,9 @@ class _ListEditChildWidget(ValuedContainerWidget[_V]):
         """Set value of the child widget."""
         self.value_widget.value = value
 
+
 @merge_super_sigs
-class ListEdit(ValuedContainerWidget[List[_V]]):
+class ListEdit(ValuedContainerWidget[list[_V]]):
     """A widget to represent a list of values.
 
     A ListEdit container can create a list with multiple objects of same type. It
@@ -711,7 +715,7 @@ class ListEdit(ValuedContainerWidget[List[_V]]):
             arg = args[0] if len(args) > 0 else None
             args_resolved = get_args(value_resolved)
             if len(args_resolved) > 0:
-                value = List[args_resolved[0]]  # type: ignore
+                value = list[args_resolved[0]]  # type: ignore
             else:
                 value = list
 
@@ -742,6 +746,7 @@ class ListEdit(ValuedContainerWidget[List[_V]]):
             options=self._child_options,
         )
         widget = _ListEditChildWidget(cast(BaseValueWidget, _value_widget))
+
         # connect the minus-button-clicked event
         def _remove_me() -> None:
             self._pop_widget(self.index(widget))
@@ -874,7 +879,7 @@ class ListDataView(Generic[_V]):
 
 
 @merge_super_sigs
-class TupleEdit(ValuedContainerWidget[Tuple]):
+class TupleEdit(ValuedContainerWidget[tuple]):
     """A widget to represent a tuple of values.
 
     A TupleEdit container has several child widgets of different type. Their value is
@@ -964,7 +969,7 @@ class TupleEdit(ValuedContainerWidget[Tuple]):
                 )
             args = get_args(value)
             args_resolved = get_args(value_resolved)
-            value = Tuple[args_resolved]
+            value = tuple[args_resolved]  # type: ignore [valid-type]
 
         self._annotation = value
         self._args_types = args

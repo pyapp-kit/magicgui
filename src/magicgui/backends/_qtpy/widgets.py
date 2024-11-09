@@ -8,7 +8,7 @@ import warnings
 from contextlib import contextmanager, suppress
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Sequence
+from typing import TYPE_CHECKING, Any, Callable
 
 import qtpy
 import superqt
@@ -31,6 +31,8 @@ from magicgui.widgets import Widget, protocols
 from magicgui.widgets._concrete import _LabeledWidget
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     import numpy
 
 
