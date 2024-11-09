@@ -21,8 +21,8 @@ def always_qapp(qapp):
 
 @pytest.fixture(autouse=True, scope="function")
 def _clean_return_callbacks():
-    from magicgui.type_map._type_map import _RETURN_CALLBACKS
+    from magicgui.type_map import TypeMap
 
     yield
 
-    _RETURN_CALLBACKS.clear()
+    TypeMap.global_instance()._return_callbacks.clear()

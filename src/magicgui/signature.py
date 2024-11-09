@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
     from magicgui.application import AppRef
+    from magicgui.type_map import TypeMap
     from magicgui.widgets import Container, Widget
     from magicgui.widgets.bases._container_widget import ContainerKwargs
 
@@ -189,12 +190,18 @@ class MagicParameter(inspect.Parameter):
             )
         )
 
-    def to_widget(self, app: AppRef | None = None) -> Widget:
+    def to_widget(
+        self,
+        app: AppRef | None = None,
+        type_map: TypeMap | None = None,
+    ) -> Widget:
         """Create and return a widget for this object."""
-        from magicgui.widgets import create_widget
+        from magicgui.type_map import TypeMap
 
         value = Undefined if self.default in (self.empty, TZ_EMPTY) else self.default
-        widget = create_widget(
+        if type_map is None:
+            type_map = TypeMap.global_instance()
+        widget = type_map.create_widget(
             name=self.name,
             value=value,
             annotation=self.annotation,
@@ -287,19 +294,26 @@ class MagicSignature(inspect.Signature):
             raise_on_unknown=raise_on_unknown,
         )
 
-    def widgets(self, app: AppRef | None = None) -> MappingProxyType:
+    def widgets(
+        self,
+        app: AppRef | None = None,
+        type_map: TypeMap | None = None,
+    ) -> MappingProxyType:
         """Return mapping from parameters to widgets for all params in Signature."""
         return MappingProxyType(
-            {n: p.to_widget(app) for n, p in self.parameters.items()}
+            {n: p.to_widget(app, type_map=type_map) for n, p in self.parameters.items()}
         )
 
     def to_container(
-        self, app: AppRef | None = None, **kwargs: Unpack[ContainerKwargs]
+        self,
+        app: AppRef | None = None,
+        type_map: TypeMap | None = None,
+        **kwargs: Unpack[ContainerKwargs],
     ) -> Container:
         """Return a ``magicgui.widgets.Container`` for this MagicSignature."""
         from magicgui.widgets import Container
 
-        kwargs["widgets"] = list(self.widgets(app).values())
+        kwargs["widgets"] = list(self.widgets(app, type_map=type_map).values())
         return Container(**kwargs)
 
     def replace(  # type: ignore[override]
