@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 import warnings
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 from psygnal import Signal, SignalInstance
 
@@ -12,6 +12,7 @@ from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from weakref import ReferenceType
 
     import numpy as np

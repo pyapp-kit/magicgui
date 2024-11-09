@@ -2,11 +2,10 @@ import datetime
 import inspect
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Annotated, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
-from typing_extensions import Annotated
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
@@ -908,13 +907,14 @@ def test_list_edit_only_values():
     assert f1.x._args_type is int
     assert f1.x.value == [2, 4, 6]
 
+
 def test_list_edit_annotations():
     @magicgui
-    def f2(x: List[int]):
+    def f2(x: list[int]):
         pass
 
     assert type(f2.x) is widgets.ListEdit
-    assert f2.x.annotation == List[int]
+    assert f2.x.annotation == list[int]
     assert f2.x._args_type is int
     assert f2.x.value == []
     f2.x.btn_plus.changed()
@@ -923,7 +923,7 @@ def test_list_edit_annotations():
     @magicgui(
         x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
     )
-    def f3(x: List[int] = [0]):  # noqa: B006
+    def f3(x: list[int] = [0]):  # noqa: B006
         pass
 
     assert type(f3.x) is widgets.ListEdit
@@ -933,11 +933,11 @@ def test_list_edit_annotations():
     assert f3.x[0].value_widget.step == 5
 
     @magicgui
-    def f4(x: List[int] = ()):  # type: ignore
+    def f4(x: list[int] = ()):  # type: ignore
         pass
 
     assert type(f4.x) is widgets.ListEdit
-    assert f4.x.annotation == List[int]
+    assert f4.x.annotation == list[int]
     assert f4.x._args_type is int
     assert f4.x.value == []
     f4.x.btn_plus.changed()
@@ -945,18 +945,17 @@ def test_list_edit_annotations():
     assert f4.x.value == [0]
 
     @magicgui
-    def f5(x: List[Annotated[int, {"max": 3}]]):
+    def f5(x: list[Annotated[int, {"max": 3}]]):
         pass
 
     assert type(f5.x) is widgets.ListEdit
-    assert f5.x.annotation == List[int]
+    assert f5.x.annotation == list[int]
     f5.x.btn_plus.changed()
     assert f5.x[0].value_widget.max == 3
 
 
 def test_tuple_edit():
     """Test TupleEdit."""
-    from typing import Tuple
 
     mock = MagicMock()
 
@@ -986,19 +985,19 @@ def test_tuple_edit():
     assert f1.x.value == (2, 4, 6)
 
     @magicgui
-    def f2(x: Tuple[int, str]):
+    def f2(x: tuple[int, str]):
         pass
 
     assert type(f2.x) is widgets.TupleEdit
-    assert f2.x.annotation == Tuple[int, str]
+    assert f2.x.annotation == tuple[int, str]
     assert f2.x.value == (0, "")
 
     @magicgui
-    def f3(x: Tuple[Annotated[int, {"max": 3}], str]):
+    def f3(x: tuple[Annotated[int, {"max": 3}], str]):
         pass
 
     assert type(f3.x) is widgets.TupleEdit
-    assert f2.x.annotation == Tuple[int, str]
+    assert f2.x.annotation == tuple[int, str]
     assert f3.x[0].max == 3
 
 
@@ -1034,7 +1033,7 @@ def test_request_values(monkeypatch):
 
 def test_range_slider():
     @magicgui(auto_call=True, range_value={"widget_type": "RangeSlider", "max": 500})
-    def func(range_value: Tuple[int, int] = (20, 380)):
+    def func(range_value: tuple[int, int] = (20, 380)):
         print(range_value)
 
     assert isinstance(func.range_value, widgets.RangeSlider)
@@ -1044,7 +1043,7 @@ def test_range_slider():
 
 def test_float_range_slider():
     @magicgui(auto_call=True, range_value={"widget_type": "FloatRangeSlider", "max": 1})
-    def func(range_value: Tuple[float, float] = (0.2, 0.8)):
+    def func(range_value: tuple[float, float] = (0.2, 0.8)):
         print(range_value)
 
     assert isinstance(func.range_value, widgets.FloatRangeSlider)
@@ -1053,7 +1052,7 @@ def test_float_range_slider():
 
 
 def test_literal():
-    from typing import Literal, Set
+    from typing import Literal
 
     from typing_extensions import get_args
 
@@ -1067,7 +1066,7 @@ def test_literal():
     assert cbox.choices == get_args(Lit)
 
     @magicgui
-    def f(x: Set[Lit]): ...
+    def f(x: set[Lit]): ...
 
     sel = f.x
     assert type(sel) is widgets.Select
@@ -1088,8 +1087,40 @@ def test_separator(backend: str):
     use_app(backend)
 
     sep = [[Separator] * (i + 1) for i in range(4)]
-    a = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 11, 12, *sep[0], 14, *sep[0]]
-    b = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], 6, 7, *sep[0], 9, *sep[0]]
+    a = [
+        1,
+        2,
+        *sep[0],
+        4,
+        *sep[1],
+        6,
+        7,
+        *sep[2],
+        9,
+        *sep[3],
+        11,
+        12,
+        *sep[0],
+        14,
+        *sep[0],
+    ]
+    b = [
+        1,
+        2,
+        *sep[0],
+        4,
+        *sep[1],
+        6,
+        7,
+        *sep[2],
+        9,
+        *sep[3],
+        6,
+        7,
+        *sep[0],
+        9,
+        *sep[0],
+    ]
     b2 = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], *sep[0], *sep[0]]
 
     combo_a = widgets.ComboBox(choices=a, value=a[0])
@@ -1099,6 +1130,7 @@ def test_separator(backend: str):
     assert len(combo_b) == len(combo_b.choices)
 
     if backend == "qt":
+
         def get_all_itemdata(combo_box):
             return [combo_box.itemData(index) for index in range(combo_box.count())]
 
@@ -1116,8 +1148,8 @@ def test_separator(backend: str):
 
     if backend == "ipynb":
         # Separator singletons themselves are used as separator item data
-        assert combo_a.options['choices'] == a
-        assert combo_b.options['choices'] == b  # items are not unique
+        assert combo_a.options["choices"] == a
+        assert combo_b.options["choices"] == b  # items are not unique
 
         # Choices only returns duplicated, non-separator items
         assert combo_a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)

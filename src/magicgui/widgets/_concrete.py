@@ -13,17 +13,12 @@ import os
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     ForwardRef,
     Generic,
-    Iterable,
-    Iterator,
-    List,
     Literal,
-    Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -31,7 +26,7 @@ from typing import (
 )
 from weakref import ref
 
-from typing_extensions import Annotated, get_args, get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui._util import merge_super_sigs, safe_issubclass
@@ -55,6 +50,8 @@ from magicgui.widgets.bases import (
 from magicgui.widgets.bases._mixins import _OrientationMixin, _ReadOnlyMixin
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     from typing_extensions import Unpack
 
     from magicgui.widgets import protocols
@@ -63,7 +60,7 @@ if TYPE_CHECKING:
 
 
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
-WidgetTypeVar = TypeVar("WidgetTypeVar", bound=Type[Widget])
+WidgetTypeVar = TypeVar("WidgetTypeVar", bound=type[Widget])
 _V = TypeVar("_V")
 
 
@@ -620,6 +617,7 @@ class _ListEditChildWidget(Container[Widget]):
         """Set value of the child widget."""
         self.value_widget.value = value
 
+
 @merge_super_sigs
 class ListEdit(Container[ValueWidget[_V]]):
     """A widget to represent a list of values.
@@ -712,7 +710,7 @@ class ListEdit(Container[ValueWidget[_V]]):
             arg = args[0] if len(args) > 0 else None
             args_resolved = get_args(value_resolved)
             if len(args_resolved) > 0:
-                value = List[args_resolved[0]]  # type: ignore
+                value = list[args_resolved[0]]  # type: ignore
             else:
                 value = list
 
@@ -946,7 +944,7 @@ class TupleEdit(Container[ValueWidget]):
                 )
             args = get_args(value)
             args_resolved = get_args(value_resolved)
-            value = Tuple[args_resolved]
+            value = tuple[args_resolved]  # type: ignore [valid-type]
 
         self._annotation = value
         self._args_types = args

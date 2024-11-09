@@ -15,7 +15,6 @@ from typing import (
     Any,
     Callable,
     Generic,
-    Iterator,
     NoReturn,
     TypeVar,
     cast,
@@ -29,6 +28,7 @@ from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
 from magicgui.widgets.bases import ValueWidget
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
     from typing_extensions import ParamSpec

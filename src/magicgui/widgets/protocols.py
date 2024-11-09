@@ -15,14 +15,14 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Iterable,
     NoReturn,
     Protocol,
-    Sequence,
     runtime_checkable,
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
     import numpy as np
 
     from magicgui.widgets.bases import Widget

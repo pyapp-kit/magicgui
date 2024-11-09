@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Iterable, Mapping, MutableSequence, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Generic,
-    Iterable,
-    Mapping,
-    MutableSequence,
     NoReturn,
-    Sequence,
     TypeVar,
     overload,
 )

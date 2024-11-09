@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Iterable, get_type_hints
+from typing import TYPE_CHECKING, Any, Callable, get_type_hints
 
 try:
     import ipywidgets
@@ -16,6 +16,8 @@ from magicgui.types import Separator
 from magicgui.widgets import protocols
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from magicgui.widgets.bases import Widget
 
 

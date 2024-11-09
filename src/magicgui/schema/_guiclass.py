@@ -12,7 +12,7 @@ from __future__ import annotations
 import contextlib
 import warnings
 from dataclasses import Field, dataclass, field, is_dataclass
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Mapping, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
 
 from psygnal import SignalGroup, SignalInstance, evented
 from psygnal import __version__ as psygnal_version
@@ -22,6 +22,7 @@ from magicgui.widgets import PushButton
 from magicgui.widgets.bases import ContainerWidget, ValueWidget
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from typing import Protocol
 
     from typing_extensions import TypeGuard
@@ -130,13 +131,12 @@ def guiclass(
     >>> @guiclass
     ... class MyData:
     ...     x: int = 0
-    ...     y: str = 'hi'
+    ...     y: str = "hi"
     ...
     ...     @button
     ...     def reset(self):
     ...         self.x = 0
-    ...         self.y = 'hi'
-    ...
+    ...         self.y = "hi"
     >>> data = MyData()
     >>> data.gui.show()
     """
