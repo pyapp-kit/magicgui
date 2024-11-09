@@ -912,11 +912,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../demo_widgets/change_label/" class="md-nav__link">
+      <a href="../../demo_widgets/range_slider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Custom text labels for widgets
+    Range slider widget
   </span>
   
 
@@ -933,11 +933,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../demo_widgets/range_slider/" class="md-nav__link">
+      <a href="../../demo_widgets/change_label/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Range slider widget
+    Custom text labels for widgets
   </span>
   
 
@@ -2923,8 +2923,10 @@ to download the full example code</p>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 
 <span class="hll"><span class="kn">from</span> <span class="nn">magicgui</span> <span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">use_app</span>
-</span><span class="hll"><span class="n">use_app</span><span class="p">(</span><span class="s2">&quot;ipynb&quot;</span><span class="p">)</span>
-</span>
+</span><span class="hll">
+</span><span class="n">use_app</span><span class="p">(</span><span class="s2">&quot;ipynb&quot;</span><span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">Medium</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="c1"># Various media and their refractive indices.</span>
     <span class="n">Glass</span> <span class="o">=</span> <span class="mf">1.520</span>
@@ -2934,7 +2936,7 @@ to download the full example code</p>
 
 
 <span class="nd">@magicgui</span><span class="p">(</span>
-    <span class="n">call_button</span><span class="o">=</span><span class="s2">&quot;calculate&quot;</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">call_button</span><span class="o">=</span><span class="s2">&quot;calculate&quot;</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 <span class="k">def</span> <span class="nf">snells_law</span><span class="p">(</span><span class="n">aoi</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n1</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Glass</span><span class="p">,</span> <span class="n">n2</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Water</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="c1"># Calculate the angle of refraction given two media and an angle of incidence.</span>
@@ -2951,7 +2953,7 @@ to download the full example code</p>
 
 <span class="n">snells_law</span>
 </code></pre></div>
-<!-- GENERATED FROM PYTHON SOURCE LINES 45-46 -->
+<!-- GENERATED FROM PYTHON SOURCE LINES 47-48 -->
 
 <p><img alt="magicgui widget embedded in the jupyter notebook" src="../../../images/jupyter_magicgui_widget.png" /></p>
 <p><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>

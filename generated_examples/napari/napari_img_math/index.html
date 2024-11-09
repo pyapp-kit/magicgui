@@ -912,11 +912,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../demo_widgets/change_label/" class="md-nav__link">
+      <a href="../../demo_widgets/range_slider/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Custom text labels for widgets
+    Range slider widget
   </span>
   
 
@@ -933,11 +933,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../demo_widgets/range_slider/" class="md-nav__link">
+      <a href="../../demo_widgets/change_label/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Range slider widget
+    Custom text labels for widgets
   </span>
   
 
@@ -3225,7 +3225,8 @@ github</a>.</em></p>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="normal">44</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 
 <span class="kn">import</span> <span class="nn">napari</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
@@ -3256,14 +3257,15 @@ github</a>.</em></p>
     <span class="c1"># Add, subtracts, multiplies, or divides to image layers.</span>
     <span class="k">return</span> <span class="n">operation</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">layerA</span><span class="p">,</span> <span class="n">layerB</span><span class="p">)</span>
 
+
 <span class="c1"># create a viewer and add a couple image layers</span>
 <span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Layer 1&quot;</span><span class="p">)</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Layer 2&quot;</span><span class="p">)</span>
 
-<span class="c1"># add our new magicgui widget to the viewer</span>
-<span class="hll"><span class="n">viewer</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">add_dock_widget</span><span class="p">(</span><span class="n">image_arithmetic</span><span class="p">)</span>
-</span>
+<span class="hll"><span class="c1"># add our new magicgui widget to the viewer</span>
+</span><span class="n">viewer</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">add_dock_widget</span><span class="p">(</span><span class="n">image_arithmetic</span><span class="p">)</span>
+
 <span class="c1"># keep the dropdown menus in the gui in sync with the layer model</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">inserted</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">image_arithmetic</span><span class="o">.</span><span class="n">reset_choices</span><span class="p">)</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">removed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">image_arithmetic</span><span class="o">.</span><span class="n">reset_choices</span><span class="p">)</span>
@@ -3294,6 +3296,7 @@ or <code>LayerData</code> return type annotation, and will add the result to the
 So we gain a <em>lot</em> by annotating the above function with the appropriate
 <code>napari</code> types.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">napari.types</span> <span class="kn">import</span> <span class="n">ImageData</span>
+
 
 <span class="k">def</span> <span class="nf">image_arithmetic</span><span class="p">(</span>
     <span class="n">layerA</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">,</span> <span class="n">layerB</span><span class="p">:</span> <span class="n">ImageData</span>
@@ -3361,7 +3364,7 @@ function:</p>
 </code></pre></div>
 <h2 id="code_1">Code<a class="headerlink" href="#code_1" title="Permanent link">#</a></h2>
 <p>Here's the full code example again.</p>
-<!-- GENERATED FROM PYTHON SOURCE LINES 204-249 -->
+<!-- GENERATED FROM PYTHON SOURCE LINES 206-251 -->
 
 <p><img alt="napari img math" class="mkd-glr-single-img" src="../images/mkd_glr_napari_img_math_001.png" srcset="../images/mkd_glr_napari_img_math_001.png" /></p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
@@ -3410,7 +3413,7 @@ function:</p>
 
 <span class="n">napari</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
-<p><strong>Total running time of the script:</strong> ( 0 minutes  1.074 seconds)</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  1.178 seconds)</p>
 <div id="download_links"></div>
 
 <p><a class="md-button center" href="../napari_img_math.py"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v242.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48"/></svg></span> Download Python source code: napari_img_math.py</a></p>
