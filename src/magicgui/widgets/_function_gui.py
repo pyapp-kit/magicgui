@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from typing_extensions import ParamSpec
 
     from magicgui.application import Application, AppRef  # noqa: F401
+    from magicgui.type_map import TypeMap
     from magicgui.widgets import TextEdit
     from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
 
@@ -153,10 +154,15 @@ class FunctionGui(Container, Generic[_P, _R]):
         name: str | None = None,
         persist: bool = False,
         raise_on_unknown: bool = False,
+        type_map: TypeMap | None = None,
         **kwargs: Any,
     ):
+        from magicgui.type_map import TypeMap
+
         if not callable(function):
             raise TypeError("'function' argument to FunctionGui must be callable.")
+        if type_map is None:
+            type_map = TypeMap.global_instance()
 
         # consume extra Widget keywords
         extra = set(kwargs) - {"annotation", "gui_only"}
@@ -198,9 +204,10 @@ class FunctionGui(Container, Generic[_P, _R]):
             scrollable=scrollable,
             labels=labels,
             visible=visible,
-            widgets=list(sig.widgets(app).values()),
+            widgets=list(sig.widgets(app, type_map).values()),
             name=name or self._callable_name,
         )
+        self._type_map = type_map
         self._param_options = param_options
         self._result_name = ""
         self._call_count: int = 0
@@ -233,11 +240,9 @@ class FunctionGui(Container, Generic[_P, _R]):
 
         self._result_widget: ValueWidget | None = None
         if result_widget:
-            from magicgui.widgets.bases import create_widget
-
             self._result_widget = cast(
                 ValueWidget,
-                create_widget(
+                type_map.create_widget(
                     value=None,
                     annotation=self._return_annotation,
                     gui_only=True,
@@ -352,9 +357,7 @@ class FunctionGui(Container, Generic[_P, _R]):
 
         return_type = sig.return_annotation
         if return_type:
-            from magicgui.type_map import type2callback
-
-            for callback in type2callback(return_type):
+            for callback in self._type_map.type2callback(return_type):
                 callback(self, value, return_type)
         self.called.emit(value)
         return value
@@ -389,6 +392,7 @@ class FunctionGui(Container, Generic[_P, _R]):
             tooltips=self._tooltips,
             scrollable=self._scrollable,
             name=self.name,
+            type_map=self._type_map,
         )
 
     def __get__(self, obj: object, objtype: type | None = None) -> FunctionGui:

@@ -431,8 +431,8 @@ def test_register_types_by_string():
     assert isinstance(func.c, widgets.ComboBox)
     assert isinstance(func.d, widgets.LineEdit)
 
-    del type_map._type_map._TYPE_DEFS[str]
-    del type_map._type_map._TYPE_DEFS[int]
+    del type_map.TypeMap.global_instance()._type_defs[str]
+    del type_map.TypeMap.global_instance()._type_defs[int]
 
 
 def test_register_types_by_class():
@@ -478,10 +478,10 @@ def test_register_return_callback():
 
         func2()
     finally:
-        from magicgui.type_map._type_map import _RETURN_CALLBACKS
+        from magicgui.type_map import TypeMap
 
-        _RETURN_CALLBACKS.pop(int)
-        _RETURN_CALLBACKS.pop(Base)
+        TypeMap.global_instance()._return_callbacks.pop(int)
+        TypeMap.global_instance()._return_callbacks.pop(Base)
 
 
 def test_parent_changed(qtbot, magic_func: widgets.FunctionGui) -> None:
