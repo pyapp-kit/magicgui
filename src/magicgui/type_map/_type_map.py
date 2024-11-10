@@ -406,7 +406,7 @@ class TypeMap:
 
         This factory function can be used to create a widget appropriate for the
         provided `value` and/or `annotation` provided. See
-        [Type Mapping Docs](../../type_map.md) for details on how the widget type is
+        [Type Mapping Docs](../type_map.md) for details on how the widget type is
         determined from type annotations.
 
         Parameters
@@ -455,7 +455,7 @@ class TypeMap:
         ------
         TypeError
             If the provided or autodetected `widget_type` does not implement any known
-            [widget protocols](../protocols.md)
+            [widget protocols](protocols.md)
 
         Examples
         --------
