@@ -85,6 +85,8 @@ _ADDITIONAL_KWARGS_DEFAULTS: dict[type, dict[str, Any]] = {
 
 
 class TypeMap:
+    """Storage for mapping from types to widgets and callbacks."""
+
     def __init__(
         self,
         *,

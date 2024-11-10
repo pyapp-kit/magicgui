@@ -50,7 +50,32 @@ if TYPE_CHECKING:
         nullable: bool
 
 
-class _BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
+class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
+    """Widget that can contain other widgets.
+
+    Wraps a widget that implements
+    [`ContainerProtocol`][magicgui.widgets.protocols.ContainerProtocol].
+
+    Parameters
+    ----------
+    widgets : Sequence[Widget], optional
+        A sequence of widgets with which to initialize the container, by default
+        `None`.
+    layout : str, optional
+        The layout for the container.  must be one of `{'horizontal',
+        'vertical'}`. by default "vertical"
+    scrollable : bool, optional
+        Whether to enable scroll bars or not. If enabled, scroll bars will
+        only appear along the layout direction, not in both directions.
+    labels : bool, optional
+        Whether each widget should be shown with a corresponding Label widget to the
+        left, by default `True`.  Note: the text for each widget defaults to
+        `widget.name`, but can be overridden by setting `widget.label`.
+    **base_widget_kwargs : Any
+        All additional keyword arguments are passed to the base
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
+    """
+
     _widget: protocols.ContainerProtocol
     _initialized = False
     # this is janky ... it's here to allow connections during __init__ by
@@ -202,7 +227,7 @@ class _BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
 
 
 class ValuedContainerWidget(
-    _BaseContainerWidget[Widget], BaseValueWidget[T], Generic[T]
+    BaseContainerWidget[Widget], BaseValueWidget[T], Generic[T]
 ):
     """Container-type ValueWidget."""
 
@@ -226,7 +251,7 @@ class ValuedContainerWidget(
         app = use_app()
         assert app.native
         base_widget_kwargs["widget_type"] = app.get_obj("Container")
-        _BaseContainerWidget.__init__(
+        BaseContainerWidget.__init__(
             self,
             widgets=widgets,
             layout=layout,
@@ -240,11 +265,8 @@ class ValuedContainerWidget(
             self.hide()
 
 
-class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]):
-    """Widget that can contain other widgets.
-
-    Wraps a widget that implements
-    [`ContainerProtocol`][magicgui.widgets.protocols.ContainerProtocol].
+class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]):
+    """Container widget that can insert/remove child widgets.
 
     A `ContainerWidget` behaves like a python list of [Widget][magicgui.widgets.Widget]
     objects. Subwidgets can be accessed using integer or slice-based indexing
@@ -263,25 +285,6 @@ class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar
     For a `ContainerWidget` subclass that is tightly coupled to a specific function
     signature (as in the "classic" magicgui decorator), see
     [magicgui.widgets.FunctionGui][magicgui.widgets.FunctionGui].
-
-    Parameters
-    ----------
-    widgets : Sequence[Widget], optional
-        A sequence of widgets with which to initialize the container, by default
-        `None`.
-    layout : str, optional
-        The layout for the container.  must be one of `{'horizontal',
-        'vertical'}`. by default "vertical"
-    scrollable : bool, optional
-        Whether to enable scroll bars or not. If enabled, scroll bars will
-        only appear along the layout direction, not in both directions.
-    labels : bool, optional
-        Whether each widget should be shown with a corresponding Label widget to the
-        left, by default `True`.  Note: the text for each widget defaults to
-        `widget.name`, but can be overridden by setting `widget.label`.
-    **base_widget_kwargs : Any
-        All additional keyword arguments are passed to the base
-        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
     _widget: protocols.ContainerProtocol
@@ -307,7 +310,7 @@ class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar
             **base_widget_kwargs,
         )
         for widget in self._list:
-            if isinstance(widget, (BaseValueWidget, _BaseContainerWidget)):
+            if isinstance(widget, (BaseValueWidget, BaseContainerWidget)):
                 widget.changed.connect(lambda: self.changed.emit(self))
 
     def __setattr__(self, name: str, value: Any) -> None:
@@ -366,7 +369,7 @@ class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar
 
     def insert(self, key: int, widget: WidgetVar) -> None:
         """Insert widget at ``key``."""
-        if isinstance(widget, (BaseValueWidget, _BaseContainerWidget)):
+        if isinstance(widget, (BaseValueWidget, BaseContainerWidget)):
             widget.changed.connect(lambda: self.changed.emit(self))
         self._insert_widget(key, widget)
 
@@ -437,7 +440,7 @@ class ContainerWidget(_BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar
                     getattr(self, key).value = value
             for key, value in kwargs.items():
                 getattr(self, key).value = value
-        self.changed.emit()
+        self.changed.emit(self)
 
     @debounce
     def _dump(self, path: str | Path) -> None:
