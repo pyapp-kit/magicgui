@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.10.0.rc1](https://github.com/pyapp-kit/magicgui/tree/v0.10.0.rc1) (2024-11-22)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.1...v0.10.0.rc1)
+
+**Implemented enhancements:**
+
+- feat: Implement `TypeMap` to enable module specific type map registration [\#677](https://github.com/pyapp-kit/magicgui/pull/677) ([hanjinliu](https://github.com/hanjinliu))
+
+**Documentation:**
+
+- docs: fix docs build [\#670](https://github.com/pyapp-kit/magicgui/pull/670) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: drop python 3.8 add py3.13 [\#671](https://github.com/pyapp-kit/magicgui/pull/671) ([tlambert03](https://github.com/tlambert03))
+- refactor: Make all the valued containers subclass `ValueWidget` [\#663](https://github.com/pyapp-kit/magicgui/pull/663) ([hanjinliu](https://github.com/hanjinliu))
+
 ## [v0.9.1](https://github.com/pyapp-kit/magicgui/tree/v0.9.1) (2024-08-06)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.0...v0.9.1)
