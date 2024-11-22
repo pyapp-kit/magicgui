@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -2686,15 +2686,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.Table.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.__delitem__" class="md-nav__link">
     <span class="md-ellipsis">
       __delitem__
@@ -2785,6 +2776,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#magicgui.widgets.Table.get_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_value
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.items" class="md-nav__link">
     <span class="md-ellipsis">
       items
@@ -2797,6 +2797,15 @@
   <a href="#magicgui.widgets.Table.keys" class="md-nav__link">
     <span class="md-ellipsis">
       keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#magicgui.widgets.Table.set_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      set_value
     </span>
   </a>
   
@@ -3191,15 +3200,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.Table.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.__delitem__" class="md-nav__link">
     <span class="md-ellipsis">
       __delitem__
@@ -3290,6 +3290,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#magicgui.widgets.Table.get_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_value
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#magicgui.widgets.Table.items" class="md-nav__link">
     <span class="md-ellipsis">
       items
@@ -3302,6 +3311,15 @@
   <a href="#magicgui.widgets.Table.keys" class="md-nav__link">
     <span class="md-ellipsis">
       keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#magicgui.widgets.Table.set_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      set_value
     </span>
   </a>
   
@@ -3369,7 +3387,7 @@
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases._value_widget.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a></code>, <code><span title="magicgui.widgets.bases._mixins._ReadOnlyMixin">_ReadOnlyMixin</span></code>, <code><a class="autorefs autorefs-external" title="collections.abc.MutableMapping" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping">MutableMapping</a>[<span title="magicgui.widgets._table.TblKey">TblKey</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases._value_widget.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a>[<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<span title="magicgui.widgets._table.TblKey">TblKey</span>, <a class="autorefs autorefs-external" title="collections.abc.Collection" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection">Collection</a>]]</code>, <code><span title="magicgui.widgets.bases._mixins._ReadOnlyMixin">_ReadOnlyMixin</span></code>, <code><a class="autorefs autorefs-external" title="collections.abc.MutableMapping" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping">MutableMapping</a>[<span title="magicgui.widgets._table.TblKey">TblKey</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>]</code></p>
 
 
         <p>A widget to represent columnar or 2D data with headers.</p>
@@ -3440,7 +3458,7 @@
 <p><span class="doc-section-title">Attributes:</span></p>
     <ul>
         <li class="doc-section-item field-body">
-          <b><code><a class="autorefs autorefs-internal" title="magicgui.widgets.Table.value" href="#magicgui.widgets.Table.value">value</a></code></b>
+          <b><code><span title="magicgui.widgets.Table.value">value</span></code></b>
               (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
           –
           <div class="doc-md-description">
@@ -3665,28 +3683,6 @@ See docstring of :meth:<code>to_dict</code> for details.</p>
 
 </div>
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="magicgui.widgets.Table.value" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">TblKey</span><span class="p">,</span> <span class="n">Collection</span><span class="p">]</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
-  </span>
-
-<a href="#magicgui.widgets.Table.value" class="headerlink" title="Permanent link">#</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Return dict with current <code>data</code>, <code>index</code>, and <code>columns</code> of the widget.</p>
-    </div>
-
-</div>
-
 
 
 <div class="doc doc-object doc-function">
@@ -3887,6 +3883,23 @@ See docstring of :meth:<code>to_dict</code> for details.</p>
 <div class="doc doc-object doc-function">
 
 
+<h3 id="magicgui.widgets.Table.get_value" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_value</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">TblKey</span><span class="p">,</span> <span class="n">Collection</span><span class="p">]</span></code>
+
+<a href="#magicgui.widgets.Table.get_value" class="headerlink" title="Permanent link">#</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return dict with current <code>data</code>, <code>index</code>, and <code>columns</code> of the widget.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h3 id="magicgui.widgets.Table.items" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">items</span><span class="p">(</span><span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;column&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TableItemsView</span><span class="p">[</span><span class="n">TblKey</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span></code>
 
@@ -3913,6 +3926,37 @@ See docstring of :meth:<code>to_dict</code> for details.</p>
     <div class="doc doc-contents ">
 
         <p>Return a set-like object providing a view on this table's headers.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="magicgui.widgets.Table.set_value" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">set_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">TableData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+
+<a href="#magicgui.widgets.Table.set_value" class="headerlink" title="Permanent link">#</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Set table data from dict, dataframe, list, or array.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>value</code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Complete table data in one of the forms described above. Partial table
+updates are not yet supported</p>
+          </div>
+        </li>
+    </ul>
 
     </div>
 

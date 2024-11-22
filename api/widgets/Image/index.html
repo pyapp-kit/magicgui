@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -2239,15 +2239,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.Image.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.Image.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
       __repr__
@@ -2260,6 +2251,15 @@
   <a href="#magicgui.widgets.Image.get_clim" class="md-nav__link">
     <span class="md-ellipsis">
       get_clim
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#magicgui.widgets.Image.get_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_value
     </span>
   </a>
   
@@ -2305,6 +2305,15 @@
   <a href="#magicgui.widgets.Image.set_norm" class="md-nav__link">
     <span class="md-ellipsis">
       set_norm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#magicgui.widgets.Image.set_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      set_value
     </span>
   </a>
   
@@ -3074,15 +3083,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.Image.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.Image.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
       __repr__
@@ -3095,6 +3095,15 @@
   <a href="#magicgui.widgets.Image.get_clim" class="md-nav__link">
     <span class="md-ellipsis">
       get_clim
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#magicgui.widgets.Image.get_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_value
     </span>
   </a>
   
@@ -3140,6 +3149,15 @@
   <a href="#magicgui.widgets.Image.set_norm" class="md-nav__link">
     <span class="md-ellipsis">
       set_norm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#magicgui.widgets.Image.set_value" class="md-nav__link">
+    <span class="md-ellipsis">
+      set_value
     </span>
   </a>
   
@@ -3215,7 +3233,7 @@
           –
           <div class="doc-md-description">
             <p>A value or callback to bind this widget. If provided, whenever
-<a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.ValueWidget.value"><code>widget.value</code></a> is
+<a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.BaseValueWidget.value"><code>widget.value</code></a> is
 accessed, the value provided here will be returned instead. <code>bind</code> may be a
 callable, in which case <code>bind(self)</code> will be returned (i.e. your bound callback
 must accept a single parameter, which is this widget instance).</p>
@@ -3297,28 +3315,6 @@ must accept a single parameter, which is this widget instance).</p>
 
 </div>
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="magicgui.widgets.Image.value" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">value</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
-  </span>
-
-<a href="#magicgui.widgets.Image.value" class="headerlink" title="Permanent link">#</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Return current image array.</p>
-    </div>
-
-</div>
-
 
 
 <div class="doc doc-object doc-function">
@@ -3350,6 +3346,23 @@ must accept a single parameter, which is this widget instance).</p>
     <div class="doc doc-contents ">
 
         <p>Get contrast limits (for monochromatic images).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="magicgui.widgets.Image.get_value" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_value</span><span class="p">()</span></code>
+
+<a href="#magicgui.widgets.Image.get_value" class="headerlink" title="Permanent link">#</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return current image array.</p>
 
     </div>
 
@@ -3604,6 +3617,23 @@ Normalize objects.</p>
           </div>
         </li>
     </ul>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="magicgui.widgets.Image.set_value" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">set_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code>
+
+<a href="#magicgui.widgets.Image.set_value" class="headerlink" title="Permanent link">#</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Set current data.  Alias for <code>image.set_data(value)</code>.</p>
 
     </div>
 

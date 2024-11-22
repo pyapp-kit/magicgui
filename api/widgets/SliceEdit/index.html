@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -2574,21 +2574,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="SliceEdit">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#magicgui.widgets.SliceEdit.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -2971,21 +2956,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="SliceEdit">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#magicgui.widgets.SliceEdit.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -3008,7 +2978,7 @@
 <p>Available in backends: </p>
 <h2 id="signals">Signals<a class="headerlink" href="#signals" title="Permanent link">#</a></h2>
 <ul>
-<li><strong><code>changed(object)</code></strong> - Emitted with <code>self</code> when any sub-widget in the container changes.</li>
+<li><strong><code>changed(object)</code></strong> - Emitted when the widget value changes.</li>
 <li><strong><code>label_changed(str)</code></strong> - Emitted when the widget label changes.</li>
 <li><strong><code>native_parent_changed(object)</code></strong> - Emitted with the backend widget when the widget parent changes.</li>
 </ul>
@@ -3027,13 +2997,48 @@
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets._concrete.RangeEdit" href="../RangeEdit/#magicgui.widgets.RangeEdit">RangeEdit</a></code></p>
+              Bases: <code><span title="magicgui.widgets._concrete._RangeOrSliceEdit">_RangeOrSliceEdit</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#slice">slice</a>]</code></p>
 
 
         <p>A widget to represent <code>slice</code> objects, with start/stop/step.</p>
 <p>slice(stop)
 slice(start, stop[, step])</p>
 <p>Slice objects may be used for extended slicing (e.g. a[0:10:2])</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>start</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>, default:
+                  <code>0</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The range start value, by default 0</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>stop</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>, default:
+                  <code>10</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The range stop value, by default 10</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code>step</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>, default:
+                  <code>1</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The range step value, by default 1</p>
+          </div>
+        </li>
+    </ul>
 
 
 
@@ -3045,28 +3050,6 @@ slice(start, stop[, step])</p>
 
 
 
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="magicgui.widgets.SliceEdit.value" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="nb">slice</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
-  </span>
-
-<a href="#magicgui.widgets.SliceEdit.value" class="headerlink" title="Permanent link">#</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Return current value of the widget.  This may be interpreted by backends.</p>
-    </div>
-
-</div>
 
 
 

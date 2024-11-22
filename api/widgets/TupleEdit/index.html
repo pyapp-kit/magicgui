@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -2734,9 +2734,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.TupleEdit.value" class="md-nav__link">
+  <a href="#magicgui.widgets.TupleEdit.get_value" class="md-nav__link">
     <span class="md-ellipsis">
-      value
+      get_value
     </span>
   </a>
   
@@ -2993,9 +2993,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.TupleEdit.value" class="md-nav__link">
+  <a href="#magicgui.widgets.TupleEdit.get_value" class="md-nav__link">
     <span class="md-ellipsis">
-      value
+      get_value
     </span>
   </a>
   
@@ -3026,7 +3026,7 @@
 <p>Available in backends: </p>
 <h2 id="signals">Signals<a class="headerlink" href="#signals" title="Permanent link">#</a></h2>
 <ul>
-<li><strong><code>changed(object)</code></strong> - Emitted with <code>self</code> when any sub-widget in the container changes.</li>
+<li><strong><code>changed(object)</code></strong> - Emitted when the widget value changes.</li>
 <li><strong><code>label_changed(str)</code></strong> - Emitted when the widget label changes.</li>
 <li><strong><code>native_parent_changed(object)</code></strong> - Emitted with the backend widget when the widget parent changes.</li>
 </ul>
@@ -3045,7 +3045,7 @@
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets._concrete.Container" href="../Container/#magicgui.widgets.Container">Container</a>[<a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a>]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValuedContainerWidget" href="../bases/#magicgui.widgets.bases.ValuedContainerWidget">ValuedContainerWidget</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>]</code></p>
 
 
         <p>A widget to represent a tuple of values.</p>
@@ -3069,9 +3069,7 @@ contents is not editable.</p>
         </li>
         <li class="doc-section-item field-body">
           <b><code>nullable</code></b>
-              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                  <code>False</code>
-)
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>)
           –
           <div class="doc-md-description">
             <p>If <code>True</code>, the widget will accepts <code>None</code> as a valid value, by default <code>False</code>.</p>
@@ -3124,29 +3122,24 @@ annotation will be like 'tuple[str, int]'.</p>
 
 </div>
 
-<div class="doc doc-object doc-attribute">
 
 
+<div class="doc doc-object doc-function">
 
-<h3 id="magicgui.widgets.TupleEdit.value" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span></code>
 
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
-  </span>
+<h3 id="magicgui.widgets.TupleEdit.get_value" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_value</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span></code>
 
-<a href="#magicgui.widgets.TupleEdit.value" class="headerlink" title="Permanent link">#</a></h3>
+<a href="#magicgui.widgets.TupleEdit.get_value" class="headerlink" title="Permanent link">#</a></h3>
 
 
     <div class="doc doc-contents ">
 
         <p>Return current value as a tuple.</p>
+
     </div>
 
 </div>
-
-
 
 
 

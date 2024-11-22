@@ -20,7 +20,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -2095,15 +2095,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.EmptyWidget.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.EmptyWidget.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
       __repr__
@@ -2993,15 +2984,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#magicgui.widgets.EmptyWidget.value" class="md-nav__link">
-    <span class="md-ellipsis">
-      value
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#magicgui.widgets.EmptyWidget.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
       __repr__
@@ -3041,7 +3023,7 @@
 
 <h1 id="emptywidget">EmptyWidget<a class="headerlink" href="#emptywidget" title="Permanent link">#</a></h1>
 <p><img alt="EmptyWidget widget" class="widget-image" loading="lazy," src="../../../images/EmptyWidget.png" /></p>
-<p>Available in backends: <code>qt</code>, <code>ipynb</code></p>
+<p>Available in backends: </p>
 <h2 id="signals">Signals<a class="headerlink" href="#signals" title="Permanent link">#</a></h2>
 <ul>
 <li><strong><code>changed(object)</code></strong> - Emitted when the widget value changes.</li>
@@ -3063,62 +3045,12 @@
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValuedContainerWidget" href="../bases/#magicgui.widgets.bases.ValuedContainerWidget">ValuedContainerWidget</a>[<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]</code></p>
 
 
         <p>A base widget with no value.</p>
 <p>This widget is primarily here to serve as a "hidden widget" to which a value or
 callback can be bound.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-          <b><code>value</code></b>
-              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                  <code><span title="magicgui.types.Undefined">Undefined</span></code>
-)
-          –
-          <div class="doc-md-description">
-            <p>The starting value for the widget.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-          <b><code>bind</code></b>
-              (<code><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="magicgui.widgets.bases.ValueWidget" href="../bases/#magicgui.widgets.bases.ValueWidget">ValueWidget</a>], <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>] | <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                  <code><span title="magicgui.types.Undefined">Undefined</span></code>
-)
-          –
-          <div class="doc-md-description">
-            <p>A value or callback to bind this widget. If provided, whenever
-<a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.ValueWidget.value"><code>widget.value</code></a> is
-accessed, the value provided here will be returned instead. <code>bind</code> may be a
-callable, in which case <code>bind(self)</code> will be returned (i.e. your bound callback
-must accept a single parameter, which is this widget instance).</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-          <b><code>nullable</code></b>
-              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>, default:
-                  <code>False</code>
-)
-          –
-          <div class="doc-md-description">
-            <p>If <code>True</code>, the widget will accepts <code>None</code> as a valid value, by default <code>False</code>.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-          <b><code>**base_widget_kwargs</code></b>
-              (<code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>, default:
-                  <code>{}</code>
-)
-          –
-          <div class="doc-md-description">
-            <p>All additional keyword arguments are passed to the base
-<a class="autorefs autorefs-internal" href="../bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a> constructor.</p>
-          </div>
-        </li>
-    </ul>
 
 
 
@@ -3130,28 +3062,6 @@ must accept a single parameter, which is this widget instance).</p>
 
 
 
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="magicgui.widgets.EmptyWidget.value" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">value</span><span class="p">:</span> <span class="n">Any</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
-  </span>
-
-<a href="#magicgui.widgets.EmptyWidget.value" class="headerlink" title="Permanent link">#</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Look for a bound value, otherwise fallback to <code>get_value</code>.</p>
-    </div>
-
-</div>
 
 
 
