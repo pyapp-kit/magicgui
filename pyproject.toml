@@ -166,6 +166,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["D", "S", "E501"]
+"tests/test_util.py" = ["D", "S", "E501", "UP006"]
 "docs/*.py" = ["B"]
 "docs/examples/*.py" = ["D", "B", "E501"]
 "src/magicgui/widgets/_image/*.py" = ["D"]

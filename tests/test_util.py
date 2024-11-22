@@ -85,7 +85,7 @@ class TestSafeIsSubclass:
         new_int = typing.NewType("new_int", int)
 
         assert safe_issubclass(new_int, new_int)
-        assert safe_issubclass(list[new_int], list[new_int])
-        assert safe_issubclass(list[new_int], list[new_int])
+        assert safe_issubclass(list[new_int], typing.List[new_int])
+        assert safe_issubclass(typing.List[new_int], list[new_int])
         assert safe_issubclass(list[new_int], typing.Sequence[new_int])
         assert safe_issubclass(list[new_int], list[new_int])
