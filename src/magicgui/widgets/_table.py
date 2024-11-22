@@ -134,7 +134,11 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
         return f"table_items({n} {self._axis}s)"
 
 
-class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
+class Table(
+    ValueWidget[Mapping[TblKey, Collection]],
+    _ReadOnlyMixin,
+    MutableMapping[TblKey, list],
+):
     """A widget to represent columnar or 2D data with headers.
 
     Tables behave like plain `dicts`, where the keys are column headers and the
@@ -243,13 +247,11 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             "columns": columns if columns is not None else _columns,
         }
 
-    @property
-    def value(self) -> dict[TblKey, Collection]:
+    def get_value(self) -> dict[TblKey, Collection]:
         """Return dict with current `data`, `index`, and `columns` of the widget."""
         return self.to_dict("split")
 
-    @value.setter
-    def value(self, value: TableData) -> None:
+    def set_value(self, value: TableData) -> None:
         """Set table data from dict, dataframe, list, or array.
 
         Parameters

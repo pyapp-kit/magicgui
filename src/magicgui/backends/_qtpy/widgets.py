@@ -232,23 +232,6 @@ class QBaseValueWidget(QBaseWidget, protocols.ValueWidgetProtocol):
         return value
 
 
-# BASE WIDGET
-
-
-class EmptyWidget(QBaseWidget):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(QtW.QWidget, **kwargs)
-
-    def _mgui_get_value(self) -> Any:
-        raise NotImplementedError()
-
-    def _mgui_set_value(self, value: Any) -> None:
-        raise NotImplementedError()
-
-    def _mgui_bind_change_callback(self, callback: Callable) -> None:
-        pass
-
-
 # STRING WIDGETS
 
 

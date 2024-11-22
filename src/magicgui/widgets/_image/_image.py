@@ -25,13 +25,11 @@ class Image(ValueWidget):
     _widget: ValueWidgetProtocol
     _image: _mpl_image.Image | None = None
 
-    @property
-    def value(self):
+    def get_value(self):
         """Return current image array."""
         return self._image._A if self._image else None
 
-    @value.setter
-    def value(self, value):
+    def set_value(self, value):
         """Set current data.  Alias for ``image.set_data(value)``."""
         self.set_data(value)
 

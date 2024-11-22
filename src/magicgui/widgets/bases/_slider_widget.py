@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Union
+from typing import TYPE_CHECKING, Callable
 
 from magicgui.types import Undefined, _Undefined
 
@@ -40,7 +40,7 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         the slider.
     bind : Callable[[ValueWidget], Any] | Any, optional
         A value or callback to bind this widget. If provided, whenever
-        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        [`widget.value`][magicgui.widgets.bases.BaseValueWidget.value] is
         accessed, the value provided here will be returned instead. `bind` may be a
         callable, in which case `bind(self)` will be returned (i.e. your bound callback
         must accept a single parameter, which is this widget instance).
@@ -118,9 +118,7 @@ class SliderWidget(RangedWidget[T], _OrientationMixin):
         self._widget._mgui_set_readout_visibility(value)
 
 
-class MultiValuedSliderWidget(
-    MultiValueRangedWidget[tuple[Union[int, float], ...]], SliderWidget
-):
+class MultiValuedSliderWidget(MultiValueRangedWidget, SliderWidget):
     """Slider widget that expects a iterable value."""
 
     _widget: protocols.SliderWidgetProtocol

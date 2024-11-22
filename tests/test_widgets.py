@@ -9,7 +9,7 @@ import pytest
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
-from magicgui.widgets.bases import DialogWidget, ValueWidget
+from magicgui.widgets.bases import BaseValueWidget, DialogWidget
 from tests import MyInt
 
 
@@ -165,7 +165,7 @@ def test_custom_widget():
     # widget with a widgets._bases.ValueWidget
     with pytest.warns(UserWarning, match="must accept a `parent` Argument"):
         wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
-    assert isinstance(wdg, ValueWidget)
+    assert isinstance(wdg, BaseValueWidget)
     wdg.close()
 
 
@@ -312,6 +312,20 @@ def test_bound_values():
     assert f() == 10
     f.x.unbind()
     assert f() == 5
+
+
+def test_bound_values_for_container_like():
+    """Test that "bind" works for container-like value widgets."""
+
+    @magicgui(x={"bind": (1, "a")})
+    def f(x: tuple[int, str] = (2, "b")):
+        return x
+
+    # bound values hide the widget by default
+    assert not f.x.visible
+    assert f() == (1, "a")
+    f.x.unbind()
+    assert f() == (2, "b")
 
 
 def test_bound_unknown_type_annotation():

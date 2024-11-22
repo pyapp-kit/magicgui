@@ -19,7 +19,7 @@ from psygnal import __version__ as psygnal_version
 
 from magicgui.schema._ui_field import build_widget
 from magicgui.widgets import PushButton
-from magicgui.widgets.bases import ContainerWidget, ValueWidget
+from magicgui.widgets.bases import BaseValueWidget, ContainerWidget
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -206,7 +206,7 @@ class GuiBuilder:
 
     def __get__(
         self, instance: object | None, owner: type
-    ) -> ContainerWidget[ValueWidget]:
+    ) -> ContainerWidget[BaseValueWidget]:
         wdg = build_widget(owner if instance is None else instance)
 
         # look for @button-decorated methods
@@ -317,7 +317,7 @@ def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:
         An instance of a `guiclass`.
     """
     for widget in gui:
-        if isinstance(widget, ValueWidget):
+        if isinstance(widget, BaseValueWidget):
             widget.changed.disconnect_setattr(instance, widget.name, missing_ok=True)
 
 

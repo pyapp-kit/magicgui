@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, cast
 
 from magicgui.types import ChoicesType, Undefined, _Undefined
 
-from ._value_widget import T, ValueWidget
+from ._value_widget import BaseValueWidget, T, ValueWidget
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -26,7 +26,7 @@ class CategoricalWidget(ValueWidget[T]):
         Available choices displayed in the combo box.
     bind : Callable[[ValueWidget], Any] | Any, optional
         A value or callback to bind this widget. If provided, whenever
-        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        [`widget.value`][magicgui.widgets.bases.BaseValueWidget.value] is
         accessed, the value provided here will be returned instead. `bind` may be a
         callable, in which case `bind(self)` will be returned (i.e. your bound callback
         must accept a single parameter, which is this widget instance).
@@ -47,7 +47,7 @@ class CategoricalWidget(ValueWidget[T]):
         choices: ChoicesType = (),
         *,
         allow_multiple: bool | None = None,
-        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        bind: T | Callable[[BaseValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
@@ -66,7 +66,7 @@ class CategoricalWidget(ValueWidget[T]):
     @property
     def value(self) -> T:
         """Return current value of the widget."""
-        return ValueWidget.value.fget(self)  # type: ignore
+        return BaseValueWidget.value.fget(self)  # type: ignore
 
     @value.setter
     def value(self, value: T) -> None:
@@ -79,7 +79,7 @@ class CategoricalWidget(ValueWidget[T]):
             raise ValueError(
                 f"{value!r} is not a valid choice. must be in {self.choices}"
             )
-        return ValueWidget.value.fset(self, value)  # type: ignore
+        return BaseValueWidget.value.fset(self, value)  # type: ignore
 
     @property
     def options(self) -> dict:

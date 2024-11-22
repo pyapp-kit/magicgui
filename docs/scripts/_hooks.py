@@ -111,6 +111,8 @@ def _replace_autosummary(md: str) -> str:
         if name:
             module, _name = name.rsplit(".", 1)
             obj = getattr(import_module(module), _name)
+            if obj.__doc__ is None:
+                raise ValueError(f"Missing docstring for {obj}")
             table.append(f"| [`{_name}`][{name}] | {obj.__doc__.splitlines()[0]} |")
     lines[start:last_line] = table
     return "\n".join(lines)

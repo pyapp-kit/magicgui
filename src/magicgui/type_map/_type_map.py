@@ -61,7 +61,7 @@ _SIMPLE_ANNOTATIONS_DEFAULTS = {
     PathLike: widgets.FileEdit,
 }
 
-_SIMPLE_TYPES_DEFAULTS = {
+_SIMPLE_TYPES_DEFAULTS: dict[type, type[widgets.Widget]] = {
     bool: widgets.CheckBox,
     int: widgets.SpinBox,
     float: widgets.FloatSpinBox,
@@ -85,6 +85,8 @@ _ADDITIONAL_KWARGS_DEFAULTS: dict[type, dict[str, Any]] = {
 
 
 class TypeMap:
+    """Storage for mapping from types to widgets and callbacks."""
+
     def __init__(
         self,
         *,
@@ -404,7 +406,7 @@ class TypeMap:
 
         This factory function can be used to create a widget appropriate for the
         provided `value` and/or `annotation` provided. See
-        [Type Mapping Docs](../../type_map.md) for details on how the widget type is
+        [Type Mapping Docs](../type_map.md) for details on how the widget type is
         determined from type annotations.
 
         Parameters
@@ -453,7 +455,7 @@ class TypeMap:
         ------
         TypeError
             If the provided or autodetected `widget_type` does not implement any known
-            [widget protocols](../protocols.md)
+            [widget protocols](protocols.md)
 
         Examples
         --------

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, Union, cast
 
 from psygnal import Signal
@@ -19,8 +20,10 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-class ValueWidget(Widget, Generic[T]):
-    """Widget with a value, Wraps ValueWidgetProtocol.
+class BaseValueWidget(Widget, ABC, Generic[T]):
+    """An abstract base class for widgets that have a value.
+
+    Subclasses must implement the `get_value` and `set_value` methods.
 
     Parameters
     ----------
@@ -28,7 +31,7 @@ class ValueWidget(Widget, Generic[T]):
         The starting value for the widget.
     bind : Callable[[ValueWidget], Any] | Any, optional
         A value or callback to bind this widget. If provided, whenever
-        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        [`widget.value`][magicgui.widgets.bases.BaseValueWidget.value] is
         accessed, the value provided here will be returned instead. `bind` may be a
         callable, in which case `bind(self)` will be returned (i.e. your bound callback
         must accept a single parameter, which is this widget instance).
@@ -39,7 +42,6 @@ class ValueWidget(Widget, Generic[T]):
         [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
     """
 
-    _widget: protocols.ValueWidgetProtocol
     changed = Signal(object, description="Emitted when the widget value changes.")
     null_value: Any = None
 
@@ -47,7 +49,7 @@ class ValueWidget(Widget, Generic[T]):
         self,
         value: T | _Undefined = Undefined,
         *,
-        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        bind: T | Callable[[BaseValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
@@ -60,16 +62,13 @@ class ValueWidget(Widget, Generic[T]):
         if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
             self.hide()
 
-    def _post_init(self) -> None:
-        super()._post_init()
-        self._widget._mgui_bind_change_callback(self._on_value_change)
-
     def _on_value_change(self, value: T | None = None) -> None:
         """Called when the widget value changes."""
         if value is self.null_value and not self._nullable:
             return
         self.changed.emit(value)
 
+    @abstractmethod
     def get_value(self) -> T:
         """Callable version of `self.value`.
 
@@ -77,7 +76,10 @@ class ValueWidget(Widget, Generic[T]):
         an escape hatch if trying to access the widget's value inside of a callback
         bound to self._bound_value.
         """
-        return cast(T, self._widget._mgui_get_value())
+
+    @abstractmethod
+    def set_value(self, value: Any) -> None:
+        """Normalize and set the value of the widget."""
 
     @property
     def value(self) -> T:
@@ -98,7 +100,7 @@ class ValueWidget(Widget, Generic[T]):
 
     @value.setter
     def value(self, value: T) -> None:
-        return self._widget._mgui_set_value(value)
+        return self.set_value(value)
 
     def __repr__(self) -> str:
         """Return representation of widget of instance."""
@@ -111,7 +113,11 @@ class ValueWidget(Widget, Generic[T]):
         except AttributeError:  # pragma: no cover
             return f"<Uninitialized {self.widget_type}>"
 
-    def bind(self, value: T | Callable[[ValueWidget], T], call: bool = True) -> None:
+    def bind(
+        self,
+        value: T | Callable[[BaseValueWidget], T],
+        call: bool = True,
+    ) -> None:
         """Binds ``value`` to self.value.
 
         If a value is bound to this widget, then whenever `widget.value` is accessed,
@@ -159,3 +165,42 @@ class ValueWidget(Widget, Generic[T]):
     @annotation.setter
     def annotation(self, value: Any) -> None:
         Widget.annotation.fset(self, value)  # type: ignore
+
+
+class ValueWidget(BaseValueWidget[T]):
+    """Widget with a value, Wraps ValueWidgetProtocol.
+
+    Parameters
+    ----------
+    value : Any, optional
+        The starting value for the widget.
+    bind : Callable[[ValueWidget], Any] | Any, optional
+        A value or callback to bind this widget. If provided, whenever
+        [`widget.value`][magicgui.widgets.bases.BaseValueWidget.value] is
+        accessed, the value provided here will be returned instead. `bind` may be a
+        callable, in which case `bind(self)` will be returned (i.e. your bound callback
+        must accept a single parameter, which is this widget instance).
+    nullable : bool, optional
+        If `True`, the widget will accepts `None` as a valid value, by default `False`.
+    **base_widget_kwargs : Any
+        All additional keyword arguments are passed to the base
+        [`magicgui.widgets.Widget`][magicgui.widgets.Widget] constructor.
+    """
+
+    _widget: protocols.ValueWidgetProtocol
+
+    def _post_init(self) -> None:
+        super()._post_init()
+        self._widget._mgui_bind_change_callback(self._on_value_change)
+
+    def get_value(self) -> T:
+        """Callable version of `self.value`.
+
+        The main API is to use `self.value`, however, this is here in order to provide
+        an escape hatch if trying to access the widget's value inside of a callback
+        bound to self._bound_value.
+        """
+        return cast(T, self._widget._mgui_get_value())
+
+    def set_value(self, value: Any) -> None:
+        self._widget._mgui_set_value(value)

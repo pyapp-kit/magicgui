@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Callable, TypeVar, Union, cast
 
 from magicgui.types import Undefined, _Undefined
 
-from ._value_widget import ValueWidget
+from ._value_widget import BaseValueWidget, ValueWidget
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -38,7 +38,7 @@ class RangedWidget(ValueWidget[T]):
         The step size for incrementing the value, by default adaptive step is used
     bind : Callable[[ValueWidget], Any] | Any, optional
         A value or callback to bind this widget. If provided, whenever
-        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        [`widget.value`][magicgui.widgets.bases.BaseValueWidget.value] is
         accessed, the value provided here will be returned instead. `bind` may be a
         callable, in which case `bind(self)` will be returned (i.e. your bound callback
         must accept a single parameter, which is this widget instance).
@@ -58,7 +58,7 @@ class RangedWidget(ValueWidget[T]):
         min: float | _Undefined = Undefined,
         max: float | _Undefined = Undefined,
         step: float | _Undefined | None = Undefined,
-        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        bind: T | Callable[[BaseValueWidget], T] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
@@ -76,7 +76,7 @@ class RangedWidget(ValueWidget[T]):
             self.step = cast(float, step)
 
         self.min, self.max = self._init_range(value, min, max)
-        if value not in (Undefined, None):
+        if value is not None and not isinstance(value, _Undefined):
             self.value = value
 
     def _init_range(
@@ -118,8 +118,7 @@ class RangedWidget(ValueWidget[T]):
         d.update({"min": self.min, "max": self.max, "step": self.step})
         return d
 
-    @ValueWidget.value.setter  # type: ignore
-    def value(self, value: T) -> None:
+    def set_value(self, value: T) -> None:
         """Set widget value, will raise Value error if not within min/max."""
         val: tuple[float, ...] = value if isinstance(value, tuple) else (value,)
         if any(float(v) < self.min or float(v) > self.max for v in val):
@@ -127,7 +126,7 @@ class RangedWidget(ValueWidget[T]):
                 f"value {value} is outside of the allowed range: "
                 f"({self.min}, {self.max})"
             )
-        ValueWidget.value.fset(self, value)  # type: ignore
+        super().set_value(value)
 
     @property
     def min(self) -> float:
@@ -210,7 +209,7 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         The step size for incrementing the value, by default 1
     bind : Callable[[ValueWidget], Any] | Any, optional
         A value or callback to bind this widget. If provided, whenever
-        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        [`widget.value`][magicgui.widgets.bases.BaseValueWidget.value] is
         accessed, the value provided here will be returned instead. `bind` may be a
         callable, in which case `bind(self)` will be returned (i.e. your bound callback
         must accept a single parameter, which is this widget instance).
@@ -225,14 +224,14 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
 
     def __init__(
         self,
-        value: T | _Undefined = Undefined,
+        value: float | _Undefined = Undefined,
         *,
         min: float = 0,
         max: float = 100,
         min_pos: int = 0,
         max_pos: int = 100,
         step: int = 1,
-        bind: T | Callable[[ValueWidget], T] | _Undefined = Undefined,
+        bind: float | Callable[[BaseValueWidget], float] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
@@ -240,8 +239,12 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         self._max = max
         self._min_pos = min_pos
         self._max_pos = max_pos
-        ValueWidget.__init__(  # type: ignore
-            self, value=value, bind=bind, nullable=nullable, **base_widget_kwargs
+        ValueWidget.__init__(
+            self,  # type: ignore
+            value=value,  # type: ignore
+            bind=bind,  # type: ignore
+            nullable=nullable,
+            **base_widget_kwargs,
         )
 
         self._widget._mgui_set_min(self._min_pos)
@@ -300,11 +303,10 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         self.value = prev
 
 
-class MultiValueRangedWidget(RangedWidget[T]):
+class MultiValueRangedWidget(RangedWidget[tuple[Union[int, float], ...]]):
     """Widget with a constrained *iterable* value, like a tuple."""
 
-    @ValueWidget.value.setter  # type: ignore
-    def value(self, value: tuple[float, ...]) -> None:
+    def set_value(self, value: tuple[float, ...]) -> None:
         """Set widget value, will raise Value error if not within min/max."""
         if not isinstance(value, Iterable):
             raise ValueError(
@@ -319,4 +321,4 @@ class MultiValueRangedWidget(RangedWidget[T]):
                     f"value {v} is outside of the allowed range: "
                     f"({self.min}, {self.max})"
                 )
-        ValueWidget.value.fset(self, value)  # type: ignore
+        super().set_value(value)

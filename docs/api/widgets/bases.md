@@ -12,12 +12,15 @@ widgets.  Therefore, it is worth being aware of the type of widget you are worki
     magicgui.widgets.bases.Widget
     magicgui.widgets.bases.ButtonWidget
     magicgui.widgets.bases.CategoricalWidget
+    magicgui.widgets.bases.BaseContainerWidget
     magicgui.widgets.bases.ContainerWidget
+    magicgui.widgets.bases.ValuedContainerWidget
     magicgui.widgets.bases.DialogWidget
     magicgui.widgets.bases.MainWindowWidget
     magicgui.widgets.bases.RangedWidget
     magicgui.widgets.bases.SliderWidget
     magicgui.widgets.bases.ValueWidget
+    magicgui.widgets.bases.BaseValueWidget
 
 ## Class Hierarchy
 
@@ -25,13 +28,17 @@ In visual form, the widget class hierarchy looks like this:
 
 ``` mermaid
 classDiagram
-    Widget <|-- ValueWidget
-    Widget <|-- ContainerWidget
+    Widget <|-- BaseValueWidget
+    BaseValueWidget <|-- ValueWidget
+    Widget <|-- BaseContainerWidget
     BackendWidget ..|> WidgetProtocol : implements a
     ValueWidget <|-- RangedWidget
     ValueWidget <|-- ButtonWidget
     ValueWidget <|-- CategoricalWidget
     RangedWidget <|-- SliderWidget
+    BaseContainerWidget <|-- ContainerWidget
+    BaseContainerWidget <|-- ValuedContainerWidget
+    BaseValueWidget <|-- ValuedContainerWidget
     Widget --* WidgetProtocol : controls a
     <<Interface>> WidgetProtocol
     class WidgetProtocol {
@@ -53,11 +60,13 @@ classDiagram
         close()
         render()
     }
-    class ValueWidget{
+    class BaseValueWidget{
         value: Any
         changed: SignalInstance
         bind(value, call) Any
         unbind()
+    }
+    class ValueWidget{
     }
     class RangedWidget{
         value: float | tuple
@@ -78,7 +87,7 @@ classDiagram
     class CategoricalWidget{
         choices: List[Any]
     }
-    class ContainerWidget{
+    class BaseContainerWidget{
         widgets: List[Widget]
         labels: bool
         layout: str
@@ -89,12 +98,13 @@ classDiagram
     }
 
     click Widget href "#magicgui.widgets.bases.Widget"
+    click BaseValueWidget href "#magicgui.widgets.bases.BaseValueWidget"
     click ValueWidget href "#magicgui.widgets.bases.ValueWidget"
     click RangedWidget href "#magicgui.widgets.bases.RangedWidget"
     click SliderWidget href "#magicgui.widgets.bases.SliderWidget"
     click ButtonWidget href "#magicgui.widgets.bases.ButtonWidget"
     click CategoricalWidget href "#magicgui.widgets.bases.CategoricalWidget"
-    click ContainerWidget href "#magicgui.widgets.bases.ContainerWidget"
+    click BaseContainerWidget href "#magicgui.widgets.bases.BaseContainerWidget"
 
 ```
 
@@ -109,7 +119,13 @@ classDiagram
 ::: magicgui.widgets.bases.CategoricalWidget
     options:
         heading_level: 3
+::: magicgui.widgets.bases.BaseContainerWidget
+    options:
+        heading_level: 3
 ::: magicgui.widgets.bases.ContainerWidget
+    options:
+        heading_level: 3
+::: magicgui.widgets.bases.ValuedContainerWidget
     options:
         heading_level: 3
 ::: magicgui.widgets.bases.DialogWidget
@@ -125,5 +141,8 @@ classDiagram
     options:
         heading_level: 3
 ::: magicgui.widgets.bases.ValueWidget
+    options:
+        heading_level: 3
+::: magicgui.widgets.bases.BaseValueWidget
     options:
         heading_level: 3
