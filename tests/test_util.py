@@ -80,3 +80,12 @@ class TestSafeIsSubclass:
         assert safe_issubclass(Future[list[int]], Future[list])
         assert safe_issubclass(Future[list[int]], Future[list[int]])
         assert not safe_issubclass(Future[list[int]], Future[list[str]])
+
+    def test_subclass_new_type(self):
+        new_int = typing.NewType("new_int", int)
+
+        assert safe_issubclass(new_int, new_int)
+        assert safe_issubclass(list[new_int], list[new_int])
+        assert safe_issubclass(list[new_int], list[new_int])
+        assert safe_issubclass(list[new_int], typing.Sequence[new_int])
+        assert safe_issubclass(list[new_int], list[new_int])
