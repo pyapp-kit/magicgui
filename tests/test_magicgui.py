@@ -940,3 +940,18 @@ def test_no_order():
 
     func()
     mock.assert_called_once()
+
+
+def test_list_builtin_and_typing():
+    mock = Mock()
+
+    new_int = NewType("new_int", int)
+
+    register_type(list[new_int], return_callback=mock)
+
+    @magicgui
+    def func() -> list[new_int]:
+        return [1]
+
+    func()
+    mock.assert_called_once()

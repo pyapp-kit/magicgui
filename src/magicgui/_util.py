@@ -187,6 +187,8 @@ def _safe_isinstance_tuple(obj: object, superclass: object) -> bool:
 
 def safe_issubclass(obj: object, superclass: object) -> bool:
     """Safely check if obj is a subclass of superclass."""
+    if obj == superclass:
+        return True
     if isinstance(superclass, tuple):
         return any(safe_issubclass(obj, s) for s in superclass)
     obj_origin = get_origin(obj)
