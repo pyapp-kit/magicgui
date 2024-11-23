@@ -2,390 +2,390 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/CONTRIBUTING/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/dataclasses/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/decorators/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/events/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/installation/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/type_map/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/widgets/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/app/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/experimental/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/magic_factory/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/magicgui/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/migration/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/protocols/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/type_map/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/CheckBox/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/ComboBox/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Container/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/DateEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/DateTimeEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Dialog/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/EmptyWidget/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/FileEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/FloatRangeSlider/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/FloatSlider/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/FloatSpinBox/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/FunctionGui/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Image/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Label/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/LineEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/ListEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/LiteralEvalLineEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/LogSlider/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/MainFunctionGui/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/MainWindow/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Password/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/ProgressBar/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/PushButton/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/QuantityEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/RadioButton/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/RadioButtons/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/RangeEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/RangeSlider/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Select/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/SliceEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Slider/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/SpinBox/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/Table/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/TextEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/TimeEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/ToolBar/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/TupleEdit/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/bases/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/api/widgets/create_widget/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/basic_example/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/basic_widgets_demo/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/applications/callable/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/applications/chaining/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/applications/hotdog/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/applications/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/applications/pint_quantity/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/applications/snells_law/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/applications/values_dialog/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/change_label/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/choices/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/directory_dialog/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/file_dialog/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/files_dialog/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/image/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/log_slider/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/login/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/optional/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/range_slider/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/selection/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/table/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/matplotlib/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/matplotlib/mpl_figure/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/matplotlib/waveform/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/napari/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/napari/napari_combine_qt/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/napari/napari_forward_refs/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/napari/napari_img_math/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/napari/napari_parameter_sweep/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/notebooks/magicgui_jupyter/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/notebooks/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/progress_bars/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/progress_bars/progress/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/progress_bars/progress_indeterminate/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/progress_bars/progress_manual/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/progress_bars/progress_nested/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/under_the_hood/class_method/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/under_the_hood/mg_execution_times/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
     <url>
          <loc>https://pyapp-kit.github.io/magicgui/generated_examples/under_the_hood/self_reference/</loc>
-         <lastmod>2024-11-22</lastmod>
+         <lastmod>2024-11-23</lastmod>
     </url>
 </urlset>
