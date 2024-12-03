@@ -37,7 +37,7 @@ if TYPE_CHECKING:
         def events(self) -> SignalGroup: ...
     # fmt: on
 
-__all__ = ["guiclass", "button", "is_guiclass", "unbind_gui_from_instance"]
+__all__ = ["button", "guiclass", "is_guiclass", "unbind_gui_from_instance"]
 _BUTTON_ATTR = "_magicgui_button"
 _GUICLASS_FLAG = "__magicgui_guiclass__"
 

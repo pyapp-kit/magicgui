@@ -40,7 +40,7 @@ if TYPE_CHECKING:
         __attrs_attrs__: tuple[attrs.Attribute, ...]
 
 
-__all__ = ["build_widget", "get_ui_fields", "UiField"]
+__all__ = ["UiField", "build_widget", "get_ui_fields"]
 
 SLOTS = {"slots": True} if sys.version_info >= (3, 10) else {}
 T = TypeVar("T")
