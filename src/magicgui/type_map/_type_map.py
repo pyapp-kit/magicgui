@@ -40,7 +40,7 @@ from magicgui.widgets.protocols import WidgetProtocol, assert_protocol
 if TYPE_CHECKING:
     from magicgui.type_map._magicgui import MagicFactory
 
-__all__: list[str] = ["register_type", "get_widget_class"]
+__all__: list[str] = ["get_widget_class", "register_type"]
 
 
 # redefining these here for the sake of sphinx autodoc forward refs

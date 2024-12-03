@@ -7,7 +7,7 @@ from typing import Any, Callable, Generic, TypeVar
 from magicgui.type_map._type_map import TypeMap
 from magicgui.widgets import FunctionGui
 
-__all__ = ["magicgui", "magic_factory", "MagicFactory"]
+__all__ = ["MagicFactory", "magic_factory", "magicgui"]
 
 _FGuiVar = TypeVar("_FGuiVar", bound=FunctionGui)
 

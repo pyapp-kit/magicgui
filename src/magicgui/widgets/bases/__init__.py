@@ -57,19 +57,19 @@ from ._widget import Widget
 
 __all__ = [
     "BaseContainerWidget",
+    "BaseValueWidget",
     "ButtonWidget",
     "CategoricalWidget",
     "ContainerWidget",
-    "create_widget",
     "DialogWidget",
     "MainWindowWidget",
     "MultiValuedSliderWidget",
-    "ValueWidget",
     "RangedWidget",
     "SliderWidget",
     "ToolBarWidget",
     "TransformedRangedWidget",
+    "ValueWidget",
     "ValuedContainerWidget",
-    "BaseValueWidget",
     "Widget",
+    "create_widget",
 ]

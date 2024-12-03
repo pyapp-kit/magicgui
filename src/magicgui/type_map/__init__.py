@@ -9,9 +9,9 @@ from ._type_map import (
 )
 
 __all__ = [
+    "TypeMap",
     "get_widget_class",
     "register_type",
-    "type_registered",
     "type2callback",
-    "TypeMap",
+    "type_registered",
 ]
