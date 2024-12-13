@@ -552,7 +552,9 @@ class Image(ScalarMappable):
             # If just one dimension assume scalar and apply colormap
             self._A = self._A[:, :, 0]
 
-        if not (self._A.ndim == 2 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
+        if not (
+            self._A.ndim == 2 or (self._A.ndim == 3 and self._A.shape[-1] in [3, 4])
+        ):
             raise TypeError(
                 f"Invalid shape {self._A.shape} for image data. Data must be 2D "
                 "(monochromatic), or 3D: MxNx3 (RGB) or MxNx4 (RGBA)"
