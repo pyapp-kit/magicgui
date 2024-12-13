@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.10.0](https://github.com/pyapp-kit/magicgui/tree/v0.10.0) (2024-12-13)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.0.rc1...v0.10.0)
+
+**Fixed bugs:**
+
+- fix: fix safe\_issubclass for NewType [\#678](https://github.com/pyapp-kit/magicgui/pull/678) ([Czaki](https://github.com/Czaki))
+
+**Merged pull requests:**
+
+- ci\(pre-commit.ci\): autoupdate [\#680](https://github.com/pyapp-kit/magicgui/pull/680) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- chore: restore types in tests/test\_util.py [\#679](https://github.com/pyapp-kit/magicgui/pull/679) ([Czaki](https://github.com/Czaki))
+
 ## [v0.10.0.rc1](https://github.com/pyapp-kit/magicgui/tree/v0.10.0.rc1) (2024-11-22)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.1...v0.10.0.rc1)
@@ -23,7 +36,7 @@
 
 **Fixed bugs:**
 
-- fix: Fix checking subclasses of Future [\#665](https://github.com/pyapp-kit/magicgui/pull/665) ([Czaki](https://github.com/Czaki))
+- fix: Fix checking sublcasses of Future [\#665](https://github.com/pyapp-kit/magicgui/pull/665) ([Czaki](https://github.com/Czaki))
 
 ## [v0.9.0](https://github.com/pyapp-kit/magicgui/tree/v0.9.0) (2024-08-05)
 
@@ -664,7 +677,7 @@
 
 ## [v0.2.9](https://github.com/pyapp-kit/magicgui/tree/v0.2.9) (2021-04-05)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.9)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.9)
 
 **Implemented enhancements:**
 
@@ -690,13 +703,13 @@
 
 - \[pre-commit.ci\] pre-commit autoupdate [\#212](https://github.com/pyapp-kit/magicgui/pull/212) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8...v0.2.8rc0)
-
 ## [v0.2.8](https://github.com/pyapp-kit/magicgui/tree/v0.2.8) (2021-03-24)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.8rc0...v0.2.8)
+
+## [v0.2.8rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.8rc0) (2021-03-24)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.7...v0.2.8rc0)
 
 **Implemented enhancements:**
 
@@ -727,7 +740,7 @@
 
 ## [v0.2.7](https://github.com/pyapp-kit/magicgui/tree/v0.2.7) (2021-02-28)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.6rc0...v0.2.7)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.6...v0.2.7)
 
 **Implemented enhancements:**
 
@@ -761,13 +774,13 @@
 - update changelog [\#137](https://github.com/pyapp-kit/magicgui/pull/137) ([tlambert03](https://github.com/tlambert03))
 - \[pre-commit.ci\] pre-commit autoupdate [\#136](https://github.com/pyapp-kit/magicgui/pull/136) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
 
-## [v0.2.6rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.6rc0) (2021-01-25)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.6...v0.2.6rc0)
-
 ## [v0.2.6](https://github.com/pyapp-kit/magicgui/tree/v0.2.6) (2021-01-25)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.5...v0.2.6)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.6rc0...v0.2.6)
+
+## [v0.2.6rc0](https://github.com/pyapp-kit/magicgui/tree/v0.2.6rc0) (2021-01-25)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.2.5...v0.2.6rc0)
 
 **Merged pull requests:**
 
@@ -858,7 +871,7 @@
 
 ## [v0.2.0](https://github.com/pyapp-kit/magicgui/tree/v0.2.0) (2020-12-26)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6...v0.2.0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6rc0...v0.2.0)
 
 **Merged pull requests:**
 
@@ -875,13 +888,13 @@
 - Drop support for python 3.6 [\#42](https://github.com/pyapp-kit/magicgui/pull/42) ([tlambert03](https://github.com/tlambert03))
 - Add \(slightly\) strict mypy checking [\#41](https://github.com/pyapp-kit/magicgui/pull/41) ([tlambert03](https://github.com/tlambert03))
 
-## [v0.1.6](https://github.com/pyapp-kit/magicgui/tree/v0.1.6) (2020-07-23)
-
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6rc0...v0.1.6)
-
 ## [v0.1.6rc0](https://github.com/pyapp-kit/magicgui/tree/v0.1.6rc0) (2020-07-23)
 
-[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.5...v0.1.6rc0)
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.6...v0.1.6rc0)
+
+## [v0.1.6](https://github.com/pyapp-kit/magicgui/tree/v0.1.6) (2020-07-23)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.1.5...v0.1.6)
 
 **Merged pull requests:**
 
