@@ -242,3 +242,6 @@ ignore = [
     "codecov.yml",
     ".ruff_cache/**/*",
 ]
+
+[tool.typos.files]
+extend-exclude = ["CHANGELOG.md"]
