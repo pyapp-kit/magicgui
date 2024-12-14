@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.10.0](https://github.com/pyapp-kit/magicgui/tree/v0.10.0) (2024-12-13)
+## [v0.10.0](https://github.com/pyapp-kit/magicgui/tree/v0.10.0) (2024-12-14)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.0.rc1...v0.10.0)
 
