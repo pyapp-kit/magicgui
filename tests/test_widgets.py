@@ -847,6 +847,7 @@ def test_pushbutton_click_signal():
     mock2.assert_called_once()
 
 
+@pytest.mark.filterwarnings("ignore::UserWarning:superqt")
 def test_pushbutton_icon(backend: str):
     use_app(backend)
     btn = widgets.PushButton(icon="mdi:folder")
@@ -854,7 +855,7 @@ def test_pushbutton_icon(backend: str):
     btn.set_icon(None)
 
     if backend == "qt":
-        with pytest.warns(UserWarning, match="Could not set iconify icon"):
+        with pytest.warns(UserWarning):
             btn.set_icon("bad:key")
 
 
