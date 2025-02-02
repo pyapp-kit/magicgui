@@ -614,7 +614,7 @@ class MainWindow(Container):
 
 class SpinBox(QBaseRangedWidget):
     def __init__(self, **kwargs: Any) -> None:
-        # TODO: Consider any performance impace of this widget over a QSpinBox
+        # TODO: Consider any performance impact of this widget over a QSpinBox
         super().__init__(superqt.QLargeIntSpinBox, **kwargs)
 
     def _mgui_set_value(self, value) -> None:
@@ -686,7 +686,7 @@ class _Slider(QBaseRangedWidget, protocols.SupportsOrientation):
 
 class Slider(_Slider):
     _qwidget: QtW.QSlider
-    # TODO: Consider any performance impace of this widget over a QSpinBox
+    # TODO: Consider any performance impact of this widget over a QSpinBox
     _readout = superqt.QLargeIntSpinBox
 
     def __init__(self, qwidg=QtW.QSlider, **kwargs: Any) -> None:
