@@ -75,5 +75,5 @@ class NamedList(Generic[T]):
     def __iter__(self) -> Iterator[T]:
         return iter(self._list)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self._list)
