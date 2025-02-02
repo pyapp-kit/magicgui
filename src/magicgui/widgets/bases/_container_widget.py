@@ -82,7 +82,7 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
     _initialized = False
     # this is janky ... it's here to allow connections during __init__ by
     # avoiding a recursion error in __getattr__
-    _wdg_list: NamedList[WidgetVar] = NamedList()
+    _list: NamedList[WidgetVar] = NamedList()
 
     def __init__(
         self,
@@ -93,7 +93,7 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         labels: bool = True,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
-        self._wdg_list: NamedList[WidgetVar] = NamedList()
+        self._list: NamedList[WidgetVar] = NamedList()
         self._labels = labels
         self._layout = layout
         self._scrollable = scrollable
@@ -108,17 +108,17 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
 
     def __len__(self) -> int:
         """Return the count of widgets."""
-        return len(self._wdg_list)
+        return len(self._list)
 
     def __getattr__(self, name: str) -> WidgetVar:
         """Return attribute ``name``.  Will return a widget if present."""
-        if (wdg := self._wdg_list.get_by_name(name)) is not None:
+        if (wdg := self._list.get_by_name(name)) is not None:
             return wdg
         return object.__getattribute__(self, name)  # type: ignore
 
     def get_widget(self, name: str) -> WidgetVar | None:
         """Return widget with name `name`, or None if one doesn't exist."""
-        return self._wdg_list.get_by_name(name)
+        return self._list.get_by_name(name)
 
     @overload
     def __getitem__(self, key: int | str) -> WidgetVar: ...
@@ -133,11 +133,9 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         if isinstance(key, str):
             return self.__getattr__(key)
         if isinstance(key, slice):
-            return [
-                getattr(item, "_inner_widget", item) for item in self._wdg_list[key]
-            ]
+            return [getattr(item, "_inner_widget", item) for item in self._list[key]]
         elif isinstance(key, int):
-            item = self._wdg_list[key]
+            item = self._list[key]
             return getattr(item, "_inner_widget", item)
         raise TypeError(f"list indices must be integers or slices, not {type(key)}")
 
@@ -148,7 +146,7 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         choices as when the widget was instantiated, if the callable relies on external
         state.
         """
-        for widget in self._wdg_list:
+        for widget in self._list:
             if hasattr(widget, "reset_choices"):
                 widget.reset_choices()
 
@@ -163,8 +161,8 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
             return
         self._labels = value
 
-        for index, _ in enumerate(self._wdg_list):
-            widgt = self._wdg_list[index]
+        for index, _ in enumerate(self._list):
+            widgt = self._list[index]
             self._pop_widget(index)
             self._insert_widget(index, widgt)
 
@@ -193,11 +191,11 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         if not self._initialized:
             return
 
-        need_labels = [w for w in self._wdg_list if not isinstance(w, ButtonWidget)]
+        need_labels = [w for w in self._list if not isinstance(w, ButtonWidget)]
         if self.layout == "vertical" and self.labels and need_labels:
             measure = use_app().get_obj("get_text_width")
             widest_label = max(measure(w.label) for w in need_labels)
-            for w in self._wdg_list:
+            for w in self._list:
                 labeled_widget = w._labeled_widget()
                 if labeled_widget:
                     labeled_widget.label_width = widest_label
@@ -216,7 +214,7 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
 
         if index < 0:
             index += len(self)
-        self._wdg_list.insert(index, widget)
+        self._list.insert(index, widget)
         # NOTE: if someone has manually mucked around with self.native.layout()
         # it's possible that indices will be off.
         self._widget._mgui_insert_widget(index, _widget)
@@ -224,12 +222,12 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
 
     def _pop_widget(self, index: int) -> WidgetVar:
         """Remove a widget instance and return it."""
-        item = self._wdg_list[index]
+        item = self._list[index]
         ref = getattr(item, "_labeled_widget_ref", None)
         if ref:
             item = item._labeled_widget_ref()  # type: ignore
         self._widget._mgui_remove_widget(item)
-        del self._wdg_list[index]
+        del self._list[index]
         return item
 
 
@@ -316,14 +314,14 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
             labels=labels,
             **base_widget_kwargs,
         )
-        for widget in self._wdg_list:
+        for widget in self._list:
             if isinstance(widget, (BaseValueWidget, BaseContainerWidget)):
                 widget.changed.connect(lambda: self.changed.emit(self))
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Set attribute ``name``.  Prevents changing widget if present, (use del)."""
         if self._initialized:
-            for widget in self._wdg_list:
+            for widget in self._list:
                 if name == widget.name:
                     raise AttributeError(
                         "Cannot set attribute with same name as a widget\n"
@@ -349,20 +347,20 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
     def __delitem__(self, key: int | slice) -> None:
         """Delete a widget by integer or slice index."""
         if isinstance(key, slice):
-            for item in self._wdg_list[key]:
+            for item in self._list[key]:
                 ref = getattr(item, "_labeled_widget_ref", None)
                 if ref:
                     item = ref()
                 self._widget._mgui_remove_widget(item)
         elif isinstance(key, int):
-            item = self._wdg_list[key]
+            item = self._list[key]
             ref = getattr(item, "_labeled_widget_ref", None)
             if ref:
                 item = item._labeled_widget_ref()  # type: ignore
             self._widget._mgui_remove_widget(item)
         else:
             raise TypeError(f"list indices must be integers or slices, not {type(key)}")
-        del self._wdg_list[key]
+        del self._list[key]
 
     def __setitem__(self, key: Any, value: Any) -> NoReturn:
         """Prevent assignment by index."""
@@ -371,7 +369,7 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
     def __dir__(self) -> list[str]:
         """Add subwidget names to the dir() call for this widget."""
         d = list(super().__dir__())
-        d.extend([w.name for w in self._wdg_list if not w.gui_only])
+        d.extend([w.name for w in self._list if not w.gui_only])
         return d
 
     def insert(self, key: int, widget: WidgetVar) -> None:
@@ -385,7 +383,7 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         """Return a MagicSignature object representing the current state of the gui."""
         params = [
             MagicParameter.from_widget(w)
-            for w in self._wdg_list
+            for w in self._list
             if w.name and not w.gui_only
         ]
         # if we have multiple non-default parameters and some but not all of them are
@@ -430,7 +428,7 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         """Return state of widget as dict."""
         return {
             w.name: getattr(w, "value", None)
-            for w in self._wdg_list
+            for w in self._list
             if w.name and not w.gui_only
         }
 
@@ -443,7 +441,7 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         with self.changed.blocked():
             items = mapping.items() if isinstance(mapping, Mapping) else mapping
             for key, value in chain(items, kwargs.items()):
-                if isinstance(wdg := self._wdg_list.get_by_name(key), BaseValueWidget):
+                if isinstance(wdg := self._list.get_by_name(key), BaseValueWidget):
                     wdg.value = value
         self.changed.emit(self)
 
@@ -456,7 +454,7 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         _dict = {}
-        for widget in self._wdg_list:
+        for widget in self._list:
             try:
                 # not all values will be pickleable and restorable...
                 # for now, don't even try
