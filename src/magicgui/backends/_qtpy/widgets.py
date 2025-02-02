@@ -571,22 +571,28 @@ class MainWindow(Container):
     def __init__(
         self, layout="vertical", scrollable: bool = False, **kwargs: Any
     ) -> None:
+        parent = kwargs.pop("parent", None)
         super().__init__(layout=layout, scrollable=scrollable, **kwargs)
-        self._main_window = QtW.QMainWindow()
         self._menus: dict[str, QtW.QMenu] = {}
-        if scrollable:
-            self._main_window.setCentralWidget(self._scroll)
-        else:
-            self._main_window.setCentralWidget(self._qwidget)
+        self._central = self._qwidget
+        self._qwidget = QtW.QMainWindow(parent)
+        self._qwidget.setCentralWidget(self._central)
+
+    @property
+    def _is_scrollable(self) -> bool:
+        return isinstance(self._central, QtW.QScrollArea)
+
+    def _mgui_get_root_native_widget(self):
+        return self._qwidget
 
     def _mgui_get_visible(self):
-        return self._main_window.isVisible()
+        return self._qwidget.isVisible()
 
     def _mgui_set_visible(self, value: bool):
-        self._main_window.setVisible(value)
+        self._qwidget.setVisible(value)
 
     def _mgui_get_native_widget(self) -> QtW.QMainWindow:
-        return self._main_window
+        return self._qwidget
 
     def _mgui_create_menu_item(
         self,
@@ -596,9 +602,9 @@ class MainWindow(Container):
         shortcut: str | None = None,
     ):
         menu = self._menus.setdefault(
-            menu_name, self._main_window.menuBar().addMenu(f"&{menu_name}")
+            menu_name, self._qwidget.menuBar().addMenu(f"&{menu_name}")
         )
-        action = QtW.QAction(action_name, self._main_window)
+        action = QtW.QAction(action_name, self._qwidget)
         if shortcut is not None:
             action.setShortcut(shortcut)
         if callback is not None:
