@@ -1,7 +1,9 @@
-from collections.abc import Iterator, MutableSequence
-from typing import TYPE_CHECKING, Generic, Optional, TypeVar, overload
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Generic, TypeVar, overload
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, MutableSequence
     from typing import Protocol
 
     class Named(Protocol):
@@ -37,7 +39,7 @@ class NamedList(Generic[T]):
         """Appends an item at the end of the list."""
         self.insert(len(self._list), item)
 
-    def get_by_name(self, name: str) -> Optional[T]:
+    def get_by_name(self, name: str) -> T | None:
         """Returns the item with the given name, or None if not found."""
         return self._dict.get(name)
 
@@ -72,3 +74,6 @@ class NamedList(Generic[T]):
 
     def __iter__(self) -> Iterator[T]:
         return iter(self._list)
+
+    def __repr__(self):
+        return repr(self._list)

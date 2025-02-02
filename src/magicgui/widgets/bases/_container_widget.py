@@ -112,7 +112,7 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
 
     def __getattr__(self, name: str) -> WidgetVar:
         """Return attribute ``name``.  Will return a widget if present."""
-        if wdg := self.get_widget(name):
+        if (wdg := self._wdg_list.get_by_name(name)) is not None:
             return wdg
         return object.__getattribute__(self, name)  # type: ignore
 
@@ -443,7 +443,7 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         with self.changed.blocked():
             items = mapping.items() if isinstance(mapping, Mapping) else mapping
             for key, value in chain(items, kwargs.items()):
-                if isinstance(wdg := self.get_widget(key), BaseValueWidget):
+                if isinstance(wdg := self._wdg_list.get_by_name(key), BaseValueWidget):
                     wdg.value = value
         self.changed.emit(self)
 
