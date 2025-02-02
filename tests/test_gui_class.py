@@ -6,8 +6,10 @@ from unittest.mock import Mock
 
 import psygnal
 import pytest
+from psygnal import SignalGroupDescriptor
 
 from magicgui.schema._guiclass import (
+    GuiBuilder,
     GuiClass,
     button,
     guiclass,
@@ -17,7 +19,7 @@ from magicgui.schema._guiclass import (
 from magicgui.widgets import Container, PushButton
 
 
-def test_guiclass():
+def test_guiclass() -> None:
     """Test that the guiclass decorator works as expected."""
     mock = Mock()
 
@@ -27,8 +29,10 @@ def test_guiclass():
         b: str = "bar"
 
         @button
-        def func(self):
-            mock(asdict(self))
+        def func(self) -> dict:
+            d = asdict(self)
+            mock(d)
+            return d
 
         # example recommended for type checking
         if TYPE_CHECKING:
@@ -57,7 +61,51 @@ def test_guiclass():
     assert is_guiclass(foo)
 
 
-def test_frozen_guiclass():
+def test_guiclass2() -> None:
+    """Test that the guiclass descriptor works as expected."""
+    mock = Mock()
+
+    # this is a more direct way to create a guiclass, by using GuiBuilder directly
+    # and (optionally) using SignalGroupDescriptor
+    @dataclass
+    class Foo:
+        a: int = 1
+        b: str = "bar"
+
+        @button
+        def func(self) -> dict:
+            d = asdict(self)
+            mock(d)
+            return d
+
+        # with explicit descriptors for type checking
+        gui: ClassVar[GuiBuilder] = GuiBuilder()
+        # also optional, since GuiBuilder will do it automatically
+        events: ClassVar[SignalGroupDescriptor] = SignalGroupDescriptor()
+
+    foo = Foo()
+
+    assert foo.a == 1
+    assert foo.b == "bar"
+
+    assert isinstance(foo.gui, Container)
+    assert isinstance(foo.gui.get_widget("func"), PushButton)
+    assert foo.gui.a.value == 1
+    assert foo.gui.b.value == "bar"
+
+    foo.gui.a.value = 3
+    assert foo.a == 3
+
+    foo.b = "baz"
+    assert foo.gui.b.value == "baz"
+
+    foo.func()
+    mock.assert_called_once_with({"a": 3, "b": "baz"})
+    assert is_guiclass(Foo)
+    assert is_guiclass(foo)
+
+
+def test_frozen_guiclass() -> None:
     """Test that the guiclass decorator works as expected."""
 
     with pytest.raises(ValueError, match="not support dataclasses with `frozen=True`"):
@@ -68,7 +116,7 @@ def test_frozen_guiclass():
             b: str = "bar"
 
 
-def test_on_existing_dataclass():
+def test_on_existing_dataclass() -> None:
     """Test that the guiclass decorator works on pre-existing dataclasses."""
 
     @guiclass
@@ -86,7 +134,7 @@ def test_on_existing_dataclass():
 @pytest.mark.skipif(
     sys.version_info < (3, 11), reason="weakref_slot are python3.11 or higher"
 )
-def test_slots_guiclass():
+def test_slots_guiclass() -> None:
     """Test that the guiclass decorator works as expected."""
 
     psyg_v = tuple(int(x.split("r")[0]) for x in psygnal.__version__.split(".")[:3])
@@ -129,14 +177,14 @@ def test_slots_guiclass():
     del foo
 
 
-def test_guiclass_as_class():
+def test_guiclass_as_class() -> None:
     # variant on @guiclass, using class instead of decorator
     class T2(GuiClass):
         x: int
         y: str = "hi"
 
         @button
-        def foo(self):
+        def foo(self) -> dict:
             return asdict(self)
 
     t2 = T2(1)
@@ -152,7 +200,7 @@ def test_guiclass_as_class():
     assert t2.foo() == {"x": 3, "y": "baz"}
 
 
-def test_path_update():
+def test_path_update() -> None:
     """One off test for FileEdits... which weren't updating.
 
     (The deeper issue is that things like FileEdit don't subclass ValueWidget...)
@@ -171,3 +219,17 @@ def test_path_update():
     obj.gui.a.value = "foo"
     assert obj.gui.a.value.stem == "foo"
     assert obj.a.stem == "foo"
+
+
+def test_name_collisions() -> None:
+    """Test that dataclasses can have names colliding with widget attributes."""
+
+    @guiclass
+    class Foo:
+        name: str = "foo"
+        annotation: str = "bar"
+
+    foo = Foo()
+    assert isinstance(foo.gui, Container)
+    foo.gui.update({"name": "baz", "annotation": "qux"})
+    assert asdict(foo) == {"name": "baz", "annotation": "qux"}

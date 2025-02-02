@@ -804,7 +804,7 @@ class ListDataView(Generic[_V]):
 
     def __init__(self, obj: ListEdit[_V]):
         self._obj = obj
-        self._widgets = list(obj._list[:-1])
+        self._widgets = list(obj._wdg_list[:-1])
 
     def __repr__(self) -> str:
         """Return list-like representation."""
@@ -976,14 +976,14 @@ class TupleEdit(ValuedContainerWidget[tuple]):
 
     def get_value(self) -> tuple:
         """Return current value as a tuple."""
-        return tuple(w.value for w in self._list)  # type: ignore
+        return tuple(w.value for w in self._wdg_list)  # type: ignore
 
     def set_value(self, vals: Sequence[Any]) -> None:
         if len(vals) != len(self):
             raise ValueError("Length of tuple does not match.")
 
         with self.changed.blocked():
-            for w, v in zip(self._list, vals):
+            for w, v in zip(self._wdg_list, vals):
                 w.value = v  # type: ignore
         self.changed.emit(self.value)
 

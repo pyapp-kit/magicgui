@@ -14,7 +14,7 @@ import warnings
 from dataclasses import Field, dataclass, field, is_dataclass
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
 
-from psygnal import SignalGroup, SignalInstance, evented
+from psygnal import SignalGroup, SignalInstance, evented, is_evented
 from psygnal import __version__ as psygnal_version
 
 from magicgui.schema._ui_field import build_widget
@@ -149,13 +149,15 @@ def guiclass(
                 "https://github.com/pyapp-kit/magicgui/issues."
             )
 
-        setattr(cls, gui_name, GuiBuilder(gui_name, follow_changes=follow_changes))
-
+        builder = GuiBuilder(
+            gui_name,
+            follow_changes=follow_changes,
+            events_namespace=events_namespace,
+        )
         if not is_dataclass(cls):
             cls = dataclass(cls, **dataclass_kwargs)  # type: ignore
-        cls = evented(cls, events_namespace=events_namespace)
-
-        setattr(cls, _GUICLASS_FLAG, True)
+        setattr(cls, gui_name, builder)
+        builder.__set_name__(cls, gui_name)
         return cls
 
     return _deco(cls) if cls is not None else _deco
@@ -195,19 +197,56 @@ def button(func: F | None = None, **button_kwargs: Any) -> F | Callable[[F], F]:
 
 
 class GuiBuilder:
-    """Descriptor that builds a widget for a dataclass or instance."""
+    """Descriptor that builds a widget for a dataclass or instance.
 
-    def __init__(self, name: str = "", follow_changes: bool = True):
+    Parameters
+    ----------
+    name : str, optional
+        The name of the property that will return a `magicgui` widget.
+        When used as a descriptor, the name of the class-attribute to which this
+        descriptor is applied will be used.
+    follow_changes : bool, optional
+        If `True` (default), changes to the dataclass instance will be reflected in the
+        gui, and changes to the gui will be reflected in the dataclass instance.
+    events_namespace : str
+        If the owner of this descriptor is not already evented when __set_name__ is
+        called, it will be be made evented and the events namespace will be set to this
+        value. By default, this is "events". (see `psygnal.SignalGroupDescriptor`
+        for details.)
+    """
+
+    def __init__(
+        self,
+        name: str = "",
+        follow_changes: bool = True,
+        events_namespace: str = "events",
+    ):
         self._name = name
         self._follow_changes = follow_changes
+        self._owner: type | None = None
+        self._events_namespace = events_namespace
 
     def __set_name__(self, owner: type, name: str) -> None:
         self._name = name
+        self._owner = owner
+        if not is_evented(owner):
+            evented(owner, events_namespace=self._events_namespace)
+        setattr(owner, _GUICLASS_FLAG, True)
+
+    def widget(self) -> ContainerWidget:
+        """Return a widget for the dataclass or instance."""
+        if self._owner is None:
+            raise TypeError(
+                "Cannot call `widget` on an unbound `GuiBuilder` descriptor."
+            )
+        return build_widget(self._owner)
 
     def __get__(
         self, instance: object | None, owner: type
-    ) -> ContainerWidget[BaseValueWidget]:
-        wdg = build_widget(owner if instance is None else instance)
+    ) -> ContainerWidget[BaseValueWidget] | GuiBuilder:
+        if instance is None:
+            return self
+        wdg = build_widget(instance)
 
         # look for @button-decorated methods
         # TODO: move inside build_widget?
