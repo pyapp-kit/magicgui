@@ -28,12 +28,13 @@ class NamedList(Generic[T]):
 
         Raises ValueError if an item with the same name already exists.
         """
+        self._list.insert(index, item)
         # NB!
         # we don't actually assert name uniqueness here, because it ruins
-        # the true list-like quality.  So, when retrieving by name, you will
-        # simply get the last item that has been inserted with that name.
-        self._list.insert(index, item)
-        self._dict[item.name] = item
+        # the true list-like quality. So, when retrieving by name, you will
+        # simply get the first item that has been inserted with that name.
+        if item.name not in self._dict:
+            self._dict[item.name] = item
 
     def append(self, item: T) -> None:
         """Appends an item at the end of the list."""
