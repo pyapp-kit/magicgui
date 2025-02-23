@@ -1619,6 +1619,6 @@ def _format_number(text: str, ndigits: int = 4) -> str:
         if 0.1 <= abs(value) < 10 ** (ndigits + 1) or value == 0:
             text = str(value) if isinstance(value, int) else f"{value:.{ndigits}f}"
         else:
-            text = f"{value:.{ndigits-1}e}"
+            text = f"{value:.{ndigits - 1}e}"
 
     return text
