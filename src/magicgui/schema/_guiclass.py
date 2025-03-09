@@ -13,6 +13,7 @@ import contextlib
 import warnings
 from dataclasses import Field, dataclass, field, is_dataclass
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
+from weakref import WeakKeyDictionary
 
 from psygnal import SignalGroup, SignalInstance, evented
 from psygnal import __version__ as psygnal_version
@@ -22,7 +23,7 @@ from magicgui.widgets import PushButton
 from magicgui.widgets.bases import BaseValueWidget, ContainerWidget
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Iterator, Mapping
     from typing import Protocol
 
     from typing_extensions import TypeGuard
@@ -279,15 +280,11 @@ def bind_gui_to_instance(
                 widget, PushButton
             ):
                 name: str = getattr(widget, "name", "")
+                two_way_obj = TwoWaySetAttr(widget, instance, name)
                 # connect changes in the widget to the instance
                 if hasattr(instance, name):
                     try:
-                        changed.connect_setattr(
-                            instance,
-                            name,
-                            maxargs=1,
-                            **_IGNORE_REF_ERR,  # type: ignore
-                        )
+                        changed.connect(two_way_obj.set_instance_value)
                     except TypeError:
                         warnings.warn(
                             f"Could not bind {name} to {instance}. "
@@ -298,10 +295,73 @@ def bind_gui_to_instance(
 
                 # connect changes from the instance to the widget
                 if name in signals:
-                    signals[name].connect_setattr(widget, "value")
+                    signals[name].connect(two_way_obj.set_widget_value)
 
 
-def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:
+class TwoWaySetAttr:
+    """Class for setattr operation between widget and instance in guiclass."""
+
+    # NOTE: This global instance container is used for two reasons:
+    # 1. To avoid garbage collection after an instance is connected to a psygnal signal
+    #    instance.
+    # 2. To disconnect callbacks both ways when it is not to be used anymore.
+    _all_objs: WeakKeyDictionary[BaseValueWidget, TwoWaySetAttr] = WeakKeyDictionary()
+
+    def __init__(
+        self,
+        widget: BaseValueWidget,
+        instance: Any,
+        name: str,
+    ):
+        if widget in self._all_objs:
+            raise ValueError(f"widget {widget!r} is used in multiple guiclasses.")
+        self._widget = widget
+        self._instance = instance
+        self._name = name
+        self._is_setting_widget_value = False
+        self._is_setting_instance_value = False
+        self._all_objs[widget] = self
+
+    def set_widget_value(self, value: Any, *_: Any) -> None:
+        """Set given value to widget."""
+        if self._is_setting_widget_value:
+            # Avoid setting value to widget more than once
+            return
+        with self.setting_widget_value():
+            self._widget.value = value
+
+    def set_instance_value(self, value: Any) -> None:
+        """Set given value to instance."""
+        if self._is_setting_instance_value:
+            # Avoid setting value to instance more than once
+            return
+        # This method is always called from the `changed` signal of the widget
+        # so we also need to enter `setting_widget_value` context.
+        with self.setting_instance_value(), self.setting_widget_value():
+            setattr(self._instance, self._name, value)
+
+    @contextlib.contextmanager
+    def setting_widget_value(self) -> Iterator[None]:
+        """Widget value is being set in this context."""
+        was_setting = self._is_setting_widget_value
+        self._is_setting_widget_value = True
+        try:
+            yield
+        finally:
+            self._is_setting_widget_value = was_setting
+
+    @contextlib.contextmanager
+    def setting_instance_value(self) -> Iterator[None]:
+        """Instance value is being set in this context."""
+        was_setting = self._is_setting_instance_value
+        self._is_setting_instance_value = True
+        try:
+            yield
+        finally:
+            self._is_setting_instance_value = was_setting
+
+
+def unbind_gui_from_instance(gui: ContainerWidget, instance: Any | None = None) -> None:
     """Unbind a gui from an instance.
 
     This will disconnect all events that were connected by `bind_gui_to_instance`.
@@ -318,7 +378,7 @@ def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:
     """
     for widget in gui:
         if isinstance(widget, BaseValueWidget):
-            widget.changed.disconnect_setattr(instance, widget.name, missing_ok=True)
+            TwoWaySetAttr._all_objs.pop(widget, None)
 
 
 # Class-based form ... which provides subclassing and inheritance (unlike @guiclass)

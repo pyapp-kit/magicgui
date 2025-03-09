@@ -674,10 +674,10 @@ class ListEdit(ValuedContainerWidget[list[_V]]):
         button_plus = PushButton(text="+", name="plus")
 
         self._insert_widget(0, button_plus)
-        button_plus.changed.connect(lambda: self._append_value())
+        button_plus.changed.connect(lambda: self._append_value(emit=True))
 
         for a in _value:
-            self._append_value(a)
+            self._append_value(a, emit=False)
 
         self.btn_plus = button_plus
 
@@ -736,7 +736,11 @@ class ListEdit(ValuedContainerWidget[list[_V]]):
             )
         self.changed.emit(self.value)
 
-    def _append_value(self, value: _V | _Undefined = Undefined) -> None:
+    def _append_value(
+        self,
+        value: _V | _Undefined = Undefined,
+        emit: bool = True,
+    ) -> None:
         """Create a new child value widget and append it."""
         i = len(self) - 1
 
@@ -764,7 +768,8 @@ class ListEdit(ValuedContainerWidget[list[_V]]):
             widget.value = value
 
         widget.changed.connect(lambda: self.changed.emit(self.value))
-        self.changed.emit(self.value)
+        if emit:
+            self.changed.emit(self.value)
 
     def _get_child_widget(self, key: int) -> _ListEditChildWidget[_V]:
         if key < 0:
