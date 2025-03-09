@@ -852,4 +852,5 @@ def _get_values(obj: Any) -> dict | None:
 def build_widget(cls_or_instance: Any) -> ContainerWidget[BaseValueWidget]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
     values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
-    return _uifields_to_container(get_ui_fields(cls_or_instance), values=values)
+    fields = get_ui_fields(cls_or_instance)
+    return _uifields_to_container(fields, values=values)

@@ -495,7 +495,7 @@ def _docstring_to_html(docs: str) -> str:
 
     ptemp = "<li><p><strong>{}</strong> (<em>{}</em>) - {}</p></li>"
     plist = [ptemp.format(p.arg_name, p.type_name, p.description) for p in ds.params]
-    params = f'<h3>Parameters</h3><ul>{"".join(plist)}</ul>'
+    params = f"<h3>Parameters</h3><ul>{''.join(plist)}</ul>"
     short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
     long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
     return re.sub(r"`?([^`]+)`?", r"<code>\1</code>", f"{short}{long}{params}")

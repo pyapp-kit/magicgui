@@ -54,8 +54,7 @@ class Application:
             backend_name = DEFAULT_BACKEND
         if not backend_name or backend_name.lower() not in BACKENDS:
             raise ValueError(
-                f"backend_name must be one of {set(BACKENDS)!r}, "
-                f"not {backend_name!r}"
+                f"backend_name must be one of {set(BACKENDS)!r}, not {backend_name!r}"
             )
 
         module_name, _ = BACKENDS[backend_name]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Iterable, Mapping, MutableSequence, Sequence
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,6 +23,7 @@ from magicgui.types import Undefined, _Undefined
 from magicgui.widgets.bases._mixins import _OrientationMixin
 
 from ._button_widget import ButtonWidget
+from ._named_list import NamedList
 from ._value_widget import BaseValueWidget
 from ._widget import Widget
 
@@ -80,7 +82,7 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
     _initialized = False
     # this is janky ... it's here to allow connections during __init__ by
     # avoiding a recursion error in __getattr__
-    _list: list[WidgetVar] = []  # noqa: RUF012
+    _list: NamedList[WidgetVar] = NamedList()
 
     def __init__(
         self,
@@ -91,7 +93,7 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         labels: bool = True,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:
-        self._list: list[WidgetVar] = []
+        self._list: NamedList[WidgetVar] = NamedList()
         self._labels = labels
         self._layout = layout
         self._scrollable = scrollable
@@ -110,10 +112,13 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
 
     def __getattr__(self, name: str) -> WidgetVar:
         """Return attribute ``name``.  Will return a widget if present."""
-        for widget in self._list:
-            if name == widget.name:
-                return widget
+        if (wdg := self._list.get_by_name(name)) is not None:
+            return wdg
         return object.__getattribute__(self, name)  # type: ignore
+
+    def get_widget(self, name: str) -> WidgetVar | None:
+        """Return widget with name `name`, or None if one doesn't exist."""
+        return self._list.get_by_name(name)
 
     @overload
     def __getitem__(self, key: int | str) -> WidgetVar: ...
@@ -429,17 +434,15 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
 
     def update(
         self,
-        mapping: Mapping | Iterable[tuple[str, Any]] | None = None,
+        mapping: Mapping | Iterable[tuple[str, Any]] = (),
         **kwargs: Any,
     ) -> None:
         """Update the parameters in the widget from a mapping, iterable, or kwargs."""
         with self.changed.blocked():
-            if mapping:
-                items = mapping.items() if isinstance(mapping, Mapping) else mapping
-                for key, value in items:
-                    getattr(self, key).value = value
-            for key, value in kwargs.items():
-                getattr(self, key).value = value
+            items = mapping.items() if isinstance(mapping, Mapping) else mapping
+            for key, value in chain(items, kwargs.items()):
+                if isinstance(wdg := self._list.get_by_name(key), BaseValueWidget):
+                    wdg.value = value
         self.changed.emit(self)
 
     @debounce

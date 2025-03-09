@@ -397,7 +397,7 @@ class ToolBar(_IPyWidget):
         for child in self._ipywidget.children:
             if hasattr(child, "style"):
                 child.style.font_size = f"{sz}px" if sz else None
-            child.layout.min_height = f"{sz*2}px" if sz else None
+            child.layout.min_height = f"{sz * 2}px" if sz else None
 
     def _mgui_clear(self) -> None:
         """Clear the toolbar."""
