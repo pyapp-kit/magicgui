@@ -630,7 +630,7 @@ class BaseApplicationBackend(ABC):
         Parameters
         ----------
         interval : int, optional
-            Interval between timeouts, by default 0
+            Interval (in msec) between timeouts, by default 0
         on_timeout : Optional[Callable[[], None]], optional
             Function to call when timer finishes, by default None
         single : bool, optional
