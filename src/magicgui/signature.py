@@ -17,7 +17,6 @@ from __future__ import annotations
 import inspect
 import typing
 import warnings
-from collections.abc import Sequence
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Annotated, Any, Callable, cast
 
@@ -26,6 +25,8 @@ from typing_extensions import get_args, get_origin
 from magicgui.types import Undefined
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from typing_extensions import Unpack
 
     from magicgui.application import AppRef
@@ -173,7 +174,7 @@ class MagicParameter(inspect.Parameter):
     @property
     def options(self) -> dict:
         """Return just this options part of the annotation."""
-        return cast(dict, get_args(self.annotation)[1])
+        return cast("dict", get_args(self.annotation)[1])
 
     def __repr__(self) -> str:
         """Return __repr__, replacing NoneType if present."""
@@ -334,7 +335,7 @@ class MagicSignature(inspect.Signature):
             return_annotation = self.return_annotation
 
         return type(self)(
-            cast(Sequence[inspect.Parameter], parameters),
+            cast("Sequence[inspect.Parameter]", parameters),
             return_annotation=return_annotation,
         )
 

@@ -265,7 +265,7 @@ class ValuedContainerWidget(
             **base_widget_kwargs,
         )
         if value is not Undefined:
-            self.value = cast(T, value)
+            self.value = cast("T", value)
         if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
             self.hide()
 
