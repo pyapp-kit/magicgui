@@ -364,7 +364,7 @@ class Table(
     @property
     def size(self) -> int:
         """Return shape of table widget (rows, cols)."""
-        return cast(int, operator.mul(*self.shape))
+        return cast("int", operator.mul(*self.shape))
 
     def keys(self, axis: str = "column") -> HeadersView[TblKey]:
         """Return a set-like object providing a view on this table's headers."""
