@@ -108,7 +108,7 @@ class CategoricalWidget(ValueWidget[T]):
 
     def get_choice(self, choice_name: str) -> T:
         """Get data for the provided ``choice_name``."""
-        return cast(T, self._widget._mgui_get_choice(choice_name))
+        return cast("T", self._widget._mgui_get_choice(choice_name))
 
     def set_choice(self, choice_name: str, data: Any | None = None) -> None:
         """Set data for the provided ``choice_name``."""

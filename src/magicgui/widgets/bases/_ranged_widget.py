@@ -73,7 +73,7 @@ class RangedWidget(ValueWidget[T]):
             self.step = None
             self._widget._mgui_set_step(1)
         else:
-            self.step = cast(float, step)
+            self.step = cast("float", step)
 
         self.min, self.max = self._init_range(value, min, max)
         if value is not None and not isinstance(value, _Undefined):

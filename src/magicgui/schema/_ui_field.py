@@ -828,7 +828,7 @@ def _get_values(obj: Any) -> dict | None:
 
     # named tuple
     if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        return cast(dict, obj._asdict())
+        return cast("dict", obj._asdict())
 
     # dataclass
     if dc.is_dataclass(type(obj)):
@@ -837,13 +837,13 @@ def _get_values(obj: Any) -> dict | None:
     # attrs
     attr = sys.modules.get("attr")
     if attr is not None and attr.has(obj):
-        return cast(dict, attr.asdict(obj))
+        return cast("dict", attr.asdict(obj))
 
     # pydantic models
     if hasattr(obj, "model_dump"):
-        return cast(dict, obj.model_dump())
+        return cast("dict", obj.model_dump())
     elif hasattr(obj, "dict"):
-        return cast(dict, obj.dict())
+        return cast("dict", obj.dict())
 
     return None
 
