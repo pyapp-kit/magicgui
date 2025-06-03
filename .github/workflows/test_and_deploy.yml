@@ -66,6 +66,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
 
       - uses: pyvista/setup-headless-display-action@v4
         with:
