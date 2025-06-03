@@ -1,7 +1,9 @@
-# pyproject.toml
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 # https://peps.python.org/pep-0621/
 [project]
@@ -31,75 +33,89 @@ classifiers = [
     "Topic :: Software Development :: User Interfaces",
     "Topic :: Software Development :: Widget Sets",
     "Topic :: Utilities",
+    "Typing :: Typed",
 ]
 dynamic = ["version"]
 dependencies = [
     "docstring_parser>=0.7",
     "psygnal>=0.8.0",
-    "qtpy>=1.7.0",
-    "superqt[iconify]>=0.6.1",
+    "qtpy>=2.4.0",
+    "superqt[iconify]>=0.7.2",
     "typing_extensions>=4.6",
 ]
 
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
-pyqt5 = ["pyqt5>=5.12.0"]
-pyqt6 = ["pyqt6"]
-pyside2 = [
-    "pyside2>=5.15 ; python_version>='3.9'",
+pyqt5 = [
+    "PyQt5>=5.15.8",
+    "pyqt5-qt5<=5.15.2; sys_platform == 'win32'"
 ]
-pyside6 = ["pyside6"]
+pyqt6 = ["pyqt6>=6.4.0"]
+pyside2 = ["pyside2>=5.15"]
+pyside6 = ["pyside6>=6.4.0"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=8.0.0"]
-image = ["pillow>=4.0"]
+image = ["pillow>=10.4"]
 quantity = ["pint>=0.13.0"]
-test = [
-    "pytest",
-    "pytest-qt",
-    "pytest-cov",
-    "pytest-mypy-plugins>=3",
-    "numpy",
-    "pandas",
-    "tqdm>=4.30.0",
-    "pillow>=4.0",
-    "pint>=0.13.0",
-    "matplotlib",
-    "toolz",
-    "ipywidgets",
-    "ipykernel",
-    "pydantic",
-    "attrs",
-    "annotated_types",
+
+[dependency-groups]
+third-party-support = [
+    "annotated-types>=0.7.0",
+    "attrs>=25.3.0",
+    "ipykernel>=6.29.5",
+    "matplotlib>=3.9.4",
+    "numpy>=1.26.4",
+    "pandas>=2.2.3; python_version >= '3.11'",
+    "pandas>=2.1",
+    "pydantic>=1.10.18",
+    "toolz>=1.0.0",
 ]
+test = [
+    "magicgui[tqdm,jupyter,image,quantity]",
+    { include-group = "third-party-support" },
+    "pytest>=8.4.0",
+    "pytest-cov >=6.1",
+    "pytest-mypy-plugins>=3.1",
+]
+test-qt = [{ include-group = "test" }, "pytest-qt >=4.3.0"]
+pyqt5 = ["magicgui[pyqt5]", { include-group = "test-qt" }]
+pyqt6 = ["magicgui[pyqt6]", { include-group = "test-qt" }]
+pyside2 = ["magicgui[pyside2]", { include-group = "test-qt" }]
+pyside6 = ["magicgui[pyside6]", { include-group = "test-qt" }]
 dev = [
-    "ruff",
-    "ipython",
-    "mypy",
-    "pdbpp",
-    "pre-commit",
-    "pyqt6",
-    "rich",
+    { include-group = "test" },
+    "ruff>=0.8.3",
+    "ipython>=8.18.0",
+    "mypy>=1.13.0",
+    "pdbpp>=0.11.6; sys_platform != 'win32'",
+    "pre-commit-uv>=4",
+    "pyqt6>=6.8.0",
+    "rich>=13.9.4",
 ]
 docs = [
-    "mkdocs",
+    "mkdocs >=1.5.3",
     "mkdocs-material ~=9.5",
     "mkdocstrings ==0.26.1",
     "mkdocstrings-python ==1.11.1",
     "griffe ==1.2.0",
     "mkdocs-gen-files ==0.5.0",
     "mkdocs-literate-nav ==0.6.1",
-    "mkdocs-spellcheck[all]",
+    "mkdocs-spellcheck[all] >=1.1.1",
     "mkdocs-gallery ==0.10.3",
     "qtgallery ==0.0.2",
     # extras for all the widgets
     "napari ==0.5.3",
-    "pyqt6",
-    "pint",
-    "matplotlib",
+    "pyqt6 >=6.8.0",
+    "pint >=0.13.0",
+    "matplotlib >=3.9.4",
     "ipywidgets >=8.0.0",
-    "ipykernel",
+    "ipykernel>=6.29.5",
 ]
+
+[tool.uv.sources]
+magicgui = { workspace = true }
+
 
 [project.urls]
 homepage = "https://github.com/pyapp-kit/magicgui"
@@ -108,40 +124,14 @@ changelog = "https://github.com/pyapp-kit/magicgui/blob/main/CHANGELOG.md"
 issues = "https://github.com/pyapp-kit/magicgui/issues"
 documentation = "https://pyapp-kit.github.io/magicgui/"
 
-[tool.hatch.version]
-source = "vcs"
-
-[tool.hatch.envs.test]
-features = ["test"]
-[tool.hatch.envs.test.scripts]
-run = "pytest  -v --color=yes --cov-config=pyproject.toml --cov --cov-report=xml --cov-report=term-missing"
-[[tool.hatch.envs.test.matrix]]
-backend = ["pyqt5", "pyside2", "pyqt6", "pyside6"]
-[tool.hatch.envs.test.overrides]
-# matrix.deps.features = [
-#     { value = "min-req", if = ["min-req"] },
-# ]
-matrix.backend.features = [
-    { value = "pyqt5", if = [
-        "pyqt5",
-    ] },
-    { value = "pyside2", if = [
-        "pyside2",
-    ] },
-    { value = "pyqt6", if = [
-        "pyqt6",
-    ] },
-    { value = "pyside6", if = [
-        "pyside6",
-    ] },
-]
-
 
 # https://docs.astral.sh/ruff
 [tool.ruff]
 line-length = 88
 target-version = "py39"
 src = ["src", "tests"]
+fix = true
+# unsafe-fixes = true
 
 [tool.ruff.lint]
 pydocstyle = { convention = "numpy" }
@@ -153,10 +143,10 @@ select = [
     "D417", # Missing argument descriptions in Docstrings
     "I",    # isort
     "UP",   # pyupgrade
-    "C4",    # flake8-comprehensions
+    "C4",   # flake8-comprehensions
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
-    "TCH",  # type checking
+    "TC",   # type checking
     "TID",  # tidy imports
     "RUF",  # ruff-specific rules
 ]
@@ -177,7 +167,8 @@ docstring-code-format = true
 
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
-minversion = "6.0"
+minversion = "7.0"
+addopts = ["--color=yes"]
 testpaths = ["tests"]
 filterwarnings = [
     "error",
@@ -185,6 +176,9 @@ filterwarnings = [
     "ignore::DeprecationWarning:tqdm",
     "ignore::DeprecationWarning:docstring_parser",
     "ignore:distutils Version classes are deprecated:DeprecationWarning",
+    "ignore:Jupyter is migrating:DeprecationWarning",
+    "ignore:The `ipykernel.comm.Comm` class has been deprecated",
+    "ignore:.*read_binary is deprecated:",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
@@ -245,3 +239,6 @@ ignore = [
 
 [tool.typos.files]
 extend-exclude = ["CHANGELOG.md"]
+
+[tool.typos.default]
+extend-ignore-identifiers-re = []

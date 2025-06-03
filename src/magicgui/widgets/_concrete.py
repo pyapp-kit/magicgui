@@ -233,8 +233,7 @@ class ProgressBar(SliderWidget[float]):
         """Decrease current value by step size, or provided value."""
         self.value = self.get_value() - (val if val is not None else self.step)
 
-    # overriding because at least some backends don't have a step value for ProgressBar
-    @property  # type: ignore
+    @property
     def step(self) -> float:
         """Step size for widget values."""
         return self._step
@@ -745,7 +744,7 @@ class ListEdit(ValuedContainerWidget[list[_V]]):
             name=f"value_{i}",
             options=self._child_options,
         )
-        widget = _ListEditChildWidget(cast(BaseValueWidget, _value_widget))
+        widget = _ListEditChildWidget(cast("BaseValueWidget", _value_widget))
 
         # connect the minus-button-clicked event
         def _remove_me() -> None:
@@ -844,7 +843,7 @@ class ListDataView(Generic[_V]):
     def __setitem__(self, key: int | slice, value: _V | Iterable[_V]) -> None:
         """Update widget value."""
         if isinstance(key, int):
-            self._obj._get_child_widget(key).value = cast(_V, value)
+            self._obj._get_child_widget(key).value = cast("_V", value)
         elif isinstance(key, slice):
             with self._obj.changed.blocked():
                 if isinstance(value, type(self._obj._get_child_widget(0).value)):
@@ -926,7 +925,7 @@ class TupleEdit(ValuedContainerWidget[tuple]):
         for a in _value:
             i = len(self)
             widget = cast(
-                BaseValueWidget,
+                "BaseValueWidget",
                 create_widget(
                     value=a,
                     annotation=self._args_types[i],

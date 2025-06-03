@@ -95,7 +95,7 @@ class CategoricalWidget(ValueWidget[T]):
         choices as when the widget was instantiated, if the callable relies on external
         state.
         """
-        self.choices = self._default_choices  # type: ignore
+        self.choices = self._default_choices
 
     @property
     def current_choice(self) -> str:
@@ -108,7 +108,7 @@ class CategoricalWidget(ValueWidget[T]):
 
     def get_choice(self, choice_name: str) -> T:
         """Get data for the provided ``choice_name``."""
-        return cast(T, self._widget._mgui_get_choice(choice_name))
+        return cast("T", self._widget._mgui_get_choice(choice_name))
 
     def set_choice(self, choice_name: str, data: Any | None = None) -> None:
         """Set data for the provided ``choice_name``."""
