@@ -15,17 +15,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.x"
-      - run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e .[docs]
+          enable-cache: true
 
       - name: Deploy docs to GitHub Pages
         if: github.event_name == 'push'
-        run: mkdocs gh-deploy --strict --force
+        run: uv run --group docs mkdocs gh-deploy --strict --force
 
       - name: Test that docs build without error
         if: github.event_name == 'pull_request'
-        run: mkdocs build --strict
+        run: uv run --group docs mkdocs build --strict
