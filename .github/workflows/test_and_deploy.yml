@@ -122,7 +122,7 @@ jobs:
       matrix:
         include:
           - package: napari/napari
-            pytest-args: napari/_tests/test_magicgui.py
+            pytest-args: src/napari/_tests/test_magicgui.py
           - package: napari/napari
             package-version: "v0.4.19.post1"
             pytest-args: napari/_tests/test_magicgui.py
