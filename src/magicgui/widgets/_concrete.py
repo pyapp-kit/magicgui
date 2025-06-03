@@ -519,9 +519,9 @@ class _RangeOrSliceEdit(ValuedContainerWidget[_V0]):
 
         if self._value_type is range:
             if stop >= start:
-                minstep, maxstep = builtins.max(1, abs(minstep)), 9999999
+                minstep, maxstep = builtins.max(1, minstep), maxstep
             else:
-                minstep, maxstep = -9999999, -builtins.min(1, abs(maxstep))
+                minstep, maxstep = -maxstep, -builtins.min(1, abs(minstep))
         self.step = SpinBox(value=step, min=minstep, max=maxstep, name="step")
         self.start.changed.connect(self._emit_current_value)
         self.stop.changed.connect(self._emit_current_value)

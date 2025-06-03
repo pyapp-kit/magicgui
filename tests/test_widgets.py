@@ -463,6 +463,7 @@ def test_main_function_gui():
 def test_range_widget():
     args = (-100, 1000, 2)
     rw = widgets.RangeEdit(*args)
+    assert rw.step.min == 1
     v = rw.value
     assert isinstance(v, range)
     assert (v.start, v.stop, v.step) == args
