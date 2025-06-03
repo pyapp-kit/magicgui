@@ -57,6 +57,9 @@ jobs:
             add-group: pyqt6
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: 🐍 Set up Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v6
