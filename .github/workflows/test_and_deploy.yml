@@ -38,12 +38,6 @@ jobs:
             os: ubuntu-latest
             add-group: pyside2
           - python-version: "3.9"
-            os: macos-13
-            add-group: pyside2
-          - python-version: "3.9"
-            os: macos-13
-            add-group: pyqt5
-          - python-version: "3.9"
             os: windows-latest
             add-group: pyqt5
           - python-version: "3.10"
