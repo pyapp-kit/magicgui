@@ -129,34 +129,33 @@ jobs:
             package-extras: test
             pytest-args: package/tests/test_PartSeg/test_napari_widgets.py
 
-  deploy:
+  build-and-inspect-package:
+    name: Build & inspect package.
     needs: test
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'pyapp-kit/magicgui' && contains(github.ref, 'tags') }}
-    permissions:
-      id-token: write
-      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: hynek/build-and-inspect-python-package@v2
+
+  upload-to-pypi:
+    if: success() && startsWith(github.ref, 'refs/tags/') && github.event_name != 'schedule' && github.repository == 'pyapp-kit/magicgui'
+    name: Upload package to PyPI
+    needs: build-and-inspect-package
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: Download built artifact to dist/
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.x"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -U setuptools setuptools_scm wheel twine build
-      - name: Build
-        run: |
-          git tag
-          python -m build
-          twine check dist/*
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/*
-          body_path: ${{ github.workspace }}/CHANGELOG.md
-      - name: Publish to PyPI
+          name: Packages
+          path: dist
+      - name: 🚢 Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: './dist/*'
