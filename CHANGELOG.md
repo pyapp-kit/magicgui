@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.10.1](https://github.com/pyapp-kit/magicgui/tree/v0.10.1) (2025-06-03)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.0...v0.10.1)
+
+**Fixed bugs:**
+
+- Fix RangeEdit step min [\#701](https://github.com/pyapp-kit/magicgui/pull/701) ([tlambert03](https://github.com/tlambert03))
+- fix: fix name collisions between dataclass fields and guiclass container attributes [\#688](https://github.com/pyapp-kit/magicgui/pull/688) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: use uv for project management [\#700](https://github.com/pyapp-kit/magicgui/pull/700) ([tlambert03](https://github.com/tlambert03))
+- ci\(pre-commit.ci\): autoupdate [\#692](https://github.com/pyapp-kit/magicgui/pull/692) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(pre-commit.ci\): autoupdate [\#689](https://github.com/pyapp-kit/magicgui/pull/689) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(pre-commit.ci\): autoupdate [\#687](https://github.com/pyapp-kit/magicgui/pull/687) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- fix: fix qt main window composition [\#686](https://github.com/pyapp-kit/magicgui/pull/686) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.10.0](https://github.com/pyapp-kit/magicgui/tree/v0.10.0) (2024-12-16)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.0.rc1...v0.10.0)
