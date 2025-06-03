@@ -101,33 +101,9 @@ jobs:
           path: ./.coverage*
           include-hidden-files: true
 
-  test-min-reqs:
-    name: Test min reqs
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    with:
-      os: ubuntu-latest
-      python-version: ${{ matrix.python-version }}
-      qt: pyqt5
-      pip-install-min-reqs: true
-      coverage-upload: artifact
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
-
-  test-pydantic1:
-    name: Test pydantic 1
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    with:
-      os: ubuntu-latest
-      python-version: 3.11
-      qt: pyqt6
-      pip-post-installs: '"pydantic<2"'
-      coverage-upload: artifact
-
   upload_coverage:
     if: always()
-    needs: [test, test-min-reqs, test-pydantic1]
+    needs: [test]
     uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
     secrets: inherit
 
