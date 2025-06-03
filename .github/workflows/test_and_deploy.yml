@@ -27,8 +27,8 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         add-group: [pyqt6, pyside6]
         include:
-          - os: macos-latest
-            python-version: "3.12"
+          - os: windows-latest
+            python-version: "3.11"
             resolution: "lowest-direct"
             add-group: pyside6
           - python-version: "3.9"
