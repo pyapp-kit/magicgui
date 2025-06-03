@@ -6,6 +6,7 @@ super().__init__ calls.
 
 from __future__ import annotations
 
+import builtins
 import datetime
 import inspect
 import math
@@ -515,6 +516,12 @@ class _RangeOrSliceEdit(ValuedContainerWidget[_V0]):
         maxstart, maxstop, maxstep = self._validate_min_max(max, "max", 9999999)
         self.start = SpinBox(value=start, min=minstart, max=maxstart, name="start")
         self.stop = SpinBox(value=stop, min=minstop, max=maxstop, name="stop")
+
+        if self._value_type is range:
+            if stop >= start:
+                minstep, maxstep = builtins.max(1, abs(minstep)), 9999999
+            else:
+                minstep, maxstep = -9999999, -builtins.min(1, abs(maxstep))
         self.step = SpinBox(value=step, min=minstep, max=maxstep, name="step")
         self.start.changed.connect(self._emit_current_value)
         self.stop.changed.connect(self._emit_current_value)
