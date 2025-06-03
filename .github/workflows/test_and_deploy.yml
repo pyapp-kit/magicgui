@@ -14,7 +14,6 @@ on:
     - cron: "0 0 * * *" # run once a day
 
 jobs:
-
   test:
     name: ${{ matrix.os }} (${{ matrix.python-version }}) ${{ matrix.add-group || '' }} ${{ matrix.resolution || ''}}
     runs-on: ${{ matrix.os }}
@@ -101,13 +100,6 @@ jobs:
           name: covreport-${{ matrix.os }}-py${{ matrix.python-version }}-${{ matrix.add-group }}-${{ matrix.resolution }}
           path: ./.coverage*
           include-hidden-files: true
-
-  upload_coverage:
-    if: always()
-    needs: [test]
-    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
-    secrets:
-      codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
   test-min-reqs:
     name: Test min reqs
