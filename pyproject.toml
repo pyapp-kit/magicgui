@@ -1,4 +1,3 @@
-# pyproject.toml
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
@@ -31,6 +30,7 @@ classifiers = [
     "Topic :: Software Development :: User Interfaces",
     "Topic :: Software Development :: Widget Sets",
     "Topic :: Utilities",
+    "Typing :: Typed",
 ]
 dynamic = ["version"]
 dependencies = [
@@ -45,15 +45,15 @@ dependencies = [
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
 pyqt5 = ["pyqt5>=5.12.0"]
-pyqt6 = ["pyqt6"]
-pyside2 = [
-    "pyside2>=5.15 ; python_version>='3.9'",
-]
-pyside6 = ["pyside6"]
+pyqt6 = ["pyqt6>=6.4.0"]
+pyside2 = ["pyside2>=5.15"]
+pyside6 = ["pyside6>=6.4.0"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=8.0.0"]
 image = ["pillow>=4.0"]
 quantity = ["pint>=0.13.0"]
+
+[dependency-groups]
 test = [
     "pytest",
     "pytest-qt",
@@ -73,11 +73,12 @@ test = [
     "annotated_types",
 ]
 dev = [
+    { include-group = "test" },
     "ruff",
     "ipython",
     "mypy",
-    "pdbpp",
-    "pre-commit",
+    "pdbpp; sys_platform != 'win32'",
+    "pre-commit-uv",
     "pyqt6",
     "rich",
 ]
@@ -100,6 +101,10 @@ docs = [
     "ipywidgets >=8.0.0",
     "ipykernel",
 ]
+
+[tool.uv.sources]
+magicgui = { workspace = true }
+
 
 [project.urls]
 homepage = "https://github.com/pyapp-kit/magicgui"
@@ -142,6 +147,8 @@ matrix.backend.features = [
 line-length = 88
 target-version = "py39"
 src = ["src", "tests"]
+fix = true
+unsafe-fixes = true
 
 [tool.ruff.lint]
 pydocstyle = { convention = "numpy" }
@@ -153,10 +160,10 @@ select = [
     "D417", # Missing argument descriptions in Docstrings
     "I",    # isort
     "UP",   # pyupgrade
-    "C4",    # flake8-comprehensions
+    "C4",   # flake8-comprehensions
     "B",    # flake8-bugbear
     "A001", # flake8-builtins
-    "TCH",  # type checking
+    "TC",   # type checking
     "TID",  # tidy imports
     "RUF",  # ruff-specific rules
 ]
@@ -177,7 +184,8 @@ docstring-code-format = true
 
 # https://docs.pytest.org/en/6.2.x/customize.html
 [tool.pytest.ini_options]
-minversion = "6.0"
+minversion = "7.0"
+addopts = ["--color=yes"]
 testpaths = ["tests"]
 filterwarnings = [
     "error",
@@ -245,3 +253,6 @@ ignore = [
 
 [tool.typos.files]
 extend-exclude = ["CHANGELOG.md"]
+
+[tool.typos.default]
+extend-ignore-identifiers-re = []

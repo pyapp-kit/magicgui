@@ -148,7 +148,7 @@ class tqdm(_tqdm_std):
         if not self._in_visible_gui:
             super().close()
             return
-        self._mgui = cast(FunctionGui, self._mgui)
+        self._mgui = cast("FunctionGui", self._mgui)
 
         if self.disable:
             return

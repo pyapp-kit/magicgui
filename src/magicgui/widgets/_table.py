@@ -267,8 +267,8 @@ class Table(
             nc = len(data[0])  # type: ignore
         except (TypeError, IndexError):
             nc = 0
-        self.column_headers = tuple(columns) or range(nc)  # type:ignore
-        self.row_headers = tuple(index) or range(len(data))  # type: ignore
+        self.column_headers = tuple(columns) or range(nc)
+        self.row_headers = tuple(index) or range(len(data))
         for row, d in enumerate(data):
             self._set_rowi(row, d)
 
@@ -364,7 +364,7 @@ class Table(
     @property
     def size(self) -> int:
         """Return shape of table widget (rows, cols)."""
-        return cast(int, operator.mul(*self.shape))
+        return cast("int", operator.mul(*self.shape))
 
     def keys(self, axis: str = "column") -> HeadersView[TblKey]:
         """Return a set-like object providing a view on this table's headers."""
