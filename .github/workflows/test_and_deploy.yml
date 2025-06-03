@@ -113,7 +113,6 @@ jobs:
       dependency-repo: ${{ matrix.package }}
       dependency-ref: ${{ matrix.package-version }}
       dependency-extras: ${{ matrix.package-extras || 'testing' }}
-      host-extras: "testing"
       qt: pyqt5
       python-version: "3.10"
       post-install-cmd: "python -m pip install pytest-pretty lxml_html_clean" # just for napari
