@@ -14,52 +14,100 @@ on:
     - cron: "0 0 * * *" # run once a day
 
 jobs:
+
   test:
-    name: Test
-    uses: pyapp-kit/workflows/.github/workflows/test-pyrepo.yml@v2
-    with:
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
-      qt: ${{ matrix.qt }}
-      pip-install-pre-release: ${{ github.event_name == 'schedule' }}
-      coverage-upload: artifact
+    name: ${{ matrix.os }} (${{ matrix.python-version }}) ${{ matrix.add-group || '' }} ${{ matrix.resolution || ''}}
+    runs-on: ${{ matrix.os }}
+    env:
+      UV_PRERELEASE: ${{ github.event_name == 'schedule' && 'allow' || 'if-necessary-or-explicit' }}
+      UV_NO_SYNC: 1
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11"]
         os: [ubuntu-latest, macos-latest, windows-latest]
-        qt: [pyqt6, pyside6]
+        add-group: [pyqt6, pyside6]
         include:
+          - os: windows-latest
+            python-version: "3.13"
+            resolution: "lowest-direct"
+            add-group: pyside6
           - python-version: "3.9"
             os: ubuntu-latest
-            qt: pyqt5
+            add-group: pyqt5
           - python-version: "3.9"
             os: ubuntu-latest
-            qt: pyside2
+            add-group: pyside2
           - python-version: "3.9"
             os: macos-13
-            qt: pyside2
+            add-group: pyside2
           - python-version: "3.9"
             os: macos-13
-            qt: pyqt5
+            add-group: pyqt5
           - python-version: "3.9"
             os: windows-latest
-            qt: pyqt5
+            add-group: pyqt5
           - python-version: "3.10"
             os: ubuntu-latest
-            qt: pyside2
+            add-group: pyside2
           - python-version: "3.12"
             os: ubuntu-latest
-            qt: pyqt6
+            add-group: pyqt6
           - python-version: "3.12"
             os: ubuntu-latest
-            qt: pyside6
+            add-group: pyside6
           - python-version: "3.13"
             os: ubuntu-latest
-            qt: pyside6
+            add-group: pyside6
           - python-version: "3.13"
             os: windows-latest
-            qt: pyqt6
+            add-group: pyqt6
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - uses: pyvista/setup-headless-display-action@v4
+        with:
+          qt: true
+
+      - name: Install Dependencies
+        run: uv sync --no-dev --group test --group ${{ matrix.add-group || 'test' }} --resolution ${{ matrix.resolution || 'highest'}}
+
+      - name: 🧪 Run Tests
+        run: uv run coverage run -p -m pytest -v
+
+      # If something goes wrong with --pre tests, we can open an issue in the repo
+      - name: 📝 Report --pre Failures
+        if: failure() && github.event_name == 'schedule'
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PLATFORM: ${{ matrix.os }}
+          PYTHON: ${{ matrix.python-version }}
+          RUN_ID: ${{ github.run_id }}
+          TITLE: "[test-bot] pip install --pre is failing"
+        with:
+          filename: .github/TEST_FAIL_TEMPLATE.md
+          update_existing: true
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: covreport-${{ matrix.os }}-py${{ matrix.python-version }}-${{ matrix.add-group }}-${{ matrix.resolution }}
+          path: ./.coverage*
+          include-hidden-files: true
+
+  upload_coverage:
+    if: always()
+    needs: [test]
+    uses: pyapp-kit/workflows/.github/workflows/upload-coverage.yml@v2
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
   test-min-reqs:
     name: Test min reqs
