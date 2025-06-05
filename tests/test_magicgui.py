@@ -823,7 +823,7 @@ def test_partial():
 
 
 def test_curry():
-    import toolz as tz
+    tz = pytest.importorskip("toolz")
 
     @tz.curry
     def some_func2(x: int, y: str) -> str:

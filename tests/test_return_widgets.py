@@ -3,22 +3,14 @@
 """Tests return widget types"""
 
 import pathlib
+from contextlib import suppress
 from datetime import date, datetime, time
 from inspect import signature
 
-import numpy as np
 import pytest
 
 import magicgui
 from magicgui import widgets
-
-
-def _dataframe_equals(object1, object2):
-    assert object1.equals(object2)
-
-
-def _ndarray_equals(object1: np.ndarray, object2: np.ndarray):
-    assert np.array_equal(object1, object2)
 
 
 def _default_equals(object1, object2):
@@ -33,18 +25,6 @@ def _generate_pandas_test_data():
 
 
 parameterizations = [
-    # pandas dataframe
-    (
-        _generate_pandas_test_data(),
-        widgets.Table,
-        _dataframe_equals,
-    ),
-    # numpy array
-    (
-        np.array([1, 1, 1, 2, 2, 2, 3, 3, 3]).reshape((3, 3)),
-        widgets.Table,
-        _ndarray_equals,
-    ),
     # NOTE: disabling for now... these types are too broad to choose a table
     # # dict
     # ({"a": [1], "b": [2], "c": [3]}, widgets.Table, _default_equals),
@@ -73,6 +53,33 @@ parameterizations = [
     # slice
     (slice(6), widgets.LineEdit, _default_equals),
 ]
+
+with suppress(ImportError):
+    import numpy as np
+
+    def _ndarray_equals(object1: np.ndarray, object2: np.ndarray):
+        assert np.array_equal(object1, object2)
+
+    parameterizations.append(
+        (
+            np.array([1, 1, 1, 2, 2, 2, 3, 3, 3]).reshape((3, 3)),
+            widgets.Table,
+            _ndarray_equals,
+        )
+    )
+
+with suppress(ImportError):
+
+    def _dataframe_equals(object1, object2):
+        assert object1.equals(object2)
+
+    parameterizations.append(
+        (
+            _generate_pandas_test_data(),
+            widgets.Table,
+            _dataframe_equals,
+        )
+    )
 
 
 def generate_magicgui(data):

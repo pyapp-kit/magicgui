@@ -11,7 +11,11 @@ from typing import Annotated
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
-from scipy import signal
+
+try:
+    from scipy import signal
+except ImportError:
+    raise ImportError("This example requires the scipy package. ")
 
 from magicgui import magicgui, register_type, widgets
 
