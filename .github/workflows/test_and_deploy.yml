@@ -106,6 +106,8 @@ jobs:
   test-min-deps:
     name: min-deps ${{ matrix.os }} (${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
+    env:
+      UV_MANAGED_PYTHON: 1
     strategy:
       fail-fast: false
       matrix:
