@@ -55,9 +55,7 @@ jobs:
           - python-version: "3.13"
             os: windows-latest
             add-group: pyqt6
-          - python-version: "3.13"
-            os: ubuntu-latest
-            add-group: none
+
 
     steps:
       - uses: actions/checkout@v4
