@@ -95,10 +95,10 @@ docs = [
     "mkdocstrings ==0.26.1",
     "mkdocstrings-python ==1.11.1",
     "griffe ==1.2.0",
-    "mkdocs-gen-files ==0.5.0",
-    "mkdocs-literate-nav ==0.6.1",
+    "mkdocs-gen-files >=0.5.0",
+    "mkdocs-literate-nav >=0.6.1",
     "mkdocs-spellcheck[all] >=1.1.1",
-    "mkdocs-gallery ==0.10.3",
+    "mkdocs-gallery >=0.10.4",
     "qtgallery ==0.0.2",
     # extras for all the widgets
     "napari ==0.5.3",
