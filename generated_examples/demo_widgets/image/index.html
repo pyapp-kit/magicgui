@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://pyapp-kit.github.io/magicgui/generated_examples/demo_widgets/image/">
       
       
-        <link rel="prev" href="../../applications/chaining/">
+        <link rel="prev" href="../files_dialog/">
       
       
-        <link rel="next" href="../range_slider/">
+        <link rel="next" href="../directory_dialog/">
       
       
       <link rel="icon" href="../../../images/favicon.ico">
@@ -937,39 +937,6 @@
                 
   
   
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Image widget
-    
-  </span>
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
   
   
     <li class="md-nav__item">
@@ -1099,6 +1066,39 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Image widget
+    
+  </span>
+  
+
+      </a>
+      
     </li>
   
 
@@ -3128,20 +3128,27 @@ to download the full example code</p>
 <h1 id="image-widget">Image widget<a class="headerlink" href="#image-widget" title="Permanent link">#</a></h1>
 <p>Example of creating an Image Widget from a file.</p>
 <p>(This requires pillow, or that magicgui was installed as <code>magicgui[image]</code>)</p>
-<!-- GENERATED FROM PYTHON SOURCE LINES 7-13 -->
+<!-- GENERATED FROM PYTHON SOURCE LINES 7-20 -->
 
 <p><img alt="image" class="mkd-glr-single-img" src="../images/mkd_glr_image_001.png" srcset="../images/mkd_glr_image_001.png" /></p>
 <p class="mkd-glr-script-out">Out:</p>
 <div class="mkd-glr-script-out-disp highlight"><pre><span></span><code>Image<span class="o">(</span>200x232x3,<span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="o">)</span>
 </code></pre></div>
 <p><br /></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;../../images/_test.jpg&quot;</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">test_jpg</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="s2">&quot;_test.jpg&quot;</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>  <span class="c1"># hack to support mkdocs-gallery build, which doesn&#39;t define __file__</span>
+    <span class="n">test_jpg</span> <span class="o">=</span> <span class="s2">&quot;../../images/_test.jpg&quot;</span>
+
+<span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">test_jpg</span><span class="p">)</span>
 <span class="n">image</span><span class="o">.</span><span class="n">scale_widget_to_image_size</span><span class="p">()</span>
 <span class="n">image</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p><strong>Total running time of the script:</strong> ( 0 minutes  0.043 seconds)</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.047 seconds)</p>
 <div id="download_links"></div>
 
 <p><a class="md-button center" href="../image.py"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v242.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48"/></svg></span> Download Python source code: image.py</a></p>
