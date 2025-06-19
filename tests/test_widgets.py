@@ -1,4 +1,6 @@
 import datetime
+import importlib
+import importlib.util
 import inspect
 from enum import Enum
 from pathlib import Path
@@ -12,10 +14,14 @@ from magicgui.widgets import Container, request_values
 from magicgui.widgets.bases import BaseValueWidget, DialogWidget
 from tests import MyInt
 
+params = ["qt"]
+if importlib.util.find_spec("ipywidgets"):
+    params.insert(0, "ipynb")
+
 
 # it's important that "qt" be last here, so that it's used for
 # the rest of the tests
-@pytest.fixture(scope="module", params=["ipynb", "qt"])
+@pytest.fixture(scope="module", params=params)
 def backend(request):
     return request.param
 
@@ -46,23 +52,26 @@ def test_bound_callable_catches_recursion():
     assert f() == 20
 
 
-@pytest.mark.parametrize(
-    "WidgetClass",
-    [
-        getattr(widgets, n)
-        for n in widgets.__all__
-        if n
-        not in (
-            "Widget",
-            "TupleEdit",
-            "FunctionGui",
-            "MainFunctionGui",
-            "show_file_dialog",
-            "request_values",
-            "create_widget",
-        )
-    ],
-)
+WIDGETS_TO_TEST = [
+    getattr(widgets, n)
+    for n in widgets.__all__
+    if n
+    not in (
+        "Widget",
+        "TupleEdit",
+        "FunctionGui",
+        "MainFunctionGui",
+        "show_file_dialog",
+        "request_values",
+        "create_widget",
+    )
+]
+
+if not importlib.util.find_spec("pint"):
+    WIDGETS_TO_TEST.remove(widgets.QuantityEdit)
+
+
+@pytest.mark.parametrize("WidgetClass", WIDGETS_TO_TEST)
 def test_widgets(WidgetClass, backend):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
     app = use_app(backend)
@@ -288,7 +297,7 @@ def test_unhashable_choice_data():
 
 def test_ambiguous_eq_choice_data():
     """Test that providing choice data with an ambiguous equal operation is ok."""
-    import numpy as np
+    np = pytest.importorskip("numpy")
 
     combo = widgets.ComboBox()
     assert not combo.choices
@@ -331,7 +340,7 @@ def test_bound_values_for_container_like():
 def test_bound_unknown_type_annotation():
     """Test that we can bind a "permanent" value override to a parameter."""
 
-    import numpy as np
+    np = pytest.importorskip("numpy")
 
     def _provide_value(_):
         return np.array(1)
@@ -463,6 +472,7 @@ def test_main_function_gui():
 def test_range_widget():
     args = (-100, 1000, 2)
     rw = widgets.RangeEdit(*args)
+    assert rw.step.min == 1
     v = rw.value
     assert isinstance(v, range)
     assert (v.start, v.stop, v.step) == args

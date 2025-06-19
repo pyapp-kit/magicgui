@@ -166,9 +166,13 @@ class TypeMap:
         if type_ is widgets.Table:
             return widgets.Table, {}
 
-        table_types = [
-            resolve_single_type(x) for x in ("pandas.DataFrame", "numpy.ndarray")
-        ]
+        table_types = []
+        for type_name in ("pandas.DataFrame", "numpy.ndarray"):
+            try:
+                table_types.append(resolve_single_type(type_name))
+            except ModuleNotFoundError:
+                # if the type cannot be resolved, it is not available
+                pass
 
         if any(
             safe_issubclass(type_, tt)
@@ -501,7 +505,7 @@ class TypeMap:
             if issubclass(wdg_class, widgets.Widget):
                 widget = wdg_class(**{**kwargs, **opts, **options_})
                 if param_kind:
-                    widget.param_kind = param_kind  # type: ignore
+                    widget.param_kind = param_kind
                 return widget
 
         # pick the appropriate subclass for the given protocol
@@ -513,8 +517,8 @@ class TypeMap:
                 cls = getattr(widgets.bases, f"{p}Widget")
                 widget = cls(**{**kwargs, **(options_ or {}), "widget_type": wdg_class})
                 if param_kind:
-                    widget.param_kind = param_kind  # type: ignore
-                return widget
+                    widget.param_kind = param_kind
+                return widget  # type: ignore[no-any-return]
 
         raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
 
@@ -1013,7 +1017,7 @@ class TypeMap:
         widget_type: WidgetRef | None = None,
         **options: Any,
     ) -> WidgetTuple | None:
-        _options = cast(dict, options)
+        _options = cast("dict", options)
 
         previous_widget = self._type_defs.get(resolved_type)
 
@@ -1074,7 +1078,9 @@ class TypeMap:
                 )
             # MagicFactory is unnecessary if we are immediately instantiating the
             # widget, so we shortcut that and just return the FunctionGui here.
-            return cast(widgets.FunctionGui, magic_class(func, type_map=self, **kwargs))
+            return cast(
+                "widgets.FunctionGui", magic_class(func, type_map=self, **kwargs)
+            )
 
         return inner_func if function is None else inner_func(function)
 
@@ -1160,7 +1166,7 @@ def _import_wdg_class(class_name: str) -> WidgetClass:
 
     mod_name, name = class_name.rsplit(".", 1)
     mod = importlib.import_module(mod_name)
-    return cast(WidgetClass, getattr(mod, name))
+    return cast("WidgetClass", getattr(mod, name))
 
 
 def _validate_return_callback(func: Callable) -> None:
@@ -1176,4 +1182,4 @@ def _generate_union_variants(type_: Any) -> Iterator[type]:
     type_args = get_args(type_)
     for i in range(2, len(type_args) + 1):
         for per in itertools.combinations(type_args, i):
-            yield cast(type, Union[per])
+            yield cast("type", Union[per])

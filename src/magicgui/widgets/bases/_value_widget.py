@@ -58,7 +58,7 @@ class BaseValueWidget(Widget, ABC, Generic[T]):
         self._call_bound: bool = True
         super().__init__(**base_widget_kwargs)
         if value is not Undefined:
-            self.value = cast(T, value)
+            self.value = cast("T", value)
         if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
             self.hide()
 
@@ -95,7 +95,7 @@ class BaseValueWidget(Widget, ABC, Generic[T]):
                         "access `widget.value` in your bound callback, use "
                         "`widget.get_value()`"
                     ) from e
-            return cast(T, self._bound_value)
+            return cast("T", self._bound_value)
         return self.get_value()
 
     @value.setter
@@ -200,7 +200,7 @@ class ValueWidget(BaseValueWidget[T]):
         an escape hatch if trying to access the widget's value inside of a callback
         bound to self._bound_value.
         """
-        return cast(T, self._widget._mgui_get_value())
+        return cast("T", self._widget._mgui_get_value())
 
     def set_value(self, value: Any) -> None:
         self._widget._mgui_set_value(value)

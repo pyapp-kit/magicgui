@@ -3,7 +3,10 @@
 Demonstrating a few ways to input tables.
 """
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    raise ImportError("This example requires the numpy package. ")
 
 from magicgui.widgets import Table
 
