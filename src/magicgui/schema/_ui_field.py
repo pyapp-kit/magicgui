@@ -20,7 +20,7 @@ from typing import (
 
 from typing_extensions import TypeGuard, get_args, get_origin
 
-from magicgui.types import JsonStringFormats, Undefined, _Undefined
+from magicgui.types import JsonStringFormats, NestedValueWidgets, Undefined, _Undefined
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
@@ -394,7 +394,9 @@ class UiField(Generic[T]):
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)
 
-    def create_widget(self, value: T | _Undefined = Undefined) -> BaseValueWidget[T]:
+    def create_widget(
+        self, value: T | _Undefined = Undefined
+    ) -> BaseValueWidget[T] | NestedValueWidgets:
         """Create a new Widget for this field."""
         from magicgui.type_map import get_widget_class
 
@@ -799,7 +801,7 @@ def _uifields_to_container(
     values: Mapping[str, Any] | None = None,
     *,
     container_kwargs: Mapping | None = None,
-) -> ContainerWidget[BaseValueWidget]:
+) -> ContainerWidget[NestedValueWidgets]:
     """Create a container widget from a sequence of UiFields.
 
     This function is the heart of build_widget.
@@ -862,7 +864,7 @@ def _get_values(obj: Any) -> dict | None:
 
 
 # TODO: unify this with magicgui
-def build_widget(cls_or_instance: Any) -> ContainerWidget[BaseValueWidget]:
+def build_widget(cls_or_instance: Any) -> ContainerWidget[NestedValueWidgets]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
     values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
     fields = get_ui_fields(cls_or_instance)
