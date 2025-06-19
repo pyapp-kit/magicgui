@@ -441,7 +441,20 @@ class UiField(Generic[T]):
             opts["min"] = d["exclusive_minimum"] + m
 
         value = value if value is not Undefined else self.get_default()  # type: ignore
-        cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
+        try:
+            cls, kwargs = get_widget_class(
+                value=value, annotation=self.type, options=opts
+            )
+        except ValueError:
+            try:
+                wdg = build_widget(self.type)
+                wdg.label = self.name if self.name else ""
+                return wdg
+            except TypeError as e:
+                raise TypeError(
+                    f"Could not create widget for field {self.name!r} ",
+                    f"with value {value!r}",
+                ) from e
         return cls(**kwargs)  # type: ignore
 
 
