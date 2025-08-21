@@ -328,7 +328,9 @@ class Widget:
     @tooltip.setter
     def tooltip(self, value: str | None) -> None:
         """Set the tooltip for this widget."""
-        return self._widget._mgui_set_tooltip(value)
+        self._widget._mgui_set_tooltip(value)
+        if (lbl := self._labeled_widget()) is not None:
+            lbl._label_widget.tooltip = value
 
     def _labeled_widget(self) -> _LabeledWidget | None:
         """Return _LabeledWidget container, if applicable."""
