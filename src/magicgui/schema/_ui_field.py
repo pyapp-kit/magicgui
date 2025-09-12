@@ -326,9 +326,9 @@ class UiField(Generic[T]):
     def get_default(self) -> T | None:
         """Return the default value for this field."""
         return (
-            self.default  # TODO: deepcopy mutable defaults?
+            self.default
             if self.default_factory is None
-            else self.default_factory()
+            else self.default_factory()  # TODO: deepcopy mutable defaults?
         )
 
     def asdict(self, include_unset: bool = True) -> dict[str, Any]:
@@ -443,20 +443,13 @@ class UiField(Generic[T]):
             opts["min"] = d["exclusive_minimum"] + m
 
         value = value if value is not Undefined else self.get_default()  # type: ignore
-        try:
-            cls, kwargs = get_widget_class(
-                value=value, annotation=self.type, options=opts
-            )
-        except ValueError:
-            try:
-                wdg = build_widget(self.type)
-                wdg.label = self.name if self.name else ""
-                return wdg
-            except TypeError as e:
-                raise TypeError(
-                    f"Could not create widget for field {self.name!r} ",
-                    f"with value {value!r}",
-                ) from e
+        # build a nesting container widget from a dataclass-like object
+        if _is_dataclass_like(self.type):
+            wdg = build_widget(self.type)
+            wdg.label = self.name if self.name else ""
+            return wdg
+        # create widget subclass for everything else
+        cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
         return cls(**kwargs)  # type: ignore
 
 
@@ -731,6 +724,24 @@ def _ui_fields_from_annotation(cls: type) -> Iterator[UiField]:
             default=defaults.get(name, Undefined),
         )
         yield field.parse_annotated()
+
+
+def _is_dataclass_like(object: Any) -> bool:
+    # check if it's a pydantic1 style dataclass
+    model = _get_pydantic_model(object)
+    if model is not None:
+        if hasattr(model, "model_fields"):
+            return True
+    # check if it's a pydantic2 style dataclass
+    if hasattr(object, "__pydantic_fields__"):
+        return True
+    # check if it's a (non-pydantic) dataclass
+    if dc.is_dataclass(object):
+        return True
+    # check if it's an attrs class
+    if _is_attrs_model(object):
+        return True
+    return False
 
 
 def _iter_ui_fields(object: Any) -> Iterator[UiField]:
