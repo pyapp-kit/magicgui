@@ -48,7 +48,7 @@ from magicgui import magicgui
 # - 'auto_call' tells magicgui to call the function when a parameter changes
 # - we use 'widget_type' to override the default "float" widget on sigma,
 #   and provide a maximum valid value.
-# - we contstrain the possible choices for 'mode'
+# - we constrain the possible choices for 'mode'
 @magicgui(
     auto_call=True,
     sigma={"widget_type": "FloatSlider", "max": 6},
@@ -173,7 +173,7 @@ from magicgui import magicgui
 # - 'auto_call' tells magicgui to call the function when a parameter changes
 # - we use 'widget_type' to override the default "float" widget on sigma,
 #   and provide a maximum valid value.
-# - we contstrain the possible choices for 'mode'
+# - we constrain the possible choices for 'mode'
 @magicgui(
     auto_call=True,
     sigma={"widget_type": "FloatSlider", "max": 6},
