@@ -50,7 +50,7 @@ dependencies = [
 pyqt5 = ["PyQt5>=5.15.8", "pyqt5-qt5<=5.15.2; sys_platform == 'win32'"]
 pyqt6 = ["pyqt6>=6.4.0"]
 pyside2 = ["pyside2>=5.15"]
-pyside6 = ["pyside6>=6.4.0"]
+pyside6 = ["pyside6>=6.4.0,<6.10; python_version <= '3.10'", "pyside6>=6.4.0"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=8.0.0"]
 image = ["pillow>=10.4"]
