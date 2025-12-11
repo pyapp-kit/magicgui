@@ -17,6 +17,7 @@ def always_qapp(qapp):
     for w in qapp.topLevelWidgets():
         w.close()
         w.deleteLater()
+    qapp.processEvents()
 
 
 @pytest.fixture(autouse=True, scope="function")
