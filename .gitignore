@@ -136,3 +136,4 @@ dmypy.json
 examples/_wip
 .ruff_cache
 docs/_images/
+uv.lock
