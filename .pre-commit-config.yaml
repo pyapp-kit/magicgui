@@ -9,20 +9,27 @@ repos:
     hooks:
       - id: validate-pyproject
 
-  - repo: https://github.com/crate-ci/typos
-    rev: v1.33.1
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.9
+    hooks:
+      - id: actionlint
+        files: "^\\.github/workflows/.*\\.ya?ml$"
+
+  - repo: https://github.com/adhtruong/mirrors-typos
+    rev: v1.40.0
     hooks:
       - id: typos
+        args: [--force-exclude] # omitting --write-changes
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
+    rev: v0.14.8
     hooks:
       - id: ruff-check
         args: ["--fix", "--unsafe-fixes"]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.0
+    rev: v1.19.0
     hooks:
       - id: mypy
         files: "^src/"

@@ -149,7 +149,7 @@ class TypeMap:
 
         if safe_issubclass(origin, set):
             for arg in get_args(type_):
-                if get_origin(arg) is Literal:
+                if get_origin(arg) is Literal:  # type: ignore [comparison-overlap]
                     return widgets.Select, {"choices": get_args(arg)}
 
         pint = sys.modules.get("pint")
