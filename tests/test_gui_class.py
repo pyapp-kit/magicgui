@@ -221,6 +221,23 @@ def test_path_update() -> None:
     assert obj.a.stem == "foo"
 
 
+def test_list_edit_in_guiclass():
+    @guiclass
+    class MyGuiClass:
+        x: list[int]
+
+    obj = MyGuiClass([0])
+    events_mock = Mock()
+    gui_mock = Mock()
+    obj.events.x.connect(events_mock)
+    obj.gui.x.changed.connect(gui_mock)
+    events_mock.assert_not_called()
+    gui_mock.assert_not_called()
+    obj.gui.x.btn_plus.changed()
+    events_mock.assert_called_once_with([0, 0], [0])
+    gui_mock.assert_called_once_with([0, 0])
+
+
 def test_name_collisions() -> None:
     """Test that dataclasses can have names colliding with widget attributes."""
 
