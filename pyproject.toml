@@ -83,7 +83,7 @@ test = [
 ]
 pyqt5 = ["magicgui[pyqt5]", { include-group = "test-qt" }]
 pyqt6 = ["magicgui[pyqt6]", { include-group = "test-qt" }]
-pyside2 = ["magicgui[pyside2]", { include-group = "test-qt" }, "numpy<2"]
+pyside2 = ["magicgui[pyside2]", { include-group = "test-qt" }, "numpy<2; python_version < '3.13'"]
 pyside6 = ["magicgui[pyside6]", { include-group = "test-qt" }]
 dev = [
     { include-group = "test" },
