@@ -48,7 +48,11 @@ dependencies = [
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
-pyqt5 = ["PyQt5>=5.15.8", "pyqt5-qt5<=5.15.2; sys_platform == 'win32'", "pyqt5-qt5>5.15.2; sys_platform != 'win32'"]
+pyqt5 = [
+    "PyQt5>=5.15.8",
+    "pyqt5-qt5<=5.15.2; sys_platform == 'win32'",
+    "pyqt5-qt5>5.15.2; sys_platform != 'win32'",
+]
 pyqt6 = ["pyqt6>=6.4.0"]
 pyside2 = ["pyside2>=5.15"]
 pyside6 = ["pyside6>=6.4.0"]
@@ -78,7 +82,7 @@ test = [
 ]
 pyqt5 = ["magicgui[pyqt5]", { include-group = "test-qt" }]
 pyqt6 = ["magicgui[pyqt6]", { include-group = "test-qt" }]
-pyside2 = ["magicgui[pyside2]", { include-group = "test-qt" }]
+pyside2 = ["magicgui[pyside2]", { include-group = "test-qt" }, "numpy<2"]
 pyside6 = ["magicgui[pyside6]", { include-group = "test-qt" }]
 dev = [
     { include-group = "test" },
