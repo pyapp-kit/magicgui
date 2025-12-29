@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from magicgui.application import use_app
