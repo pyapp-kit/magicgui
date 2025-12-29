@@ -182,14 +182,19 @@ class MagicParameter(inspect.Parameter):
         rep = rep.replace(": NoneType = ", "=")
         return rep
 
+    def _format(self, *, quote_annotation_strings: bool = True) -> str:
+        """Return formatted string for use in Signature.format() (Python 3.14+)."""
+        hint, _ = get_args(self.annotation)
+        param = inspect.Parameter(
+            self.name, self.kind, default=self.default, annotation=hint
+        )
+        if hasattr(param, "_format"):  # python 3.14+
+            return param._format(quote_annotation_strings=quote_annotation_strings)  # type: ignore[no-any-return]
+        return str(param)
+
     def __str__(self) -> str:
         """Return string representation of the Parameter in a signature."""
-        hint, _ = get_args(self.annotation)
-        return str(
-            inspect.Parameter(
-                self.name, self.kind, default=self.default, annotation=hint
-            )
-        )
+        return self._format()
 
     def to_widget(
         self,
