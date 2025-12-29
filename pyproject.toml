@@ -48,7 +48,7 @@ dependencies = [
 # extras
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 [project.optional-dependencies]
-pyqt5 = ["PyQt5>=5.15.8", "pyqt5-qt5<=5.15.2; sys_platform == 'win32'"]
+pyqt5 = ["PyQt5>=5.15.8", "pyqt5-qt5<=5.15.2; sys_platform == 'win32'", "pyqt5-qt5>5.15.2; sys_platform != 'win32'"]
 pyqt6 = ["pyqt6>=6.4.0"]
 pyside2 = ["pyside2>=5.15"]
 pyside6 = ["pyside6>=6.4.0"]
@@ -179,6 +179,7 @@ filterwarnings = [
     "ignore:.*read_binary is deprecated:",
     "ignore:Pickle, copy, and deepcopy support:DeprecationWarning",
     "ignore:'count' is passed as positional argument::vispy",
+    "ignore::DeprecationWarning:matplotlib",
 ]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
