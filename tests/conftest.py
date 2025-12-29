@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from magicgui.application import use_app
@@ -14,10 +15,12 @@ def qapp():
 @pytest.fixture(autouse=True, scope="function")
 def always_qapp(qapp):
     yield qapp
-    for w in qapp.topLevelWidgets():
-        w.close()
-        w.deleteLater()
-    qapp.processEvents()
+    if not os.getenv("CI"):
+        # I suspect, but can't prove, that this code causes occasional segfaults on CI.
+        for w in qapp.topLevelWidgets():
+            w.close()
+            w.deleteLater()
+        qapp.processEvents()
 
 
 @pytest.fixture(autouse=True, scope="function")
