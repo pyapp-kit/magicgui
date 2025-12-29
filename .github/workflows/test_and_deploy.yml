@@ -95,7 +95,7 @@ jobs:
           update_existing: true
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: covreport-${{ matrix.os }}-py${{ matrix.python-version }}-${{ matrix.add-group }}-${{ matrix.resolution }}
           path: ./.coverage*
@@ -128,7 +128,7 @@ jobs:
         run: uv run --no-dev --group pyqt6 coverage run -p -m pytest -v
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: covreport-mindeps-${{ matrix.os }}-py${{ matrix.python-version }}
           path: ./.coverage*
@@ -184,7 +184,7 @@ jobs:
       contents: write
     steps:
       - name: Download built artifact to dist/
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: Packages
           path: dist
