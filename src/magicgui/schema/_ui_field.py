@@ -20,7 +20,7 @@ from typing import (
 
 from typing_extensions import TypeGuard, get_args, get_origin
 
-from magicgui.types import JsonStringFormats, NestedValueWidgets, Undefined, _Undefined
+from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
@@ -326,9 +326,9 @@ class UiField(Generic[T]):
     def get_default(self) -> T | None:
         """Return the default value for this field."""
         return (
-            self.default
+            self.default  # TODO: deepcopy mutable defaults?
             if self.default_factory is None
-            else self.default_factory()  # TODO: deepcopy mutable defaults?
+            else self.default_factory()
         )
 
     def asdict(self, include_unset: bool = True) -> dict[str, Any]:
@@ -394,9 +394,7 @@ class UiField(Generic[T]):
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)
 
-    def create_widget(
-        self, value: T | _Undefined = Undefined
-    ) -> BaseValueWidget[T] | NestedValueWidgets:
+    def create_widget(self, value: T | _Undefined = Undefined) -> BaseValueWidget[T]:
         """Create a new Widget for this field."""
         from magicgui.type_map import get_widget_class
 
@@ -446,8 +444,9 @@ class UiField(Generic[T]):
         # build a nesting container widget from a dataclass-like object
         if _is_dataclass_like(self.type):
             wdg = build_widget(self.type)
-            wdg.label = self.name if self.name else ""
-            return wdg
+            wdg.name = self.name or ""
+            wdg.label = self.name or ""
+            return wdg  # type: ignore[return-value]
         # create widget subclass for everything else
         cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
         return cls(**kwargs)  # type: ignore
@@ -812,7 +811,7 @@ def _uifields_to_container(
     values: Mapping[str, Any] | None = None,
     *,
     container_kwargs: Mapping | None = None,
-) -> ContainerWidget[NestedValueWidgets]:
+) -> ContainerWidget[BaseValueWidget]:
     """Create a container widget from a sequence of UiFields.
 
     This function is the heart of build_widget.
@@ -875,7 +874,7 @@ def _get_values(obj: Any) -> dict | None:
 
 
 # TODO: unify this with magicgui
-def build_widget(cls_or_instance: Any) -> ContainerWidget[NestedValueWidgets]:
+def build_widget(cls_or_instance: Any) -> ContainerWidget[BaseValueWidget]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
     values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
     fields = get_ui_fields(cls_or_instance)

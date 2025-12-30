@@ -426,12 +426,14 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
 
     def asdict(self) -> dict[str, Any]:
         """Return state of widget as dict."""
-        ret = {}
+        ret: dict[str, Any] = {}
         for w in self._list:
-            if w.name and not w.gui_only:
-                ret[w.name] = getattr(w, "value", None)
+            if not w.name or w.gui_only:
+                continue
             if isinstance(w, ContainerWidget) and w.widget_type == "Container":
-                ret[w.label] = w.asdict()
+                ret[w.name] = w.asdict()
+            else:
+                ret[w.name] = getattr(w, "value", None)
         return ret
 
     def update(
@@ -443,7 +445,10 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         with self.changed.blocked():
             items = mapping.items() if isinstance(mapping, Mapping) else mapping
             for key, value in chain(items, kwargs.items()):
-                if isinstance(wdg := self._list.get_by_name(key), BaseValueWidget):
+                wdg = self._list.get_by_name(key)
+                if isinstance(wdg, ContainerWidget) and isinstance(value, Mapping):
+                    wdg.update(value)
+                elif isinstance(wdg, BaseValueWidget):
                     wdg.value = value
         self.changed.emit(self)
 
