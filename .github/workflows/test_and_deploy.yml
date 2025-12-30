@@ -37,11 +37,11 @@ jobs:
           - python-version: "3.9"
             os: ubuntu-latest
             add-group: pyside2
-          - python-version: "3.11"
+          - python-version: "3.12"
             os: windows-latest
             add-group: pyqt5
           - python-version: "3.11"
-            os: ubuntu-latest
+            os: windows-latest
             add-group: pyside2
           - python-version: "3.12"
             os: ubuntu-latest
