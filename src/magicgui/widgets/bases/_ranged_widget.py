@@ -240,9 +240,9 @@ class TransformedRangedWidget(RangedWidget[float], ABC):
         self._min_pos = min_pos
         self._max_pos = max_pos
         ValueWidget.__init__(
-            self,  # type: ignore
-            value=value,  # type: ignore
-            bind=bind,  # type: ignore
+            self,
+            value=value,
+            bind=bind,
             nullable=nullable,
             **base_widget_kwargs,
         )
