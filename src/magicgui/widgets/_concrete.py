@@ -11,6 +11,7 @@ import datetime
 import inspect
 import math
 import os
+import sys
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -68,6 +69,7 @@ if TYPE_CHECKING:
 WidgetVar = TypeVar("WidgetVar", bound=Widget)
 WidgetTypeVar = TypeVar("WidgetTypeVar", bound=type[Widget])
 _V = TypeVar("_V")
+_M = TypeVar("_M")  # For model/dataclass types
 
 
 @overload
@@ -992,6 +994,103 @@ class TupleEdit(ValuedContainerWidget[tuple]):
             for w, v in zip(self._list, vals):
                 w.value = v  # type: ignore
         self.changed.emit(self.value)
+
+
+class ModelContainerWidget(ValuedContainerWidget[_M], Generic[_M]):
+    """A container widget for dataclass-like models (dataclass, pydantic, attrs).
+
+    This widget wraps a structured type (dataclass, pydantic model, attrs class, etc.)
+    and provides a `.value` property that returns an instance of that type, constructed
+    from the values of its child widgets.
+
+    Parameters
+    ----------
+    value_type : type[_M]
+        The model class to construct when getting the value.
+    widgets : Sequence[Widget], optional
+        Child widgets representing the model's fields.
+    **kwargs : Any
+        Additional arguments passed to ValuedContainerWidget.
+    """
+
+    def __init__(
+        self,
+        value_type: type[_M],
+        widgets: Sequence[Widget] = (),
+        value: _M | None | _Undefined = Undefined,
+        **kwargs: Any,
+    ) -> None:
+        self._value_type = value_type
+        super().__init__(widgets=widgets, **kwargs)
+        # Connect child widget changes to emit our changed signal
+        for w in self._list:
+            if isinstance(w, BaseValueWidget):
+                w.changed.connect(self._on_child_changed)
+        if not isinstance(value, _Undefined):
+            self.set_value(value)
+
+    def _on_child_changed(self, _: Any = None) -> None:
+        """Emit changed signal when any child widget changes."""
+        self.changed.emit(self.value)
+
+    def get_value(self) -> _M:
+        """Construct a model instance from child widget values."""
+        values: dict[str, Any] = {}
+        for w in self._list:
+            if not w.name or w.gui_only:
+                continue
+            if hasattr(w, "value"):
+                values[w.name] = w.value
+        return self._value_type(**values)
+
+    def set_value(self, value: _M | None) -> None:
+        """Distribute model instance values to child widgets."""
+        if value is None:
+            return
+
+        vals = self._get_values(value)
+        if vals is None:
+            return
+        with self.changed.blocked():
+            for w in self._list:
+                if w.name and hasattr(w, "value") and w.name in vals:
+                    w.value = vals[w.name]
+
+    def __repr__(self) -> str:
+        """Return string representation."""
+        return f"<{self.__class__.__name__} value_type={self._value_type.__name__!r}>"
+
+    @staticmethod
+    def _get_values(obj: Any) -> dict | None:
+        """Return a dict of values from an object.
+
+        The object can be a dataclass, attrs, pydantic object or named tuple.
+        """
+        if isinstance(obj, dict):
+            return obj
+
+        # named tuple
+        if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
+            return cast("dict", obj._asdict())
+
+        import dataclasses
+
+        # dataclass
+        if dataclasses.is_dataclass(type(obj)):
+            return dataclasses.asdict(obj)
+
+        # attrs
+        attr = sys.modules.get("attr")
+        if attr is not None and attr.has(obj):
+            return cast("dict", attr.asdict(obj))
+
+        # pydantic models
+        if hasattr(obj, "model_dump"):
+            return cast("dict", obj.model_dump())
+        elif hasattr(obj, "dict"):
+            return cast("dict", obj.dict())
+
+        return None
 
 
 @backend_widget

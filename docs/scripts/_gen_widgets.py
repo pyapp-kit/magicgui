@@ -77,7 +77,7 @@ def _snap_image(_obj: type, _name: str) -> str:
     from qtpy.QtWidgets import QVBoxLayout, QWidget
 
     outer = QWidget()
-    if _obj is widgets.Container:
+    if _obj in (widgets.Container, widgets.ModelContainerWidget):
         return ""
     if issubclass(_obj, widgets.FunctionGui):
         return ""
