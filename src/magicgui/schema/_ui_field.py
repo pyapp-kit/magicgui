@@ -15,7 +15,6 @@ from typing import (
     Literal,
     TypeVar,
     Union,
-    cast,
 )
 
 from typing_extensions import TypeGuard, get_args, get_origin
@@ -23,7 +22,7 @@ from typing_extensions import TypeGuard, get_args, get_origin
 from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping
+    from collections.abc import Iterator
     from typing import Protocol
 
     import attrs
@@ -32,7 +31,8 @@ if TYPE_CHECKING:
     from attrs import Attribute
     from pydantic.fields import FieldInfo, ModelField
 
-    from magicgui.widgets.bases import BaseValueWidget, ContainerWidget
+    from magicgui.widgets import ModelContainerWidget
+    from magicgui.widgets.bases import BaseValueWidget
 
     class HasAttrs(Protocol):
         """Protocol for objects that have an ``attrs`` attribute."""
@@ -441,12 +441,15 @@ class UiField(Generic[T]):
             opts["min"] = d["exclusive_minimum"] + m
 
         value = value if value is not Undefined else self.get_default()  # type: ignore
-        # build a nesting container widget from a dataclass-like object
+        # build a container widget from a dataclass-like object
+        # TODO: should this eventually move to get_widget_class?
         if _is_dataclass_like(self.type):
             wdg = build_widget(self.type)
             wdg.name = self.name or ""
             wdg.label = self.name or ""
-            return wdg  # type: ignore[return-value]
+            if value is not None:
+                wdg.value = value
+            return wdg
         # create widget subclass for everything else
         cls, kwargs = get_widget_class(value=value, annotation=self.type, options=opts)
         return cls(**kwargs)  # type: ignore
@@ -806,76 +809,40 @@ def get_ui_fields(cls_or_instance: object) -> tuple[UiField, ...]:
         return tuple(_iter_ui_fields(cls_or_instance))
 
 
-def _uifields_to_container(
-    ui_fields: Iterable[UiField],
-    values: Mapping[str, Any] | None = None,
-    *,
-    container_kwargs: Mapping | None = None,
-) -> ContainerWidget[BaseValueWidget]:
-    """Create a container widget from a sequence of UiFields.
+# TODO: unify this with magicgui
+# this todo could be the same thing as moving the logic in create_widget above
+# to get_widget_cls...
+def build_widget(cls_or_instance: Any) -> ModelContainerWidget:
+    """Build a magicgui widget from a dataclass, attrs, pydantic, or function.
 
-    This function is the heart of build_widget.
+    Returns a ModelContainerWidget whose `.value` property returns an instance
+    of the model type, constructed from the current widget values.
 
     Parameters
     ----------
-    ui_fields : Iterable[UiField]
-        A sequence of UiFields to use to create the container.
-    values : Mapping[str, Any], optional
-        A mapping of field name to values to use to initialize each widget the
-        container, by default None.
-    container_kwargs : Mapping, optional
-        A mapping of keyword arguments to pass to the container constructor,
-        by default None.
+    cls_or_instance : Any
+        The class or instance to build the widget from.
 
     Returns
     -------
-    ContainerWidget[ValueWidget]
-        A container widget with a widget for each UiField.
+    ModelContainerWidget
+        The constructed widget.
     """
-    from magicgui import widgets
+    from magicgui.widgets import ModelContainerWidget
 
-    container = widgets.Container(
-        widgets=[field.create_widget() for field in ui_fields],
-        **(container_kwargs or {}),
-    )
-    if values is not None:
-        container.update(values)
-    return container
+    # Get the class (type) for the model
+    if isinstance(cls_or_instance, type):
+        model_type = cls_or_instance
+        value = None
+    else:
+        model_type = type(cls_or_instance)
+        value = cls_or_instance
 
-
-def _get_values(obj: Any) -> dict | None:
-    """Return a dict of values from an object.
-
-    The object can be a dataclass, attrs, pydantic object or named tuple.
-    """
-    if isinstance(obj, dict):
-        return obj
-
-    # named tuple
-    if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        return cast("dict", obj._asdict())
-
-    # dataclass
-    if dc.is_dataclass(type(obj)):
-        return dc.asdict(obj)
-
-    # attrs
-    attr = sys.modules.get("attr")
-    if attr is not None and attr.has(obj):
-        return cast("dict", attr.asdict(obj))
-
-    # pydantic models
-    if hasattr(obj, "model_dump"):
-        return cast("dict", obj.model_dump())
-    elif hasattr(obj, "dict"):
-        return cast("dict", obj.dict())
-
-    return None
-
-
-# TODO: unify this with magicgui
-def build_widget(cls_or_instance: Any) -> ContainerWidget[BaseValueWidget]:
-    """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
-    values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
     fields = get_ui_fields(cls_or_instance)
-    return _uifields_to_container(fields, values=values)
+    inner_widgets = [f.create_widget() for f in fields]
+
+    return ModelContainerWidget(
+        value_type=model_type,
+        widgets=inner_widgets,
+        value=value,
+    )
