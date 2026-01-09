@@ -5,7 +5,7 @@ import pytest
 from typing_extensions import TypedDict
 
 from magicgui.schema._ui_field import UiField, build_widget, get_ui_fields
-from magicgui.widgets import Container
+from magicgui.widgets import ModelContainerWidget
 
 EXPECTED = (
     UiField(name="a", type=int, nullable=True),
@@ -18,7 +18,7 @@ def _assert_uifields(cls, instantiate=True):
     result = tuple(get_ui_fields(cls))
     assert result == EXPECTED
     wdg = build_widget(cls)
-    assert isinstance(wdg, Container)
+    assert isinstance(wdg, ModelContainerWidget)
     assert wdg.asdict() == {
         "a": 0,
         "b": "",
@@ -28,7 +28,7 @@ def _assert_uifields(cls, instantiate=True):
         instance = cls(a=1, b="hi")
         assert tuple(get_ui_fields(instance)) == EXPECTED
         wdg2 = build_widget(instance)
-        assert isinstance(wdg2, Container)
+        assert isinstance(wdg2, ModelContainerWidget)
         assert wdg2.asdict() == {
             "a": 1,
             "b": "hi",
@@ -204,9 +204,67 @@ def test_annotated_types_lib_dataclass():
     # assert wdg.g.max_items == 5  # TODO
 
 
-def test_resolved_type():
+def test_resolved_type() -> None:
     f: UiField[int] = UiField(type=Annotated["int", UiField(minimum=0)])
     assert f.resolved_type is int
 
     f = UiField(type="int")
     assert f.resolved_type is int
+
+
+def test_nested_dataclass() -> None:
+    """Test nested dataclass builds ModelContainerWidget with .value support."""
+
+    @dataclass
+    class Inner:
+        x: int = 1
+        y: str = "hello"
+
+    @dataclass
+    class Outer:
+        inner: Inner
+        a: int = 5
+
+    wdg = build_widget(Outer)
+    assert isinstance(wdg, ModelContainerWidget)
+
+    # Check nested widget is a ModelContainerWidget with correct name
+    assert wdg.inner.name == "inner"
+    assert isinstance(wdg.inner, ModelContainerWidget)
+
+    # Check child widget values
+    assert wdg.inner.x.value == 0
+    assert wdg.inner.y.value == ""
+
+    # KEY FEATURE: nested container has .value that returns model instance
+    inner_value = wdg.inner.value
+    assert isinstance(inner_value, Inner)
+    assert inner_value.x == 0
+    assert inner_value.y == ""
+
+    # Modify values via child widgets
+    wdg.a.value = 10
+    wdg.inner.x.value = 42
+    wdg.inner.y.value = "world"
+
+    # Check .value reflects changes
+    inner_value = wdg.inner.value
+    assert inner_value.x == 42
+    assert inner_value.y == "world"
+
+    # asdict returns model instances for nested containers
+    result = wdg.asdict()
+    assert result["a"] == 10
+    assert isinstance(result["inner"], Inner)
+    assert result["inner"].x == 42
+    assert result["inner"].y == "world"
+
+    # Setting .value on nested container updates child widgets
+    wdg.inner.value = Inner(x=99, y="updated")
+    assert wdg.inner.x.value == 99
+    assert wdg.inner.y.value == "updated"
+
+    # update() on outer container works with model instances
+    wdg.update({"a": 100, "inner": Inner(x=1, y="reset")})
+    assert wdg.a.value == 100
+    assert wdg.inner.value == Inner(x=1, y="reset")

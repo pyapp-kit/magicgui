@@ -230,6 +230,14 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
         del self._list[index]
         return item
 
+    def asdict(self) -> dict[str, Any]:
+        """Return state of widget as dict."""
+        return {
+            w.name: getattr(w, "value", None)
+            for w in self._list
+            if w.name and not w.gui_only
+        }
+
 
 class ValuedContainerWidget(
     BaseContainerWidget[Widget], BaseValueWidget[T], Generic[T]
@@ -268,6 +276,29 @@ class ValuedContainerWidget(
             self.value = cast("T", value)
         if self._bound_value is not Undefined and "visible" not in base_widget_kwargs:
             self.hide()
+
+    def insert(self, index: int, value: Widget) -> None:
+        """Insert `value` (a widget) at ``index``."""
+        if isinstance(value, (BaseValueWidget, BaseContainerWidget)):
+            value.changed.connect(lambda: self.changed.emit(self.value))
+        self._insert_widget(index, value)
+
+    def append(self, widget: Widget) -> None:
+        """Append a widget to the container."""
+        self.insert(len(self), widget)
+
+    def update(
+        self,
+        mapping: Mapping | Iterable[tuple[str, Any]] = (),
+        **kwargs: Any,
+    ) -> None:
+        """Update the parameters in the widget from a mapping, iterable, or kwargs."""
+        with self.changed.blocked():
+            items = mapping.items() if isinstance(mapping, Mapping) else mapping
+            for key, value in chain(items, kwargs.items()):
+                if isinstance(wdg := self._list.get_by_name(key), BaseValueWidget):
+                    wdg.value = value
+        self.changed.emit(self.value)
 
 
 class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]):
@@ -330,6 +361,10 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
                     )
         object.__setattr__(self, name, value)
 
+    def append(self, value: WidgetVar) -> None:
+        """Append a widget to the container."""
+        self.insert(len(self), value)
+
     def index(self, value: Any, start: int = 0, stop: int = 9223372036854775807) -> int:
         """Return index of a specific widget instance (or widget name)."""
         if isinstance(value, str):
@@ -372,11 +407,11 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         d.extend([w.name for w in self._list if not w.gui_only])
         return d
 
-    def insert(self, key: int, widget: WidgetVar) -> None:
-        """Insert widget at ``key``."""
-        if isinstance(widget, (BaseValueWidget, BaseContainerWidget)):
-            widget.changed.connect(lambda: self.changed.emit(self))
-        self._insert_widget(key, widget)
+    def insert(self, index: int, value: WidgetVar) -> None:
+        """Insert widget at ``index``."""
+        if isinstance(value, (BaseValueWidget, BaseContainerWidget)):
+            value.changed.connect(lambda: self.changed.emit(self))
+        self._insert_widget(index, value)
 
     @property
     def __signature__(self) -> MagicSignature:
@@ -423,14 +458,6 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         return f"<Container {self.__signature__}>"
 
     NO_VALUE = "NO_VALUE"
-
-    def asdict(self) -> dict[str, Any]:
-        """Return state of widget as dict."""
-        return {
-            w.name: getattr(w, "value", None)
-            for w in self._list
-            if w.name and not w.gui_only
-        }
 
     def update(
         self,

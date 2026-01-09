@@ -19,7 +19,7 @@ from psygnal import __version__ as psygnal_version
 
 from magicgui.schema._ui_field import build_widget
 from magicgui.widgets import PushButton
-from magicgui.widgets.bases import BaseValueWidget, ContainerWidget
+from magicgui.widgets.bases import BaseValueWidget
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -27,12 +27,15 @@ if TYPE_CHECKING:
 
     from typing_extensions import TypeGuard
 
+    from magicgui.widgets._concrete import ModelContainerWidget
+    from magicgui.widgets.bases._container_widget import BaseContainerWidget
+
     # fmt: off
     class GuiClassProtocol(Protocol):
         """Protocol for a guiclass."""
 
         @property
-        def gui(self) -> ContainerWidget: ...
+        def gui(self) -> ModelContainerWidget: ...
         @property
         def events(self) -> SignalGroup: ...
     # fmt: on
@@ -233,7 +236,7 @@ class GuiBuilder:
             evented(owner, events_namespace=self._events_namespace)
         setattr(owner, _GUICLASS_FLAG, True)
 
-    def widget(self) -> ContainerWidget:
+    def widget(self) -> ModelContainerWidget:
         """Return a widget for the dataclass or instance."""
         if self._owner is None:
             raise TypeError(
@@ -243,7 +246,7 @@ class GuiBuilder:
 
     def __get__(
         self, instance: object | None, owner: type
-    ) -> ContainerWidget[BaseValueWidget] | GuiBuilder:
+    ) -> ModelContainerWidget[BaseValueWidget] | GuiBuilder:
         if instance is None:
             return self
         wdg = build_widget(instance)
@@ -253,7 +256,8 @@ class GuiBuilder:
         for k, v in vars(owner).items():
             if hasattr(v, _BUTTON_ATTR):
                 kwargs = getattr(v, _BUTTON_ATTR)
-                button = PushButton(**kwargs)
+                # gui_only=True excludes button from model value construction
+                button = PushButton(gui_only=True, **kwargs)
                 if instance is not None:
                     # call the bound method if we're in an instance
                     button.clicked.connect(getattr(instance, k))
@@ -277,7 +281,7 @@ class GuiBuilder:
 
 
 def bind_gui_to_instance(
-    gui: ContainerWidget, instance: Any, two_way: bool = True
+    gui: BaseContainerWidget, instance: Any, two_way: bool = True
 ) -> None:
     """Set change events in `gui` to update the corresponding attributes in `model`.
 
@@ -340,7 +344,7 @@ def bind_gui_to_instance(
                     signals[name].connect_setattr(widget, "value")
 
 
-def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:
+def unbind_gui_from_instance(gui: BaseContainerWidget, instance: Any) -> None:
     """Unbind a gui from an instance.
 
     This will disconnect all events that were connected by `bind_gui_to_instance`.
