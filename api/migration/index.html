@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -3950,7 +3950,7 @@ See https://github.com/pyapp-kit/magicgui/pull/253 for details</p>
 as its event/callback handler.</p>
 <p>Callbacks connected to <code>widget.changed</code> (and other event emitters) may now receive the
 value(s) directly, instead of an event object:</p>
-<div class="highlight"><span class="filename">👎 Old Method (< v0.3.0)</span><pre><span></span><code><span class="nd">@widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
+<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.3.0)</span><pre><span></span><code><span class="nd">@widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_callback</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="c1"># event was an `Event` object with a `value` attribute</span>
     <span class="n">new_value</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">value</span>
@@ -3964,7 +3964,7 @@ value directly, you can do one of two things:</p>
 <li>type hint your single positional argument as <em>anything</em> other than <code>magicgui.events.Event</code></li>
 <li>provide a callback that takes no arguments</li>
 </ol>
-<div class="highlight"><span class="filename">👍 New Method (>= v0.3.0)</span><pre><span></span><code><span class="nd">@widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
+<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.3.0)</span><pre><span></span><code><span class="nd">@widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_callback</span><span class="p">(</span><span class="n">new_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="o">...</span>  <span class="c1"># use new_value directly</span>
 
@@ -3977,9 +3977,9 @@ value directly, you can do one of two things:</p>
 <h3 id="event-emitters-take-no-keyword-arguments">Event emitters take no keyword arguments<a class="headerlink" href="#event-emitters-take-no-keyword-arguments" title="Permanent link">#</a></h3>
 <p>For the few packages who were manually emitting change events,
 you should no longer provide the <code>value=</code> keyword when emitting.</p>
-<div class="highlight"><span class="filename">👎 Old Method (< v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
+<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><span class="filename">👍 New Method (>= v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
+<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
 <span class="c1"># OR (if you prefer the direct __call__ syntax)</span>
 <span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
 </code></pre></div>
@@ -3992,7 +3992,7 @@ breaking API changes</p>
 the decorated function that was to be called to instantiate a widget.  In <code>v0.2.0</code>
 the object returned from the <a class="autorefs autorefs-internal" href="../magicgui/#magicgui.magicgui"><code>magicgui.magicgui</code></a> decorator is already an
 instantiated <a class="autorefs autorefs-internal" href="../widgets/bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a>.</p>
-<div class="highlight"><span class="filename">👎 Old Method (< v0.2.0)</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">event_loop</span>
+<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.2.0)</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">event_loop</span>
 
 <span class="nd">@magicgui</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -4001,7 +4001,7 @@ instantiated <a class="autorefs autorefs-internal" href="../widgets/bases/#magic
 <span class="k">with</span> <span class="n">event_loop</span><span class="p">():</span>
     <span class="n">gui</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">Gui</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><span class="filename">👍 New Method (>= v0.2.0)</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
+<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.2.0)</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
 
 <span class="nd">@magicgui</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -4075,10 +4075,10 @@ to get/set the value, but the actual underlying widget was at <code>gui.x_widget
 <h3 id="connecting-callbacks-to-events">Connecting callbacks to events<a class="headerlink" href="#connecting-callbacks-to-events" title="Permanent link">#</a></h3>
 <p>When binding callbacks to change events, you no longer connect to
 <code>gui.&lt;name&gt;_changed</code>, you now connect to <code>function.&lt;name&gt;.changed</code>:</p>
-<div class="highlight"><span class="filename">👎 Old Method (< v0.2.0)</span><pre><span></span><code><span class="n">gui</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">Gui</span><span class="p">()</span>
+<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.2.0)</span><pre><span></span><code><span class="n">gui</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">Gui</span><span class="p">()</span>
 <span class="n">gui</span><span class="o">.</span><span class="n">x_changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">my_callback</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><span class="filename">👍 New Method (>= v0.2.0)</span><pre><span></span><code><span class="n">function</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">my_callback</span><span class="p">)</span>
+<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.2.0)</span><pre><span></span><code><span class="n">function</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">my_callback</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="renamed">Renamed<a class="headerlink" href="#renamed" title="Permanent link">#</a></h3>
 <ul>
