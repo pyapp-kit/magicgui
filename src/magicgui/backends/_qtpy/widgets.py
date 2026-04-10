@@ -15,7 +15,6 @@ import superqt
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, QSize, Qt, Signal
 from qtpy.QtGui import (
-    QFont,
     QFontMetrics,
     QIcon,
     QImage,
@@ -1358,7 +1357,8 @@ def get_text_width(text: str) -> int:
         doc.setHtml(text)
         return math.ceil(doc.size().width())
     else:
-        fm = QFontMetrics(QFont("", 0))
+        font = QtW.QApplication.font()
+        fm = QFontMetrics(font)
         return fm.boundingRect(text).width() + 5
 
 
