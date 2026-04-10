@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.10.2](https://github.com/pyapp-kit/magicgui/tree/v0.10.2) (2026-04-10)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.2...v0.10.2)
+
+**Fixed bugs:**
+
+- fix: use default font from application instead of system default [\#724](https://github.com/pyapp-kit/magicgui/pull/724) ([giocard](https://github.com/giocard))
+- fix: set tooltip on label as well [\#711](https://github.com/pyapp-kit/magicgui/pull/711) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: support python 3.14 [\#721](https://github.com/pyapp-kit/magicgui/pull/721) ([tlambert03](https://github.com/tlambert03))
+- ci\(dependabot\): bump actions/download-artifact from 6 to 7 [\#719](https://github.com/pyapp-kit/magicgui/pull/719) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump actions/upload-artifact from 5 to 6 [\#718](https://github.com/pyapp-kit/magicgui/pull/718) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore: update ci and pre-commit [\#717](https://github.com/pyapp-kit/magicgui/pull/717) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.9.2](https://github.com/pyapp-kit/magicgui/tree/v0.9.2) (2025-06-08)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.1...v0.9.2)
