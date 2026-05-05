@@ -388,7 +388,7 @@ class FunctionGui(Container, Generic[_P, _R]):
             result_widget=bool(self._result_widget),
             app=None,
             persist=self.persist,
-            visible=self.visible,
+            # visible=self.visible,  # see issue #725
             tooltips=self._tooltips,
             scrollable=self._scrollable,
             name=self.name,
