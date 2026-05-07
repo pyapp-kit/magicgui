@@ -16,7 +16,7 @@ from magicgui.schema._guiclass import (
     is_guiclass,
     unbind_gui_from_instance,
 )
-from magicgui.widgets import Container, PushButton
+from magicgui.widgets import Container, ModelContainerWidget, PushButton
 
 
 def test_guiclass() -> None:
@@ -44,7 +44,7 @@ def test_guiclass() -> None:
     assert foo.a == 1
     assert foo.b == "bar"
 
-    assert isinstance(foo.gui, Container)
+    assert isinstance(foo.gui, ModelContainerWidget)
     assert isinstance(foo.gui.func, PushButton)
     assert foo.gui.a.value == 1
     assert foo.gui.b.value == "bar"
@@ -88,7 +88,7 @@ def test_guiclass2() -> None:
     assert foo.a == 1
     assert foo.b == "bar"
 
-    assert isinstance(foo.gui, Container)
+    assert isinstance(foo.gui, ModelContainerWidget)
     assert isinstance(foo.gui.get_widget("func"), PushButton)
     assert foo.gui.a.value == 1
     assert foo.gui.b.value == "bar"
@@ -128,7 +128,7 @@ def test_on_existing_dataclass() -> None:
     foo = Foo()
     assert foo.a == 1
     assert foo.b == "bar"
-    assert isinstance(foo.gui, Container)
+    assert isinstance(foo.gui, ModelContainerWidget)
 
 
 @pytest.mark.skipif(
@@ -158,7 +158,7 @@ def test_slots_guiclass() -> None:
         # note that with slots=True, the gui is recreated on every access
         assert foo.gui is not gui
 
-    assert isinstance(gui, Container)
+    assert isinstance(gui, ModelContainerWidget)
     assert gui.a.value == 1
     foo.b = "baz"
     assert gui.b.value == "baz"
@@ -230,6 +230,6 @@ def test_name_collisions() -> None:
         annotation: str = "bar"
 
     foo = Foo()
-    assert isinstance(foo.gui, Container)
+    assert isinstance(foo.gui, ModelContainerWidget)
     foo.gui.update({"name": "baz", "annotation": "qux"})
     assert asdict(foo) == {"name": "baz", "annotation": "qux"}
