@@ -141,11 +141,12 @@ jobs:
     secrets: inherit
 
   test-dependents:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@main
     with:
       dependency-repo: ${{ matrix.package }}
       dependency-ref: ${{ matrix.package-version }}
-      dependency-extras: ${{ matrix.package-extras || 'testing' }}
+      dependency-extras: ${{ matrix.package-extras || '' }}
+      dependency-group: ${{ matrix.package-group || '' }}
       qt: pyqt5
       python-version: "3.10"
       post-install-cmd: "python -m pip install pytest-pretty lxml_html_clean" # just for napari
@@ -155,11 +156,14 @@ jobs:
       matrix:
         include:
           - package: napari/napari
+            package-group: testing
             pytest-args: src/napari/_tests/test_magicgui.py --import-mode=importlib
           - package: napari/napari
             package-version: "v0.4.19.post1"
+            package-extras: testing
             pytest-args: napari/_tests/test_magicgui.py
           - package: hanjinliu/magic-class
+            package-extras: testing
           - package: 4DNucleome/PartSeg
             package-extras: test
             pytest-args: package/tests/test_PartSeg/test_napari_widgets.py
