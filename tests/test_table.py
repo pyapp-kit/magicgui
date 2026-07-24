@@ -216,12 +216,9 @@ def test_dataview_setitem(index, value):
     data[index] = value
     assert np.allclose(table.data.to_list(), data)
 
-INVLAID_INDICES = (
-    (6, 0),
-    (0, 4),
-    (-7, 0),
-    (0, -5)
-)
+
+INVLAID_INDICES = ((6, 0), (0, 4), (-7, 0), (0, -5))
+
 
 @pytest.mark.parametrize("index", INVLAID_INDICES)
 def test_dataview_getitem_invalid_index(index):
