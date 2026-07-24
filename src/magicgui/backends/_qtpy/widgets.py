@@ -1520,13 +1520,20 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
             normalized_row = row + num_rows
         else:
             normalized_row = row
-        if col < 0: 
+        if col < 0:
             normalized_col = col + num_cols
         else:
             normalized_col = col
-        # Qt will not raise an error for attempting to index into an invalid column, but normal Pyhton does.
-        if normalized_row >= num_rows or normalized_col >= num_cols:
-            raise IndexError(f"Index ({row}, {col}) is out of bounds for table of shape ({num_rows}, {num_cols}).")
+        # Qt will not raise an error for attempting to index into an invalid cell, but normal Python does.
+        if (
+            normalized_row < 0
+            or normalized_col < 0
+            or normalized_row >= num_rows
+            or normalized_col >= num_cols
+        ):
+            raise IndexError(
+                f"Index ({row}, {col}) is out of bounds for table of shape ({num_rows}, {num_cols})."
+            )
         return normalized_row, normalized_col
 
     def _mgui_get_cell(self, row: int, col: int) -> Any:
