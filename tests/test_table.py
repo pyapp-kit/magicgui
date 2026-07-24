@@ -216,14 +216,11 @@ def test_dataview_setitem(index, value):
     data[index] = value
     assert np.allclose(table.data.to_list(), data)
 
-INVLAID_INDICES = (
-    (6, 0),
-    (0, 4),
-    (-7, 0),
-    (0, -5)
-)
 
-@pytest.mark.parametrize("index", INVLAID_INDICES)
+INVALID_INDICES = ((6, 0), (0, 4), (-7, 0), (0, -5))
+
+
+@pytest.mark.parametrize("index", INVALID_INDICES)
 def test_dataview_getitem_invalid_index(index):
     """Test that invalid cell indices raise IndexError."""
     np = pytest.importorskip("numpy")
@@ -234,7 +231,7 @@ def test_dataview_getitem_invalid_index(index):
         table.data[index]
 
 
-@pytest.mark.parametrize("index", INVLAID_INDICES)
+@pytest.mark.parametrize("index", INVALID_INDICES)
 def test_dataview_setitem_invalid_index(index):
     """Test that invalid cell indices raise IndexError."""
     np = pytest.importorskip("numpy")

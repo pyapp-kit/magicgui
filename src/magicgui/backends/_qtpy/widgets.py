@@ -1524,7 +1524,8 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
             normalized_col = col + num_cols
         else:
             normalized_col = col
-        # Qt will not raise an error for attempting to index into an invalid cell, but normal Python does.
+        # Qt will not raise an error for attempting to index into an invalid cell, but
+        # normal Python does.
         if (
             normalized_row < 0
             or normalized_col < 0
@@ -1532,7 +1533,8 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
             or normalized_col >= num_cols
         ):
             raise IndexError(
-                f"Index ({row}, {col}) is out of bounds for table of shape ({num_rows}, {num_cols})."
+                f"Index ({row}, {col}) is out of bounds for table of shape"
+                f" ({num_rows}, {num_cols})."
             )
         return normalized_row, normalized_col
 
