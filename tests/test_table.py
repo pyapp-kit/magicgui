@@ -200,7 +200,7 @@ def test_dataview_getitem(index):
     assert np.allclose(table.data[index], data[index])
 
 
-@pytest.mark.parametrize("index, value", zip(INDICES, VALUES))
+@pytest.mark.parametrize("index, value", tuple(zip(INDICES, VALUES)))
 def test_dataview_setitem(index, value):
     """Test that table.data can be indexed like a numpy array."""
     np = pytest.importorskip("numpy")
