@@ -1512,8 +1512,35 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
     def _mgui_remove_column(self, column: int) -> None:
         self._qwidget.removeColumn(column)
 
+    def _normalize_cell_index(self, row: int, col: int) -> tuple[int, int]:
+        num_rows = self._mgui_get_row_count()
+        num_cols = self._mgui_get_column_count()
+        # Offset negative indices because Qt doesn't natively support them
+        if row < 0:
+            normalized_row = row + num_rows
+        else:
+            normalized_row = row
+        if col < 0:
+            normalized_col = col + num_cols
+        else:
+            normalized_col = col
+        # Qt will not raise an error for attempting to index into an invalid cell, but
+        # normal Python does.
+        if (
+            normalized_row < 0
+            or normalized_col < 0
+            or normalized_row >= num_rows
+            or normalized_col >= num_cols
+        ):
+            raise IndexError(
+                f"Index ({row}, {col}) is out of bounds for table of shape"
+                f" ({num_rows}, {num_cols})."
+            )
+        return normalized_row, normalized_col
+
     def _mgui_get_cell(self, row: int, col: int) -> Any:
         """Get current value of the widget."""
+        row, col = self._normalize_cell_index(row, col)
         item = self._qwidget.item(row, col)
         if item:
             return item.data(_DATA_ROLE)
@@ -1523,6 +1550,7 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
 
     def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
         """Set current value of the widget."""
+        row, col = self._normalize_cell_index(row, col)
         if value is None:
             self._qwidget.setItem(row, col, None)
             self._qwidget.removeCellWidget(row, col)
