@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from functools import partial
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic, TypeVar, cast
 
 from magicgui.type_map._type_map import TypeMap
 from magicgui.widgets import FunctionGui
@@ -82,6 +82,28 @@ class MagicFactory(partial, Generic[_FGuiVar]):
             if v not in (MAGICGUI_PARAMS[k].default, {})
         ]
         return f"MagicFactory({', '.join(args)})"
+
+    def __get__(self, obj: Any, objtype: type | None = None) -> MagicFactory[_FGuiVar]:
+        """Bind the factory's function when accessed as a method descriptor."""
+        if obj is None:
+            return self
+
+        factory_kwargs = self.keywords.copy()
+        function = factory_kwargs.pop("function")
+        function_get = getattr(function, "__get__", None)
+        bound_function = (
+            function_get(obj, objtype)
+            if function_get is not None
+            else partial(function, obj)
+        )
+        return type(self)(
+            bound_function,
+            *self.args,
+            magic_class=cast("type[_FGuiVar]", self.func),
+            widget_init=self._widget_init,
+            type_map=self._type_map,
+            **factory_kwargs,
+        )
 
     # TODO: annotate args and kwargs here so that
     # calling a MagicFactory instance gives proper mypy hints

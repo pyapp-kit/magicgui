@@ -1,3 +1,6 @@
+import gc
+import weakref
+
 import pytest
 from psygnal import EmitLoopError
 
@@ -46,6 +49,50 @@ def test_magic_factory_reuse():
 
     widget_b = factory()
     assert isinstance(widget_b.x, ComboBox)
+
+
+def test_magic_factory_method_descriptor():
+    initialized = []
+
+    def widget_init(widget):
+        initialized.append(widget)
+
+    class Example:
+        def __init__(self, value):
+            self.value = value
+
+        @magic_factory(call_button=True, widget_init=widget_init)
+        def factory(self, suffix: str = ""):
+            return f"{self.value}{suffix}"
+
+    first = Example("first")
+    second = Example("second")
+    first_widget = first.factory()
+    second_widget = second.factory()
+
+    assert Example.factory is Example.__dict__["factory"]
+    assert first_widget.call_button
+    assert first_widget() == "first"
+    assert second_widget(suffix="!") == "second!"
+    assert initialized == [first_widget, second_widget]
+
+
+def test_magic_factory_method_descriptor_does_not_retain_instance():
+    class Example:
+        @magic_factory
+        def factory(self):
+            return self
+
+    instance = Example()
+    instance_ref = weakref.ref(instance)
+    bound_factory = instance.factory
+
+    del instance
+    assert instance_ref() is not None
+
+    del bound_factory
+    gc.collect()
+    assert instance_ref() is None
 
 
 def test_magic_factory_repr():
