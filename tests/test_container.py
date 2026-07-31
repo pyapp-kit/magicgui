@@ -117,6 +117,24 @@ def test_delete_widget():
         container.index(a)
 
 
+def test_delete_non_widget_attribute():
+    """Deleting a plain attribute does not go through widget removal."""
+    a = widgets.Label(name="a")
+    container = widgets.Container(widgets=[a])
+    container.x = 5
+    del container.x
+    assert not hasattr(container, "x")
+
+    # a widget that was already removed can still be dereferenced
+    container.remove(a)
+    container.a_ref = a
+    del container.a_ref
+
+    # a name that is neither a widget nor an attribute still raises AttributeError
+    with pytest.raises(AttributeError):
+        del container.nonexistent
+
+
 def test_reset_choice_recursion():
     """Test that reset_choices recursion works for multiple types of widgets."""
     x = 0

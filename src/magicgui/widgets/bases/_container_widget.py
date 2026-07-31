@@ -341,8 +341,12 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
         super().remove(value)  # type: ignore
 
     def __delattr__(self, name: str) -> None:
-        """Delete a widget by name."""
-        self.remove(name)
+        """Delete a widget by name, or a plain attribute if no widget matches."""
+        for widget in self._list:
+            if name == widget.name:
+                self.remove(widget)
+                return
+        object.__delattr__(self, name)
 
     def __delitem__(self, key: int | slice) -> None:
         """Delete a widget by integer or slice index."""
