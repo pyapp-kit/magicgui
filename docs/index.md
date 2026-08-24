@@ -97,10 +97,6 @@ autogenerate a compound Widget based on the parameters of a function:
 
 ```python
 from typing import Annotated, Literal
-# for Python <= 3.8
-# from typing_extensions import Annotated
-# for Python <= 3.7
-# from typing_extensions import Annotated, Literal
 
 from magicgui import magicgui
 

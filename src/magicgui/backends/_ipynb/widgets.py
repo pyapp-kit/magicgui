@@ -1,14 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Literal,
-    get_type_hints,
-)
+from typing import TYPE_CHECKING, Any, Callable, get_type_hints
 
 try:
     import ipywidgets
@@ -19,9 +12,14 @@ except ImportError as e:
         "Please run `pip install ipywidgets`"
     ) from e
 
+
+from magicgui.types import Separator
 from magicgui.widgets import protocols
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Literal
+
     from magicgui.widgets.bases import MenuWidget, Widget
 
 
@@ -147,19 +145,6 @@ class _IPyWidget(protocols.WidgetProtocol):
         pass
 
 
-class EmptyWidget(_IPyWidget):
-    _ipywidget: ipywdg.Widget
-
-    def _mgui_get_value(self) -> Any:
-        raise NotImplementedError()
-
-    def _mgui_set_value(self, value: Any) -> None:
-        raise NotImplementedError()
-
-    def _mgui_bind_change_callback(self, callback: Callable):
-        pass
-
-
 class _IPyValueWidget(_IPyWidget, protocols.ValueWidgetProtocol):
     def _mgui_get_value(self) -> float:
         return self._ipywidget.value
@@ -226,7 +211,8 @@ class _IPySupportsChoices(protocols.SupportsChoices):
 
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set available choices."""
-        self._ipywidget.options = choices
+        options = [item for item in choices if item[1] is not Separator]
+        self._ipywidget.options = options
 
     def _mgui_del_choice(self, choice_name: str) -> None:
         """Delete a choice."""
@@ -413,7 +399,7 @@ class ToolBar(_IPyWidget):
         for child in self._ipywidget.children:
             if hasattr(child, "style"):
                 child.style.font_size = f"{sz}px" if sz else None
-            child.layout.min_height = f"{sz*2}px" if sz else None
+            child.layout.min_height = f"{sz * 2}px" if sz else None
 
     def _mgui_clear(self) -> None:
         """Clear the toolbar."""

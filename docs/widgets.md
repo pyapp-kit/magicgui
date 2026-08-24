@@ -119,7 +119,7 @@ following `ValueWidgets` track some `value`:
 |-----------|------|-------------|
 | `value` | `Any` | The current value of the widget. |
 | `changed` | [`psygnal.SignalInstance`][psygnal.SignalInstance] | A [`psygnal.SignalInstance`][psygnal.SignalInstance] that will emit an event when the `value` has changed.  Connect callbacks to the change event using `widget.changed.connect(callback)` |
-| `bind` | `Any, optional` | A value or callback to bind this widget.  If bound, whenever `widget.value` is accessed, the value provided here will be returned.  The bound value can be a callable, in which case `bound_value(self)` will be returned (i.e. your callback must accept a single parameter, which is this widget instance.). see [`ValueWidget.bind`][magicgui.widgets.bases.ValueWidget.bind] for details. |
+| `bind` | `Any, optional` | A value or callback to bind this widget.  If bound, whenever `widget.value` is accessed, the value provided here will be returned.  The bound value can be a callable, in which case `bound_value(self)` will be returned (i.e. your callback must accept a single parameter, which is this widget instance.). see [`ValueWidget.bind`][magicgui.widgets.bases.BaseValueWidget.bind] for details. |
 
 Here is a demonstration of all these:
 

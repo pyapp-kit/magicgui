@@ -2,21 +2,22 @@ from __future__ import annotations
 
 import operator
 import sys
-from itertools import zip_longest
-from typing import (
-    TYPE_CHECKING,
-    Any,
+from collections.abc import (
     Collection,
-    Generic,
     ItemsView,
     Iterable,
     Iterator,
     KeysView,
-    Literal,
     Mapping,
     MutableMapping,
-    NoReturn,
     Sequence,
+)
+from itertools import zip_longest
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Literal,
     TypeVar,
     Union,
     cast,
@@ -133,7 +134,11 @@ class TableItemsView(ItemsView[_KT_co, _VT_co], Generic[_KT_co, _VT_co]):
         return f"table_items({n} {self._axis}s)"
 
 
-class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
+class Table(
+    ValueWidget[Mapping[TblKey, Collection]],
+    _ReadOnlyMixin,
+    MutableMapping[TblKey, list],
+):
     """A widget to represent columnar or 2D data with headers.
 
     Tables behave like plain `dicts`, where the keys are column headers and the
@@ -242,13 +247,11 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             "columns": columns if columns is not None else _columns,
         }
 
-    @property
-    def value(self) -> dict[TblKey, Collection]:
+    def get_value(self) -> dict[TblKey, Collection]:
         """Return dict with current `data`, `index`, and `columns` of the widget."""
         return self.to_dict("split")
 
-    @value.setter
-    def value(self, value: TableData) -> None:
+    def set_value(self, value: TableData) -> None:
         """Set table data from dict, dataframe, list, or array.
 
         Parameters
@@ -264,10 +267,43 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
             nc = len(data[0])  # type: ignore
         except (TypeError, IndexError):
             nc = 0
-        self.column_headers = tuple(columns) or range(nc)  # type:ignore
-        self.row_headers = tuple(index) or range(len(data))  # type: ignore
+        self.column_headers = tuple(columns) or range(nc)
+        self.row_headers = tuple(index) or range(len(data))
         for row, d in enumerate(data):
             self._set_rowi(row, d)
+
+    def delete_row(
+        self,
+        *,
+        index: int | Sequence[int] | None = None,
+        header: Any | Sequence[Any] | None = None,
+    ) -> None:
+        """Delete row(s) by index or header.
+
+        Parameters
+        ----------
+        index : int or Sequence[int], optional
+            Index or indices of row(s) to delete.
+        header : Any or Sequence[Any], optional
+            Header or headers of row(s) to delete.
+        """
+        indices: set[int] = set()
+        if index is not None:
+            if isinstance(index, Sequence):
+                indices.update(index)
+            else:
+                indices.add(index)
+        if header is not None:
+            if isinstance(header, str) or not isinstance(header, Sequence):
+                header = (header,)
+            row_headers = self.row_headers
+            for h in header:
+                try:
+                    indices.add(row_headers.index(h))
+                except ValueError as e:
+                    raise KeyError(f"{h!r} is not a valid row header") from e
+        for i in sorted(indices, reverse=True):
+            self._del_rowi(i)
 
     @property
     def data(self) -> DataView:
@@ -328,7 +364,7 @@ class Table(ValueWidget, _ReadOnlyMixin, MutableMapping[TblKey, list]):
     @property
     def size(self) -> int:
         """Return shape of table widget (rows, cols)."""
-        return cast(int, operator.mul(*self.shape))
+        return cast("int", operator.mul(*self.shape))
 
     def keys(self, axis: str = "column") -> HeadersView[TblKey]:
         """Return a set-like object providing a view on this table's headers."""
@@ -802,7 +838,7 @@ def _from_records(data: list[dict[TblKey, Any]]) -> tuple[list[list], list, list
 
 def _validate_table_data(
     data: Collection, index: Sequence | None, column: Sequence | None
-) -> None | NoReturn:
+) -> None:
     """Make sure data matches shape of index and column."""
     nr = len(data)
     if not nr:

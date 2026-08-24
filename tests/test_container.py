@@ -199,8 +199,7 @@ def test_connection_during_init() -> None:
             btn.changed.connect(self._on_clicked)
             super().__init__(widgets=[btn])
 
-        def _on_clicked(self):
-            ...
+        def _on_clicked(self): ...
 
     assert isinstance(C(), widgets.Container)
 

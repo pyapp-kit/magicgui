@@ -1,4 +1,5 @@
 """https://www.mkdocs.org/dev-guide/plugins/#events ."""
+
 from __future__ import annotations
 
 import importlib.abc
@@ -7,15 +8,13 @@ import sys
 import types
 import typing
 import warnings
-from contextlib import contextmanager
 from importlib import import_module
 from importlib.machinery import ModuleSpec
 from itertools import count
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
-from griffe.dataclasses import Alias
-from griffe.docstrings import numpy
+from griffe import Alias
 from mkdocstrings_handlers.python.handler import PythonHandler
 
 from magicgui.type_map import get_widget_class
@@ -23,27 +22,32 @@ from magicgui.type_map import get_widget_class
 warnings.simplefilter("ignore", DeprecationWarning)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from mkdocs.structure.pages import Page
 
 
-# TODO: figure out how to do this with options
-@contextmanager
-def _hide_numpy_warn():
-    before, numpy._warn = numpy._warn, lambda *x, **k: None
-    yield
-    numpy._warn = before
-
-
 def inject_dynamic_docstring(item: Alias, identifier: str) -> None:
-    module, name = identifier.rsplit(".", 1)
-    obj = getattr(import_module(module), name)
-    first_line, *rest = (obj.__doc__ or "").splitlines()
-    if first_line and item.target.docstring:
-        item.target.docstring.value = first_line + "\n" + dedent("\n".join(rest))
+    for i in range(1, 3):
+        module_name, *names = identifier.rsplit(".", 1)
+        try:
+            module = import_module(module_name)
+        except ModuleNotFoundError:
+            continue
+        else:
+            obj = module
+            for name in names:
+                obj = getattr(obj, name)
+            first_line, *rest = (obj.__doc__ or "").splitlines()
+            if first_line and item.target.docstring:
+                item.target.docstring.value = (
+                    first_line + "\n" + dedent("\n".join(rest))
+                )
+            break
 
 
 class WidgetHandler(PythonHandler):
-    def collect(self, identifier: str, config: dict) -> Any:
+    def collect(self, identifier: str, config: Mapping[str, Any]) -> Any:
         item = super().collect(identifier, config)
         if isinstance(item, Alias):
             inject_dynamic_docstring(item, identifier)
@@ -51,18 +55,34 @@ class WidgetHandler(PythonHandler):
         # item.parameters["something"].default = ...
         return item
 
-    def render(self, data: Any, config: dict) -> str:
-        with _hide_numpy_warn():
-            return super().render(data, config)
+    def render(self, data: Any, config: Mapping[str, Any]) -> str:
+        return super().render(data, config)
 
 
 class MyLoader(importlib.abc.Loader):
-    def create_module(self, spec):
+    def create_module(self, spec) -> types.ModuleType:
         return types.ModuleType(spec.name)
 
-    def exec_module(self, module: types.ModuleType):
-        def get_handler(**kwargs):
-            return WidgetHandler(handler="python", **kwargs)
+    def exec_module(self, module: types.ModuleType) -> None:
+        def get_handler(
+            *,
+            theme: str,
+            custom_templates: str | None = None,
+            config_file_path: str | None = None,
+            paths: list[str] | None = None,
+            locale: str = "en",
+            load_external_modules: bool | None = None,
+            **config: Any,
+        ) -> PythonHandler:
+            return WidgetHandler(
+                handler="python",
+                theme=theme,
+                custom_templates=custom_templates,
+                config_file_path=config_file_path,
+                paths=paths,
+                locale=locale,
+                load_external_modules=load_external_modules,
+            )
 
         module.get_handler = get_handler
 
@@ -91,6 +111,8 @@ def _replace_autosummary(md: str) -> str:
         if name:
             module, _name = name.rsplit(".", 1)
             obj = getattr(import_module(module), _name)
+            if obj.__doc__ is None:
+                raise ValueError(f"Missing docstring for {obj}")
             table.append(f"| [`{_name}`][{name}] | {obj.__doc__.splitlines()[0]} |")
     lines[start:last_line] = table
     return "\n".join(lines)

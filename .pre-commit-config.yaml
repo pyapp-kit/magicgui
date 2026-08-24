@@ -4,33 +4,32 @@ ci:
   autoupdate_commit_msg: "ci(pre-commit.ci): autoupdate"
 
 repos:
-
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
-    hooks:
-      - id: check-docstring-first
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.292
-    hooks:
-      - id: ruff
-        args: ["--fix"]
-
-  - repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-      - id: black
-
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.14
+    rev: v0.25
     hooks:
       - id: validate-pyproject
 
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+        files: "^\\.github/workflows/.*\\.ya?ml$"
+
+  - repo: https://github.com/adhtruong/mirrors-typos
+    rev: v1.46.0
+    hooks:
+      - id: typos
+        args: [--force-exclude] # omitting --write-changes
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.12
+    hooks:
+      - id: ruff-check
+        args: ["--fix", "--unsafe-fixes"]
+      - id: ruff-format
+
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.5.1
+    rev: v1.20.2
     hooks:
       - id: mypy
         files: "^src/"
@@ -38,13 +37,3 @@ repos:
         additional_dependencies:
           - numpy
           - psygnal
-
-  # manual hooks
-
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
-    hooks:
-      - id: codespell
-        exclude: CHANGELOG.md
-        stages:
-          - "manual"

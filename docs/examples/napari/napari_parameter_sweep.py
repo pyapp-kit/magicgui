@@ -48,7 +48,7 @@ from magicgui import magicgui
 # - 'auto_call' tells magicgui to call the function when a parameter changes
 # - we use 'widget_type' to override the default "float" widget on sigma,
 #   and provide a maximum valid value.
-# - we contstrain the possible choices for 'mode'
+# - we constrain the possible choices for 'mode'
 @magicgui(
     auto_call=True,
     sigma={"widget_type": "FloatSlider", "max": 6},
@@ -59,6 +59,7 @@ def gaussian_blur(layer: ImageData, sigma: float = 1.0, mode="nearest") -> Image
     # Apply a gaussian blur to 'layer'.
     if layer is not None:
         return skimage.filters.gaussian(layer, sigma=sigma, mode=mode)
+
 
 # create a viewer and add some images
 viewer = napari.Viewer()
@@ -88,9 +89,7 @@ layer](https://napari.org/howtos/layers/image.html), a `sigma` to control
 the blur radius, and a `mode` that determines how edges are handled.
 
 ```python
-def gaussian_blur(
-    layer: Image, sigma: float = 1, mode="nearest"
-) -> Image:
+def gaussian_blur(layer: Image, sigma: float = 1, mode="nearest") -> Image:
     return filters.gaussian(layer.data, sigma=sigma, mode=mode)
 ```
 
@@ -124,9 +123,7 @@ Finally, we decorate the function with `@magicgui` and provide some options.
     sigma={"widget_type": "FloatSlider", "max": 6},
     mode={"choices": ["reflect", "constant", "nearest", "mirror", "wrap"]},
 )
-def gaussian_blur(
-  layer: ImageData, sigma: float = 1.0, mode="nearest"
-) -> ImageData:
+def gaussian_blur(layer: ImageData, sigma: float = 1.0, mode="nearest") -> ImageData:
     # Apply a gaussian blur to ``layer``.
     if layer is not None:
         return skimage.filters.gaussian(layer, sigma=sigma, mode=mode)
@@ -152,8 +149,8 @@ also connect any callback to the `gaussian_blur.called` signal that will receive
 the result of our decorated function anytime it is called.
 
 ```python
-def do_something_with_result(result):
-    ...
+def do_something_with_result(result): ...
+
 
 gaussian_blur.called.connect(do_something_with_result)
 ```
@@ -176,7 +173,7 @@ from magicgui import magicgui
 # - 'auto_call' tells magicgui to call the function when a parameter changes
 # - we use 'widget_type' to override the default "float" widget on sigma,
 #   and provide a maximum valid value.
-# - we contstrain the possible choices for 'mode'
+# - we constrain the possible choices for 'mode'
 @magicgui(
     auto_call=True,
     sigma={"widget_type": "FloatSlider", "max": 6},

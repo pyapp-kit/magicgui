@@ -155,7 +155,7 @@ snells_law.n1.value = Medium.Air
 
 !!! note
     This signal will be emitted regardless of whether the parameter was changed in
-    the GUI or via by [directly setting the paramaeter on the gui
+    the GUI or via by [directly setting the parameter on the gui
     instance](#two-way-data-binding).
 
 ## Usage As a Decorator is Optional

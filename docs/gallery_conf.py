@@ -1,3 +1,5 @@
+"""Gallery configuration for docs."""
+
 import warnings
 from pathlib import Path
 
@@ -10,7 +12,7 @@ from qtpy.QtWidgets import QApplication
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
-def qt_window_scraper(block, script: GalleryScript):
+def qt_window_scraper(block: tuple, script: GalleryScript) -> str:
     """Scrape screenshots from open Qt windows.
 
     Parameters
@@ -23,7 +25,7 @@ def qt_window_scraper(block, script: GalleryScript):
     Returns
     -------
     md : str
-        The ReSTructuredText that will be rendered to HTML containing
+        The reStructuredText that will be rendered to HTML containing
         the images. This is often produced by :func:`figure_md_or_html`.
     """
     imgpath_iter = script.run_vars.image_path_iterator
@@ -59,7 +61,7 @@ def napari_image_scraper(block, script: GalleryScript):
     Returns
     -------
     md : str
-        The ReSTructuredText that will be rendered to HTML containing
+        The reStructuredText that will be rendered to HTML containing
         the images. This is often produced by :func:`figure_md_or_html`.
     """
     viewer = napari.current_viewer()

@@ -6,6 +6,7 @@
 2. Adds a `gui` property to the class that will return a `magicgui` widget, bound to
 the values of the dataclass instance.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -13,14 +14,15 @@ import warnings
 from dataclasses import Field, dataclass, field, is_dataclass
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
 
-from psygnal import SignalGroup, SignalInstance, evented
+from psygnal import SignalGroup, SignalInstance, evented, is_evented
 from psygnal import __version__ as psygnal_version
 
 from magicgui.schema._ui_field import build_widget
 from magicgui.widgets import PushButton
-from magicgui.widgets.bases import ContainerWidget, ValueWidget
+from magicgui.widgets.bases import BaseValueWidget, ContainerWidget
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from typing import Protocol
 
     from typing_extensions import TypeGuard
@@ -35,7 +37,7 @@ if TYPE_CHECKING:
         def events(self) -> SignalGroup: ...
     # fmt: on
 
-__all__ = ["guiclass", "button", "is_guiclass", "unbind_gui_from_instance"]
+__all__ = ["button", "guiclass", "is_guiclass", "unbind_gui_from_instance"]
 _BUTTON_ATTR = "_magicgui_button"
 _GUICLASS_FLAG = "__magicgui_guiclass__"
 
@@ -63,8 +65,7 @@ def __dataclass_transform__(
 
 @__dataclass_transform__(field_specifiers=(Field, field))
 @overload
-def guiclass(cls: T) -> T:
-    ...
+def guiclass(cls: T) -> T: ...
 
 
 @__dataclass_transform__(field_specifiers=(Field, field))
@@ -75,8 +76,7 @@ def guiclass(
     events_namespace: str = "events",
     follow_changes: bool = True,
     **dataclass_kwargs: Any,
-) -> Callable[[T], T]:
-    ...
+) -> Callable[[T], T]: ...
 
 
 def guiclass(
@@ -131,13 +131,12 @@ def guiclass(
     >>> @guiclass
     ... class MyData:
     ...     x: int = 0
-    ...     y: str = 'hi'
+    ...     y: str = "hi"
     ...
     ...     @button
     ...     def reset(self):
     ...         self.x = 0
-    ...         self.y = 'hi'
-    ...
+    ...         self.y = "hi"
     >>> data = MyData()
     >>> data.gui.show()
     """
@@ -150,13 +149,15 @@ def guiclass(
                 "https://github.com/pyapp-kit/magicgui/issues."
             )
 
-        setattr(cls, gui_name, GuiBuilder(gui_name, follow_changes=follow_changes))
-
+        builder = GuiBuilder(
+            gui_name,
+            follow_changes=follow_changes,
+            events_namespace=events_namespace,
+        )
         if not is_dataclass(cls):
             cls = dataclass(cls, **dataclass_kwargs)  # type: ignore
-        cls = evented(cls, events_namespace=events_namespace)
-
-        setattr(cls, _GUICLASS_FLAG, True)
+        setattr(cls, gui_name, builder)
+        builder.__set_name__(cls, gui_name)
         return cls
 
     return _deco(cls) if cls is not None else _deco
@@ -168,13 +169,11 @@ def is_guiclass(obj: object) -> TypeGuard[GuiClassProtocol]:
 
 
 @overload
-def button(func: F) -> F:
-    ...
+def button(func: F) -> F: ...
 
 
 @overload
-def button(**kwargs: Any) -> Callable[[F], F]:
-    ...
+def button(**kwargs: Any) -> Callable[[F], F]: ...
 
 
 def button(func: F | None = None, **button_kwargs: Any) -> F | Callable[[F], F]:
@@ -198,19 +197,56 @@ def button(func: F | None = None, **button_kwargs: Any) -> F | Callable[[F], F]:
 
 
 class GuiBuilder:
-    """Descriptor that builds a widget for a dataclass or instance."""
+    """Descriptor that builds a widget for a dataclass or instance.
 
-    def __init__(self, name: str = "", follow_changes: bool = True):
+    Parameters
+    ----------
+    name : str, optional
+        The name of the property that will return a `magicgui` widget.
+        When used as a descriptor, the name of the class-attribute to which this
+        descriptor is applied will be used.
+    follow_changes : bool, optional
+        If `True` (default), changes to the dataclass instance will be reflected in the
+        gui, and changes to the gui will be reflected in the dataclass instance.
+    events_namespace : str
+        If the owner of this descriptor is not already evented when __set_name__ is
+        called, it will be be made evented and the events namespace will be set to this
+        value. By default, this is "events". (see `psygnal.SignalGroupDescriptor`
+        for details.)
+    """
+
+    def __init__(
+        self,
+        name: str = "",
+        follow_changes: bool = True,
+        events_namespace: str = "events",
+    ):
         self._name = name
         self._follow_changes = follow_changes
+        self._owner: type | None = None
+        self._events_namespace = events_namespace
 
     def __set_name__(self, owner: type, name: str) -> None:
         self._name = name
+        self._owner = owner
+        if not is_evented(owner):
+            evented(owner, events_namespace=self._events_namespace)
+        setattr(owner, _GUICLASS_FLAG, True)
+
+    def widget(self) -> ContainerWidget:
+        """Return a widget for the dataclass or instance."""
+        if self._owner is None:
+            raise TypeError(
+                "Cannot call `widget` on an unbound `GuiBuilder` descriptor."
+            )
+        return build_widget(self._owner)
 
     def __get__(
         self, instance: object | None, owner: type
-    ) -> ContainerWidget[ValueWidget]:
-        wdg = build_widget(owner if instance is None else instance)
+    ) -> ContainerWidget[BaseValueWidget] | GuiBuilder:
+        if instance is None:
+            return self
+        wdg = build_widget(instance)
 
         # look for @button-decorated methods
         # TODO: move inside build_widget?
@@ -256,7 +292,13 @@ def bind_gui_to_instance(
         If True, changes to the instance will be reflected in the gui, by default True
     """
     events = getattr(instance, "events", None) if two_way else None
-    signals = events.signals if isinstance(events, SignalGroup) else {}
+    signals: Mapping[str, SignalInstance] = {}
+    if isinstance(events, SignalGroup):
+        # psygnal >=0.10
+        if hasattr(events, "__iter__") and hasattr(events, "__getitem__"):
+            signals = {k: events[k] for k in events}
+        else:  # psygnal <0.10
+            signals = events.signals
 
     # in cases of classes with `__slots__`, widget.changed.connect_setattr(instance...)
     # will show a RuntimeWarning because `instance` will not be weak referenceable.
@@ -280,7 +322,10 @@ def bind_gui_to_instance(
                 if hasattr(instance, name):
                     try:
                         changed.connect_setattr(
-                            instance, name, **_IGNORE_REF_ERR  # type: ignore
+                            instance,
+                            name,
+                            maxargs=1,
+                            **_IGNORE_REF_ERR,  # type: ignore
                         )
                     except TypeError:
                         warnings.warn(
@@ -311,7 +356,7 @@ def unbind_gui_from_instance(gui: ContainerWidget, instance: Any) -> None:
         An instance of a `guiclass`.
     """
     for widget in gui:
-        if isinstance(widget, ValueWidget):
+        if isinstance(widget, BaseValueWidget):
             widget.changed.disconnect_setattr(instance, widget.name, missing_ok=True)
 
 
@@ -339,5 +384,4 @@ with warnings.catch_warnings():
             # the mypy dataclass magic doesn't work without the literal decorator
             # it WILL work with pyright due to the __dataclass_transform__ above
             # here we just avoid a false error in mypy
-            def __init__(self, *args: Any, **kwargs: Any) -> None:
-                ...
+            def __init__(self, *args: Any, **kwargs: Any) -> None: ...

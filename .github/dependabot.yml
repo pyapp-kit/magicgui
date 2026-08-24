@@ -5,6 +5,10 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
     commit-message:
       prefix: "ci(dependabot):"
+    groups:
+      actions:
+        patterns:
+          - "*"

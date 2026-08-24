@@ -1,4 +1,5 @@
 """Tests for the Table widget."""
+
 import os
 import sys
 
@@ -170,6 +171,8 @@ def test_table_from_numpy():
 INDICES = (
     1,
     (2, 2),
+    -2,
+    (-1, -1),
     (slice(None), 2),
     (slice(None), slice(None)),
     (slice(1, 3), slice(3)),
@@ -180,6 +183,8 @@ INDICES = (
 VALUES = (
     (7,) * 4,
     6,
+    (14,) * 4,
+    25,
     (7,) * 6,
     [[1] * 4] * 6,
     [[1] * 3] * 2,
@@ -199,7 +204,7 @@ def test_dataview_getitem(index):
     assert np.allclose(table.data[index], data[index])
 
 
-@pytest.mark.parametrize("index, value", zip(INDICES, VALUES))
+@pytest.mark.parametrize("index, value", tuple(zip(INDICES, VALUES)))
 def test_dataview_setitem(index, value):
     """Test that table.data can be indexed like a numpy array."""
     np = pytest.importorskip("numpy")
@@ -210,6 +215,31 @@ def test_dataview_setitem(index, value):
     assert not np.allclose(table.data.to_list(), data)
     data[index] = value
     assert np.allclose(table.data.to_list(), data)
+
+
+INVALID_INDICES = ((6, 0), (0, 4), (-7, 0), (0, -5))
+
+
+@pytest.mark.parametrize("index", INVALID_INDICES)
+def test_dataview_getitem_invalid_index(index):
+    """Test that invalid cell indices raise IndexError."""
+    np = pytest.importorskip("numpy")
+    data = np.arange(24).reshape(6, 4)
+
+    table = Table(value=data)
+    with pytest.raises(IndexError):
+        table.data[index]
+
+
+@pytest.mark.parametrize("index", INVALID_INDICES)
+def test_dataview_setitem_invalid_index(index):
+    """Test that invalid cell indices raise IndexError."""
+    np = pytest.importorskip("numpy")
+    data = np.arange(24).reshape(6, 4)
+
+    table = Table(value=data)
+    with pytest.raises(IndexError):
+        table.data[index] = 999
 
 
 def test_dataview_delitem():
@@ -396,3 +426,12 @@ def test_item_delegate(qapp):
     data = ["1.2", "1.23456789", "0.000123", "1234567", "0.0", "1", "s"]
     results = [_format_number(v, 4) for v in data]
     assert results == ["1.2000", "1.2346", "1.230e-04", "1.235e+06", "0.0000", "1", "s"]
+
+
+def test_row_delete(qapp) -> None:
+    table = Table(value=_TABLE_DATA["split"])
+    assert table.data.to_list() == [[1, 2, 3], [4, 5, 6]]
+    table.delete_row(index=0)
+    assert table.data.to_list() == [[4, 5, 6]]
+    table.delete_row(header="r2")
+    assert table.data.to_list() == []

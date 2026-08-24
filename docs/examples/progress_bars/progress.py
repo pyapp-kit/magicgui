@@ -2,6 +2,7 @@
 
 A simple progress bar demo with magicgui.
 """
+
 from time import sleep
 
 from magicgui import magicgui

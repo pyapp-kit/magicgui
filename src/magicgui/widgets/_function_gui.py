@@ -2,6 +2,7 @@
 
 The core `magicgui` decorator returns an instance of a FunctionGui widget.
 """
+
 from __future__ import annotations
 
 import inspect
@@ -14,7 +15,6 @@ from typing import (
     Any,
     Callable,
     Generic,
-    Iterator,
     NoReturn,
     TypeVar,
     cast,
@@ -25,15 +25,17 @@ from psygnal import Signal
 from magicgui._type_resolution import resolve_single_type
 from magicgui.signature import MagicSignature, magic_signature
 from magicgui.widgets import Container, MainWindow, ProgressBar, PushButton
-from magicgui.widgets.bases import ValueWidget
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
     from typing_extensions import ParamSpec
 
     from magicgui.application import Application, AppRef  # noqa: F401
+    from magicgui.type_map import TypeMap
     from magicgui.widgets import TextEdit
+    from magicgui.widgets.bases import BaseValueWidget
     from magicgui.widgets.protocols import ContainerProtocol, MainWindowProtocol
 
     _P = ParamSpec("_P")
@@ -50,7 +52,11 @@ def _inject_tooltips_from_docstrings(
     if not docstring:
         return
 
-    doc_params = {p.arg_name: p.description for p in parse(docstring).params}
+    doc_params: dict[str, str | None] = {
+        p.arg_name: p.description for p in parse(docstring).params
+    }
+    if not doc_params:
+        return
 
     # deal with the (numpydocs) case when there are multiple parameters separated
     # by a comma
@@ -59,7 +65,6 @@ def _inject_tooltips_from_docstrings(
             for split_key in k.split(","):
                 doc_params[split_key.strip()] = v
             del doc_params[k]
-
     for name, description in doc_params.items():
         # this is to catch potentially bad arg_name parsing in docstring_parser
         # if using napoleon style google docstringss
@@ -149,10 +154,15 @@ class FunctionGui(Container, Generic[_P, _R]):
         name: str | None = None,
         persist: bool = False,
         raise_on_unknown: bool = False,
+        type_map: TypeMap | None = None,
         **kwargs: Any,
     ):
+        from magicgui.type_map import TypeMap
+
         if not callable(function):
             raise TypeError("'function' argument to FunctionGui must be callable.")
+        if type_map is None:
+            type_map = TypeMap.global_instance()
 
         # consume extra Widget keywords
         extra = set(kwargs) - {"annotation", "gui_only"}
@@ -194,9 +204,10 @@ class FunctionGui(Container, Generic[_P, _R]):
             scrollable=scrollable,
             labels=labels,
             visible=visible,
-            widgets=list(sig.widgets(app).values()),
+            widgets=list(sig.widgets(app, type_map).values()),
             name=name or self._callable_name,
         )
+        self._type_map = type_map
         self._param_options = param_options
         self._result_name = ""
         self._call_count: int = 0
@@ -218,22 +229,20 @@ class FunctionGui(Container, Generic[_P, _R]):
                 @self._call_button.changed.connect
                 def _disable_button_and_call() -> None:
                     # disable the call button until the function has finished
-                    self._call_button = cast(PushButton, self._call_button)
+                    self._call_button = cast("PushButton", self._call_button)
                     self._call_button.enabled = False
                     try:
-                        self.__call__()
+                        self.__call__()  # type: ignore [call-arg]
                     finally:
                         self._call_button.enabled = True
 
             self.append(self._call_button)
 
-        self._result_widget: ValueWidget | None = None
+        self._result_widget: BaseValueWidget | None = None
         if result_widget:
-            from magicgui.widgets.bases import create_widget
-
             self._result_widget = cast(
-                ValueWidget,
-                create_widget(
+                "BaseValueWidget",
+                type_map.create_widget(
                     value=None,
                     annotation=self._return_annotation,
                     gui_only=True,
@@ -253,7 +262,7 @@ class FunctionGui(Container, Generic[_P, _R]):
         if self.persist:
             self._dump()
         if self._auto_call:
-            self()
+            self()  # type: ignore [call-arg]
 
     @property
     def call_button(self) -> PushButton | None:
@@ -348,9 +357,7 @@ class FunctionGui(Container, Generic[_P, _R]):
 
         return_type = sig.return_annotation
         if return_type:
-            from magicgui.type_map import type2callback
-
-            for callback in type2callback(return_type):
+            for callback in self._type_map.type2callback(return_type):
                 callback(self, value, return_type)
         self.called.emit(value)
         return value
@@ -381,10 +388,11 @@ class FunctionGui(Container, Generic[_P, _R]):
             result_widget=bool(self._result_widget),
             app=None,
             persist=self.persist,
-            visible=self.visible,
+            # visible=self.visible,  # see issue #725
             tooltips=self._tooltips,
             scrollable=self._scrollable,
             name=self.name,
+            type_map=self._type_map,
         )
 
     def __get__(self, obj: object, objtype: type | None = None) -> FunctionGui:
@@ -423,10 +431,13 @@ class FunctionGui(Container, Generic[_P, _R]):
         if obj_id not in self._bound_instances:
             method = getattr(obj.__class__, self._function.__name__)
             p0 = next(iter(inspect.signature(method).parameters))
-            prior, self._param_options = self._param_options, {
-                p0: {"bind": obj},
-                **self._param_options,
-            }
+            prior, self._param_options = (
+                self._param_options,
+                {
+                    p0: {"bind": obj},
+                    **self._param_options,
+                },
+            )
             try:
                 self._bound_instances[obj_id] = self.copy()
             finally:
@@ -484,7 +495,7 @@ def _docstring_to_html(docs: str) -> str:
 
     ptemp = "<li><p><strong>{}</strong> (<em>{}</em>) - {}</p></li>"
     plist = [ptemp.format(p.arg_name, p.type_name, p.description) for p in ds.params]
-    params = f'<h3>Parameters</h3><ul>{"".join(plist)}</ul>'
+    params = f"<h3>Parameters</h3><ul>{''.join(plist)}</ul>"
     short = f"<p>{ds.short_description}</p>" if ds.short_description else ""
     long = f"<p>{ds.long_description}</p>" if ds.long_description else ""
     return re.sub(r"`?([^`]+)`?", r"<code>\1</code>", f"{short}{long}{params}")

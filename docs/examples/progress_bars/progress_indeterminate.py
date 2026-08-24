@@ -4,6 +4,7 @@ Example of an indeterminate progress bar for a long running computation
 of unknown time.
 
 """
+
 import time
 
 from superqt.utils import thread_worker

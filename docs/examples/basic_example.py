@@ -2,6 +2,7 @@
 
 A basic example using magicgui.
 """
+
 from magicgui import magicgui
 
 

@@ -1,5 +1,175 @@
 # Changelog
 
+## [v0.10.2](https://github.com/pyapp-kit/magicgui/tree/v0.10.2) (2026-04-10)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.2...v0.10.2)
+
+**Fixed bugs:**
+
+- fix: use default font from application instead of system default [\#724](https://github.com/pyapp-kit/magicgui/pull/724) ([giocard](https://github.com/giocard))
+- fix: set tooltip on label as well [\#711](https://github.com/pyapp-kit/magicgui/pull/711) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: support python 3.14 [\#721](https://github.com/pyapp-kit/magicgui/pull/721) ([tlambert03](https://github.com/tlambert03))
+- ci\(dependabot\): bump actions/download-artifact from 6 to 7 [\#719](https://github.com/pyapp-kit/magicgui/pull/719) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump actions/upload-artifact from 5 to 6 [\#718](https://github.com/pyapp-kit/magicgui/pull/718) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore: update ci and pre-commit [\#717](https://github.com/pyapp-kit/magicgui/pull/717) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.9.2](https://github.com/pyapp-kit/magicgui/tree/v0.9.2) (2025-06-08)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.1...v0.9.2)
+
+**Merged pull requests:**
+
+- test: ensure everything works with minimal declared dependencies, test all examples [\#702](https://github.com/pyapp-kit/magicgui/pull/702) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.10.1](https://github.com/pyapp-kit/magicgui/tree/v0.10.1) (2025-06-03)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.0...v0.10.1)
+
+**Fixed bugs:**
+
+- Fix RangeEdit step min [\#701](https://github.com/pyapp-kit/magicgui/pull/701) ([tlambert03](https://github.com/tlambert03))
+- fix: fix name collisions between dataclass fields and guiclass container attributes [\#688](https://github.com/pyapp-kit/magicgui/pull/688) ([tlambert03](https://github.com/tlambert03))
+- fix: fix qt main window composition [\#686](https://github.com/pyapp-kit/magicgui/pull/686) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: use uv for project management [\#700](https://github.com/pyapp-kit/magicgui/pull/700) ([tlambert03](https://github.com/tlambert03))
+- ci\(pre-commit.ci\): autoupdate [\#692](https://github.com/pyapp-kit/magicgui/pull/692) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(pre-commit.ci\): autoupdate [\#689](https://github.com/pyapp-kit/magicgui/pull/689) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(pre-commit.ci\): autoupdate [\#687](https://github.com/pyapp-kit/magicgui/pull/687) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+
+## [v0.10.0](https://github.com/pyapp-kit/magicgui/tree/v0.10.0) (2024-12-16)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.10.0.rc1...v0.10.0)
+
+**Fixed bugs:**
+
+- fix: fix safe\_issubclass for NewType [\#678](https://github.com/pyapp-kit/magicgui/pull/678) ([Czaki](https://github.com/Czaki))
+
+**Merged pull requests:**
+
+- test: relax error test for missing iconify [\#682](https://github.com/pyapp-kit/magicgui/pull/682) ([tlambert03](https://github.com/tlambert03))
+- ci\(pre-commit.ci\): autoupdate [\#680](https://github.com/pyapp-kit/magicgui/pull/680) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- chore: restore types in tests/test\_util.py [\#679](https://github.com/pyapp-kit/magicgui/pull/679) ([Czaki](https://github.com/Czaki))
+
+## [v0.10.0.rc1](https://github.com/pyapp-kit/magicgui/tree/v0.10.0.rc1) (2024-11-22)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.1...v0.10.0.rc1)
+
+**Implemented enhancements:**
+
+- feat: Implement `TypeMap` to enable module specific type map registration [\#677](https://github.com/pyapp-kit/magicgui/pull/677) ([hanjinliu](https://github.com/hanjinliu))
+
+**Documentation:**
+
+- docs: fix docs build [\#670](https://github.com/pyapp-kit/magicgui/pull/670) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- build: drop python 3.8 add py3.13 [\#671](https://github.com/pyapp-kit/magicgui/pull/671) ([tlambert03](https://github.com/tlambert03))
+- refactor: Make all the valued containers subclass `ValueWidget` [\#663](https://github.com/pyapp-kit/magicgui/pull/663) ([hanjinliu](https://github.com/hanjinliu))
+
+## [v0.9.1](https://github.com/pyapp-kit/magicgui/tree/v0.9.1) (2024-08-06)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.9.0...v0.9.1)
+
+**Fixed bugs:**
+
+- fix: Fix checking sublcasses of Future [\#665](https://github.com/pyapp-kit/magicgui/pull/665) ([Czaki](https://github.com/Czaki))
+
+## [v0.9.0](https://github.com/pyapp-kit/magicgui/tree/v0.9.0) (2024-08-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.3...v0.9.0)
+
+**Implemented enhancements:**
+
+- feat: Add mechanism to check basic subclassing of generics [\#658](https://github.com/pyapp-kit/magicgui/pull/658) ([Czaki](https://github.com/Czaki))
+
+**Fixed bugs:**
+
+- Fix array data not compatible with ComboBox [\#652](https://github.com/pyapp-kit/magicgui/pull/652) ([hanjinliu](https://github.com/hanjinliu))
+
+**Tests & CI:**
+
+- ci: upload pydantic1 coverage with the rest of them [\#660](https://github.com/pyapp-kit/magicgui/pull/660) ([tlambert03](https://github.com/tlambert03))
+
+**Documentation:**
+
+- docs: fix missing images in docs, update docs deps [\#656](https://github.com/pyapp-kit/magicgui/pull/656) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- chore: Add missed contents permission to deploy steep of workflow [\#664](https://github.com/pyapp-kit/magicgui/pull/664) ([Czaki](https://github.com/Czaki))
+- Use PyPI trusted publishing to push release to PyPI [\#651](https://github.com/pyapp-kit/magicgui/pull/651) ([jni](https://github.com/jni))
+
+## [v0.8.3](https://github.com/pyapp-kit/magicgui/tree/v0.8.3) (2024-06-04)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.2...v0.8.3)
+
+**Implemented enhancements:**
+
+- feat: Better ListEdit UI [\#640](https://github.com/pyapp-kit/magicgui/pull/640) ([hanjinliu](https://github.com/hanjinliu))
+- feat: Add Separator to ComboBox [\#638](https://github.com/pyapp-kit/magicgui/pull/638) ([qin-yu](https://github.com/qin-yu))
+
+**Fixed bugs:**
+
+- fix: fix compatibility with typing-extensions 0.4.12 [\#649](https://github.com/pyapp-kit/magicgui/pull/649) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- ci\(dependabot\): bump softprops/action-gh-release from 1 to 2 [\#635](https://github.com/pyapp-kit/magicgui/pull/635) ([dependabot[bot]](https://github.com/apps/dependabot))
+
+## [v0.8.2](https://github.com/pyapp-kit/magicgui/tree/v0.8.2) (2024-03-05)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.1...v0.8.2)
+
+**Fixed bugs:**
+
+- fix: fix parent\_changed signal, and rename to native\_parent\_changed [\#628](https://github.com/pyapp-kit/magicgui/pull/628) ([tlambert03](https://github.com/tlambert03))
+
+**Tests & CI:**
+
+- test: use weakref\_slot for guiclass test [\#630](https://github.com/pyapp-kit/magicgui/pull/630) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- chore: use ruff format instead of black [\#633](https://github.com/pyapp-kit/magicgui/pull/633) ([tlambert03](https://github.com/tlambert03))
+- feat: support psygnal v0.10 [\#629](https://github.com/pyapp-kit/magicgui/pull/629) ([tlambert03](https://github.com/tlambert03))
+- ci\(pre-commit.ci\): autoupdate [\#626](https://github.com/pyapp-kit/magicgui/pull/626) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(dependabot\): bump tlambert03/setup-qt-libs from 1.6 to 1.7 [\#625](https://github.com/pyapp-kit/magicgui/pull/625) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump codecov/codecov-action from 3 to 4 [\#624](https://github.com/pyapp-kit/magicgui/pull/624) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(pre-commit.ci\): autoupdate [\#622](https://github.com/pyapp-kit/magicgui/pull/622) ([pre-commit-ci[bot]](https://github.com/apps/pre-commit-ci))
+- ci\(dependabot\): bump actions/setup-python from 4 to 5 [\#620](https://github.com/pyapp-kit/magicgui/pull/620) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci\(dependabot\): bump aganders3/headless-gui from 1 to 2 [\#619](https://github.com/pyapp-kit/magicgui/pull/619) ([dependabot[bot]](https://github.com/apps/dependabot))
+- ci: use reusable test workflow [\#612](https://github.com/pyapp-kit/magicgui/pull/612) ([tlambert03](https://github.com/tlambert03))
+
+## [v0.8.1](https://github.com/pyapp-kit/magicgui/tree/v0.8.1) (2023-12-06)
+
+[Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.8.0...v0.8.1)
+
+**Implemented enhancements:**
+
+- feat: add `Table.delete_row` method [\#610](https://github.com/pyapp-kit/magicgui/pull/610) ([tlambert03](https://github.com/tlambert03))
+- feat: add toolbar widget [\#597](https://github.com/pyapp-kit/magicgui/pull/597) ([tlambert03](https://github.com/tlambert03))
+
+**Fixed bugs:**
+
+- Ensure QImage is ARGB32 before converting to numpy [\#618](https://github.com/pyapp-kit/magicgui/pull/618) ([aganders3](https://github.com/aganders3))
+- fix: allow future annotations in ipywidgets backend [\#609](https://github.com/pyapp-kit/magicgui/pull/609) ([tlambert03](https://github.com/tlambert03))
+- Make kwargs of container-like widgets consistent [\#606](https://github.com/pyapp-kit/magicgui/pull/606) ([hanjinliu](https://github.com/hanjinliu))
+
+**Documentation:**
+
+- docs: unpin pyside6 when building docs [\#614](https://github.com/pyapp-kit/magicgui/pull/614) ([tlambert03](https://github.com/tlambert03))
+
+**Merged pull requests:**
+
+- ci\(dependabot\): bump tlambert03/setup-qt-libs from 1.5 to 1.6 [\#615](https://github.com/pyapp-kit/magicgui/pull/615) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore!: remove older deprecations [\#607](https://github.com/pyapp-kit/magicgui/pull/607) ([tlambert03](https://github.com/tlambert03))
+
 ## [v0.8.0](https://github.com/pyapp-kit/magicgui/tree/v0.8.0) (2023-10-20)
 
 [Full Changelog](https://github.com/pyapp-kit/magicgui/compare/v0.7.3...v0.8.0)
@@ -32,6 +202,7 @@
 
 **Merged pull requests:**
 
+- chore: changelog v0.8.0 [\#605](https://github.com/pyapp-kit/magicgui/pull/605) ([tlambert03](https://github.com/tlambert03))
 - style: use `Unpack` for better kwargs typing [\#599](https://github.com/pyapp-kit/magicgui/pull/599) ([tlambert03](https://github.com/tlambert03))
 - chore: remove setup.py [\#595](https://github.com/pyapp-kit/magicgui/pull/595) ([tlambert03](https://github.com/tlambert03))
 - ci\(dependabot\): bump actions/checkout from 3 to 4 [\#578](https://github.com/pyapp-kit/magicgui/pull/578) ([dependabot[bot]](https://github.com/apps/dependabot))
@@ -190,7 +361,7 @@
 
 **Implemented enhancements:**
 
-- Enable option to raise excpetion if magicgui cannot determine widget for provided value/annotation [\#476](https://github.com/pyapp-kit/magicgui/pull/476) ([Czaki](https://github.com/Czaki))
+- Enable option to raise exception if magicgui cannot determine widget for provided value/annotation [\#476](https://github.com/pyapp-kit/magicgui/pull/476) ([Czaki](https://github.com/Czaki))
 
 **Documentation:**
 
@@ -393,7 +564,7 @@
 
 **Documentation:**
 
-- adds waveform generator exemple [\#322](https://github.com/pyapp-kit/magicgui/pull/322) ([glyg](https://github.com/glyg))
+- adds waveform generator example [\#322](https://github.com/pyapp-kit/magicgui/pull/322) ([glyg](https://github.com/glyg))
 - add example of adding mpl FigureCanvas  to widget [\#321](https://github.com/pyapp-kit/magicgui/pull/321) ([tlambert03](https://github.com/tlambert03))
 
 ## [v0.3.3](https://github.com/pyapp-kit/magicgui/tree/v0.3.3) (2021-11-08)

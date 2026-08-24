@@ -2,7 +2,6 @@
 
 """Tests for `magicgui._qt` module."""
 
-
 import pytest
 from qtpy import API_NAME, QtCore
 from qtpy import QtWidgets as QtW

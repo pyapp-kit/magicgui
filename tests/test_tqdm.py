@@ -1,4 +1,5 @@
 """Tests for the tqdm wrapper."""
+
 from time import sleep
 
 import pytest

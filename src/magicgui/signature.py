@@ -11,20 +11,26 @@ calling ``inspect.signature`` on a function decorated with `magicgui` still work
 (it returns a ``MagicSignature``, which is a subclass of ``inspect.Signature``)
 
 """
+
 from __future__ import annotations
 
 import inspect
+import typing
+import warnings
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Callable, Sequence, cast
+from typing import TYPE_CHECKING, Annotated, Any, Callable, cast
 
-from typing_extensions import Annotated, get_args, get_origin
+from typing_extensions import get_args, get_origin
 
 from magicgui.types import Undefined
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from typing_extensions import Unpack
 
     from magicgui.application import AppRef
+    from magicgui.type_map import TypeMap
     from magicgui.widgets import Container, Widget
     from magicgui.widgets.bases._container_widget import ContainerKwargs
 
@@ -68,7 +74,63 @@ def make_annotated(annotation: Any = Any, options: dict | None = None) -> Any:
                     f"Every item in Annotated must be castable to a dict, got: {opt!r}"
                 ) from e
             _options.update(_opt)
+
+    annotation = _make_hashable(annotation)
+    _options = _make_hashable(_options)
     return Annotated[annotation, _options]
+
+
+# this is a stupid hack to deal with something that changed in typing-extensions
+# v4.12.0 (and probably python 3.13), where all items in Annotated must now be hashable
+# The PR that necessitated this was https://github.com/python/typing_extensions/pull/392
+
+
+class hashabledict(dict):
+    """Hashable immutable dict."""
+
+    def __hash__(self) -> int:  # type: ignore # noqa: D105
+        # we don't actually want to hash the contents, just the object itself.
+        return id(self)
+
+    def __setitem__(self, key: Any, value: Any) -> None:  # noqa: D105
+        warnings.warn(
+            "Mutating magicgui Annotation metadata after creation is not supported."
+            "This will raise an error in a future version.",
+            stacklevel=2,
+        )
+        super().__setitem__(key, value)
+
+    def __delitem__(self, key: Any) -> None:  # noqa: D105
+        raise TypeError("hashabledict is immutable")
+
+
+def _hashable(obj: Any) -> bool:
+    try:
+        hash(obj)
+        return True
+    except TypeError:
+        return False
+
+
+def _make_hashable(obj: Any) -> Any:
+    if _hashable(obj):
+        return obj
+    if isinstance(obj, dict):
+        return hashabledict({k: _make_hashable(v) for k, v in obj.items()})
+    if isinstance(obj, (list, tuple)):
+        return tuple(_make_hashable(v) for v in obj)
+    if isinstance(obj, set):
+        return frozenset(_make_hashable(v) for v in obj)
+    if (args := get_args(obj)) and (not _hashable(args)):
+        try:
+            obj = get_origin(obj)[_make_hashable(args)]
+        except TypeError:
+            # python 3.8 hack
+            if obj.__module__ == "typing" and hasattr(obj, "_name"):
+                generic = getattr(typing, obj._name)
+                return generic[_make_hashable(args)]
+            raise
+    return obj
 
 
 class _void:
@@ -112,7 +174,7 @@ class MagicParameter(inspect.Parameter):
     @property
     def options(self) -> dict:
         """Return just this options part of the annotation."""
-        return cast(dict, get_args(self.annotation)[1])
+        return cast("dict", get_args(self.annotation)[1])
 
     def __repr__(self) -> str:
         """Return __repr__, replacing NoneType if present."""
@@ -120,21 +182,32 @@ class MagicParameter(inspect.Parameter):
         rep = rep.replace(": NoneType = ", "=")
         return rep
 
+    def _format(self, *, quote_annotation_strings: bool = True) -> str:
+        """Return formatted string for use in Signature.format() (Python 3.14+)."""
+        hint, _ = get_args(self.annotation)
+        param = inspect.Parameter(
+            self.name, self.kind, default=self.default, annotation=hint
+        )
+        if hasattr(param, "_format"):  # python 3.14+
+            return param._format(quote_annotation_strings=quote_annotation_strings)  # type: ignore[no-any-return]
+        return str(param)
+
     def __str__(self) -> str:
         """Return string representation of the Parameter in a signature."""
-        hint, _ = get_args(self.annotation)
-        return str(
-            inspect.Parameter(
-                self.name, self.kind, default=self.default, annotation=hint
-            )
-        )
+        return self._format()
 
-    def to_widget(self, app: AppRef | None = None) -> Widget:
+    def to_widget(
+        self,
+        app: AppRef | None = None,
+        type_map: TypeMap | None = None,
+    ) -> Widget:
         """Create and return a widget for this object."""
-        from magicgui.widgets import create_widget
+        from magicgui.type_map import TypeMap
 
         value = Undefined if self.default in (self.empty, TZ_EMPTY) else self.default
-        widget = create_widget(
+        if type_map is None:
+            type_map = TypeMap.global_instance()
+        widget = type_map.create_widget(
             name=self.name,
             value=value,
             annotation=self.annotation,
@@ -227,19 +300,26 @@ class MagicSignature(inspect.Signature):
             raise_on_unknown=raise_on_unknown,
         )
 
-    def widgets(self, app: AppRef | None = None) -> MappingProxyType:
+    def widgets(
+        self,
+        app: AppRef | None = None,
+        type_map: TypeMap | None = None,
+    ) -> MappingProxyType:
         """Return mapping from parameters to widgets for all params in Signature."""
         return MappingProxyType(
-            {n: p.to_widget(app) for n, p in self.parameters.items()}
+            {n: p.to_widget(app, type_map=type_map) for n, p in self.parameters.items()}
         )
 
     def to_container(
-        self, app: AppRef | None = None, **kwargs: Unpack[ContainerKwargs]
+        self,
+        app: AppRef | None = None,
+        type_map: TypeMap | None = None,
+        **kwargs: Unpack[ContainerKwargs],
     ) -> Container:
         """Return a ``magicgui.widgets.Container`` for this MagicSignature."""
         from magicgui.widgets import Container
 
-        kwargs["widgets"] = list(self.widgets(app).values())
+        kwargs["widgets"] = list(self.widgets(app, type_map=type_map).values())
         return Container(**kwargs)
 
     def replace(  # type: ignore[override]
@@ -260,7 +340,7 @@ class MagicSignature(inspect.Signature):
             return_annotation = self.return_annotation
 
         return type(self)(
-            cast(Sequence[inspect.Parameter], parameters),
+            cast("Sequence[inspect.Parameter]", parameters),
             return_annotation=return_annotation,
         )
 

@@ -58,6 +58,7 @@ def image_arithmetic(
     # Add, subtracts, multiplies, or divides to image layers.
     return operation.value(layerA, layerB)
 
+
 # create a viewer and add a couple image layers
 viewer = napari.Viewer()
 viewer.add_image(numpy.random.rand(20, 20), name="Layer 1")
@@ -106,6 +107,7 @@ So we gain a *lot* by annotating the above function with the appropriate
 
 ```python
 from napari.types import ImageData
+
 
 def image_arithmetic(
     layerA: ImageData, operation: Operation, layerB: ImageData

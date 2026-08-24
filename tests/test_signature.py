@@ -1,5 +1,6 @@
+from typing import Annotated
+
 import pytest
-from typing_extensions import Annotated
 
 from magicgui.signature import magic_signature, make_annotated
 

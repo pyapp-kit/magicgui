@@ -1,22 +1,27 @@
 import datetime
+import importlib
+import importlib.util
 import inspect
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Annotated, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
-from typing_extensions import Annotated
 
 from magicgui import magicgui, types, use_app, widgets
 from magicgui.widgets import Container, request_values
-from magicgui.widgets.bases import DialogWidget, ValueWidget
+from magicgui.widgets.bases import BaseValueWidget, DialogWidget
 from tests import MyInt
+
+params = ["qt"]
+if importlib.util.find_spec("ipywidgets"):
+    params.insert(0, "ipynb")
 
 
 # it's important that "qt" be last here, so that it's used for
 # the rest of the tests
-@pytest.fixture(scope="module", params=["ipynb", "qt"])
+@pytest.fixture(scope="module", params=params)
 def backend(request):
     return request.param
 
@@ -47,23 +52,26 @@ def test_bound_callable_catches_recursion():
     assert f() == 20
 
 
-@pytest.mark.parametrize(
-    "WidgetClass",
-    [
-        getattr(widgets, n)
-        for n in widgets.__all__
-        if n
-        not in (
-            "Widget",
-            "TupleEdit",
-            "FunctionGui",
-            "MainFunctionGui",
-            "show_file_dialog",
-            "request_values",
-            "create_widget",
-        )
-    ],
-)
+WIDGETS_TO_TEST = [
+    getattr(widgets, n)
+    for n in widgets.__all__
+    if n
+    not in (
+        "Widget",
+        "TupleEdit",
+        "FunctionGui",
+        "MainFunctionGui",
+        "show_file_dialog",
+        "request_values",
+        "create_widget",
+    )
+]
+
+if not importlib.util.find_spec("pint"):
+    WIDGETS_TO_TEST.remove(widgets.QuantityEdit)
+
+
+@pytest.mark.parametrize("WidgetClass", WIDGETS_TO_TEST)
 def test_widgets(WidgetClass, backend):
     """Test that we can retrieve getters, setters, and signals for most Widgets."""
     app = use_app(backend)
@@ -110,7 +118,7 @@ def test_create_widget_annotation(annotation, expected_type):
     wdg.close()
 
 
-def test_create_widget_annotation_overwritte_parrams():
+def test_create_widget_annotation_overwrite_parrams():
     wdg1 = widgets.create_widget(annotation=widgets.ProgressBar)
     assert isinstance(wdg1, widgets.ProgressBar)
     assert wdg1.visible
@@ -166,7 +174,7 @@ def test_custom_widget():
     # widget with a widgets._bases.ValueWidget
     with pytest.warns(UserWarning, match="must accept a `parent` Argument"):
         wdg = widgets.create_widget(1, widget_type=MyValueWidget)  # type:ignore
-    assert isinstance(wdg, ValueWidget)
+    assert isinstance(wdg, BaseValueWidget)
     wdg.close()
 
 
@@ -287,6 +295,20 @@ def test_unhashable_choice_data():
     combo.close()
 
 
+def test_ambiguous_eq_choice_data():
+    """Test that providing choice data with an ambiguous equal operation is ok."""
+    np = pytest.importorskip("numpy")
+
+    combo = widgets.ComboBox()
+    assert not combo.choices
+    combo.choices = (("a", np.array([0, 0, 0])), ("b", np.array([1, 2, 3])))
+    assert len(combo.choices) == 2
+    assert np.all(combo.choices[0] == [0, 0, 0])
+    assert np.all(combo.choices[1] == [1, 2, 3])
+
+    combo.close()
+
+
 def test_bound_values():
     """Test that we can bind a "permanent" value override to a parameter."""
 
@@ -301,10 +323,24 @@ def test_bound_values():
     assert f() == 5
 
 
+def test_bound_values_for_container_like():
+    """Test that "bind" works for container-like value widgets."""
+
+    @magicgui(x={"bind": (1, "a")})
+    def f(x: tuple[int, str] = (2, "b")):
+        return x
+
+    # bound values hide the widget by default
+    assert not f.x.visible
+    assert f() == (1, "a")
+    f.x.unbind()
+    assert f() == (2, "b")
+
+
 def test_bound_unknown_type_annotation():
     """Test that we can bind a "permanent" value override to a parameter."""
 
-    import numpy as np
+    np = pytest.importorskip("numpy")
 
     def _provide_value(_):
         return np.array(1)
@@ -403,6 +439,7 @@ def test_progressbar():
 def test_range_widget():
     args = (-100, 1000, 2)
     rw = widgets.RangeEdit(*args)
+    assert rw.step.min == 1
     v = rw.value
     assert isinstance(v, range)
     assert (v.start, v.stop, v.step) == args
@@ -787,6 +824,7 @@ def test_pushbutton_click_signal():
     mock2.assert_called_once()
 
 
+@pytest.mark.filterwarnings("ignore::UserWarning:superqt")
 def test_pushbutton_icon(backend: str):
     use_app(backend)
     btn = widgets.PushButton(icon="mdi:folder")
@@ -794,14 +832,12 @@ def test_pushbutton_icon(backend: str):
     btn.set_icon(None)
 
     if backend == "qt":
-        with pytest.warns(UserWarning, match="Could not set iconify icon"):
+        with pytest.warns(UserWarning):
             btn.set_icon("bad:key")
 
 
 def test_list_edit():
     """Test ListEdit."""
-    from typing import List
-
     mock = MagicMock()
 
     list_edit = widgets.ListEdit(value=[1, 2, 3])
@@ -816,23 +852,23 @@ def test_list_edit():
     assert mock.call_count == 1
     mock.assert_called_with([1, 2, 3, 3])
 
-    list_edit.btn_minus.changed()
-    assert list_edit.value == [1, 2, 3]
-    assert list_edit.data == [1, 2, 3]
+    list_edit[1].btn_minus.changed()
+    assert list_edit.value == [1, 3, 3]
+    assert list_edit.data == [1, 3, 3]
     assert mock.call_count == 2
-    mock.assert_called_with([1, 2, 3])
+    mock.assert_called_with([1, 3, 3])
 
     list_edit.data[0] = 0
-    assert list_edit.value == [0, 2, 3]
-    assert list_edit.data == [0, 2, 3]
+    assert list_edit.value == [0, 3, 3]
+    assert list_edit.data == [0, 3, 3]
     assert mock.call_count == 3
-    mock.assert_called_with([0, 2, 3])
+    mock.assert_called_with([0, 3, 3])
 
     list_edit[0].value = 10
-    assert list_edit.value == [10, 2, 3]
-    assert list_edit.data == [10, 2, 3]
+    assert list_edit.value == [10, 3, 3]
+    assert list_edit.data == [10, 3, 3]
     assert mock.call_count == 4
-    mock.assert_called_with([10, 2, 3])
+    mock.assert_called_with([10, 3, 3])
 
     list_edit.data[:2] = [6, 5]  # type: ignore
     assert list_edit.value == [6, 5, 3]
@@ -853,6 +889,8 @@ def test_list_edit():
     assert mock.call_count == 7
     mock.assert_called_with([2, 1])
 
+
+def test_list_edit_only_values():
     @magicgui
     def f1(x=[2, 4, 6]):  # noqa: B006
         pass
@@ -861,12 +899,14 @@ def test_list_edit():
     assert f1.x._args_type is int
     assert f1.x.value == [2, 4, 6]
 
+
+def test_list_edit_annotations():
     @magicgui
-    def f2(x: List[int]):
+    def f2(x: list[int]):
         pass
 
     assert type(f2.x) is widgets.ListEdit
-    assert f2.x.annotation == List[int]
+    assert f2.x.annotation == list[int]
     assert f2.x._args_type is int
     assert f2.x.value == []
     f2.x.btn_plus.changed()
@@ -875,40 +915,39 @@ def test_list_edit():
     @magicgui(
         x={"options": {"widget_type": "Slider", "min": -10, "max": 10, "step": 5}}
     )
-    def f3(x: List[int] = [0]):  # noqa: B006
+    def f3(x: list[int] = [0]):  # noqa: B006
         pass
 
     assert type(f3.x) is widgets.ListEdit
-    assert type(f3.x[0]) is widgets.Slider
-    assert f3.x[0].min == -10
-    assert f3.x[0].max == 10
-    assert f3.x[0].step == 5
+    assert type(f3.x[0].value_widget) is widgets.Slider
+    assert f3.x[0].value_widget.min == -10
+    assert f3.x[0].value_widget.max == 10
+    assert f3.x[0].value_widget.step == 5
 
     @magicgui
-    def f4(x: List[int] = ()):  # type: ignore
+    def f4(x: list[int] = ()):  # type: ignore
         pass
 
     assert type(f4.x) is widgets.ListEdit
-    assert f4.x.annotation == List[int]
+    assert f4.x.annotation == list[int]
     assert f4.x._args_type is int
     assert f4.x.value == []
     f4.x.btn_plus.changed()
-    assert type(f4.x[0]) is widgets.SpinBox
+    assert type(f4.x[0].value_widget) is widgets.SpinBox
     assert f4.x.value == [0]
 
     @magicgui
-    def f5(x: List[Annotated[int, {"max": 3}]]):
+    def f5(x: list[Annotated[int, {"max": 3}]]):
         pass
 
     assert type(f5.x) is widgets.ListEdit
-    assert f5.x.annotation == List[int]
+    assert f5.x.annotation == list[int]
     f5.x.btn_plus.changed()
-    assert f5.x[0].max == 3
+    assert f5.x[0].value_widget.max == 3
 
 
 def test_tuple_edit():
     """Test TupleEdit."""
-    from typing import Tuple
 
     mock = MagicMock()
 
@@ -938,19 +977,19 @@ def test_tuple_edit():
     assert f1.x.value == (2, 4, 6)
 
     @magicgui
-    def f2(x: Tuple[int, str]):
+    def f2(x: tuple[int, str]):
         pass
 
     assert type(f2.x) is widgets.TupleEdit
-    assert f2.x.annotation == Tuple[int, str]
+    assert f2.x.annotation == tuple[int, str]
     assert f2.x.value == (0, "")
 
     @magicgui
-    def f3(x: Tuple[Annotated[int, {"max": 3}], str]):
+    def f3(x: tuple[Annotated[int, {"max": 3}], str]):
         pass
 
     assert type(f3.x) is widgets.TupleEdit
-    assert f2.x.annotation == Tuple[int, str]
+    assert f2.x.annotation == tuple[int, str]
     assert f3.x[0].max == 3
 
 
@@ -986,7 +1025,7 @@ def test_request_values(monkeypatch):
 
 def test_range_slider():
     @magicgui(auto_call=True, range_value={"widget_type": "RangeSlider", "max": 500})
-    def func(range_value: Tuple[int, int] = (20, 380)):
+    def func(range_value: tuple[int, int] = (20, 380)):
         print(range_value)
 
     assert isinstance(func.range_value, widgets.RangeSlider)
@@ -996,7 +1035,7 @@ def test_range_slider():
 
 def test_float_range_slider():
     @magicgui(auto_call=True, range_value={"widget_type": "FloatRangeSlider", "max": 1})
-    def func(range_value: Tuple[float, float] = (0.2, 0.8)):
+    def func(range_value: tuple[float, float] = (0.2, 0.8)):
         print(range_value)
 
     assert isinstance(func.range_value, widgets.FloatRangeSlider)
@@ -1005,27 +1044,108 @@ def test_float_range_slider():
 
 
 def test_literal():
-    from typing import Literal, Set
+    from typing import Literal
 
     from typing_extensions import get_args
 
     Lit = Literal[None, "a", 1, True, b"bytes"]
 
     @magicgui
-    def f(x: Lit):
-        ...
+    def f(x: Lit): ...
 
     cbox = f.x
     assert type(cbox) is widgets.ComboBox
     assert cbox.choices == get_args(Lit)
 
     @magicgui
-    def f(x: Set[Lit]):
-        ...
+    def f(x: set[Lit]): ...
 
     sel = f.x
     assert type(sel) is widgets.Select
     assert sel.choices == get_args(Lit)
+
+
+def test_separator_singleton():
+    from magicgui.types import Separator, _Separator
+
+    sep1 = Separator
+    sep2 = _Separator()
+    assert sep1 is sep2
+
+
+def test_separator(backend: str):
+    from magicgui.types import Separator
+
+    use_app(backend)
+
+    sep = [[Separator] * (i + 1) for i in range(4)]
+    a = [
+        1,
+        2,
+        *sep[0],
+        4,
+        *sep[1],
+        6,
+        7,
+        *sep[2],
+        9,
+        *sep[3],
+        11,
+        12,
+        *sep[0],
+        14,
+        *sep[0],
+    ]
+    b = [
+        1,
+        2,
+        *sep[0],
+        4,
+        *sep[1],
+        6,
+        7,
+        *sep[2],
+        9,
+        *sep[3],
+        6,
+        7,
+        *sep[0],
+        9,
+        *sep[0],
+    ]
+    b2 = [1, 2, *sep[0], 4, *sep[1], 6, 7, *sep[2], 9, *sep[3], *sep[0], *sep[0]]
+
+    combo_a = widgets.ComboBox(choices=a, value=a[0])
+    combo_b = widgets.ComboBox(choices=b, value=b[0])
+
+    assert len(combo_a) == len(combo_a.choices)
+    assert len(combo_b) == len(combo_b.choices)
+
+    if backend == "qt":
+
+        def get_all_itemdata(combo_box):
+            return [combo_box.itemData(index) for index in range(combo_box.count())]
+
+        # Count returns the number of all items including separator items
+        assert combo_a.native.count() == 21
+        assert combo_b.native.count() == 18
+
+        # Separator singletons themselves are used as separator item data
+        assert get_all_itemdata(combo_a.native) == a
+        assert get_all_itemdata(combo_b.native) == b2
+
+        # Choices only returns unique, non-separator items
+        assert combo_a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert combo_b.choices == (1, 2, 4, 6, 7, 9)
+
+    if backend == "ipynb":
+        # Separator singletons themselves are used as separator item data
+        assert combo_a.options["choices"] == a
+        assert combo_b.options["choices"] == b  # items are not unique
+
+        # Choices only returns duplicated, non-separator items
+        assert combo_a.choices == (1, 2, 4, 6, 7, 9, 11, 12, 14)
+        assert combo_b.choices == (1, 2, 4, 6, 7, 9, 6, 7, 9)
 
 
 def test_float_slider_readout():

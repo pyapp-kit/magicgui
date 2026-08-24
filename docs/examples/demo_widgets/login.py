@@ -2,6 +2,7 @@
 
 A password login field widget.
 """
+
 from magicgui import magicgui
 
 

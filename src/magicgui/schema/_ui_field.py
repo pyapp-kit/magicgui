@@ -4,27 +4,27 @@ import dataclasses as dc
 import sys
 import warnings
 from dataclasses import dataclass, field
-from functools import lru_cache
+from functools import cache
 from types import FunctionType
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     Generic,
-    Iterable,
-    Iterator,
     Literal,
     TypeVar,
     Union,
     cast,
 )
 
-from typing_extensions import Annotated, TypeGuard, get_args, get_origin
+from typing_extensions import TypeGuard, get_args, get_origin
 
 from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
 if TYPE_CHECKING:
-    from typing import Mapping, Protocol
+    from collections.abc import Iterable, Iterator, Mapping
+    from typing import Protocol
 
     import attrs
     import pydantic
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from attrs import Attribute
     from pydantic.fields import FieldInfo, ModelField
 
-    from magicgui.widgets.bases import ContainerWidget, ValueWidget
+    from magicgui.widgets.bases import BaseValueWidget, ContainerWidget
 
     class HasAttrs(Protocol):
         """Protocol for objects that have an ``attrs`` attribute."""
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
         __attrs_attrs__: tuple[attrs.Attribute, ...]
 
 
-__all__ = ["build_widget", "get_ui_fields", "UiField"]
+__all__ = ["UiField", "build_widget", "get_ui_fields"]
 
 SLOTS = {"slots": True} if sys.version_info >= (3, 10) else {}
 T = TypeVar("T")
@@ -166,7 +166,7 @@ class UiField(Generic[T]):
     decimal_places: int | None = field(
         default=None,
         metadata={
-            "descripion": "Maximum number of digits within the decimal. It does "
+            "description": "Maximum number of digits within the decimal. It does "
             "not include trailing decimal zeroes."
         },
     )
@@ -394,7 +394,7 @@ class UiField(Generic[T]):
             kwargs.pop("name", None)
         return dc.replace(self, **kwargs)
 
-    def create_widget(self, value: T | _Undefined = Undefined) -> ValueWidget[T]:
+    def create_widget(self, value: T | _Undefined = Undefined) -> BaseValueWidget[T]:
         """Create a new Widget for this field."""
         from magicgui.type_map import get_widget_class
 
@@ -758,7 +758,7 @@ def _iter_ui_fields(object: Any) -> Iterator[UiField]:
     )  # pragma: no cover
 
 
-@lru_cache(maxsize=None)
+@cache
 def _cached_iter_ui_fields(cls: type) -> tuple[UiField, ...]:
     return tuple(_iter_ui_fields(cls))
 
@@ -786,7 +786,7 @@ def _uifields_to_container(
     values: Mapping[str, Any] | None = None,
     *,
     container_kwargs: Mapping | None = None,
-) -> ContainerWidget[ValueWidget]:
+) -> ContainerWidget[BaseValueWidget]:
     """Create a container widget from a sequence of UiFields.
 
     This function is the heart of build_widget.
@@ -828,7 +828,7 @@ def _get_values(obj: Any) -> dict | None:
 
     # named tuple
     if isinstance(obj, tuple) and hasattr(obj, "_asdict"):
-        return cast(dict, obj._asdict())
+        return cast("dict", obj._asdict())
 
     # dataclass
     if dc.is_dataclass(type(obj)):
@@ -837,19 +837,20 @@ def _get_values(obj: Any) -> dict | None:
     # attrs
     attr = sys.modules.get("attr")
     if attr is not None and attr.has(obj):
-        return cast(dict, attr.asdict(obj))
+        return cast("dict", attr.asdict(obj))
 
     # pydantic models
     if hasattr(obj, "model_dump"):
-        return cast(dict, obj.model_dump())
+        return cast("dict", obj.model_dump())
     elif hasattr(obj, "dict"):
-        return cast(dict, obj.dict())
+        return cast("dict", obj.dict())
 
     return None
 
 
 # TODO: unify this with magicgui
-def build_widget(cls_or_instance: Any) -> ContainerWidget[ValueWidget]:
+def build_widget(cls_or_instance: Any) -> ContainerWidget[BaseValueWidget]:
     """Build a magicgui widget from a dataclass, attrs, pydantic, or function."""
     values = None if isinstance(cls_or_instance, type) else _get_values(cls_or_instance)
-    return _uifields_to_container(get_ui_fields(cls_or_instance), values=values)
+    fields = get_ui_fields(cls_or_instance)
+    return _uifields_to_container(fields, values=values)

@@ -1,12 +1,16 @@
 """A wrapper around the tqdm.tqdm iterator that adds a ProgressBar to a magicgui."""
+
 from __future__ import annotations
 
 import contextlib
 import inspect
-from typing import Any, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from magicgui.application import use_app
 from magicgui.widgets import FunctionGui, ProgressBar
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 try:
     from tqdm import tqdm as _tqdm_std
@@ -144,7 +148,7 @@ class tqdm(_tqdm_std):
         if not self._in_visible_gui:
             super().close()
             return
-        self._mgui = cast(FunctionGui, self._mgui)
+        self._mgui = cast("FunctionGui", self._mgui)
 
         if self.disable:
             return

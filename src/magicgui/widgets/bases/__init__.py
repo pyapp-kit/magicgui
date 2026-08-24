@@ -10,22 +10,18 @@ implements one of the widget protocols defined in
 .. code-block:: python
 
    class Widget:
-
        def __init__(
-            self,
-
-            # widget_type is a class, likely from the `backends` module
-            # that implements one of the `WidgetProtocols` defined in _protocols.
-            widget_type: Type[protocols.WidgetProtocol],
-
-            # backend_kwargs is a key-value map of arguments that will be provided
-            # to the concrete (backend) implementation of the WidgetProtocol
-            backend_kwargs: dict = dict(),
-
-            # additional kwargs will be provided to the magicgui.Widget itself
-            # things like, `name`, `value`, etc...
-            **kwargs
-        ):
+           self,
+           # widget_type is a class, likely from the `backends` module
+           # that implements one of the `WidgetProtocols` defined in _protocols.
+           widget_type: Type[protocols.WidgetProtocol],
+           # backend_kwargs is a key-value map of arguments that will be provided
+           # to the concrete (backend) implementation of the WidgetProtocol
+           backend_kwargs: dict = dict(),
+           # additional kwargs will be provided to the magicgui.Widget itself
+           # things like, `name`, `value`, etc...
+           **kwargs,
+       ):
            # instantiation of the backend widget.
            self._widget = widget_type(**backend_kwargs)
 
@@ -42,9 +38,15 @@ create a widget subclass appropriate for the arguments passed (such as "value" o
 "annotation").
 
 """
+
 from ._button_widget import ButtonWidget
 from ._categorical_widget import CategoricalWidget
-from ._container_widget import ContainerWidget, DialogWidget
+from ._container_widget import (
+    BaseContainerWidget,
+    ContainerWidget,
+    DialogWidget,
+    ValuedContainerWidget,
+)
 from ._create_widget import create_widget
 from ._main_window import MainWindowWidget
 from ._menubar import MenuBarWidget, MenuWidget
@@ -52,14 +54,15 @@ from ._ranged_widget import RangedWidget, TransformedRangedWidget
 from ._slider_widget import MultiValuedSliderWidget, SliderWidget
 from ._statusbar import StatusBarWidget
 from ._toolbar import ToolBarWidget
-from ._value_widget import ValueWidget
+from ._value_widget import BaseValueWidget, ValueWidget
 from ._widget import Widget
 
 __all__ = [
+    "BaseContainerWidget",
+    "BaseValueWidget",
     "ButtonWidget",
     "CategoricalWidget",
     "ContainerWidget",
-    "create_widget",
     "DialogWidget",
     "MainWindowWidget",
     "MenuBarWidget",
@@ -71,5 +74,7 @@ __all__ = [
     "ToolBarWidget",
     "TransformedRangedWidget",
     "ValueWidget",
+    "ValuedContainerWidget",
     "Widget",
+    "create_widget",
 ]

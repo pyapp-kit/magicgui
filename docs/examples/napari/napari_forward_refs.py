@@ -8,6 +8,7 @@ therefore depending directly on napari), it's possible to annotate those paramet
 a *string* representation of the type (rather than the type itself).  This is called a
 "forward reference": https://www.python.org/dev/peps/pep-0484/#forward-references
 """
+
 # Note: if you'd like to avoid circular imports, or just want to avoid having your
 # linter yell at you for an undefined type annotation, you can place the import
 # inside of an `if typing.TYPE_CHECKING` conditional.  This is not evaluated at runtime,

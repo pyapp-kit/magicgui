@@ -12,20 +12,18 @@ jobs:
   docs:
     runs-on: macos-latest # for the screenshots
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.x"
-      - run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e .[docs]
+          python-version: "3.13"
+          enable-cache: true
 
       - name: Deploy docs to GitHub Pages
         if: github.event_name == 'push'
-        run: mkdocs gh-deploy --strict --force
+        run: uv run --group docs mkdocs gh-deploy --strict --force
 
       - name: Test that docs build without error
         if: github.event_name == 'pull_request'
-        run: mkdocs build --strict
+        run: uv run --group docs mkdocs build --strict

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from typing import NamedTuple, Optional
+from typing import Annotated, NamedTuple, Optional
 
 import pytest
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 from magicgui.schema._ui_field import UiField, build_widget, get_ui_fields
 from magicgui.widgets import Container
@@ -116,8 +116,7 @@ def test_function():
         a: Optional[int],
         b: Annotated[str, UiField(description="the b")],
         c: Annotated[float, UiField(widget="FloatSlider")] = 0.0,
-    ):
-        ...
+    ): ...
 
     # makes to sense to instantiate a function
     _assert_uifields(foo, instantiate=False)
@@ -154,7 +153,7 @@ def test_annotated_types_lib():
 
     def assert_eq(annotated_type, expected):
         result = uikwargs(annotated_type)
-        assert result.pop("type") == int
+        assert result.pop("type") is int
         result.pop("_original_annotation")
         assert result == expected
 

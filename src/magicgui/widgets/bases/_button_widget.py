@@ -6,7 +6,7 @@ from psygnal import Signal, SignalInstance
 
 from magicgui.types import Undefined, _Undefined
 
-from ._value_widget import ValueWidget
+from ._value_widget import BaseValueWidget, ValueWidget
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -29,7 +29,7 @@ class ButtonWidget(ValueWidget[bool]):
         The text to display on the button. If not provided, will use ``name``.
     bind : Callable[[ValueWidget], Any] | Any, optional
         A value or callback to bind this widget. If provided, whenever
-        [`widget.value`][magicgui.widgets.bases.ValueWidget.value] is
+        [`widget.value`][magicgui.widgets.bases.BaseValueWidget.value] is
         accessed, the value provided here will be returned instead. `bind` may be a
         callable, in which case `bind(self)` will be returned (i.e. your bound callback
         must accept a single parameter, which is this widget instance).
@@ -54,7 +54,7 @@ class ButtonWidget(ValueWidget[bool]):
         text: str | None = None,
         icon: str | None = None,
         icon_color: str | None = None,
-        bind: bool | Callable[[ValueWidget], bool] | _Undefined = Undefined,
+        bind: bool | Callable[[BaseValueWidget], bool] | _Undefined = Undefined,
         nullable: bool = False,
         **base_widget_kwargs: Unpack[WidgetKwargs],
     ) -> None:

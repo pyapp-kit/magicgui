@@ -2,15 +2,20 @@
 
 Simple waveform generator widget, with plotting.
 """
+
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import partial
+from typing import Annotated
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
-from scipy import signal
-from typing_extensions import Annotated
+
+try:
+    from scipy import signal
+except ImportError:
+    raise ImportError("This example requires the scipy package. ")
 
 from magicgui import magicgui, register_type, widgets
 

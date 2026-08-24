@@ -2,6 +2,7 @@
 
 An example showing how to create custom text labels for your widgets.
 """
+
 from magicgui import magicgui
 
 

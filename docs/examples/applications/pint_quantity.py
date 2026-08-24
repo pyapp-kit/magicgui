@@ -6,7 +6,16 @@ It allows arithmetic operations between them and conversions
 from and to different units.
 https://pint.readthedocs.io/en/stable/
 """
-from pint import Quantity
+
+try:
+    from pint import Quantity
+except ImportError:
+    msg = (
+        "This example requires the pint package. "
+        "To use magicgui with pint please `pip install pint`, "
+        "or use the pint extra: `pip install magicgui[pint]`"
+    )
+    raise ImportError(msg) from None
 
 from magicgui import magicgui
 

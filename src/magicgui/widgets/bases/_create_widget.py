@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from magicgui.application import AppRef, use_app
 from magicgui.types import Undefined
-from magicgui.widgets import bases, protocols
-
-from ._widget import Widget
 
 if TYPE_CHECKING:
     import inspect
+
+    from magicgui.application import AppRef
+    from magicgui.widgets import Widget, protocols
 
 
 def create_widget(
@@ -93,51 +92,18 @@ def create_widget(
     assert wdg.value == ""
     ```
     """
-    options_ = options.copy() if options is not None else {}
-    kwargs = {
-        "value": value,
-        "annotation": annotation,
-        "name": name,
-        "label": label,
-        "gui_only": gui_only,
-    }
+    from magicgui.type_map import TypeMap
 
-    assert use_app(app).native
-    if isinstance(widget_type, protocols.WidgetProtocol):
-        wdg_class = widget_type
-    else:
-        from magicgui.type_map import get_widget_class
-
-        if widget_type:
-            options_["widget_type"] = widget_type
-        # special case parameters named "password" with annotation of str
-        if (
-            not options_.get("widget_type")
-            and (name or "").lower() == "password"
-            and annotation is str
-        ):
-            options_["widget_type"] = "Password"
-
-        wdg_class, opts = get_widget_class(
-            value, annotation, options_, is_result, raise_on_unknown
-        )
-
-        if issubclass(wdg_class, Widget):
-            widget = wdg_class(**{**kwargs, **opts, **options_})
-            if param_kind:
-                widget.param_kind = param_kind  # type: ignore
-            return widget
-
-    # pick the appropriate subclass for the given protocol
-    # order matters
-    for p in ("Categorical", "Ranged", "Button", "Value", ""):
-        prot = getattr(protocols, f"{p}WidgetProtocol")
-        if isinstance(wdg_class, prot):
-            options_ = kwargs.pop("options", None)
-            cls = getattr(bases, f"{p}Widget")
-            widget = cls(**{**kwargs, **(options_ or {}), "widget_type": wdg_class})
-            if param_kind:
-                widget.param_kind = param_kind  # type: ignore
-            return widget
-
-    raise TypeError(f"{wdg_class!r} does not implement any known widget protocols")
+    return TypeMap.global_instance().create_widget(
+        value=value,
+        annotation=annotation,
+        name=name,
+        param_kind=param_kind,
+        label=label,
+        gui_only=gui_only,
+        app=app,
+        widget_type=widget_type,
+        options=options,
+        is_result=is_result,
+        raise_on_unknown=raise_on_unknown,
+    )

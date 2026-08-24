@@ -8,14 +8,13 @@ import warnings
 from contextlib import contextmanager, suppress
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Sequence
+from typing import TYPE_CHECKING, Any, Callable
 
 import qtpy
 import superqt
 from qtpy import QtWidgets as QtW
 from qtpy.QtCore import QEvent, QObject, QSize, Qt, Signal
 from qtpy.QtGui import (
-    QFont,
     QFontMetrics,
     QIcon,
     QImage,
@@ -26,12 +25,14 @@ from qtpy.QtGui import (
     QTextDocument,
 )
 
-from magicgui.types import FileDialogMode
+from magicgui.types import FileDialogMode, Separator
 from magicgui.widgets import protocols
 from magicgui.widgets._concrete import _LabeledWidget
 from magicgui.widgets.bases import MenuWidget, Widget
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     import numpy
 
     from magicgui.widgets.protocols import Area
@@ -51,13 +52,13 @@ if TYPE_CHECKING:
 
 
 class EventFilter(QObject):
-    parentChanged = Signal()
+    parentChanged = Signal(QObject)
     valueChanged = Signal(object)
     paletteChanged = Signal()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if event.type() == QEvent.Type.ParentChange:
-            self.parentChanged.emit()
+            self.parentChanged.emit(obj.parent())
         if event.type() == QEvent.Type.PaletteChange:
             self.paletteChanged.emit()
         return False
@@ -191,6 +192,8 @@ class QBaseWidget(protocols.WidgetProtocol):
             ) from None
 
         img = self._qwidget.grab().toImage()
+        if img.format() != QImage.Format_ARGB32:
+            img = img.convertToFormat(QImage.Format_ARGB32)
         bits = img.constBits()
         h, w, c = img.height(), img.width(), 4
         if qtpy.API_NAME.startswith("PySide"):
@@ -236,23 +239,6 @@ class QBaseValueWidget(QBaseWidget, protocols.ValueWidgetProtocol):
 
     def _pre_set_hook(self, value: Any) -> Any:
         return value
-
-
-# BASE WIDGET
-
-
-class EmptyWidget(QBaseWidget):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(QtW.QWidget, **kwargs)
-
-    def _mgui_get_value(self) -> Any:
-        raise NotImplementedError()
-
-    def _mgui_set_value(self, value: Any) -> None:
-        raise NotImplementedError()
-
-    def _mgui_bind_change_callback(self, callback: Callable) -> None:
-        pass
 
 
 # STRING WIDGETS
@@ -673,44 +659,34 @@ class Menu(QBaseWidget, protocols.MenuProtocol):
         self._qwidget.clear()
 
 
-class MainWindow(QBaseWidget, protocols.MainWindowProtocol):
+class MainWindow(Container, protocols.MainWindowProtocol):
     _qwidget: QtW.QMainWindow
 
     def __init__(
         self, layout="vertical", scrollable: bool = False, **kwargs: Any
     ) -> None:
-        QBaseWidget.__init__(self, QtW.QMainWindow, **kwargs)
-        if layout == "horizontal":
-            self._layout: QtW.QBoxLayout = QtW.QHBoxLayout()
-        else:
-            self._layout = QtW.QVBoxLayout()
-        self._central_widget = QtW.QWidget()
-        self._central_widget.setLayout(self._layout)
-
-        if scrollable:
-            self._scroll = QtW.QScrollArea()
-            # Allow widget to resize when window is larger than min widget size
-            self._scroll.setWidgetResizable(True)
-            if layout == "horizontal":
-                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
-                vert_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-            else:
-                horiz_policy = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-                vert_policy = Qt.ScrollBarPolicy.ScrollBarAsNeeded
-            self._scroll.setHorizontalScrollBarPolicy(horiz_policy)
-            self._scroll.setVerticalScrollBarPolicy(vert_policy)
-            self._scroll.setWidget(self._central_widget)
-            self._central_widget = self._scroll
-
+        parent = kwargs.pop("parent", None)
+        super().__init__(layout=layout, scrollable=scrollable, **kwargs)
         self._menus: dict[str, QtW.QMenu] = {}
-        if scrollable:
-            self._qwidget.setCentralWidget(self._scroll)
-        else:
-            self._qwidget.setCentralWidget(self._central_widget)
+        self._central = self._qwidget
+        self._qwidget = QtW.QMainWindow(parent)
+        self._qwidget.setCentralWidget(self._central)
 
     @property
     def _is_scrollable(self) -> bool:
-        return isinstance(self._central_widget, QtW.QScrollArea)
+        return isinstance(self._central, QtW.QScrollArea)
+
+    def _mgui_get_root_native_widget(self):
+        return self._qwidget
+
+    def _mgui_get_visible(self):
+        return self._qwidget.isVisible()
+
+    def _mgui_set_visible(self, value: bool):
+        self._qwidget.setVisible(value)
+
+    def _mgui_get_native_widget(self) -> QtW.QMainWindow:
+        return self._qwidget
 
     def _mgui_create_menu_item(
         self,
@@ -771,40 +747,6 @@ class MainWindow(QBaseWidget, protocols.MainWindowProtocol):
             )
         self._qwidget.setMenuBar(native)
 
-    def _mgui_insert_widget(self, position: int, widget: Widget):
-        self._layout.insertWidget(position, widget.native)
-        if self._is_scrollable:
-            min_size = self._layout.totalMinimumSize()
-            if isinstance(self._layout, QtW.QHBoxLayout):
-                self._scroll.setMinimumHeight(min_size.height())
-            else:
-                self._scroll.setMinimumWidth(min_size.width() + 20)
-
-    def _mgui_remove_widget(self, widget: Widget):
-        self._layout.removeWidget(widget.native)
-        widget.native.setParent(None)
-
-    def _mgui_get_margins(self) -> tuple[int, int, int, int]:
-        m = self._layout.contentsMargins()
-        return m.left(), m.top(), m.right(), m.bottom()
-
-    def _mgui_set_margins(self, margins: tuple[int, int, int, int]) -> None:
-        self._layout.setContentsMargins(*margins)
-
-    def _mgui_set_orientation(self, value) -> None:
-        """Set orientation, value will be 'horizontal' or 'vertical'."""
-        raise NotImplementedError(
-            "Sorry, changing orientation after instantiation "
-            "is not yet implemented for Qt."
-        )
-
-    def _mgui_get_orientation(self) -> str:
-        """Set orientation, return either 'horizontal' or 'vertical'."""
-        if isinstance(self, QtW.QHBoxLayout):
-            return "horizontal"
-        else:
-            return "vertical"
-
 
 Q_TB_AREA: dict[Area, Qt.ToolBarArea] = {
     "top": Qt.ToolBarArea.TopToolBarArea,
@@ -822,7 +764,7 @@ Q_DW_AREA: dict[Area, Qt.DockWidgetArea] = {
 
 class SpinBox(QBaseRangedWidget):
     def __init__(self, **kwargs: Any) -> None:
-        # TODO: Consider any performance impace of this widget over a QSpinBox
+        # TODO: Consider any performance impact of this widget over a QSpinBox
         super().__init__(superqt.QLargeIntSpinBox, **kwargs)
 
     def _mgui_set_value(self, value) -> None:
@@ -894,7 +836,7 @@ class _Slider(QBaseRangedWidget, protocols.SupportsOrientation):
 
 class Slider(_Slider):
     _qwidget: QtW.QSlider
-    # TODO: Consider any performance impace of this widget over a QSpinBox
+    # TODO: Consider any performance impact of this widget over a QSpinBox
     _readout = superqt.QLargeIntSpinBox
 
     def __init__(self, qwidg=QtW.QSlider, **kwargs: Any) -> None:
@@ -1107,8 +1049,12 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
         self._event_filter.valueChanged.connect(callback)
 
     def _mgui_get_count(self) -> int:
-        """Return the number of items in the dropdown."""
-        return self._qwidget.count()
+        """Return the number of items in the dropdown, omitting any separator items."""
+        return sum(
+            1
+            for i in range(self._qwidget.count())
+            if self._qwidget.itemData(i) != Separator
+        )
 
     def _mgui_get_choice(self, choice_name: str) -> Any:
         item_index = self._qwidget.findText(choice_name)
@@ -1129,13 +1075,18 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
 
     def _mgui_set_choice(self, choice_name: str, data: Any) -> None:
         """Set data for ``choice_name``."""
-        item_index = self._qwidget.findText(choice_name)
-        # if it's not in the list, add a new item
-        if item_index == -1:
-            self._qwidget.addItem(choice_name, data)
-        # otherwise update its data
+        if data is Separator:
+            item_index = self._qwidget.count()
+            self._qwidget.insertSeparator(item_index)  # itemData is None
+            self._qwidget.setItemData(item_index, Separator)
         else:
-            self._qwidget.setItemData(item_index, data)
+            item_index = self._qwidget.findText(choice_name)
+            # if it's not in the list, add a new item
+            if item_index == -1:
+                self._qwidget.addItem(choice_name, data)
+            # otherwise update its data
+            else:
+                self._qwidget.setItemData(item_index, data)
 
     def _mgui_set_choices(self, choices: Iterable[tuple[str, Any]]) -> None:
         """Set current items in categorical type ``widget`` to ``choices``."""
@@ -1151,10 +1102,9 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
             for i in reversed(range(self._qwidget.count())):
                 if self._qwidget.itemText(i) not in choice_names:
                     self._qwidget.removeItem(i)
-            # update choices
+            # update choices and insert separators
             for name, data in choices_:
                 self._mgui_set_choice(name, data)
-
             # if the currently selected item is not in the new set,
             # remove it and select the first item in the list
             current2 = self._qwidget.itemText(self._qwidget.currentIndex())
@@ -1179,6 +1129,7 @@ class ComboBox(QBaseValueWidget, protocols.CategoricalWidgetProtocol):
         return tuple(
             (self._qwidget.itemText(i), self._qwidget.itemData(i))
             for i in range(self._qwidget.count())
+            if self._qwidget.itemData(i) is not Separator
         )
 
 
@@ -1589,7 +1540,8 @@ def get_text_width(text: str) -> int:
         doc.setHtml(text)
         return math.ceil(doc.size().width())
     else:
-        fm = QFontMetrics(QFont("", 0))
+        font = QtW.QApplication.font()
+        fm = QFontMetrics(font)
         return fm.boundingRect(text).width() + 5
 
 
@@ -1743,8 +1695,35 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
     def _mgui_remove_column(self, column: int) -> None:
         self._qwidget.removeColumn(column)
 
+    def _normalize_cell_index(self, row: int, col: int) -> tuple[int, int]:
+        num_rows = self._mgui_get_row_count()
+        num_cols = self._mgui_get_column_count()
+        # Offset negative indices because Qt doesn't natively support them
+        if row < 0:
+            normalized_row = row + num_rows
+        else:
+            normalized_row = row
+        if col < 0:
+            normalized_col = col + num_cols
+        else:
+            normalized_col = col
+        # Qt will not raise an error for attempting to index into an invalid cell, but
+        # normal Python does.
+        if (
+            normalized_row < 0
+            or normalized_col < 0
+            or normalized_row >= num_rows
+            or normalized_col >= num_cols
+        ):
+            raise IndexError(
+                f"Index ({row}, {col}) is out of bounds for table of shape"
+                f" ({num_rows}, {num_cols})."
+            )
+        return normalized_row, normalized_col
+
     def _mgui_get_cell(self, row: int, col: int) -> Any:
         """Get current value of the widget."""
+        row, col = self._normalize_cell_index(row, col)
         item = self._qwidget.item(row, col)
         if item:
             return item.data(_DATA_ROLE)
@@ -1754,6 +1733,7 @@ class Table(QBaseWidget, protocols.TableWidgetProtocol):
 
     def _mgui_set_cell(self, row: int, col: int, value: Any) -> None:
         """Set current value of the widget."""
+        row, col = self._normalize_cell_index(row, col)
         if value is None:
             self._qwidget.setItem(row, col, None)
             self._qwidget.removeCellWidget(row, col)
@@ -1850,6 +1830,6 @@ def _format_number(text: str, ndigits: int = 4) -> str:
         if 0.1 <= abs(value) < 10 ** (ndigits + 1) or value == 0:
             text = str(value) if isinstance(value, int) else f"{value:.{ndigits}f}"
         else:
-            text = f"{value:.{ndigits-1}e}"
+            text = f"{value:.{ndigits - 1}e}"
 
     return text

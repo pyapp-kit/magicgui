@@ -1,9 +1,11 @@
 """Types used internally in magicgui."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import Enum, EnumMeta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Literal, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
 from typing_extensions import TypedDict
 
@@ -26,9 +28,9 @@ WidgetClass = Union["type[Widget]", "type[WidgetProtocol]"]
 #: A generic reference to a :attr:`WidgetClass` as a string, or the class itself.
 WidgetRef = Union[str, WidgetClass]
 #: A :attr:`WidgetClass` (or a string representation of one) and a dict of kwargs
-WidgetTuple = Tuple[WidgetRef, Dict[str, Any]]
+WidgetTuple = tuple[WidgetRef, dict[str, Any]]
 #: An iterable that can be used as a valid argument for widget ``choices``
-ChoicesIterable = Union[Iterable[Tuple[str, Any]], Iterable[Any]]
+ChoicesIterable = Union[Iterable[tuple[str, Any]], Iterable[Any]]
 #: An callback that can be used as a valid argument for widget ``choices``.  It takes
 #: a categorical widget and returns a :attr:`ChoicesIterable`.
 ChoicesCallback = Callable[["CategoricalWidget[Any]"], ChoicesIterable]
@@ -79,6 +81,29 @@ class _Undefined:
 
 
 Undefined = _Undefined()
+
+
+class _Separator:
+    """Sentinel class to separate groups of items in a ComboBox.
+
+    Example: ``choices=[1, 2, 3, Separator, Separator, 4, Separator]``
+
+    ``_Separator`` is a singleton.
+    """
+
+    _instance: _Separator | None = None
+
+    def __new__(cls) -> _Separator:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __repr__(self) -> str:
+        return "<Separator>"
+
+
+Separator = _Separator()
+
 
 JsonStringFormats = Literal[
     # ISO 8601 format.

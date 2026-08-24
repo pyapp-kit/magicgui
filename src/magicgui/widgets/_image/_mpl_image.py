@@ -52,8 +52,9 @@ Agreement.
 """
 
 import logging
+from collections.abc import Collection
 from functools import lru_cache
-from typing import TYPE_CHECKING, Collection, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 try:
     import numpy as np
@@ -387,8 +388,7 @@ class ScalarMappable:
                 if xx.dtype.kind == "f":
                     if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError(
-                            "Floating point image RGB values "
-                            "must be in the 0..1 range."
+                            "Floating point image RGB values must be in the 0..1 range."
                         )
                     if bytes:
                         xx = (xx * 255).astype(np.uint8)
@@ -398,7 +398,7 @@ class ScalarMappable:
                 else:
                     raise ValueError(
                         "Image RGB array must be uint8 or "
-                        "floating point; found %s" % xx.dtype
+                        f"floating point; found {xx.dtype}"
                     )
                 return xx
         except AttributeError:
@@ -544,14 +544,16 @@ class Image(ScalarMappable):
             self._A.dtype, float, "same_kind"
         ):
             raise TypeError(
-                f"Image data of dtype {self._A.dtype} cannot be converted to " "float"
+                f"Image data of dtype {self._A.dtype} cannot be converted to float"
             )
 
         if self._A.ndim == 3 and self._A.shape[-1] == 1:
             # If just one dimension assume scalar and apply colormap
             self._A = self._A[:, :, 0]
 
-        if not (self._A.ndim == 2 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
+        if not (
+            self._A.ndim == 2 or (self._A.ndim == 3 and self._A.shape[-1] in [3, 4])
+        ):
             raise TypeError(
                 f"Invalid shape {self._A.shape} for image data. Data must be 2D "
                 "(monochromatic), or 3D: MxNx3 (RGB) or MxNx4 (RGBA)"
@@ -596,7 +598,7 @@ class Image(ScalarMappable):
         """
         if A is None:
             raise RuntimeError(
-                "You must first set the image " "array or the image attribute"
+                "You must first set the image array or the image attribute"
             )
         if A.size == 0:
             raise RuntimeError(

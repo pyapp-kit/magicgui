@@ -3,15 +3,16 @@ from __future__ import annotations
 import inspect
 import warnings
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 
-from psygnal import Signal
+from psygnal import Signal, SignalInstance
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui.application import Application, use_app
 from magicgui.widgets import protocols
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from weakref import ReferenceType
 
     import numpy as np
@@ -77,7 +78,7 @@ class Widget:
     # if this widget becomes owned by a labeled widget
     _labeled_widget_ref: ReferenceType[_LabeledWidget] | None = None
 
-    parent_changed = Signal(
+    native_parent_changed = Signal(
         object,
         description="Emitted with the backend widget when the widget parent changes.",
     )
@@ -144,7 +145,7 @@ class Widget:
         self.enabled = enabled
         self.annotation: Any = annotation
         self.gui_only = gui_only
-        self._widget._mgui_bind_parent_change_callback(self._emit_parent)
+        self._widget._mgui_bind_parent_change_callback(self.native_parent_changed.emit)
 
         # put the magicgui widget on the native object...may cause error on some backend
         self.native._magic_widget = self
@@ -153,6 +154,17 @@ class Widget:
         self._explicitly_hidden: bool = False
         if visible is not None:
             self.visible = visible
+
+    @property
+    def parent_changed(self) -> SignalInstance:
+        """Signal emitted when the parent of the widget changes."""
+        warnings.warn(
+            "The 'parent_changed' signal has been renamed to 'native_parent_changed'. "
+            "Its use will be removed or repurposed in a future version.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return self.native_parent_changed
 
     @property
     def annotation(self) -> Any:
@@ -316,7 +328,9 @@ class Widget:
     @tooltip.setter
     def tooltip(self, value: str | None) -> None:
         """Set the tooltip for this widget."""
-        return self._widget._mgui_set_tooltip(value)
+        self._widget._mgui_set_tooltip(value)
+        if (lbl := self._labeled_widget()) is not None:
+            lbl._label_widget.tooltip = value
 
     def _labeled_widget(self) -> _LabeledWidget | None:
         """Return _LabeledWidget container, if applicable."""
@@ -407,9 +421,6 @@ class Widget:
                 file_obj.seek(0)
                 return file_obj.read()
         return None
-
-    def _emit_parent(self, *_: Any) -> None:
-        self.parent_changed.emit(self.parent)
 
     def _ipython_display_(self, *args: Any, **kwargs: Any) -> Any:
         if hasattr(self.native, "_ipython_display_"):

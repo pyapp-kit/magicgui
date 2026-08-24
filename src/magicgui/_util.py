@@ -6,11 +6,18 @@ import sys
 import time
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Iterable, overload
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    get_args,
+    get_origin,
+    overload,
+)
 
 from docstring_parser import DocstringParam, parse
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from typing import TypeVar
 
     from typing_extensions import ParamSpec
@@ -21,13 +28,13 @@ if TYPE_CHECKING:
 
 
 @overload
-def debounce(function: Callable[P, T]) -> Callable[P, T | None]:
-    ...
+def debounce(function: Callable[P, T]) -> Callable[P, T | None]: ...
 
 
 @overload
-def debounce(*, wait: float = 0.2) -> Callable[[Callable[P, T]], Callable[P, T | None]]:
-    ...
+def debounce(
+    *, wait: float = 0.2
+) -> Callable[[Callable[P, T]], Callable[P, T | None]]: ...
 
 
 def debounce(function: Callable[P, T] | None = None, wait: float = 0.2) -> Callable:
@@ -59,7 +66,7 @@ def debounce(function: Callable[P, T] | None = None, wait: float = 0.2) -> Calla
 
         return debounced
 
-    return decorator if function is None else decorator(function)  # type: ignore
+    return decorator if function is None else decorator(function)
 
 
 def throttle(t: float) -> Callable[[Callable[P, T]], Callable[P, T | None]]:
@@ -145,10 +152,71 @@ def user_cache_dir(
     return path
 
 
+def _safe_isinstance_tuple(obj: object, superclass: object) -> bool:
+    """
+    Extracted from `safe_issubclass` to handle checking of generic tuple types.
+
+    It covers following cases:
+
+    1. obj is tuple with ellipsis and superclass is tuple with ellipsis
+    2. obj is tuple with ellipsis and superclass is Iterable with specific type
+    3. obj is tuple  with same type elements and superclass is tuple with ellipsis
+
+    for other cases it fallback to simple compare types
+    """
+    obj_args = get_args(obj)
+    superclass_args = get_args(superclass)
+    superclass_origin = get_origin(superclass)
+
+    if safe_issubclass(superclass_origin, tuple):
+        if len(superclass_args) == 2 and superclass_args[1] is Ellipsis:
+            if len(obj_args) == 2 and obj_args[1] is Ellipsis:
+                # case 3
+                return safe_issubclass(obj_args[0], superclass_args[0])
+            # case 2
+            return all(safe_issubclass(o, superclass_args[0]) for o in obj_args)
+        # fallback to simple compare
+        return len(obj_args) == len(superclass_args) and all(
+            safe_issubclass(o, s) for o, s in zip(obj_args, superclass_args)
+        )
+
+    if len(obj_args) == 2 and obj_args[1] is Ellipsis:
+        return safe_issubclass(obj_args[0], superclass_args[0])
+    return all(safe_issubclass(o, superclass_args[0]) for o in obj_args)
+
+
 def safe_issubclass(obj: object, superclass: object) -> bool:
     """Safely check if obj is a subclass of superclass."""
+    if obj is superclass:
+        return True
+    if isinstance(superclass, tuple):
+        return any(safe_issubclass(obj, s) for s in superclass)
+    obj_origin = get_origin(obj)
+    superclass_origin = get_origin(superclass)
+    superclass_args = get_args(superclass)
     try:
-        return issubclass(obj, superclass)  # type: ignore
+        if obj_origin is None:
+            if superclass_origin is None:
+                return issubclass(obj, superclass)  # type: ignore
+            if not superclass_args:
+                return issubclass(obj, superclass_origin)  # type: ignore
+            # if obj is not generic type, but superclass is with
+            # we can't say anything about it
+            return False
+        if obj_origin is not None and superclass_origin is None:
+            return issubclass(obj_origin, superclass)  # type: ignore
+        if not issubclass(obj_origin, superclass_origin):  # type: ignore
+            return False
+        obj_args = get_args(obj)
+        if obj_origin is tuple and obj_args:
+            return _safe_isinstance_tuple(obj, superclass)
+
+        if not superclass_args:
+            return True
+        if len(obj_args) != len(superclass_args):
+            return False
+        return all(safe_issubclass(o, s) for o, s in zip(obj_args, superclass_args))
+
     except Exception:
         return False
 
