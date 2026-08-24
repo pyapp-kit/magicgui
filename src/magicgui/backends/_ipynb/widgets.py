@@ -571,6 +571,8 @@ class IpyMainWindow(ipywdg.GridspecLayout):
         self[self.IDX_STATUSBAR] = ipywdg.Box() if widget is None else widget
 
     def add_toolbar(self, widget, area: Literal["left", "top", "right", "bottom"]):
+        # let the toolbar fill its bar area so spacers can expand, as in Qt
+        widget.layout.flex = "1 1 auto"
         if area == "top":
             self._tbars_top.children += (widget,)
         elif area == "bottom":
