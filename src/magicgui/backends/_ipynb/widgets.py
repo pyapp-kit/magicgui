@@ -542,19 +542,27 @@ class IpyMainWindow(ipywdg.GridspecLayout):
         kwargs.setdefault("height", "600px")
         super().__init__(n_rows, n_columns, **kwargs)
 
-        lay = ipywdg.Layout(height="auto", width="auto")
-        self[self.IDX_TOOLBAR_TOP] = self._tbars_top = ipywdg.HBox(layout=lay)
-        self[self.IDX_TOOLBAR_BOTTOM] = self._tbars_bottom = ipywdg.HBox(layout=lay)
-        self[self.IDX_TOOLBAR_LEFT] = self._tbars_left = ipywdg.VBox(layout=lay)
-        self[self.IDX_TOOLBAR_RIGHT] = self._tbars_right = ipywdg.VBox(layout=lay)
-        self[self.IDX_DOCK_TOP] = self._dwdgs_top = ipywdg.HBox(layout=lay)
-        self[self.IDX_DOCK_BOTTOM] = self._dwdgs_bottom = ipywdg.HBox(layout=lay)
-        self[self.IDX_DOCK_LEFT] = self._dwdgs_left = ipywdg.VBox(layout=lay)
-        self[self.IDX_DOCK_RIGHT] = self._dwdgs_right = ipywdg.VBox(layout=lay)
+        # NOTE: each box needs its own Layout instance, because
+        # GridspecLayout.__setitem__ writes the cell position into
+        # child.layout.grid_area
+        def _box(box_cls: type) -> ipywdg.Box:
+            return box_cls(layout=ipywdg.Layout(height="auto", width="auto"))
 
-        # empty bars/docks collapse; the central widget gets the rest
-        self.layout.grid_template_columns = "auto auto 1fr auto auto"
-        self.layout.grid_template_rows = "auto auto auto 1fr auto auto auto"
+        self[self.IDX_TOOLBAR_TOP] = self._tbars_top = _box(ipywdg.HBox)
+        self[self.IDX_TOOLBAR_BOTTOM] = self._tbars_bottom = _box(ipywdg.HBox)
+        self[self.IDX_TOOLBAR_LEFT] = self._tbars_left = _box(ipywdg.VBox)
+        self[self.IDX_TOOLBAR_RIGHT] = self._tbars_right = _box(ipywdg.VBox)
+        self[self.IDX_DOCK_TOP] = self._dwdgs_top = _box(ipywdg.HBox)
+        self[self.IDX_DOCK_BOTTOM] = self._dwdgs_bottom = _box(ipywdg.HBox)
+        self[self.IDX_DOCK_LEFT] = self._dwdgs_left = _box(ipywdg.VBox)
+        self[self.IDX_DOCK_RIGHT] = self._dwdgs_right = _box(ipywdg.VBox)
+
+        # empty bars/docks collapse; the central widget gets the rest.
+        # These private attributes are what GridspecLayout._update_layout
+        # re-applies to self.layout on every __setitem__.
+        self._grid_template_columns = "auto auto 1fr auto auto"
+        self._grid_template_rows = "auto auto auto 1fr auto auto auto"
+        self._update_layout()
 
     def set_menu_bar(self, widget: ipywdg.Widget | None) -> None:
         self[self.IDX_MENUBAR] = ipywdg.Box() if widget is None else widget
