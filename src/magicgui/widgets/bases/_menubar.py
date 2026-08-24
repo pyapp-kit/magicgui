@@ -22,12 +22,10 @@ class _SupportsMenus:
         return self._menus[key]
 
     @overload
-    def add_menu(self, widget: Menu) -> MenuWidget:
-        ...
+    def add_menu(self, widget: Menu) -> MenuWidget: ...
 
     @overload
-    def add_menu(self, title: str, icon: str | None = None) -> MenuWidget:
-        ...
+    def add_menu(self, title: str, icon: str | None = None) -> MenuWidget: ...
 
     def add_menu(
         self,
