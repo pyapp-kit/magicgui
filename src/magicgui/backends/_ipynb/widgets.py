@@ -459,41 +459,44 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
     def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
         wdg_class = ipywidgets.VBox if layout == "vertical" else ipywidgets.HBox
         super().__init__(wdg_class, **kwargs)
+        # the box that holds the children.  Subclasses (e.g. MainWindow) may
+        # point this at an inner box rather than the outermost widget.
+        self._box: ipywdg.Box = self._ipywidget
 
     def _mgui_add_widget(self, widget: Widget) -> None:
-        children = list(self._ipywidget.children)
+        children = list(self._box.children)
         children.append(widget.native)
-        self._ipywidget.children = children
-        widget.parent = self._ipywidget
+        self._box.children = children
+        widget.parent = self._box
 
     def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
-        children = list(self._ipywidget.children)
+        children = list(self._box.children)
         children.insert(position, widget.native)
-        self._ipywidget.children = children
-        widget.parent = self._ipywidget
+        self._box.children = children
+        widget.parent = self._box
 
     def _mgui_remove_widget(self, widget: Widget) -> None:
-        children = list(self._ipywidget.children)
+        children = list(self._box.children)
         children.remove(widget.native)
-        self._ipywidget.children = children
+        self._box.children = children
 
     def _mgui_remove_index(self, position: int) -> None:
-        children = list(self._ipywidget.children)
+        children = list(self._box.children)
         children.pop(position)
-        self._ipywidget.children = children
+        self._box.children = children
 
     def _mgui_count(self) -> int:
-        return len(self._ipywidget.children)
+        return len(self._box.children)
 
     def _mgui_index(self, widget: Widget) -> int:
-        return self._ipywidget.children.index(widget.native)
+        return self._box.children.index(widget.native)
 
     def _mgui_get_index(self, index: int) -> Widget | None:
         """(return None instead of index error)."""
-        return self._ipywidget.children[index]._magic_widget
+        return self._box.children[index]._magic_widget
 
     def _mgui_get_native_layout(self) -> Any:
-        raise self._ipywidget
+        return self._box
 
     def _mgui_get_margins(self) -> tuple[int, int, int, int]:
         margin = self._ipywidget.layout.margin
@@ -516,7 +519,7 @@ class Container(_IPyWidget, protocols.ContainerProtocol, protocols.SupportsOrien
         )
 
     def _mgui_get_orientation(self) -> str:
-        return "vertical" if isinstance(self._ipywidget, ipywdg.VBox) else "horizontal"
+        return "vertical" if isinstance(self._box, ipywdg.VBox) else "horizontal"
 
 
 class IpyMainWindow(ipywdg.GridspecLayout):
@@ -539,25 +542,25 @@ class IpyMainWindow(ipywdg.GridspecLayout):
         kwargs.setdefault("height", "600px")
         super().__init__(n_rows, n_columns, **kwargs)
 
-        hlay = ipywdg.Layout(height="30px", width="auto")
-        vlay = ipywdg.Layout(height="auto", width="30px")
-        self[self.IDX_TOOLBAR_TOP] = self._tbars_top = ipywdg.HBox(layout=hlay)
-        self[self.IDX_TOOLBAR_BOTTOM] = self._tbars_bottom = ipywdg.HBox(layout=hlay)
-        self[self.IDX_TOOLBAR_LEFT] = self._tbars_left = ipywdg.VBox(layout=vlay)
-        self[self.IDX_TOOLBAR_RIGHT] = self._tbars_right = ipywdg.VBox(layout=vlay)
-        self[self.IDX_DOCK_TOP] = self._dwdgs_top = ipywdg.HBox(layout=hlay)
-        self[self.IDX_DOCK_BOTTOM] = self._dwdgs_bottom = ipywdg.HBox(layout=hlay)
-        self[self.IDX_DOCK_LEFT] = self._dwdgs_left = ipywdg.VBox(layout=vlay)
-        self[self.IDX_DOCK_RIGHT] = self._dwdgs_right = ipywdg.VBox(layout=vlay)
+        lay = ipywdg.Layout(height="auto", width="auto")
+        self[self.IDX_TOOLBAR_TOP] = self._tbars_top = ipywdg.HBox(layout=lay)
+        self[self.IDX_TOOLBAR_BOTTOM] = self._tbars_bottom = ipywdg.HBox(layout=lay)
+        self[self.IDX_TOOLBAR_LEFT] = self._tbars_left = ipywdg.VBox(layout=lay)
+        self[self.IDX_TOOLBAR_RIGHT] = self._tbars_right = ipywdg.VBox(layout=lay)
+        self[self.IDX_DOCK_TOP] = self._dwdgs_top = ipywdg.HBox(layout=lay)
+        self[self.IDX_DOCK_BOTTOM] = self._dwdgs_bottom = ipywdg.HBox(layout=lay)
+        self[self.IDX_DOCK_LEFT] = self._dwdgs_left = ipywdg.VBox(layout=lay)
+        self[self.IDX_DOCK_RIGHT] = self._dwdgs_right = ipywdg.VBox(layout=lay)
 
-        # self.layout.grid_template_columns = "34px 34px 1fr 34px 34px"
-        # self.layout.grid_template_rows = "34px 34px 34px 1fr 34px 34px 34px"
+        # empty bars/docks collapse; the central widget gets the rest
+        self.layout.grid_template_columns = "auto auto 1fr auto auto"
+        self.layout.grid_template_rows = "auto auto auto 1fr auto auto auto"
 
-    def set_menu_bar(self, widget):
-        self[self.IDX_MENUBAR] = widget
+    def set_menu_bar(self, widget: ipywdg.Widget | None) -> None:
+        self[self.IDX_MENUBAR] = ipywdg.Box() if widget is None else widget
 
-    def set_status_bar(self, widget):
-        self[self.IDX_STATUSBAR] = widget
+    def set_status_bar(self, widget: ipywdg.Widget | None) -> None:
+        self[self.IDX_STATUSBAR] = ipywdg.Box() if widget is None else widget
 
     def add_toolbar(self, widget, area: Literal["left", "top", "right", "bottom"]):
         if area == "top":
@@ -592,10 +595,13 @@ class StatusBar(_IPyWidget, protocols.StatusBarProtocol):
         self._ipywidget.layout.width = "100%"
 
         self._message_label = ipywdg.Label()
-        self._buttons = ipywdg.HBox()
-        # Spacer to push buttons to the right
+        # spacer pushes added widgets to the right, like Qt permanent widgets
         self._spacer = ipywdg.HBox(layout=ipywdg.Layout(flex="1"))
-        self._ipywidget.children = (self._message_label, self._spacer, self._buttons)
+        self._widgets: list[ipywdg.Widget] = []
+        self._sync()
+
+    def _sync(self) -> None:
+        self._ipywidget.children = (self._message_label, self._spacer, *self._widgets)
 
     def _mgui_get_message(self) -> str:
         return self._message_label.value
@@ -606,32 +612,102 @@ class StatusBar(_IPyWidget, protocols.StatusBarProtocol):
     def _mgui_set_message(self, message: str, timeout: int = 0) -> None:
         self._message_label.value = message
         if timeout > 0:
-            asyncio.get_event_loop().call_later(timeout / 1000, self._clear_message)
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:  # no event loop (e.g. bare interpreter)
+                pass
+            else:
+                loop.call_later(timeout / 1000, self._clear_message)
 
     def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
-        self._ipywidget.children = (
-            *self._ipywidget.children[:position],
-            widget.native,
-            *self._ipywidget.children[position:],
-        )
+        if position < 0:  # negative positions append, as in Qt
+            self._widgets.append(widget.native)
+        else:
+            self._widgets.insert(position, widget.native)
+        self._sync()
 
     def _mgui_remove_widget(self, widget: Widget) -> None:
-        self._ipywidget.children = tuple(
-            child for child in self._ipywidget.children if child != widget.native
-        )
+        self._widgets = [wdg for wdg in self._widgets if wdg is not widget.native]
+        self._sync()
 
 
 class MenuBar(_IPyWidget, protocols.MenuBarProtocol):
+    """Menu bar implemented as a horizontal row of dropdown menus."""
+
+    _ipywidget: ipywdg.HBox
+
+    def __init__(self, **kwargs):
+        super().__init__(ipywdg.HBox, **kwargs)
+
     def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
-        ...
+        self._ipywidget.children = (*self._ipywidget.children, widget.native)
 
     def _mgui_clear(self) -> None:
-        ...
+        self._ipywidget.children = ()
 
 
 class Menu(_IPyWidget, protocols.MenuProtocol):
-    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
-        ...
+    """Menu implemented as a Dropdown.
+
+    The first entry shows the menu title and acts as a placeholder; selecting
+    any other entry triggers that action's callback and resets the selection
+    back to the title.
+    """
+
+    _ipywidget: ipywdg.Dropdown
+    _TITLE = "__title__"
+
+    def __init__(self, **kwargs):
+        self._title = ""
+        self._icon: str | None = None
+        # value -> (label, callback); insertion order is the menu order
+        self._items: dict[str, tuple[str, Callable | None]] = {}
+        self._n_items = 0
+        self._syncing = False
+        super().__init__(ipywdg.Dropdown, **kwargs)
+        self._ipywidget.layout.width = "auto"
+        self._ipywidget.observe(self._on_select, names=["value"])
+        self._sync_options()
+
+    def _sync_options(self) -> None:
+        self._syncing = True
+        try:
+            self._ipywidget.options = [(self._title, self._TITLE)] + [
+                (label, value) for value, (label, _) in self._items.items()
+            ]
+            self._ipywidget.value = self._TITLE
+        finally:
+            self._syncing = False
+
+    def _on_select(self, change: dict) -> None:
+        if self._syncing:
+            return
+        value = change.get("new")
+        if value == self._TITLE or value is None:
+            return
+        _, callback = self._items.get(value, ("", None))
+        # reset back to the title before invoking the callback
+        self._syncing = True
+        try:
+            self._ipywidget.value = self._TITLE
+        finally:
+            self._syncing = False
+        if callback is not None:
+            callback()
+
+    def _mgui_get_title(self) -> str:
+        return self._title
+
+    def _mgui_set_title(self, title: str) -> None:
+        self._title = title
+        self._sync_options()
+
+    def _mgui_get_icon(self) -> str | None:
+        return self._icon
+
+    def _mgui_set_icon(self, icon: str | None) -> None:
+        # icons are not (yet) rendered in the ipynb backend
+        self._icon = icon
 
     def _mgui_add_action(
         self,
@@ -641,32 +717,34 @@ class Menu(_IPyWidget, protocols.MenuProtocol):
         tooltip: str | None = None,
         callback: Callable[..., Any] | None = None,
     ) -> None:
-        ...
-
-    def _mgui_clear(self) -> None:
-        ...
+        # shortcut/icon/tooltip are not (yet) supported in the ipynb backend
+        self._n_items += 1
+        self._items[f"action_{self._n_items}"] = (text, callback)
+        self._sync_options()
 
     def _mgui_add_separator(self) -> None:
-        ...
+        self._n_items += 1
+        self._items[f"separator_{self._n_items}"] = ("─" * 6, None)
+        self._sync_options()
 
-    def _mgui_get_icon(self) -> str | None:
-        ...
+    def _mgui_add_menu_widget(self, widget: MenuWidget) -> None:
+        raise NotImplementedError(
+            "Nested menus are not yet supported in the ipynb backend"
+        )
 
-    def _mgui_set_icon(self, icon: str | None) -> None:
-        ...
-
-    def _mgui_get_title(self) -> str:
-        ...
-
-    def _mgui_set_title(self, title: str) -> None:
-        ...
+    def _mgui_clear(self) -> None:
+        self._items.clear()
+        self._sync_options()
 
 
 class MainWindow(Container, protocols.MainWindowProtocol):
-    _ipywidget: IpyMainWindow
-
-    def __init__(self, layout="horizontal", scrollable: bool = False, **kwargs):
-        self._ipywidget = IpyMainWindow()
+    def __init__(self, layout="vertical", scrollable: bool = False, **kwargs):
+        super().__init__(layout=layout, scrollable=scrollable, **kwargs)
+        # the box created by Container becomes the central widget of the
+        # main-window grid; container children keep flowing into it (self._box)
+        main_window = IpyMainWindow()
+        main_window[IpyMainWindow.IDX_CENTRAL_WIDGET] = self._ipywidget
+        self._ipywidget: IpyMainWindow = main_window
 
     def _mgui_create_menu_item(
         self,
@@ -675,7 +753,12 @@ class MainWindow(Container, protocols.MainWindowProtocol):
         callback: Callable | None = None,
         shortcut: str | None = None,
     ):
-        pass
+        # deprecated pathway; use MainWindowWidget.menu_bar instead, which
+        # routes through the MenuBar/Menu widgets above
+        raise NotImplementedError(
+            "create_menu_item is not supported in the ipynb backend; "
+            "use the `menu_bar` property instead"
+        )
 
     def _mgui_add_dock_widget(self, widget: Widget, area: protocols.Area) -> None:
         self._ipywidget.add_dock_widget(widget.native, area)
@@ -684,10 +767,10 @@ class MainWindow(Container, protocols.MainWindowProtocol):
         self._ipywidget.add_toolbar(widget.native, area)
 
     def _mgui_set_status_bar(self, widget: Widget | None) -> None:
-        self._ipywidget.set_status_bar(widget.native)
+        self._ipywidget.set_status_bar(None if widget is None else widget.native)
 
     def _mgui_set_menu_bar(self, widget: Widget | None) -> None:
-        self._ipywidget.set_menu_bar(widget.native)
+        self._ipywidget.set_menu_bar(None if widget is None else widget.native)
 
 
 def get_text_width(text):

@@ -61,7 +61,7 @@ class MainWindowWidget(ContainerWidget):
 
     @property
     def menu_bar(self) -> MenuBar:
-        """Return the status bar widget."""
+        """Return the menu bar widget."""
         if self._menu_bar is None:
             from magicgui.widgets._concrete import MenuBar
 
@@ -70,7 +70,7 @@ class MainWindowWidget(ContainerWidget):
 
     @menu_bar.setter
     def menu_bar(self, widget: MenuBar | None) -> None:
-        """Set the status bar widget."""
+        """Set the menu bar widget."""
         self._menu_bar = widget
         self._widget._mgui_set_menu_bar(widget)
 
@@ -88,23 +88,3 @@ class MainWindowWidget(ContainerWidget):
         """Set the status bar widget."""
         self._status_bar = widget
         self._widget._mgui_set_status_bar(widget)
-
-    # def set_status_bar(self, widget: Widget) -> None:
-    #     """Set the statusbar of the main window.
-
-    #     Parameters
-    #     ----------
-    #     widget : Widget
-    #         The widget to add to the main window.
-    #     """
-    #     self._widget._mgui_set_status_bar(widget)
-
-    # def set_menubar(self, widget: Widget) -> None:
-    #     """Set the menubar of the main window.
-
-    #     Parameters
-    #     ----------
-    #     widget : Widget
-    #         The widget to add to the main window.
-    #     """
-    #     self._widget._mgui_set_menu_bar(widget)

@@ -1436,8 +1436,11 @@ class StatusBar(QBaseWidget, protocols.StatusBarProtocol):
         super().__init__(QtW.QStatusBar, **kwargs)
 
     def _mgui_insert_widget(self, position: int, widget: Widget) -> None:
-        """Insert `widget` at the given `position`."""
-        self._qwidget.insertWidget(position, widget.native)
+        """Insert `widget` at the given `position` (negative positions append)."""
+        if position < 0:
+            self._qwidget.addWidget(widget.native)
+        else:
+            self._qwidget.insertWidget(position, widget.native)
 
     def _mgui_remove_widget(self, widget: Widget) -> None:
         """Remove the specified widget."""

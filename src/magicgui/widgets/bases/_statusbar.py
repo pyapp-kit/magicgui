@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class StatusBarWidget(Widget):
-    """Widget with a value, Wraps ValueWidgetProtocol.
+    """Status bar widget, wraps StatusBarProtocol.
 
     Parameters
     ----------
@@ -24,15 +24,15 @@ class StatusBarWidget(Widget):
         super().__init__(**base_widget_kwargs)
 
     def add_widget(self, widget: Widget) -> None:
-        """Add a widget to the toolbar."""
+        """Add a widget to the end of the status bar."""
         self.insert_widget(-1, widget)
 
     def insert_widget(self, position: int, widget: Widget) -> None:
-        """Insert a widget at the given position."""
+        """Insert a widget at the given position (negative positions append)."""
         self._widget._mgui_insert_widget(position, widget)
 
     def remove_widget(self, widget: Widget) -> None:
-        """Remove a widget from the toolbar."""
+        """Remove a widget from the status bar."""
         self._widget._mgui_remove_widget(widget)
 
     @property
