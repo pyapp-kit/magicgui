@@ -75,7 +75,11 @@ third-party-support = [
     "toolz>=1.0.0",
 ]
 test-min = ["pytest>=8.4.0", "pytest-cov >=6.1", "pytest-mypy-plugins>=3.1"]
-test-qt = [{ include-group = "test-min" }, "pytest-qt ==4.4.0"]
+# pytest-qt >=4.5 fixes SystemError/TimeoutError in qtbot.waitSignal with
+# recent PySide6 (pytest-dev/pytest-qt#552), but drops PySide2 support --
+# so the pyside2 group uses the legacy pin (see [tool.uv] conflicts below)
+test-qt = [{ include-group = "test-min" }, "pytest-qt>=4.5.0"]
+test-qt-legacy = [{ include-group = "test-min" }, "pytest-qt==4.4.0"]
 test = [
     "magicgui[tqdm,jupyter,image,quantity]",
     { include-group = "test-min" },
@@ -83,7 +87,7 @@ test = [
 ]
 pyqt5 = ["magicgui[pyqt5]", { include-group = "test-qt" }]
 pyqt6 = ["magicgui[pyqt6]", { include-group = "test-qt" }]
-pyside2 = ["magicgui[pyside2]", { include-group = "test-qt" }, "numpy<2; python_version < '3.13'"]
+pyside2 = ["magicgui[pyside2]", { include-group = "test-qt-legacy" }, "numpy<2; python_version < '3.13'"]
 pyside6 = ["magicgui[pyside6]", { include-group = "test-qt" }]
 dev = [
     { include-group = "test" },
@@ -115,6 +119,10 @@ docs = [
     "ipywidgets >=8.0.0",
     "ipykernel>=6.29.5",
 ]
+
+[tool.uv]
+# the two pytest-qt pins are mutually exclusive; no environment installs both
+conflicts = [[{ group = "test-qt" }, { group = "test-qt-legacy" }]]
 
 [tool.uv.sources]
 magicgui = { workspace = true }
