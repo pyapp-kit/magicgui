@@ -442,12 +442,70 @@ class FloatSlider(_IPySliderWidget):
     _ipywidget: ipywidgets.FloatSlider
 
 
+class RangeSlider(_IPySliderWidget):
+    _ipywidget: ipywidgets.IntRangeSlider
+
+
+class FloatRangeSlider(_IPySliderWidget):
+    _ipywidget: ipywidgets.FloatRangeSlider
+
+
+class ProgressBar(_IPySliderWidget):
+    _ipywidget: ipywidgets.FloatProgress
+
+    def __init__(self, **kwargs):
+        self._step: float = 1.0
+        super().__init__(**kwargs)
+
+    # FloatProgress has no step trait; track it ourselves
+    def _mgui_get_step(self) -> float:
+        return self._step
+
+    def _mgui_set_step(self, value: float) -> None:
+        self._step = value
+
+
+class Image(_IPyValueWidget):
+    _ipywidget: ipywidgets.Image
+
+    def _mgui_set_value(self, value) -> None:
+        # value is an (M, N, 4) uint8 RGBA numpy array (see widgets.Image.set_data)
+        try:
+            from PIL import Image as pil_image
+        except ImportError as e:
+            raise ModuleNotFoundError(
+                "PIL is required to show images in the ipynb backend. "
+                "Please `pip install magicgui[image]`"
+            ) from e
+
+        from io import BytesIO
+
+        buf = BytesIO()
+        pil_image.fromarray(value).save(buf, format="png")
+        self._ipywidget.value = buf.getvalue()
+        self._ipywidget.format = "png"
+
+
 class ComboBox(_IPyCategoricalWidget):
     _ipywidget: ipywidgets.Dropdown
 
 
 class Select(_IPyCategoricalWidget):
     _ipywidget: ipywidgets.SelectMultiple
+
+
+class RadioButtons(_IPyCategoricalWidget, protocols.SupportsOrientation):
+    _ipywidget: ipywidgets.RadioButtons
+
+    def _mgui_set_orientation(self, value: str) -> None:
+        if value != "vertical":
+            raise NotImplementedError(
+                "Only vertical orientation is currently supported for "
+                "RadioButtons in the ipynb backend"
+            )
+
+    def _mgui_get_orientation(self) -> str:
+        return "vertical"
 
 
 # CONTAINER ----------------------------------------------------------------------
