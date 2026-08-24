@@ -5,6 +5,15 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 
+# hatchling 1.32 emits core metadata 2.5 by default, which twine (as run by
+# build-and-inspect-python-package) rejects.  TODO: remove once twine there
+# accepts metadata 2.5.
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
+
+[tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
+
 # https://peps.python.org/pep-0621/
 [project]
 name = "magicgui"
