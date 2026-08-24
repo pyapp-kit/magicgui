@@ -570,7 +570,7 @@ class Container(
 
     def _mgui_get_orientation(self) -> str:
         """Set orientation, return either 'horizontal' or 'vertical'."""
-        if isinstance(self, QtW.QHBoxLayout):
+        if isinstance(self._layout, QtW.QHBoxLayout):
             return "horizontal"
         else:
             return "vertical"
@@ -1500,7 +1500,7 @@ class Dialog(QBaseWidget, protocols.ContainerProtocol):
 
     def _mgui_get_orientation(self) -> str:
         """Set orientation, return either 'horizontal' or 'vertical'."""
-        return "horizontal" if isinstance(self, QtW.QHBoxLayout) else "vertical"
+        return "horizontal" if isinstance(self._layout, QtW.QHBoxLayout) else "vertical"
 
     def _mgui_exec(self) -> Any:
         return self._qwidget.exec_()
