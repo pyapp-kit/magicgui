@@ -1,11 +1,10 @@
 from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, Union, get_args
 from unittest.mock import Mock
 
 import pytest
-from typing_extensions import get_args
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui.type_map import TypeMap

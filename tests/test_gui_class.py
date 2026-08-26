@@ -1,5 +1,4 @@
 import contextlib
-import sys
 from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, ClassVar
 from unittest.mock import Mock
@@ -131,9 +130,6 @@ def test_on_existing_dataclass() -> None:
     assert isinstance(foo.gui, Container)
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 11), reason="weakref_slot are python3.11 or higher"
-)
 def test_slots_guiclass() -> None:
     """Test that the guiclass decorator works as expected."""
 

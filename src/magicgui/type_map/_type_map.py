@@ -11,23 +11,24 @@ import sys
 import types
 import warnings
 from collections import defaultdict
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from enum import EnumMeta
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     ForwardRef,
     Literal,
     TypeVar,
     Union,
     cast,
+    get_args,
+    get_origin,
     overload,
 )
 
-from typing_extensions import ParamSpec, get_args, get_origin
+from typing_extensions import ParamSpec
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
@@ -149,7 +150,7 @@ class TypeMap:
 
         if safe_issubclass(origin, set):
             for arg in get_args(type_):
-                if get_origin(arg) is Literal:  # type: ignore [comparison-overlap]
+                if get_origin(arg) is Literal:
                     return widgets.Select, {"choices": get_args(arg)}
 
         pint = sys.modules.get("pint")

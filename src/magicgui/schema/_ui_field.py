@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses as dc
 import sys
 import warnings
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import cache
 from types import FunctionType
@@ -10,15 +11,15 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     Generic,
     Literal,
+    TypeGuard,
     TypeVar,
     Union,
     cast,
+    get_args,
+    get_origin,
 )
-
-from typing_extensions import TypeGuard, get_args, get_origin
 
 from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
@@ -42,7 +43,7 @@ if TYPE_CHECKING:
 
 __all__ = ["UiField", "build_widget", "get_ui_fields"]
 
-SLOTS = {"slots": True} if sys.version_info >= (3, 10) else {}
+SLOTS = {"slots": True}
 T = TypeVar("T")
 
 

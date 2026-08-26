@@ -160,8 +160,7 @@ environments (such as a desktop app, or a Jupyter notebook).
 Currently, **magicgui** supports the following backends:
 
 - [Qt](https://www.qt.io/) (via
-  [PySide2](https://pypi.org/project/PySide2/)/[PySide6](https://pypi.org/project/PySide6/)
-  or
+  [PySide6](https://pypi.org/project/PySide6/) or
   [PyQt5](https://pypi.org/project/PyQt5/)/[PyQt6](https://pypi.org/project/PyQt6/))
 - [Jupyter Widgets](https://ipywidgets.readthedocs.io/en/latest/) (a.k.a.
   "IPyWidgets")
