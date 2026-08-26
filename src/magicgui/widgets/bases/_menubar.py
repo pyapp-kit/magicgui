@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, overload
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, overload
 
 from ._widget import Widget
 
