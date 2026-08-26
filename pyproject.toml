@@ -161,12 +161,10 @@ select = [
 ]
 ignore = [
     "D401", # First line should be in imperative mood
-    # magicgui resolves annotations at *runtime*, and on python < 3.14
-    # `get_origin(int | None)` is `types.UnionType`, not `typing.Union` -- so
-    # rewriting Optional/Union to PEP 604 changes behaviour rather than just
-    # spelling. Tests also deliberately exercise both spellings.
+    # `Union` is still needed as a runtime *value* for the public type aliases
+    # (PathLike, ChoicesType, AppRef, TableData, ...) and for `Union[args]`
+    # construction; ruff offers no fix for those, so the rule can't be enabled.
     "UP007", # Use `X | Y` for type annotations
-    "UP045", # Use `X | None` for type annotations
 ]
 
 [tool.ruff.lint.flake8-type-checking]
@@ -176,8 +174,10 @@ ignore = [
 exempt-modules = ["typing", "typing_extensions", "collections.abc"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*.py" = ["D", "S", "E501"]
-"tests/test_util.py" = ["D", "S", "E501", "UP006"]
+# tests deliberately exercise both `Union[X, Y]` and `X | Y` spellings,
+# so they must not be rewritten to one of them (see test_no_order)
+"tests/*.py" = ["D", "S", "E501", "UP007", "UP045"]
+"tests/test_util.py" = ["D", "S", "E501", "UP006", "UP007", "UP045"]
 "docs/*.py" = ["B"]
 "docs/examples/*.py" = ["D", "B", "E501"]
 "src/magicgui/widgets/_image/*.py" = ["D"]
