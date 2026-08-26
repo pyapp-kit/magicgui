@@ -934,8 +934,10 @@ def test_no_order():
 
     register_type(Union[int, None], return_callback=mock)
 
+    # registration above used Union[int, None]; annotating with the reversed
+    # order is the whole point of this test, so RUF036 must not "fix" it
     @magicgui
-    def func() -> Union[None, int]:  # noqa: RUF036  # deliberately reversed
+    def func() -> Union[None, int]:  # noqa: RUF036
         return 1
 
     func()
