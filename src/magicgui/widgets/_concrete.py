@@ -404,7 +404,7 @@ class FileEdit(ValuedContainerWidget[Union[Path, tuple[Path, ...], None]]):
         self,
         mode: FileDialogMode = FileDialogMode.EXISTING_FILE,
         filter: str | None = None,
-        value: Path | tuple[Path, ...] | None | _Undefined = Undefined,
+        value: Path | tuple[Path, ...] | _Undefined | None = Undefined,
         **kwargs: Unpack[ValuedContainerKwargs],
     ) -> None:
         # use empty string as a null value
