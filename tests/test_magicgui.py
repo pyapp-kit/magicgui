@@ -935,7 +935,7 @@ def test_no_order():
     register_type(Union[int, None], return_callback=mock)
 
     @magicgui
-    def func() -> Union[None, int]:
+    def func() -> Union[int, None]:
         return 1
 
     func()
