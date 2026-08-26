@@ -1044,9 +1044,7 @@ def test_float_range_slider():
 
 
 def test_literal():
-    from typing import Literal
-
-    from typing_extensions import get_args
+    from typing import Literal, get_args
 
     Lit = Literal[None, "a", 1, True, b"bytes"]
 
@@ -1165,3 +1163,77 @@ def test_toolbar():
     tb.icon_size = 26
     assert tb.icon_size == (26, 26)
     tb.clear()
+
+
+def test_range_slider_backends(backend):
+    """RangeSlider/FloatRangeSlider work on both backends."""
+    use_app(backend)
+    rslider = widgets.RangeSlider(min=0, max=100, value=(10, 20))
+    assert tuple(rslider.value) == (10, 20)
+    rslider.value = (5, 50)
+    assert tuple(rslider.value) == (5, 50)
+    frslider = widgets.FloatRangeSlider(min=0.0, max=1.0, value=(0.2, 0.8))
+    assert tuple(round(v, 6) for v in frslider.value) == (0.2, 0.8)
+
+
+def test_progress_bar_backends(backend):
+    """ProgressBar works on both backends."""
+    use_app(backend)
+    pbar = widgets.ProgressBar(min=0, max=100, value=10, step=5)
+    assert pbar.value == 10
+    pbar.increment()
+    assert pbar.value == 15
+    pbar.decrement(10)
+    assert pbar.value == 5
+
+
+def test_radio_buttons_backends(backend):
+    """RadioButtons works on both backends."""
+    use_app(backend)
+    btns = widgets.RadioButtons(choices=["a", "b", "c"], value="b")
+    assert btns.value == "b"
+    assert btns.orientation == "vertical"
+    fired = []
+    btns.changed.connect(lambda v: fired.append(v))
+    btns.value = "c"
+    assert btns.value == "c"
+    assert fired == ["c"]
+
+
+def test_image_backends(backend):
+    """Image renders an RGBA array on both backends."""
+    np = pytest.importorskip("numpy")
+    pytest.importorskip("PIL")
+    use_app(backend)
+    image = widgets.Image()
+    data = np.zeros((10, 20, 4), dtype=np.uint8)
+    data[..., 3] = 255
+    image.set_data(data)
+    if backend == "ipynb":
+        assert bytes(image.native.value).startswith(b"\x89PNG")
+
+
+def test_ipynb_timer():
+    """The ipynb backend supports (asyncio-based) timers and process_events."""
+    import asyncio
+
+    pytest.importorskip("ipywidgets")
+    app = use_app("ipynb")
+    try:
+        app.process_events()  # smoke test: does not raise
+        repeated: list[int] = []
+        single: list[int] = []
+
+        async def _run():
+            backend_app = app._backend
+            backend_app._mgui_start_timer(5, lambda: repeated.append(1))
+            await asyncio.sleep(0.05)
+            backend_app._mgui_stop_timer()
+            backend_app._mgui_start_timer(5, lambda: single.append(1), single=True)
+            await asyncio.sleep(0.05)
+
+        asyncio.run(_run())
+        assert len(repeated) >= 2
+        assert len(single) == 1
+    finally:
+        use_app("qt")

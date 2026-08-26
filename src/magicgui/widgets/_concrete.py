@@ -11,23 +11,23 @@ import datetime
 import inspect
 import math
 import os
+from collections.abc import Callable
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     ForwardRef,
     Generic,
     Literal,
     TypeVar,
     Union,
     cast,
+    get_args,
+    get_origin,
     overload,
 )
 from weakref import ref
-
-from typing_extensions import get_args, get_origin
 
 from magicgui._type_resolution import resolve_single_type
 from magicgui._util import merge_super_sigs, safe_issubclass
@@ -863,7 +863,9 @@ class ListDataView(Generic[_V]):
                     value_list = list(value)  # type: ignore
                     if len(value_list) != len(self._obj._get_child_widgets(key)):
                         raise ValueError("Length of value does not match.")
-                    for w, v in zip(self._obj._get_child_widgets(key), value_list):
+                    for w, v in zip(
+                        self._obj._get_child_widgets(key), value_list, strict=False
+                    ):
                         w.value = v
             self._obj.changed.emit(self._obj.value)
         else:
@@ -992,7 +994,7 @@ class TupleEdit(ValuedContainerWidget[tuple]):
             raise ValueError("Length of tuple does not match.")
 
         with self.changed.blocked():
-            for w, v in zip(self._list, vals):
+            for w, v in zip(self._list, vals, strict=False):
                 w.value = v  # type: ignore
         self.changed.emit(self.value)
 

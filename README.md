@@ -39,21 +39,21 @@
 
 ## Installation
 
-`magicgui` uses `qtpy` to support both `pyside2` and `pyqt5` backends.  However, you
+`magicgui` uses `qtpy` to support both `pyqt` and `pyside` backends.  However, you
 must have one of those installed for magicgui to work.
 
 install with pip
 
 ```bash
-pip install magicgui[pyqt5]
+pip install magicgui[pyqt6]
 # or
-pip install magicgui[pyside2]
+pip install magicgui[pyside6]
 ```
 
 or with conda:
 
 ```bash
-conda install -c conda-forge magicgui pyqt  # or pyside2 instead of pyqt
+conda install -c conda-forge magicgui pyqt  # or pyside6 instead of pyqt
 ```
 
 > :information_source: If you'd like to help us extend support to a different backend,

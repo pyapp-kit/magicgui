@@ -5,10 +5,11 @@ from __future__ import annotations
 import math
 import re
 import warnings
+from collections.abc import Callable
 from contextlib import contextmanager, suppress
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 import qtpy
 import superqt

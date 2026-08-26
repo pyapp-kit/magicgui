@@ -20,7 +20,6 @@ available:
 
 - `PyQt5`:  `pip install magicgui[pyqt5]`
 - `PyQt6`:  `pip install magicgui[pyqt6]`
-- `PySide2`:  `pip install magicgui[pyside2]`
 - `PySide6`:  `pip install magicgui[pyside6]`
 - `Jupyter Widgets`:  `pip install magicgui[jupyter]`
 
