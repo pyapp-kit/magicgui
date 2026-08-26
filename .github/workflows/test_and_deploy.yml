@@ -58,7 +58,7 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -113,7 +113,7 @@ jobs:
         os: [macos-latest]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -141,13 +141,14 @@ jobs:
     secrets: inherit
 
   test-dependents:
-    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@v2
+    uses: pyapp-kit/workflows/.github/workflows/test-dependents.yml@main
     with:
       dependency-repo: ${{ matrix.package }}
       dependency-ref: ${{ matrix.package-version }}
-      dependency-extras: ${{ matrix.package-extras || 'testing' }}
+      dependency-extras: ${{ matrix.package-extras || '' }}
+      dependency-group: ${{ matrix.package-group || '' }}
       qt: pyqt5
-      python-version: "3.10"
+      python-version: ${{ matrix.python-version || '3.10' }}
       post-install-cmd: "python -m pip install pytest-pretty lxml_html_clean" # just for napari
       pytest-args: ${{ matrix.pytest-args }}
     strategy:
@@ -155,11 +156,15 @@ jobs:
       matrix:
         include:
           - package: napari/napari
+            python-version: "3.13"
+            package-group: testing
             pytest-args: src/napari/_tests/test_magicgui.py --import-mode=importlib
           - package: napari/napari
             package-version: "v0.4.19.post1"
+            package-extras: testing
             pytest-args: napari/_tests/test_magicgui.py
           - package: hanjinliu/magic-class
+            package-extras: testing
           - package: 4DNucleome/PartSeg
             package-extras: test
             pytest-args: package/tests/test_PartSeg/test_napari_widgets.py
@@ -169,7 +174,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: hynek/build-and-inspect-python-package@v2
@@ -190,7 +195,7 @@ jobs:
           path: dist
       - name: 🚢 Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           files: "./dist/*"
