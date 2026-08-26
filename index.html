@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3960,7 +3960,7 @@ sheet</a></li>
 </code></pre></div>
 <img alt="" class="code-image" src="_images/index_0.png" /></p>
 <p><div class="highlight"><pre><span></span><code><span class="c1"># passing a value to create_widget</span>
-<span class="n">widget2</span> <span class="o">=</span> <span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;Hello World&quot;</span><span class="p">)</span>
+<span class="n">widget2</span> <span class="o">=</span> <span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">"Hello World"</span><span class="p">)</span>
 <span class="n">widget2</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="_images/index_1.png" /></p>
@@ -3977,12 +3977,12 @@ autogenerate a compound Widget based on the parameters of a function:</p>
 <span class="nd">@magicgui</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span>
     <span class="n">param_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">param_b</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;widget_type&#39;</span><span class="p">:</span> <span class="s2">&quot;Slider&quot;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">}]</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
-    <span class="n">param_c</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;First&quot;</span><span class="p">,</span> <span class="s2">&quot;Second&quot;</span><span class="p">,</span> <span class="s2">&quot;Third&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Second&quot;</span>
+    <span class="n">param_b</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">{</span><span class="s1">'widget_type'</span><span class="p">:</span> <span class="s2">"Slider"</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">:</span> <span class="mi">100</span><span class="p">}]</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="n">param_c</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"First"</span><span class="p">,</span> <span class="s2">"Second"</span><span class="p">,</span> <span class="s2">"Third"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Second"</span>
 <span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;param_a:&quot;</span><span class="p">,</span> <span class="n">param_a</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;param_b:&quot;</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;param_c:&quot;</span><span class="p">,</span> <span class="n">param_c</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"param_a:"</span><span class="p">,</span> <span class="n">param_a</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"param_b:"</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"param_c:"</span><span class="p">,</span> <span class="n">param_c</span><span class="p">)</span>
 
 <span class="c1"># my_function now IS a widget, in addition to being a callable function</span>
 <span class="n">my_function</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -4001,14 +4001,14 @@ when the <code>gui</code> attribute is accessed for the first time.)</p>
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyDataclass</span><span class="p">:</span>
     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hello&#39;</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'hello'</span>
     <span class="n">c</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="nd">@button</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
 
-<span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s1">'foo'</span><span class="p">)</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="_images/index_3.png" /></p>
@@ -4034,10 +4034,10 @@ environments (such as a desktop app, or a Jupyter notebook).</p>
 <p>You can use <code>magicgui.widgets</code> to quickly build graphical user interfaces.</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">widgets</span>
 
-<span class="n">a</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">SpinBox</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Slider</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">LineEdit</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;result&quot;</span><span class="p">)</span>
-<span class="n">button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">PushButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;multiply&quot;</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">SpinBox</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"a"</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Slider</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"b"</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">LineEdit</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"result"</span><span class="p">)</span>
+<span class="n">button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">PushButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"multiply"</span><span class="p">)</span>
 
 <span class="nd">@button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">on_button_click</span><span class="p">():</span>
@@ -4140,7 +4140,7 @@ see <a href="events/">Events</a>.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

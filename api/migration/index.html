@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3968,20 +3968,20 @@ value directly, you can do one of two things:</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_callback</span><span class="p">(</span><span class="n">new_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="o">...</span>  <span class="c1"># use new_value directly</span>
 
-<span class="c1"># or, if you don&#39;t need to use new_value</span>
+<span class="c1"># or, if you don't need to use new_value</span>
 <span class="nd">@widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_callback</span><span class="p">():</span>
-    <span class="c1"># something that didn&#39;t need the value</span>
+    <span class="c1"># something that didn't need the value</span>
     <span class="o">...</span>
 </code></pre></div>
 <h3 id="event-emitters-take-no-keyword-arguments">Event emitters take no keyword arguments<a class="headerlink" href="#event-emitters-take-no-keyword-arguments" title="Permanent link">#</a></h3>
 <p>For the few packages who were manually emitting change events,
 you should no longer provide the <code>value=</code> keyword when emitting.</p>
-<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
+<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">'whatever'</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
+<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">'whatever'</span><span class="p">)</span>
 <span class="c1"># OR (if you prefer the direct __call__ syntax)</span>
-<span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="s1">&#39;whatever&#39;</span><span class="p">)</span>
+<span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="s1">'whatever'</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="v020-migration-guide">v0.2.0 migration guide<a class="headerlink" href="#v020-migration-guide" title="Permanent link">#</a></h2>
 <p><em>December, 2020</em></p>
@@ -4020,16 +4020,16 @@ magicgui widgets into a larger Qt-based GUI, please note that you will want
 to use</code>widget.native<code>instead of</code>widget`</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">use_app</span>
 
-<span class="n">use_app</span><span class="p">(</span><span class="s1">&#39;qt&#39;</span><span class="p">)</span>
+<span class="n">use_app</span><span class="p">(</span><span class="s1">'qt'</span><span class="p">)</span>
 
 <span class="nd">@magicgui</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="o">...</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">function</span><span class="p">))</span>
-<span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="err">&#39;</span><span class="nc">magicgui</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">FunctionGui</span><span class="s1">&#39;&gt;</span>
+<span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="err">'</span><span class="nc">magicgui</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">FunctionGui</span><span class="s1">'&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">function</span><span class="o">.</span><span class="n">native</span><span class="p">))</span>
-<span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="err">&#39;</span><span class="nc">PyQt5</span><span class="o">.</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="s1">&#39;&gt;</span>
+<span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="err">'</span><span class="nc">PyQt5</span><span class="o">.</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="s1">'&gt;</span>
 </code></pre></div>
 <h3 id="starting-the-application">Starting the application<a class="headerlink" href="#starting-the-application" title="Permanent link">#</a></h3>
 <p>It is now easier to show a widget and start an application by calling
@@ -4044,7 +4044,7 @@ show <em>multiple</em> widgets next to each other, then you would still want to 
     <span class="o">...</span>
 
 <span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">function_b</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s1">&#39;asdf&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function_b</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s1">'asdf'</span><span class="p">):</span>
     <span class="o">...</span>
 
 <span class="k">with</span> <span class="n">event_loop</span><span class="p">():</span>
@@ -4166,7 +4166,7 @@ to get/set the value, but the actual underlying widget was at <code>gui.x_widget
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

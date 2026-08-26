@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3672,58 +3672,58 @@ to download the full example code</p>
 
 <p><img alt="table" class="mkd-glr-single-img" src="../images/mkd_glr_table_001.png" srcset="../images/mkd_glr_table_001.png" /></p>
 <p class="mkd-glr-script-out">Out:</p>
-<div class="mkd-glr-script-out-disp highlight"><pre><span></span><code>Table<span class="o">(</span><span class="nv">shape</span><span class="o">=(</span><span class="m">6</span>,<span class="w"> </span><span class="m">3</span><span class="o">)</span><span class="w"> </span>at<span class="w"> </span>0x13329e270<span class="o">)</span>
+<div class="mkd-glr-script-out-disp highlight"><pre><span></span><code>Table<span class="o">(</span><span class="nv">shape</span><span class="o">=(</span><span class="m">6</span>,<span class="w"> </span><span class="m">3</span><span class="o">)</span><span class="w"> </span>at<span class="w"> </span>0x11caeacf0<span class="o">)</span>
 </code></pre></div>
 <p><br /></p>
 <div class="highlight"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;This example requires the numpy package. &quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">"This example requires the numpy package. "</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
 
 <span class="c1"># all of these are valid data types</span>
-<span class="n">dict_of_lists</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;col_1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s2">&quot;col_2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="s2">&quot;col_3&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]}</span>
+<span class="n">dict_of_lists</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"col_1"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s2">"col_2"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="s2">"col_3"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]}</span>
 <span class="c1"># column-dict-of-row-dicts</span>
 <span class="n">dict_of_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;col_1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;r1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;r2&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
-    <span class="s2">&quot;col_2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;r1&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;r2&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
-    <span class="s2">&quot;col_3&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;r1&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;r2&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="s2">"col_1"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"r1"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+    <span class="s2">"col_2"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"r1"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+    <span class="s2">"col_3"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"r1"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
 <span class="p">}</span>
 <span class="c1"># list-of-lists</span>
 <span class="n">list_of_list</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]</span>
 <span class="c1"># Records: List-of-column-dict</span>
 <span class="n">list_of_records</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">{</span><span class="s2">&quot;col_1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;col_2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;col_3&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
-    <span class="p">{</span><span class="s2">&quot;col_1&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;col_2&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;col_3&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">"col_1"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"col_2"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"col_3"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">"col_1"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"col_2"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">"col_3"</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
 <span class="p">]</span>
 
 <span class="c1"># 3-tuple of data, index, column</span>
-<span class="n">data_index_column_tuple</span> <span class="o">=</span> <span class="p">(([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="p">(</span><span class="s2">&quot;r1&quot;</span><span class="p">,</span> <span class="s2">&quot;r2&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;c1&quot;</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">,</span> <span class="s2">&quot;c3&quot;</span><span class="p">)),)</span>
+<span class="n">data_index_column_tuple</span> <span class="o">=</span> <span class="p">(([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="p">(</span><span class="s2">"r1"</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"c1"</span><span class="p">,</span> <span class="s2">"c2"</span><span class="p">,</span> <span class="s2">"c3"</span><span class="p">)),)</span>
 <span class="c1"># split-dict</span>
 <span class="n">split_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span>
-    <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;r1&quot;</span><span class="p">,</span> <span class="s2">&quot;r2&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;c1&quot;</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">,</span> <span class="s2">&quot;c3&quot;</span><span class="p">),</span>
+    <span class="s2">"data"</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span>
+    <span class="s2">"index"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"r1"</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">),</span>
+    <span class="s2">"columns"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"c1"</span><span class="p">,</span> <span class="s2">"c2"</span><span class="p">,</span> <span class="s2">"c3"</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">dict_of_lists</span><span class="p">)</span>
 
 <span class="c1"># it behaves like a dict:</span>
-<span class="n">table</span><span class="p">[</span><span class="s2">&quot;new_col&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
-<span class="k">assert</span> <span class="n">table</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;new_col&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
-<span class="c1"># keys and items have both regular (column) and &quot;row&quot; modes</span>
+<span class="n">table</span><span class="p">[</span><span class="s2">"new_col"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="k">assert</span> <span class="n">table</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"new_col"</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="c1"># keys and items have both regular (column) and "row" modes</span>
 <span class="n">col_item_view</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>  <span class="c1"># iterate col_header/column</span>
-<span class="n">row_item_view</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;row&quot;</span><span class="p">)</span>  <span class="c1"># iterate row_header/row</span>
+<span class="n">row_item_view</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">"row"</span><span class="p">)</span>  <span class="c1"># iterate row_header/row</span>
 
 <span class="c1"># we can just call dict() to get back our dict of lists</span>
 <span class="k">assert</span> <span class="nb">dict</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="o">==</span> <span class="n">dict_of_lists</span>
 <span class="c1"># or use one of many other exports in `to_dict`</span>
-<span class="k">assert</span> <span class="n">table</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">list_of_records</span>
+<span class="k">assert</span> <span class="n">table</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">"records"</span><span class="p">)</span> <span class="o">==</span> <span class="n">list_of_records</span>
 
 <span class="c1"># change headers</span>
-<span class="n">table</span><span class="o">.</span><span class="n">row_headers</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;row1&quot;</span><span class="p">,</span> <span class="s2">&quot;row2&quot;</span><span class="p">)</span>
-<span class="n">table</span><span class="o">.</span><span class="n">column_headers</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">row_headers</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"row1"</span><span class="p">,</span> <span class="s2">"row2"</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">column_headers</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">)</span>
 
 <span class="c1"># setting value clears and resets the table:</span>
 <span class="n">table</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
@@ -3738,11 +3738,11 @@ to download the full example code</p>
 <span class="c1"># table.to_dataframe()</span>
 
 <span class="c1"># the table.changed event emits a dict of information on any cell change</span>
-<span class="c1"># e.g. {&#39;data&#39;: &#39;sdfg&#39;, &#39;row&#39;: 1, &#39;column&#39;: 0, &#39;column_header&#39;: &#39;1&#39;, &#39;row_header&#39;: &#39;1&#39;}</span>
+<span class="c1"># e.g. {'data': 'sdfg', 'row': 1, 'column': 0, 'column_header': '1', 'row_header': '1'}</span>
 <span class="n">table</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
 <span class="n">table</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p><strong>Total running time of the script:</strong> ( 0 minutes  0.038 seconds)</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.107 seconds)</p>
 <div id="download_links"></div>
 
 <p><a class="md-button center" href="../table.py"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v210.7l-41.4-41.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 242.7zM64 320c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64h-46.9l-56.6 56.6c-31.2 31.2-81.9 31.2-113.1 0L110.9 320zm304 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48"/></svg></span> Download Python source code: table.py</a></p>
@@ -3825,7 +3825,7 @@ to download the full example code</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

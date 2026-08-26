@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3681,50 +3681,50 @@ to download the full example code</p>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Medium</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enum for various media and their refractive indices.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enum for various media and their refractive indices."""</span>
 
     <span class="n">Oil</span> <span class="o">=</span> <span class="mf">1.515</span>
     <span class="n">Water</span> <span class="o">=</span> <span class="mf">1.333</span>
     <span class="n">Air</span> <span class="o">=</span> <span class="mf">1.0003</span>
 
 
-<span class="nd">@magicgui</span><span class="p">(</span><span class="n">ri</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;choices&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Oil&quot;</span><span class="p">,</span> <span class="s2">&quot;Water&quot;</span><span class="p">,</span> <span class="s2">&quot;Air&quot;</span><span class="p">]},</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">as_list</span><span class="p">(</span><span class="n">ri</span><span class="o">=</span><span class="s2">&quot;Water&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function decorated with magicgui list of choices.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;refractive index is&quot;</span><span class="p">,</span> <span class="n">Medium</span><span class="p">[</span><span class="n">ri</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="nd">@magicgui</span><span class="p">(</span><span class="n">ri</span><span class="o">=</span><span class="p">{</span><span class="s2">"choices"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Oil"</span><span class="p">,</span> <span class="s2">"Water"</span><span class="p">,</span> <span class="s2">"Air"</span><span class="p">]},</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_list</span><span class="p">(</span><span class="n">ri</span><span class="o">=</span><span class="s2">"Water"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Function decorated with magicgui list of choices."""</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"refractive index is"</span><span class="p">,</span> <span class="n">Medium</span><span class="p">[</span><span class="n">ri</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 
 <span class="nd">@magicgui</span><span class="p">(</span><span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">as_enum</span><span class="p">(</span><span class="n">ri</span><span class="p">:</span> <span class="n">Medium</span> <span class="o">=</span> <span class="n">Medium</span><span class="o">.</span><span class="n">Water</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function decorated with magicgui and enumeration.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;refractive index is&quot;</span><span class="p">,</span> <span class="n">ri</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Function decorated with magicgui and enumeration."""</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"refractive index is"</span><span class="p">,</span> <span class="n">ri</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 
 <span class="nd">@magicgui</span><span class="p">(</span>
-    <span class="n">ri</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;choices&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;Oil&quot;</span><span class="p">,</span> <span class="mf">1.515</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Water&quot;</span><span class="p">,</span> <span class="mf">1.33</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Air&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]},</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">ri</span><span class="o">=</span><span class="p">{</span><span class="s2">"choices"</span><span class="p">:</span> <span class="p">[(</span><span class="s2">"Oil"</span><span class="p">,</span> <span class="mf">1.515</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Water"</span><span class="p">,</span> <span class="mf">1.33</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Air"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]},</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">as_2tuple</span><span class="p">(</span><span class="n">ri</span><span class="o">=</span><span class="mf">1.33</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function decorated with magicgui tuple of choices.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;refractive index is&quot;</span><span class="p">,</span> <span class="n">ri</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Function decorated with magicgui tuple of choices."""</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"refractive index is"</span><span class="p">,</span> <span class="n">ri</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_choices</span><span class="p">(</span><span class="n">gui</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function returning tuple of material and refractive index value.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;Oil&quot;</span><span class="p">,</span> <span class="mf">1.515</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Water&quot;</span><span class="p">,</span> <span class="mf">1.33</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Air&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""Function returning tuple of material and refractive index value."""</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="s2">"Oil"</span><span class="p">,</span> <span class="mf">1.515</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Water"</span><span class="p">,</span> <span class="mf">1.33</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Air"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
 
 
-<span class="nd">@magicgui</span><span class="p">(</span><span class="n">ri</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;choices&quot;</span><span class="p">:</span> <span class="n">get_choices</span><span class="p">},</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@magicgui</span><span class="p">(</span><span class="n">ri</span><span class="o">=</span><span class="p">{</span><span class="s2">"choices"</span><span class="p">:</span> <span class="n">get_choices</span><span class="p">},</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">as_function</span><span class="p">(</span><span class="n">ri</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to calculate refractive index.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;refractive index is&quot;</span><span class="p">,</span> <span class="n">ri</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Function to calculate refractive index."""</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"refractive index is"</span><span class="p">,</span> <span class="n">ri</span><span class="p">)</span>
 
 
 <span class="n">container</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Container</span><span class="p">(</span>
-    <span class="n">widgets</span><span class="o">=</span><span class="p">[</span><span class="n">as_list</span><span class="p">,</span> <span class="n">as_enum</span><span class="p">,</span> <span class="n">as_2tuple</span><span class="p">,</span> <span class="n">as_function</span><span class="p">],</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span>
+    <span class="n">widgets</span><span class="o">=</span><span class="p">[</span><span class="n">as_list</span><span class="p">,</span> <span class="n">as_enum</span><span class="p">,</span> <span class="n">as_2tuple</span><span class="p">,</span> <span class="n">as_function</span><span class="p">],</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"vertical"</span>
 <span class="p">)</span>
 <span class="n">container</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p><strong>Total running time of the script:</strong> ( 0 minutes  0.049 seconds)</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  0.110 seconds)</p>
 <div id="download_links"></div>
 
 <p><a class="md-button center" href="../choices.py"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v210.7l-41.4-41.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 242.7zM64 320c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64h-46.9l-56.6 56.6c-31.2 31.2-81.9 31.2-113.1 0L110.9 320zm304 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48"/></svg></span> Download Python source code: choices.py</a></p>
@@ -3807,7 +3807,7 @@ to download the full example code</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

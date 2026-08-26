@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3990,26 +3990,26 @@ github</a>.</em></p>
 
 
 <span class="c1"># turn the gaussian blur function into a magicgui</span>
-<span class="c1"># - &#39;auto_call&#39; tells magicgui to call the function when a parameter changes</span>
-<span class="c1"># - we use &#39;widget_type&#39; to override the default &quot;float&quot; widget on sigma,</span>
+<span class="c1"># - 'auto_call' tells magicgui to call the function when a parameter changes</span>
+<span class="c1"># - we use 'widget_type' to override the default "float" widget on sigma,</span>
 <span class="c1">#   and provide a maximum valid value.</span>
-<span class="c1"># - we constrain the possible choices for &#39;mode&#39;</span>
+<span class="c1"># - we constrain the possible choices for 'mode'</span>
 <span class="hll"><span class="nd">@magicgui</span><span class="p">(</span>
 </span><span class="hll">    <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span class="hll">    <span class="n">sigma</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;FloatSlider&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
-</span><span class="hll">    <span class="n">mode</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;choices&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="s2">&quot;mirror&quot;</span><span class="p">,</span> <span class="s2">&quot;wrap&quot;</span><span class="p">]},</span>
-</span><span class="hll">    <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span>
+</span><span class="hll">    <span class="n">sigma</span><span class="o">=</span><span class="p">{</span><span class="s2">"widget_type"</span><span class="p">:</span> <span class="s2">"FloatSlider"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+</span><span class="hll">    <span class="n">mode</span><span class="o">=</span><span class="p">{</span><span class="s2">"choices"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"reflect"</span><span class="p">,</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="s2">"nearest"</span><span class="p">,</span> <span class="s2">"mirror"</span><span class="p">,</span> <span class="s2">"wrap"</span><span class="p">]},</span>
+</span><span class="hll">    <span class="n">layout</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
 </span><span class="hll"><span class="p">)</span>
-</span><span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
-    <span class="c1"># Apply a gaussian blur to &#39;layer&#39;.</span>
+</span><span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"nearest"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
+    <span class="c1"># Apply a gaussian blur to 'layer'.</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">skimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 
 
 <span class="c1"># create a viewer and add some images</span>
 <span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astronaut</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;astronaut&quot;</span><span class="p">)</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">grass</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;grass&quot;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astronaut</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"astronaut"</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">grass</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"grass"</span><span class="p">)</span>
 
 <span class="hll"><span class="c1"># Add it to the napari viewer</span>
 </span><span class="n">viewer</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">add_dock_widget</span><span class="p">(</span><span class="n">gaussian_blur</span><span class="p">)</span>
@@ -4028,7 +4028,7 @@ filter to an image.</p>
 It takes a <code>napari</code> <a href="https://napari.org/howtos/layers/image.html">Image
 layer</a>, a <code>sigma</code> to control
 the blur radius, and a <code>mode</code> that determines how edges are handled.</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"nearest"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 </code></pre></div>
 <p>The reasons we are wrapping it here are:</p>
@@ -4052,10 +4052,10 @@ function to the viewer when called.</p>
 <p>Finally, we decorate the function with <code>@magicgui</code> and provide some options.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@magicgui</span><span class="p">(</span>
     <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">sigma</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;FloatSlider&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
-    <span class="n">mode</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;choices&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="s2">&quot;mirror&quot;</span><span class="p">,</span> <span class="s2">&quot;wrap&quot;</span><span class="p">]},</span>
+    <span class="n">sigma</span><span class="o">=</span><span class="p">{</span><span class="s2">"widget_type"</span><span class="p">:</span> <span class="s2">"FloatSlider"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="n">mode</span><span class="o">=</span><span class="p">{</span><span class="s2">"choices"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"reflect"</span><span class="p">,</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="s2">"nearest"</span><span class="p">,</span> <span class="s2">"mirror"</span><span class="p">,</span> <span class="s2">"wrap"</span><span class="p">]},</span>
 <span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"nearest"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
     <span class="c1"># Apply a gaussian blur to ``layer``.</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">skimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
@@ -4101,26 +4101,26 @@ the result of our decorated function anytime it is called.</p>
 
 
 <span class="c1"># turn the gaussian blur function into a magicgui</span>
-<span class="c1"># - &#39;auto_call&#39; tells magicgui to call the function when a parameter changes</span>
-<span class="c1"># - we use &#39;widget_type&#39; to override the default &quot;float&quot; widget on sigma,</span>
+<span class="c1"># - 'auto_call' tells magicgui to call the function when a parameter changes</span>
+<span class="c1"># - we use 'widget_type' to override the default "float" widget on sigma,</span>
 <span class="c1">#   and provide a maximum valid value.</span>
-<span class="c1"># - we constrain the possible choices for &#39;mode&#39;</span>
+<span class="c1"># - we constrain the possible choices for 'mode'</span>
 <span class="nd">@magicgui</span><span class="p">(</span>
     <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">sigma</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;widget_type&quot;</span><span class="p">:</span> <span class="s2">&quot;FloatSlider&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
-    <span class="n">mode</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;choices&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="s2">&quot;mirror&quot;</span><span class="p">,</span> <span class="s2">&quot;wrap&quot;</span><span class="p">]},</span>
-    <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="o">=</span><span class="p">{</span><span class="s2">"widget_type"</span><span class="p">:</span> <span class="s2">"FloatSlider"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="n">mode</span><span class="o">=</span><span class="p">{</span><span class="s2">"choices"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"reflect"</span><span class="p">,</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="s2">"nearest"</span><span class="p">,</span> <span class="s2">"mirror"</span><span class="p">,</span> <span class="s2">"wrap"</span><span class="p">]},</span>
+    <span class="n">layout</span><span class="o">=</span><span class="s2">"horizontal"</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
-    <span class="c1"># Apply a gaussian blur to &#39;layer&#39;.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gaussian_blur</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"nearest"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
+    <span class="c1"># Apply a gaussian blur to 'layer'.</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">skimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 
 
 <span class="c1"># create a viewer and add some images</span>
 <span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astronaut</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;astronaut&quot;</span><span class="p">)</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">grass</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;grass&quot;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astronaut</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"astronaut"</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">skimage</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">grass</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float"</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"grass"</span><span class="p">)</span>
 
 <span class="c1"># Add it to the napari viewer</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">add_dock_widget</span><span class="p">(</span><span class="n">gaussian_blur</span><span class="p">)</span>
@@ -4129,7 +4129,7 @@ the result of our decorated function anytime it is called.</p>
 
 <span class="n">napari</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
-<p><strong>Total running time of the script:</strong> ( 0 minutes  1.726 seconds)</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  1.392 seconds)</p>
 <div id="download_links"></div>
 
 <p><a class="md-button center" href="../napari_parameter_sweep.py"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v210.7l-41.4-41.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 242.7zM64 320c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64h-46.9l-56.6 56.6c-31.2 31.2-81.9 31.2-113.1 0L110.9 320zm304 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48"/></svg></span> Download Python source code: napari_parameter_sweep.py</a></p>
@@ -4212,7 +4212,7 @@ the result of our decorated function anytime it is called.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

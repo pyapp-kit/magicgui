@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3968,7 +3968,7 @@ using the type of the default value otherwise.</p>
     <span class="n">Air</span> <span class="o">=</span> <span class="mf">1.0003</span>
 
 <span class="c1"># decorate your function with the @magicgui decorator</span>
-<span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">&quot;calculate&quot;</span><span class="p">)</span>
+<span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">"calculate"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">snells_law</span><span class="p">(</span><span class="n">aoi</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">n1</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Glass</span><span class="p">,</span> <span class="n">n2</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Water</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">aoi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">aoi</span>
     <span class="k">try</span><span class="p">:</span>
@@ -3976,7 +3976,7 @@ using the type of the default value otherwise.</p>
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">result</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
         <span class="c1"># beyond the critical angle</span>
-        <span class="k">return</span> <span class="s2">&quot;Total internal reflection!&quot;</span>
+        <span class="k">return</span> <span class="s2">"Total internal reflection!"</span>
 
 <span class="n">snells_law</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
@@ -4038,7 +4038,7 @@ defaults change as the user interacts with your GUI.</p>
 the values in the GUI... It's just a one-time call.</p>
 </div>
 <div class="highlight"><pre><span></span><code><span class="c1"># in radians, overriding the value for the second medium (n2)</span>
-<span class="n">snells_law</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">n2</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Air</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># &#39;Total internal reflection!&#39;</span>
+<span class="n">snells_law</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">n2</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Air</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 'Total internal reflection!'</span>
 </code></pre></div>
 </li>
 </ul>
@@ -4051,7 +4051,7 @@ can <code>connect</code> to an arbitrary callback function:</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_callback</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="c1"># The callback receives an `Event` object that has the result</span>
     <span class="c1"># of the function call in the `value` attribute</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Your function was called! The result is: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Your function was called! The result is: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">snells_law</span><span class="p">()</span>
 </code></pre></div>
@@ -4063,7 +4063,7 @@ to the <code>&lt;parameter_name&gt;.changed</code> signal:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># whenever the current value for n1 changes, print it to the console:</span>
 <span class="nd">@snells_law</span><span class="o">.</span><span class="n">n1</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_on_n1_changed</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Medium</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n1 was changed to </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"n1 was changed to </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">snells_law</span><span class="o">.</span><span class="n">n1</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">Medium</span><span class="o">.</span><span class="n">Air</span>
 </code></pre></div>
@@ -4126,8 +4126,8 @@ or connect <a href="../events/">events</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magic_factory</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_on_init</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;widget created!&quot;</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
-    <span class="n">widget</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;y changed!&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"widget created!"</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"y changed!"</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
 
 <span class="nd">@magic_factory</span><span class="p">(</span><span class="n">widget_init</span><span class="o">=</span><span class="n">_on_init</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_factory</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
@@ -4146,7 +4146,7 @@ parameter in the function signature.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Undefined</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">pseudo_magicgui</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="s1">&#39;Callable&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pseudo_magicgui</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="s1">'Callable'</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">Container</span><span class="p">(</span>
         <span class="n">widgets</span><span class="o">=</span><span class="p">[</span>
             <span class="n">create_widget</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">annotation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -4154,7 +4154,7 @@ parameter in the function signature.</p>
         <span class="p">]</span>
     <span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">some_func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hello&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">some_func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'hello'</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
 
 <span class="n">my_widget</span> <span class="o">=</span> <span class="n">pseudo_magicgui</span><span class="p">(</span><span class="n">some_func</span><span class="p">)</span>
@@ -4242,7 +4242,7 @@ function</a>.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

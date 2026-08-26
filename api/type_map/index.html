@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -4219,7 +4219,7 @@
 
 
 <h3 id="magicgui.type_map.TypeMap.create_widget" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">param_kind</span><span class="o">=</span><span class="s1">&#39;POSITIONAL_OR_KEYWORD&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gui_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">widget_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">param_kind</span><span class="o">=</span><span class="s1">'POSITIONAL_OR_KEYWORD'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gui_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">widget_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#magicgui.type_map.TypeMap.create_widget" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -4389,12 +4389,12 @@ is assumed.</p>
     <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_widget</span>
 
 <span class="c1"># create a widget from a string value</span>
-<span class="n">wdg</span> <span class="o">=</span> <span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">wdg</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;hello world&quot;</span>
+<span class="n">wdg</span> <span class="o">=</span> <span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">"hello world"</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">wdg</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">"hello world"</span>
 
 <span class="c1"># create a widget from a string annotation</span>
 <span class="n">wdg</span> <span class="o">=</span> <span class="n">create_widget</span><span class="p">(</span><span class="n">annotation</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">wdg</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+<span class="k">assert</span> <span class="n">wdg</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">""</span>
 </code></pre></div>
 
     </div>
@@ -4513,7 +4513,7 @@ may be different than the options passed in.</p>
 
 
 <h3 id="magicgui.type_map.TypeMap.magic_factory" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">magic_factory</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">scrollable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tooltips</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">call_button</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">main_window</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">param_options</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">magic_factory</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">'vertical'</span><span class="p">,</span> <span class="n">scrollable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tooltips</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">call_button</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">main_window</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">widget_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">param_options</span><span class="p">)</span></code>
 
 <a href="#magicgui.type_map.TypeMap.magic_factory" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -4725,12 +4725,12 @@ as a decorator.</p>
 
 <p><span class="doc-section-title">Examples:</span></p>
     <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nd">@magic_factory</span>
-<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">):</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hello"</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_widget</span> <span class="o">=</span> <span class="n">my_function</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_widget</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_widget</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_widget</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_widget</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">"world"</span>
 </code></pre></div>
 
     </div>
@@ -4741,7 +4741,7 @@ as a decorator.</p>
 
 
 <h3 id="magicgui.type_map.TypeMap.magicgui" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">magicgui</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">scrollable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tooltips</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">call_button</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">main_window</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">param_options</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">magicgui</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">'vertical'</span><span class="p">,</span> <span class="n">scrollable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tooltips</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">call_button</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">main_window</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_on_unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">param_options</span><span class="p">)</span></code>
 
 <a href="#magicgui.type_map.TypeMap.magicgui" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -4921,11 +4921,11 @@ decorator.</p>
 
 <p><span class="doc-section-title">Examples:</span></p>
     <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nd">@magicgui</span>
-<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">):</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hello"</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_function</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_function</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_function</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_function</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">"world"</span>
 </code></pre></div>
 
     </div>
@@ -5242,7 +5242,7 @@ instance, and <code>value</code> is the return value of the decorated function.<
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

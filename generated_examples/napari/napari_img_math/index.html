@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -4036,7 +4036,7 @@ github</a>.</em></p>
 <span class="k">class</span><span class="w"> </span><span class="nc">Operation</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="c1"># A set of valid arithmetic operations for image_arithmetic.</span>
     <span class="c1">#</span>
-    <span class="c1"># To create nice dropdown menus with magicgui, it&#39;s best</span>
+    <span class="c1"># To create nice dropdown menus with magicgui, it's best</span>
     <span class="c1"># (but not required) to use Enums.  Here we make an Enum</span>
     <span class="c1"># class for all of the image math operations we want to</span>
     <span class="c1"># allow.</span>
@@ -4046,9 +4046,9 @@ github</a>.</em></p>
     <span class="n">divide</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">divide</span>
 
 
-<span class="c1"># here&#39;s the magicgui!  We also use the additional</span>
+<span class="c1"># here's the magicgui!  We also use the additional</span>
 <span class="c1"># `call_button` option</span>
-<span class="hll"><span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">&quot;execute&quot;</span><span class="p">)</span>
+<span class="hll"><span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">"execute"</span><span class="p">)</span>
 </span><span class="k">def</span><span class="w"> </span><span class="nf">image_arithmetic</span><span class="p">(</span>
     <span class="n">layerA</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">,</span> <span class="n">layerB</span><span class="p">:</span> <span class="n">ImageData</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
@@ -4058,8 +4058,8 @@ github</a>.</em></p>
 
 <span class="c1"># create a viewer and add a couple image layers</span>
 <span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Layer 1&quot;</span><span class="p">)</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Layer 2&quot;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Layer 1"</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Layer 2"</span><span class="p">)</span>
 
 <span class="hll"><span class="c1"># add our new magicgui widget to the viewer</span>
 </span><span class="n">viewer</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">add_dock_widget</span><span class="p">(</span><span class="n">image_arithmetic</span><span class="p">)</span>
@@ -4104,7 +4104,7 @@ So we gain a <em>lot</em> by annotating the above function with the appropriate
 <h3 id="the-magic-part">the magic part<a class="headerlink" href="#the-magic-part" title="Permanent link">#</a></h3>
 <p>Finally, we decorate the function with <code>@magicgui</code> and tell it we'd like to
 have a <code>call_button</code> that we can click to execute the function.</p>
-<div class="highlight"><pre><span></span><code><span class="hll"><span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">&quot;execute&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="hll"><span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">"execute"</span><span class="p">)</span>
 </span><span class="k">def</span><span class="w"> </span><span class="nf">image_arithmetic</span><span class="p">(</span><span class="n">layerA</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">,</span> <span class="n">layerB</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">operation</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">layerA</span><span class="p">,</span> <span class="n">layerB</span><span class="p">)</span>
 </code></pre></div>
@@ -4177,7 +4177,7 @@ function:</p>
 <span class="k">class</span><span class="w"> </span><span class="nc">Operation</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="c1"># A set of valid arithmetic operations for image_arithmetic.</span>
     <span class="c1">#</span>
-    <span class="c1"># To create nice dropdown menus with magicgui, it&#39;s best</span>
+    <span class="c1"># To create nice dropdown menus with magicgui, it's best</span>
     <span class="c1"># (but not required) to use Enums.  Here we make an Enum</span>
     <span class="c1"># class for all of the image math operations we want to</span>
     <span class="c1"># allow.</span>
@@ -4187,9 +4187,9 @@ function:</p>
     <span class="n">divide</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">divide</span>
 
 
-<span class="c1"># here&#39;s the magicgui!  We also use the additional</span>
+<span class="c1"># here's the magicgui!  We also use the additional</span>
 <span class="c1"># `call_button` option</span>
-<span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">&quot;execute&quot;</span><span class="p">)</span>
+<span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">"execute"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">image_arithmetic</span><span class="p">(</span>
     <span class="n">layerA</span><span class="p">:</span> <span class="n">ImageData</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">,</span> <span class="n">layerB</span><span class="p">:</span> <span class="n">ImageData</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageData</span><span class="p">:</span>
@@ -4199,8 +4199,8 @@ function:</p>
 
 <span class="c1"># create a viewer and add a couple image layers</span>
 <span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Layer 1&quot;</span><span class="p">)</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Layer 2&quot;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Layer 1"</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Layer 2"</span><span class="p">)</span>
 
 <span class="c1"># add our new magicgui widget to the viewer</span>
 <span class="n">viewer</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">add_dock_widget</span><span class="p">(</span><span class="n">image_arithmetic</span><span class="p">)</span>
@@ -4211,7 +4211,7 @@ function:</p>
 
 <span class="n">napari</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
-<p><strong>Total running time of the script:</strong> ( 0 minutes  1.153 seconds)</p>
+<p><strong>Total running time of the script:</strong> ( 0 minutes  1.125 seconds)</p>
 <div id="download_links"></div>
 
 <p><a class="md-button center" href="../napari_img_math.py"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v210.7l-41.4-41.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 242.7zM64 320c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64h-46.9l-56.6 56.6c-31.2 31.2-81.9 31.2-113.1 0L110.9 320zm304 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48"/></svg></span> Download Python source code: napari_img_math.py</a></p>
@@ -4294,7 +4294,7 @@ function:</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

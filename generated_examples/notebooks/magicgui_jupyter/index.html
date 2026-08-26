@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3675,7 +3675,7 @@ to download the full example code</p>
 
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">use_app</span>
 </span><span class="hll">
-</span><span class="n">use_app</span><span class="p">(</span><span class="s2">&quot;ipynb&quot;</span><span class="p">)</span>
+</span><span class="n">use_app</span><span class="p">(</span><span class="s2">"ipynb"</span><span class="p">)</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Medium</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -3687,7 +3687,7 @@ to download the full example code</p>
 
 
 <span class="nd">@magicgui</span><span class="p">(</span>
-    <span class="n">call_button</span><span class="o">=</span><span class="s2">&quot;calculate&quot;</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">call_button</span><span class="o">=</span><span class="s2">"calculate"</span><span class="p">,</span> <span class="n">result_widget</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"vertical"</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">snells_law</span><span class="p">(</span><span class="n">aoi</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n1</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Glass</span><span class="p">,</span> <span class="n">n2</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">Water</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="c1"># Calculate the angle of refraction given two media and an angle of incidence.</span>
@@ -3699,7 +3699,7 @@ to download the full example code</p>
         <span class="n">result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">asin</span><span class="p">(</span><span class="n">n1</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span> <span class="o">/</span> <span class="n">n2</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span> <span class="k">else</span> <span class="n">result</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># math domain error</span>
-        <span class="k">return</span> <span class="s2">&quot;TIR!&quot;</span>
+        <span class="k">return</span> <span class="s2">"TIR!"</span>
 
 
 <span class="n">snells_law</span>
@@ -3790,7 +3790,7 @@ to download the full example code</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

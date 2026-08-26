@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -4174,7 +4174,7 @@ corresponding <code>Widget</code> class, and parametrized with the corresponding
 <tr>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/ProgressBar/#magicgui.widgets.ProgressBar"><code>magicgui.widgets.ProgressBar</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/ProgressBar/#magicgui.widgets.ProgressBar"><code>ProgressBar</code></a></td>
-<td><code>{'bind': &lt;function TypeMap.match_type.&lt;locals&gt;.&lt;lambda&gt; at 0x145d6fb00&gt;, 'visible': True}</code></td>
+<td><code>{'bind': &lt;function TypeMap.match_type.&lt;locals&gt;.&lt;lambda&gt; at 0x12ba96c00&gt;, 'visible': True}</code></td>
 </tr>
 <tr>
 <td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/types.html#types.FunctionType"><code>types.FunctionType</code></a></td>
@@ -4202,7 +4202,7 @@ corresponding <code>Widget</code> class, and parametrized with the corresponding
     <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span>
     <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span>
     <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
-    <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]],</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">[</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">]],</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">,</span>
     <span class="n">widgets</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">Quantity</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -4309,7 +4309,7 @@ valid for the corresponding widget type).</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
-<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">&#39;widget_type&#39;</span><span class="p">,</span> <span class="s1">&#39;Slider&#39;</span><span class="p">),(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">'widget_type'</span><span class="p">,</span> <span class="s1">'Slider'</span><span class="p">),(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">'max'</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
 <span class="n">wdg2</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="n">Int10_50</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -4317,7 +4317,7 @@ valid for the corresponding widget type).</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
-<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">&#39;widget_type&#39;</span><span class="p">,</span> <span class="s1">&#39;Slider&#39;</span><span class="p">),(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">'widget_type'</span><span class="p">,</span> <span class="s1">'Slider'</span><span class="p">),(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">'max'</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
 
 <span class="nd">@magicgui</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_widget</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Int10_50</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
@@ -4328,7 +4328,7 @@ valid for the corresponding widget type).</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">guiclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
-<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">&#39;widget_type&#39;</span><span class="p">,</span> <span class="s1">&#39;Slider&#39;</span><span class="p">),(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">'widget_type'</span><span class="p">,</span> <span class="s1">'Slider'</span><span class="p">),(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">'max'</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
 
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyObject</span><span class="p">:</span>
@@ -4345,13 +4345,13 @@ valid for the corresponding widget type).</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Slider</span>
 
-<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
 <span class="n">wdg3</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">widget_type</span><span class="o">=</span><span class="n">Slider</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="n">wdg3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/type_map_1.png" /></p>
 <p>... or to the <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicgui"><code>magicgui</code></a> decorator:</p>
-<p><div class="highlight"><pre><span></span><code><span class="nd">@magicgui</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;widget_type&#39;</span><span class="p">:</span> <span class="s1">&#39;Slider&#39;</span><span class="p">,</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">})</span>
+<p><div class="highlight"><pre><span></span><code><span class="nd">@magicgui</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">{</span><span class="s1">'widget_type'</span><span class="p">:</span> <span class="s1">'Slider'</span><span class="p">,</span> <span class="s1">'step'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">:</span> <span class="mi">50</span><span class="p">})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_widget</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
     <span class="o">...</span>
 
@@ -4374,7 +4374,7 @@ may be expressed as a string literal, to be resolved later.  This is called a
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">mymodule</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyType</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="s1">&#39;MyType&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="s1">'MyType'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
 <h3 id="__future__annotations"><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a0.svg" title=":warning:" /> <code>__future__.annotations</code><a class="headerlink" href="#__future__annotations" title="Permanent link">#</a></h3>
@@ -4390,7 +4390,7 @@ strings (regardless of whether they are enclosed in quotes or not).</p>
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">mymodule</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyType</span>
 
-<span class="c1"># no longer necessary to use quotes around &#39;MyType&#39;</span>
+<span class="c1"># no longer necessary to use quotes around 'MyType'</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">MyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
@@ -4512,7 +4512,7 @@ napari</a>.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

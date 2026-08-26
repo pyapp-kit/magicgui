@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3852,7 +3852,7 @@ The following is a very brief example of the key features:</p>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="c1"># (2)!</span>
     <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># (3)!</span>
 
-<span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;John&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># (4)!</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'John'</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># (4)!</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="c1"># (5)!</span>
 </code></pre></div>
 <ol>
@@ -3918,7 +3918,7 @@ and <a href="https://traitlets.readthedocs.io/en/stable/api.html#traitlets.HasTr
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyDataclass</span><span class="p">:</span>
     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hello&#39;</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'hello'</span>
     <span class="n">c</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">()</span>
@@ -3933,7 +3933,7 @@ that controls the value of the <code>a</code> attribute.</p>
 <code>obj.gui</code> will update.  Similarly, as you change the value of the widgets in the
 <code>obj.gui</code>, the values of the <code>obj</code> instance will be updated.</p>
 <p><div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">obj</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;world&#39;</span>
+<span class="n">obj</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s1">'world'</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="n">obj</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -3967,9 +3967,9 @@ to position the button in the layout will be added in the future.</p>
 
     <span class="nd">@button</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
-<span class="n">greeter</span> <span class="o">=</span> <span class="n">Greeter</span><span class="p">(</span><span class="s1">&#39;Talley&#39;</span><span class="p">)</span>
+<span class="n">greeter</span> <span class="o">=</span> <span class="n">Greeter</span><span class="p">(</span><span class="s1">'Talley'</span><span class="p">)</span>
 <span class="n">greeter</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/dataclasses_2.png" /></p>
@@ -4059,7 +4059,7 @@ designed with pure functions that take inputs and return outputs in mind.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.annotate", "navigation.sections", "navigation.indexes", "toc.follow", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
