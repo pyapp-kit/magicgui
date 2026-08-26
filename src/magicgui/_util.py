@@ -4,11 +4,14 @@ import inspect
 import os
 import sys
 import time
+import types
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Union,
     get_args,
     get_origin,
     overload,
@@ -25,6 +28,16 @@ if TYPE_CHECKING:
     T = TypeVar("T")
     P = ParamSpec("P")
     C = TypeVar("C", bound=type)
+
+
+def is_union(annotation: Any) -> bool:
+    """Return True if `annotation` is a union, in either spelling.
+
+    `Union[X, Y]` and `X | Y` have different origins (`typing.Union` and
+    `types.UnionType`) on python < 3.14, so both must be checked.
+    """
+    origin = get_origin(annotation)
+    return origin is Union or origin is types.UnionType
 
 
 @overload

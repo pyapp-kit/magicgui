@@ -32,7 +32,7 @@ from typing_extensions import ParamSpec
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
-from magicgui._util import safe_issubclass
+from magicgui._util import is_union, safe_issubclass
 from magicgui.application import AppRef, use_app
 from magicgui.types import PathLike, ReturnCallback, Undefined, _Undefined
 from magicgui.widgets import protocols
@@ -994,7 +994,7 @@ class TypeMap:
         _validate_return_callback(return_callback)
         # if the type is a Union, add the callback to all of the types in the union
         # (except NoneType)
-        if get_origin(resolved_type) is Union:
+        if is_union(resolved_type):
             for type_per in _generate_union_variants(resolved_type):
                 if return_callback not in self._return_callbacks[type_per]:
                     self._return_callbacks[type_per].append(return_callback)

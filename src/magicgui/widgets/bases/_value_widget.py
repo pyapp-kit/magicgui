@@ -7,14 +7,13 @@ from typing import (
     Any,
     Generic,
     TypeVar,
-    Union,
     cast,
     get_args,
-    get_origin,
 )
 
 from psygnal import Signal
 
+from magicgui._util import is_union
 from magicgui.types import Undefined, _Undefined
 
 from ._widget import Widget
@@ -167,7 +166,7 @@ class BaseValueWidget(Widget, ABC, Generic[T]):
         annotation will return the first argument in the Optional clause.
         """
         annotation = Widget.annotation.fget(self)  # type: ignore
-        if self._nullable and get_origin(annotation) is Union:
+        if self._nullable and is_union(annotation):
             return get_args(annotation)[0]
         return annotation
 
