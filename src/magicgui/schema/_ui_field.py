@@ -21,6 +21,7 @@ from typing import (
     get_origin,
 )
 
+from magicgui._util import is_union
 from magicgui.types import JsonStringFormats, Undefined, _Undefined
 
 if TYPE_CHECKING:
@@ -53,7 +54,7 @@ class UiField(Generic[T]):
 
     def __post_init__(self) -> None:
         """Coerce Optional[...] to nullable and remove it from the type."""
-        if get_origin(self.type) is Union:
+        if is_union(self.type):
             args = get_args(self.type)
             nonnull = tuple(a for a in args if a is not type(None))
             if len(nonnull) < len(args):
@@ -601,7 +602,7 @@ def _uifield_from_pydantic2(finfo: FieldInfo, name: str) -> UiField:
     )
 
     nullable = None
-    if get_origin(finfo.annotation) is Union and any(
+    if is_union(finfo.annotation) and any(
         i for i in get_args(finfo.annotation) if i is type(None)
     ):
         nullable = True
