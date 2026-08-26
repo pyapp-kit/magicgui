@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import builtins
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from math import ceil, log10
-from typing import TYPE_CHECKING, Callable, TypeVar, Union, cast
+from typing import TYPE_CHECKING, TypeVar, Union, cast
 
 from magicgui.types import Undefined, _Undefined
 

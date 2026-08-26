@@ -1,10 +1,19 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, Union, cast
+from collections.abc import Callable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    TypeVar,
+    Union,
+    cast,
+    get_args,
+    get_origin,
+)
 
 from psygnal import Signal
-from typing_extensions import get_args, get_origin
 
 from magicgui.types import Undefined, _Undefined
 

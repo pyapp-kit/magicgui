@@ -11,10 +11,10 @@ For an example backend implementation, see ``magicgui.backends._qtpy.widgets``
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     NoReturn,
     Protocol,
     runtime_checkable,

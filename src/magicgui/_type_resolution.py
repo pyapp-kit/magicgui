@@ -1,9 +1,10 @@
 import types
 import typing
+from collections.abc import Callable
 from copy import copy
 from functools import lru_cache, partial
 from importlib import import_module
-from typing import Any, Callable, Optional, Union, get_type_hints
+from typing import Any, Optional, Union, get_type_hints
 
 try:
     from toolz import curry

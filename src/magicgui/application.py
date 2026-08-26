@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import signal
+from collections.abc import Callable
 from contextlib import contextmanager
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from magicgui.backends import BACKENDS
 
