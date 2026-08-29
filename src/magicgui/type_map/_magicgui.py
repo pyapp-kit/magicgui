@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from functools import partial
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from magicgui.type_map._type_map import TypeMap
 from magicgui.widgets import FunctionGui
@@ -103,6 +104,37 @@ class MagicFactory(partial, Generic[_FGuiVar]):
         if self._widget_init is not None:
             self._widget_init(widget)
         return widget
+
+    def __get__(self, obj: object, objtype: type | None = None) -> MagicFactory:
+        """Provide descriptor protocol.
+
+        This allows the `@magic_factory` decorator to work on a method as well as
+        on a plain function.  Accessing the attribute on an instance returns a
+        factory whose widgets bind the first parameter of the function to that
+        instance, mirroring `FunctionGui.__get__`.
+
+        Without this, `functools.partial.__get__` (added in Python 3.13) would
+        bind the instance as the first *positional* argument of the factory,
+        while on older versions the instance was simply never passed at all.
+        """
+        if obj is None:
+            return self
+        function = self.keywords.get("function")
+        if function is None:  # pragma: no cover
+            return self
+        p0 = next(iter(inspect.signature(function).parameters), None)
+        if p0 is None:  # pragma: no cover
+            return self
+        keywords = self.keywords.copy()
+        param_options = dict(keywords.pop("param_options", None) or {})
+        param_options.setdefault(p0, {"bind": obj})
+        return type(self)(
+            magic_class=self.func,  # type: ignore
+            widget_init=self._widget_init,
+            type_map=self._type_map,
+            param_options=param_options,
+            **keywords,
+        )
 
     def __getattr__(self, name: str) -> Any:
         """Allow accessing FunctionGui attributes without mypy error."""

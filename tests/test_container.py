@@ -58,6 +58,41 @@ def test_container_label_widths(scrollable):
     container.close()
 
 
+def test_container_label_widths_unified_on_construction():
+    """Constructor and append should produce the same label alignment.
+
+    Regression test for https://github.com/pyapp-kit/magicgui/issues/729
+    """
+
+    def _label_widths(container):
+        return [
+            w._labeled_widget().label_width
+            for w in container
+            if w._labeled_widget() is not None
+        ]
+
+    via_constructor = widgets.Container(
+        widgets=[
+            widgets.LineEdit(label="Name", value="Ada"),
+            widgets.SpinBox(label="Very long label", value=3),
+        ]
+    )
+    via_append = widgets.Container()
+    via_append.append(widgets.LineEdit(label="Name", value="Ada"))
+    via_append.append(widgets.SpinBox(label="Very long label", value=3))
+
+    constructor_widths = _label_widths(via_constructor)
+    append_widths = _label_widths(via_append)
+
+    # all labels within a container should share the same (widest) width
+    assert len(set(constructor_widths)) == 1
+    # and both construction methods should agree
+    assert constructor_widths == append_widths
+
+    via_constructor.close()
+    via_append.close()
+
+
 @pytest.mark.parametrize("scrollable", [False, True])
 def test_labeled_widget_container(scrollable):
     """Test that _LabeledWidgets follow their children."""

@@ -5,13 +5,22 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 
+# hatchling 1.32 emits core metadata 2.5 by default, which twine (as run by
+# build-and-inspect-python-package) rejects.  TODO: remove once twine there
+# accepts metadata 2.5.
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
+
+[tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
+
 # https://peps.python.org/pep-0621/
 [project]
 name = "magicgui"
 description = " build GUIs from python types"
 keywords = ["gui", "widgets", "type annotations"]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ email = "talley.lambert@gmail.com", name = "Talley Lambert" }]
 classifiers = [
@@ -23,8 +32,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -54,7 +61,6 @@ pyqt5 = [
     "pyqt5-qt5>5.15.2; sys_platform != 'win32'",
 ]
 pyqt6 = ["pyqt6>=6.4.0"]
-pyside2 = ["pyside2>=5.15"]
 pyside6 = ["pyside6>=6.4.0"]
 tqdm = ["tqdm>=4.30.0"]
 jupyter = ["ipywidgets>=8.0.0"]
@@ -69,13 +75,14 @@ third-party-support = [
     "matplotlib>=3.9.4",
     "numpy>=2.1.0; python_version >= '3.13'",
     "numpy>=1.26.4",
-    "pandas>=2.2.3; python_version >= '3.11'",
-    "pandas>=2.1",
+    "pandas>=2.2.3",
     "pydantic>=1.10.18",
     "toolz>=1.0.0",
 ]
 test-min = ["pytest>=8.4.0", "pytest-cov >=6.1", "pytest-mypy-plugins>=3.1"]
-test-qt = [{ include-group = "test-min" }, "pytest-qt ==4.4.0"]
+# pytest-qt >=4.5 fixes SystemError/TimeoutError in qtbot.waitSignal with
+# recent PySide6 (pytest-dev/pytest-qt#552)
+test-qt = [{ include-group = "test-min" }, "pytest-qt>=4.5.0"]
 test = [
     "magicgui[tqdm,jupyter,image,quantity]",
     { include-group = "test-min" },
@@ -83,13 +90,12 @@ test = [
 ]
 pyqt5 = ["magicgui[pyqt5]", { include-group = "test-qt" }]
 pyqt6 = ["magicgui[pyqt6]", { include-group = "test-qt" }]
-pyside2 = ["magicgui[pyside2]", { include-group = "test-qt" }, "numpy<2; python_version < '3.13'"]
 pyside6 = ["magicgui[pyside6]", { include-group = "test-qt" }]
 dev = [
     { include-group = "test" },
-    "ruff>=0.8.3",
+    "ruff>=0.16.4",
     "ipython>=8.18.0",
-    "mypy>=1.13.0",
+    "mypy>=2.3.1",
     "pdbpp>=0.11.6; sys_platform != 'win32'",
     "pre-commit-uv>=4",
     "pyqt6>=6.8.0",
@@ -131,7 +137,7 @@ documentation = "https://pyapp-kit.github.io/magicgui/"
 # https://docs.astral.sh/ruff
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py311"
 src = ["src", "tests"]
 fix = true
 unsafe-fixes = true
@@ -155,11 +161,23 @@ select = [
 ]
 ignore = [
     "D401", # First line should be in imperative mood
+    # `Union` is still needed as a runtime *value* for the public type aliases
+    # (PathLike, ChoicesType, AppRef, TableData, ...) and for `Union[args]`
+    # construction; ruff offers no fix for those, so the rule can't be enabled.
+    "UP007", # Use `X | Y` for type annotations
 ]
 
+[tool.ruff.lint.flake8-type-checking]
+# ruff exempts `typing`/`typing_extensions` by default; `collections.abc` now
+# supplies Callable etc. after the pyupgrade rewrite, and magicgui resolves
+# annotations at runtime -- so these names must stay importable at runtime.
+exempt-modules = ["typing", "typing_extensions", "collections.abc"]
+
 [tool.ruff.lint.per-file-ignores]
-"tests/*.py" = ["D", "S", "E501"]
-"tests/test_util.py" = ["D", "S", "E501", "UP006"]
+# tests deliberately exercise both `Union[X, Y]` and `X | Y` spellings,
+# so they must not be rewritten to one of them (see test_no_order)
+"tests/*.py" = ["D", "S", "E501", "UP007", "UP045"]
+"tests/test_util.py" = ["D", "S", "E501", "UP006", "UP007", "UP045"]
 "docs/*.py" = ["B"]
 "docs/examples/*.py" = ["D", "B", "E501"]
 "src/magicgui/widgets/_image/*.py" = ["D"]

@@ -35,9 +35,31 @@ def always_qapp(qapp):
 
 
 @pytest.fixture(autouse=True, scope="function")
-def _clean_return_callbacks():
+def _clean_type_map():
+    """Undo any mutation of the global type map made during a test.
+
+    `register_type` mutates the global `TypeMap` in place, and not every caller
+    undoes it -- example scripts run by `test_examples.py` register widget types
+    at import time (e.g. `matplotlib/waveform.py` maps `int` -> `Slider`), which
+    would otherwise change widget selection for every subsequent test.
+    """
     from magicgui.type_map import TypeMap
+
+    type_map = TypeMap.global_instance()
+    mappings = (
+        type_map._simple_types,
+        type_map._simple_annotations,
+        type_map._type_defs,
+        type_map._additional_kwargs,
+    )
+    before = [dict(mapping) for mapping in mappings]
+    # values here are lists, which tests may append to in place
+    callbacks_before = {k: list(v) for k, v in type_map._return_callbacks.items()}
 
     yield
 
-    TypeMap.global_instance()._return_callbacks.clear()
+    for mapping, snapshot in zip(mappings, before, strict=False):
+        mapping.clear()
+        mapping.update(snapshot)
+    type_map._return_callbacks.clear()
+    type_map._return_callbacks.update(callbacks_before)
