@@ -72,6 +72,7 @@ class MenuBarWidget(_SupportsMenus, Widget):
 
     def clear(self) -> None:
         """Clear the menu bar."""
+        self._menus.clear()
         self._widget._mgui_clear()
 
 
@@ -122,4 +123,5 @@ class MenuWidget(_SupportsMenus, Widget):
 
     def clear(self) -> None:
         """Clear the menu."""
+        self._menus.clear()
         self._widget._mgui_clear()

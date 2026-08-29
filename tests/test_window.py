@@ -138,6 +138,14 @@ def test_main_window_menus(backend):
 
     file_menu.clear()
     main.menu_bar.clear()
+    with pytest.raises(KeyError):
+        main.menu_bar["File"]
+    if backend == "qt":
+        assert not file_menu.native.actions()
+        assert not main.menu_bar.native.actions()
+    else:
+        assert len(file_menu.native.options) == 1  # only the title placeholder
+        assert main.menu_bar.native.children == ()
     main.menu_bar = None
     main.close()
 

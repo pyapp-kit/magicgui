@@ -600,6 +600,7 @@ class MenuBar(QBaseWidget, protocols.MenuBarProtocol):
 
     def _mgui_clear(self) -> None:
         """Clear the menu bar."""
+        self._qwidget.clear()
 
 
 class Menu(QBaseWidget, protocols.MenuProtocol):
@@ -656,7 +657,7 @@ class Menu(QBaseWidget, protocols.MenuProtocol):
         _add_qmenu(self._qwidget, widget)
 
     def _mgui_clear(self) -> None:
-        """Clear the menu bar."""
+        """Clear the menu."""
         self._qwidget.clear()
 
 
