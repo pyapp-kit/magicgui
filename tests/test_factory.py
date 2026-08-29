@@ -145,3 +145,20 @@ def test_none_defaults():
         return 1
 
     assert factory()() == 1
+
+
+def test_magic_factory_as_method():
+    """A magic_factory used on a method should bind the instance to `self`."""
+
+    class MyClass:
+        def __init__(self, x: int):
+            self.x = x
+
+        @magic_factory
+        def factory(self):
+            return self.x
+
+    obj = MyClass(x=5)
+    widget = obj.factory()
+    assert isinstance(widget, FunctionGui)
+    assert widget() == 5
