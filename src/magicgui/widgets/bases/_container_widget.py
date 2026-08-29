@@ -104,6 +104,10 @@ class BaseContainerWidget(Widget, _OrientationMixin, Sequence[WidgetVar]):
             self._insert_widget(index, widget)
         self.native_parent_changed.connect(self.reset_choices)
         self._initialized = True
+        # label widths are not unified during __init__ (because _unify_label_widths
+        # is a no-op until _initialized is True), so do it once now that all the
+        # widgets passed to the constructor have been inserted.
+        self._unify_label_widths()
 
     def __len__(self) -> int:
         """Return the count of widgets."""
