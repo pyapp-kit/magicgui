@@ -11,8 +11,9 @@ from __future__ import annotations
 
 import contextlib
 import warnings
+from collections.abc import Callable
 from dataclasses import Field, dataclass, field, is_dataclass
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar, overload
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar, overload
 
 from psygnal import SignalGroup, SignalInstance, evented, is_evented
 from psygnal import __version__ as psygnal_version
@@ -23,9 +24,7 @@ from magicgui.widgets.bases import BaseValueWidget, ContainerWidget
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Protocol
-
-    from typing_extensions import TypeGuard
+    from typing import Protocol, TypeGuard
 
     # fmt: off
     class GuiClassProtocol(Protocol):

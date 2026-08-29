@@ -1,9 +1,10 @@
 import types
 import typing
+from collections.abc import Callable
 from copy import copy
 from functools import lru_cache, partial
 from importlib import import_module
-from typing import Any, Callable, Optional, Union, get_type_hints
+from typing import Any, Union, get_type_hints
 
 try:
     from toolz import curry
@@ -26,8 +27,8 @@ def _unwrap_partial(func: Any) -> Any:
 
 def resolve_types(
     obj: Union[Callable, types.ModuleType, types.MethodType, type],
-    globalns: Optional[dict[str, Any]] = None,
-    localns: Optional[dict[str, Any]] = None,
+    globalns: dict[str, Any] | None = None,
+    localns: dict[str, Any] | None = None,
     do_imports: bool = False,
 ) -> dict[str, Any]:
     """Resolve type hints from an object.
@@ -79,8 +80,8 @@ def _resolve_forwards(v: Any) -> Any:
 
 def resolve_single_type(
     hint: Any,
-    globalns: Optional[dict[str, Any]] = None,
-    localns: Optional[dict[str, Any]] = None,
+    globalns: dict[str, Any] | None = None,
+    localns: dict[str, Any] | None = None,
     do_imports: bool = True,
 ) -> Any:
     """Resolve a single type hint.

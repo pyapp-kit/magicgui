@@ -1,11 +1,10 @@
 from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, Union, get_args
 from unittest.mock import Mock
 
 import pytest
-from typing_extensions import get_args
 
 from magicgui import magicgui, register_type, type_map, type_registered, types, widgets
 from magicgui.type_map import TypeMap
@@ -248,3 +247,36 @@ def test_multiple_type_maps():
     assert isinstance(fgui0[1], widgets.LineEdit)
     assert isinstance(fgui1[0], widgets.Slider)
     assert isinstance(fgui1[1], widgets.LineEdit)
+
+
+def test_pep604_union_matches_typing_union():
+    """`X | None` should behave exactly like `Optional[X]`.
+
+    On python < 3.14 `get_origin(int | None)` is `types.UnionType` rather than
+    `typing.Union`, so anything comparing against `Union` must accept both.
+    """
+    old = widgets.create_widget(annotation=Optional[int])
+    new = widgets.create_widget(annotation=int | None)
+
+    assert type(new) is type(old)
+    assert new._nullable is old._nullable is True
+    # the Optional wrapper is stripped from the reported annotation
+    assert new.annotation is old.annotation is int
+
+
+def test_pep604_union_return_callback():
+    """Registering `X | Y` should register each member, as `Union[X, Y]` does."""
+    mock = Mock()
+    register_type(int | str, return_callback=mock)
+    try:
+        # registering a union registers a callback for each member type
+        @magicgui
+        def f() -> int:
+            return 1
+
+        f()
+        mock.assert_called_once()
+    finally:
+        callbacks = TypeMap.global_instance()._return_callbacks
+        for key in (int, str, Union[int, str]):
+            callbacks.pop(key, None)

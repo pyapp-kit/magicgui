@@ -4,11 +4,14 @@ import inspect
 import os
 import sys
 import time
+import types
+from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
-    Callable,
+    Any,
+    Union,
     get_args,
     get_origin,
     overload,
@@ -25,6 +28,16 @@ if TYPE_CHECKING:
     T = TypeVar("T")
     P = ParamSpec("P")
     C = TypeVar("C", bound=type)
+
+
+def is_union(annotation: Any) -> bool:
+    """Return True if `annotation` is a union, in either spelling.
+
+    `Union[X, Y]` and `X | Y` have different origins (`typing.Union` and
+    `types.UnionType`) on python < 3.14, so both must be checked.
+    """
+    origin = get_origin(annotation)
+    return origin is Union or origin is types.UnionType
 
 
 @overload
@@ -177,7 +190,8 @@ def _safe_isinstance_tuple(obj: object, superclass: object) -> bool:
             return all(safe_issubclass(o, superclass_args[0]) for o in obj_args)
         # fallback to simple compare
         return len(obj_args) == len(superclass_args) and all(
-            safe_issubclass(o, s) for o, s in zip(obj_args, superclass_args)
+            safe_issubclass(o, s)
+            for o, s in zip(obj_args, superclass_args, strict=False)
         )
 
     if len(obj_args) == 2 and obj_args[1] is Ellipsis:
@@ -215,7 +229,10 @@ def safe_issubclass(obj: object, superclass: object) -> bool:
             return True
         if len(obj_args) != len(superclass_args):
             return False
-        return all(safe_issubclass(o, s) for o, s in zip(obj_args, superclass_args))
+        return all(
+            safe_issubclass(o, s)
+            for o, s in zip(obj_args, superclass_args, strict=False)
+        )
 
     except Exception:
         return False

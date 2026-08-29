@@ -54,7 +54,7 @@ Agreement.
 import logging
 from collections.abc import Collection
 from functools import lru_cache
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 try:
     import numpy as np
@@ -513,7 +513,7 @@ class Image(ScalarMappable):
     def set_data(
         self,
         A: Union[str, "Path", "np.ndarray", "PIL.Image.Image"],
-        format: Optional[str] = None,
+        format: str | None = None,
     ):
         """Set the image array.
 

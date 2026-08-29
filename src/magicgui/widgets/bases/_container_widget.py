@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Iterable, Mapping, MutableSequence, Sequence
+from collections.abc import Callable, Iterable, Mapping, MutableSequence, Sequence
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Generic,
     NoReturn,
     TypeVar,
@@ -493,25 +492,6 @@ class ContainerWidget(BaseContainerWidget[WidgetVar], MutableSequence[WidgetVar]
                 val = pickle.loads(val)
                 if val != self.NO_VALUE:
                     getattr(self, key).value = val
-
-
-class MainWindowWidget(ContainerWidget):
-    """Top level Application widget that can contain other widgets."""
-
-    _widget: protocols.MainWindowProtocol
-
-    def create_menu_item(
-        self,
-        menu_name: str,
-        item_name: str,
-        callback: Callable | None = None,
-        shortcut: str | None = None,
-    ) -> None:
-        """Create a menu item ``item_name`` under menu ``menu_name``.
-
-        ``menu_name`` will be created if it does not already exist.
-        """
-        self._widget._mgui_create_menu_item(menu_name, item_name, callback, shortcut)
 
 
 class DialogWidget(ContainerWidget):
