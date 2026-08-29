@@ -11,27 +11,28 @@ import sys
 import types
 import warnings
 from collections import defaultdict
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from enum import EnumMeta
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     ForwardRef,
     Literal,
     TypeVar,
     Union,
     cast,
+    get_args,
+    get_origin,
     overload,
 )
 
-from typing_extensions import ParamSpec, get_args, get_origin
+from typing_extensions import ParamSpec
 
 from magicgui import widgets
 from magicgui._type_resolution import resolve_single_type
-from magicgui._util import safe_issubclass
+from magicgui._util import is_union, safe_issubclass
 from magicgui.application import AppRef, use_app
 from magicgui.types import PathLike, ReturnCallback, Undefined, _Undefined
 from magicgui.widgets import protocols
@@ -149,7 +150,7 @@ class TypeMap:
 
         if safe_issubclass(origin, set):
             for arg in get_args(type_):
-                if get_origin(arg) is Literal:  # type: ignore [comparison-overlap]
+                if get_origin(arg) is Literal:
                     return widgets.Select, {"choices": get_args(arg)}
 
         pint = sys.modules.get("pint")
@@ -993,7 +994,7 @@ class TypeMap:
         _validate_return_callback(return_callback)
         # if the type is a Union, add the callback to all of the types in the union
         # (except NoneType)
-        if get_origin(resolved_type) is Union:
+        if is_union(resolved_type):
             for type_per in _generate_union_variants(resolved_type):
                 if return_callback not in self._return_callbacks[type_per]:
                     self._return_callbacks[type_per].append(return_callback)

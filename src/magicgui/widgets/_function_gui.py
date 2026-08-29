@@ -8,12 +8,12 @@ from __future__ import annotations
 import inspect
 import re
 from collections import deque
+from collections.abc import Callable
 from contextlib import contextmanager
 from types import FunctionType
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Generic,
     NoReturn,
     TypeVar,

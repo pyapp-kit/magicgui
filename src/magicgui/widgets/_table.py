@@ -30,9 +30,11 @@ from magicgui.widgets.bases._mixins import _ReadOnlyMixin
 from magicgui.widgets.bases._value_widget import ValueWidget
 
 if TYPE_CHECKING:
+    from typing import TypeGuard
+
     import numpy
     import pandas
-    from typing_extensions import TypeGuard, Unpack
+    from typing_extensions import Unpack
 
     from magicgui.widgets.protocols import TableWidgetProtocol
 
@@ -502,7 +504,7 @@ class Table(
     def _set_rowi(self, row: int, value: Collection, cols: slice = SliceNone) -> None:
         """Set row by row index."""
         self._assert_row(row)
-        for v, col in zip(value, self._iter_slice(cols, 1)):
+        for v, col in zip(value, self._iter_slice(cols, 1), strict=False):
             self._set_cell(row, col, v)
 
     def _assert_row(self, row: int) -> int:
@@ -697,7 +699,7 @@ class DataView:
                     if c_idx.step and c_idx.step != 1:
                         # TODO: check value is iterable
                         self._assert_extended_slice(c_idx, len(value[0]), axis=1)
-                    for v, r in zip(value, obj._iter_slice(r_idx, 0)):
+                    for v, r in zip(value, obj._iter_slice(r_idx, 0), strict=False):
                         obj._set_rowi(r, v, c_idx)
                     return
         raise ValueError(f"Not a valid idx for __setitem__ {idx!r}")
@@ -791,7 +793,7 @@ def _from_nested_column_dict(data: dict) -> tuple[list[list], list]:
         break
 
     new_data = [[s[i] for i in index] for s in data.values()]
-    return [list(x) for x in zip(*new_data)], index
+    return [list(x) for x in zip(*new_data, strict=False)], index
 
 
 def _from_dict(data: dict) -> tuple[list[list], list, list]:
@@ -806,7 +808,7 @@ def _from_dict(data: dict) -> tuple[list[list], list, list]:
         _data, index = _from_nested_column_dict(data)
     else:
         try:
-            _data = [list(x) for x in zip(*data.values())]
+            _data = [list(x) for x in zip(*data.values(), strict=False)]
         except TypeError as err:
             raise ValueError(
                 "All values in the dict must be iterable (e.g. a list)."

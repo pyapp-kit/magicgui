@@ -17,10 +17,9 @@ from __future__ import annotations
 import inspect
 import typing
 import warnings
+from collections.abc import Callable
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Annotated, Any, Callable, cast
-
-from typing_extensions import get_args, get_origin
+from typing import TYPE_CHECKING, Annotated, Any, cast, get_args, get_origin
 
 from magicgui.types import Undefined
 

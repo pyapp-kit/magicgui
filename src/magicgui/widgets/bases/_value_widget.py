@@ -1,11 +1,19 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, Union, cast
+from collections.abc import Callable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    TypeVar,
+    cast,
+    get_args,
+)
 
 from psygnal import Signal
-from typing_extensions import get_args, get_origin
 
+from magicgui._util import is_union
 from magicgui.types import Undefined, _Undefined
 
 from ._widget import Widget
@@ -158,7 +166,7 @@ class BaseValueWidget(Widget, ABC, Generic[T]):
         annotation will return the first argument in the Optional clause.
         """
         annotation = Widget.annotation.fget(self)  # type: ignore
-        if self._nullable and get_origin(annotation) is Union:
+        if self._nullable and is_union(annotation):
             return get_args(annotation)[0]
         return annotation
 
