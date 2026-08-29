@@ -2303,6 +2303,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#magicgui.type_map._magicgui.MagicFactory.__get__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __get__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#magicgui.type_map._magicgui.MagicFactory.__getattr__" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3925,6 +3936,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#magicgui.type_map._magicgui.MagicFactory.__get__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __get__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#magicgui.type_map._magicgui.MagicFactory.__getattr__" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4081,6 +4103,30 @@ via the <a class="autorefs autorefs-internal" href="#magicgui.magic_factory"><co
     <div class="doc doc-contents ">
 
         <p>Call the wrapped _magicgui and return a FunctionGui.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="magicgui.type_map._magicgui.MagicFactory.__get__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__get__</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#magicgui.type_map._magicgui.MagicFactory.__get__" class="headerlink" title="Permanent link">#</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Provide descriptor protocol.</p>
+<p>This allows the <code>@magic_factory</code> decorator to work on a method as well as
+on a plain function.  Accessing the attribute on an instance returns a
+factory whose widgets bind the first parameter of the function to that
+instance, mirroring <code>FunctionGui.__get__</code>.</p>
+<p>Without this, <code>functools.partial.__get__</code> (added in Python 3.13) would
+bind the instance as the first <em>positional</em> argument of the factory,
+while on older versions the instance was simply never passed at all.</p>
 
     </div>
 
