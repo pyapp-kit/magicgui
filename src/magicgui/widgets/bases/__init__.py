@@ -45,12 +45,14 @@ from ._container_widget import (
     BaseContainerWidget,
     ContainerWidget,
     DialogWidget,
-    MainWindowWidget,
     ValuedContainerWidget,
 )
 from ._create_widget import create_widget
+from ._main_window import MainWindowWidget
+from ._menubar import MenuBarWidget, MenuWidget
 from ._ranged_widget import RangedWidget, TransformedRangedWidget
 from ._slider_widget import MultiValuedSliderWidget, SliderWidget
+from ._statusbar import StatusBarWidget
 from ._toolbar import ToolBarWidget
 from ._value_widget import BaseValueWidget, ValueWidget
 from ._widget import Widget
@@ -63,9 +65,12 @@ __all__ = [
     "ContainerWidget",
     "DialogWidget",
     "MainWindowWidget",
+    "MenuBarWidget",
+    "MenuWidget",
     "MultiValuedSliderWidget",
     "RangedWidget",
     "SliderWidget",
+    "StatusBarWidget",
     "ToolBarWidget",
     "TransformedRangedWidget",
     "ValueWidget",

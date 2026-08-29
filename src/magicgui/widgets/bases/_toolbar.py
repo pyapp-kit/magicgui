@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any
 
 from ._widget import Widget
 
 if TYPE_CHECKING:
     from magicgui.widgets import protocols
-
-T = TypeVar("T", int, float, tuple[Union[int, float], ...])
-DEFAULT_MIN = 0.0
-DEFAULT_MAX = 1000.0
 
 
 class ToolBarWidget(Widget):

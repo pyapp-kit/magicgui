@@ -40,9 +40,12 @@ from magicgui.widgets.bases import (
     ContainerWidget,
     DialogWidget,
     MainWindowWidget,
+    MenuBarWidget,
+    MenuWidget,
     MultiValuedSliderWidget,
     RangedWidget,
     SliderWidget,
+    StatusBarWidget,
     ToolBarWidget,
     TransformedRangedWidget,
     ValuedContainerWidget,
@@ -999,6 +1002,21 @@ class TupleEdit(ValuedContainerWidget[tuple]):
 @backend_widget
 class ToolBar(ToolBarWidget):
     """Toolbar that contains a set of controls."""
+
+
+@backend_widget
+class StatusBar(StatusBarWidget):
+    """Status bar that displays status information."""
+
+
+@backend_widget
+class MenuBar(MenuBarWidget):
+    """Menu bar that contains multiple menus."""
+
+
+@backend_widget
+class Menu(MenuWidget):
+    """A menu that contains actions."""
 
 
 class _LabeledWidget(Container):
