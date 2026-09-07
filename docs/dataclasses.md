@@ -20,13 +20,15 @@ boilerplate.
     ``` python title="Example dataclass"
     from dataclasses import dataclass
 
+
     @dataclass  # (1)!
     class Person:
-        name: str # (2)!
+        name: str  # (2)!
         age: int = 0  # (3)!
 
-    p = Person(name='John', age=30)  # (4)!
-    print(p) # (5)!
+
+    p = Person(name="John", age=30)  # (4)!
+    print(p)  # (5)!
     ```
 
     1. The `@dataclass` decorator is used to mark a class as a dataclass.  This
@@ -88,11 +90,13 @@ that has two additional features:
 ``` python
 from magicgui.experimental import guiclass
 
+
 @guiclass
 class MyDataclass:
     a: int = 0
-    b: str = 'hello'
+    b: str = "hello"
     c: bool = True
+
 
 obj = MyDataclass()
 obj.gui.show()
@@ -110,7 +114,7 @@ As you interact programmatically with the `obj` instance, the widgets in the
 
 ``` python
 obj = MyDataclass(a=10)
-obj.b = 'world'
+obj.b = "world"
 obj.c = False
 
 obj.gui.show()
@@ -141,15 +145,17 @@ Any additional keyword arguments to the `button` decorator will be passed to the
 ``` python
 from magicgui.experimental import guiclass, button
 
+
 @guiclass
 class Greeter:
     first_name: str
 
     @button
     def say_hello(self):
-        print(f'Hello {self.first_name}')
+        print(f"Hello {self.first_name}")
 
-greeter = Greeter('Talley')
+
+greeter = Greeter("Talley")
 greeter.gui.show()
 ```
 

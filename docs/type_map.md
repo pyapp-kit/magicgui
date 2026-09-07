@@ -46,17 +46,29 @@ import pint
 import enum
 
 types = [
-    bool, int, float, str, range, slice, list,
-    pathlib.Path, os.PathLike, Sequence[pathlib.Path],
-    datetime.time, datetime.timedelta, datetime.date, datetime.datetime,
-    Literal['a', 'b'], Set[Literal['a', 'b']], enum.Enum,
-    widgets.ProgressBar, pint.Quantity,
+    bool,
+    int,
+    float,
+    str,
+    range,
+    slice,
+    list,
+    pathlib.Path,
+    os.PathLike,
+    Sequence[pathlib.Path],
+    datetime.time,
+    datetime.timedelta,
+    datetime.date,
+    datetime.datetime,
+    Literal["a", "b"],
+    Set[Literal["a", "b"]],
+    enum.Enum,
+    widgets.ProgressBar,
+    pint.Quantity,
 ]
 
 wdg = widgets.Container(
-    widgets=[
-        widgets.create_widget(annotation=t, label=str(t)) for t in types
-    ]
+    widgets=[widgets.create_widget(annotation=t, label=str(t)) for t in types]
 )
 wdg.show()
 ```
@@ -109,6 +121,7 @@ Create a widget using standard type map:
     ```python
     from magicgui import magicgui
 
+
     @magicgui
     def my_widget(x: int = 42):
         return x
@@ -119,9 +132,11 @@ Create a widget using standard type map:
     ```python
     from magicgui.experimental import guiclass
 
+
     @guiclass
     class MyObject:
         x: int = 42
+
 
     obj = MyObject()
     my_widget = obj.gui
@@ -134,7 +149,7 @@ Customize a widget using [`typing.Annotated`][typing.Annotated]:
     ```python
     from typing import Annotated
 
-    Int10_50 = Annotated[int, (('widget_type', 'Slider'),('step', 10),('max', 50))]
+    Int10_50 = Annotated[int, (("widget_type", "Slider"), ("step", 10), ("max", 50))]
     wdg2 = widgets.create_widget(value=42, annotation=Int10_50)
     ```
 
@@ -144,11 +159,11 @@ Customize a widget using [`typing.Annotated`][typing.Annotated]:
     from magicgui import magicgui
     from typing import Annotated
 
-    Int10_50 = Annotated[int, (('widget_type', 'Slider'),('step', 10),('max', 50))]
+    Int10_50 = Annotated[int, (("widget_type", "Slider"), ("step", 10), ("max", 50))]
+
 
     @magicgui
-    def my_widget(x: Int10_50 = 42):
-        ...
+    def my_widget(x: Int10_50 = 42): ...
     ```
 
 === "guiclass decorator"
@@ -157,11 +172,13 @@ Customize a widget using [`typing.Annotated`][typing.Annotated]:
     from magicgui.experimental import guiclass
     from typing import Annotated
 
-    Int10_50 = Annotated[int, (('widget_type', 'Slider'),('step', 10),('max', 50))]
+    Int10_50 = Annotated[int, (("widget_type", "Slider"), ("step", 10), ("max", 50))]
+
 
     @guiclass
     class MyObject:
         x: Int10_50 = 42
+
 
     obj = MyObject()
     my_widget = obj.gui
@@ -174,7 +191,7 @@ Note that you may also customize widget creation with kwargs to
 from typing import Annotated
 from magicgui.widgets import Slider
 
-options = {'step': 10, 'max': 50}
+options = {"step": 10, "max": 50}
 wdg3 = widgets.create_widget(value=42, widget_type=Slider, options=options)
 wdg3.show()
 ```
@@ -182,9 +199,9 @@ wdg3.show()
 ... or to the [`magicgui`][magicgui.magicgui] decorator:
 
 ```python
-@magicgui(x={'widget_type': 'Slider', 'step': 10, 'max': 50})
-def my_widget(x: int = 42):
-    ...
+@magicgui(x={"widget_type": "Slider", "step": 10, "max": 50})
+def my_widget(x: int = 42): ...
+
 
 my_widget.show()
 ```
@@ -213,8 +230,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from mymodule import MyType
 
-def my_function(x: 'MyType') -> None:
-    ...
+
+def my_function(x: "MyType") -> None: ...
 ```
 
 ### :warning: `__future__.annotations`
@@ -233,9 +250,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from mymodule import MyType
 
+
 # no longer necessary to use quotes around 'MyType'
-def my_function(x: MyType) -> None:
-    ...
+def my_function(x: MyType) -> None: ...
 ```
 
 While this is a useful feature for developers, it does make it significantly
@@ -263,9 +280,9 @@ As a general rule, if you *must* use forward references or
     if TYPE_CHECKING:
         import mymodule
 
+
     # this is easier for magicgui to resolve
-    def my_function(x: mymodule.MyType) -> None:
-        ...
+    def my_function(x: mymodule.MyType) -> None: ...
     ```
 
 ## Registering Support for Custom Types

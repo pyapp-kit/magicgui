@@ -11,7 +11,7 @@ directly:
 ```python
 from magicgui.widgets import LineEdit
 
-line_edit = LineEdit(value='hello!')
+line_edit = LineEdit(value="hello!")
 line_edit.show()
 ```
 
@@ -21,7 +21,7 @@ widgets that comprise other widgets:
 ```python
 from magicgui.widgets import LineEdit, SpinBox, Container
 
-line_edit = LineEdit(value='hello!')
+line_edit = LineEdit(value="hello!")
 spin_box = SpinBox(value=400)
 container = Container(widgets=[line_edit, spin_box])
 container.show()
@@ -34,7 +34,7 @@ example that yields the same result as the one above:
 ```python
 from magicgui.widgets import create_widget
 
-x = 'hello!'
+x = "hello!"
 y = 400
 container = Container(widgets=[create_widget(i) for i in (x, y)])
 container.show()
@@ -136,11 +136,11 @@ wdg_list = [
     widgets.RangeEdit(value=range(0, 10, 2), label="RangeEdit:"),
     widgets.SliceEdit(value=slice(0, 10, 2), label="SliceEdit:"),
     widgets.DateTimeEdit(
-      value=datetime.datetime(1999, 12, 31, 11, 30), label="DateTimeEdit:"
+        value=datetime.datetime(1999, 12, 31, 11, 30), label="DateTimeEdit:"
     ),
     widgets.DateEdit(value=datetime.date(81, 2, 18), label="DateEdit:"),
     widgets.TimeEdit(value=datetime.time(12, 20), label="TimeEdit:"),
-    widgets.QuantityEdit(value='12 seconds', label="Quantity:")
+    widgets.QuantityEdit(value="12 seconds", label="Quantity:"),
 ]
 container = widgets.Container(widgets=wdg_list)
 container.max_height = 300
@@ -166,8 +166,8 @@ In addition to all of the `ValueWidget` attributes, `RangedWidget` attributes in
 | `range` | `tuple of float` | A convenience attribute for getting/setting the (min, max) simultaneously |
 
 ```python
-w1 = widgets.SpinBox(value=10, max=20, label='SpinBox:')
-w2 = widgets.FloatSpinBox(value=380, step=0.5, label='FloatSpinBox:')
+w1 = widgets.SpinBox(value=10, max=20, label="SpinBox:")
+w2 = widgets.FloatSpinBox(value=380, step=0.5, label="FloatSpinBox:")
 container = widgets.Container(widgets=[w1, w2])
 container.show()
 ```
@@ -191,9 +191,9 @@ In addition to all of the `RangedWidget` attributes, `SliderWidget` attributes i
 | `readout` | `bool` | Whether to show the value of the slider. By default, `True`. |
 
 ```python
-w1 = widgets.Slider(value=10, max=25, label='Slider:')
-w2 = widgets.FloatSlider(value=10.5, max=18.5, label='FloatSlider:')
-w3 = widgets.ProgressBar(value=80, max=100, label='ProgressBar:')
+w1 = widgets.Slider(value=10, max=25, label="Slider:")
+w2 = widgets.FloatSlider(value=10.5, max=18.5, label="FloatSlider:")
+w3 = widgets.ProgressBar(value=80, max=100, label="ProgressBar:")
 container = widgets.Container(widgets=[w1, w2, w3])
 container.show()
 ```
@@ -214,8 +214,8 @@ In addition to all of the `ValueWidget` attributes, `ButtonWidget` attributes in
 | `text` | `str` | The text to display on the button. If not provided, will use `name`. |
 
 ```python
-w1 = widgets.PushButton(value=True, text='PushButton Text')
-w2 = widgets.CheckBox(value=False, text='CheckBox Text')
+w1 = widgets.PushButton(value=True, text="PushButton Text")
+w2 = widgets.CheckBox(value=False, text="CheckBox Text")
 container = widgets.Container(widgets=[w1, w2])
 container.show()
 ```
@@ -244,10 +244,10 @@ In addition to all of the `ValueWidget` attributes, `CategoricalWidget` attribut
 | `current_choice` | `str` | The name associated with the current choice.  For instance, if `choices` was provided as `choices=[('one', 1), ('two', 2)]`, then an example `value` would be `1`, and an example `current_choice` would be `'one'`. |
 
 ```python
-choices = ['one', 'two', 'three']
-w1 = widgets.ComboBox(choices=choices, value='two', label='ComboBox:')
-w2 = widgets.RadioButtons(choices=choices, label='RadioButtons:')
-w3 = widgets.Select(choices=choices, label='Select:')
+choices = ["one", "two", "three"]
+w1 = widgets.ComboBox(choices=choices, value="two", label="ComboBox:")
+w2 = widgets.RadioButtons(choices=choices, label="RadioButtons:")
+w3 = widgets.Select(choices=choices, label="Select:")
 container = widgets.Container(widgets=[w1, w2, w3])
 container.max_height = 220
 container.show()
@@ -278,8 +278,8 @@ You can add and remove widgets from it just as you would add or remove items fro
 from magicgui.widgets import Container, Slider, FloatSlider, ProgressBar
 
 container = widgets.Container()
-container.append(widgets.LineEdit(value='Mookie', label='Your Name:'))
-container.append(widgets.FloatSlider(value=10.5, label='FloatSlider:'))
+container.append(widgets.LineEdit(value="Mookie", label="Your Name:"))
+container.append(widgets.FloatSlider(value=10.5, label="FloatSlider:"))
 container.show()
 ```
 
@@ -307,8 +307,10 @@ parameters in a decorated function.
 ```python
 from magicgui import magicgui
 
+
 @magicgui
-def my_function(x='hello', y=400): ...
+def my_function(x="hello", y=400): ...
+
 
 my_function.show()
 ```
@@ -319,13 +321,12 @@ to [`@magicgui`][magicgui.magicgui].
 ```python
 from inspect import signature
 
-def my_function(x='hello', y=400):
-  ...
+
+def my_function(x="hello", y=400): ...
+
 
 params = signature(my_function).parameters.values()
-container = Container(
-    widgets=[create_widget(p.default, name=p.name) for p in params]
-)
+container = Container(widgets=[create_widget(p.default, name=p.name) for p in params])
 container.show()
 ```
 
