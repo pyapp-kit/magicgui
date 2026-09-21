@@ -22,12 +22,14 @@ import math
 from enum import Enum
 from magicgui import magicgui
 
+
 # dropdown boxes are best made by creating an enum
 class Medium(Enum):
     Glass = 1.520
     Oil = 1.515
     Water = 1.333
     Air = 1.0003
+
 
 # decorate your function with the @magicgui decorator
 @magicgui(call_button="calculate")
@@ -40,7 +42,8 @@ def snells_law(aoi=30.0, n1=Medium.Glass, n2=Medium.Water, degrees=True):
         # beyond the critical angle
         return "Total internal reflection!"
 
-snells_law.show() # leave open
+
+snells_law.show()  # leave open
 ```
 
 The object returned by the `magicgui` decorator is an instance of [`magicgui.widgets.FunctionGui`][magicgui.widgets.FunctionGui].  It can still be called like the original function, but it also knows how to present itself as a GUI.
@@ -80,7 +83,7 @@ We can invoke the function in a few ways:
 * We can call the object just like the original function.
 
     ```python
-    snells_law()        # 34.7602
+    snells_law()  # 34.7602
     snells_law(aoi=12)  # 13.7142
     ```
 
@@ -133,6 +136,7 @@ def my_callback(value: str):
     # of the function call in the `value` attribute
     print(f"Your function was called! The result is: {value}")
 
+
 result = snells_law()
 ```
 
@@ -149,6 +153,7 @@ to the `<parameter_name>.changed` signal:
 @snells_law.n1.changed.connect
 def _on_n1_changed(x: Medium):
     print(f"n1 was changed to {x}")
+
 
 snells_law.n1.value = Medium.Air
 ```
@@ -179,6 +184,7 @@ is equivalent to this:
 ```python
 def function():
     pass
+
 
 function = magicgui(function, auto_call=True)
 ```
@@ -230,12 +236,15 @@ or connect [events](events.md).
 ```python
 from magicgui import magic_factory
 
+
 def _on_init(widget):
     print("widget created!", widget)
     widget.y.changed.connect(lambda x: print("y changed!", x))
 
+
 @magic_factory(widget_init=_on_init)
 def my_factory(x: int, y: str): ...
+
 
 new_widget = my_factory()
 ```
@@ -258,7 +267,7 @@ from magicgui.widgets import create_widget, Container
 from magicgui.types import Undefined
 
 
-def pseudo_magicgui(func: 'Callable'):
+def pseudo_magicgui(func: "Callable"):
     return Container(
         widgets=[
             create_widget(p.default, annotation=p.annotation, name=p.name)
@@ -266,8 +275,10 @@ def pseudo_magicgui(func: 'Callable'):
         ]
     )
 
-def some_func(x: int = 2, y: str = 'hello'):
+
+def some_func(x: int = 2, y: str = "hello"):
     return x, y
+
 
 my_widget = pseudo_magicgui(some_func)
 my_widget.show()

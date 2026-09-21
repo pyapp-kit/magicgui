@@ -23,7 +23,7 @@ widget's `changed` event:
     ```python
     from magicgui import widgets
 
-    text = widgets.LineEdit(value='type something')
+    text = widgets.LineEdit(value="type something")
     text.changed.connect(lambda val: print(f"Text changed to: {val}"))
     ```
 
@@ -32,9 +32,10 @@ widget's `changed` event:
     ```python
     from magicgui import magicgui
 
+
     @magicgui
-    def my_function(text: str):
-        ...
+    def my_function(text: str): ...
+
 
     my_function.text.changed.connect(lambda val: print(f"Text changed to: {val}"))
     ```
@@ -44,12 +45,14 @@ widget's `changed` event:
     ```python
     from magicgui import magic_factory
 
+
     def _on_init(widget):
         widget.text.changed.connect(lambda val: print(f"Text changed to: {val}"))
 
+
     @magic_factory(widget_init=_on_init)
-    def my_function(text: str):
-        ...
+    def my_function(text: str): ...
+
 
     my_widget = my_function()
     ```
@@ -67,10 +70,11 @@ widget's `changed` event:
     use it as a decorator if you prefer.
 
     ```python
-    text = widgets.LineEdit(value='type something')
+    text = widgets.LineEdit(value="type something")
 
     # this works
     text.changed.connect(lambda val: print(f"Text changed to: {val}"))
+
 
     # so does this
     @text.changed.connect

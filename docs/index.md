@@ -53,8 +53,7 @@ dataclasses simply by annotating them with standard python
     `str`, and the return value as a `list`.*
 
     ``` python
-    def my_function(param_a: int, param_b: str) -> list:
-        ...
+    def my_function(param_a: int, param_b: str) -> list: ...
     ```
 
     If you are new to type annotations in Python, here are a few resources to get
@@ -104,12 +103,13 @@ from magicgui import magicgui
 @magicgui
 def my_function(
     param_a: int,
-    param_b: Annotated[int, {'widget_type': "Slider", 'max': 100}] = 42,
-    param_c: Literal["First", "Second", "Third"] = "Second"
+    param_b: Annotated[int, {"widget_type": "Slider", "max": 100}] = 42,
+    param_c: Literal["First", "Second", "Third"] = "Second",
 ):
     print("param_a:", param_a)
     print("param_b:", param_b)
     print("param_c:", param_c)
+
 
 # my_function now IS a widget, in addition to being a callable function
 my_function.show()
@@ -129,17 +129,19 @@ when the `gui` attribute is accessed for the first time.)
 ```python
 from magicgui.experimental import guiclass, button
 
+
 @guiclass
 class MyDataclass:
     a: int = 0
-    b: str = 'hello'
+    b: str = "hello"
     c: bool = True
 
     @button
     def compute(self):
         print(self.a, self.b, self.c)
 
-obj = MyDataclass(a=10, b='foo')
+
+obj = MyDataclass(a=10, b="foo")
 obj.gui.show()
 ```
 
@@ -175,9 +177,11 @@ b = widgets.Slider(value=20, min=0, max=100, label="b")
 result = widgets.LineEdit(value=a.value * b.value, label="result")
 button = widgets.PushButton(text="multiply")
 
+
 @button.clicked.connect
 def on_button_click():
     result.value = a.value * b.value
+
 
 container = widgets.Container(widgets=[a, b, result, button])
 container.show()

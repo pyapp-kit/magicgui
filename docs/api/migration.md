@@ -34,8 +34,8 @@ value directly, you can do one of two things:
 
 ```python title="👍 New Method (>= v0.3.0)"
 @widget.changed.connect
-def my_callback(new_value: int):
-    ...  # use new_value directly
+def my_callback(new_value: int): ...  # use new_value directly
+
 
 # or, if you don't need to use new_value
 @widget.changed.connect
@@ -50,13 +50,13 @@ For the few packages who were manually emitting change events,
 you should no longer provide the `value=` keyword when emitting.
 
 ```python title="👎 Old Method (< v0.3.0)"
-widget.changed(value='whatever')
+widget.changed(value="whatever")
 ```
 
 ```python title="👍 New Method (>= v0.3.0)"
-widget.changed.emit('whatever')
+widget.changed.emit("whatever")
 # OR (if you prefer the direct __call__ syntax)
-widget.changed('whatever')
+widget.changed("whatever")
 ```
 
 ## v0.2.0 migration guide
@@ -76,9 +76,10 @@ instantiated [`magicgui.widgets.Widget`][magicgui.widgets.Widget].
 ```python title="👎 Old Method (< v0.2.0)"
 from magicgui import magicgui, event_loop
 
+
 @magicgui
-def function(x, y):
-    ...
+def function(x, y): ...
+
 
 with event_loop():
     gui = function.Gui(show=True)
@@ -87,9 +88,10 @@ with event_loop():
 ```python title="👍 New Method (>= v0.2.0)"
 from magicgui import magicgui
 
+
 @magicgui
-def function(x, y):
-    ...
+def function(x, y): ...
+
 
 function.show(run=True)
 ```
@@ -109,11 +111,11 @@ to use `widget.native` instead of `widget`
 ```python
 from magicgui import magicgui, use_app
 
-use_app('qt')
+use_app("qt")
+
 
 @magicgui
-def function(x, y):
-    ...
+def function(x, y): ...
 ```
 
 ```python
@@ -134,13 +136,14 @@ show *multiple* widgets next to each other, then you would still want to use the
 ```python
 from magicgui import magicgui, event_loop
 
-@magicgui
-def function_a(x=1, y=3):
-    ...
 
 @magicgui
-def function_b(z='asdf'):
-    ...
+def function_a(x=1, y=3): ...
+
+
+@magicgui
+def function_b(z="asdf"): ...
+
 
 with event_loop():
     function_a.show()

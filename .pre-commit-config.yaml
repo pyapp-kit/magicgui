@@ -16,13 +16,13 @@ repos:
         files: "^\\.github/workflows/.*\\.ya?ml$"
 
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.49.0
+    rev: v1.50.1
     hooks:
       - id: typos
         args: [--force-exclude] # omitting --write-changes
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.4
+    rev: v0.16.6
     hooks:
       - id: ruff-check
         args: ["--fix", "--unsafe-fixes"]
