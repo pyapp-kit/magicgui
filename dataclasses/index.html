@@ -3967,13 +3967,15 @@ for the <code>dataclasses</code> module, or
 The following is a very brief example of the key features:</p>
 <div class="highlight"><span class="filename">Example dataclass</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
+
 <span class="nd">@dataclass</span>  <span class="c1"># (1)!</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">:</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="c1"># (2)!</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># (2)!</span>
     <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># (3)!</span>
 
-<span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'John'</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># (4)!</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="c1"># (5)!</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"John"</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># (4)!</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>  <span class="c1"># (5)!</span>
 </code></pre></div>
 <ol>
 <li>The <code>@dataclass</code> decorator is used to mark a class as a dataclass.  This
@@ -4035,11 +4037,13 @@ and <a href="https://traitlets.readthedocs.io/en/stable/api.html#traitlets.HasTr
 </div>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">guiclass</span>
 
+
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyDataclass</span><span class="p">:</span>
     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'hello'</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hello"</span>
     <span class="n">c</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">()</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -4053,7 +4057,7 @@ that controls the value of the <code>a</code> attribute.</p>
 <code>obj.gui</code> will update.  Similarly, as you change the value of the widgets in the
 <code>obj.gui</code>, the values of the <code>obj</code> instance will be updated.</p>
 <p><div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">obj</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s1">'world'</span>
+<span class="n">obj</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s2">"world"</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="n">obj</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -4081,15 +4085,17 @@ to position the button in the layout will be added in the future.</p>
 <a class="autorefs autorefs-internal" href="../api/widgets/PushButton/#magicgui.widgets.PushButton"><code>magicgui.widgets.PushButton</code></a> constructor (e.g. <code>label</code>, <code>tooltip</code>, etc.)</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">guiclass</span><span class="p">,</span> <span class="n">button</span>
 
+
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Greeter</span><span class="p">:</span>
     <span class="n">first_name</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="nd">@button</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-<span class="n">greeter</span> <span class="o">=</span> <span class="n">Greeter</span><span class="p">(</span><span class="s1">'Talley'</span><span class="p">)</span>
+
+<span class="n">greeter</span> <span class="o">=</span> <span class="n">Greeter</span><span class="p">(</span><span class="s2">"Talley"</span><span class="p">)</span>
 <span class="n">greeter</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/dataclasses_2.png" /></p>

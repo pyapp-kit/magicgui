@@ -4085,8 +4085,8 @@ value directly, you can do one of two things:</p>
 <li>provide a callback that takes no arguments</li>
 </ol>
 <div class="highlight"><span class="filename">👍 New Method (&gt;= v0.3.0)</span><pre><span></span><code><span class="nd">@widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_callback</span><span class="p">(</span><span class="n">new_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="o">...</span>  <span class="c1"># use new_value directly</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_callback</span><span class="p">(</span><span class="n">new_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="o">...</span>  <span class="c1"># use new_value directly</span>
+
 
 <span class="c1"># or, if you don't need to use new_value</span>
 <span class="nd">@widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
@@ -4097,11 +4097,11 @@ value directly, you can do one of two things:</p>
 <h3 id="event-emitters-take-no-keyword-arguments">Event emitters take no keyword arguments<a class="headerlink" href="#event-emitters-take-no-keyword-arguments" title="Permanent link">#</a></h3>
 <p>For the few packages who were manually emitting change events,
 you should no longer provide the <code>value=</code> keyword when emitting.</p>
-<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">'whatever'</span><span class="p">)</span>
+<div class="highlight"><span class="filename">👎 Old Method (&lt; v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">"whatever"</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">'whatever'</span><span class="p">)</span>
+<div class="highlight"><span class="filename">👍 New Method (&gt;= v0.3.0)</span><pre><span></span><code><span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s2">"whatever"</span><span class="p">)</span>
 <span class="c1"># OR (if you prefer the direct __call__ syntax)</span>
-<span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="s1">'whatever'</span><span class="p">)</span>
+<span class="n">widget</span><span class="o">.</span><span class="n">changed</span><span class="p">(</span><span class="s2">"whatever"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="v020-migration-guide">v0.2.0 migration guide<a class="headerlink" href="#v020-migration-guide" title="Permanent link">#</a></h2>
 <p><em>December, 2020</em></p>
@@ -4114,18 +4114,20 @@ the object returned from the <a class="autorefs autorefs-internal" href="../magi
 instantiated <a class="autorefs autorefs-internal" href="../widgets/bases/#magicgui.widgets.bases.Widget"><code>magicgui.widgets.Widget</code></a>.</p>
 <div class="highlight"><span class="filename">👎 Old Method (&lt; v0.2.0)</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">event_loop</span>
 
+
 <span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="o">...</span>
+
 
 <span class="k">with</span> <span class="n">event_loop</span><span class="p">():</span>
     <span class="n">gui</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">Gui</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><span class="filename">👍 New Method (&gt;= v0.2.0)</span><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
 
+
 <span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="o">...</span>
+
 
 <span class="n">function</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
@@ -4140,11 +4142,11 @@ magicgui widgets into a larger Qt-based GUI, please note that you will want
 to use</code>widget.native<code>instead of</code>widget`</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">use_app</span>
 
-<span class="n">use_app</span><span class="p">(</span><span class="s1">'qt'</span><span class="p">)</span>
+<span class="n">use_app</span><span class="p">(</span><span class="s2">"qt"</span><span class="p">)</span>
+
 
 <span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="o">...</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">function</span><span class="p">))</span>
 <span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="err">'</span><span class="nc">magicgui</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">FunctionGui</span><span class="s1">'&gt;</span>
@@ -4159,13 +4161,14 @@ show <em>multiple</em> widgets next to each other, then you would still want to 
 <code>event_loop</code> context manager:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span><span class="p">,</span> <span class="n">event_loop</span>
 
-<span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">function_a</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
-    <span class="o">...</span>
 
 <span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">function_b</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s1">'asdf'</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function_a</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span> <span class="o">...</span>
+
+
+<span class="nd">@magicgui</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">function_b</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s2">"asdf"</span><span class="p">):</span> <span class="o">...</span>
+
 
 <span class="k">with</span> <span class="n">event_loop</span><span class="p">():</span>
     <span class="n">function_a</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>

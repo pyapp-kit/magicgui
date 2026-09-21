@@ -4202,42 +4202,42 @@ corresponding <code>Widget</code> class, and parametrized with the corresponding
 </thead>
 <tbody>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool"><code>bool</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool"><code>bool</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/Slider/#magicgui.widgets.Slider"><code>Slider</code></a></td>
 <td></td>
 </tr>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int"><code>int</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int"><code>int</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/Slider/#magicgui.widgets.Slider"><code>Slider</code></a></td>
 <td></td>
 </tr>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float"><code>float</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float"><code>float</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/FloatSlider/#magicgui.widgets.FloatSlider"><code>FloatSlider</code></a></td>
 <td></td>
 </tr>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str"><code>str</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str"><code>str</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/LineEdit/#magicgui.widgets.LineEdit"><code>LineEdit</code></a></td>
 <td></td>
 </tr>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#range"><code>range</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#range"><code>range</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/RangeEdit/#magicgui.widgets.RangeEdit"><code>RangeEdit</code></a></td>
 <td></td>
 </tr>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#slice"><code>slice</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#slice"><code>slice</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/SliceEdit/#magicgui.widgets.SliceEdit"><code>SliceEdit</code></a></td>
 <td></td>
 </tr>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list"><code>list</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list"><code>list</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/ListEdit/#magicgui.widgets.ListEdit"><code>ListEdit</code></a></td>
 <td></td>
 </tr>
 <tr>
-<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple"><code>tuple</code></a></td>
+<td><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple"><code>tuple</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/TupleEdit/#magicgui.widgets.TupleEdit"><code>TupleEdit</code></a></td>
 <td></td>
 </tr>
@@ -4294,7 +4294,7 @@ corresponding <code>Widget</code> class, and parametrized with the corresponding
 <tr>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/ProgressBar/#magicgui.widgets.ProgressBar"><code>magicgui.widgets.ProgressBar</code></a></td>
 <td><a class="autorefs autorefs-internal" href="../api/widgets/ProgressBar/#magicgui.widgets.ProgressBar"><code>ProgressBar</code></a></td>
-<td><code>{'bind': &lt;function TypeMap.match_type.&lt;locals&gt;.&lt;lambda&gt; at 0x12965c900&gt;, 'visible': True}</code></td>
+<td><code>{'bind': &lt;function TypeMap.match_type.&lt;locals&gt;.&lt;lambda&gt; at 0x12a7474c0&gt;, 'visible': True}</code></td>
 </tr>
 <tr>
 <td><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/types.html#types.FunctionType"><code>types.FunctionType</code></a></td>
@@ -4319,17 +4319,29 @@ corresponding <code>Widget</code> class, and parametrized with the corresponding
 <span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
 
 <span class="n">types</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span>
-    <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span>
-    <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
-    <span class="n">Literal</span><span class="p">[</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">]],</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">,</span>
-    <span class="n">widgets</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">Quantity</span><span class="p">,</span>
+    <span class="nb">bool</span><span class="p">,</span>
+    <span class="nb">int</span><span class="p">,</span>
+    <span class="nb">float</span><span class="p">,</span>
+    <span class="nb">str</span><span class="p">,</span>
+    <span class="nb">range</span><span class="p">,</span>
+    <span class="nb">slice</span><span class="p">,</span>
+    <span class="nb">list</span><span class="p">,</span>
+    <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span>
+    <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+    <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span>
+    <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span>
+    <span class="n">Set</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">]],</span>
+    <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">,</span>
+    <span class="n">widgets</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">,</span>
+    <span class="n">pint</span><span class="o">.</span><span class="n">Quantity</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="n">wdg</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Container</span><span class="p">(</span>
-    <span class="n">widgets</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">annotation</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span>
-    <span class="p">]</span>
+    <span class="n">widgets</span><span class="o">=</span><span class="p">[</span><span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">annotation</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span><span class="p">]</span>
 <span class="p">)</span>
 <span class="n">wdg</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
@@ -4405,6 +4417,7 @@ valid for the corresponding widget type).</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
 
+
 <span class="nd">@magicgui</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_widget</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">x</span>
@@ -4413,9 +4426,11 @@ valid for the corresponding widget type).</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">guiclass</span>
 
+
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyObject</span><span class="p">:</span>
     <span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
 <span class="n">my_widget</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">gui</span>
@@ -4429,7 +4444,7 @@ valid for the corresponding widget type).</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
-<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">'widget_type'</span><span class="p">,</span> <span class="s1">'Slider'</span><span class="p">),(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">'max'</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s2">"widget_type"</span><span class="p">,</span> <span class="s2">"Slider"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"step"</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="s2">"max"</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
 <span class="n">wdg2</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="n">Int10_50</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -4437,22 +4452,24 @@ valid for the corresponding widget type).</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
-<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">'widget_type'</span><span class="p">,</span> <span class="s1">'Slider'</span><span class="p">),(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">'max'</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s2">"widget_type"</span><span class="p">,</span> <span class="s2">"Slider"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"step"</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="s2">"max"</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+
 
 <span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_widget</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Int10_50</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_widget</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Int10_50</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span> <span class="o">...</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">guiclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
-<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s1">'widget_type'</span><span class="p">,</span> <span class="s1">'Slider'</span><span class="p">),(</span><span class="s1">'step'</span><span class="p">,</span> <span class="mi">10</span><span class="p">),(</span><span class="s1">'max'</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+<span class="n">Int10_50</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">((</span><span class="s2">"widget_type"</span><span class="p">,</span> <span class="s2">"Slider"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"step"</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="s2">"max"</span><span class="p">,</span> <span class="mi">50</span><span class="p">))]</span>
+
 
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyObject</span><span class="p">:</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">Int10_50</span> <span class="o">=</span> <span class="mi">42</span>
+
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
 <span class="n">my_widget</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">gui</span>
@@ -4465,15 +4482,15 @@ valid for the corresponding widget type).</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Slider</span>
 
-<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'step'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"step"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
 <span class="n">wdg3</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">create_widget</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">widget_type</span><span class="o">=</span><span class="n">Slider</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="n">wdg3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/type_map_1.png" /></p>
 <p>... or to the <a class="autorefs autorefs-internal" href="../api/magicgui/#magicgui.magicgui"><code>magicgui</code></a> decorator:</p>
-<p><div class="highlight"><pre><span></span><code><span class="nd">@magicgui</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">{</span><span class="s1">'widget_type'</span><span class="p">:</span> <span class="s1">'Slider'</span><span class="p">,</span> <span class="s1">'step'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">:</span> <span class="mi">50</span><span class="p">})</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_widget</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
-    <span class="o">...</span>
+<p><div class="highlight"><pre><span></span><code><span class="nd">@magicgui</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">{</span><span class="s2">"widget_type"</span><span class="p">:</span> <span class="s2">"Slider"</span><span class="p">,</span> <span class="s2">"step"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">:</span> <span class="mi">50</span><span class="p">})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_widget</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span> <span class="o">...</span>
+
 
 <span class="n">my_widget</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
@@ -4494,8 +4511,8 @@ may be expressed as a string literal, to be resolved later.  This is called a
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">mymodule</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyType</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="s1">'MyType'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="s2">"MyType"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 </code></pre></div>
 <h3 id="__future__annotations"><img alt="⚠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a0.svg" title=":warning:" /> <code>__future__.annotations</code><a class="headerlink" href="#__future__annotations" title="Permanent link">#</a></h3>
 <p>In Python 3.7, the <code>__future__.annotations</code> feature was introduced (<a href="https://peps.python.org/pep-0563/">PEP
@@ -4510,9 +4527,9 @@ strings (regardless of whether they are enclosed in quotes or not).</p>
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">mymodule</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyType</span>
 
+
 <span class="c1"># no longer necessary to use quotes around 'MyType'</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">MyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">MyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 </code></pre></div>
 <p>While this is a useful feature for developers, it does make it significantly
 more difficult to <em>use</em> those type annotations at runtime.</p>
@@ -4535,9 +4552,9 @@ more difficult to <em>use</em> those type annotations at runtime.</p>
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">mymodule</span>
 
+
 <span class="c1"># this is easier for magicgui to resolve</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">mymodule</span><span class="o">.</span><span class="n">MyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">mymodule</span><span class="o">.</span><span class="n">MyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 </code></pre></div>
 </li>
 </ul>

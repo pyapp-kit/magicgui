@@ -3858,16 +3858,17 @@ widget's <code>changed</code> event:</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">widgets</span>
 
-<span class="n">text</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">LineEdit</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">'type something'</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">LineEdit</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">"type something"</span><span class="p">)</span>
 <span class="n">text</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Text changed to: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
 
+
 <span class="nd">@magicgui</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
+
 
 <span class="n">my_function</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Text changed to: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
 </code></pre></div>
@@ -3875,12 +3876,14 @@ widget's <code>changed</code> event:</p>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magic_factory</span>
 
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_on_init</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
     <span class="n">widget</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Text changed to: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
 
+
 <span class="nd">@magic_factory</span><span class="p">(</span><span class="n">widget_init</span><span class="o">=</span><span class="n">_on_init</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
+
 
 <span class="n">my_widget</span> <span class="o">=</span> <span class="n">my_function</span><span class="p">()</span>
 </code></pre></div>
@@ -3899,10 +3902,11 @@ reference.</p>
 <p class="admonition-title">Tip</p>
 <p>Note that <code>connect</code> returns the callable that it was passed, so you can
 use it as a decorator if you prefer.</p>
-<div class="highlight"><pre><span></span><code><span class="n">text</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">LineEdit</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s1">'type something'</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">text</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">LineEdit</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">"type something"</span><span class="p">)</span>
 
 <span class="c1"># this works</span>
 <span class="n">text</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Text changed to: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+
 
 <span class="c1"># so does this</span>
 <span class="nd">@text</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>

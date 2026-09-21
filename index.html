@@ -4054,8 +4054,7 @@ can use them to check your code and/or provide additional functionality.</p>
 function argument.</p>
 <p><em>In the example below, <code>param_a</code> has been annotated as an <code>int</code>, <code>param_b</code> as a
 <code>str</code>, and the return value as a <code>list</code>.</em></p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">param_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">param_b</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-    <span class="o">...</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">param_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">param_b</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span> <span class="o">...</span>
 </code></pre></div>
 <p>If you are new to type annotations in Python, here are a few resources to get
 you started:</p>
@@ -4097,12 +4096,13 @@ autogenerate a compound Widget based on the parameters of a function:</p>
 <span class="nd">@magicgui</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span>
     <span class="n">param_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">param_b</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">{</span><span class="s1">'widget_type'</span><span class="p">:</span> <span class="s2">"Slider"</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">:</span> <span class="mi">100</span><span class="p">}]</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
-    <span class="n">param_c</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"First"</span><span class="p">,</span> <span class="s2">"Second"</span><span class="p">,</span> <span class="s2">"Third"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Second"</span>
+    <span class="n">param_b</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">{</span><span class="s2">"widget_type"</span><span class="p">:</span> <span class="s2">"Slider"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">:</span> <span class="mi">100</span><span class="p">}]</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="n">param_c</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"First"</span><span class="p">,</span> <span class="s2">"Second"</span><span class="p">,</span> <span class="s2">"Third"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Second"</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"param_a:"</span><span class="p">,</span> <span class="n">param_a</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"param_b:"</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"param_c:"</span><span class="p">,</span> <span class="n">param_c</span><span class="p">)</span>
+
 
 <span class="c1"># my_function now IS a widget, in addition to being a callable function</span>
 <span class="n">my_function</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -4118,17 +4118,19 @@ that can be used to control the dataclass instance.  (The widget is only created
 when the <code>gui</code> attribute is accessed for the first time.)</p>
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">guiclass</span><span class="p">,</span> <span class="n">button</span>
 
+
 <span class="nd">@guiclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyDataclass</span><span class="p">:</span>
     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'hello'</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hello"</span>
     <span class="n">c</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="nd">@button</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
 
-<span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s1">'foo'</span><span class="p">)</span>
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">MyDataclass</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">"foo"</span><span class="p">)</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" class="code-image" src="_images/index_3.png" /></p>
@@ -4158,9 +4160,11 @@ environments (such as a desktop app, or a Jupyter notebook).</p>
 <span class="n">result</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">LineEdit</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"result"</span><span class="p">)</span>
 <span class="n">button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">PushButton</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"multiply"</span><span class="p">)</span>
 
+
 <span class="nd">@button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">on_button_click</span><span class="p">():</span>
     <span class="n">result</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span>
+
 
 <span class="n">container</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Container</span><span class="p">(</span><span class="n">widgets</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">button</span><span class="p">])</span>
 <span class="n">container</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>

@@ -4080,12 +4080,14 @@ using the type of the default value otherwise.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magicgui</span>
 
+
 <span class="c1"># dropdown boxes are best made by creating an enum</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Medium</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">Glass</span> <span class="o">=</span> <span class="mf">1.520</span>
     <span class="n">Oil</span> <span class="o">=</span> <span class="mf">1.515</span>
     <span class="n">Water</span> <span class="o">=</span> <span class="mf">1.333</span>
     <span class="n">Air</span> <span class="o">=</span> <span class="mf">1.0003</span>
+
 
 <span class="c1"># decorate your function with the @magicgui decorator</span>
 <span class="nd">@magicgui</span><span class="p">(</span><span class="n">call_button</span><span class="o">=</span><span class="s2">"calculate"</span><span class="p">)</span>
@@ -4098,7 +4100,8 @@ using the type of the default value otherwise.</p>
         <span class="c1"># beyond the critical angle</span>
         <span class="k">return</span> <span class="s2">"Total internal reflection!"</span>
 
-<span class="n">snells_law</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">snells_law</span><span class="o">.</span><span class="n">show</span><span class="p">()</span> 
 </code></pre></div>
 <img alt="" class="code-image" src="../_images/decorators_0.png" /></p>
 <p>The object returned by the <code>magicgui</code> decorator is an instance of <a class="autorefs autorefs-internal" href="../api/widgets/FunctionGui/#magicgui.widgets.FunctionGui"><code>magicgui.widgets.FunctionGui</code></a>.  It can still be called like the original function, but it also knows how to present itself as a GUI.</p>
@@ -4129,7 +4132,7 @@ much like the original object as possible.</p>
 </li>
 <li>
 <p>We can call the object just like the original function.</p>
-<div class="highlight"><pre><span></span><code><span class="n">snells_law</span><span class="p">()</span>        <span class="c1"># 34.7602</span>
+<div class="highlight"><pre><span></span><code><span class="n">snells_law</span><span class="p">()</span>  <span class="c1"># 34.7602</span>
 <span class="n">snells_law</span><span class="p">(</span><span class="n">aoi</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>  <span class="c1"># 13.7142</span>
 </code></pre></div>
 <p>Now however, the current values from the GUI will be used as the default
@@ -4173,6 +4176,7 @@ can <code>connect</code> to an arbitrary callback function:</p>
     <span class="c1"># of the function call in the `value` attribute</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Your function was called! The result is: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
+
 <span class="n">result</span> <span class="o">=</span> <span class="n">snells_law</span><span class="p">()</span>
 </code></pre></div>
 <p>Now when you call <code>snells_law()</code>, or click the <code>calculate</code> button in the gui,
@@ -4184,6 +4188,7 @@ to the <code>&lt;parameter_name&gt;.changed</code> signal:</p>
 <span class="nd">@snells_law</span><span class="o">.</span><span class="n">n1</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_on_n1_changed</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Medium</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"n1 was changed to </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
 
 <span class="n">snells_law</span><span class="o">.</span><span class="n">n1</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">Medium</span><span class="o">.</span><span class="n">Air</span>
 </code></pre></div>
@@ -4207,6 +4212,7 @@ argument</a>:</p>
 <p>is equivalent to this:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">function</span><span class="p">():</span>
     <span class="k">pass</span>
+
 
 <span class="n">function</span> <span class="o">=</span> <span class="n">magicgui</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">auto_call</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
@@ -4245,12 +4251,15 @@ factory is called.  This is a convenient place to add additional initialization
 or connect <a href="../events/">events</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">magicgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">magic_factory</span>
 
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_on_init</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"widget created!"</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
     <span class="n">widget</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"y changed!"</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
 
+
 <span class="nd">@magic_factory</span><span class="p">(</span><span class="n">widget_init</span><span class="o">=</span><span class="n">_on_init</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_factory</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
+
 
 <span class="n">new_widget</span> <span class="o">=</span> <span class="n">my_factory</span><span class="p">()</span>
 </code></pre></div>
@@ -4266,7 +4275,7 @@ parameter in the function signature.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">magicgui.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Undefined</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">pseudo_magicgui</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="s1">'Callable'</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pseudo_magicgui</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="s2">"Callable"</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">Container</span><span class="p">(</span>
         <span class="n">widgets</span><span class="o">=</span><span class="p">[</span>
             <span class="n">create_widget</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">annotation</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -4274,8 +4283,10 @@ parameter in the function signature.</p>
         <span class="p">]</span>
     <span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">some_func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'hello'</span><span class="p">):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">some_func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hello"</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+
 
 <span class="n">my_widget</span> <span class="o">=</span> <span class="n">pseudo_magicgui</span><span class="p">(</span><span class="n">some_func</span><span class="p">)</span>
 <span class="n">my_widget</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
