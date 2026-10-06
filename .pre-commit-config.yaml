@@ -16,20 +16,20 @@ repos:
         files: "^\\.github/workflows/.*\\.ya?ml$"
 
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.50.1
+    rev: v1.50.3
     hooks:
       - id: typos
         args: [--force-exclude] # omitting --write-changes
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.6
+    rev: v0.16.10
     hooks:
       - id: ruff-check
         args: ["--fix", "--unsafe-fixes"]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.3.1
+    rev: v2.4.0
     hooks:
       - id: mypy
         files: "^src/"
