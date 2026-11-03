@@ -229,7 +229,7 @@ class UiField(Generic[T]):
     )
 
     # # Keywords for Mapping (Object) Instances
-    # # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-obj  # noqa
+    # # https://json-schema.org/draft/2020-12/json-schema-validation.html#name-validation-keywords-for-obj
     # max_properties: int | None = field(
     #     default=None,
     #     metadata=dict(description="The maximum allowed number of keys. Must be >= 0.")
