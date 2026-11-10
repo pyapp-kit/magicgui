@@ -848,7 +848,12 @@ class Slider(_Slider):
 
         no_buttons = QtW.QAbstractSpinBox.ButtonSymbols.NoButtons
         self._readout_widget.setButtonSymbols(no_buttons)
-        self._readout_widget.setStyleSheet("background:transparent; border: 0;")
+        # style the inner line edit rather than the spinbox itself: on Qt 6.12, a
+        # `border` rule on a button-less spinbox shrinks its line edit to 1px (#750)
+        self._readout_widget.setFrame(False)
+        self._readout_widget.lineEdit().setStyleSheet(
+            "background:transparent; border: 0;"
+        )
 
         self._qwidget.valueChanged.connect(self._on_slider_change)
         self._readout_widget.editingFinished.connect(self._on_readout_change)
