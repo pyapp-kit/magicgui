@@ -1154,6 +1154,17 @@ def test_float_slider_readout():
     assert sld._widget._readout_widget.maximum() == 10.5
 
 
+@pytest.mark.parametrize("cls", [widgets.Slider, widgets.FloatSlider])
+def test_slider_readout_not_clipped(cls):
+    """Readout text must fit in its line edit (#750: 1px wide on Qt 6.12)."""
+    sld = cls(value=10)
+    sld.show()
+    line_edit = sld._widget._readout_widget.lineEdit()
+    text_width = line_edit.fontMetrics().horizontalAdvance(line_edit.text())
+    assert line_edit.width() >= text_width
+    sld.close()
+
+
 def test_toolbar():
     tb = widgets.ToolBar()
     tb.add_button("test", callback=lambda: None)
