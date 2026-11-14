@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import math
+import platform
 import re
+import sys
 import warnings
 from collections.abc import Callable
 from contextlib import contextmanager, suppress
@@ -30,6 +32,14 @@ from magicgui.types import FileDialogMode, Separator
 from magicgui.widgets import protocols
 from magicgui.widgets._concrete import _LabeledWidget
 from magicgui.widgets.bases import MenuWidget, Widget
+
+# superqt's workaround for sliders on macOS 12+ with Qt 5 (QTBUG-98093, which Qt
+# 6.2.3 fixed): it restyles the sliders, so it's only applied where it's needed
+_PATCH_MAC_SLIDERS = (
+    qtpy.QT5
+    and sys.platform == "darwin"
+    and int(platform.mac_ver()[0].split(".", maxsplit=1)[0]) >= 12
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
@@ -979,8 +989,7 @@ class RangeSlider(_Slider):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(superqt.QLabeledRangeSlider, **kwargs)
-        if hasattr(self._qwidget, "applyMacStylePatch"):
-            # >= magicgui v0.5.2
+        if _PATCH_MAC_SLIDERS:
             self._qwidget.applyMacStylePatch()
 
     def _mgui_set_readout_visibility(self, value: bool):
@@ -1009,8 +1018,7 @@ class FloatRangeSlider(RangeSlider):
 
     def __init__(self, **kwargs: Any) -> None:
         _Slider.__init__(self, superqt.QLabeledDoubleRangeSlider, **kwargs)
-        if hasattr(self._qwidget, "applyMacStylePatch"):
-            # >= magicgui v0.5.2
+        if _PATCH_MAC_SLIDERS:
             self._qwidget.applyMacStylePatch()
 
 
